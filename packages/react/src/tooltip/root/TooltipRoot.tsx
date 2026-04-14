@@ -8,7 +8,7 @@ import { useClientPoint, useDismiss, useInteractions } from '../../floating-ui-r
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
+} from '../../internals/createBaseUIEventDetails';
 import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
@@ -16,11 +16,11 @@ import {
 } from '../../utils/popups';
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Groups all parts of the tooltip.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
@@ -86,6 +86,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   useImplicitActiveTrigger(store);
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
+  const floatingRootContext = store.select('floatingRootContext');
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
@@ -131,8 +132,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
     [forceUnmount, handleImperativeClose],
   );
-
-  const floatingRootContext = store.useState('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
@@ -238,7 +237,7 @@ export interface TooltipRootProps<Payload = unknown> {
   /**
    * ID of the trigger that the tooltip is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled tooltip.
-   * There's no need to specify this prop when the tooltip is uncontrolled (i.e. when the `open` prop is not set).
+   * There's no need to specify this prop when the tooltip is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: string | null | undefined;
   /**

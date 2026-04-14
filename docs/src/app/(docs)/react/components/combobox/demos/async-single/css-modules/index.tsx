@@ -59,6 +59,9 @@ export default function ExampleAsyncSingleCombobox() {
     return 'Try a different search term.';
   }
 
+  const status = getStatus();
+  const emptyMessage = getEmptyMessage();
+
   return (
     <Combobox.Root
       items={items}
@@ -125,22 +128,26 @@ export default function ExampleAsyncSingleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            <Combobox.Status className={styles.Status}>{getStatus()}</Combobox.Status>
-            <Combobox.Empty className={styles.Empty}>{getEmptyMessage()}</Combobox.Empty>
+            <Combobox.Status>
+              {status ? <div className={styles.Status}>{status}</div> : null}
+            </Combobox.Status>
+            <Combobox.Empty>
+              {emptyMessage ? <div className={styles.Empty}>{emptyMessage}</div> : null}
+            </Combobox.Empty>
             <Combobox.List>
               {(user: DirectoryUser) => (
                 <Combobox.Item key={user.id} className={styles.Item} value={user}>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>
-                    <div className={styles.ItemTitle}>{user.name}</div>
-                    <div className={styles.ItemSubtitle}>
+                  <span className={styles.ItemText}>
+                    <span className={styles.ItemTitle}>{user.name}</span>
+                    <span className={styles.ItemSubtitle}>
                       <span className={styles.ItemUsername}>@{user.username}</span>
                       <span>{user.title}</span>
-                    </div>
-                    <div className={styles.ItemEmail}>{user.email}</div>
-                  </div>
+                    </span>
+                    <span className={styles.ItemEmail}>{user.email}</span>
+                  </span>
                 </Combobox.Item>
               )}
             </Combobox.List>

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
-import { getFloatingFocusElement } from '../utils';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { getFloatingFocusElement } from '../utils/element';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import type { ExtendedUserProps } from './useInteractions';
-import { EMPTY_OBJECT } from '../../utils/constants';
 
 type AriaRole = 'tooltip' | 'dialog' | 'alertdialog' | 'menu' | 'listbox' | 'grid' | 'tree';
 type ComponentRole = 'select' | 'label' | 'combobox';

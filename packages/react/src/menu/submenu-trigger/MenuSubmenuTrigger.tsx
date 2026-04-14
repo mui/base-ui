@@ -1,18 +1,22 @@
 'use client';
 import * as React from 'react';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import {
   safePolygon,
   useClick,
   useHoverReferenceInteraction,
   useInteractions,
 } from '../../floating-ui-react';
-import { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
@@ -37,6 +41,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     delay = 100,
     closeDelay = 0,
     disabled: disabledProp = false,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -77,6 +82,19 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     [store],
   );
 
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      const element = triggerElementRef.current;
+      if (element && isElementDisabled(element) && !disabledProp) {
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        warn(
+          `A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the \`disabled\` prop on the component instead of setting it on the rendered element.${ownerStackMessage}`,
+        );
+      }
+    });
+  }
+
   const submenuRootContext = useMenuSubmenuRootContext();
   if (!submenuRootContext?.parentMenu) {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
@@ -111,7 +129,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
   });
 
   const hoverEnabled = store.useState('hoverEnabled');
@@ -126,6 +144,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     delay: allowMouseEnter ? { open: delay, close: closeDelay } : 0,
     triggerElementRef,
     externalTree: floatingTreeRoot,
+    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const click = useClick(floatingRootContext, {

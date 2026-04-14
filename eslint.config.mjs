@@ -21,7 +21,7 @@ const OneLevelImportMessage = [
 
 const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
   {
-    group: ['@base-ui/react/*/*'],
+    regex: '@base-ui/react/(?:(?!internals/).+|internals/.+)/.+',
     message: OneLevelImportMessage,
   },
 ];
@@ -57,6 +57,9 @@ export default defineConfig(
         typescript: {
           project: ['tsconfig.json'],
         },
+      },
+      next: {
+        rootDir: 'docs',
       },
     },
     /**

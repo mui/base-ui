@@ -1,10 +1,10 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
-import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
+import { CompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 
 const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
@@ -44,7 +44,7 @@ describe('<Toolbar.Link />', () => {
         </Toolbar.Root>,
       );
 
-      expect(screen.getByTestId('link')).to.equal(screen.getByRole('link'));
+      expect(screen.getByTestId('link')).toBe(screen.getByRole('link'));
     });
   });
 });

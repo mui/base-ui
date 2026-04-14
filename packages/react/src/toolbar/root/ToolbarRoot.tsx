@@ -1,8 +1,12 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, Orientation as BaseOrientation, HTMLProps } from '../../utils/types';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import {
+  BaseUIComponentProps,
+  Orientation as BaseOrientation,
+  HTMLProps,
+} from '../../internals/types';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import { ToolbarRootContext } from './ToolbarRootContext';
 
 /**
@@ -21,6 +25,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     orientation = 'horizontal',
     className,
     render,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -59,6 +64,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef]}
         props={[defaultProps, elementProps]}

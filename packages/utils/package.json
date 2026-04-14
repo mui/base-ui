@@ -1,13 +1,14 @@
 {
   "name": "@base-ui/utils",
-  "version": "0.2.6",
+  "version": "0.2.7",
+  "author": "MUI Team",
   "description": "A collection of React utility functions for Base UI.",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mui/base-ui.git",
     "directory": "packages/utils"
   },
-  "license": "MIT",
   "exports": {
     "./store": "./src/store/index.ts",
     "./store/inspector": "./src/store/StoreInspector.tsx",
@@ -26,7 +27,7 @@
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@babel/runtime": "^7.28.6",
+    "@babel/runtime": "^7.29.2",
     "@floating-ui/utils": "^0.2.11",
     "reselect": "^5.1.1",
     "use-sync-external-store": "^1.6.0"
@@ -34,17 +35,12 @@
   "devDependencies": {
     "@testing-library/react": "16.3.2",
     "@testing-library/user-event": "14.6.1",
-    "@types/chai": "5.2.3",
-    "@types/chai-dom": "1.11.3",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@types/sinon": "21.0.0",
     "@types/use-sync-external-store": "1.5.0",
-    "chai": "6.2.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "sinon": "21.0.2",
-    "typescript": "5.9.3"
+    "typescript": "6.0.2"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",

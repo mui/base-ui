@@ -1,21 +1,22 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { activeElement, contains } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
-import { clamp } from '../../utils/clamp';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { clamp } from '../../internals/clamp';
+import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useDirection } from '../../direction-provider/DirectionContext';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';
@@ -85,7 +86,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   componentProps: SliderControl.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render: renderProp, className, ...elementProps } = componentProps;
+  const { render: renderProp, className, style, ...elementProps } = componentProps;
 
   const {
     disabled,
@@ -269,9 +270,18 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const focusThumb = useStableCallback((thumbIndex: number) => {
-    thumbRefs.current?.[thumbIndex]
-      ?.querySelector<HTMLInputElement>('input[type="range"]')
-      ?.focus({ preventScroll: true });
+    const input =
+      thumbRefs.current?.[thumbIndex]?.querySelector<HTMLInputElement>('input[type="range"]');
+    if (!input) {
+      return;
+    }
+
+    input.focus({
+      preventScroll: true,
+      // Prevent pointer-driven focus rings in browsers that support this option.
+      // Supported in Chrome from 144+.
+      focusVisible: false,
+    });
   });
 
   const handleTouchMove = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
@@ -407,12 +417,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return () => stopListening();
     }
 
-    control.addEventListener('touchstart', handleTouchStart, {
+    const unsubscribeTouchStart = addEventListener(control, 'touchstart', handleTouchStart, {
       passive: true,
     });
 
     return () => {
-      control.removeEventListener('touchstart', handleTouchStart);
+      unsubscribeTouchStart();
       focusFrame.cancel();
 
       stopListening();
@@ -433,12 +443,13 @@ export const SliderControl = React.forwardRef(function SliderControl(
         ['data-base-ui-slider-control' as string]: renderBeforeHydration ? '' : undefined,
         onPointerDown(event) {
           const control = controlRef.current;
+          const target = getTarget(event.nativeEvent);
 
           if (
             !control ||
             disabled ||
             event.defaultPrevented ||
-            !isElement(event.target) ||
+            !isElement(target) ||
             // Only handle left clicks
             event.button !== 0
           ) {
@@ -497,7 +508,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });
         },
-        tabIndex: -1,
       },
       elementProps,
     ],

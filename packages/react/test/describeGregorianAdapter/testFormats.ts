@@ -1,6 +1,6 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 // TODO Temporal: Replace with `@base-ui/react/types` import when Temporal components will become public.
-import { TemporalAdapterFormats } from '../../src/types/temporal';
+import { TemporalAdapterFormats } from '../../src/internals/temporal';
 import { DescribeGregorianAdapterTestSuite } from './describeGregorianAdapter.types';
 
 export const testFormats: DescribeGregorianAdapterTestSuite = ({ adapter }) => {
@@ -8,7 +8,7 @@ export const testFormats: DescribeGregorianAdapterTestSuite = ({ adapter }) => {
     const date = adapter.date('2020-01-01T15:08:09.000Z', 'utc');
     const result = adapter.format(date, format);
 
-    expect(result).to.equal(expected);
+    expect(result).toBe(expected);
   };
 
   it('should correctly format standalone hardcoded formats', () => {

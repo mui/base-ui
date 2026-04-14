@@ -1,10 +1,10 @@
 import { createSelector } from '@base-ui/utils/store';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FloatingRootContext } from '../../floating-ui-react';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
-import { EMPTY_OBJECT } from '../constants';
-import { TransitionStatus } from '../useTransitionStatus';
+import { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
-import { HTMLProps } from '../types';
+import { HTMLProps } from '../../internals/types';
 
 /**
  * State common to all popup stores.
@@ -80,7 +80,7 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     open: false,
     openProp: undefined,
     mounted: false,
-    transitionStatus: 'idle',
+    transitionStatus: undefined,
     floatingRootContext: getEmptyRootContext(),
     preventUnmountingOnClose: false,
     payload: undefined,

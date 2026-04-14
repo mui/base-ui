@@ -1,8 +1,8 @@
+import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 
 describe('<Combobox.Chip />', () => {
   const { render } = createRenderer();
@@ -29,7 +29,7 @@ describe('<Combobox.Chip />', () => {
       );
 
       const chip = screen.getByTestId('chip');
-      expect(chip).to.have.attribute('aria-disabled', 'true');
+      expect(chip).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should prevent keyboard navigation when disabled', async () => {
@@ -58,7 +58,7 @@ describe('<Combobox.Chip />', () => {
     });
 
     it('should prevent deletion when disabled', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root
           multiple
@@ -84,8 +84,8 @@ describe('<Combobox.Chip />', () => {
       // Try to delete with backspace
       await user.keyboard('{Backspace}');
 
-      expect(handleValueChange.callCount).to.equal(0);
-      expect(screen.getByTestId('chip-apple')).not.to.equal(null);
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('chip-apple')).not.toBe(null);
     });
 
     it('should prevent mouse interactions when disabled', async () => {
@@ -133,11 +133,11 @@ describe('<Combobox.Chip />', () => {
       );
 
       const chip = screen.getByTestId('chip');
-      expect(chip).to.have.attribute('aria-readonly', 'true');
+      expect(chip).toHaveAttribute('aria-readonly', 'true');
     });
 
     it('should prevent deletion when readOnly', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root
           multiple
@@ -163,8 +163,8 @@ describe('<Combobox.Chip />', () => {
       // Try to delete with backspace
       await user.keyboard('{Backspace}');
 
-      expect(handleValueChange.callCount).to.equal(0);
-      expect(screen.getByTestId('chip-apple')).not.to.equal(null);
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('chip-apple')).not.toBe(null);
     });
 
     it('should prevent navigation when readOnly and also prevent deletion', async () => {
@@ -191,7 +191,7 @@ describe('<Combobox.Chip />', () => {
 
       // Deletion should be blocked
       await user.keyboard('{Delete}');
-      expect(screen.getByTestId('chip-banana')).not.to.equal(null);
+      expect(screen.getByTestId('chip-banana')).not.toBe(null);
     });
 
     it('should focus when readOnly', async () => {
@@ -232,11 +232,11 @@ describe('<Combobox.Chip />', () => {
         </Combobox.Root>,
       );
 
-      expect(screen.getByRole('listbox')).not.to.equal(null);
+      expect(screen.getByRole('listbox')).not.toBe(null);
 
       await user.click(screen.getByTestId('chip-apple'));
 
-      expect(screen.getByRole('listbox')).not.to.equal(null);
+      expect(screen.getByRole('listbox')).not.toBe(null);
     });
 
     it('closes the popup when a chip receives focus', async () => {
@@ -261,7 +261,7 @@ describe('<Combobox.Chip />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(screen.getByRole('listbox')).not.to.equal(null);
+      expect(screen.getByRole('listbox')).not.toBe(null);
 
       await user.click(input);
       const chipApple = screen.getByTestId('chip-apple');
@@ -269,7 +269,7 @@ describe('<Combobox.Chip />', () => {
         chipApple.focus();
       });
 
-      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
     });
 
     it('should handle keyboard navigation when enabled', async () => {
@@ -314,8 +314,50 @@ describe('<Combobox.Chip />', () => {
       expect(input).toHaveFocus();
     });
 
+    it('should navigate through only rendered chips', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultValue={['apple', 'banana', 'cherry']}>
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: string[]) => (
+                <React.Fragment>
+                  {value.slice(0, 2).map((item) => (
+                    <Combobox.Chip key={item} data-testid={`chip-${item}`}>
+                      {item}
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const chipBanana = screen.getByTestId('chip-banana');
+      const input = screen.getByTestId<HTMLInputElement>('input');
+
+      await act(async () => {
+        input.focus();
+        input.setSelectionRange(0, 0);
+      });
+
+      await user.keyboard('{ArrowLeft}');
+      expect(chipBanana).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+      expect(input).toHaveFocus();
+
+      await act(async () => {
+        chipBanana.focus();
+      });
+
+      await user.keyboard('{ArrowRight}');
+      expect(input).toHaveFocus();
+    });
+
     it('should handle deletion when enabled', async () => {
-      const handleValueChange = spy();
+      const handleValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root
           multiple
@@ -338,8 +380,8 @@ describe('<Combobox.Chip />', () => {
       });
       await user.keyboard('{Backspace}');
 
-      expect(handleValueChange.callCount).to.equal(1);
-      expect(handleValueChange.args[0][0]).to.deep.equal(['banana']);
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['banana']);
     });
 
     it('should focus input on mouse down when enabled', async () => {

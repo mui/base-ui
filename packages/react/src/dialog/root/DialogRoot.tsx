@@ -1,18 +1,19 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { DialogStore } from '../store/DialogStore';
 import { DialogHandle } from '../store/DialogHandle';
 import { type PayloadChildRenderFunction } from '../../utils/popups';
 
+export const IsDrawerContext = React.createContext(false);
+
 /**
  * Groups all parts of the dialog.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
@@ -32,22 +33,18 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   } = props;
 
   const parentDialogRootContext = useDialogRootContext(true);
+  const isDrawer = React.useContext(IsDrawerContext);
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => {
-    return (
-      handle?.store ??
-      new DialogStore<Payload>({
-        open: defaultOpen,
-        openProp,
-        activeTriggerId: defaultTriggerIdProp,
-        triggerIdProp,
-        modal,
-        disablePointerDismissal,
-        nested,
-      })
-    );
-  }).current;
+  const store = DialogStore.useStore(handle?.store, {
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
+    modal,
+    disablePointerDismissal,
+    nested,
+  });
 
   // Support initially open state when uncontrolled
   useOnFirstRender(() => {
@@ -72,6 +69,7 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     store,
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
+    isDrawer,
     onOpenChange,
     triggerIdProp,
   });
@@ -79,9 +77,11 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
 
   return (
-    <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-      {typeof children === 'function' ? children({ payload }) : children}
-    </DialogRootContext.Provider>
+    <IsDrawerContext.Provider value={false}>
+      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+        {typeof children === 'function' ? children({ payload }) : children}
+      </DialogRootContext.Provider>
+    </IsDrawerContext.Provider>
   );
 }
 
@@ -145,7 +145,7 @@ export interface DialogRootProps<Payload = unknown> {
   /**
    * ID of the trigger that the dialog is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled dialog.
-   * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
+   * There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: string | null | undefined;
   /**

@@ -3,17 +3,18 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { type FieldRootState } from '../root/FieldRoot';
-import { useFieldRootContext } from '../root/FieldRootContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { fieldValidityMapping } from '../utils/constants';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useField } from '../useField';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { activeElement } from '../../floating-ui-react/utils';
 
 /**
@@ -40,6 +41,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     onValueChange,
     defaultValue,
     autoFocus = false,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -94,14 +96,12 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const isControlled = valueProp !== undefined;
   const value = isControlled ? valueUnwrapped : undefined;
+  const getFieldValue = useStableCallback(() => validation.inputRef.current?.value);
 
-  useField({
+  useRegisterFieldControl(validation.inputRef, {
     id,
-    name,
-    commit: validation.commit,
     value,
-    getValue: () => validation.inputRef.current?.value,
-    controlRef: validation.inputRef,
+    getValue: getFieldValue,
   });
 
   const element = useRenderElement('input', componentProps, {

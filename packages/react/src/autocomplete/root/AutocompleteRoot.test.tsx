@@ -1,8 +1,7 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -42,26 +41,26 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'al');
 
       const firstOption = await screen.findByRole('option', { name: 'alpha' });
-      expect(firstOption).to.have.attribute('data-highlighted');
+      expect(firstOption).toHaveAttribute('data-highlighted');
 
       await user.keyboard('{Enter}');
-      expect(input.value).to.equal('alpha');
+      expect(input.value).toBe('alpha');
 
       await waitFor(() => {
-        expect(screen.queryByRole('listbox')).to.equal(null);
+        expect(screen.queryByRole('listbox')).toBe(null);
       });
 
       await user.clear(input);
       await user.type(input, 'a');
 
       await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.to.equal(null);
+        expect(screen.queryByRole('listbox')).not.toBe(null);
       });
 
       await user.tab();
 
       await waitFor(() => {
-        expect(screen.queryByRole('listbox')).to.equal(null);
+        expect(screen.queryByRole('listbox')).toBe(null);
       });
     });
   });
@@ -94,7 +93,7 @@ describe('<Autocomplete.Root />', () => {
     await flushMicrotasks();
 
     const input = screen.getByTestId<HTMLInputElement>('input');
-    expect(input.value).to.equal('beta');
+    expect(input.value).toBe('beta');
   });
 
   it('should pass autoComplete to the visible input', async () => {
@@ -117,16 +116,52 @@ describe('<Autocomplete.Root />', () => {
     const input = screen.getByRole('combobox');
     const hiddenInput = screen.getByRole('textbox', { hidden: true });
 
-    expect(input).to.have.attribute('name', 'search');
-    expect(input).to.have.attribute('autocomplete', 'on');
-    expect(hiddenInput).not.to.have.attribute('name');
-    expect(hiddenInput).to.have.attribute('id');
-    expect(hiddenInput).not.to.have.attribute('autocomplete');
+    expect(input).toHaveAttribute('name', 'search');
+    expect(input).toHaveAttribute('autocomplete', 'on');
+    expect(hiddenInput).not.toHaveAttribute('name');
+    expect(hiddenInput).toHaveAttribute('id');
+    expect(hiddenInput).not.toHaveAttribute('autocomplete');
+  });
+
+  it('does not expose data-placeholder on Trigger or InputGroup', async () => {
+    const { user } = await render(
+      <Autocomplete.Root items={['alpha', 'beta']} openOnInputClick>
+        <Autocomplete.InputGroup data-testid="group">
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Trigger data-testid="trigger" />
+        </Autocomplete.InputGroup>
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                {(item: string) => (
+                  <Autocomplete.Item key={item} value={item}>
+                    {item}
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const group = screen.getByTestId('group');
+    const input = screen.getByTestId('input');
+    const trigger = screen.getByTestId('trigger');
+
+    expect(group).not.toHaveAttribute('data-placeholder');
+    expect(trigger).not.toHaveAttribute('data-placeholder');
+
+    await user.type(input, 'al');
+
+    expect(group).not.toHaveAttribute('data-placeholder');
+    expect(trigger).not.toHaveAttribute('data-placeholder');
   });
 
   describe('prop: autoHighlight', () => {
     it('calls onItemHighlighted when the popup auto highlights on open', async () => {
-      const onItemHighlighted = spy();
+      const onItemHighlighted = vi.fn();
 
       const { user } = await render(
         <Autocomplete.Root
@@ -155,14 +190,14 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'a');
 
       const firstOption = await screen.findByRole('option', { name: 'alpha' });
-      expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      expect(onItemHighlighted.mock.calls.length).toBeGreaterThan(0);
 
-      const [value, eventDetails] = onItemHighlighted.lastCall.args;
-      expect(value).to.equal('alpha');
-      expect(eventDetails.reason).to.equal('none');
+      const [value, eventDetails] = onItemHighlighted.mock.lastCall ?? [];
+      expect(value).toBe('alpha');
+      expect(eventDetails.reason).toBe('none');
 
       await waitFor(() => {
-        expect(firstOption).to.have.attribute('data-highlighted');
+        expect(firstOption).toHaveAttribute('data-highlighted');
       });
     });
 
@@ -189,14 +224,14 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'new');
 
       const newYorkOption = screen.getByRole('option', { name: 'new york' });
-      expect(newYorkOption).to.have.attribute('data-highlighted');
-      expect(input.getAttribute('aria-activedescendant')).to.equal(newYorkOption.id);
+      expect(newYorkOption).toHaveAttribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).toBe(newYorkOption.id);
 
       // Trailing space should not clear highlight if matches remain
       await user.type(input, ' ');
 
-      expect(newYorkOption).to.have.attribute('data-highlighted');
-      expect(input.getAttribute('aria-activedescendant')).to.equal(newYorkOption.id);
+      expect(newYorkOption).toHaveAttribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).toBe(newYorkOption.id);
     });
 
     it('does not highlight on open via click or when pressing arrow keys initially', async () => {
@@ -223,27 +258,27 @@ describe('<Autocomplete.Root />', () => {
       fireEvent.click(input);
 
       await waitFor(() => {
-        expect(input).not.to.have.attribute('aria-activedescendant');
+        expect(input).not.toHaveAttribute('aria-activedescendant');
       });
 
       await user.keyboard('{ArrowDown}');
       await waitFor(() => {
-        expect(input).not.to.have.attribute('aria-activedescendant');
+        expect(input).not.toHaveAttribute('aria-activedescendant');
       });
 
       await user.keyboard('{ArrowDown}');
       await waitFor(() => {
-        expect(input).not.to.have.attribute('aria-activedescendant');
+        expect(input).not.toHaveAttribute('aria-activedescendant');
       });
 
       await user.keyboard('{Escape}');
       await user.click(input);
 
-      expect(input).not.to.have.attribute('aria-activedescendant');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
 
       await user.keyboard('{ArrowUp}');
       await waitFor(() => {
-        expect(input).to.have.attribute('aria-activedescendant');
+        expect(input).toHaveAttribute('aria-activedescendant');
       });
     });
 
@@ -273,8 +308,8 @@ describe('<Autocomplete.Root />', () => {
       await user.keyboard('{ArrowDown}');
 
       const firstOption = await screen.findByRole('option', { name: 'alpha' });
-      expect(firstOption).to.have.attribute('data-highlighted');
-      expect(input.getAttribute('aria-activedescendant')).to.equal(firstOption.id);
+      expect(firstOption).toHaveAttribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).toBe(firstOption.id);
     });
 
     it('links aria-activedescendant to the highlighted item after filtering', async () => {
@@ -303,14 +338,14 @@ describe('<Autocomplete.Root />', () => {
       // Type 'f' — both items remain, first should be highlighted
       await user.type(input, 'f');
       const firstOption = screen.getByRole('option', { name: 'feature' });
-      expect(firstOption).to.have.attribute('data-highlighted');
-      expect(input.getAttribute('aria-activedescendant')).to.equal(firstOption.id);
+      expect(firstOption).toHaveAttribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).toBe(firstOption.id);
 
       // Type 'i' — filters to "fix" and highlight should follow, with ids stable
       await user.type(input, 'i');
       const fixOption = screen.getByRole('option', { name: 'fix' });
-      expect(fixOption).to.have.attribute('data-highlighted');
-      expect(input.getAttribute('aria-activedescendant')).to.equal(fixOption.id);
+      expect(fixOption).toHaveAttribute('data-highlighted');
+      expect(input.getAttribute('aria-activedescendant')).toBe(fixOption.id);
     });
 
     it('does not highlight first/last item when pressing ArrowDown/ArrowUp initially', async () => {
@@ -336,16 +371,16 @@ describe('<Autocomplete.Root />', () => {
       const input = screen.getByTestId<HTMLInputElement>('input');
 
       await user.click(input);
-      expect(input).not.to.have.attribute('aria-activedescendant');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
 
       await user.keyboard('{ArrowDown}');
       await waitFor(() => {
-        expect(input).not.to.have.attribute('aria-activedescendant');
+        expect(input).not.toHaveAttribute('aria-activedescendant');
       });
 
       await user.keyboard('{ArrowDown}');
       await waitFor(() => {
-        expect(input).to.have.attribute('aria-activedescendant');
+        expect(input).toHaveAttribute('aria-activedescendant');
       });
     });
 
@@ -374,16 +409,16 @@ describe('<Autocomplete.Root />', () => {
       await user.click(input);
       await user.type(input, 'ban');
 
-      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
-      expect(input).to.have.attribute('aria-activedescendant');
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(input).toHaveAttribute('aria-activedescendant');
 
       const highlightedBefore = input.getAttribute('aria-activedescendant');
-      expect(highlightedBefore).to.not.equal(null);
+      expect(highlightedBefore).not.toBe(null);
 
       await user.clear(input);
 
-      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
-      expect(input.getAttribute('aria-activedescendant')).to.equal(highlightedBefore);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(input.getAttribute('aria-activedescendant')).toBe(highlightedBefore);
     });
 
     it('highlights the first item immediately when behavior is "always"', async () => {
@@ -409,8 +444,8 @@ describe('<Autocomplete.Root />', () => {
       const input = screen.getByRole<HTMLInputElement>('combobox');
       const firstOption = screen.getByRole('option', { name: 'alpha' });
 
-      expect(input).to.have.attribute('aria-activedescendant', firstOption.id);
-      expect(firstOption).to.have.attribute('data-highlighted');
+      expect(input).toHaveAttribute('aria-activedescendant', firstOption.id);
+      expect(firstOption).toHaveAttribute('data-highlighted');
     });
 
     it('keeps the latest pointer highlight on outside blur when behavior is "always"', async () => {
@@ -446,8 +481,8 @@ describe('<Autocomplete.Root />', () => {
       await user.hover(banana);
 
       await waitFor(() => {
-        expect(input).to.have.attribute('aria-activedescendant', banana.id);
-        expect(banana).to.have.attribute('data-highlighted');
+        expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+        expect(banana).toHaveAttribute('data-highlighted');
       });
 
       const outside = screen.getByTestId('outside');
@@ -456,13 +491,11 @@ describe('<Autocomplete.Root />', () => {
       fireEvent.focus(outside);
 
       await waitFor(() => {
-        expect(input).to.have.attribute('aria-activedescendant', banana.id);
-        expect(banana).to.have.attribute('data-highlighted');
+        expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+        expect(banana).toHaveAttribute('data-highlighted');
       });
 
-      expect(screen.getByRole('option', { name: 'apple' })).not.to.have.attribute(
-        'data-highlighted',
-      );
+      expect(screen.getByRole('option', { name: 'apple' })).not.toHaveAttribute('data-highlighted');
     });
   });
 
@@ -492,13 +525,13 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'ap');
 
       const apple = await screen.findByRole('option', { name: 'apple' });
-      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
+      await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
 
       const outside = document.createElement('div');
       document.body.appendChild(outside);
       fireEvent.pointerLeave(apple, { pointerType: 'mouse', relatedTarget: outside });
 
-      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
+      await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
       outside.remove();
     });
 
@@ -527,7 +560,7 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'a');
 
       const apple = await screen.findByRole('option', { name: 'apple' });
-      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
+      await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
 
       const outside = document.createElement('div');
       document.body.appendChild(outside);
@@ -536,7 +569,7 @@ describe('<Autocomplete.Root />', () => {
       await user.keyboard('{ArrowDown}');
 
       const banana = screen.getByRole('option', { name: 'banana' });
-      await waitFor(() => expect(banana).to.have.attribute('data-highlighted'));
+      await waitFor(() => expect(banana).toHaveAttribute('data-highlighted'));
       outside.remove();
     });
   });
@@ -569,12 +602,12 @@ describe('<Autocomplete.Root />', () => {
       await user.click(input);
       await user.type(input, 'a');
 
-      expect(screen.getAllByRole('option')).to.have.length(2); // apple, banana
+      expect(screen.getAllByRole('option')).toHaveLength(2); // apple, banana
 
       await user.keyboard('{ArrowDown}');
 
-      expect(input.value).to.equal('a');
-      expect(screen.getAllByRole('option')).to.have.length(2);
+      expect(input.value).toBe('a');
+      expect(screen.getAllByRole('option')).toHaveLength(2);
     });
 
     it('mode="both": inline overlay + autocomplete handles filtering', async () => {
@@ -604,12 +637,12 @@ describe('<Autocomplete.Root />', () => {
       await user.click(input);
       await user.type(input, 'a');
 
-      expect(screen.getAllByRole('option')).to.have.length(2); // apple, banana
+      expect(screen.getAllByRole('option')).toHaveLength(2); // apple, banana
 
       await user.keyboard('{ArrowDown}');
 
-      expect(input.value).to.equal('apple');
-      expect(screen.getAllByRole('option')).to.have.length(2);
+      expect(input.value).toBe('apple');
+      expect(screen.getAllByRole('option')).toHaveLength(2);
     });
 
     it('mode="both": hovering items should not change the inline overlay (preserve temporary value)', async () => {
@@ -639,10 +672,10 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'al');
 
       await user.keyboard('{ArrowDown}');
-      expect(input.value).to.equal('alpha');
+      expect(input.value).toBe('alpha');
 
       await user.hover(screen.getByRole('option', { name: 'alpine' }));
-      expect(input.value).to.equal('alpha');
+      expect(input.value).toBe('alpha');
     });
 
     it('mode="inline": static items with inline overlay', async () => {
@@ -668,19 +701,19 @@ describe('<Autocomplete.Root />', () => {
       await user.click(input);
 
       await waitFor(() => {
-        expect(screen.getAllByRole('option')).to.have.length(3);
+        expect(screen.getAllByRole('option')).toHaveLength(3);
       });
 
       await user.keyboard('{ArrowDown}');
 
       await waitFor(() => {
-        expect(input.value).to.equal('apple');
+        expect(input.value).toBe('apple');
       });
 
       await user.type(input, 'b');
 
-      expect(input.value).to.equal('appleb');
-      expect(screen.getAllByRole('option')).to.have.length(3);
+      expect(input.value).toBe('appleb');
+      expect(screen.getAllByRole('option')).toHaveLength(3);
     });
 
     it('mode="none": static items without inline overlay', async () => {
@@ -706,14 +739,14 @@ describe('<Autocomplete.Root />', () => {
       await user.click(input);
       await user.keyboard('{ArrowDown}');
 
-      expect(input.value).to.equal('');
-      expect(screen.getAllByRole('option')).to.have.length(3);
+      expect(input.value).toBe('');
+      expect(screen.getAllByRole('option')).toHaveLength(3);
 
       await user.type(input, 'x');
       await user.keyboard('{ArrowDown}');
 
-      expect(input.value).to.equal('x');
-      expect(screen.getAllByRole('option')).to.have.length(3);
+      expect(input.value).toBe('x');
+      expect(screen.getAllByRole('option')).toHaveLength(3);
     });
   });
 
@@ -758,11 +791,11 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, '1994');
 
       await waitFor(() => {
-        expect(screen.getAllByRole('option')).to.have.length(3);
+        expect(screen.getAllByRole('option')).toHaveLength(3);
       });
-      expect(screen.getByRole('option', { name: 'Pulp Fiction' })).not.to.equal(null);
-      expect(screen.getByRole('option', { name: 'The Godfather' })).not.to.equal(null);
-      expect(screen.getByRole('option', { name: 'The Dark Knight' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'Pulp Fiction' })).not.toBe(null);
+      expect(screen.getByRole('option', { name: 'The Godfather' })).not.toBe(null);
+      expect(screen.getByRole('option', { name: 'The Dark Knight' })).not.toBe(null);
     });
   });
 
@@ -803,7 +836,7 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'a'); // open and highlight first
       await user.keyboard('{Enter}');
 
-      expect(submitted).to.equal(0);
+      expect(submitted).toBe(0);
     });
 
     it('when true, clicking with pointer submits the owning form', async () => {
@@ -846,8 +879,8 @@ describe('<Autocomplete.Root />', () => {
       const alphaButton = screen.getByRole('option', { name: 'alpha' });
       await user.click(alphaButton);
 
-      expect(submitValue).to.equal('alpha');
-      expect(submitCount).to.equal(1);
+      expect(submitValue).toBe('alpha');
+      expect(submitCount).toBe(1);
     });
 
     it('when true, pressing Enter in the Input submits the owning form when an item is highlighted', async () => {
@@ -889,13 +922,62 @@ describe('<Autocomplete.Root />', () => {
       await user.keyboard('{ArrowDown}');
 
       const alphaButton = screen.getByRole('option', { name: 'alpha' });
-      expect(alphaButton).to.have.attribute('data-highlighted');
+      expect(alphaButton).toHaveAttribute('data-highlighted');
 
       await user.keyboard('{Enter}');
 
-      expect(submitValue).to.equal('alpha');
-      expect(submitCount).to.equal(1);
+      expect(submitValue).toBe('alpha');
+      expect(submitCount).toBe(1);
     });
+
+    it.skipIf(isJSDOM)(
+      'when true, clicking with pointer submits an associated external form when `form` is provided',
+      async () => {
+        let submitValue: string | null = null;
+        let submitCount = 0;
+
+        const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+          event.preventDefault();
+          const data = new FormData(event.currentTarget);
+          submitValue = (data.get('q') as string) ?? null;
+          submitCount += 1;
+        };
+
+        const { user } = await render(
+          <React.Fragment>
+            <form id="external-form" onSubmit={handleSubmit} />
+            <Autocomplete.Root
+              items={['alpha', 'alpine']}
+              name="q"
+              form="external-form"
+              submitOnItemClick
+            >
+              <Autocomplete.Input />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      {(item) => (
+                        <Autocomplete.Item key={item} value={item}>
+                          {item}
+                        </Autocomplete.Item>
+                      )}
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </React.Fragment>,
+        );
+
+        const input = screen.getByRole<HTMLInputElement>('combobox');
+        await user.type(input, 'al');
+        await user.click(screen.getByRole('option', { name: 'alpha' }));
+
+        expect(submitValue).toBe('alpha');
+        expect(submitCount).toBe(1);
+      },
+    );
 
     it('focusing the listbox should keep the input focused and maintain functionality', async () => {
       let submitValue: string | null = null;
@@ -938,7 +1020,7 @@ describe('<Autocomplete.Root />', () => {
       const listbox = screen.getByRole('listbox');
       const alphaOption = screen.getByRole('option', { name: 'alpha' });
       await waitFor(() => {
-        expect(alphaOption).to.have.attribute('data-highlighted');
+        expect(alphaOption).toHaveAttribute('data-highlighted');
       });
 
       await act(() => {
@@ -948,8 +1030,8 @@ describe('<Autocomplete.Root />', () => {
 
       await user.keyboard('{Enter}');
 
-      expect(submitValue).to.equal('alpha');
-      expect(submitCount).to.equal(1);
+      expect(submitValue).toBe('alpha');
+      expect(submitCount).toBe(1);
     });
   });
 
@@ -986,7 +1068,7 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'hello world');
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).to.equal('hello world');
+      expect(submitted).toBe('hello world');
     });
 
     it('submits the typed input value when name is provided on Autocomplete.Root', async () => {
@@ -1023,12 +1105,38 @@ describe('<Autocomplete.Root />', () => {
       const input = screen.getByRole<HTMLInputElement>('combobox');
       await user.type(input, 'base ui');
 
-      expect(input.getAttribute('name'), 'input should have name attribute').to.equal('query');
-      expect(input.value, 'input should have typed value').to.equal('base ui');
+      expect(input.getAttribute('name'), 'input should have name attribute').toBe('query');
+      expect(input.value, 'input should have typed value').toBe('base ui');
 
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).to.equal('base ui');
+      expect(submitted).toBe('base ui');
+    });
+
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      let submitted: FormDataEntryValue | null = null;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        submitted = data.get('query');
+      };
+
+      const { user } = await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={handleSubmit}>
+            <button type="submit">Submit</button>
+          </form>
+          <Autocomplete.Root name="query" form="external-form">
+            <Autocomplete.Input data-testid="input" />
+          </Autocomplete.Root>
+        </React.Fragment>,
+      );
+
+      await user.type(screen.getByTestId('input'), 'base ui');
+      await user.click(screen.getByText('Submit'));
+
+      expect(submitted).toBe('base ui');
     });
 
     it('triggers native validation when required and empty', async () => {
@@ -1046,12 +1154,12 @@ describe('<Autocomplete.Root />', () => {
         </Form>,
       );
 
-      expect(screen.queryByTestId('error')).to.equal(null);
+      expect(screen.queryByTestId('error')).toBe(null);
 
       await user.click(screen.getByText('Submit'));
 
       const error = screen.getByTestId('error');
-      expect(error).to.have.text('required');
+      expect(error).toHaveTextContent('required');
     });
 
     it('clears external errors on change', async () => {
@@ -1080,16 +1188,16 @@ describe('<Autocomplete.Root />', () => {
         </Form>,
       );
 
-      expect(screen.getByTestId('error')).to.have.text('test');
+      expect(screen.getByTestId('error')).toHaveTextContent('test');
 
       const input = screen.getByTestId('input');
-      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(input).toHaveAttribute('aria-invalid', 'true');
 
       await user.type(input, 'test input');
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('error')).to.equal(null);
-      expect(input).not.to.have.attribute('aria-invalid');
+      expect(screen.queryByTestId('error')).toBe(null);
+      expect(input).not.toHaveAttribute('aria-invalid');
     });
 
     it('submits the input value directly (not selection value)', async () => {
@@ -1127,7 +1235,7 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'appl');
       await user.click(screen.getByText('Submit'));
 
-      expect(submitted).to.equal('appl');
+      expect(submitted).toBe('appl');
     });
 
     it('Enter submits when no item is highlighted', async () => {
@@ -1165,7 +1273,7 @@ describe('<Autocomplete.Root />', () => {
       await user.click(screen.getByRole('combobox'));
       await user.keyboard('{Enter}');
 
-      expect(submitted).to.equal(1);
+      expect(submitted).toBe(1);
     });
 
     it('pressing Enter in the Input submits the owning form when no item is highlighted', async () => {
@@ -1208,8 +1316,8 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'xyz');
       await user.keyboard('{Enter}');
 
-      expect(submitValue).to.equal('xyz');
-      expect(submitCount).to.equal(1);
+      expect(submitValue).toBe('xyz');
+      expect(submitCount).toBe(1);
     });
 
     it('pressing Enter in the List when it has focus submits the owning form', async () => {
@@ -1251,7 +1359,7 @@ describe('<Autocomplete.Root />', () => {
       await user.keyboard('{ArrowDown}');
 
       const alphaButton = screen.getByRole('option', { name: 'alpha' });
-      expect(alphaButton).to.have.attribute('data-highlighted');
+      expect(alphaButton).toHaveAttribute('data-highlighted');
 
       const list = screen.getByRole('listbox');
       act(() => {
@@ -1260,8 +1368,8 @@ describe('<Autocomplete.Root />', () => {
 
       await user.keyboard('{Enter}');
 
-      expect(submitValue).to.equal('alpha');
-      expect(submitCount).to.equal(1);
+      expect(submitValue).toBe('alpha');
+      expect(submitCount).toBe(1);
     });
   });
 
@@ -1294,9 +1402,9 @@ describe('<Autocomplete.Root />', () => {
 
       // Should match the item by its label, not its value
       await waitFor(() => {
-        expect(screen.getAllByRole('option')).to.have.length(1);
+        expect(screen.getAllByRole('option')).toHaveLength(1);
       });
-      expect(screen.getByRole('option', { name: 'Canada' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'Canada' })).not.toBe(null);
     });
 
     it('uses itemToStringValue when object lacks label', async () => {
@@ -1327,9 +1435,9 @@ describe('<Autocomplete.Root />', () => {
 
       // Should match by the provided itemToStringValue mapping
       await waitFor(() => {
-        expect(screen.getAllByRole('option')).to.have.length(1);
+        expect(screen.getAllByRole('option')).toHaveLength(1);
       });
-      expect(screen.getByRole('option', { name: 'Canada' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'Canada' })).not.toBe(null);
     });
 
     it('filters and displays using value for {value} objects', async () => {
@@ -1358,9 +1466,9 @@ describe('<Autocomplete.Root />', () => {
       await user.type(input, 'can');
 
       await waitFor(() => {
-        expect(screen.getAllByRole('option')).to.have.length(1);
+        expect(screen.getAllByRole('option')).toHaveLength(1);
       });
-      expect(screen.getByRole('option', { name: 'Canada' })).not.to.equal(null);
+      expect(screen.getByRole('option', { name: 'Canada' })).not.toBe(null);
     });
   });
 
@@ -1385,7 +1493,7 @@ describe('<Autocomplete.Root />', () => {
         </Field.Root>,
       );
 
-      expect(screen.getByTestId('input')).to.have.attribute('required');
+      expect(screen.getByTestId('input')).toHaveAttribute('required');
     });
 
     it('[data-touched]', async () => {
@@ -1409,14 +1517,14 @@ describe('<Autocomplete.Root />', () => {
 
       const input = screen.getByTestId('input');
 
-      expect(input).not.to.have.attribute('data-touched');
+      expect(input).not.toHaveAttribute('data-touched');
 
       fireEvent.focus(input);
       fireEvent.blur(input);
 
       await flushMicrotasks();
 
-      expect(input).to.have.attribute('data-touched', '');
+      expect(input).toHaveAttribute('data-touched', '');
     });
 
     it('[data-dirty]', async () => {
@@ -1440,12 +1548,12 @@ describe('<Autocomplete.Root />', () => {
 
       const input = screen.getByTestId('input');
 
-      expect(input).not.to.have.attribute('data-dirty');
+      expect(input).not.toHaveAttribute('data-dirty');
 
       await user.type(input, 'test');
       await flushMicrotasks();
 
-      expect(input).to.have.attribute('data-dirty', '');
+      expect(input).toHaveAttribute('data-dirty', '');
     });
 
     describe('[data-filled]', () => {
@@ -1470,12 +1578,12 @@ describe('<Autocomplete.Root />', () => {
 
         const input = screen.getByTestId('input');
 
-        expect(input).not.to.have.attribute('data-filled');
+        expect(input).not.toHaveAttribute('data-filled');
 
         await user.type(input, 'test input');
         await flushMicrotasks();
 
-        expect(input).to.have.attribute('data-filled', '');
+        expect(input).toHaveAttribute('data-filled', '');
       });
 
       it('adds [data-filled] attribute when already filled with defaultValue', async () => {
@@ -1498,7 +1606,7 @@ describe('<Autocomplete.Root />', () => {
 
         const input = screen.getByTestId('input');
 
-        expect(input).to.have.attribute('data-filled');
+        expect(input).toHaveAttribute('data-filled');
       });
     });
 
@@ -1523,15 +1631,15 @@ describe('<Autocomplete.Root />', () => {
 
       const input = screen.getByTestId('input');
 
-      expect(input).not.to.have.attribute('data-focused');
+      expect(input).not.toHaveAttribute('data-focused');
 
       fireEvent.focus(input);
 
-      expect(input).to.have.attribute('data-focused', '');
+      expect(input).toHaveAttribute('data-focused', '');
 
       fireEvent.blur(input);
 
-      expect(input).not.to.have.attribute('data-focused');
+      expect(input).not.toHaveAttribute('data-focused');
     });
 
     it('[data-invalid]', async () => {
@@ -1554,7 +1662,7 @@ describe('<Autocomplete.Root />', () => {
 
       const input = screen.getByTestId('input');
 
-      expect(input).to.have.attribute('data-invalid', '');
+      expect(input).toHaveAttribute('data-invalid', '');
     });
 
     it('[data-valid]', async () => {
@@ -1576,15 +1684,15 @@ describe('<Autocomplete.Root />', () => {
       );
 
       const input = screen.getByRole('combobox');
-      expect(input).not.to.have.attribute('data-valid');
-      expect(input).not.to.have.attribute('data-invalid');
+      expect(input).not.toHaveAttribute('data-valid');
+      expect(input).not.toHaveAttribute('data-invalid');
 
       await user.type(input, 'ok');
       await act(async () => input.blur());
       await flushMicrotasks();
 
-      expect(input).to.have.attribute('data-valid', '');
-      expect(input).not.to.have.attribute('data-invalid');
+      expect(input).toHaveAttribute('data-valid', '');
+      expect(input).not.toHaveAttribute('data-invalid');
     });
 
     it('prop: validate', async () => {
@@ -1600,12 +1708,12 @@ describe('<Autocomplete.Root />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).not.to.have.attribute('aria-invalid');
+      expect(input).not.toHaveAttribute('aria-invalid');
 
       fireEvent.focus(input);
       fireEvent.blur(input);
       await flushMicrotasks();
-      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(input).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('prop: validationMode=onSubmit', async () => {
@@ -1635,21 +1743,21 @@ describe('<Autocomplete.Root />', () => {
       );
 
       const input = screen.getByTestId('input');
-      expect(input).not.to.have.attribute('aria-invalid');
+      expect(input).not.toHaveAttribute('aria-invalid');
 
       await user.click(screen.getByText('submit'));
-      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(input).toHaveAttribute('aria-invalid', 'true');
 
       await user.type(input, 'two');
-      expect(input).not.to.have.attribute('aria-invalid');
+      expect(input).not.toHaveAttribute('aria-invalid');
 
       await user.clear(input);
       await user.type(input, 'one');
-      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(input).toHaveAttribute('aria-invalid', 'true');
 
       await user.clear(input);
       await user.type(input, 'three');
-      expect(input).not.to.have.attribute('aria-invalid');
+      expect(input).not.toHaveAttribute('aria-invalid');
     });
 
     // flaky in real browser
@@ -1678,11 +1786,11 @@ describe('<Autocomplete.Root />', () => {
 
       const input = screen.getByTestId('input');
 
-      expect(input).not.to.have.attribute('aria-invalid');
+      expect(input).not.toHaveAttribute('aria-invalid');
 
       await user.type(input, 'invalid');
 
-      expect(input).to.have.attribute('aria-invalid', 'true');
+      expect(input).toHaveAttribute('aria-invalid', 'true');
     });
 
     // flaky in real browser
@@ -1712,14 +1820,14 @@ describe('<Autocomplete.Root />', () => {
 
       const input = screen.getByTestId('input');
 
-      expect(input).not.to.have.attribute('aria-invalid');
+      expect(input).not.toHaveAttribute('aria-invalid');
 
       await user.type(input, 'invalid');
 
       fireEvent.blur(input);
 
       await waitFor(() => {
-        expect(input).to.have.attribute('aria-invalid', 'true');
+        expect(input).toHaveAttribute('aria-invalid', 'true');
       });
     });
 
@@ -1736,7 +1844,7 @@ describe('<Autocomplete.Root />', () => {
         </Field.Root>,
       );
 
-      expect(screen.getByTestId('input')).to.have.attribute(
+      expect(screen.getByTestId('input')).toHaveAttribute(
         'aria-labelledby',
         screen.getByTestId('label').id,
       );
@@ -1755,7 +1863,7 @@ describe('<Autocomplete.Root />', () => {
         </Field.Root>,
       );
 
-      expect(screen.getByTestId('input')).to.have.attribute(
+      expect(screen.getByTestId('input')).toHaveAttribute(
         'aria-describedby',
         screen.getByTestId('description').id,
       );

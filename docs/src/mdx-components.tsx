@@ -1,17 +1,16 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
-import { ReferenceAccordion } from './components/ReferenceTable/ReferenceAccordion';
-import { ParametersReferenceTable } from './components/ReferenceTable/ParametersReferenceTable';
-import { ReturnValueReferenceTable } from './components/ReferenceTable/ReturnValueReferenceTable';
-import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
-import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
 import { Link } from './components/Link';
 import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
+import { TypeRef } from './components/TypeRef';
+import { TypePropRef } from './components/TypePropRef';
 import { Kbd } from './components/Kbd/Kbd';
+import { CodeBlockPreComputed } from './components/CodeBlock/CodeBlockPreComputed';
 import './css/mdx-components.css';
 
 interface MDXComponents {
@@ -21,7 +20,8 @@ interface MDXComponents {
 // Maintain spacing between MDX components here
 export const mdxComponents: MDXComponents = {
   a: Link,
-  code: (props) => <Code className="MdInlineCode" {...props} />,
+  em: (props) => <em className="MdEm" {...props} />,
+  code: (props) => <Code {...props} className={clsx('MdCode', props.className)} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
     <h1 className="MdH1" {...props} />
@@ -48,24 +48,18 @@ export const mdxComponents: MDXComponents = {
   ul: (props) => <ul className="MdUl" {...props} />,
   ol: (props) => <ol className="MdOl" {...props} />,
   kbd: Kbd,
-  strong: (props) => <strong className="MdStrong" {...props} />,
-  figure: (props) => {
-    if ('data-rehype-pretty-code-figure' in props) {
-      return <CodeBlock.Root {...props} />;
+  figure: (props) => <figure className="MdFigure" {...props} />,
+  pre: ({ tabIndex, ...props }) => {
+    if ('data-precompute' in props) {
+      return (
+        <CodeBlock.Root className="MdFigure">
+          <CodeBlockPreComputed {...props} />
+        </CodeBlock.Root>
+      );
     }
 
-    return <figure {...props} />;
+    return <CodeBlock.Pre {...props} />;
   },
-  figcaption: (props) => {
-    if ('data-rehype-pretty-code-title' in props) {
-      return <CodeBlock.Panel {...props} />;
-    }
-
-    return <figcaption {...props} />;
-  },
-  // Don't pass the tabindex prop from shiki, most browsers
-  // now handle scroll containers focus out of the box
-  pre: ({ tabIndex, ...props }) => <CodeBlock.Pre {...props} />,
   table: (props) => <Table.Root className="MdTable" {...props} />,
   thead: Table.Head,
   tbody: Table.Body,
@@ -74,34 +68,20 @@ export const mdxComponents: MDXComponents = {
     props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
   // Custom components
+  TypeRef,
+  TypePropRef,
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {
-      throw new Error('Meta description shouldn’t be longer than 170 chars');
+      throw new Error("Meta description shouldn't be longer than 170 chars");
     }
-    return <meta {...props} />;
+    // At build time, `transformMarkdownMetadata` extracts <Meta> attributes
+    // and injects them as `export const metadata = { ... }` into the compiled
+    // MDX. Next.js picks that export up and emits the <meta> tag itself, so
+    // rendering one here would produce a duplicate.
+    return null;
   },
   Subtitle: (props) => <Subtitle className="MdSubtitle" {...props} />,
-
-  // API reference components
-  AttributesReferenceTable: (props) => (
-    <AttributesReferenceTable className="MdReferenceBlock" {...props} />
-  ),
-  CssVariablesReferenceTable: (props) => (
-    <CssVariablesReferenceTable className="MdReferenceBlock" {...props} />
-  ),
-  PropsReferenceTable: (props) => <ReferenceAccordion className="MdReferenceBlock" {...props} />,
-  ParametersReferenceTable: (props) => (
-    <ParametersReferenceTable className="MdReferenceBlock" {...props} />
-  ),
-  ReturnValueReferenceTable: (props) => (
-    <ReturnValueReferenceTable className="MdReferenceBlock" {...props} />
-  ),
-};
-
-export const inlineMdxComponents: MDXComponents = {
-  ...mdxComponents,
-  p: (props) => props.children,
 };
 
 export function useMDXComponents(): MDXComponents {

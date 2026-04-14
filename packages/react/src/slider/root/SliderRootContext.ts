@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { Orientation } from '../../utils/types';
-import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import type { Orientation } from '../../internals/types';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot, SliderRootState } from './SliderRoot';
@@ -54,6 +54,7 @@ export interface SliderRootContext {
    * The minimum steps between values in a range slider.
    */
   minStepsBetweenValues: number;
+  form: string | undefined;
   name: string | undefined;
   /**
    * Function to be called when drag ends and the pointer is released.

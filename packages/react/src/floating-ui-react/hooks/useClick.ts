@@ -2,11 +2,12 @@
 import * as React from 'react';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { EMPTY_OBJECT } from '../../utils/constants';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { isClickLikeEvent, isMouseLikePointerType, isTypeableElement } from '../utils';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { getTarget, isTypeableElement } from '../utils/element';
+import { isClickLikeEvent, isMouseLikePointerType } from '../utils/event';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 export interface UseClickProps {
   /**
@@ -112,12 +113,10 @@ export function useClick(
 
         // Animations sometimes won't run on a typeable element if using a rAF.
         // Focus is always set on these elements. For touch, we may delay opening.
-        if (isTypeableElement(nativeEvent.target)) {
-          const details = createChangeEventDetails(
-            reason,
-            nativeEvent,
-            nativeEvent.target as HTMLElement,
-          );
+        const target = getTarget(nativeEvent);
+
+        if (isTypeableElement(target)) {
+          const details = createChangeEventDetails(reason, nativeEvent, target as HTMLElement);
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
               store.setOpen(true, details);

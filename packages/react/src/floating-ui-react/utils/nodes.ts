@@ -7,11 +7,10 @@ export function getNodeChildren(
   id: string | undefined,
   onlyOpenChildren = true,
 ): Array<FloatingNodeType> {
-  const directChildren = nodes.filter(
-    (node) => node.parentId === id && (!onlyOpenChildren || node.context?.open),
-  );
+  const directChildren = nodes.filter((node) => node.parentId === id);
+
   return directChildren.flatMap((child) => [
-    child,
+    ...(!onlyOpenChildren || child.context?.open ? [child] : []),
     ...getNodeChildren(nodes, child.id, onlyOpenChildren),
   ]);
 }

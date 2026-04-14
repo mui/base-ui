@@ -10,10 +10,10 @@ import {
   contains,
   getTarget,
   isTypeableCombobox,
-  isVirtualClick,
-  isVirtualPointerEvent,
-  stopEvent,
   getFloatingFocusElement,
+} from '../utils/element';
+import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
+import {
   isIndexOutOfListBounds,
   getMinListIndex,
   getMaxListIndex,
@@ -23,12 +23,12 @@ import {
   getGridCellIndices,
   getGridCellIndexOfCorner,
   findNonDisabledListIndex,
-} from '../utils';
+} from '../utils/composite';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
 
@@ -134,7 +134,7 @@ export interface UseListNavigationProps {
    */
   focusItemOnHover?: boolean | undefined;
   /**
-   * Whether pressing an arrow key on the navigation’s main axis opens the
+   * Whether pressing an arrow key on the navigation's main axis opens the
    * floating element.
    * @default true
    */
@@ -179,7 +179,7 @@ export interface UseListNavigationProps {
    */
   parentOrientation?: UseListNavigationProps['orientation'] | undefined;
   /**
-   * Whether the direction of the floating element’s navigation is in RTL
+   * Whether the direction of the floating element's navigation is in RTL
    * layout.
    * @default false
    */
@@ -190,7 +190,7 @@ export interface UseListNavigationProps {
    * (such as an input), but allow arrow keys to navigate list items.
    * This is common in autocomplete listbox components.
    * Your virtually-focused list items must have a unique `id` set on them.
-   * If you’re using a component role with the `useRole()` Hook, then an `id` is
+   * If you're using a component role with the `useRole()` Hook, then an `id` is
    * generated automatically.
    * @default false
    */
@@ -201,7 +201,7 @@ export interface UseListNavigationProps {
    */
   orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
   /**
-   * Specifies how many columns the list has (i.e., it’s a grid). Use an
+   * Specifies how many columns the list has (i.e., it's a grid). Use an
    * orientation of 'horizontal' (e.g. for an emoji picker/date picker, where
    * pressing ArrowRight or ArrowLeft can change rows), or 'both' (where the
    * current row cannot be escaped with ArrowRight or ArrowLeft, only ArrowUp
@@ -307,6 +307,7 @@ export function useListNavigation(
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
+  const cancelQueuedFocusRef = React.useRef<(() => void) | null>(null);
 
   const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
@@ -318,7 +319,7 @@ export function useListNavigation(
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
       } else {
-        enqueueFocus(item, {
+        cancelQueuedFocusRef.current = enqueueFocus(item, {
           sync: forceSyncFocusRef.current,
           preventScroll: true,
         });
@@ -494,18 +495,19 @@ export function useListNavigation(
 
   const hasActiveIndex = activeIndex != null;
 
-  const item = React.useMemo(() => {
-    function syncCurrentTarget(event: React.SyntheticEvent<any>) {
-      if (!latestOpenRef.current) {
-        return;
-      }
-      const index = listRef.current.indexOf(event.currentTarget);
-      if (index !== -1 && indexRef.current !== index) {
-        indexRef.current = index;
-        onNavigate(event);
-      }
+  const syncCurrentTarget = useStableCallback((event: React.SyntheticEvent<any>) => {
+    if (!latestOpenRef.current) {
+      return;
     }
 
+    const index = listRef.current.indexOf(event.currentTarget);
+    if (index !== -1 && (indexRef.current !== index || activeIndex !== index)) {
+      indexRef.current = index;
+      onNavigate(event);
+    }
+  });
+
+  const item = React.useMemo(() => {
     const itemProps: ElementProps['item'] = {
       onFocus(event) {
         forceSyncFocusRef.current = true;
@@ -540,7 +542,8 @@ export function useListNavigation(
           return;
         }
 
-        enqueueFocus(null, { sync: true });
+        cancelQueuedFocusRef.current?.();
+        cancelQueuedFocusRef.current = null;
 
         indexRef.current = -1;
         onNavigate(event);
@@ -557,6 +560,7 @@ export function useListNavigation(
 
     return itemProps;
   }, [
+    syncCurrentTarget,
     latestOpenRef,
     floatingFocusElementRef,
     focusItemOnHover,

@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
  * A paragraph with additional information about the dialog.
@@ -15,7 +15,7 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
   componentProps: DialogDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
   const { store } = useDialogRootContext();
 
   const id = useBaseUiId(idProp);

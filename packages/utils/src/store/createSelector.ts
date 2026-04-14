@@ -1,11 +1,25 @@
-type Fn = (...args: any[]) => any;
+import type { Selector } from 'reselect';
 
-type CreateSelectorFunction = <
+type Fn = (...args: any[]) => any;
+/**
+ * The NoOptionalParams type is a utility type that checks if a function has optional or default parameters.
+ * If the function has optional or default parameters, it returns a string literal type with an error message.
+ * Otherwise, it returns the original function type.
+ *
+ * This is used to enforce that the combiner function passed to createSelector does not have optional or default parameters,
+ * as memoization relies on the Function.length property, which does not account for optional or default parameters.
+ */
+type NoOptionalParams<F extends Fn> =
+  Parameters<F> extends Required<Parameters<F>>
+    ? F
+    : 'Combiner cannot have optional or default parameters because memoization relies on Function.length';
+
+export type CreateSelectorFunction = <
   const Args extends any[],
   const Selectors extends ReadonlyArray<(first: any, ...args: any[]) => any>,
   const Combiner extends (...args: readonly [...ReturnTypes<Selectors>, ...Args]) => any,
 >(
-  ...items: [...Selectors, Combiner]
+  ...items: [...Selectors, NoOptionalParams<Combiner>]
 ) => (
   ...args: Selectors['length'] extends 0
     ? MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>
@@ -41,9 +55,13 @@ type MergeParams<
 
 /**
  * Creates a selector function that can be used to derive values from the store's state.
- * The selector can take up to three additional arguments that can be used in the selector logic.
+ *
+ * The combiner function can have up to three additional parameters, but it **cannot have optional or default parameters**.
+ *
  * This function accepts up to six functions and combines them into a single selector function.
- * The last parameter is the combiner function that combines the results of the previous selectors.
+ * The resulting selector will take the state from the combined selectors and any additional parameters required by the combiner.
+ *
+ * The return type of the resulting selector is determined by the return type of the combiner function.
  *
  * @example
  * const selector = createSelector(
@@ -56,7 +74,6 @@ type MergeParams<
  *   (state) => state.open,
  *   (disabled, open) => ({ disabled, open })
  * );
- *
  */
 /* eslint-disable id-denylist */
 export const createSelector = ((

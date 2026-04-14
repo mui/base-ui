@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useButton } from '../../use-button';
+import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
-import { HTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../internals/types';
 import { MenuStore } from '../store/MenuStore';
 import { useMenuItemCommonProps } from './useMenuItemCommonProps';
 
@@ -95,7 +95,7 @@ export interface UseMenuItemParameters {
   /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
-   * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+   * Set to `false` if the rendered element is not a button (for example, `<div>`).
    * @default false
    */
   nativeButton: boolean;

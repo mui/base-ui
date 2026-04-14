@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import type { ToolbarRootState } from '../root/ToolbarRoot';
 import { ToolbarGroupContext } from './ToolbarGroupContext';
@@ -16,7 +16,13 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   componentProps: ToolbarGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, disabled: disabledProp = false, render, ...elementProps } = componentProps;
+  const {
+    className,
+    disabled: disabledProp = false,
+    render,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const { orientation, disabled: toolbarDisabled } = useToolbarRootContext();
 

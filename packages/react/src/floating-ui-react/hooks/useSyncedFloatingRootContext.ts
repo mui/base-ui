@@ -12,10 +12,6 @@ import { FloatingRootState, FloatingRootStore } from '../components/FloatingRoot
 export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreState<any>> {
   popupStore: ReactStore<State, PopupStoreContext<any>, PopupStoreSelectors>;
   /**
-   * Whether to prevent the auto-emitted `openchange` event.
-   */
-  noEmit?: boolean | undefined;
-  /**
    * Whether the Popup element is passed to Floating UI as the floating element instead of the default Positioner.
    */
   treatPopupAsFloatingElement?: boolean | undefined;
@@ -29,7 +25,7 @@ export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreSta
 export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>(
   options: UseSyncedFloatingRootContextOptions<State>,
 ): FloatingRootStore {
-  const { popupStore, noEmit = false, treatPopupAsFloatingElement = false, onOpenChange } = options;
+  const { popupStore, treatPopupAsFloatingElement = false, onOpenChange } = options;
 
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
@@ -45,13 +41,14 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
     () =>
       new FloatingRootStore({
         open,
+        transitionStatus: undefined,
         referenceElement,
         floatingElement,
         triggerElements,
         onOpenChange,
         floatingId,
+        syncOnly: true,
         nested,
-        noEmit,
       }),
   ).current;
 
@@ -77,7 +74,6 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
   // TODO: When `setOpen` is a part of the PopupStore API, we don't need to sync it.
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
-  store.context.noEmit = noEmit;
 
   return store;
 }

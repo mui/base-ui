@@ -1,12 +1,11 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { fireEvent, screen, flushMicrotasks, act, within, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { OPEN_DELAY } from '../utils/constants';
 
 function TestNavigationMenu(props: NavigationMenu.Root.Props) {
@@ -32,6 +31,130 @@ function TestNavigationMenu(props: NavigationMenu.Root.Props) {
       <NavigationMenu.Portal>
         <NavigationMenu.Positioner data-testid="top-level-positioner">
           <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
+function TestNavigationMenuWithTopLevelLink(props: NavigationMenu.Root.Props = {}) {
+  return (
+    <NavigationMenu.Root {...props}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-1">
+            <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-2">Item 2</NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-2">
+            <NavigationMenu.Link href="#link-2">Link 2</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="#top-level-link" data-testid="top-level-link">
+            Top level link
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner data-testid="top-level-positioner">
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
+const scopedPopupAnimationStyles = `
+  .test-navigation-menu-popup {
+    transition-property: opacity, transform, width, height;
+    transition-duration: 350ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .test-navigation-menu-popup[data-starting-style],
+  .test-navigation-menu-popup[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  .test-navigation-menu-popup[data-ending-style] {
+    transition-property: opacity, transform;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+
+  .test-navigation-menu-content {
+    transition:
+      opacity 175ms ease,
+      transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .test-navigation-menu-content[data-starting-style],
+  .test-navigation-menu-content[data-ending-style] {
+    opacity: 0;
+  }
+
+  .test-navigation-menu-content[data-starting-style][data-activation-direction='left'] {
+    transform: translateX(-2rem);
+  }
+
+  .test-navigation-menu-content[data-starting-style][data-activation-direction='right'] {
+    transform: translateX(2rem);
+  }
+
+  .test-navigation-menu-content[data-ending-style] {
+    transition-duration: 175ms;
+    transition-timing-function: ease;
+  }
+
+  .test-navigation-menu-content[data-ending-style][data-activation-direction='left'] {
+    transform: translateX(2rem);
+  }
+
+  .test-navigation-menu-content[data-ending-style][data-activation-direction='right'] {
+    transform: translateX(-2rem);
+  }
+`;
+
+function TestNavigationMenuWithTopLevelLinkScopedPopupAnimation() {
+  return (
+    <NavigationMenu.Root>
+      {/* eslint-disable-next-line react/no-danger */}
+      <style dangerouslySetInnerHTML={{ __html: scopedPopupAnimationStyles }} />
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-product">Product</NavigationMenu.Trigger>
+          <NavigationMenu.Content className="test-navigation-menu-content">
+            <div style={{ width: 675, height: 220 }}>Product panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="#top-level-link" data-testid="top-level-link">
+            Top level link
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-learn">Learn</NavigationMenu.Trigger>
+          <NavigationMenu.Content className="test-navigation-menu-content">
+            <div style={{ width: 500, height: 180 }}>Learn panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal keepMounted>
+        <NavigationMenu.Positioner data-testid="positioner">
+          <NavigationMenu.Popup className="test-navigation-menu-popup" data-testid="popup-root">
             <NavigationMenu.Viewport />
           </NavigationMenu.Popup>
         </NavigationMenu.Positioner>
@@ -416,68 +539,47 @@ function TestNavigationMenuWithKeepMountedContent() {
   );
 }
 
+function TestNavigationMenuWithKeepMountedContentClosed() {
+  return (
+    <NavigationMenu.Root>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-product">Product</NavigationMenu.Trigger>
+          <NavigationMenu.Content keepMounted>
+            <div style={{ width: 675, height: 220 }}>Product panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-learn">Learn</NavigationMenu.Trigger>
+          <NavigationMenu.Content keepMounted>
+            <div style={{ width: 500, height: 180 }}>Learn panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal keepMounted>
+        <NavigationMenu.Positioner data-testid="positioner">
+          <NavigationMenu.Popup data-testid="popup-root">
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 function TestNavigationMenuWithScopedPopupExitAnimation(
   props: {
     onOpenChangeComplete?: NavigationMenu.Root.Props['onOpenChangeComplete'];
   } = {},
 ) {
   const { onOpenChangeComplete } = props;
-  const style = `
-    .test-navigation-menu-popup {
-      transition-property: opacity, transform, width, height;
-      transition-duration: 350ms;
-      transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .test-navigation-menu-popup[data-starting-style],
-    .test-navigation-menu-popup[data-ending-style] {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-
-    .test-navigation-menu-popup[data-ending-style] {
-      transition-property: opacity, transform;
-      transition-duration: 150ms;
-      transition-timing-function: ease;
-    }
-
-    .test-navigation-menu-content {
-      transition:
-        opacity 175ms ease,
-        transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .test-navigation-menu-content[data-starting-style],
-    .test-navigation-menu-content[data-ending-style] {
-      opacity: 0;
-    }
-
-    .test-navigation-menu-content[data-starting-style][data-activation-direction='left'] {
-      transform: translateX(-2rem);
-    }
-
-    .test-navigation-menu-content[data-starting-style][data-activation-direction='right'] {
-      transform: translateX(2rem);
-    }
-
-    .test-navigation-menu-content[data-ending-style] {
-      transition-duration: 175ms;
-      transition-timing-function: ease;
-    }
-
-    .test-navigation-menu-content[data-ending-style][data-activation-direction='left'] {
-      transform: translateX(2rem);
-    }
-
-    .test-navigation-menu-content[data-ending-style][data-activation-direction='right'] {
-      transform: translateX(-2rem);
-    }
-  `;
 
   return (
     <NavigationMenu.Root onOpenChangeComplete={onOpenChangeComplete}>
       {/* eslint-disable-next-line react/no-danger */}
-      <style dangerouslySetInnerHTML={{ __html: style }} />
+      <style dangerouslySetInnerHTML={{ __html: scopedPopupAnimationStyles }} />
       <NavigationMenu.List>
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-product">Product</NavigationMenu.Trigger>
@@ -528,23 +630,45 @@ function mockBoundingClientRect(
 }
 
 function mockAnimations(element: HTMLElement) {
-  let resolveFinished: (() => void) | null = null;
-  let finishedPromise = Promise.resolve();
+  type MockAnimation = {
+    finished: Promise<void>;
+    resolveFinished: (() => void) | null;
+  };
+
+  function createAnimation(): MockAnimation {
+    let resolveFinished: (() => void) | null = null;
+
+    return {
+      finished: new Promise<void>((resolve) => {
+        resolveFinished = resolve;
+      }),
+      resolveFinished,
+    };
+  }
+
+  let currentAnimation = createAnimation();
+  let activeAnimations: MockAnimation[] = [];
 
   Object.defineProperty(element, 'getAnimations', {
     configurable: true,
-    value: () => [{ finished: finishedPromise }],
+    value: () =>
+      activeAnimations.map((animation) => ({
+        finished: animation.finished,
+      })),
   });
 
   return {
     start() {
-      finishedPromise = new Promise<void>((resolve) => {
-        resolveFinished = resolve;
-      });
+      currentAnimation = createAnimation();
+      activeAnimations.push(currentAnimation);
+      return currentAnimation;
     },
-    finish() {
-      resolveFinished?.();
-      resolveFinished = null;
+    finish(animation: MockAnimation = currentAnimation) {
+      const finished = animation.finished;
+      animation.resolveFinished?.();
+      animation.resolveFinished = null;
+      activeAnimations = activeAnimations.filter((item) => item !== animation);
+      return finished;
     },
   };
 }
@@ -832,18 +956,18 @@ describe('<NavigationMenu.Root />', () => {
     },
   }));
 
-  it('applies aria-orientation to the top-level list instead of the root element', async () => {
+  it('does not apply aria-orientation to the top-level list or root element', async () => {
     await render(<TestNavigationMenuOrientationAttributes />);
 
-    expect(screen.getByTestId('top-level-root')).not.to.have.attribute('aria-orientation');
-    expect(screen.getByTestId('top-level-list')).to.have.attribute('aria-orientation', 'vertical');
+    expect(screen.getByTestId('top-level-root')).not.toHaveAttribute('aria-orientation');
+    expect(screen.getByTestId('top-level-list')).not.toHaveAttribute('aria-orientation');
   });
 
-  it('applies aria-orientation to nested lists instead of nested root elements', async () => {
+  it('does not apply aria-orientation to nested lists or root elements', async () => {
     await render(<TestNavigationMenuOrientationAttributes />);
 
-    expect(screen.getByTestId('nested-root')).not.to.have.attribute('aria-orientation');
-    expect(screen.getByTestId('nested-list')).to.have.attribute('aria-orientation', 'vertical');
+    expect(screen.getByTestId('nested-root')).not.toHaveAttribute('aria-orientation');
+    expect(screen.getByTestId('nested-list')).not.toHaveAttribute('aria-orientation');
   });
 
   describe('interactions', () => {
@@ -856,28 +980,121 @@ describe('<NavigationMenu.Root />', () => {
       clock.tick(50);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it('blocks pointer events on the body while traversing from a top-level trigger to the popup', async () => {
+    it('blocks pointer events on the list while traversing from a top-level trigger to the popup', async () => {
       await render(<TestNavigationMenu />);
       const trigger = screen.getByTestId('trigger-1');
       const siblingTrigger = screen.getByTestId('trigger-2');
+      const topLevelList = trigger.closest('ul') as HTMLElement;
 
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
       clock.tick(50);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(document.body.style.pointerEvents).to.equal('none');
-      expect(getComputedStyle(siblingTrigger).pointerEvents).to.equal('none');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(siblingTrigger).pointerEvents).toBe('none');
 
       fireEvent.mouseEnter(screen.getByTestId('top-level-positioner'));
       await flushMicrotasks();
 
-      expect(document.body.style.pointerEvents).to.equal('');
+      expect(topLevelList.style.pointerEvents).toBe('');
+    });
+
+    it('reapplies top-level safePolygon pointer events after returning from the popup and switching triggers', async () => {
+      await render(<TestNavigationMenuWithTopLevelLink />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+      const topLevelLink = screen.getByTestId('top-level-link');
+      const topLevelList = trigger1.closest('ul') as HTMLElement;
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      const positioner = screen.getByTestId('top-level-positioner');
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+
+      fireEvent.mouseEnter(positioner);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('');
+
+      fireEvent.mouseLeave(positioner, { relatedTarget: trigger1 });
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+
+      fireEvent.mouseEnter(positioner);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('');
+
+      fireEvent.mouseLeave(positioner, { relatedTarget: trigger2 });
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
+    });
+
+    it('keeps top-level safePolygon pointer events active when switching directly to a different trigger', async () => {
+      await render(<TestNavigationMenuWithTopLevelLink />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+      const topLevelLink = screen.getByTestId('top-level-link');
+      const topLevelList = trigger1.closest('ul') as HTMLElement;
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+      expect(document.body.style.pointerEvents).toBe('');
+      expect(getComputedStyle(trigger1).pointerEvents).toBe('none');
+      expect(getComputedStyle(topLevelLink).pointerEvents).toBe('none');
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
+    });
+
+    it('clears top-level safePolygon pointer events on trigger pointerdown', async () => {
+      await render(<TestNavigationMenu />);
+      const trigger = screen.getByTestId('trigger-1');
+      const topLevelList = trigger.closest('ul') as HTMLElement;
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      expect(topLevelList.style.pointerEvents).toBe('none');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+
+      expect(topLevelList.style.pointerEvents).toBe('');
     });
 
     it.skipIf(isJSDOM)(
@@ -886,14 +1103,15 @@ describe('<NavigationMenu.Root />', () => {
         const { user } = await render(<TestNavigationMenu />);
         const trigger = screen.getByTestId('trigger-1');
         const siblingTrigger = screen.getByTestId('trigger-2');
+        const topLevelList = trigger.closest('ul') as HTMLElement;
 
         await user.hover(trigger);
 
         await waitFor(() => {
-          expect(document.body.style.pointerEvents).to.equal('none');
+          expect(topLevelList.style.pointerEvents).toBe('none');
         });
 
-        expect(getComputedStyle(siblingTrigger).pointerEvents).to.equal('none');
+        expect(getComputedStyle(siblingTrigger).pointerEvents).toBe('none');
       },
     );
 
@@ -904,8 +1122,8 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('does not open on hover with touch input', async () => {
@@ -915,8 +1133,8 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.pointerEnter(trigger, { pointerType: 'touch' });
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('opens on click with touch input', async () => {
@@ -928,8 +1146,8 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
     it.skipIf(isJSDOM)('restores hover open after a touch click closes outside', async () => {
@@ -948,17 +1166,17 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.click(trigger1);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
 
       await user.click(screen.getByTestId('outside'));
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      expect(screen.queryByTestId('popup-1')).toBe(null);
 
       await user.hover(trigger2);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-2')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-2')).not.toBe(null);
       });
     });
 
@@ -986,17 +1204,17 @@ describe('<NavigationMenu.Root />', () => {
         fireEvent.click(nestedTrigger2);
         await flushMicrotasks();
 
-        expect(screen.queryByTestId('nested-popup-2')).not.to.equal(null);
+        expect(screen.queryByTestId('nested-popup-2')).not.toBe(null);
 
         await user.click(screen.getByTestId('outside'));
         await flushMicrotasks();
 
-        expect(screen.queryByTestId('popup-1')).to.equal(null);
+        expect(screen.queryByTestId('popup-1')).toBe(null);
 
         await user.hover(trigger);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+          expect(screen.queryByTestId('popup-1')).not.toBe(null);
         });
       },
     );
@@ -1009,7 +1227,7 @@ describe('<NavigationMenu.Root />', () => {
       await user.hover(trigger1);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
 
       await user.click(trigger1);
@@ -1018,19 +1236,19 @@ describe('<NavigationMenu.Root />', () => {
       await user.hover(trigger2);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-2')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-2')).not.toBe(null);
       });
 
       await user.unhover(trigger2);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-2')).to.equal(null);
+        expect(screen.queryByTestId('popup-2')).toBe(null);
       });
 
       await user.hover(trigger1);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
     });
 
@@ -1041,7 +1259,7 @@ describe('<NavigationMenu.Root />', () => {
       await user.hover(trigger1);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
 
       const popup1 = screen.getByTestId('popup-1');
@@ -1052,7 +1270,7 @@ describe('<NavigationMenu.Root />', () => {
       await user.unhover(link1);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).to.equal(null);
+        expect(screen.queryByTestId('popup-1')).toBe(null);
       });
     });
 
@@ -1064,16 +1282,16 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.click(trigger1);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
 
       fireEvent.click(trigger2);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'false');
-      expect(screen.queryByTestId('popup-2')).not.to.equal(null);
-      expect(trigger2).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('does not close menu when clicking a different trigger on touch', async () => {
@@ -1084,18 +1302,18 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.click(trigger1);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
 
       fireEvent.pointerDown(trigger2, { pointerType: 'touch' });
       fireEvent.pointerUp(trigger2, { pointerType: 'touch' });
       fireEvent.click(trigger2);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'false');
-      expect(screen.queryByTestId('popup-2')).not.to.equal(null);
-      expect(trigger2).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-2')).not.toBe(null);
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('returns focus to trigger when closing menu', async () => {
@@ -1112,13 +1330,13 @@ describe('<NavigationMenu.Root />', () => {
       await user.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
       expect(trigger).toHaveFocus();
 
       await user.keyboard('{Escape}');
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      expect(screen.queryByTestId('popup-1')).toBe(null);
       expect(trigger).toHaveFocus();
     });
 
@@ -1137,13 +1355,13 @@ describe('<NavigationMenu.Root />', () => {
       await user.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
       expect(trigger).toHaveFocus();
 
       await user.click(screen.getByTestId('last'));
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      expect(screen.queryByTestId('popup-1')).toBe(null);
       expect(last).toHaveFocus();
     });
 
@@ -1156,16 +1374,16 @@ describe('<NavigationMenu.Root />', () => {
       clock.tick(OPEN_DELAY);
 
       const popup = await screen.findByTestId('popup-1');
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       fireEvent.mouseLeave(trigger);
       fireEvent.mouseLeave(popup);
       clock.tick(50);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).to.equal(null);
+        expect(screen.queryByTestId('popup-1')).toBe(null);
       });
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
       expect(trigger).not.toHaveFocus();
     });
 
@@ -1190,7 +1408,7 @@ describe('<NavigationMenu.Root />', () => {
       await user.tab();
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).to.equal(null);
+        expect(screen.queryByTestId('popup-1')).toBe(null);
       });
       expect(last).toHaveFocus();
       expect(trigger).not.toHaveFocus();
@@ -1206,15 +1424,15 @@ describe('<NavigationMenu.Root />', () => {
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
 
       clock.tick(PATIENT_CLICK_THRESHOLD);
 
       fireEvent.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
   });
 
@@ -1227,26 +1445,26 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.mouseMove(trigger);
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
   });
 
   describe('prop: onValueChange', () => {
     it('should call onValueChange when value changes', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       await render(<TestNavigationMenu onValueChange={onValueChange} />);
       const trigger1 = screen.getByTestId('trigger-1');
       const trigger2 = screen.getByTestId('trigger-2');
 
       fireEvent.click(trigger1);
       await flushMicrotasks();
-      expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.lastCall.args[0]).to.equal('item-1');
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.lastCall?.[0]).toBe('item-1');
 
       fireEvent.click(trigger2);
       await flushMicrotasks();
-      expect(onValueChange.callCount).to.equal(2);
-      expect(onValueChange.lastCall.args[0]).to.equal('item-2');
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.lastCall?.[0]).toBe('item-2');
     });
 
     it('should be controlled by value prop', async () => {
@@ -1257,7 +1475,7 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.mouseMove(trigger1);
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
-      expect(trigger1).to.have.attribute('aria-expanded', 'true');
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
 
       await setProps({ value: 'item-2' });
 
@@ -1268,8 +1486,8 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       trigger1 = screen.getByTestId('trigger-1');
-      expect(trigger1).to.have.attribute('aria-expanded', 'false');
-      expect(trigger2).to.have.attribute('aria-expanded', 'true');
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
   });
 
@@ -1285,13 +1503,13 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       // Menu shouldn't be open yet since we're before the delay
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      expect(screen.queryByTestId('popup-1')).toBe(null);
 
       clock.tick(50);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
   });
 
@@ -1305,20 +1523,20 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.mouseMove(trigger);
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
 
       fireEvent.mouseLeave(trigger);
       clock.tick(customCloseDelay - 25);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
 
       // Complete the closeDelay
       clock.tick(50);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
   });
 
@@ -1337,7 +1555,7 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.click(trigger1);
       await flushMicrotasks();
 
-      expect(screen.getByTestId('popup-1')).not.to.equal(null);
+      expect(screen.getByTestId('popup-1')).not.toBe(null);
       expect(trigger1).toHaveFocus();
 
       await user.tab();
@@ -1352,7 +1570,7 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.click(screen.getByTestId('trigger-2'));
       await flushMicrotasks();
 
-      expect(screen.getByTestId('popup-2')).not.to.equal(null);
+      expect(screen.getByTestId('popup-2')).not.toBe(null);
 
       await user.tab();
       expect(screen.getByText('Link 3')).toHaveFocus();
@@ -1381,7 +1599,7 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.getByTestId('popup-1')).not.to.equal(null);
+      expect(screen.getByTestId('popup-1')).not.toBe(null);
       expect(trigger).toHaveFocus();
 
       await user.tab(); // Link 1
@@ -1389,7 +1607,37 @@ describe('<NavigationMenu.Root />', () => {
       await user.tab(); // trigger 2
       await user.tab(); // last
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+    });
+
+    it('returns to the last submenu item when shift+tabbing after tabbing out of it', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="first" />
+          <TestNavigationMenu />
+          <button data-testid="last" />
+        </div>,
+      );
+      const trigger = screen.getByTestId('trigger-1');
+
+      await act(async () => trigger.focus());
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('popup-1')).not.toBe(null);
+      expect(trigger).toHaveFocus();
+
+      await user.tab();
+      expect(screen.getByText('Link 1')).toHaveFocus();
+
+      await user.tab();
+      expect(screen.getByText('Link 2')).toHaveFocus();
+
+      await user.tab();
+      expect(screen.getByTestId('trigger-2')).toHaveFocus();
+
+      await user.tab({ shift: true });
+      expect(screen.getByText('Link 2')).toHaveFocus();
     });
 
     it('closes the menu when tabbing back out', async () => {
@@ -1405,7 +1653,7 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.getByTestId('popup-1')).not.to.equal(null);
+      expect(screen.getByTestId('popup-1')).not.toBe(null);
       expect(trigger).toHaveFocus();
 
       await user.tab();
@@ -1414,7 +1662,7 @@ describe('<NavigationMenu.Root />', () => {
       await user.tab({ shift: true }); // trigger 1
       await user.tab({ shift: true }); // first
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      expect(screen.queryByTestId('popup-1')).toBe(null);
     });
   });
 
@@ -1436,9 +1684,9 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.click(dialogTrigger);
 
-      expect(await screen.findByTestId('dialog-popup')).not.to.equal(null);
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(await screen.findByTestId('dialog-popup')).not.toBe(null);
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('keeps the menu open when interacting with a nested dialog', async () => {
@@ -1448,21 +1696,21 @@ describe('<NavigationMenu.Root />', () => {
       await user.click(trigger);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       const dialogTrigger = screen.getByTestId('dialog-trigger');
       await user.click(dialogTrigger);
 
-      expect(await screen.findByTestId('dialog-popup')).not.to.equal(null);
+      expect(await screen.findByTestId('dialog-popup')).not.toBe(null);
 
       await user.click(screen.getByTestId('dialog-button'));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('keeps the menu open when interacting with a nested popover', async () => {
@@ -1472,21 +1720,21 @@ describe('<NavigationMenu.Root />', () => {
       await user.click(trigger);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       const popoverTrigger = screen.getByTestId('popover-trigger');
       await user.click(popoverTrigger);
 
-      expect(await screen.findByTestId('popover-popup')).not.to.equal(null);
+      expect(await screen.findByTestId('popover-popup')).not.toBe(null);
 
       await user.click(screen.getByTestId('popover-button'));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
   });
 
@@ -1501,8 +1749,8 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       const popup1 = screen.getByTestId('popup-1');
-      expect(popup1).not.to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'true');
+      expect(popup1).not.toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
 
       const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
 
@@ -1512,17 +1760,17 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       const nestedPopup1 = screen.getByTestId('nested-popup-1');
-      expect(nestedPopup1).not.to.equal(null);
-      expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+      expect(nestedPopup1).not.toBe(null);
+      expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
 
       fireEvent.mouseEnter(nestedPopup1);
       fireEvent.mouseMove(nestedPopup1);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(screen.queryByTestId('nested-popup-1')).not.to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'true');
-      expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+      expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('handles inline nested menu without positioner/popup correctly', async () => {
@@ -1535,8 +1783,8 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       const popup1 = screen.getByTestId('popup-1');
-      expect(popup1).not.to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'true');
+      expect(popup1).not.toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
 
       const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
 
@@ -1546,17 +1794,17 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       const nestedPopup1 = screen.getByTestId('nested-popup-1');
-      expect(nestedPopup1).not.to.equal(null);
-      expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+      expect(nestedPopup1).not.toBe(null);
+      expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
 
       fireEvent.mouseEnter(nestedPopup1);
       fireEvent.mouseMove(nestedPopup1);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(screen.queryByTestId('nested-popup-1')).not.to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'true');
-      expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+      expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
 
       const nestedTrigger2 = within(popup1).getByTestId('nested-trigger-2');
       fireEvent.mouseEnter(nestedTrigger2);
@@ -1565,9 +1813,9 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
 
       const nestedPopup2 = screen.getByTestId('nested-popup-2');
-      expect(nestedPopup2).not.to.equal(null);
-      expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
-      expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
+      expect(nestedPopup2).not.toBe(null);
+      expect(nestedTrigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('keeps parent menu open when hovering inline nested triggers without defaultValue', async () => {
@@ -1581,17 +1829,17 @@ describe('<NavigationMenu.Root />', () => {
 
       const popup1 = screen.getByTestId('popup-1');
       const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
-      expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
+      expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'false');
 
       fireEvent.mouseEnter(nestedTrigger1);
       fireEvent.mouseMove(nestedTrigger1);
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'true');
-      expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
-      expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('nested-popup-1')).not.toBe(null);
+      expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
 
       const nestedTrigger2 = within(popup1).getByTestId('nested-trigger-2');
       fireEvent.mouseEnter(nestedTrigger2);
@@ -1599,10 +1847,10 @@ describe('<NavigationMenu.Root />', () => {
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'true');
-      expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
-      expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-1')).not.toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('nested-popup-2')).not.toBe(null);
+      expect(nestedTrigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('closes the parent menu after a nested submenu closes on delayed hover-out', async () => {
@@ -1627,7 +1875,7 @@ describe('<NavigationMenu.Root />', () => {
 
       const nestedPopup1 = screen.getByTestId('nested-popup-1');
       const nestedPositioner = screen.getByTestId('nested-positioner');
-      expect(nestedPopup1).not.to.equal(null);
+      expect(nestedPopup1).not.toBe(null);
 
       fireEvent.mouseLeave(nestedTrigger1);
       fireEvent.mouseLeave(nestedPositioner);
@@ -1635,9 +1883,9 @@ describe('<NavigationMenu.Root />', () => {
       clock.tick(closeDelay);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('nested-popup-1')).toBe(null);
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('closes the parent menu when a nested link with closeOnClick is clicked', async () => {
@@ -1647,7 +1895,7 @@ describe('<NavigationMenu.Root />', () => {
       await user.click(trigger1);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
 
       const popup1 = screen.getByTestId('popup-1');
@@ -1658,20 +1906,20 @@ describe('<NavigationMenu.Root />', () => {
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('nested-popup-1')).not.to.equal(null);
+      expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
 
       const nestedLink = screen.getByTestId('nested-link-1');
       await user.click(nestedLink);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
+        expect(screen.queryByTestId('nested-popup-1')).toBe(null);
       });
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('calls onValueChange on the parent root when nested closeOnClick link is clicked', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const { user } = await render(
         <TestNestedNavigationMenuWithCloseOnClick onValueChange={onValueChange} />,
       );
@@ -1680,7 +1928,7 @@ describe('<NavigationMenu.Root />', () => {
       await user.click(trigger1);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+        expect(screen.queryByTestId('popup-1')).not.toBe(null);
       });
 
       const popup1 = screen.getByTestId('popup-1');
@@ -1695,7 +1943,7 @@ describe('<NavigationMenu.Root />', () => {
       await user.click(nestedLink);
 
       await waitFor(() => {
-        expect(onValueChange.lastCall.args[0]).to.equal(null);
+        expect(onValueChange.mock.lastCall?.[0]).toBe(null);
       });
     });
 
@@ -1706,21 +1954,21 @@ describe('<NavigationMenu.Root />', () => {
       await user.click(trigger1);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('content-1')).not.to.equal(null);
+        expect(screen.queryByTestId('content-1')).not.toBe(null);
       });
 
-      expect(screen.queryByTestId('level2-content-1')).not.to.equal(null);
-      expect(screen.queryByTestId('level3-content-1')).not.to.equal(null);
+      expect(screen.queryByTestId('level2-content-1')).not.toBe(null);
+      expect(screen.queryByTestId('level3-content-1')).not.toBe(null);
 
       const level3Link = screen.getByTestId('level3-link-1');
       await user.click(level3Link);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('level3-content-1')).to.equal(null);
+        expect(screen.queryByTestId('level3-content-1')).toBe(null);
       });
-      expect(screen.queryByTestId('level2-content-1')).to.equal(null);
-      expect(screen.queryByTestId('content-1')).to.equal(null);
-      expect(trigger1).to.have.attribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('level2-content-1')).toBe(null);
+      expect(screen.queryByTestId('content-1')).toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
     });
 
     describe('inline nested viewport', () => {
@@ -1734,14 +1982,14 @@ describe('<NavigationMenu.Root />', () => {
         await flushMicrotasks();
 
         const popup1 = screen.getByTestId('popup-1');
-        expect(popup1).not.to.equal(null);
+        expect(popup1).not.toBe(null);
 
         const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
 
         const nestedPopup1 = screen.getByTestId('nested-popup-1');
-        expect(nestedPopup1).not.to.equal(null);
-        expect(screen.getByText('Nested Link 1')).not.to.equal(null);
+        expect(nestedPopup1).not.toBe(null);
+        expect(screen.getByText('Nested Link 1')).not.toBe(null);
       });
 
       it('switches content in viewport when hovering different nested triggers', async () => {
@@ -1757,28 +2005,28 @@ describe('<NavigationMenu.Root />', () => {
         const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
         const nestedTrigger2 = within(popup1).getByTestId('nested-trigger-2');
 
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
-        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-1')).not.toBe(null);
 
         fireEvent.mouseEnter(nestedTrigger2);
         fireEvent.mouseMove(nestedTrigger2);
         clock.tick(OPEN_DELAY);
         await flushMicrotasks();
 
-        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
-        expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
-        expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
+        expect(nestedTrigger2).toHaveAttribute('aria-expanded', 'true');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.getByTestId('nested-popup-2')).not.toBe(null);
+        expect(screen.queryByTestId('nested-popup-1')).toBe(null);
 
         fireEvent.mouseEnter(nestedTrigger1);
         fireEvent.mouseMove(nestedTrigger1);
         clock.tick(OPEN_DELAY);
         await flushMicrotasks();
 
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
-        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'false');
-        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
-        expect(screen.queryByTestId('nested-popup-2')).to.equal(null);
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+        expect(nestedTrigger2).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.getByTestId('nested-popup-1')).not.toBe(null);
+        expect(screen.queryByTestId('nested-popup-2')).toBe(null);
       });
 
       it('scopes inline safePolygon pointer events to the submenu list while traversing to the viewport', async () => {
@@ -1798,27 +2046,27 @@ describe('<NavigationMenu.Root />', () => {
         mockBoundingClientRect(nestedViewport, { x: 200, y: 0, width: 300, height: 300 });
         fireEvent.mouseEnter(nestedTrigger1);
 
-        expect(nestedList.style.pointerEvents).to.equal('none');
+        expect(nestedList.style.pointerEvents).toBe('none');
 
         fireEvent.mouseLeave(nestedTrigger1, {
           clientX: 98,
           clientY: 60,
         });
 
-        expect(nestedList.style.pointerEvents).to.equal('none');
-        expect(document.body.style.pointerEvents).to.equal('none');
+        expect(nestedList.style.pointerEvents).toBe('none');
+        expect(document.body.style.pointerEvents).toBe('');
 
         fireEvent.mouseMove(document, { clientX: 150, clientY: 80 });
         await flushMicrotasks();
 
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
-        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
-        expect(nestedList.style.pointerEvents).to.equal('none');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-1')).not.toBe(null);
+        expect(nestedList.style.pointerEvents).toBe('none');
 
         fireEvent.mouseEnter(nestedViewport);
         await flushMicrotasks();
 
-        expect(nestedList.style.pointerEvents).to.equal('');
+        expect(nestedList.style.pointerEvents).toBe('');
       });
 
       it('clears inline safePolygon pointer events when the pointer leaves the traversal path', async () => {
@@ -1838,20 +2086,20 @@ describe('<NavigationMenu.Root />', () => {
         mockBoundingClientRect(nestedViewport, { x: 200, y: 0, width: 300, height: 300 });
         fireEvent.mouseEnter(nestedTrigger1);
 
-        expect(nestedList.style.pointerEvents).to.equal('none');
+        expect(nestedList.style.pointerEvents).toBe('none');
 
         fireEvent.mouseLeave(nestedTrigger1, {
           clientX: 98,
           clientY: 60,
         });
-        expect(nestedList.style.pointerEvents).to.equal('none');
+        expect(nestedList.style.pointerEvents).toBe('none');
 
         fireEvent.mouseMove(document, { clientX: 40, clientY: 220 });
         await flushMicrotasks();
 
-        expect(nestedList.style.pointerEvents).to.equal('');
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
-        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
+        expect(nestedList.style.pointerEvents).toBe('');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-1')).not.toBe(null);
       });
 
       it('keeps inline safePolygon pointer events when returning to the original trigger before traversing again', async () => {
@@ -1892,7 +2140,7 @@ describe('<NavigationMenu.Root />', () => {
         clock.tick(OPEN_DELAY);
         await flushMicrotasks();
 
-        expect(nestedList.style.pointerEvents).to.equal('none');
+        expect(nestedList.style.pointerEvents).toBe('none');
 
         fireEvent.mouseLeave(nestedTrigger1, {
           clientX: 98,
@@ -1901,11 +2149,11 @@ describe('<NavigationMenu.Root />', () => {
         fireEvent.mouseMove(document, { clientX: 150, clientY: 80 });
         await flushMicrotasks();
 
-        expect(nestedList.style.pointerEvents).to.equal('none');
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
-        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'false');
-        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
-        expect(screen.queryByTestId('nested-popup-2')).to.equal(null);
+        expect(nestedList.style.pointerEvents).toBe('none');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+        expect(nestedTrigger2).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.getByTestId('nested-popup-1')).not.toBe(null);
+        expect(screen.queryByTestId('nested-popup-2')).toBe(null);
       });
 
       it('closes inline nested viewport when parent menu closes', async () => {
@@ -1918,20 +2166,20 @@ describe('<NavigationMenu.Root />', () => {
         await flushMicrotasks();
 
         const popup1 = screen.getByTestId('popup-1');
-        expect(popup1).not.to.equal(null);
+        expect(popup1).not.toBe(null);
 
         const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
-        expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-1')).not.toBe(null);
 
         fireEvent.mouseLeave(trigger1);
         fireEvent.mouseLeave(popup1);
         clock.tick(50); // closeDelay
         await flushMicrotasks();
 
-        expect(screen.queryByTestId('popup-1')).to.equal(null);
-        expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
-        expect(trigger1).to.have.attribute('aria-expanded', 'false');
+        expect(screen.queryByTestId('popup-1')).toBe(null);
+        expect(screen.queryByTestId('nested-popup-1')).toBe(null);
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
       });
 
       it('maintains inline viewport state when hovering between triggers and content', async () => {
@@ -1951,23 +2199,23 @@ describe('<NavigationMenu.Root />', () => {
         clock.tick(OPEN_DELAY);
         await flushMicrotasks();
 
-        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
+        expect(nestedTrigger2).toHaveAttribute('aria-expanded', 'true');
         const nestedPopup2 = screen.getByTestId('nested-popup-2');
-        expect(nestedPopup2).not.to.equal(null);
+        expect(nestedPopup2).not.toBe(null);
 
         fireEvent.mouseEnter(nestedPopup2);
         fireEvent.mouseMove(nestedPopup2);
         await flushMicrotasks();
 
-        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
-        expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
+        expect(nestedTrigger2).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-2')).not.toBe(null);
 
         fireEvent.mouseEnter(nestedTrigger2);
         fireEvent.mouseMove(nestedTrigger2);
         await flushMicrotasks();
 
-        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
-        expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
+        expect(nestedTrigger2).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-2')).not.toBe(null);
       });
 
       it('handles click interactions on inline nested menu triggers', async () => {
@@ -1978,27 +2226,27 @@ describe('<NavigationMenu.Root />', () => {
         await flushMicrotasks();
 
         const popup1 = screen.getByTestId('popup-1');
-        expect(popup1).not.to.equal(null);
+        expect(popup1).not.toBe(null);
 
         const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
 
         const nestedTrigger2 = within(popup1).getByTestId('nested-trigger-2');
         fireEvent.click(nestedTrigger2);
         await flushMicrotasks();
 
-        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
-        expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
-        expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
+        expect(nestedTrigger2).toHaveAttribute('aria-expanded', 'true');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.getByTestId('nested-popup-2')).not.toBe(null);
+        expect(screen.queryByTestId('nested-popup-1')).toBe(null);
 
         fireEvent.click(nestedTrigger2);
         await flushMicrotasks();
 
-        expect(nestedTrigger2).to.have.attribute('aria-expanded', 'true');
-        expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
-        expect(screen.queryByTestId('nested-popup-2')).not.to.equal(null);
-        expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
+        expect(nestedTrigger2).toHaveAttribute('aria-expanded', 'true');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByTestId('nested-popup-2')).not.toBe(null);
+        expect(screen.queryByTestId('nested-popup-1')).toBe(null);
       });
 
       it('allows arrow key navigation to submenu triggers', async () => {
@@ -2009,7 +2257,7 @@ describe('<NavigationMenu.Root />', () => {
         await flushMicrotasks();
 
         const popup1 = screen.getByTestId('popup-1');
-        expect(popup1).not.to.equal(null);
+        expect(popup1).not.toBe(null);
 
         const link1 = screen.getByText('Link 1');
         await act(async () => link1.focus());
@@ -2043,7 +2291,7 @@ describe('<NavigationMenu.Root />', () => {
         await flushMicrotasks();
 
         const content1 = screen.getByTestId('content-1');
-        expect(content1).not.to.equal(null);
+        expect(content1).not.toBe(null);
 
         // Level 1 content contains: Link 1, Level2-trigger-1, Level2-trigger-2
         const link1 = screen.getByTestId('link-1');
@@ -2123,11 +2371,11 @@ describe('<NavigationMenu.Root />', () => {
           fireEvent.click(screen.getByTestId('insert-content'));
           await flushMicrotasks();
 
-          expect(screen.getByTestId('extra-content')).not.to.equal(null);
+          expect(screen.getByTestId('extra-content')).not.toBe(null);
           await waitFor(() => {
             expect(
               parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
-            ).to.equal(220);
+            ).toBe(220);
           });
 
           await act(async () => {
@@ -2136,10 +2384,10 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).to.equal('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
-            expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('250px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('220px');
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('220px');
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
@@ -2192,12 +2440,12 @@ describe('<NavigationMenu.Root />', () => {
 
           await flushMicrotasks();
 
-          expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
+          expect(screen.getByTestId('nested-popup-1')).not.toBe(null);
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).to.equal('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
-            expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('250px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('220px');
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('220px');
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
@@ -2246,18 +2494,18 @@ describe('<NavigationMenu.Root />', () => {
           positioner.style.setProperty('--positioner-width', '250px');
           positioner.style.setProperty('--positioner-height', '220px');
 
-          const setPropertySpy = spy(positioner.style, 'setProperty');
+          const setPropertySpy = vi.spyOn(positioner.style, 'setProperty');
 
           animations.start();
           fireEvent.click(screen.getByTestId('insert-content'));
           await flushMicrotasks();
 
-          expect(screen.getByTestId('extra-content-2')).not.to.equal(null);
+          expect(screen.getByTestId('extra-content-2')).not.toBe(null);
           expect(
-            setPropertySpy
-              .getCalls()
-              .some((call) => call.args[0] === '--positioner-height' && call.args[1] === '190px'),
-          ).to.equal(true);
+            setPropertySpy.mock.calls.some(
+              (call) => call[0] === '--positioner-height' && call[1] === '190px',
+            ),
+          ).toBe(true);
 
           await act(async () => {
             animations.finish();
@@ -2265,11 +2513,11 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await waitFor(() => {
-            expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('260px');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('260px');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
           });
 
-          setPropertySpy.restore();
+          setPropertySpy.mockRestore();
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
         }
@@ -2308,10 +2556,10 @@ describe('<NavigationMenu.Root />', () => {
           await flushMicrotasks();
 
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).to.equal('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
-            expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('500px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('180px');
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('180px');
           });
         } finally {
           restoreResizeObserver();
@@ -2353,8 +2601,8 @@ describe('<NavigationMenu.Root />', () => {
           fireEvent.click(screen.getByTestId('trigger-learn'));
           await flushMicrotasks();
 
-          expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('500px');
-          expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('180px');
+          expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
+          expect(positioner.style.getPropertyValue('--positioner-height')).toBe('180px');
 
           await act(async () => {
             animations.finish();
@@ -2362,14 +2610,208 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await waitFor(() => {
-            expect(popupRoot.style.getPropertyValue('--popup-width')).to.equal('auto');
-            expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('auto');
-            expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('500px');
-            expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('180px');
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('180px');
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
           restoreResizeObserver();
+        }
+      });
+
+      it('ignores the initial open size reset once a trigger switch has started', async () => {
+        const restoreResizeObserver = mockResizeObserver();
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        try {
+          function waitForAnimationFrame() {
+            return new Promise<void>((resolve) => {
+              requestAnimationFrame(() => {
+                resolve();
+              });
+            });
+          }
+
+          await render(<TestNavigationMenuWithKeepMountedContentClosed />);
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+          const animations = mockAnimations(popupRoot);
+
+          async function waitForSettledAnimations() {
+            await act(async () => {
+              await flushMicrotasks();
+              await waitForAnimationFrame();
+              await waitForAnimationFrame();
+            });
+          }
+
+          async function finishAnimation(animation: Parameters<typeof animations.finish>[0]) {
+            await act(async () => {
+              await animations.finish(animation);
+              await flushMicrotasks();
+              await waitForAnimationFrame();
+              await waitForAnimationFrame();
+            });
+          }
+
+          let popupWidth = 675;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => popupHeight,
+          });
+
+          const openAnimation = animations.start();
+          fireEvent.click(screen.getByTestId('trigger-product'));
+          await waitForSettledAnimations();
+
+          popupWidth = 500;
+          popupHeight = 180;
+
+          const switchAnimation = animations.start();
+          fireEvent.click(screen.getByTestId('trigger-learn'));
+          await waitForSettledAnimations();
+
+          await waitFor(() => {
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('180px');
+          });
+
+          await finishAnimation(openAnimation);
+
+          expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('500px');
+          expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('180px');
+
+          await finishAnimation(switchAnimation);
+
+          await waitFor(() => {
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+          });
+        } finally {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+          restoreResizeObserver();
+        }
+      });
+
+      it('seeds the popup width from the exiting panel when reopening after hovering a top-level link', async () => {
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        let popupWidthSpy: ReturnType<typeof vi.spyOn> | undefined;
+
+        try {
+          function waitForAnimationFrame() {
+            return new Promise<void>((resolve) => {
+              requestAnimationFrame(() => {
+                resolve();
+              });
+            });
+          }
+
+          await render(<TestNavigationMenuWithTopLevelLinkScopedPopupAnimation />);
+
+          const triggerProduct = screen.getByTestId('trigger-product');
+          const triggerLearn = screen.getByTestId('trigger-learn');
+          const topLevelLink = screen.getByTestId('top-level-link');
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+          const animations = mockAnimations(popupRoot);
+
+          let nextPanelWidth = 675;
+          let nextPanelHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => {
+              const fixedWidth = popupRoot.style.getPropertyValue('--popup-width');
+              return fixedWidth && fixedWidth !== 'auto'
+                ? parseInt(fixedWidth, 10)
+                : nextPanelWidth;
+            },
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => {
+              const fixedHeight = popupRoot.style.getPropertyValue('--popup-height');
+              return fixedHeight && fixedHeight !== 'auto'
+                ? parseInt(fixedHeight, 10)
+                : nextPanelHeight;
+            },
+          });
+
+          const openAnimation = animations.start();
+          fireEvent.mouseEnter(triggerProduct);
+          fireEvent.mouseMove(triggerProduct);
+          clock.tick(OPEN_DELAY);
+          await flushMicrotasks();
+
+          await act(async () => {
+            await animations.finish(openAnimation);
+            await flushMicrotasks();
+          });
+
+          await waitFor(() => {
+            expect(triggerProduct).toHaveAttribute('aria-expanded', 'true');
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+          });
+
+          const closeAnimation = animations.start();
+          fireEvent.mouseLeave(triggerProduct, { relatedTarget: topLevelLink });
+          fireEvent.mouseEnter(topLevelLink);
+          fireEvent.mouseMove(topLevelLink);
+          clock.tick(OPEN_DELAY);
+          await flushMicrotasks();
+
+          await waitFor(() => {
+            expect(triggerProduct).toHaveAttribute('aria-expanded', 'false');
+          });
+
+          nextPanelWidth = 500;
+          nextPanelHeight = 180;
+          popupWidthSpy = vi.spyOn(popupRoot.style, 'setProperty');
+
+          const reopenAnimation = animations.start();
+          fireEvent.mouseEnter(triggerLearn);
+          fireEvent.mouseMove(triggerLearn);
+          clock.tick(OPEN_DELAY);
+          await flushMicrotasks();
+
+          await act(async () => {
+            await waitForAnimationFrame();
+            await flushMicrotasks();
+          });
+
+          const popupWidthCalls = (
+            popupWidthSpy.mock.calls as Array<[property: string, value: string, priority?: string]>
+          )
+            .filter((call) => call[0] === '--popup-width')
+            .map((call) => call[1]);
+          const exitingWidthIndex = popupWidthCalls.indexOf('675px');
+          const reopeningWidthIndex = popupWidthCalls.lastIndexOf('500px');
+
+          expect(triggerLearn).toHaveAttribute('aria-expanded', 'true');
+          expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
+          expect(exitingWidthIndex).toBeGreaterThan(-1);
+          expect(reopeningWidthIndex).toBeGreaterThan(exitingWidthIndex);
+
+          await act(async () => {
+            await animations.finish(closeAnimation);
+            await animations.finish(reopenAnimation);
+            await flushMicrotasks();
+          });
+        } finally {
+          popupWidthSpy?.mockRestore();
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
         }
       });
 
@@ -2378,7 +2820,7 @@ describe('<NavigationMenu.Root />', () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
         try {
-          const onOpenChangeComplete = spy();
+          const onOpenChangeComplete = vi.fn();
           const { user } = await render(
             <TestNavigationMenuWithScopedPopupExitAnimation
               onOpenChangeComplete={onOpenChangeComplete}
@@ -2397,7 +2839,7 @@ describe('<NavigationMenu.Root />', () => {
             const hasRunningAnimations = popupRoot
               .getAnimations()
               .some((animation) => animation.playState !== 'finished');
-            expect(hasRunningAnimations).to.equal(false);
+            expect(hasRunningAnimations).toBe(false);
           });
 
           const closeStart = performance.now();
@@ -2405,11 +2847,11 @@ describe('<NavigationMenu.Root />', () => {
           await flushMicrotasks();
 
           await waitFor(() => {
-            expect(onOpenChangeComplete.callCount).to.equal(1);
-            expect(onOpenChangeComplete.firstCall.args[0]).to.equal(false);
+            expect(onOpenChangeComplete.mock.calls.length).toBe(1);
+            expect(onOpenChangeComplete.mock.calls[0][0]).toBe(false);
           });
 
-          expect(performance.now() - closeStart).to.be.lessThan(325);
+          expect(performance.now() - closeStart).toBeLessThan(325);
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
         }
@@ -2450,10 +2892,10 @@ describe('<NavigationMenu.Root />', () => {
         fireEvent.blur(trigger1, { relatedTarget: document.body });
         await flushMicrotasks();
 
-        expect(popupRoot.style.getPropertyValue('--popup-width')).to.equal('250px');
-        expect(popupRoot.style.getPropertyValue('--popup-height')).to.equal('120px');
-        expect(positioner.style.getPropertyValue('--positioner-width')).to.equal('250px');
-        expect(positioner.style.getPropertyValue('--positioner-height')).to.equal('120px');
+        expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('250px');
+        expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('120px');
+        expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
+        expect(positioner.style.getPropertyValue('--positioner-height')).toBe('120px');
       });
 
       it('tabs from the last link of the last nested panel to the next top-level trigger', async () => {
@@ -2470,8 +2912,8 @@ describe('<NavigationMenu.Root />', () => {
         await user.tab();
 
         expect(screen.getByTestId('trigger-2')).toHaveFocus();
-        expect(screen.getByTestId('nested-popup-2')).not.to.equal(null);
-        expect(screen.getByTestId('nested-trigger-2')).to.have.attribute('aria-expanded', 'true');
+        expect(screen.getByTestId('nested-popup-2')).not.toBe(null);
+        expect(screen.getByTestId('nested-trigger-2')).toHaveAttribute('aria-expanded', 'true');
       });
 
       it('tabs between nested triggers and links without opening inactive panels', async () => {
@@ -2499,10 +2941,33 @@ describe('<NavigationMenu.Root />', () => {
 
         await user.tab();
         expect(screen.getByTestId('nested-trigger-design-systems')).toHaveFocus();
-        expect(screen.queryByTestId('nested-popup-design-systems')).to.equal(null);
+        expect(screen.queryByTestId('nested-popup-design-systems')).toBe(null);
 
         await user.tab();
         expect(screen.getByText('Engineering Leads')).toHaveFocus();
+      });
+
+      it('returns to the last inline submenu item when shift+tabbing after leaving it', async () => {
+        const { user } = await render(<TestInlineNestedNavigationMenuTabFlow />);
+        const triggerProduct = screen.getByTestId('trigger-product');
+
+        await user.click(triggerProduct);
+        await flushMicrotasks();
+
+        await user.tab();
+        expect(screen.getByTestId('nested-trigger-developers')).toHaveFocus();
+
+        await user.tab();
+        expect(screen.getByTestId('nested-link-get-started')).toHaveFocus();
+
+        await user.tab();
+        expect(screen.getByTestId('nested-link-composition')).toHaveFocus();
+
+        await user.tab();
+        expect(screen.getByTestId('nested-trigger-design-systems')).toHaveFocus();
+
+        await user.tab({ shift: true });
+        expect(screen.getByTestId('nested-link-composition')).toHaveFocus();
       });
     });
   });

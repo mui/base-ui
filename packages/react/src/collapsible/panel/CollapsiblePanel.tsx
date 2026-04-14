@@ -2,15 +2,15 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRootState } from '../root/CollapsibleRoot';
 import { collapsibleStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 /**
  * A panel with the collapsible contents.
@@ -28,6 +28,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     keepMounted: keepMountedProp,
     render,
     id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -147,7 +148,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     stateAttributesMapping: collapsibleStateAttributesMapping,
   });
 
-  const shouldRender = keepMounted || hiddenUntilFound || (!keepMounted && mounted);
+  const shouldRender = keepMounted || hiddenUntilFound || mounted;
 
   if (!shouldRender) {
     return null;
@@ -165,7 +166,7 @@ export interface CollapsiblePanelState extends CollapsibleRootState {
 
 export interface CollapsiblePanelProps extends BaseUIComponentProps<'div', CollapsiblePanelState> {
   /**
-   * Allows the browser’s built-in page search to find and expand the panel contents.
+   * Allows the browser's built-in page search to find and expand the panel contents.
    *
    * Overrides the `keepMounted` prop and uses `hidden="until-found"`
    * to hide the element without removing it from the DOM.

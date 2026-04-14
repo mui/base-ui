@@ -4,26 +4,23 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
-import { onVisible } from '../utils/onVisible';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
 import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
-import { normalizeScrollOffset } from '../utils/scrollEdges';
+import { normalizeScrollOffset } from '../../utils/scrollEdges';
 
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Scroll Area components are mounted.
 let scrollAreaOverflowVarsRegistered = false;
-const HAS_RESIZE_OBSERVER = typeof ResizeObserver !== 'undefined';
-
 /**
  * Removes inheritance of the scroll area overflow CSS variables, which
  * improves rendering performance in complex scroll areas with deep subtrees.
@@ -75,7 +72,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   componentProps: ScrollAreaViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const {
     viewportRef,
@@ -291,19 +288,11 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   useIsoLayoutEffect(() => {
     if (!viewportRef.current) {
-      return undefined;
+      return;
     }
 
     removeCSSVariableInheritance();
-
-    if (HAS_RESIZE_OBSERVER) {
-      return undefined;
-    }
-
-    return onVisible(viewportRef.current, () => {
-      computeThumbPosition();
-    });
-  }, [computeThumbPosition, viewportRef]);
+  }, [viewportRef]);
 
   useIsoLayoutEffect(() => {
     // Wait for scrollbar and thumb refs after hidden-state toggles, and refresh math on direction flips.
@@ -320,7 +309,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   React.useEffect(() => {
     const viewport = viewportRef.current;
-    if (!HAS_RESIZE_OBSERVER || !viewport) {
+    if (typeof ResizeObserver === 'undefined' || !viewport) {
       return undefined;
     }
 

@@ -5,10 +5,11 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   ElementProps,
   useDismiss,
@@ -23,8 +24,8 @@ import {
   createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
@@ -32,32 +33,31 @@ import {
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useField } from '../../field/useField';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { HTMLProps } from '../../utils/types';
-import { useValueChanged } from '../../utils/useValueChanged';
-import { NOOP } from '../../utils/noop';
+import { HTMLProps } from '../../internals/types';
+import { useValueChanged } from '../../internals/useValueChanged';
+import { NOOP } from '../../internals/noop';
 import {
   stringifyAsLabel,
   stringifyAsValue,
   Group,
   isGroupedItems,
-} from '../../utils/resolveValueLabel';
+} from '../../internals/resolveValueLabel';
 import {
   compareItemEquality,
   defaultItemEquality,
   findItemIndex,
   removeItem,
   selectedValueIncludes,
-} from '../../utils/itemEquality';
+} from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
 /**
@@ -84,9 +84,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     onSelectedValueChange,
     defaultInputValue: defaultInputValueProp,
     inputValue: inputValueProp,
+    open: openProp,
+    defaultOpen = false,
     selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
     name: nameProp,
+    form,
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
@@ -218,8 +221,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const [open, setOpenUnwrapped] = useControlled({
-    controlled: props.open,
-    default: props.defaultOpen,
+    controlled: openProp,
+    default: defaultOpen,
     name: 'Combobox',
     state: 'open',
   });
@@ -361,6 +364,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         allValuesRef,
         selectionEventRef,
         name,
+        form,
         disabled,
         readOnly,
         required,
@@ -433,14 +437,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
+  const getFieldValue = useStableCallback(() => fieldStringValue);
 
-  useField({
+  useRegisterFieldControl(inputInsidePopup ? triggerRef : inputRef, {
     id,
-    name,
-    commit: validation.commit,
     value: fieldRawValue,
-    controlRef: inputInsidePopup ? triggerRef : inputRef,
-    getValue: () => fieldStringValue,
+    getValue: getFieldValue,
   });
 
   const forceMount = useStableCallback(() => {
@@ -688,9 +690,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const form = store.state.inputElement?.form;
-    if (form && typeof form.requestSubmit === 'function') {
-      form.requestSubmit();
+    const formElement = validation.inputRef.current?.form ?? store.state.inputElement?.form;
+    if (formElement && typeof formElement.requestSubmit === 'function') {
+      formElement.requestSubmit();
     }
   });
 
@@ -999,9 +1001,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     enabled: !readOnly && !disabled && openOnInputClick,
     event: 'mousedown-only',
     toggle: false,
-    // Apply a small delay for touch to let iOS viewport centering settle.
+    // Apply a small delay for touch to let mobile viewport/keyboard positioning settle.
     // This avoids top-bottom flip flickers if the preferred position is "top" when first tapping.
-    touchOpenDelay: inputInsidePopup ? 0 : 50,
+    touchOpenDelay: inputInsidePopup ? 0 : 100,
     reason: REASONS.inputPress,
   });
 
@@ -1107,6 +1109,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       getItemProps,
       selectionMode,
       name,
+      form,
       disabled,
       readOnly,
       required,
@@ -1155,6 +1158,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     inlineProp,
     requestSubmit,
     autoHighlightMode,
+    form,
   ]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
@@ -1190,12 +1194,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         <input
           key={currentSerializedValue}
           type="hidden"
+          form={form}
           name={name}
           value={currentSerializedValue}
         />
       );
     });
-  }, [multiple, selectedValue, name, itemToStringValue]);
+  }, [multiple, selectedValue, form, name, itemToStringValue]);
 
   const children = (
     <React.Fragment>
@@ -1218,7 +1223,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               return;
             }
 
-            const nextValue = event.target.value;
+            const nextValue = event.currentTarget.value;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
             function handleChange() {
@@ -1238,8 +1243,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               }
 
               const matchingValue = valuesRef.current.find((v) => {
-                const candidate = stringifyAsValue(v, itemToStringValue);
-                if (candidate.toLowerCase() === nextValue.toLowerCase()) {
+                // Try matching by value first (e.g., "US" for country code)
+                const candidateValue = stringifyAsValue(v, itemToStringValue);
+                if (candidateValue.toLowerCase() === nextValue.toLowerCase()) {
+                  return true;
+                }
+                // Also try matching by label for browser autofill compatibility
+                // (browsers autofill with displayed text like "United States", not the underlying value)
+                const candidateLabel = stringifyAsLabel(v, itemToStringLabel);
+                if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
                   return true;
                 }
                 return false;
@@ -1264,6 +1276,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           },
         })}
         id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
+        form={form}
         name={hiddenInputName}
         autoComplete={formAutoComplete}
         disabled={disabled}
@@ -1274,6 +1287,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         style={hiddenInputName ? visuallyHiddenInput : visuallyHidden}
         tabIndex={-1}
         aria-hidden
+        suppressHydrationWarning
       />
       {hiddenInputs}
     </React.Fragment>
@@ -1304,6 +1318,11 @@ interface ComboboxRootProps<ItemValue> {
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the internal input.
+   * Useful when the combobox is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * The id of the component.
    */

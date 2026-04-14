@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { FieldsetRootContext } from './FieldsetRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * Groups a shared legend with related controls.
@@ -14,7 +14,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   componentProps: FieldsetRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled = false, ...elementProps } = componentProps;
+  const { render, className, style, disabled = false, ...elementProps } = componentProps;
   const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
 
   const state: FieldsetRootState = {

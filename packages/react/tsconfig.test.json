@@ -9,7 +9,7 @@
     "moduleResolution": "bundler",
     "rootDir": ".",
     "outDir": "build-tests",
-    "types": ["vitest/globals", "@types/chai", "@types/chai-dom"]
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": [
     "vitest-env.d.ts",
@@ -17,7 +17,7 @@
     "src/**/*.test.ts*",
     "src/index.test.ts",
     "test",
-    "test/addChaiAssertions.ts",
+    "test/addVitestMatchers.ts",
     "src/global.d.ts",
     "package.json"
   ],

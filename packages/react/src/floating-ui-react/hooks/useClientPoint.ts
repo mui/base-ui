@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
 import { getWindow } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { contains, getTarget, isMouseLikePointerType } from '../utils';
+import { contains, getTarget } from '../utils/element';
+import { isMouseLikePointerType } from '../utils/event';
 
 import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
@@ -180,18 +182,17 @@ export function useClientPoint(
       if (!contains(floating, target)) {
         setReference(event.clientX, event.clientY);
       } else {
-        win.removeEventListener('mousemove', handleMouseMove);
+        cleanupListenerRef.current?.();
         cleanupListenerRef.current = null;
       }
     }
 
     if (!dataRef.current.openEvent || isMouseBasedEvent(dataRef.current.openEvent)) {
-      win.addEventListener('mousemove', handleMouseMove);
       const cleanup = () => {
-        win.removeEventListener('mousemove', handleMouseMove);
+        cleanupListenerRef.current?.();
         cleanupListenerRef.current = null;
       };
-      cleanupListenerRef.current = cleanup;
+      cleanupListenerRef.current = addEventListener(win, 'mousemove', handleMouseMove);
       return cleanup;
     }
 

@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   useComboboxDerivedItemsContext,
   useComboboxFloatingContext,
@@ -12,32 +12,29 @@ import {
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
-import { CompositeList } from '../../composite/list/CompositeList';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
 
 /**
  * A list container for the items.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxList = React.forwardRef(function ComboboxList(
   componentProps: ComboboxList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
-  const { filteredItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, hasItems } = useComboboxDerivedItemsContext();
 
-  const items = useStore(store, selectors.items);
-  const labelsRef = useStore(store, selectors.labelsRef);
-  const listRef = useStore(store, selectors.listRef);
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
   const popupProps = useStore(store, selectors.popupProps);
-  const disabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
   const virtualized = useStore(store, selectors.virtualized);
 
   const multiple = selectionMode === 'multiple';
@@ -80,7 +77,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDown(event) {
-          if (disabled || readOnly) {
+          if (store.state.disabled || store.state.readOnly) {
             return;
           }
 
@@ -120,7 +117,10 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   }
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
+    <CompositeList
+      elementsRef={store.state.listRef}
+      labelsRef={hasItems ? undefined : store.state.labelsRef}
+    >
       {element}
     </CompositeList>
   );

@@ -52,7 +52,7 @@
       &::before {
         height: 0.25rem;
         inset-inline: 0;
-        background-color: var(--color-gray-200);
+        background-color: var(--gray-c2);
       }
     }
 
@@ -64,7 +64,7 @@
       &::before {
         width: 0.25rem;
         inset-block: 0;
-        background-color: var(--color-gray-200);
+        background-color: var(--gray-c2);
       }
     }
   }
@@ -72,7 +72,7 @@
   .ScrollAreaThumb {
     position: relative;
     border-radius: inherit;
-    background-color: var(--color-gray-400);
+    background-color: var(--gray-p2);
 
     &[data-orientation='horizontal'] {
       height: 0.25rem;

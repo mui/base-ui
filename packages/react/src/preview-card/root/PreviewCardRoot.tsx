@@ -7,8 +7,8 @@ import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCard
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
   PayloadChildRenderFunction,
@@ -54,6 +54,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
+  const floatingRootContext = store.select('floatingRootContext');
 
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload') as Payload | undefined;
@@ -79,8 +80,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     [forceUnmount, handleImperativeClose],
   );
 
-  const floatingRootContext = store.useState('floatingRootContext');
-
   const dismiss = useDismiss(floatingRootContext);
 
   const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([dismiss]);
@@ -104,7 +103,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 
 /**
  * Groups all parts of the preview card.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
@@ -178,7 +177,7 @@ export interface PreviewCardRootProps<Payload = unknown> {
   /**
    * ID of the trigger that the preview card is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled preview card.
-   * There's no need to specify this prop when the preview card is uncontrolled (i.e. when the `open` prop is not set).
+   * There's no need to specify this prop when the preview card is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: string | null | undefined;
   /**

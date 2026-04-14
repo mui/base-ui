@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -25,7 +25,7 @@ import {
   type Middleware,
   type FloatingTreeStore,
 } from '../floating-ui-react';
-import { useDirection } from '../direction-provider/DirectionContext';
+import { useDirection } from '../internals/direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
@@ -160,6 +160,7 @@ export function useAnchorPositioning(
   const anchorFnCallback = useStableCallback(anchorFn);
   const anchorDep = anchorFn ? anchorFnCallback : anchor;
   const anchorValueRef = useValueAsRef(anchor);
+  const mountedRef = useValueAsRef(mounted);
 
   const direction = useDirection();
   const isRtl = direction === 'rtl';
@@ -316,12 +317,15 @@ export function useAnchorPositioning(
     size({
       ...commonCollisionProps,
       apply({ elements: { floating }, availableWidth, availableHeight, rects }) {
+        if (!mountedRef.current) {
+          return;
+        }
         const floatingStyle = floating.style;
         floatingStyle.setProperty('--available-width', `${availableWidth}px`);
         floatingStyle.setProperty('--available-height', `${availableHeight}px`);
 
         // Snap anchor dimensions to device pixels to ensure the popup's visual width matches the anchor's one.
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = ownerWindow(floating).devicePixelRatio || 1;
         const { x, y, width, height } = rects.reference;
         const anchorWidth = (Math.round((x + width) * dpr) - Math.round(x * dpr)) / dpr;
         const anchorHeight = (Math.round((y + height) * dpr) - Math.round(y * dpr)) / dpr;
@@ -334,7 +338,7 @@ export function useAnchorPositioning(
       () => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
-        element: arrowRef.current || document.createElement('div'),
+        element: arrowRef.current || ownerDocument(arrowRef.current).createElement('div'),
         padding: arrowPadding,
         offsetParent: 'floating',
       }),
@@ -392,6 +396,7 @@ export function useAnchorPositioning(
         referenceElement: null,
         floatingElement: null,
         domReferenceElement: null,
+        positionReference: null,
       });
     }
   }, [mounted, floatingRootContext]);
@@ -417,6 +422,7 @@ export function useAnchorPositioning(
     floatingStyles: originalFloatingStyles,
   } = useFloating({
     rootContext: floatingRootContext,
+    open: keepMounted ? mounted : undefined,
     placement,
     middleware,
     strategy: positionMethod,

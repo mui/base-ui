@@ -2,27 +2,25 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
   IndexGuessBehavior,
-} from '../../composite/list/useCompositeListItem';
+} from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
   BaseUIEvent,
   HTMLProps,
   NonNativeButtonProps,
-} from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+} from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
-import { useButton } from '../../use-button';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { compareItemEquality, removeItem } from '../../utils/itemEquality';
+import { useButton } from '../../internals/use-button';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { compareItemEquality, removeItem } from '../../internals/itemEquality';
 
 /**
  * An individual option in the select popup.
@@ -42,6 +40,7 @@ export const SelectItem = React.memo(
       label,
       disabled = false,
       nativeButton = false,
+      style,
       ...elementProps
     } = componentProps;
 
@@ -60,12 +59,9 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
-      keyboardActiveRef,
       multiple,
-      highlightItemOnHover,
+      selectedItemTextRef,
     } = useSelectRootContext();
-
-    const highlightTimeout = useTimeout();
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
@@ -93,7 +89,7 @@ export const SelectItem = React.memo(
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
-        return undefined;
+        return;
       }
 
       const selectedValue = store.state.value;
@@ -108,9 +104,13 @@ export const SelectItem = React.memo(
         compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
       ) {
         store.set('selectedIndex', index);
+        // Make sure SelectPopup can measure the selected item on first open.
+        // SelectItemText can still update this ref later when focus moves.
+        if (textRef.current) {
+          selectedItemTextRef.current = textRef.current;
+        }
       }
-      return undefined;
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
+    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
 
     const state: SelectItemState = {
       disabled,
@@ -119,9 +119,6 @@ export const SelectItem = React.memo(
     };
 
     const rootProps = getItemProps({ active: highlighted, selected });
-    // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
-    // cause the index state to be stuck when leaving the select popup.
-    rootProps.onFocus = undefined;
     rootProps.id = undefined;
 
     const lastKeyRef = React.useRef<string | null>(null);
@@ -153,34 +150,6 @@ export const SelectItem = React.memo(
       role: 'option',
       'aria-selected': selected,
       tabIndex: highlighted ? 0 : -1,
-      onFocus() {
-        store.set('activeIndex', index);
-      },
-      onMouseEnter() {
-        if (
-          !keyboardActiveRef.current &&
-          store.state.selectedIndex === null &&
-          highlightItemOnHover
-        ) {
-          store.set('activeIndex', index);
-        }
-      },
-      onMouseMove() {
-        if (highlightItemOnHover) {
-          store.set('activeIndex', index);
-        }
-      },
-      onMouseLeave(event) {
-        if (!highlightItemOnHover || keyboardActiveRef.current || isMouseWithinBounds(event)) {
-          return;
-        }
-
-        highlightTimeout.start(0, () => {
-          if (store.state.activeIndex === index) {
-            store.set('activeIndex', null);
-          }
-        });
-      },
       onTouchStart() {
         selectionRef.current = {
           allowSelectedMouseUp: false,

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, Orientation } from '../utils/types';
-import { useRenderElement } from '../utils/useRenderElement';
+import type { BaseUIComponentProps, Orientation } from '../internals/types';
+import { useRenderElement } from '../internals/useRenderElement';
 
 /**
  * A separator element accessible to screen readers.
@@ -13,7 +13,7 @@ export const Separator = React.forwardRef(function SeparatorComponent(
   componentProps: Separator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, orientation = 'horizontal', ...elementProps } = componentProps;
+  const { className, render, orientation = 'horizontal', style, ...elementProps } = componentProps;
 
   const state: SeparatorState = { orientation };
 

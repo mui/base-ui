@@ -173,7 +173,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-right: 1rem;
 }
 
 .PopupOpenAsHighlighted {
@@ -292,7 +291,6 @@
   font-size: 2rem;
   line-height: 2.5rem;
   font-weight: 500;
-  letter-spacing: var(--text-2xl--letter-spacing);
 }
 
 .ExperimentDescription {
@@ -309,7 +307,6 @@
   font-size: var(--text-xl);
   line-height: var(--text-xl--line-height);
   font-weight: 600;
-  letter-spacing: var(--text-xl--letter-spacing);
 }
 
 .SectionDescription {

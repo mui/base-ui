@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useId } from '@base-ui/utils/useId';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A title that labels the toast.
@@ -16,7 +16,14 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
   componentProps: ToastTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, id: idProp, children: childrenProp, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    id: idProp,
+    children: childrenProp,
+    ...elementProps
+  } = componentProps;
 
   const { toast, setTitleId } = useToastRootContext();
 

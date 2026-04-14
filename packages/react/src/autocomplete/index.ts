@@ -1,20 +1,23 @@
 export * as Autocomplete from './index.parts';
 
 export type * from './root/AutocompleteRoot';
+export type * from './trigger/AutocompleteTrigger';
+export type * from './input-group/AutocompleteInputGroup';
+export type * from './item/AutocompleteItem';
 export type * from './value/AutocompleteValue';
 
-export type {
-  ComboboxTriggerProps as AutocompleteTriggerProps,
-  ComboboxTriggerState as AutocompleteTriggerState,
-} from '../combobox/trigger/ComboboxTrigger';
 export type {
   ComboboxInputProps as AutocompleteInputProps,
   ComboboxInputState as AutocompleteInputState,
 } from '../combobox/input/ComboboxInput';
 export type {
-  ComboboxInputGroupProps as AutocompleteInputGroupProps,
-  ComboboxInputGroupState as AutocompleteInputGroupState,
-} from '../combobox/input-group/ComboboxInputGroup';
+  ComboboxIconProps as AutocompleteIconProps,
+  ComboboxIconState as AutocompleteIconState,
+} from '../combobox/icon/ComboboxIcon';
+export type {
+  ComboboxClearProps as AutocompleteClearProps,
+  ComboboxClearState as AutocompleteClearState,
+} from '../combobox/clear/ComboboxClear';
 export type {
   ComboboxPopupProps as AutocompletePopupProps,
   ComboboxPopupState as AutocompletePopupState,
@@ -28,9 +31,9 @@ export type {
   ComboboxListState as AutocompleteListState,
 } from '../combobox/list/ComboboxList';
 export type {
-  ComboboxItemProps as AutocompleteItemProps,
-  ComboboxItemState as AutocompleteItemState,
-} from '../combobox/item/ComboboxItem';
+  ComboboxRowProps as AutocompleteRowProps,
+  ComboboxRowState as AutocompleteRowState,
+} from '../combobox/row/ComboboxRow';
 export type {
   ComboboxArrowProps as AutocompleteArrowProps,
   ComboboxArrowState as AutocompleteArrowState,
@@ -39,7 +42,10 @@ export type {
   ComboboxBackdropProps as AutocompleteBackdropProps,
   ComboboxBackdropState as AutocompleteBackdropState,
 } from '../combobox/backdrop/ComboboxBackdrop';
-export type { ComboboxPortalProps as AutocompletePortalProps } from '../combobox/portal/ComboboxPortal';
+export type {
+  ComboboxPortalProps as AutocompletePortalProps,
+  ComboboxPortalState as AutocompletePortalState,
+} from '../combobox/portal/ComboboxPortal';
 export type {
   ComboboxGroupProps as AutocompleteGroupProps,
   ComboboxGroupState as AutocompleteGroupState,
@@ -56,7 +62,10 @@ export type {
   ComboboxStatusProps as AutocompleteStatusProps,
   ComboboxStatusState as AutocompleteStatusState,
 } from '../combobox/status/ComboboxStatus';
-export type { ComboboxCollectionProps as AutocompleteCollectionProps } from '../combobox/collection/ComboboxCollection';
+export type {
+  ComboboxCollectionState as AutocompleteCollectionState,
+  ComboboxCollectionProps as AutocompleteCollectionProps,
+} from '../combobox/collection/ComboboxCollection';
 
 export type {
   Filter as AutocompleteFilter,

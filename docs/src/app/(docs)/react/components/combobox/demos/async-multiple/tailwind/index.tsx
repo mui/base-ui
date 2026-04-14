@@ -72,6 +72,9 @@ export default function ExampleAsyncMultipleCombobox() {
     return 'Try a different search term.';
   }
 
+  const status = getStatus();
+  const emptyMessage = getEmptyMessage();
+
   return (
     <Combobox.Root
       items={items}
@@ -131,11 +134,11 @@ export default function ExampleAsyncMultipleCombobox() {
         });
       }}
     >
-      <div className="flex flex-col gap-1 text-sm font-medium text-gray-900">
-        <label className="inline-flex text-inherit" htmlFor={id}>
+      <div className="flex flex-col gap-1 text-sm text-gray-900">
+        <label className="inline-flex text-inherit font-bold" htmlFor={id}>
           Assign reviewers
         </label>
-        <Combobox.InputGroup className="relative flex min-h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem]">
+        <Combobox.InputGroup className="relative flex min-h-10 w-[16rem] cursor-text rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem]">
           <Combobox.Chips className="flex w-full flex-wrap items-center gap-1">
             <Combobox.Value>
               {(value: DirectoryUser[]) => (
@@ -149,7 +152,7 @@ export default function ExampleAsyncMultipleCombobox() {
                       {user.name}
                       <Combobox.ChipRemove
                         className="inline-flex items-center justify-center rounded-md border-none bg-transparent p-[0.2rem] text-inherit hover:bg-gray-200"
-                        aria-label="Remove"
+                        aria-label={`Remove ${user.name}`}
                       >
                         <XIcon />
                       </Combobox.ChipRemove>
@@ -173,11 +176,19 @@ export default function ExampleAsyncMultipleCombobox() {
             className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-[0_10px_15px_-3px_var(--color-gray-200),0_4px_6px_-4px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-[opacity,transform,scale] duration-100 data-[ending-style]:transition-none data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-gray-300"
             aria-busy={isPending || undefined}
           >
-            <Combobox.Status className="flex items-center gap-2 py-1 pl-4 pr-5 text-sm text-gray-600 empty:hidden">
-              {getStatus()}
+            <Combobox.Status>
+              {status ? (
+                <div className="flex items-center gap-2 py-1 pl-4 pr-5 text-sm text-gray-600">
+                  {status}
+                </div>
+              ) : null}
             </Combobox.Status>
-            <Combobox.Empty className="box-border px-4 py-2 text-sm leading-4 text-gray-600 empty:hidden">
-              {getEmptyMessage()}
+            <Combobox.Empty>
+              {emptyMessage ? (
+                <div className="box-border px-4 py-2 text-sm leading-4 text-gray-600">
+                  {emptyMessage}
+                </div>
+              ) : null}
             </Combobox.Empty>
             <Combobox.List>
               {(user: DirectoryUser) => (
@@ -189,14 +200,14 @@ export default function ExampleAsyncMultipleCombobox() {
                   <Combobox.ItemIndicator className="col-start-1 mt-1">
                     <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>
-                  <div className="col-start-2 flex flex-col gap-1">
-                    <div className="text-[0.95rem] font-medium">{user.name}</div>
-                    <div className="flex flex-wrap gap-2 text-[0.8125rem] text-gray-600">
+                  <span className="col-start-2 flex flex-col gap-1">
+                    <span className="text-[0.95rem] font-bold">{user.name}</span>
+                    <span className="flex flex-wrap gap-2 text-[0.8125rem] text-gray-600">
                       <span className="opacity-80">@{user.username}</span>
                       <span>{user.title}</span>
-                    </div>
-                    <div className="text-xs text-gray-500">{user.email}</div>
-                  </div>
+                    </span>
+                    <span className="text-xs text-gray-500">{user.email}</span>
+                  </span>
                 </Combobox.Item>
               )}
             </Combobox.List>

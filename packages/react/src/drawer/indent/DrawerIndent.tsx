@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { BaseUIComponentProps } from '../../utils/types';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
@@ -28,7 +28,7 @@ export const DrawerIndent = React.forwardRef(function DrawerIndent(
   componentProps: DrawerIndent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const providerContext = useDrawerProviderContext(true);
 

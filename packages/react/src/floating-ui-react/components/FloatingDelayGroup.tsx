@@ -8,8 +8,8 @@ import type { FloatingRootContext, Delay, FloatingContext } from '../types';
 import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 interface ContextValue {
   hasProvider: boolean;

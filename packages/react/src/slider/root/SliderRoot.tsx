@@ -6,25 +6,28 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { useValueChanged } from '../../utils/useValueChanged';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { clamp } from '../../utils/clamp';
-import { areArraysEqual } from '../../utils/areArraysEqual';
-import { activeElement } from '../../floating-ui-react/utils';
-import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
+} from '../../internals/createBaseUIEventDetails';
+import { useValueChanged } from '../../internals/useValueChanged';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { clamp } from '../../internals/clamp';
+import { areArraysEqual } from '../../internals/areArraysEqual';
+import { activeElement, contains } from '../../floating-ui-react/utils';
+import {
+  CompositeList,
+  type CompositeMetadata,
+} from '../../internals/composite/list/CompositeList';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useField } from '../../field/useField';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { resolveAriaLabelledBy, getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
@@ -32,7 +35,7 @@ import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 function getSliderChangeEventReason(
   event: React.KeyboardEvent | React.ChangeEvent,
@@ -75,6 +78,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     max = 100,
     min = 0,
     minStepsBetweenValues = 0,
+    form,
     name: nameProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
@@ -83,6 +87,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     thumbCollisionBehavior = 'push',
     thumbAlignment = 'center',
     value: valueProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -167,13 +172,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   });
 
-  useField({
+  useRegisterFieldControl(controlRef, {
     id,
-    commit: validation.commit,
     value: valueUnwrapped,
-    controlRef,
-    name,
-    getValue: () => valueUnwrapped,
   });
 
   useValueChanged(valueUnwrapped, () => {
@@ -277,7 +278,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
-    if (disabled && activeEl && sliderRef.current?.contains(activeEl)) {
+    if (disabled && contains(sliderRef.current, activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
       // on a disabled element:
       // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
@@ -333,6 +334,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       lastUsedThumbIndex,
       lastChangedValueRef,
       lastChangeReasonRef,
+      form,
       locale,
       max,
       min,
@@ -373,6 +375,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       lastUsedThumbIndex,
       lastChangedValueRef,
       lastChangeReasonRef,
+      form,
       locale,
       max,
       min,
@@ -476,7 +479,7 @@ export interface SliderRootProps<
   Value extends number | readonly number[] = number | readonly number[],
 > extends BaseUIComponentProps<'div', SliderRootState> {
   /**
-   * The uncontrolled value of the slider when it’s initially rendered.
+   * The uncontrolled value of the slider when it's initially rendered.
    *
    * To render a controlled slider, use the `value` prop instead.
    */
@@ -516,6 +519,11 @@ export interface SliderRootProps<
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the slider inputs.
+   * Useful when the slider is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * The component orientation.
    * @default 'horizontal'

@@ -1,5 +1,5 @@
+import { vi, expect } from 'vitest';
 import { act } from '@mui/internal-test-utils';
-import { vi } from 'vitest';
 import { FloatingTreeStore } from './components/FloatingTreeStore';
 import type { HandleCloseContext } from './hooks/useHoverShared';
 import type { FloatingContext } from './types';
@@ -182,6 +182,35 @@ describe('safePolygon', () => {
 
     const openChildContext = createFloatingContext({ domReference, floating, open: true });
     tree.addNode({ id: 'child', parentId: 'root', context: openChildContext });
+
+    const handler = safePolygon()(context);
+    handler(createMouseMoveEvent(3, -1));
+
+    await act(async () => {
+      vi.advanceTimersByTime(50);
+    });
+
+    expect(onClose).toHaveBeenCalledTimes(0);
+  });
+
+  it('does not close when an open nested child is behind a contextless intermediary node', async () => {
+    const domReference = document.createElement('button');
+    const floating = document.createElement('div');
+    domReference.getBoundingClientRect = () => createRect(0, 0, 100, 100);
+    floating.getBoundingClientRect = () => createRect(120, 0, 100, 100);
+
+    const tree = new FloatingTreeStore();
+    const onClose = vi.fn();
+    const context = createHandleCloseContext({
+      domReference,
+      floating,
+      onClose,
+      tree,
+    });
+
+    const openChildContext = createFloatingContext({ domReference, floating, open: true });
+    tree.addNode({ id: 'inline-root', parentId: 'root' });
+    tree.addNode({ id: 'child', parentId: 'inline-root', context: openChildContext });
 
     const handler = safePolygon()(context);
     handler(createMouseMoveEvent(3, -1));

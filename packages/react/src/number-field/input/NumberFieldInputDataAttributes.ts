@@ -16,11 +16,11 @@ export enum NumberFieldInputDataAttributes {
    */
   required = 'data-required',
   /**
-   * Present when the number field is in valid state (when wrapped in Field.Root).
+   * Present when the number field is in a valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**
-   * Present when the number field is in invalid state (when wrapped in Field.Root).
+   * Present when the number field is in an invalid state (when wrapped in Field.Root).
    */
   invalid = 'data-invalid',
   /**

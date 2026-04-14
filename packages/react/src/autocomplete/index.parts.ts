@@ -1,9 +1,8 @@
 export { AutocompleteRoot as Root } from './root/AutocompleteRoot';
 export { AutocompleteValue as Value } from './value/AutocompleteValue';
-
-export { ComboboxTrigger as Trigger } from '../combobox/trigger/ComboboxTrigger';
+export { AutocompleteTrigger as Trigger } from './trigger/AutocompleteTrigger';
 export { ComboboxInput as Input } from '../combobox/input/ComboboxInput';
-export { ComboboxInputGroup as InputGroup } from '../combobox/input-group/ComboboxInputGroup';
+export { AutocompleteInputGroup as InputGroup } from './input-group/AutocompleteInputGroup';
 export { ComboboxIcon as Icon } from '../combobox/icon/ComboboxIcon';
 export { ComboboxClear as Clear } from '../combobox/clear/ComboboxClear';
 export { ComboboxList as List } from '../combobox/list/ComboboxList';
@@ -15,7 +14,7 @@ export { ComboboxPopup as Popup } from '../combobox/popup/ComboboxPopup';
 export { ComboboxArrow as Arrow } from '../combobox/arrow/ComboboxArrow';
 export { ComboboxGroup as Group } from '../combobox/group/ComboboxGroup';
 export { ComboboxGroupLabel as GroupLabel } from '../combobox/group-label/ComboboxGroupLabel';
-export { ComboboxItem as Item } from '../combobox/item/ComboboxItem';
+export { AutocompleteItem as Item } from './item/AutocompleteItem';
 export { ComboboxRow as Row } from '../combobox/row/ComboboxRow';
 export { ComboboxCollection as Collection } from '../combobox/collection/ComboboxCollection';
 export { ComboboxEmpty as Empty } from '../combobox/empty/ComboboxEmpty';

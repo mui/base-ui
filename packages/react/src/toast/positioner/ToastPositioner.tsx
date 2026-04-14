@@ -1,23 +1,22 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   useAnchorPositioning,
   type Side,
   type Align,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { EMPTY_OBJECT, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
 import { useFloatingRootContext } from '../../floating-ui-react';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { ToastRootCssVars } from '../root/ToastRootCssVars';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
+import { usePositioner } from '../../utils/usePositioner';
 
 /**
  * Positions the toast against the anchor.
@@ -52,6 +51,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     sticky = positionerProps.sticky ?? false,
     disableAnchorTracking = positionerProps.disableAnchorTracking ?? false,
     collisionAvoidance = positionerProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE,
+    style,
     ...elementProps
   } = props;
 
@@ -89,20 +89,6 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     collisionAvoidance,
   });
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    return {
-      role: 'presentation',
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-        [ToastRootCssVars.index as string]:
-          toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
-      },
-    };
-  }, [positioning.positionerStyles, toast.transitionStatus, domIndex, visibleIndex]);
-
   const state: ToastPositionerState = React.useMemo(
     () => ({
       side: positioning.side,
@@ -112,27 +98,19 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     [positioning.side, positioning.align, positioning.anchorHidden],
   );
 
-  const contextValue: ToastPositionerContext = React.useMemo(
-    () => ({
-      ...state,
-      arrowRef: positioning.arrowRef,
-      arrowStyles: positioning.arrowStyles,
-      arrowUncentered: positioning.arrowUncentered,
-    }),
-    [state, positioning.arrowRef, positioning.arrowStyles, positioning.arrowUncentered],
-  );
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    props: [defaultProps, getDisabledMountTransitionStyles(toast.transitionStatus), elementProps],
-    ref: [forwardedRef, setPositionerElement],
-    stateAttributesMapping: popupStateMapping,
+  const element = usePositioner(componentProps, state, {
+    styles: {
+      ...positioning.positionerStyles,
+      [ToastRootCssVars.index as string]:
+        toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+    },
+    transitionStatus: toast.transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement],
   });
 
   return (
-    <ToastPositionerContext.Provider value={contextValue}>
-      {element}
-    </ToastPositionerContext.Provider>
+    <ToastPositionerContext.Provider value={positioning}>{element}</ToastPositionerContext.Provider>
   );
 });
 

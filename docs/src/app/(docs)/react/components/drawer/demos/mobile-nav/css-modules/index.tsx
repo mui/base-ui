@@ -33,6 +33,7 @@ const LONG_LIST = [
   { href: '/react/components/meter', label: 'Meter' },
   { href: '/react/components/navigation-menu', label: 'Navigation Menu' },
   { href: '/react/components/number-field', label: 'Number Field' },
+  { href: '/react/components/otp-field', label: 'OTP Field' },
   { href: '/react/components/popover', label: 'Popover' },
   { href: '/react/components/preview-card', label: 'Preview Card' },
   { href: '/react/components/progress', label: 'Progress' },

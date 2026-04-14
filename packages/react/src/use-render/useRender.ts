@@ -1,8 +1,8 @@
 import * as React from 'react';
-import type { ComponentRenderFn } from '../utils/types';
-import { HTMLProps } from '../utils/types';
-import { useRenderElement } from '../utils/useRenderElement';
-import { StateAttributesMapping } from '../utils/getStateAttributesProps';
+import type { ComponentRenderFn } from '../internals/types';
+import { HTMLProps } from '../internals/types';
+import { useRenderElement } from '../internals/useRenderElement';
+import { StateAttributesMapping } from '../internals/getStateAttributesProps';
 
 /**
  * Renders a Base UI element.
@@ -32,7 +32,7 @@ export type UseRenderComponentProps<
   RenderFunctionProps = HTMLProps,
 > = React.ComponentPropsWithRef<ElementType> & {
   /**
-   * Allows you to replace the component’s HTML element
+   * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.

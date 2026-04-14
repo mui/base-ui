@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import type { MeterRootState } from '../root/MeterRoot';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A text element displaying the current value.
@@ -15,7 +15,7 @@ export const MeterValue = React.forwardRef(function MeterValue(
   componentProps: MeterValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, style, ...elementProps } = componentProps;
 
   const { value, formattedValue } = useMeterRootContext();
 

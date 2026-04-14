@@ -1,8 +1,7 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { List } from './utils/test-utils';
 
@@ -38,16 +37,16 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
         </Toast.Provider>,
       );
 
-      expect(screen.queryByTestId('title')).to.equal(null);
+      expect(screen.queryByTestId('title')).toBe(null);
 
       const button = screen.getByRole('button', { name: 'add' });
       fireEvent.click(button);
 
-      expect(screen.queryByTestId('title')).not.to.equal(null);
+      expect(screen.queryByTestId('title')).not.toBe(null);
 
       await clock.tickAsync(5000);
 
-      expect(screen.queryByTestId('title')).to.equal(null);
+      expect(screen.queryByTestId('title')).toBe(null);
     });
 
     it('returns a toast id', async () => {
@@ -57,7 +56,73 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
         title: 'title',
       });
 
-      expect(toastId).to.be.a('string');
+      expect(toastId).toBeTypeOf('string');
+    });
+
+    it('upserts a toast when adding with an existing id', async () => {
+      const toastManager = Toast.createToastManager();
+      let firstToastId = '';
+      let secondToastId = '';
+
+      function Buttons() {
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => {
+                firstToastId = toastManager.add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 1000,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                secondToastId = toastManager.add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 1000,
+                });
+              }}
+            >
+              upsert
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      expect(screen.getByTestId('title')).toHaveTextContent('Saving...');
+      expect(screen.queryAllByTestId('root')).toHaveLength(1);
+
+      await clock.tickAsync(900);
+
+      fireEvent.click(screen.getByRole('button', { name: 'upsert' }));
+
+      expect(firstToastId).toBe('save');
+      expect(secondToastId).toBe(firstToastId);
+      expect(screen.getByTestId('title')).toHaveTextContent('Saved');
+      expect(screen.queryAllByTestId('root')).toHaveLength(1);
+
+      await clock.tickAsync(200);
+      expect(screen.queryByTestId('title')).not.toBe(null);
+
+      await clock.tickAsync(800);
+      expect(screen.queryByTestId('title')).toBe(null);
     });
   });
 
@@ -101,11 +166,11 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       fireEvent.click(button);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('description')).to.have.text('loading');
+      expect(screen.queryByTestId('description')).toHaveTextContent('loading');
 
       await clock.tickAsync(1000);
 
-      expect(screen.queryByTestId('description')).to.have.text('success');
+      expect(screen.queryByTestId('description')).toHaveTextContent('success');
     });
 
     it('does not inherit a loading timeout when success does not specify one', async () => {
@@ -151,15 +216,15 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('description')).to.have.text('loading');
+      expect(screen.queryByTestId('description')).toHaveTextContent('loading');
 
       await clock.tickAsync(1000);
 
-      expect(screen.queryByTestId('description')).to.have.text('success');
+      expect(screen.queryByTestId('description')).toHaveTextContent('success');
 
       await clock.tickAsync(5000);
 
-      expect(screen.queryByTestId('description')).to.equal(null);
+      expect(screen.queryByTestId('description')).toBe(null);
     });
 
     it('adds a toast with the loading state that is updated with the error state', async () => {
@@ -203,7 +268,7 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       fireEvent.click(button);
       await flushMicrotasks();
 
-      expect(screen.getByTestId('description')).to.have.text('error');
+      expect(screen.getByTestId('description')).toHaveTextContent('error');
     });
 
     it('does not reopen a dismissed promise toast when it resolves', async () => {
@@ -243,14 +308,14 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
 
-      expect(screen.getByTestId('description')).to.have.text('loading');
+      expect(screen.getByTestId('description')).toHaveTextContent('loading');
 
       fireEvent.click(screen.getByLabelText('close-press'));
       resolvePromise('success');
 
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('title')).to.equal(null);
+      expect(screen.queryByTestId('title')).toBe(null);
     });
   });
 
@@ -300,7 +365,7 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       const updateButton = screen.getByRole('button', { name: 'update method' });
       fireEvent.click(updateButton);
 
-      expect(screen.getByTestId('title')).to.have.text('updated');
+      expect(screen.getByTestId('title')).toHaveTextContent('updated');
     });
 
     it('resets the auto-dismiss timer when updating with the same timeout value', async () => {
@@ -344,18 +409,18 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       );
 
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
-      expect(screen.queryByTestId('title')).not.to.equal(null);
+      expect(screen.queryByTestId('title')).not.toBe(null);
 
       await clock.tickAsync(900);
-      expect(screen.queryByTestId('title')).not.to.equal(null);
+      expect(screen.queryByTestId('title')).not.toBe(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'reset timeout' }));
 
       await clock.tickAsync(200);
-      expect(screen.queryByTestId('title')).not.to.equal(null);
+      expect(screen.queryByTestId('title')).not.toBe(null);
 
       await clock.tickAsync(800);
-      expect(screen.queryByTestId('title')).to.equal(null);
+      expect(screen.queryByTestId('title')).toBe(null);
     });
 
     it('resets the auto-dismiss timer when updating from 0 to a timeout, then updating with the same timeout again', async () => {
@@ -408,20 +473,20 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       );
 
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
-      expect(screen.queryByTestId('title')).not.to.equal(null);
+      expect(screen.queryByTestId('title')).not.toBe(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'set timeout' }));
 
       await clock.tickAsync(900);
-      expect(screen.queryByTestId('title')).not.to.equal(null);
+      expect(screen.queryByTestId('title')).not.toBe(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'reset timeout' }));
 
       await clock.tickAsync(200);
-      expect(screen.queryByTestId('title')).not.to.equal(null);
+      expect(screen.queryByTestId('title')).not.toBe(null);
 
       await clock.tickAsync(800);
-      expect(screen.queryByTestId('title')).to.equal(null);
+      expect(screen.queryByTestId('title')).toBe(null);
     });
 
     it('auto-dismisses when updating timeout from 0 to a positive value', async () => {
@@ -465,12 +530,12 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       );
 
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
-      expect(screen.queryByTestId('title')).not.to.equal(null);
+      expect(screen.queryByTestId('title')).not.toBe(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'update method' }));
       await clock.tickAsync(1000);
 
-      expect(screen.queryByTestId('title')).to.equal(null);
+      expect(screen.queryByTestId('title')).toBe(null);
     });
 
     it('schedules a timer when updating a loading toast to a non-loading type', async () => {
@@ -516,14 +581,14 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       );
 
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
-      expect(screen.getByTestId('title')).to.have.text('loading');
+      expect(screen.getByTestId('title')).toHaveTextContent('loading');
 
       fireEvent.click(screen.getByRole('button', { name: 'update method' }));
-      expect(screen.getByTestId('title')).to.have.text('success');
+      expect(screen.getByTestId('title')).toHaveTextContent('success');
 
       await clock.tickAsync(1000);
 
-      expect(screen.queryByTestId('title')).to.equal(null);
+      expect(screen.queryByTestId('title')).toBe(null);
     });
 
     it('does not clear the auto-dismiss timer when updated twice before a re-render', async () => {
@@ -572,14 +637,14 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       );
 
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
-      expect(screen.getByTestId('title')).to.have.text('loading');
+      expect(screen.getByTestId('title')).toHaveTextContent('loading');
 
       fireEvent.click(screen.getByRole('button', { name: 'double update' }));
-      expect(screen.getByTestId('title')).to.have.text('new');
+      expect(screen.getByTestId('title')).toHaveTextContent('new');
 
       await clock.tickAsync(1000);
 
-      expect(screen.queryByTestId('title')).to.equal(null);
+      expect(screen.queryByTestId('title')).toBe(null);
     });
   });
 
@@ -627,7 +692,7 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       const closeButton = screen.getByRole('button', { name: 'close' });
       fireEvent.click(closeButton);
 
-      expect(screen.queryByTestId('title')).to.equal(null);
+      expect(screen.queryByTestId('title')).toBe(null);
     });
 
     it('closes all toasts', async () => {
@@ -671,15 +736,15 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       const closeButton = screen.getByRole('button', { name: 'close' });
       fireEvent.click(closeButton);
 
-      expect(screen.queryByTestId('title')).to.equal(null);
+      expect(screen.queryByTestId('title')).toBe(null);
     });
 
     it('does not call onClose when closing toasts that are already ending', async () => {
       const toastManager = Toast.createToastManager();
-      const onCloseSpy1 = spy(() => {
+      const onCloseSpy1 = vi.fn(() => {
         toastManager.close();
       });
-      const onCloseSpy2 = spy();
+      const onCloseSpy2 = vi.fn();
       let toastId1: string;
 
       function add() {
@@ -723,8 +788,8 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
       fireEvent.click(screen.getByRole('button', { name: 'close' }));
 
-      expect(onCloseSpy1.callCount).to.equal(1);
-      expect(onCloseSpy2.callCount).to.equal(1);
+      expect(onCloseSpy1.mock.calls.length).toBe(1);
+      expect(onCloseSpy2.mock.calls.length).toBe(1);
     });
   });
 });

@@ -1,5 +1,5 @@
-import { chromium, expect, Page, Browser } from '@playwright/test';
 import { describe, it, beforeAll, afterAll } from 'vitest';
+import { chromium, expect, Page, Browser } from '@playwright/test';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
 const BASE_URL = 'http://localhost:5173';
@@ -292,5 +292,52 @@ describe('e2e', () => {
         await expect(page.getByTestId('test-page')).toHaveText('Page two');
       });
     });
+  });
+
+  describe('<NavigationMenu />', () => {
+    it('keeps the inline branch open while moving across the submenu gap into the popup', async () => {
+      await renderFixture('navigation-menu/InlineSubmenuHoverHandoff');
+
+      const productTrigger = page.getByTestId('trigger-product');
+      const contentProduct = page.getByTestId('content-product');
+      const contentDevelopers = page.getByTestId('content-developers');
+      const compositionTrigger = page.getByTestId('trigger-composition');
+
+      await productTrigger.hover();
+      await expect(contentProduct).toBeVisible();
+      await expect(contentDevelopers).toBeVisible();
+
+      const triggerBox = await compositionTrigger.boundingBox();
+      if (triggerBox == null) {
+        throw new Error('Could not measure the Composition trigger.');
+      }
+
+      await page.mouse.move(
+        triggerBox.x + triggerBox.width / 2,
+        triggerBox.y + triggerBox.height / 2,
+      );
+
+      const compositionPopup = page.getByTestId('content-composition');
+      const compositionPositioner = page.getByTestId('positioner-composition');
+
+      await expect(compositionPopup).toBeVisible();
+
+      const positionerBox = await compositionPositioner.boundingBox();
+      if (positionerBox == null) {
+        throw new Error('Could not measure the Composition popup positioner.');
+      }
+
+      await page.mouse.move(
+        triggerBox.x + triggerBox.width - 2,
+        triggerBox.y + triggerBox.height / 2,
+      );
+      await page.mouse.move(positionerBox.x + 8, positionerBox.y + positionerBox.height / 2, {
+        steps: 24,
+      });
+
+      await expect(contentProduct).toBeVisible();
+      await expect(contentDevelopers).toBeVisible();
+      await expect(compositionPopup).toBeVisible();
+    }, 10000);
   });
 });

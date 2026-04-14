@@ -1,4 +1,6 @@
-import { lruMemoize, createSelectorCreator, Selector } from 'reselect';
+import { lruMemoize, createSelectorCreator } from 'reselect';
+import type { Selector } from 'reselect';
+import type { CreateSelectorFunction } from './createSelector';
 
 /* eslint-disable no-underscore-dangle */ // __cacheKey__
 
@@ -10,47 +12,7 @@ const reselectCreateSelector = createSelectorCreator({
   },
 });
 
-type Fn = (...args: any[]) => any;
 type SelectorWithArgs = ReturnType<typeof reselectCreateSelector> & { selectorArgs: any[3] };
-
-type ReturnTypes<FunctionsArray extends readonly Fn[]> = {
-  [Index in keyof FunctionsArray]: FunctionsArray[Index] extends FunctionsArray[number]
-    ? ReturnType<FunctionsArray[Index]>
-    : never;
-};
-
-type DropFirst<T> = T extends [any, ...infer Xs] ? Xs : [];
-
-type MergeParams<
-  STypes extends readonly unknown[],
-  CTypes extends readonly unknown[],
-> = STypes['length'] extends 0 ? CTypes : MergeParams<DropFirst<STypes>, DropFirst<CTypes>>;
-
-type StateFromSelector<T> = T extends (first: infer F, ...args: any[]) => any ? F : never;
-
-type StateFromSelectorList<Selectors extends readonly any[]> = Selectors extends [
-  f: infer F,
-  ...other: infer R,
-]
-  ? StateFromSelector<F> extends StateFromSelectorList<R>
-    ? StateFromSelector<F>
-    : StateFromSelectorList<R>
-  : {};
-
-type CreateSelectorFunction = <
-  const Args extends any[],
-  const Selectors extends ReadonlyArray<Selector<any>>,
-  const Combiner extends (...args: readonly [...ReturnTypes<Selectors>, ...Args]) => any,
->(
-  ...items: [...Selectors, Combiner]
-) => (
-  ...args: Selectors['length'] extends 0
-    ? MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>
-    : [
-        StateFromSelectorList<Selectors>,
-        ...MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>,
-      ]
-) => ReturnType<Combiner>;
 
 export const createSelectorMemoized: CreateSelectorFunction = (...selectors: any[]) => {
   type CacheKey = { id: number };
@@ -77,7 +39,7 @@ export const createSelectorMemoized: CreateSelectorFunction = (...selectors: any
 
     let fn = cache.get(cacheKey);
     if (!fn) {
-      let reselectArgs = selectors;
+      let reselectArgs: Array<Selector<any> | (() => unknown) | typeof combiner> = selectors;
       const selectorArgs = [undefined, undefined, undefined];
       switch (argsLength) {
         case 0:
@@ -119,12 +81,15 @@ export const createSelectorMemoized: CreateSelectorFunction = (...selectors: any
     fn.selectorArgs[1] = a2;
     fn.selectorArgs[2] = a3;
 
-    // prettier-ignore
     switch (argsLength) {
-      case 0: return fn(state);
-      case 1: return fn(state, a1);
-      case 2: return fn(state, a1, a2);
-      case 3: return fn(state, a1, a2, a3);
+      case 0:
+        return fn(state);
+      case 1:
+        return fn(state, a1);
+      case 2:
+        return fn(state, a1, a2);
+      case 3:
+        return fn(state, a1, a2, a3);
       default:
         throw /* minify-error-disabled */ new Error('unreachable');
     }

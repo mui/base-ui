@@ -1,17 +1,16 @@
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { mergeProps } from '@base-ui/react/merge-props';
-import type { BaseUIEvent } from '../utils/types';
+import { expect, vi } from 'vitest';
+import { mergeProps, mergePropsN } from '@base-ui/react/merge-props';
+import type { BaseUIEvent } from '../internals/types';
 
 describe('mergeProps', () => {
   it('merges event handlers', () => {
     const theirProps = {
-      onClick: spy(),
-      onKeyDown: spy(),
+      onClick: vi.fn(),
+      onKeyDown: vi.fn(),
     };
     const ourProps = {
-      onClick: spy(),
-      onPaste: spy(),
+      onClick: vi.fn(),
+      onPaste: vi.fn(),
     };
     const mergedProps = mergeProps<'button'>(ourProps, theirProps);
 
@@ -19,11 +18,13 @@ describe('mergeProps', () => {
     mergedProps.onKeyDown?.({ nativeEvent: new KeyboardEvent('keydown') } as any);
     mergedProps.onPaste?.({ nativeEvent: new Event('paste') } as any);
 
-    expect(theirProps.onClick.calledBefore(ourProps.onClick)).to.equal(true);
-    expect(theirProps.onClick.callCount).to.equal(1);
-    expect(ourProps.onClick.callCount).to.equal(1);
-    expect(theirProps.onKeyDown.callCount).to.equal(1);
-    expect(ourProps.onPaste.callCount).to.equal(1);
+    expect(theirProps.onClick.mock.invocationCallOrder[0]).toBeLessThan(
+      ourProps.onClick.mock.invocationCallOrder[0],
+    );
+    expect(theirProps.onClick.mock.calls.length).toBe(1);
+    expect(ourProps.onClick.mock.calls.length).toBe(1);
+    expect(theirProps.onKeyDown.mock.calls.length).toBe(1);
+    expect(ourProps.onPaste.mock.calls.length).toBe(1);
   });
 
   it('merges multiple event handlers', () => {
@@ -48,7 +49,7 @@ describe('mergeProps', () => {
     );
 
     mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
-    expect(log).to.deep.equal(['1', '2', '3']);
+    expect(log).toEqual(['1', '2', '3']);
   });
 
   it('merges undefined event handlers', () => {
@@ -71,7 +72,83 @@ describe('mergeProps', () => {
     );
 
     mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
-    expect(log).to.deep.equal(['1', '3']);
+    expect(log).toEqual(['1', '3']);
+  });
+
+  it('makes a lone synthetic event handler preventable', () => {
+    let prevented = false;
+
+    const mergedProps = mergeProps<'button'>(
+      {},
+      {
+        onMouseDown(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+    );
+
+    mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any);
+
+    expect(prevented).toBe(true);
+  });
+
+  it('makes a first-position synthetic event handler preventable', () => {
+    let prevented = false;
+
+    const mergedProps = mergeProps<'button'>(
+      {
+        onMouseDown(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+      {
+        id: 'test-button',
+      },
+    );
+
+    mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any);
+
+    expect(prevented).toBe(true);
+  });
+
+  it('makes a first-position synthetic event handler preventable in mergePropsN', () => {
+    let prevented = false;
+
+    const mergedProps = mergePropsN<'button'>([
+      {
+        onMouseDown(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+      {
+        id: 'test-button',
+      },
+    ]);
+
+    mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any);
+
+    expect(prevented).toBe(true);
+  });
+
+  it('makes a lone obscure synthetic event handler preventable', () => {
+    let prevented = false;
+
+    const mergedProps = mergeProps<'button'>(
+      {},
+      {
+        onContextMenu(event) {
+          event.preventBaseUIHandler();
+          prevented = event.baseUIHandlerPrevented === true;
+        },
+      },
+    );
+
+    mergedProps.onContextMenu?.({ nativeEvent: new MouseEvent('contextmenu') } as any);
+
+    expect(prevented).toBe(true);
   });
 
   it('merges styles', () => {
@@ -83,7 +160,7 @@ describe('mergeProps', () => {
     };
     const mergedProps = mergeProps<'div'>(ourProps, theirProps);
 
-    expect(mergedProps.style).to.deep.equal({
+    expect(mergedProps.style).toEqual({
       color: 'red',
       backgroundColor: 'blue',
     });
@@ -97,7 +174,7 @@ describe('mergeProps', () => {
 
     const mergedProps = mergeProps<'button'>(ourProps, theirProps);
 
-    expect(mergedProps.style).to.deep.equal({
+    expect(mergedProps.style).toEqual({
       color: 'red',
     });
   });
@@ -107,7 +184,7 @@ describe('mergeProps', () => {
     const ourProps = {};
     const mergedProps = mergeProps<'button'>(ourProps, theirProps);
 
-    expect(mergedProps.style).to.equal(undefined);
+    expect(mergedProps.style).toBe(undefined);
   });
 
   it('merges classNames with rightmost first', () => {
@@ -119,7 +196,7 @@ describe('mergeProps', () => {
     };
     const mergedProps = mergeProps<'div'>(ourProps, theirProps);
 
-    expect(mergedProps.className).to.equal('external-class internal-class');
+    expect(mergedProps.className).toBe('external-class internal-class');
   });
 
   it('merges multiple classNames', () => {
@@ -135,7 +212,7 @@ describe('mergeProps', () => {
       },
     );
 
-    expect(mergedProps.className).to.equal('class-3 class-2 class-1');
+    expect(mergedProps.className).toBe('class-3 class-2 class-1');
   });
 
   it('merges classNames with undefined', () => {
@@ -146,7 +223,7 @@ describe('mergeProps', () => {
 
     const mergedProps = mergeProps<'button'>(ourProps, theirProps);
 
-    expect(mergedProps.className).to.equal('external-class');
+    expect(mergedProps.className).toBe('external-class');
   });
 
   it('does not merge classNames if both are undefined', () => {
@@ -154,7 +231,7 @@ describe('mergeProps', () => {
     const ourProps = {};
     const mergedProps = mergeProps<'button'>(ourProps, theirProps);
 
-    expect(mergedProps.className).to.equal(undefined);
+    expect(mergedProps.className).toBe(undefined);
   });
 
   it('does not prevent internal handler if event.preventBaseUIHandler() is not called', () => {
@@ -173,7 +250,7 @@ describe('mergeProps', () => {
 
     mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
 
-    expect(ran).to.equal(true);
+    expect(ran).toBe(true);
   });
 
   it('prevents internal handler if event.preventBaseUIHandler() is called', () => {
@@ -200,7 +277,7 @@ describe('mergeProps', () => {
     const event = { nativeEvent: new MouseEvent('click') } as any;
     mergedProps.onClick?.(event);
 
-    expect(ran).to.equal(false);
+    expect(ran).toBe(false);
   });
 
   it('prevents handlers merged after event.preventBaseUIHandler() is called', () => {
@@ -227,7 +304,7 @@ describe('mergeProps', () => {
 
     mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') });
 
-    expect(log).to.deep.equal(['0', '1']);
+    expect(log).toEqual(['0', '1']);
   });
 
   [true, 13, 'newValue', { key: 'value' }, ['value'], () => 'value'].forEach((eventArgument) => {
@@ -249,7 +326,7 @@ describe('mergeProps', () => {
 
       mergedProps.onValueChange(eventArgument);
 
-      expect(log).to.deep.equal(['0', '1']);
+      expect(log).toEqual(['0', '1']);
     });
   });
 
@@ -264,7 +341,7 @@ describe('mergeProps', () => {
       {},
     );
 
-    expect(mergedProps.title).to.equal('internal title 1');
+    expect(mergedProps.title).toBe('internal title 1');
   });
 
   it('sets baseUIHandlerPrevented to true after calling preventBaseUIHandler()', () => {
@@ -284,13 +361,13 @@ describe('mergeProps', () => {
 
     mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
 
-    expect(observedFlag).to.equal(true);
+    expect(observedFlag).toBe(true);
   });
 
   describe('props getters', () => {
     it('calls the props getter with the props defined after it', () => {
       let observedProps;
-      const propsGetter = spy((props) => {
+      const propsGetter = vi.fn((props) => {
         observedProps = { ...props };
         return props;
       });
@@ -307,13 +384,13 @@ describe('mergeProps', () => {
         },
       );
 
-      expect(propsGetter.calledOnce).to.equal(true);
-      expect(observedProps).to.deep.equal({ id: '2', className: 'test-class' });
+      expect(propsGetter.mock.calls.length === 1).toBe(true);
+      expect(observedProps).toEqual({ id: '2', className: 'test-class' });
     });
 
     it('calls the props getter with merged props defined after it', () => {
       let observedProps;
-      const propsGetter = spy((props) => {
+      const propsGetter = vi.fn((props) => {
         observedProps = { ...props };
         return props;
       });
@@ -332,8 +409,8 @@ describe('mergeProps', () => {
         },
       );
 
-      expect(propsGetter.calledOnce).to.equal(true);
-      expect(observedProps).to.deep.equal({
+      expect(propsGetter.mock.calls.length === 1).toBe(true);
+      expect(observedProps).toEqual({
         role: 'tab',
         className: 'test-class',
       });
@@ -341,15 +418,30 @@ describe('mergeProps', () => {
 
     it('calls the props getter with an empty object if no props are defined after it', () => {
       let observedProps;
-      const propsGetter = spy((props) => {
+      const propsGetter = vi.fn((props) => {
         observedProps = { ...props };
         return props;
       });
 
       mergeProps(propsGetter, { id: '1' });
 
-      expect(propsGetter.calledOnce).to.equal(true);
-      expect(observedProps).to.deep.equal({});
+      expect(propsGetter.mock.calls.length === 1).toBe(true);
+      expect(observedProps).toEqual({});
+    });
+
+    it('does not mutate a reused object returned by the first props getter', () => {
+      const shared = { className: 'base' };
+
+      const result = mergeProps(() => shared, {
+        className: 'next',
+      });
+
+      expect(result).toEqual({
+        className: 'next base',
+      });
+      expect(shared).toEqual({
+        className: 'base',
+      });
     });
 
     it('accepts the result of the props getter', () => {
@@ -365,7 +457,7 @@ describe('mergeProps', () => {
         propsGetter,
       );
 
-      expect(result).to.deep.equal({
+      expect(result).toEqual({
         className: 'test-class',
       });
     });
@@ -400,7 +492,7 @@ describe('mergeProps', () => {
 
       // last-handler runs first, then getter-handler (not prevented), then getter-handler
       // manually calls first-handler which runs despite preventBaseUIHandler being called
-      expect(log).to.deep.equal(['last-handler', 'getter-handler', 'first-handler']);
+      expect(log).toEqual(['last-handler', 'getter-handler', 'first-handler']);
     });
 
     it('allows props getter handlers to check baseUIHandlerPrevented manually', () => {
@@ -434,7 +526,7 @@ describe('mergeProps', () => {
       mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
 
       // first-handler does NOT run because getter-handler checks the flag before calling it
-      expect(log).to.deep.equal(['last-handler', 'getter-handler']);
+      expect(log).toEqual(['last-handler', 'getter-handler']);
     });
   });
 });

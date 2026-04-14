@@ -1,22 +1,26 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
-import { BASE_UI_SWIPE_IGNORE_SELECTOR, LEGACY_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
+import {
+  BASE_UI_SWIPE_IGNORE_SELECTOR,
+  LEGACY_SWIPE_IGNORE_SELECTOR,
+} from '../../internals/constants';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,
@@ -51,7 +55,7 @@ function getDisplacement(
 }
 
 function getElementTransform(element: HTMLElement) {
-  const computedStyle = window.getComputedStyle(element);
+  const computedStyle = ownerWindow(element).getComputedStyle(element);
   const transform = computedStyle.transform;
   let translateX = 0;
   let translateY = 0;
@@ -89,6 +93,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     render,
     className,
     swipeDirection = ['down', 'right'],
+    style,
     ...elementProps
   } = componentProps;
 
@@ -440,6 +445,18 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   }
 
+  function handlePointerCancel() {
+    if (!isSwiping) {
+      return;
+    }
+
+    setIsSwiping(false);
+    setIsRealSwipe(false);
+    setLockedDirection(null);
+    setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+    setCurrentSwipeDirection(undefined);
+  }
+
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Escape') {
       if (
@@ -463,15 +480,12 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     function preventDefaultTouchStart(event: TouchEvent) {
-      if (contains(element, event.target as HTMLElement | null)) {
+      if (contains(element, getTarget(event) as HTMLElement | null)) {
         event.preventDefault();
       }
     }
 
-    element.addEventListener('touchmove', preventDefaultTouchStart, { passive: false });
-    return () => {
-      element.removeEventListener('touchmove', preventDefaultTouchStart);
-    };
+    return addEventListener(element, 'touchmove', preventDefaultTouchStart, { passive: false });
   }, [swipeEnabled]);
 
   function getDragStyles() {
@@ -514,6 +528,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
     onPointerUp: swipeEnabled ? handlePointerUp : undefined,
+    onPointerCancel: swipeEnabled ? handlePointerCancel : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {

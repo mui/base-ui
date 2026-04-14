@@ -77,11 +77,11 @@ export default function ExampleAsyncAutocomplete() {
       itemToStringValue={(item) => item.title}
       filter={null}
     >
-      <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
+      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
         Search movies by name or year
         <Autocomplete.Input
           placeholder="e.g. Pulp Fiction or 1994"
-          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
       </label>
 
@@ -105,10 +105,10 @@ export default function ExampleAsyncAutocomplete() {
                   className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
                   value={movie}
                 >
-                  <div className="flex w-full flex-col gap-1">
-                    <div className="font-medium leading-5">{movie.title}</div>
-                    <div className="text-sm leading-4 opacity-80">{movie.year}</div>
-                  </div>
+                  <span className="flex w-full flex-col gap-1">
+                    <span className="font-bold leading-5">{movie.title}</span>
+                    <span className="text-sm leading-4 opacity-80">{movie.year}</span>
+                  </span>
                 </Autocomplete.Item>
               )}
             </Autocomplete.List>
