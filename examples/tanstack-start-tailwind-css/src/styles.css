@@ -6,18 +6,9 @@
   }
 
   body {
-    background-color: rgb(255 255 255);
-    color: rgb(17 24 39);
     font-synthesis: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    body {
-      background-color: rgb(3 7 18);
-      color: rgb(249 250 251);
-    }
   }
 
   .root {
