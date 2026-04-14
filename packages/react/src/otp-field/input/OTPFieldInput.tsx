@@ -128,12 +128,6 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
-      if (index > value.length) {
-        const nextIndex = Math.min(value.length, length - 1);
-        focusInput(nextIndex);
-        return;
-      }
-
       handleInputFocus(index, event);
     },
     onBlur(event) {
