@@ -65,7 +65,7 @@
 }
 
 .ValueSecondary {
-  font-size: 0.825rem;
+  font-size: 0.75rem;
   line-height: 1rem;
   color: var(--color-gray-600);
 }
@@ -205,7 +205,7 @@
 }
 
 .ItemDescription {
-  font-size: 0.825rem;
+  font-size: 0.75rem;
   line-height: 1rem;
   opacity: 0.8;
 }
