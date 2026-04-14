@@ -154,7 +154,8 @@
   transform-origin: 50% calc(100% - var(--bleed));
   transition:
     transform 450ms cubic-bezier(0.32, 0.72, 0, 1),
-    height 450ms cubic-bezier(0.32, 0.72, 0, 1);
+    height 450ms cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 450ms cubic-bezier(0.32, 0.72, 0, 1);
   will-change: transform;
   transform: translateY(var(--translate-y)) scale(var(--stack-scale));
 
@@ -196,6 +197,7 @@
   }
 
   &[data-ending-style] {
+    opacity: 0.9999;
     transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
   }
 }

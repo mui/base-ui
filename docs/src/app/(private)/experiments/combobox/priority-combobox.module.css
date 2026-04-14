@@ -11,7 +11,6 @@
   padding: 0 0.75rem;
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
-  letter-spacing: var(--text-sm--letter-spacing);
   color: var(--color-gray-900);
   user-select: none;
 }
@@ -81,7 +80,6 @@
   padding-left: 0.875rem;
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
-  letter-spacing: var(--text-sm--letter-spacing);
   font-weight: 400;
   color: var(--color-gray-900);
 }

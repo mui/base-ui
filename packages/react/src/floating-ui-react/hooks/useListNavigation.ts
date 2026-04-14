@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -28,8 +27,8 @@ import {
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
 
@@ -308,6 +307,7 @@ export function useListNavigation(
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
+  const cancelQueuedFocusRef = React.useRef<(() => void) | null>(null);
 
   const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
@@ -319,7 +319,7 @@ export function useListNavigation(
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
       } else {
-        enqueueFocus(item, {
+        cancelQueuedFocusRef.current = enqueueFocus(item, {
           sync: forceSyncFocusRef.current,
           preventScroll: true,
         });
@@ -495,18 +495,19 @@ export function useListNavigation(
 
   const hasActiveIndex = activeIndex != null;
 
-  const item = React.useMemo(() => {
-    function syncCurrentTarget(event: React.SyntheticEvent<any>) {
-      if (!latestOpenRef.current) {
-        return;
-      }
-      const index = listRef.current.indexOf(event.currentTarget);
-      if (index !== -1 && indexRef.current !== index) {
-        indexRef.current = index;
-        onNavigate(event);
-      }
+  const syncCurrentTarget = useStableCallback((event: React.SyntheticEvent<any>) => {
+    if (!latestOpenRef.current) {
+      return;
     }
 
+    const index = listRef.current.indexOf(event.currentTarget);
+    if (index !== -1 && (indexRef.current !== index || activeIndex !== index)) {
+      indexRef.current = index;
+      onNavigate(event);
+    }
+  });
+
+  const item = React.useMemo(() => {
     const itemProps: ElementProps['item'] = {
       onFocus(event) {
         forceSyncFocusRef.current = true;
@@ -533,10 +534,6 @@ export function useListNavigation(
 
         const relatedTarget = event.relatedTarget as HTMLElement | null;
 
-        if (isMouseWithinBounds(event)) {
-          return;
-        }
-
         if (!focusItemOnHover || listRef.current.includes(relatedTarget)) {
           return;
         }
@@ -545,7 +542,8 @@ export function useListNavigation(
           return;
         }
 
-        enqueueFocus(null, { sync: true });
+        cancelQueuedFocusRef.current?.();
+        cancelQueuedFocusRef.current = null;
 
         indexRef.current = -1;
         onNavigate(event);
@@ -562,6 +560,7 @@ export function useListNavigation(
 
     return itemProps;
   }, [
+    syncCurrentTarget,
     latestOpenRef,
     floatingFocusElementRef,
     focusItemOnHover,

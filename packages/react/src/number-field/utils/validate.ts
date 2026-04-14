@@ -1,4 +1,4 @@
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import { getFormatter } from '../../utils/formatNumber';
 
 const STEP_EPSILON_FACTOR = 1e-10;

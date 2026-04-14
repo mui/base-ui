@@ -15,8 +15,8 @@ import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import userEvent from '@testing-library/user-event';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
-import { REASONS } from '../../utils/reasons';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { REASONS } from '../../internals/reasons';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {
@@ -856,6 +856,87 @@ describe('<Menu.Root />', () => {
           expect(menuPopup.contains(document.activeElement)).toBe(false);
         },
       );
+
+      it.skipIf(isJSDOM)(
+        'keeps pending focus in a nested dialog when the pointer leaves the triggering menu item',
+        async () => {
+          function MenuWithNestedDialog() {
+            return (
+              <Menu.Root>
+                <Menu.Trigger data-testid="menu-trigger">Open Menu</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="menu-popup">
+                      <Menu.Item>Item 1</Menu.Item>
+                      <Dialog.Root>
+                        <Menu.Item
+                          render={<Dialog.Trigger render={<div />} nativeButton={false} />}
+                          closeOnClick={false}
+                          data-testid="dialog-trigger"
+                        >
+                          Open Dialog
+                        </Menu.Item>
+                        <Dialog.Portal>
+                          <Dialog.Popup data-testid="dialog-popup">
+                            <Dialog.Close data-testid="dialog-close">Close</Dialog.Close>
+                          </Dialog.Popup>
+                        </Dialog.Portal>
+                      </Dialog.Root>
+                      <Menu.Item>Item 2</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            );
+          }
+
+          const { user } = await render(<MenuWithNestedDialog />);
+
+          await user.click(screen.getByTestId('menu-trigger'));
+
+          const frameCallbacks = new Map<number, FrameRequestCallback>();
+          let frameId = 0;
+          const requestAnimationFrameSpy = vi
+            .spyOn(window, 'requestAnimationFrame')
+            .mockImplementation((callback) => {
+              frameId += 1;
+              frameCallbacks.set(frameId, callback);
+              return frameId;
+            });
+          const cancelAnimationFrameSpy = vi
+            .spyOn(window, 'cancelAnimationFrame')
+            .mockImplementation((id) => {
+              frameCallbacks.delete(id);
+            });
+
+          try {
+            const dialogTrigger = await screen.findByTestId('dialog-trigger');
+            fireEvent.click(dialogTrigger);
+            await flushMicrotasks();
+            fireEvent.pointerLeave(dialogTrigger, {
+              pointerType: 'mouse',
+              relatedTarget: document.body,
+            });
+
+            const dialogClose = await screen.findByTestId('dialog-close');
+
+            act(() => {
+              const callbacks = Array.from(frameCallbacks.values());
+              frameCallbacks.clear();
+              callbacks.forEach((callback) => callback(performance.now()));
+            });
+
+            await waitFor(() => {
+              expect(dialogClose).toHaveFocus();
+            });
+
+            expect(screen.getByTestId('menu-popup').contains(document.activeElement)).toBe(false);
+          } finally {
+            requestAnimationFrameSpy.mockRestore();
+            cancelAnimationFrameSpy.mockRestore();
+          }
+        },
+      );
     });
 
     describe('focus management', () => {
@@ -1147,42 +1228,114 @@ describe('<Menu.Root />', () => {
       });
     });
 
-    describe.skipIf(isJSDOM)('interaction type tracking (openMethod)', () => {
-      it('should not apply scroll lock when opened via touch', async () => {
-        await render(<TestMenu rootProps={{ modal: true }} />);
+    describe.skipIf(isJSDOM)('scroll locking', () => {
+      describe('interaction type tracking (openMethod)', () => {
+        it('should not apply scroll lock when opened via touch', async () => {
+          await render(<TestMenu rootProps={{ modal: true }} />);
 
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
 
-        const menu = await screen.findByRole('menu');
+          const menu = await screen.findByRole('menu');
 
-        const doc = menu.ownerDocument;
+          const doc = menu.ownerDocument;
 
-        const isScrollLocked =
-          doc.documentElement.style.overflow === 'hidden' ||
-          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-          doc.body.style.overflow === 'hidden';
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
 
-        expect(isScrollLocked).toBe(false);
+          expect(isScrollLocked).toBe(false);
+        });
+
+        it('should apply scroll lock when opened via mouse', async () => {
+          const { user } = await render(<TestMenu rootProps={{ modal: true }} />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+          const doc = trigger.ownerDocument;
+
+          await user.click(trigger);
+          await screen.findByRole('menu');
+
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
       });
 
-      it('should apply scroll lock when opened via mouse', async () => {
-        const { user } = await render(<TestMenu rootProps={{ modal: true }} />);
+      describe('touch scroll lock', () => {
+        it('should apply scroll lock when a touch-opened popup covers the viewport width', async () => {
+          await render(
+            <Menu.Root modal>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner" style={{ width: 'calc(100vw - 10px)' }}>
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
 
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        const doc = trigger.ownerDocument;
+          const trigger = screen.getByRole('button', { name: 'Open' });
 
-        await user.click(trigger);
-        await screen.findByRole('menu');
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
 
-        const isScrollLocked =
-          doc.documentElement.style.overflow === 'hidden' ||
-          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-          doc.body.style.overflow === 'hidden';
+          const menu = await screen.findByRole('menu');
+          const doc = menu.ownerDocument;
 
-        expect(isScrollLocked).toBe(true);
+          await waitFor(() => {
+            const isScrollLocked =
+              doc.documentElement.style.overflow === 'hidden' ||
+              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+              doc.body.style.overflow === 'hidden';
+
+            expect(isScrollLocked).toBe(true);
+          });
+        });
+
+        it('should not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
+          await render(
+            <Menu.Root modal>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner" style={{ width: '240px' }}>
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Open' });
+
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+
+          const menu = await screen.findByRole('menu');
+          const doc = menu.ownerDocument;
+
+          await act(async () => {
+            await new Promise<void>((resolve) => {
+              requestAnimationFrame(() => resolve());
+            });
+          });
+
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(false);
+        });
       });
     });
 

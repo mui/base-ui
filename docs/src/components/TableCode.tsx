@@ -6,5 +6,5 @@ export interface TableCodeProps extends React.ComponentProps<'code'> {}
 
 /** An inline code component for use in type tables */
 export function TableCode({ className, ...props }: TableCodeProps) {
-  return <Code {...props} data-table-code="" className={clsx('TableCode', className)} />;
+  return <Code {...props} className={clsx('TableCode', className)} />;
 }

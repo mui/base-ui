@@ -3,9 +3,9 @@ import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isAndroid, isFirefox } from '@base-ui/utils/detectBrowser';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   useComboboxDerivedItemsContext,
   useComboboxInputValueContext,
@@ -14,22 +14,24 @@ import {
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../field/utils/constants';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../internals/field-constants/constants';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 
 /**
  * A text input to search for items in the list.
  * Renders an `<input>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxInput = React.forwardRef(function ComboboxInput(
   componentProps: ComboboxInput.Props,
@@ -130,6 +132,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     let nextIndex: number | undefined;
 
     const { highlightedChipIndex } = comboboxChipsContext;
+    const renderedChipsCount = comboboxChipsContext.chipsRef.current.length;
 
     if (highlightedChipIndex !== undefined) {
       if (event.key === 'ArrowLeft') {
@@ -141,7 +144,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         }
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
-        if (highlightedChipIndex < selectedValue.length - 1) {
+        if (highlightedChipIndex < renderedChipsCount - 1) {
           nextIndex = highlightedChipIndex + 1;
         } else {
           nextIndex = undefined;
@@ -167,8 +170,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       selectedValue.length > 0
     ) {
       event.preventDefault();
-      const lastChipIndex = Math.max(selectedValue.length - 1, 0);
-      nextIndex = lastChipIndex;
+      nextIndex = renderedChipsCount > 0 ? renderedChipsCount - 1 : undefined;
     } else if (
       event.key === 'Backspace' &&
       event.currentTarget.value === '' &&
@@ -409,7 +411,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             Array.isArray(selectedValue) &&
             selectedValue.length > 0
           ) {
-            const newValue = selectedValue.slice(0, -1);
+            const renderedChipsCount = comboboxChipsContext.chipsRef.current.length;
+            const removalIndex =
+              renderedChipsCount > 0 ? renderedChipsCount - 1 : selectedValue.length - 1;
+
+            const newValue = selectedValue.filter(
+              (_: any, index: number) => index !== removalIndex,
+            );
             // If the removed item was also the active (highlighted) item, clear highlight
             store.state.setIndices({
               activeIndex: null,

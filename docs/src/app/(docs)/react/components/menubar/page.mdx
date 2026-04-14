@@ -27,14 +27,28 @@ import { Menu } from '@base-ui/react/menu';
         <Menu.Popup>
           <Menu.Arrow />
           <Menu.Item />
+          <Menu.LinkItem />
           <Menu.Separator />
+
+          <Menu.SubmenuRoot>
+            <Menu.SubmenuTrigger />
+          </Menu.SubmenuRoot>
+
           <Menu.Group>
             <Menu.GroupLabel />
           </Menu.Group>
+
           <Menu.RadioGroup>
-            <Menu.RadioItem />
+            <Menu.RadioItem>
+              <Menu.RadioItemIndicator />
+            </Menu.RadioItem>
           </Menu.RadioGroup>
-          <Menu.CheckboxItem />
+
+          <Menu.CheckboxItem>
+            <Menu.CheckboxItemIndicator />
+          </Menu.CheckboxItem>
+
+          <Menu.Viewport />
         </Menu.Popup>
       </Menu.Positioner>
     </Menu.Portal>

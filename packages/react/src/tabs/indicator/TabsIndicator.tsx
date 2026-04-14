@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { useIsHydrating } from '../../utils/useIsHydrating';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';

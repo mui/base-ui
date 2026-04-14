@@ -34,16 +34,16 @@ import {
 import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
 import { isElementVisible } from '../utils/composite';
 import type { FloatingContext, FloatingRootContext } from '../types';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
 import { usePortalContext } from './FloatingPortal';
 import { useFloatingTree } from './FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
-import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
-import { FloatingUIOpenChangeDetails } from '../../utils/types';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
+import { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { resolveRef } from '../../utils/resolveRef';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {

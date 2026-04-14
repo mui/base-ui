@@ -2,15 +2,15 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import type { CollapsibleRootState } from '../root/CollapsibleRoot';
 import { collapsibleStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 /**
  * A panel with the collapsible contents.

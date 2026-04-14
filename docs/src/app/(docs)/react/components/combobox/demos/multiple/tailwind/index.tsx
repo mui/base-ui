@@ -25,7 +25,7 @@ export default function ExampleMultipleCombobox() {
                       {language.value}
                       <Combobox.ChipRemove
                         className="rounded-md p-1 text-inherit hover:bg-gray-200"
-                        aria-label="Remove"
+                        aria-label={`Remove ${language.value}`}
                       >
                         <XIcon />
                       </Combobox.ChipRemove>
@@ -61,7 +61,7 @@ export default function ExampleMultipleCombobox() {
                   <Combobox.ItemIndicator className="col-start-1">
                     <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>
-                  <div className="col-start-2">{language.value}</div>
+                  <span className="col-start-2">{language.value}</span>
                 </Combobox.Item>
               )}
             </Combobox.List>

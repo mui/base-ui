@@ -3,9 +3,9 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
-import { useButton } from '../../use-button';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useButton } from '../../internals/use-button';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 
 type DismissEvent = React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>;

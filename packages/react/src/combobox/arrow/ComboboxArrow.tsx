@@ -4,14 +4,16 @@ import { useStore } from '@base-ui/utils/store';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * Displays an element positioned against the anchor.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
   componentProps: ComboboxArrow.Props,

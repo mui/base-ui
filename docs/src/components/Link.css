@@ -11,8 +11,8 @@
     text-underline-offset: 4px;
 
     &:active {
-      background-color: var(--gray-t2, var(--color-foreground));
-      color: var(--gray-s1, var(--color-background));
+      background-color: var(--gray-t2);
+      color: var(--gray-s1);
     }
 
     &:has(code) {
@@ -31,7 +31,7 @@
     &:focus-visible {
       outline: 2px solid currentColor;
       outline-offset: 2px;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius-4);
     }
 
     .LinkArrowLine {

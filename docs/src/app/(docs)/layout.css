@@ -1,10 +1,6 @@
 @import 'docs/src/css/custom-media.css';
 
 @layer base {
-  html {
-    color-scheme: light dark;
-  }
-
   /* Scope body styles to only apply when docs layout is present */
   body:has(.RootLayout) {
     position: relative; /* iOS 26 `position: absolute` backdrops */

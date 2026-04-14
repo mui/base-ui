@@ -31,6 +31,7 @@ import { Tooltip } from '@base-ui/react/tooltip';
       <Tooltip.Positioner>
         <Tooltip.Popup>
           <Tooltip.Arrow />
+          <Tooltip.Viewport />
         </Tooltip.Popup>
       </Tooltip.Positioner>
     </Tooltip.Portal>
@@ -75,11 +76,15 @@ For simple, one-off interactions, place the `<Tooltip.Trigger>` inside `<Tooltip
 However, if defining the tooltip's content next to its trigger is not practical, you can use a detached trigger.
 This involves placing the `<Tooltip.Trigger>` outside of `<Tooltip.Root>` and linking them with a `handle` created by the `Tooltip.createHandle()` function.
 
-```jsx title="Detached triggers" {3,5} "handle={demoTooltip}"
+```jsx title="Detached triggers"
 const demoTooltip = Tooltip.createHandle();
 
+// @highlight
+// @highlight-text "handle={demoTooltip}"
 <Tooltip.Trigger handle={demoTooltip}>Button</Tooltip.Trigger>
 
+// @highlight
+// @highlight-text "handle={demoTooltip}"
 <Tooltip.Root handle={demoTooltip}>
   ...
 </Tooltip.Root>
@@ -123,28 +128,33 @@ This is achieved by passing a `payload` to the `<Tooltip.Trigger>` and using the
 
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
-```jsx title="Detached triggers with payload" {1,3,7} "payload"
+```jsx title="Detached triggers with payload"
+// @highlight
 const demoTooltip = Tooltip.createHandle<{ text: string }>();
 
+// @highlight
+// @highlight-text "payload"
 <Tooltip.Trigger handle={demoTooltip} payload={{ text: 'Trigger 1' }}>
   Trigger 1
 </Tooltip.Trigger>
 
+// @highlight
+// @highlight-text "payload"
 <Tooltip.Trigger handle={demoTooltip} payload={{ text: 'Trigger 2' }}>
   Trigger 2
 </Tooltip.Trigger>
 
 <Tooltip.Root handle={demoTooltip}>
-  {({ payload }) => (
+  {({ payload }) => ( // @highlight-text "payload"
     <Tooltip.Portal>
       <Tooltip.Positioner sideOffset={8}>
         <Tooltip.Popup className={styles.Popup}>
           <Tooltip.Arrow className={styles.Arrow}>
             <ArrowSvg />
           </Tooltip.Arrow>
-          {payload !== undefined && (
+          {payload !== undefined && ( {/* @highlight-text "payload" */}
             <span>
-              Tooltip opened by {payload.text}
+              Tooltip opened by {payload.text} {/* @highlight-text "payload" */}
             </span>
           )}
         </Tooltip.Popup>

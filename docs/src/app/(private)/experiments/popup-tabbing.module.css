@@ -6,7 +6,6 @@
   font-size: var(--text-lg);
   line-height: var(--text-lg--line-height);
   font-weight: 600;
-  letter-spacing: var(--text-lg--letter-spacing);
   color: var(--color-gray-900);
 }
 
@@ -14,7 +13,6 @@
   margin-top: 0.25rem;
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
-  letter-spacing: var(--text-sm--letter-spacing);
   color: var(--color-gray-600);
 }
 
@@ -26,7 +24,6 @@
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
   font-weight: 500;
-  letter-spacing: var(--text-sm--letter-spacing);
   color: var(--color-gray-900);
 }
 

@@ -144,7 +144,10 @@ export default function ExampleAsyncMultipleCombobox() {
                   {value.map((user) => (
                     <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
                       {user.name}
-                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                      <Combobox.ChipRemove
+                        className={styles.ChipRemove}
+                        aria-label={`Remove ${user.name}`}
+                      >
                         <XIcon />
                       </Combobox.ChipRemove>
                     </Combobox.Chip>
@@ -176,14 +179,14 @@ export default function ExampleAsyncMultipleCombobox() {
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>
-                    <div className={styles.ItemTitle}>{user.name}</div>
-                    <div className={styles.ItemSubtitle}>
+                  <span className={styles.ItemText}>
+                    <span className={styles.ItemTitle}>{user.name}</span>
+                    <span className={styles.ItemSubtitle}>
                       <span className={styles.ItemUsername}>@{user.username}</span>
                       <span>{user.title}</span>
-                    </div>
-                    <div className={styles.ItemEmail}>{user.email}</div>
-                  </div>
+                    </span>
+                    <span className={styles.ItemEmail}>{user.email}</span>
+                  </span>
                 </Combobox.Item>
               )}
             </Combobox.List>

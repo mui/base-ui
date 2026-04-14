@@ -1,1 +1,0 @@
-export { TemporalAdapterProvider } from './TemporalAdapterProvider';

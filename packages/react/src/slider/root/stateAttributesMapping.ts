@@ -1,6 +1,6 @@
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { SliderRootState } from './SliderRoot';
-import { fieldValidityMapping } from '../../field/utils/constants';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
 
 export const sliderStateAttributesMapping: StateAttributesMapping<SliderRootState> = {
   activeThumbIndex: () => null,
