@@ -89,7 +89,6 @@
   /* Typography */
   --font-mono: 'Paper Mono', monospace;
   --font-sans: 'die grotesk a', system-ui, sans-serif;
-  --font-sans-b: 'die grotesk b', system-ui, sans-serif;
   --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
 }
 
@@ -164,6 +163,9 @@
     --color-navy: oklch(31% 25% 264deg);
     --color-green: oklch(46% 30% 150deg);
     --color-violet: oklch(40% 60% 300deg);
+
+    /* Font family */
+    --font-sans-b: 'die grotesk b', system-ui, sans-serif;
 
     /* Font size */
     --font-size-13: 0.8125rem; /* 13px */
