@@ -59,7 +59,7 @@ function RouteComponent() {
         <Combobox.Root items={items} onValueChange={console.log}>
           <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium">
             <Combobox.Input placeholder="e.g. TypeScript" />
-            <div className="absolute right-2 bottom-1 flex items-center h-8 text-gray-600 dark:text-gray-400">
+            <div className="absolute right-2 bottom-0 flex items-center h-8 text-gray-600 dark:text-gray-400">
               <Combobox.Clear />
               <Combobox.Trigger />
             </div>
