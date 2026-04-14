@@ -28,7 +28,6 @@ import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
-
 const bubbleHandlerKeys = {
   intentional: 'onClick',
   sloppy: 'onPointerDown',
@@ -197,6 +196,7 @@ export function useDismiss(
         return;
       }
 
+      const native = isReactEvent(event) ? event.nativeEvent : event;
       const nodeId = dataRef.current.floatingContext?.nodeId;
 
       const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
@@ -217,12 +217,12 @@ export function useDismiss(
         }
       }
 
-      const native = isReactEvent(event) ? event.nativeEvent : event;
       const eventDetails = createChangeEventDetails(REASONS.escapeKey, native);
 
       store.setOpen(false, eventDetails);
 
       if (!escapeKeyBubbles && !eventDetails.isPropagationAllowed) {
+        native.stopImmediatePropagation();
         event.stopPropagation();
       }
     },
@@ -441,7 +441,8 @@ export function useDismiss(
         }
       }
 
-      store.setOpen(false, createChangeEventDetails(REASONS.outsidePress, event));
+      const eventDetails = createChangeEventDetails(REASONS.outsidePress, event);
+      store.setOpen(false, eventDetails);
       clearInsideReactTree();
     }
 
