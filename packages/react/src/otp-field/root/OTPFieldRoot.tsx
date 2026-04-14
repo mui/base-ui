@@ -27,7 +27,7 @@ import {
   type BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { OTPFieldRootContext } from './OTPFieldRootContext';
+import { OTPFieldRootContext, useOTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {
   getOTPValidationConfig,
@@ -391,24 +391,11 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       <OTPFieldRootContext.Provider value={contextValue}>
         {element}
         <OTPFieldHiddenInput
-          autoComplete={autoComplete}
-          disabled={disabled}
-          focusInput={focusInput}
-          form={form}
           id={id}
-          inputMode={inputMode}
-          length={length}
           name={name}
           onValueInvalid={reportValueInvalid}
           pattern={hiddenInputPattern}
-          queueFocusInput={queueFocusInput}
-          readOnly={readOnly}
-          sanitizeValue={sanitizeValue}
-          required={required}
-          setValue={setValue}
-          validationType={validationType}
           validation={validation}
-          value={value}
         />
       </OTPFieldRootContext.Provider>
     </CompositeList>
@@ -416,47 +403,31 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 });
 
 interface OTPFieldHiddenInputProps {
-  autoComplete: string | undefined;
-  disabled: boolean;
-  focusInput: (index: number) => void;
-  form: string | undefined;
   id: string | undefined;
-  inputMode: React.HTMLAttributes<HTMLInputElement>['inputMode'];
-  length: number;
   name: string | undefined;
   onValueInvalid: (value: string, details: OTPFieldRoot.InvalidEventDetails) => void;
   pattern: string | undefined;
-  queueFocusInput: (index: number, nextValue: string) => void;
-  readOnly: boolean;
-  sanitizeValue: ((value: string) => string) | undefined;
-  required: boolean;
-  setValue: (value: string, details: OTPFieldRoot.ChangeEventDetails) => string | null;
-  validationType: OTPFieldRoot.ValidationType;
   validation: ReturnType<typeof useFieldRootContext>['validation'];
-  value: string;
 }
 
 function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
+  const { onValueInvalid, id, name, pattern, validation } = props;
+
   const {
-    autoComplete,
-    disabled,
     focusInput,
     form,
-    id,
+    value,
+    autoComplete,
+    disabled,
+    readOnly,
+    required,
+    queueFocusInput,
+    setValue,
+    sanitizeValue,
     inputMode,
     length,
-    name,
-    onValueInvalid,
-    pattern,
-    queueFocusInput,
-    readOnly,
-    sanitizeValue,
-    required,
-    setValue,
     validationType,
-    validation,
-    value,
-  } = props;
+  } = useOTPFieldRootContext();
   if (!Number.isInteger(length) || length <= 0) {
     return null;
   }
