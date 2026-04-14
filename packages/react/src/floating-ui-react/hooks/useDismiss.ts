@@ -28,6 +28,7 @@ import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
+
 const bubbleHandlerKeys = {
   intentional: 'onClick',
   sloppy: 'onPointerDown',
@@ -441,8 +442,7 @@ export function useDismiss(
         }
       }
 
-      const eventDetails = createChangeEventDetails(REASONS.outsidePress, event);
-      store.setOpen(false, eventDetails);
+      store.setOpen(false, createChangeEventDetails(REASONS.outsidePress, event));
       clearInsideReactTree();
     }
 
