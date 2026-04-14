@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { resolveMultipleLabels, resolveSelectedLabel } from '../../utils/resolveValueLabel';
+import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
 import { selectors } from '../store';
 
 /**

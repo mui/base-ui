@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useButton } from '../../use-button';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useButton } from '../../internals/use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';

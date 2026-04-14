@@ -2,9 +2,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isNode } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -13,15 +16,15 @@ import {
   getNextTabbable,
   isOutsideEvent,
 } from '../utils/tabbable';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import {
   useRenderElement,
   type UseRenderElementComponentProps,
-} from '../../utils/useRenderElement';
-import { EMPTY_OBJECT, ownerVisuallyHidden } from '../../utils/constants';
-import type { BaseUIComponentProps } from '../../utils/types';
+} from '../../internals/useRenderElement';
+import { ownerVisuallyHidden } from '../../internals/constants';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -213,12 +216,10 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
 
     // Listen to the event on the capture phase so they run before the focus
     // trap elements onFocus prop is called.
-    portalNode.addEventListener('focusin', onFocus, true);
-    portalNode.addEventListener('focusout', onFocus, true);
-    return () => {
-      portalNode.removeEventListener('focusin', onFocus, true);
-      portalNode.removeEventListener('focusout', onFocus, true);
-    };
+    return mergeCleanups(
+      addEventListener(portalNode, 'focusin', onFocus, true),
+      addEventListener(portalNode, 'focusout', onFocus, true),
+    );
   }, [portalNode, modal]);
 
   React.useEffect(() => {

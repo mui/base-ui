@@ -7,14 +7,13 @@
 - Autocomplete - ([Outline](#autocomplete), [Contents](./autocomplete/page.mdx))
 - Avatar - ([Outline](#avatar), [Contents](./avatar/page.mdx))
 - Button - ([Outline](#button), [Contents](./button/page.mdx))
-- Calendar [New] - (Private, [Outline](#calendar), [Contents](./calendar/page.mdx))
 - Checkbox - ([Outline](#checkbox), [Contents](./checkbox/page.mdx))
 - Checkbox Group - ([Outline](#checkbox-group), [Contents](./checkbox-group/page.mdx))
 - Collapsible - ([Outline](#collapsible), [Contents](./collapsible/page.mdx))
 - Combobox - ([Outline](#combobox), [Contents](./combobox/page.mdx))
 - Context Menu - ([Outline](#context-menu), [Contents](./context-menu/page.mdx))
 - Dialog - ([Outline](#dialog), [Contents](./dialog/page.mdx))
-- Drawer [New] - ([Outline](#drawer), [Contents](./drawer/page.mdx))
+- Drawer - ([Outline](#drawer), [Contents](./drawer/page.mdx))
 - Field - ([Outline](#field), [Contents](./field/page.mdx))
 - Fieldset - ([Outline](#fieldset), [Contents](./fieldset/page.mdx))
 - Form - ([Outline](#form), [Contents](./form/page.mdx))
@@ -24,6 +23,7 @@
 - Meter - ([Outline](#meter), [Contents](./meter/page.mdx))
 - Navigation Menu - ([Outline](#navigation-menu), [Contents](./navigation-menu/page.mdx))
 - Number Field - ([Outline](#number-field), [Contents](./number-field/page.mdx))
+- OTP Field [Preview] - ([Outline](#otp-field), [Contents](./otp-field/page.mdx))
 - Popover - ([Outline](#popover), [Contents](./popover/page.mdx))
 - Preview Card - ([Outline](#preview-card), [Contents](./preview-card/page.mdx))
 - Progress - ([Outline](#progress), [Contents](./progress/page.mdx))
@@ -111,7 +111,7 @@ A dialog that requires a user response to proceed.
     - Title
     - Description
     - Close
-    - createHandle
+  - createHandle
     - Handle
 - Exports:
   - Alert Dialog - Root
@@ -199,7 +199,7 @@ An input that suggests options as you type.
     - Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, form, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, loopFocus, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
   - Autocomplete - Trigger
     - Props: className, disabled, nativeButton, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
   - Autocomplete - Value
     - Props: children
   - Autocomplete - Input
@@ -209,6 +209,7 @@ An input that suggests options as you type.
     - Props: className, render, style
   - Autocomplete - Clear
     - Props: className, disabled, keepMounted, nativeButton, render, style
+    - Data Attributes: data-disabled, data-ending-style, data-popup-open, data-starting-style
   - Autocomplete - List
     - Props: children, className, render, style
   - Autocomplete - Portal
@@ -228,10 +229,10 @@ An input that suggests options as you type.
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Autocomplete - Item
     - Props: children, className, disabled, index, nativeButton, onClick, render, style, value
-    - Data Attributes: data-disabled, data-highlighted, data-selected
+    - Data Attributes: data-disabled, data-highlighted
   - Autocomplete - Group
     - Props: className, items, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Autocomplete - GroupLabel
     - Props: className, render, style
   - Autocomplete - Separator
@@ -246,7 +247,7 @@ An input that suggests options as you type.
     - Props: className, render, style
   - Autocomplete - InputGroup
     - Props: className, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Autocomplete - useFilter
     - Parameters: options
   - Autocomplete - useFilteredItems
@@ -311,78 +312,6 @@ A button component that can be rendered as another tag or focusable when disable
 </details>
 
 [Read more](./button/page.mdx)
-
-## Calendar
-
-An easily stylable calendar component.
-
-<details>
-
-<summary>Outline</summary>
-
-- Keywords: React Calendar, React Date Picker, React Date Calendar, Calendar, Date Picker, Temporal, Base UI
-- Sections:
-  - Anatomy
-  - Examples
-    - Unavailable dates
-    - Validation
-    - Lazy loading
-    - Display week numbers
-    - Timezone support
-    - Month and year select
-    - Animating month changes
-      - Animating with `motion/react`
-    - Localization
-  - API reference
-    - Root
-    - DayGrid
-    - DayGridHeader
-    - DayGridHeaderCell
-    - DayGridBody
-    - DayGridRow
-    - DayGridCell
-    - DayButton
-    - DecrementMonth
-    - IncrementMonth
-    - Viewport
-- Exports:
-  - Calendar - Root
-    - Props: children, className, defaultValue, defaultVisibleDate, disabled, invalid, isDateUnavailable, maxDate, minDate, monthPageSize, onValueChange, onVisibleDateChange, readOnly, referenceDate, render, style, timezone, value, visibleDate
-    - Data Attributes: data-disabled, data-empty, data-invalid, data-navigation-direction, data-readonly
-  - Calendar - Viewport
-    - Props: children
-    - Data Attributes: data-current, data-ending-style, data-navigation-direction, data-previous, data-starting-style
-  - Calendar - DayButton
-    - Props: className, focusableWhenDisabled, format, nativeButton, render, style
-    - Data Attributes: data-current, data-disabled, data-outside-month, data-selected, data-unavailable
-  - Calendar - DayGrid
-    - Props: className, render, style
-  - Calendar - DayGridBody
-    - Props: children, className, fixedWeekNumber, offset, render, style
-  - Calendar - DayGridCell
-    - Props: className, render, style, value
-  - Calendar - DayGridHeader
-    - Props: className, render, style
-  - Calendar - DayGridHeaderCell
-    - Props: className, formatter, render, style, value
-  - Calendar - DayGridHeaderRow
-    - Props: children, className, render, style
-  - Calendar - DayGridRow
-    - Props: children, className, render, style, value
-  - Calendar - DecrementMonth
-    - Props: className, nativeButton, render, style
-    - Data Attributes: data-disabled
-  - Calendar - IncrementMonth
-    - Props: className, nativeButton, render, style
-    - Data Attributes: data-disabled
-  - Calendar - useContext
-  - Calendar - useDayList
-  - Calendar - useWeekList
-- Types: Calendar.DayButton.Props, Calendar.DayButton.State, Calendar.DayGrid.Props, Calendar.DayGrid.State, Calendar.DayGridBody.Props, Calendar.DayGridBody.State, Calendar.DayGridCell.Props, Calendar.DayGridCell.State, Calendar.DayGridHeader.Props, Calendar.DayGridHeader.State, Calendar.DayGridHeaderCell.Props, Calendar.DayGridHeaderCell.State, Calendar.DayGridHeaderRow.Props, Calendar.DayGridHeaderRow.State, Calendar.DayGridRow.Props, Calendar.DayGridRow.State, Calendar.DecrementMonth.Props, Calendar.DecrementMonth.State, Calendar.IncrementMonth.Props, Calendar.IncrementMonth.State, Calendar.Root.ChangeEventReason, Calendar.Root.NavigationDirection, Calendar.Root.Props, Calendar.Root.State, Calendar.Root.ValueChangeEventDetails, Calendar.Root.ValueChangeHandlerContext, Calendar.Root.VisibleDateChangeEventDetails, Calendar.Viewport.Props, Calendar.Viewport.State
-
-</details>
-
-[Read more](./calendar/page.mdx)
 
 ## Checkbox
 
@@ -542,6 +471,7 @@ An input combined with a list of predefined items to select.
     - Props: className, render, style
   - Combobox - Clear
     - Props: className, disabled, keepMounted, nativeButton, render, style
+    - Data Attributes: data-disabled, data-ending-style, data-popup-open, data-starting-style
   - Combobox - List
     - Props: children, className, render, style
   - Combobox - Portal
@@ -698,7 +628,7 @@ A popup that opens on top of the entire page.
 
 <summary>Outline</summary>
 
-- Keywords: React Dialog, Modal Dialog Component, Modal Popup, Modal Window, Popup Window, Modal Overlay, Overlay, Lightbox, Popover Dialog, Controlled Dialog State, Nested Dialog React, Accessible Dialog, Headless React Components, Base UI
+- Keywords: React Dialog, Modal Dialog Component, Modal Popup, Modal Window, Popup Window, Modal Overlay, Overlay, Lightbox, Popover Dialog, Controlled Dialog State, Nested Dialog React, Focus Trap Dialog, Accessible Dialog, Headless React Components, Base UI
 - Sections:
   - Usage guidelines
   - Anatomy
@@ -723,7 +653,7 @@ A popup that opens on top of the entire page.
     - Title
     - Description
     - Close
-    - createHandle
+  - createHandle
     - Handle
 - Exports:
   - Dialog - Root
@@ -798,7 +728,7 @@ A panel that slides in from the edge of the screen.
     - Title
     - Description
     - Close
-    - createHandle
+  - createHandle
     - Handle
 - Exports:
   - Drawer - Root
@@ -970,7 +900,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
 
 <summary>Outline</summary>
 
-- Keywords: React Menu, Menu Component, Dropdown Menu, Dropdown Actions, Command Menu, Action List, Keyboard Navigation Menu, Nested Menu React, Context Actions, Headless React Components, Base UI
+- Keywords: React Menu, Menu Component, Dropdown Menu, Dropdown Actions, Command Menu, Action List, Keyboard Navigation Menu, Roving Tabindex Menu, Nested Menu React, Flyout Menu, Context Actions, Headless React Components, Base UI
 - Sections:
   - Anatomy
   - Examples
@@ -1009,7 +939,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - CheckboxItem
     - CheckboxItemIndicator
     - Separator
-    - createHandle
+  - createHandle
     - Handle
 - Exports:
   - Menu - Root
@@ -1251,6 +1181,45 @@ A numeric input element with increment and decrement buttons, and a scrub area.
 
 [Read more](./number-field/page.mdx)
 
+## OTP Field
+
+A one-time password input composed of individual character slots.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React OTP Field, One-Time Password Input, Verification Code Input, OTP Input Component, Pin Input, Passcode Input, Two-Factor Authentication Input, 2FA Input, Multi-Slot Input, Accessible OTP Field, Headless React Components, Base UI
+- Sections:
+  - Usage guidelines
+  - Anatomy
+  - Examples
+    - Labeling an OTP field
+    - Form integration
+    - Alphanumeric verification codes
+    - Grouped layouts
+    - Placeholder hints
+    - Custom sanitization
+    - Masked entry
+  - API reference
+    - Root
+    - Input
+    - Separator
+- Exports:
+  - OTP Field - Root
+    - Props: autoComplete, autoSubmit, className, defaultValue, disabled, form, id, inputMode, length, mask, name, onValueChange, onValueComplete, onValueInvalid, readOnly, render, required, sanitizeValue, style, validationType, value
+    - Data Attributes: data-complete, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-valid
+  - OTP Field - Input
+    - Props: className, render, style
+    - Data Attributes: data-complete, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-valid
+  - OTP Field - Separator
+    - Props: className, orientation, render, style
+- Types: OTPFieldPreview.Input.Props, OTPFieldPreview.Input.State, OTPFieldPreview.Root.ChangeEventDetails, OTPFieldPreview.Root.ChangeEventReason, OTPFieldPreview.Root.CompleteEventDetails, OTPFieldPreview.Root.CompleteEventReason, OTPFieldPreview.Root.InvalidEventDetails, OTPFieldPreview.Root.InvalidEventReason, OTPFieldPreview.Root.Props, OTPFieldPreview.Root.State, OTPFieldPreview.Root.ValidationType, OTPFieldPreview.Separator.Props, OTPFieldPreview.Separator.State
+
+</details>
+
+[Read more](./otp-field/page.mdx)
+
 ## Popover
 
 An accessible popup anchored to a button.
@@ -1259,7 +1228,7 @@ An accessible popup anchored to a button.
 
 <summary>Outline</summary>
 
-- Keywords: React Popover, Popover Component, Popover Menu, Popup Menu, Anchored Popup, Dropdown, Overlay, Floating Panel, Tooltip Alternative, Info Box, Callout, Popup Content, Detached Trigger Popover, Multi Trigger Popover, Animated Popover, Headless React Components, Base UI
+- Keywords: React Popover, Popover Component, Popover Menu, Popup Menu, Anchored Popup, Dropdown, Overlay, Floating Panel, Tooltip Alternative, Info Box, Callout, Popup Content, Detached Trigger Popover, Multi Trigger Popover, Hover Trigger Popover, Click Trigger Popover, Focus Trigger Popover, Animated Popover, Headless React Components, Base UI
 - Sections:
   - Anatomy
   - Examples
@@ -1282,7 +1251,7 @@ An accessible popup anchored to a button.
     - Description
     - Close
     - Viewport
-    - createHandle
+  - createHandle
     - Handle
 - Exports:
   - Popover - Root
@@ -1352,7 +1321,7 @@ A popup that appears when a link is hovered, showing a preview for sighted users
     - Popup
     - Viewport
     - Arrow
-    - createHandle
+  - createHandle
     - Handle
 - Exports:
   - Preview Card - Root
@@ -1473,6 +1442,7 @@ A native scroll container with custom scrollbars.
   - Examples
     - Both scrollbars
     - Gradient scroll fade
+    - Combining with Tabs
   - API reference
     - Root
     - Viewport
@@ -1514,7 +1484,7 @@ A common form component for choosing a predefined value in a dropdown menu.
 
 <summary>Outline</summary>
 
-- Keywords: React Select Component, Dropdown Select, Select Box, Select Menu, Picker, Listbox, Choice Selector, Option List, Dropdown Menu, Combo Box, Multi Select React, Multiselect, Object Value Select, Accessible Select, Align Item with Trigger, Headless React Components, Base UI
+- Keywords: React Select Component, Dropdown Select, Select Box, Select Menu, Picker, Listbox, Choice Selector, Option List, Dropdown Menu, Combo Box, Multi Select React, Multiselect, Object Value Select, Single Select, Keyboard Navigation Select, Listbox Role, Accessible Select, Align Item with Trigger, Headless React Components, Base UI
 - Sections:
   - Usage guidelines
   - Anatomy
@@ -1619,6 +1589,7 @@ A separator element accessible to screen readers.
 - Exports:
   - Separator
     - Props: className, orientation, render, style
+    - Data Attributes: data-orientation
 - Types: Separator.Props, Separator.State
 
 </details>
@@ -1633,7 +1604,7 @@ An easily stylable range input.
 
 <summary>Outline</summary>
 
-- Keywords: React Slider, Range Slider Component, Range Input, Range Control, Track Control, Value Selector, Dual Slider, Double Slider, Two-Handle Slider, Multi Thumb Slider, Thumb Alignment Edge, Accessible Slider, Headless React Components, Base UI
+- Keywords: React Slider, Range Slider Component, Range Input, Range Control, Track Control, Value Selector, Keyboard Slider Control, Dual Slider, Double Slider, Two-Handle Slider, Multi Thumb Slider, Thumb Alignment Edge, Accessible Slider, Headless React Components, Base UI
 - Sections:
   - Usage guidelines
   - Anatomy
@@ -1686,7 +1657,7 @@ A control that indicates whether a setting is on or off.
 
 <summary>Outline</summary>
 
-- Keywords: React Switch, Toggle Switch Component, Toggle Switch, Toggle Button, On/Off Control, On Off Switch, Binary Switch, Checkbox Alternative, Form Toggle Control, Accessible Switch, Headless React Components, Base UI
+- Keywords: React Switch, Toggle Switch Component, Toggle Switch, Toggle Button, On/Off Control, On Off Switch, Binary Switch, Checkbox Alternative, Form Toggle Control, Aria Switch Role, Accessible Switch, Headless React Components, Base UI
 - Sections:
   - Usage guidelines
   - Anatomy
@@ -1718,7 +1689,7 @@ A component for toggling between related panels on the same page.
 
 <summary>Outline</summary>
 
-- Keywords: React Tabs, Tabbed Interface Component, Tab Panel, Tab Control, Tabbed Navigation, Tabbed UI, Page Switcher, Content Switcher, View Switcher, Carousel Alternative, Tab List Indicator, Accessible Tabs, Headless React Components, Base UI
+- Keywords: React Tabs, Tabbed Interface Component, Tab Panel, Tab Control, Tabbed Navigation, Tabbed UI, Page Switcher, Content Switcher, View Switcher, Tab List Indicator, Tablist, Tabpanel, Keyboard Navigation Tabs, Controlled Tabs, Accessible Tabs, Headless React Components, Base UI
 - Sections:
   - Anatomy
   - Examples
@@ -1760,7 +1731,7 @@ Generates toast notifications.
 
 <summary>Outline</summary>
 
-- Keywords: React Toast, Toast Notification, Toast Notifications, Notification Component, Notification, Snackbar, Message Notification, Alert Notification, Alert Message, Flash Message, Push Notification, Temporary Message, Dismissible Notification, Toast Message, Toast Manager, Anchored Toast, Swipe Dismiss Toast, Accessible Toast, Headless React Components, Base UI
+- Keywords: React Toast, Toast Notification, Toast Notifications, Notification Component, Notification, Snackbar, Message Notification, Alert Notification, Alert Message, Flash Message, Push Notification, Temporary Message, Dismissible Notification, Toast Message, Toast Manager, Anchored Toast, Swipe Dismiss Toast, Status Message, Timed Notification, Stacked Toasts, Live Region, Accessible Toast, Headless React Components, Base UI
 - Sections:
   - Anatomy
   - General usage
@@ -1937,7 +1908,7 @@ A popup that appears when an element is hovered or focused, showing a hint for s
 
 <summary>Outline</summary>
 
-- Keywords: React Tooltip, Tooltip Component, Detached Trigger Tooltip, Hint, Help Text, Hover Text, Hover Hint, Info Popup, Infotip, Flyout, Accessible Tooltip, Multiple Tooltip Triggers, Animated Tooltip, Headless React Components, Base UI
+- Keywords: React Tooltip, Tooltip Component, Detached Trigger Tooltip, Hint, Help Text, Hover Text, Hover Hint, Info Popup, Infotip, Aria Describedby Tooltip, Accessible Tooltip, Multiple Tooltip Triggers, Animated Tooltip, Headless React Components, Base UI
 - Sections:
   - Usage guidelines
   - Anatomy
@@ -1960,7 +1931,7 @@ A popup that appears when an element is hovered or focused, showing a hint for s
     - Positioner
     - Popup
     - Arrow
-    - createHandle
+  - createHandle
     - Handle
 - Exports:
   - Tooltip - Root

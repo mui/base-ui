@@ -1,14 +1,15 @@
 'use client';
 import * as React from 'react';
-import { getTarget } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { getOffset } from '../utils/getOffset';
 import { ScrollAreaRootCssVars } from '../root/ScrollAreaRootCssVars';
 import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRootState } from '../root/ScrollAreaRoot';
 
@@ -112,11 +113,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       }
     }
 
-    scrollbarEl.addEventListener('wheel', handleWheel, { passive: false });
-
-    return () => {
-      scrollbarEl.removeEventListener('wheel', handleWheel);
-    };
+    return addEventListener(scrollbarEl, 'wheel', handleWheel, { passive: false });
   }, [orientation, scrollbarXRef, scrollbarYRef, viewportRef]);
 
   const props: HTMLProps = {
@@ -126,8 +123,12 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         return;
       }
 
-      // Ignore clicks on thumb
-      if (event.currentTarget !== getTarget(event.nativeEvent)) {
+      const target = getTarget(event.nativeEvent) as Element | null;
+      const thumb = orientation === 'vertical' ? thumbYRef.current : thumbXRef.current;
+
+      // Ignore clicks on thumb, including cases where React retargets the
+      // synthetic event to the track host across a shadow boundary.
+      if (thumb && contains(thumb, target)) {
         return;
       }
 

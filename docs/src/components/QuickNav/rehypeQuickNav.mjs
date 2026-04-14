@@ -1,4 +1,6 @@
 // @ts-check
+import { headingRank } from 'hast-util-heading-rank';
+import { visit } from 'unist-util-visit';
 import { createMdxElement } from 'docs/src/mdx/createMdxElement.mjs';
 
 const ROOT = 'QuickNav.Root';
@@ -33,9 +35,17 @@ export function rehypeQuickNav() {
       return;
     }
 
+    const excludedIds = collectExcludedHeadingIds(tree);
+    const filteredToc = filterToc(toc, excludedIds);
+
+    if (!filteredToc.length) {
+      tree.children = [content];
+      return;
+    }
+
     const root = createMdxElement({
       name: ROOT,
-      children: toc.flatMap(getNodeFromEntry).filter(Boolean),
+      children: filteredToc.flatMap(getNodeFromEntry).filter(Boolean),
     });
     tree.children = [root, content];
   };
@@ -82,4 +92,43 @@ function getNodeFromEntry({ value, depth, id, children }) {
     name: ITEM,
     children: [link, sub],
   });
+}
+
+/**
+ * @param {import('hast').Root} tree
+ * @returns {Set<string>}
+ */
+function collectExcludedHeadingIds(tree) {
+  const excluded = new Set();
+  visit(tree, 'element', (node) => {
+    if (!headingRank(node)) {
+      return;
+    }
+    const props = node.properties ?? {};
+    // MDX keeps the kebab-case key; standard remark-rehype would camelCase it.
+    if (
+      props.id &&
+      (props.dataExcludeToc !== undefined || props['data-exclude-toc'] !== undefined)
+    ) {
+      excluded.add(String(props.id));
+    }
+  });
+  return excluded;
+}
+
+/**
+ * @param {TocEntry[]} entries
+ * @param {Set<string>} excludedIds
+ * @returns {TocEntry[]}
+ */
+function filterToc(entries, excludedIds) {
+  if (!entries?.length) {
+    return entries ?? [];
+  }
+  return entries
+    .filter((entry) => !excludedIds.has(String(entry.id ?? '')))
+    .map((entry) => ({
+      ...entry,
+      children: entry.children?.length ? filterToc(entry.children, excludedIds) : undefined,
+    }));
 }

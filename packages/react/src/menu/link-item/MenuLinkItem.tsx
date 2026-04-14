@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
-import { useButton } from '../../use-button';
+import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
 
 /**
@@ -34,7 +34,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
 
   const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const nodeId = menuPositionerContext?.nodeId;
+  const nodeId = menuPositionerContext?.context.nodeId;
 
   const id = useBaseUiId(idProp);
 

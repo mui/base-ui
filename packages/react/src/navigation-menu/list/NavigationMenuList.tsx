@@ -1,15 +1,18 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useDismiss, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { getTarget } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import { EMPTY_OBJECT } from '../../utils/constants';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
+import {
+  useNavigationMenuRootContext,
+  useNavigationMenuTreeContext,
+} from '../root/NavigationMenuRootContext';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * Contains a list of navigation menu items.
@@ -22,6 +25,8 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   forwardedRef: React.ForwardedRef<HTMLUListElement>,
 ) {
   const { className, render, style, ...elementProps } = componentProps;
+
+  const nodeId = useNavigationMenuTreeContext();
 
   const {
     orientation,
@@ -42,6 +47,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   useHoverFloatingInteraction(context, {
     enabled: Boolean(floatingRootContext) && hoverInteractionsEnabled,
     closeDelay,
+    nodeId,
   });
 
   const dismiss = useDismiss(context, {

@@ -1,15 +1,16 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 
 const LONG_PRESS_DELAY = 500;
@@ -80,9 +81,10 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
 
-    doc.addEventListener(
+    addEventListener(
+      doc,
       'mouseup',
-      (mouseEvent: MouseEvent) => {
+      (mouseEvent) => {
         allowMouseUpTriggerRef.current = false;
 
         if (!allowMouseUpRef.current) {
@@ -168,10 +170,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     }
 
     const doc = ownerDocument(triggerRef.current);
-    doc.addEventListener('contextmenu', handleDocumentContextMenu);
-    return () => {
-      doc.removeEventListener('contextmenu', handleDocumentContextMenu);
-    };
+    return addEventListener(doc, 'contextmenu', handleDocumentContextMenu);
   }, [backdropRef, disabled, internalBackdropRef]);
 
   const state: ContextMenuTriggerState = {

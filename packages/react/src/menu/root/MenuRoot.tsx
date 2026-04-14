@@ -5,11 +5,9 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
-  FloatingEvents,
   FloatingTree,
   useDismiss,
   useFloatingNodeId,
@@ -22,15 +20,14 @@ import {
 } from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
-import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   ContextMenuRootContext,
   useContextMenuRootContext,
@@ -162,7 +159,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
-  const modal = store.useState('modal');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const parent = store.useState('parent');
@@ -175,8 +171,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const nested = floatingParentNodeId != null;
 
-  let floatingEvents: FloatingEvents;
-
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalProp !== undefined) {
       console.warn(
@@ -185,13 +179,14 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     }
   }
 
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
+
   store.useSyncedValues({
     disabled: disabledProp,
     modal: parent.type === undefined ? modalProp : undefined,
+    openMethod,
     rootId: useId(),
   });
-
-  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
@@ -223,11 +218,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       allowOutsidePressDismissalRef.current = true;
     });
   }, [allowOutsidePressDismissalTimeout, open, parent.type]);
-
-  useScrollLock(
-    open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
-    positionerElement,
-  );
 
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {
@@ -269,14 +259,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         return;
       }
 
-      const details: FloatingUIOpenChangeDetails = {
-        open: nextOpen,
-        nativeEvent: eventDetails.event,
-        reason: eventDetails.reason,
-        nested,
-      };
-
-      floatingEvents?.emit('openchange', details);
+      store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
       const nativeEvent = eventDetails.event as Event;
       if (
@@ -394,7 +377,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     onOpenChange: setOpen,
   });
 
-  floatingEvents = floatingRootContext.context.events;
+  const floatingEvents = floatingRootContext.context.events;
 
   React.useEffect(() => {
     const handleSetOpenEvent = ({

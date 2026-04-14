@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import {
   useDismiss,
@@ -16,8 +15,8 @@ import { PopoverHandle } from '../store/PopoverHandle';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
@@ -60,9 +59,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
   const open = store.useState('open');
-  const positionerElement = store.useState('positionerElement');
   const payload = store.useState('payload') as Payload | undefined;
-  const openReason = store.useState('openChangeReason');
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
@@ -73,11 +70,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
     store.update({ stickIfOpen: true, openChangeReason: null });
   });
-
-  useScrollLock(
-    open && modal === true && openReason !== REASONS.triggerHover && openMethod !== 'touch',
-    positionerElement,
-  );
 
   React.useEffect(() => {
     if (!open) {

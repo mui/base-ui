@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
 import { ToastViewportCssVars } from './ToastViewportCssVars';
 
@@ -64,12 +66,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     const win = ownerWindow(viewport);
-
-    win.addEventListener('keydown', handleGlobalKeyDown);
-
-    return () => {
-      win.removeEventListener('keydown', handleGlobalKeyDown);
-    };
+    return addEventListener(win, 'keydown', handleGlobalKeyDown);
   }, [store, isEmpty]);
 
   React.useEffect(() => {
@@ -108,13 +105,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       windowFocusTimeout.start(0, () => store.setIsWindowFocused(true));
     }
 
-    win.addEventListener('blur', handleWindowBlur, true);
-    win.addEventListener('focus', handleWindowFocus, true);
-
-    return () => {
-      win.removeEventListener('blur', handleWindowBlur, true);
-      win.removeEventListener('focus', handleWindowFocus, true);
-    };
+    return mergeCleanups(
+      addEventListener(win, 'blur', handleWindowBlur, true),
+      addEventListener(win, 'focus', handleWindowFocus, true),
+    );
   }, [
     store,
     windowFocusTimeout,
@@ -132,11 +126,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     const doc = ownerDocument(viewport);
-    doc.addEventListener('pointerdown', store.handleDocumentPointerDown, true);
-
-    return () => {
-      doc.removeEventListener('pointerdown', store.handleDocumentPointerDown, true);
-    };
+    return addEventListener(doc, 'pointerdown', store.handleDocumentPointerDown, true);
   }, [isEmpty, store]);
 
   function handleFocusGuard(event: React.FocusEvent) {

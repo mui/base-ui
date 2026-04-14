@@ -161,8 +161,8 @@ Renders a `<button>` element.
 | data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
 | data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
 | data-required    | -                                                                                  | Present when the component is required.                                            |
-| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-valid       | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid     | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
 | data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
 | data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
 | data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
@@ -247,8 +247,8 @@ Renders an `<input>` element.
 | data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
 | data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
 | data-required   | -                                                                                  | Present when the component is required.                                            |
-| data-valid      | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid    | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
 | data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
 | data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
 | data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
@@ -323,6 +323,15 @@ Renders a `<button>` element.
 | style        | `React.CSSProperties \| ((state: Combobox.Clear.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | keepMounted  | `boolean`                                                                                    | `false` | Whether the component should remain mounted in the DOM when not visible.                                                                                                                      |
 | render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Clear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Clear Data Attributes:**
+
+| Attribute           | Type | Description                                   |
+| :------------------ | :--- | :-------------------------------------------- |
+| data-popup-open     | -    | Present when the corresponding popup is open. |
+| data-disabled       | -    | Present when the button is disabled.          |
+| data-starting-style | -    | Present when the button is animating in.      |
+| data-ending-style   | -    | Present when the button is animating out.     |
 
 ### Clear.Props
 
@@ -691,8 +700,8 @@ Renders a `<div>` element.
 | data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
 | data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
 | data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-valid       | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid     | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
 | data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
 | data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
 | data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
@@ -799,6 +808,10 @@ type ComboboxLabelState = {
 
 Displays a status message whose content changes are announced politely to screen readers.
 Useful for conveying the status of an asynchronously loaded list.
+This component's root element must remain mounted in the DOM to announce
+changes consistently across screen readers. Avoid hiding or removing the
+component itself with `display: none`, `hidden`, `aria-hidden`, or conditional
+rendering. Prefer updating or conditionally rendering its children instead.
 Renders a `<div>` element.
 
 **Status Props:**
@@ -824,6 +837,10 @@ type ComboboxStatusState = {};
 Renders its children only when the list is empty.
 Requires the `items` prop on the root component.
 Announces changes politely to screen readers.
+This component's root element must remain mounted in the DOM to announce
+changes consistently across screen readers. Avoid hiding or removing the
+component itself with `display: none`, `hidden`, `aria-hidden`, or conditional
+rendering. Prefer updating or conditionally rendering its children instead.
 Renders a `<div>` element.
 
 **Empty Props:**
@@ -1027,8 +1044,8 @@ Renders a `<div>` element.
 | data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
 | data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
 | data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-valid       | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid     | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
 | data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
 | data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
 | data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
@@ -1100,8 +1117,11 @@ type ReturnValue = T[];
 
 ```typescript
 type ComboboxFilter = {
+  /** Returns whether the item matches the query anywhere. */
   contains: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /** Returns whether the item starts with the query. */
   startsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /** Returns whether the item ends with the query. */
   endsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
 };
 ```

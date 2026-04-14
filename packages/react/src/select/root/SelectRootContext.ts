@@ -3,7 +3,7 @@ import * as React from 'react';
 import { type FloatingEvents, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
-import type { HTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../internals/types';
 import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {

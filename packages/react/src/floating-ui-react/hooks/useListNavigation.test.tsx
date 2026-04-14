@@ -686,6 +686,61 @@ describe('useListNavigation', () => {
   });
 
   describe('prop: focusItemOnHover', () => {
+    it.skipIf(isJSDOM)(
+      'cancels pending item focus when the pointer leaves before focus lands',
+      async () => {
+        const frameCallbacks = new Map<number, FrameRequestCallback>();
+        let frameId = 0;
+        const requestAnimationFrameSpy = vi
+          .spyOn(window, 'requestAnimationFrame')
+          .mockImplementation((callback) => {
+            frameId += 1;
+            frameCallbacks.set(frameId, callback);
+            return frameId;
+          });
+        const cancelAnimationFrameSpy = vi
+          .spyOn(window, 'cancelAnimationFrame')
+          .mockImplementation((id) => {
+            frameCallbacks.delete(id);
+          });
+        const spy = vi.fn();
+
+        try {
+          render(<App focusItemOnOpen onNavigate={(index) => spy(index)} />);
+
+          fireEvent.click(screen.getByRole('button'));
+          await flushMicrotasks();
+
+          const menu = screen.getByRole('menu');
+          const item = screen.getByTestId('item-0');
+
+          expect(item).toHaveAttribute('aria-selected', 'true');
+          expect(item).not.toHaveFocus();
+
+          fireEvent.pointerLeave(item, {
+            pointerType: 'mouse',
+            relatedTarget: document.body,
+          });
+
+          act(() => {
+            const callbacks = Array.from(frameCallbacks.values());
+            frameCallbacks.clear();
+            callbacks.forEach((callback) => callback(performance.now()));
+          });
+
+          expect(item).not.toHaveFocus();
+          expect(menu).not.toHaveFocus();
+          await waitFor(() => {
+            expect(item).toHaveAttribute('aria-selected', 'false');
+          });
+          expect(spy).toHaveBeenLastCalledWith(null);
+        } finally {
+          requestAnimationFrameSpy.mockRestore();
+          cancelAnimationFrameSpy.mockRestore();
+        }
+      },
+    );
+
     it('true - focuses item on hover and syncs the active index', async () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} />);
@@ -698,6 +753,18 @@ describe('useListNavigation', () => {
       await flushMicrotasks();
     });
 
+    it('true - syncs an item on hover when activeIndex is null but selectedIndex matches', async () => {
+      const spy = vi.fn();
+      render(<App focusItemOnOpen={false} selectedIndex={1} onNavigate={(index) => spy(index)} />);
+
+      fireEvent.click(screen.getByRole('button'));
+      fireEvent.mouseMove(screen.getByTestId('item-1'));
+
+      expect(screen.getByTestId('item-1')).toHaveFocus();
+      expect(spy).toHaveBeenCalledWith(1);
+      await flushMicrotasks();
+    });
+
     it('false - does not focus item on hover and does not sync the active index', async () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} focusItemOnOpen={false} focusItemOnHover={false} />);
@@ -706,6 +773,67 @@ describe('useListNavigation', () => {
       expect(screen.getByTestId('item-1')).not.toHaveFocus();
       expect(spy).toHaveBeenCalledTimes(0);
       await flushMicrotasks();
+    });
+
+    it('clears the active item when the pointer leaves a clipped container while still within the item bounds', async () => {
+      const spy = vi.fn();
+      render(<App onNavigate={spy} />);
+
+      fireEvent.click(screen.getByRole('button'));
+
+      const menu = screen.getByRole('menu');
+      const item = screen.getByTestId('item-1');
+
+      menu.style.overflow = 'auto';
+      menu.style.maxHeight = '40px';
+
+      vi.spyOn(menu, 'getBoundingClientRect').mockReturnValue({
+        x: 0,
+        y: 0,
+        top: 0,
+        right: 100,
+        bottom: 40,
+        left: 0,
+        width: 100,
+        height: 40,
+        toJSON() {
+          return {};
+        },
+      });
+
+      vi.spyOn(item, 'getBoundingClientRect').mockReturnValue({
+        x: 0,
+        y: 0,
+        top: 0,
+        right: 100,
+        bottom: 80,
+        left: 0,
+        width: 100,
+        height: 80,
+        toJSON() {
+          return {};
+        },
+      });
+
+      fireEvent.mouseMove(item);
+
+      await waitFor(() => {
+        expect(item).toHaveFocus();
+      });
+
+      await act(async () => {
+        fireEvent.pointerLeave(item, {
+          clientX: 50,
+          clientY: 60,
+          pointerType: 'mouse',
+          relatedTarget: document.body,
+        });
+      });
+
+      await waitFor(() => {
+        expect(item).toHaveAttribute('aria-selected', 'false');
+      });
+      expect(spy.mock.calls.at(-1)?.[0]).toBe(null);
     });
   });
 

@@ -3,12 +3,12 @@ import * as React from 'react';
 import { error } from '@base-ui/utils/error';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import type { FieldRootState } from '../root/FieldRoot';
-import { useFieldRootContext } from '../root/FieldRootContext';
-import { fieldValidityMapping } from '../utils/constants';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useLabel } from '../../labelable-provider/useLabel';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useLabel } from '../../internals/labelable-provider/useLabel';
 
 /**
  * An accessible label that is automatically associated with the field control.

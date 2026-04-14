@@ -2,12 +2,14 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import {
   safePolygon,
   useClick,
@@ -30,22 +32,22 @@ import {
   stopEvent,
 } from '../../floating-ui-react/utils';
 import type { HandleCloseContextBase } from '../../floating-ui-react/hooks/useHoverShared';
-import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../internals/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { EMPTY_ARRAY, ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
-import { CompositeItem } from '../../composite/item/CompositeItem';
-import { useButton } from '../../use-button';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
+import { useButton } from '../../internals/use-button';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
@@ -397,11 +399,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       resizeFrame.request(syncCurrentSize);
     }
 
-    win.addEventListener('resize', handleResize);
+    const unsubscribe = addEventListener(win, 'resize', handleResize);
 
     return () => {
       resizeFrame.cancel();
-      win.removeEventListener('resize', handleResize);
+      unsubscribe();
     };
   }, [open, isActiveItem, popupElement, positionerElement, resizeFrame, syncCurrentSize]);
 
@@ -486,8 +488,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         skipAutoSizeSyncRef.current = false;
         return undefined;
       }
-
-      handleValueChange(0, 0);
+      const { width, height } = getCssDimensions(popupElement);
+      handleValueChange(width, height);
     }
     return undefined;
   }, [

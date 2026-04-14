@@ -2,17 +2,17 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { ScrollAreaRootCssVars } from './ScrollAreaRootCssVars';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
 import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScrollbarDataAttributes';
 import { styleDisableScrollbar } from '../../utils/styles';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { contains } from '../../floating-ui-react/utils';
 import { useCSPContext } from '../../csp-provider/CSPContext';
 
 const DEFAULT_COORDS = { x: 0, y: 0 };
@@ -202,7 +202,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     handleTouchModalityChange(event);
 
     if (event.pointerType !== 'touch') {
-      const isTargetRootChild = contains(rootRef.current, getTarget(event.nativeEvent) as Element);
+      const isTargetRootChild = contains(rootRef.current, event.target as Element);
       setHovering(isTargetRootChild);
     }
   }

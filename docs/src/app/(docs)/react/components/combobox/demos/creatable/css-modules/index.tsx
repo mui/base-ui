@@ -138,7 +138,10 @@ export default function ExampleCreatableCombobox() {
                         aria-label={label.value}
                       >
                         {label.value}
-                        <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                        <Combobox.ChipRemove
+                          className={styles.ChipRemove}
+                          aria-label={`Remove ${label.value}`}
+                        >
                           <XIcon />
                         </Combobox.ChipRemove>
                       </Combobox.Chip>
@@ -160,7 +163,9 @@ export default function ExampleCreatableCombobox() {
         <Combobox.Portal>
           <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
             <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>No labels found.</Combobox.Empty>
+              <Combobox.Empty>
+                <div className={styles.Empty}>No labels found.</div>
+              </Combobox.Empty>
               <Combobox.List>
                 {(item: LabelItem) =>
                   item.creatable ? (

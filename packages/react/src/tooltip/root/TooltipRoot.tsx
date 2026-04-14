@@ -8,7 +8,7 @@ import { useClientPoint, useDismiss, useInteractions } from '../../floating-ui-r
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
+} from '../../internals/createBaseUIEventDetails';
 import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
@@ -16,7 +16,7 @@ import {
 } from '../../utils/popups';
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Groups all parts of the tooltip.
@@ -86,6 +86,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   useImplicitActiveTrigger(store);
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
+  const floatingRootContext = store.select('floatingRootContext');
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
@@ -131,8 +132,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
     [forceUnmount, handleImperativeClose],
   );
-
-  const floatingRootContext = store.useState('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,

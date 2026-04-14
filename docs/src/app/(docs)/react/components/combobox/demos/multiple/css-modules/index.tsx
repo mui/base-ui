@@ -24,7 +24,10 @@ export default function ExampleMultipleCombobox() {
                       aria-label={language.value}
                     >
                       {language.value}
-                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                      <Combobox.ChipRemove
+                        className={styles.ChipRemove}
+                        aria-label={`Remove ${language.value}`}
+                      >
                         <XIcon />
                       </Combobox.ChipRemove>
                     </Combobox.Chip>
@@ -44,7 +47,9 @@ export default function ExampleMultipleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>No languages found.</Combobox.Empty>
+            <Combobox.Empty>
+              <div className={styles.Empty}>No languages found.</div>
+            </Combobox.Empty>
             <Combobox.List>
               {(language: ProgrammingLanguage) => (
                 <Combobox.Item key={language.id} className={styles.Item} value={language}>

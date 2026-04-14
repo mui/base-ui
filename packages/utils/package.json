@@ -1,13 +1,14 @@
 {
   "name": "@base-ui/utils",
-  "version": "0.2.6",
+  "version": "0.2.7",
+  "author": "MUI Team",
   "description": "A collection of React utility functions for Base UI.",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mui/base-ui.git",
     "directory": "packages/utils"
   },
-  "license": "MIT",
   "exports": {
     "./store": "./src/store/index.ts",
     "./*": "./src/*.ts"
@@ -38,7 +39,7 @@
     "@types/use-sync-external-store": "1.5.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "typescript": "5.9.3"
+    "typescript": "6.0.2"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",

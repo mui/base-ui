@@ -1,21 +1,23 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerWindow, ownerDocument } from '@base-ui/utils/owner';
 import { isFirefox, isWebKit } from '@base-ui/utils/detectBrowser';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { getViewportRect } from '../utils/getViewportRect';
 import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize';
 import { DEFAULT_STEP } from '../utils/constants';
-import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { getTarget } from '../../floating-ui-react/utils';
 
 /**
@@ -216,13 +218,14 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       }
 
       const win = ownerWindow(inputRef.current);
-      win.addEventListener('pointerup', handleScrubPointerUp, true);
-      win.addEventListener('pointermove', handleScrubPointerMove, true);
+      const unsubscribe = mergeCleanups(
+        addEventListener(win, 'pointerup', handleScrubPointerUp, true),
+        addEventListener(win, 'pointermove', handleScrubPointerMove, true),
+      );
 
       return () => {
         exitPointerLockTimeout.clear();
-        win.removeEventListener('pointerup', handleScrubPointerUp, true);
-        win.removeEventListener('pointermove', handleScrubPointerMove, true);
+        unsubscribe();
       };
     },
     [
@@ -257,11 +260,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
         }
       }
 
-      element.addEventListener('touchstart', handleTouchStart);
-
-      return () => {
-        element.removeEventListener('touchstart', handleTouchStart);
-      };
+      return addEventListener(element, 'touchstart', handleTouchStart);
     },
     [disabled, readOnly],
   );

@@ -3,11 +3,11 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
+import { useTransitionStatus, TransitionStatus } from '../../internals/useTransitionStatus';
 import type { CollapsibleRoot } from './CollapsibleRoot';
 
 export type AnimationType = 'css-transition' | 'css-animation' | 'none' | null;
@@ -94,13 +94,14 @@ export function useCollapsibleRoot(
 
   useIsoLayoutEffect(() => {
     /**
-     * Unmount immediately when closing in controlled mode and keepMounted={false}
-     * and no CSS animations or transitions are applied
+     * Close immediately in controlled mode when no CSS animations or
+     * transitions are applied. `keepMounted` only keeps the element in the
+     * DOM; `mounted` must still become `false` so the panel regains `hidden`.
      */
-    if (isControlled && animationTypeRef.current === 'none' && !keepMounted && !open) {
+    if (isControlled && animationTypeRef.current === 'none' && !open) {
       setMounted(false);
     }
-  }, [isControlled, keepMounted, open, openParam, setMounted]);
+  }, [isControlled, open, openParam, setMounted]);
 
   return React.useMemo(
     () => ({
@@ -189,7 +190,9 @@ export interface UseCollapsibleRootReturnValue {
    */
   height: number | undefined;
   /**
-   * Whether the collapsible panel is currently mounted.
+   * Whether the collapsible panel is mounted for transition and hidden-state
+   * purposes. This can be `false` while the element remains in the DOM when
+   * `keepMounted` or `hiddenUntilFound` is enabled.
    */
   mounted: boolean;
   /**
@@ -202,7 +205,7 @@ export interface UseCollapsibleRootReturnValue {
   setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>;
   setHiddenUntilFound: React.Dispatch<React.SetStateAction<boolean>>;
   setKeepMounted: React.Dispatch<React.SetStateAction<boolean>>;
-  setMounted: (open: boolean) => void;
+  setMounted: (nextMounted: boolean) => void;
   setOpen: (open: boolean) => void;
   setPanelIdState: (id: string | undefined) => void;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;

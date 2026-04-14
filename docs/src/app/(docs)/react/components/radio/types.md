@@ -25,19 +25,19 @@ Renders a `<span>` element and a hidden `<input>` beside.
 
 **Root Data Attributes:**
 
-| Attribute      | Type | Description                                                              |
-| :------------- | :--- | :----------------------------------------------------------------------- |
-| data-checked   | -    | Present when the radio is checked.                                       |
-| data-unchecked | -    | Present when the radio is not checked.                                   |
-| data-disabled  | -    | Present when the radio is disabled.                                      |
-| data-readonly  | -    | Present when the radio is readonly.                                      |
-| data-required  | -    | Present when the radio is required.                                      |
-| data-valid     | -    | Present when the radio is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the radio is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the radio's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the radio has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the radio is checked (when wrapped in Field.Root).          |
-| data-focused   | -    | Present when the radio is focused (when wrapped in Field.Root).          |
+| Attribute      | Type | Description                                                                 |
+| :------------- | :--- | :-------------------------------------------------------------------------- |
+| data-checked   | -    | Present when the radio is checked.                                          |
+| data-unchecked | -    | Present when the radio is not checked.                                      |
+| data-disabled  | -    | Present when the radio is disabled.                                         |
+| data-readonly  | -    | Present when the radio is readonly.                                         |
+| data-required  | -    | Present when the radio is required.                                         |
+| data-valid     | -    | Present when the radio is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the radio is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the radio's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the radio has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the radio is checked (when wrapped in Field.Root).             |
+| data-focused   | -    | Present when the radio is focused (when wrapped in Field.Root).             |
 
 ### Root.Props
 
@@ -84,21 +84,21 @@ Renders a `<span>` element.
 
 **Indicator Data Attributes:**
 
-| Attribute           | Type | Description                                                              |
-| :------------------ | :--- | :----------------------------------------------------------------------- |
-| data-checked        | -    | Present when the radio is checked.                                       |
-| data-unchecked      | -    | Present when the radio is not checked.                                   |
-| data-disabled       | -    | Present when the radio is disabled.                                      |
-| data-readonly       | -    | Present when the radio is readonly.                                      |
-| data-required       | -    | Present when the radio is required.                                      |
-| data-valid          | -    | Present when the radio is in valid state (when wrapped in Field.Root).   |
-| data-invalid        | -    | Present when the radio is in invalid state (when wrapped in Field.Root). |
-| data-dirty          | -    | Present when the radio's value has changed (when wrapped in Field.Root). |
-| data-touched        | -    | Present when the radio has been touched (when wrapped in Field.Root).    |
-| data-filled         | -    | Present when the radio is checked (when wrapped in Field.Root).          |
-| data-focused        | -    | Present when the radio is focused (when wrapped in Field.Root).          |
-| data-starting-style | -    | Present when the radio indicator is animating in.                        |
-| data-ending-style   | -    | Present when the radio indicator is animating out.                       |
+| Attribute           | Type | Description                                                                 |
+| :------------------ | :--- | :-------------------------------------------------------------------------- |
+| data-checked        | -    | Present when the radio is checked.                                          |
+| data-unchecked      | -    | Present when the radio is not checked.                                      |
+| data-disabled       | -    | Present when the radio is disabled.                                         |
+| data-readonly       | -    | Present when the radio is readonly.                                         |
+| data-required       | -    | Present when the radio is required.                                         |
+| data-valid          | -    | Present when the radio is in a valid state (when wrapped in Field.Root).    |
+| data-invalid        | -    | Present when the radio is in an invalid state (when wrapped in Field.Root). |
+| data-dirty          | -    | Present when the radio's value has changed (when wrapped in Field.Root).    |
+| data-touched        | -    | Present when the radio has been touched (when wrapped in Field.Root).       |
+| data-filled         | -    | Present when the radio is checked (when wrapped in Field.Root).             |
+| data-focused        | -    | Present when the radio is focused (when wrapped in Field.Root).             |
+| data-starting-style | -    | Present when the radio indicator is animating in.                           |
+| data-ending-style   | -    | Present when the radio indicator is animating out.                          |
 
 ### Indicator.Props
 

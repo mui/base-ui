@@ -1,7 +1,6 @@
 @layer components {
   .TableCode {
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
-    letter-spacing: var(--text-xs--letter-spacing);
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.25rem; /* 20px */
   }
 }

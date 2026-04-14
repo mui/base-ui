@@ -50,7 +50,7 @@ export function MethodsReferenceAccordion({
               className="MethodsTrigger"
             >
               <Accordion.Scrollable className="ReferenceNameCell">
-                <code className="Code language-ts TableCode" data-table-code="">
+                <code className="Code language-ts TableCode">
                   <span className="pl-en">{name}</span>
                   {'('}
                   {method.parameters.map((param, i) => (

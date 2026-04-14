@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { usePopupViewport } from '../../utils/usePopupViewport';
 import { MenuViewportCssVars } from './MenuViewportCssVars';
 

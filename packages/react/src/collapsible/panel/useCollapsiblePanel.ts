@@ -1,14 +1,15 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { AnimationFrame, useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { warn } from '@base-ui/utils/warn';
-import { HTMLProps } from '../../utils/types';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { HTMLProps } from '../../internals/types';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
@@ -393,11 +394,7 @@ export function useCollapsiblePanel(
         onOpenChange(true, createChangeEventDetails(REASONS.none, event));
       }
 
-      panel.addEventListener('beforematch', handleBeforeMatch);
-
-      return () => {
-        panel.removeEventListener('beforematch', handleBeforeMatch);
-      };
+      return addEventListener(panel, 'beforematch', handleBeforeMatch);
     },
     [onOpenChange, panelRef, setOpen],
   );
@@ -439,7 +436,9 @@ export interface UseCollapsiblePanelParameters {
    */
   keepMounted: boolean;
   /**
-   * Whether the collapsible panel is currently mounted.
+   * Whether the collapsible panel is mounted for transition and hidden-state
+   * purposes. This can be `false` while the element remains in the DOM when
+   * `keepMounted` or `hiddenUntilFound` is enabled.
    */
   mounted: boolean;
   onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;

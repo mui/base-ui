@@ -5,7 +5,7 @@ import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { OPEN_DELAY } from '../utils/constants';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 describe('<Tooltip.Root />', () => {
   beforeEach(async () => {
@@ -877,6 +877,36 @@ describe('<Tooltip.Root />', () => {
         expect(screen.getByText('Content')).not.toBe(null);
 
         fireEvent.click(trigger);
+
+        expect(screen.getByText('Content')).not.toBe(null);
+      });
+
+      it('reopens on hover after the trigger is clicked closed', async () => {
+        await render(<TestTooltip triggerProps={{ delay: 100 }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(100);
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
+
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+
+        // Re-enter with mouse events only. A fresh pointerenter can be missed
+        // after the click-driven close, but hover should still work.
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(100);
+        await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
       });

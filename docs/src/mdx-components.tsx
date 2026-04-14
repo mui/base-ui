@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
@@ -9,6 +10,7 @@ import { Subtitle } from './components/Subtitle/Subtitle';
 import { TypeRef } from './components/TypeRef';
 import { TypePropRef } from './components/TypePropRef';
 import { Kbd } from './components/Kbd/Kbd';
+import { CodeBlockPreComputed } from './components/CodeBlock/CodeBlockPreComputed';
 import './css/mdx-components.css';
 
 interface MDXComponents {
@@ -19,7 +21,7 @@ interface MDXComponents {
 export const mdxComponents: MDXComponents = {
   a: Link,
   em: (props) => <em className="MdEm" {...props} />,
-  code: (props) => <Code className="MdInlineCode" {...props} />,
+  code: (props) => <Code {...props} className={clsx('MdCode', props.className)} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
     <h1 className="MdH1" {...props} />
@@ -46,23 +48,18 @@ export const mdxComponents: MDXComponents = {
   ul: (props) => <ul className="MdUl" {...props} />,
   ol: (props) => <ol className="MdOl" {...props} />,
   kbd: Kbd,
-  figure: (props) => {
-    if ('data-rehype-pretty-code-figure' in props) {
-      return <CodeBlock.Root className="MdFigure" {...props} />;
+  figure: (props) => <figure className="MdFigure" {...props} />,
+  pre: ({ tabIndex, ...props }) => {
+    if ('data-precompute' in props) {
+      return (
+        <CodeBlock.Root className="MdFigure">
+          <CodeBlockPreComputed {...props} />
+        </CodeBlock.Root>
+      );
     }
 
-    return <figure className="MdFigure" {...props} />;
+    return <CodeBlock.Pre {...props} />;
   },
-  figcaption: (props) => {
-    if ('data-rehype-pretty-code-title' in props) {
-      return <CodeBlock.Panel {...props} />;
-    }
-
-    return <figcaption {...props} />;
-  },
-  // Don't pass the tabindex prop from shiki, most browsers
-  // now handle scroll containers focus out of the box
-  pre: ({ tabIndex, ...props }) => <CodeBlock.Pre {...props} />,
   table: (props) => <Table.Root className="MdTable" {...props} />,
   thead: Table.Head,
   tbody: Table.Body,

@@ -3,11 +3,11 @@ import { Toolbar } from '@base-ui/react/toolbar';
 import { NumberField } from '@base-ui/react/number-field';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
-import { type Orientation } from '../../utils/types';
-import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
-import { ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../../composite/composite';
+import { type Orientation } from '../../internals/types';
+import { CompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
+import { ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../../internals/composite/composite';
 
 const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
