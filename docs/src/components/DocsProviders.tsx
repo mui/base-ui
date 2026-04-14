@@ -9,7 +9,9 @@ export function DocsProviders({ children }: { children: React.ReactNode }) {
     <Tooltip.Provider delay={350}>
       <CodeComponentsProvider>
         <TypesDataProvider>
-          <PackageManagerSnippetProvider defaultValue="npm">{children}</PackageManagerSnippetProvider>
+          <PackageManagerSnippetProvider defaultValue="npm">
+            {children}
+          </PackageManagerSnippetProvider>
         </TypesDataProvider>
       </CodeComponentsProvider>
     </Tooltip.Provider>
