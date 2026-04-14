@@ -31,7 +31,7 @@ export default function ExamplePopoverCombobox() {
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Combobox.ItemIndicator>
-                    <div className={styles.ItemText}>{country.label}</div>
+                    <span className={styles.ItemText}>{country.label}</span>
                   </Combobox.Item>
                 )}
               </Combobox.List>

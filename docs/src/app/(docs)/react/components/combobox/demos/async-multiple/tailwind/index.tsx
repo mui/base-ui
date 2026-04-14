@@ -200,14 +200,14 @@ export default function ExampleAsyncMultipleCombobox() {
                   <Combobox.ItemIndicator className="col-start-1 mt-1">
                     <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>
-                  <div className="col-start-2 flex flex-col gap-1">
-                    <div className="text-[0.95rem] font-bold">{user.name}</div>
-                    <div className="flex flex-wrap gap-2 text-[0.8125rem] text-gray-600">
+                  <span className="col-start-2 flex flex-col gap-1">
+                    <span className="text-[0.95rem] font-bold">{user.name}</span>
+                    <span className="flex flex-wrap gap-2 text-[0.8125rem] text-gray-600">
                       <span className="opacity-80">@{user.username}</span>
                       <span>{user.title}</span>
-                    </div>
-                    <div className="text-xs text-gray-500">{user.email}</div>
-                  </div>
+                    </span>
+                    <span className="text-xs text-gray-500">{user.email}</span>
+                  </span>
                 </Combobox.Item>
               )}
             </Combobox.List>

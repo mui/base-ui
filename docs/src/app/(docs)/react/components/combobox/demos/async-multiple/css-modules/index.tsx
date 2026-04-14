@@ -179,14 +179,14 @@ export default function ExampleAsyncMultipleCombobox() {
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>
-                    <div className={styles.ItemTitle}>{user.name}</div>
-                    <div className={styles.ItemSubtitle}>
+                  <span className={styles.ItemText}>
+                    <span className={styles.ItemTitle}>{user.name}</span>
+                    <span className={styles.ItemSubtitle}>
                       <span className={styles.ItemUsername}>@{user.username}</span>
                       <span>{user.title}</span>
-                    </div>
-                    <div className={styles.ItemEmail}>{user.email}</div>
-                  </div>
+                    </span>
+                    <span className={styles.ItemEmail}>{user.email}</span>
+                  </span>
                 </Combobox.Item>
               )}
             </Combobox.List>
