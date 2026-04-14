@@ -428,6 +428,7 @@ function OTPFieldHiddenInput(props: OTPFieldHiddenInputProps) {
     length,
     validationType,
   } = useOTPFieldRootContext();
+
   if (!Number.isInteger(length) || length <= 0) {
     return null;
   }
