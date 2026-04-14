@@ -27,11 +27,11 @@ export enum ComboboxInputDataAttributes {
    */
   required = 'data-required',
   /**
-   * Present when the component is in valid state (when wrapped in Field.Root).
+   * Present when the component is in a valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**
-   * Present when the component is in invalid state (when wrapped in Field.Root).
+   * Present when the component is in an invalid state (when wrapped in Field.Root).
    */
   invalid = 'data-invalid',
   /**

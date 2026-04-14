@@ -30,11 +30,11 @@ export enum RadioIndicatorDataAttributes {
    */
   endingStyle = TransitionStatusDataAttributes.endingStyle,
   /**
-   * Present when the radio is in valid state (when wrapped in Field.Root).
+   * Present when the radio is in a valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**
-   * Present when the radio is in invalid state (when wrapped in Field.Root).
+   * Present when the radio is in an invalid state (when wrapped in Field.Root).
    */
   invalid = 'data-invalid',
   /**

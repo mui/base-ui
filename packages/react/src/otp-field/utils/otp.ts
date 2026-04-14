@@ -36,12 +36,8 @@ export function getOTPValidationConfig(validationType: OTPValidationType) {
   return OTP_VALIDATION_CONFIG[validationType];
 }
 
-function removeWhitespace(value: string) {
-  return value.replace(/\s/g, '');
-}
-
 export function stripOTPWhitespace(value: string | null | undefined) {
-  return removeWhitespace(value ?? '');
+  return (value ?? '').replace(/\s/g, '');
 }
 
 /**
