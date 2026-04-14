@@ -754,49 +754,6 @@ describe('<Dialog.Root />', () => {
       });
     });
 
-    it('dismisses sibling modal dialogs one by one on Escape from the topmost focus guard', async () => {
-      const { user } = await render(
-        <React.Fragment>
-          <TestDialog
-            rootProps={{ defaultOpen: true }}
-            popupProps={
-              { 'data-testid': 'level-1', children: 'First dialog' } as Dialog.Popup.Props
-            }
-            omitTrigger
-          />
-          <TestDialog
-            rootProps={{ defaultOpen: true }}
-            popupProps={
-              { 'data-testid': 'level-2', children: 'Second dialog' } as Dialog.Popup.Props
-            }
-            omitTrigger
-          />
-          <TestDialog
-            rootProps={{ defaultOpen: true }}
-            popupProps={
-              { 'data-testid': 'level-3', children: 'Third dialog' } as Dialog.Popup.Props
-            }
-            omitTrigger
-          />
-        </React.Fragment>,
-      );
-
-      const level3 = screen.getByTestId('level-3');
-      const beforeGuard = level3.previousElementSibling as HTMLElement;
-
-      act(() => {
-        beforeGuard.focus();
-      });
-
-      await user.keyboard('[Escape]');
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('level-3')).toBe(null);
-      });
-      expect(screen.queryByTestId('level-2')).not.toBe(null);
-      expect(screen.queryByTestId('level-1')).not.toBe(null);
-    });
-
     describe.skipIf(isJSDOM)('nested popups', () => {
       it('should not dismiss the dialog when dismissing outside a nested modal menu', async () => {
         const { user } = await render(

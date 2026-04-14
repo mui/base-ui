@@ -197,7 +197,6 @@ export function useDismiss(
         return;
       }
 
-      const native = isReactEvent(event) ? event.nativeEvent : event;
       const nodeId = dataRef.current.floatingContext?.nodeId;
 
       const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
@@ -218,6 +217,7 @@ export function useDismiss(
         }
       }
 
+      const native = isReactEvent(event) ? event.nativeEvent : event;
       const eventDetails = createChangeEventDetails(REASONS.escapeKey, native);
 
       store.setOpen(false, eventDetails);
