@@ -25,7 +25,7 @@ export function Backdrop({ className, ...props }: Dialog.Backdrop.Props) {
   return (
     <Dialog.Backdrop
       className={clsx(
-        'fixed inset-0 min-h-dvh bg-black/20 backdrop-blur-[1px] transition-all duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:bg-black/70 supports-[-webkit-touch-callout:none]:absolute',
+        'fixed inset-0 min-h-dvh bg-black/20 transition-all duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:bg-black/70 supports-[-webkit-touch-callout:none]:absolute',
         className,
       )}
       {...props}
