@@ -36,7 +36,7 @@
     display: none;
     align-items: baseline;
     padding-left: 0.75rem;
-    font-size: var(--text-sm);
+    font-size: var(--font-size-14);
     line-height: 1;
     white-space: nowrap;
   }
