@@ -264,6 +264,7 @@ jobs:
           name: Run benchmarks
           environment:
             BENCHMARK_UPLOAD: 'true'
+            CI_REPORT_API_URL: 'https://code-infra-dashboard-pr-1312.onrender.com'
           command: pnpm test:benchmark
 
 workflows:
