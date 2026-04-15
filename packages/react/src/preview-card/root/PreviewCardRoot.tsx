@@ -71,7 +71,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   }, [store, activeTriggerId, open]);
 
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createPreviewCardEventDetails(store, REASONS.imperativeAction));
+    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }, [store]);
 
   React.useImperativeHandle(
@@ -117,20 +117,6 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
       <PreviewCardRootComponent {...props} />
     </FloatingTree>
   );
-}
-
-function createPreviewCardEventDetails<Payload>(
-  store: PreviewCardStore<Payload>,
-  reason: PreviewCardRoot.ChangeEventReason,
-) {
-  const details: PreviewCardRoot.ChangeEventDetails =
-    createChangeEventDetails<PreviewCardRoot.ChangeEventReason>(
-      reason,
-    ) as PreviewCardRoot.ChangeEventDetails;
-  details.preventUnmountOnClose = () => {
-    store.set('preventUnmountingOnClose', true);
-  };
-  return details;
 }
 
 export interface PreviewCardRootState {}

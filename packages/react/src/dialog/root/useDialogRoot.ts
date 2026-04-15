@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import {
   useDismiss,
@@ -29,21 +28,9 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store);
 
-  const createDialogEventDetails = useStableCallback((reason: DialogRoot.ChangeEventReason) => {
-    const details: DialogRoot.ChangeEventDetails =
-      createChangeEventDetails<DialogRoot.ChangeEventReason>(
-        reason,
-      ) as DialogRoot.ChangeEventDetails;
-    details.preventUnmountOnClose = () => {
-      store.set('preventUnmountingOnClose', true);
-    };
-
-    return details;
-  });
-
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createDialogEventDetails(REASONS.imperativeAction));
-  }, [store, createDialogEventDetails]);
+    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+  }, [store]);
 
   React.useImperativeHandle(
     actionsRef,
