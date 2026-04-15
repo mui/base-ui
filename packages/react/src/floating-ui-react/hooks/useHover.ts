@@ -13,12 +13,14 @@ import { REASONS } from '../../internals/reasons';
 import { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { Delay, ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { contains, getTarget, isInteractiveElement, isTargetInsideEnabledTrigger } from '../utils';
+import { contains, getTarget, isInteractiveElement } from '../utils/element';
 import type { HandleClose } from './useHoverShared';
 import {
   getDelay,
   getRestMs,
   isClickLikeOpenEvent as isClickLikeOpenEventShared,
+  isHoverOpenEvent,
+  isInsideEnabledTrigger,
 } from './useHoverShared';
 
 export type { HandleCloseContext, HandleClose } from './useHoverShared';
@@ -87,15 +89,11 @@ export function useHover(
   const restTimeout = useTimeout();
 
   const isHoverOpen = useStableCallback(() => {
-    const type = dataRef.current.openEvent?.type;
-    return type?.includes('mouse') && type !== 'mousedown';
+    return isHoverOpenEvent(dataRef.current.openEvent?.type);
   });
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    return isClickLikeOpenEventShared(
-      dataRef.current.openEvent?.type,
-      interactedInsideRef.current,
-    );
+    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, interactedInsideRef.current);
   });
 
   // When closing before opening, clear the delay timeouts to cancel it
@@ -175,10 +173,6 @@ export function useHover(
       }
     }
 
-    function isLeavingToEnabledTrigger(relatedTarget: EventTarget | null) {
-      return isTargetInsideEnabledTrigger(relatedTarget, store.context.triggerElements);
-    }
-
     function handleInteractInside(event: PointerEvent) {
       const target = getTarget(event) as Element | null;
       if (!isInteractiveElement(target)) {
@@ -241,7 +235,7 @@ export function useHover(
       restTimeout.clear();
       restTimeoutPendingRef.current = false;
 
-      if (isLeavingToEnabledTrigger(event.relatedTarget)) {
+      if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;
@@ -287,7 +281,7 @@ export function useHover(
         return;
       }
 
-      if (isLeavingToEnabledTrigger(event.relatedTarget)) {
+      if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;

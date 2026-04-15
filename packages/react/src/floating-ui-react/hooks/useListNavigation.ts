@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -842,6 +841,10 @@ export function useListNavigation(
     domReferenceElement,
   ]);
 
+  const getMinEnabledIndex = useStableCallback(() => {
+    return getMinListIndex(listRef, disabledIndicesRef.current);
+  });
+
   const trigger: ElementProps['trigger'] = React.useMemo(() => {
     function openOnNavigationKeyDown(event: React.KeyboardEvent) {
       store.setOpen(
@@ -906,7 +909,7 @@ export function useListNavigation(
             stopEvent(event);
 
             if (currentOpen) {
-              indexRef.current = getMinListIndex(listRef, disabledIndicesRef.current);
+              indexRef.current = getMinEnabledIndex();
               onNavigate(event);
             } else {
               openOnNavigationKeyDown(event);
@@ -949,9 +952,8 @@ export function useListNavigation(
     };
   }, [
     commonOnKeyDown,
-    disabledIndicesRef,
     focusItemOnOpen,
-    listRef,
+    getMinEnabledIndex,
     nested,
     onNavigate,
     store,

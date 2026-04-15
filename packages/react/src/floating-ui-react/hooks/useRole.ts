@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -75,9 +77,8 @@ export function useRole(
       };
     }
 
-    const triggerProps = trigger;
     return {
-      ...triggerProps,
+      ...trigger,
       'aria-expanded': open ? 'true' : 'false',
       'aria-controls': open ? floatingId : undefined,
       ...(ariaRole === 'menu' && { id: referenceId }),

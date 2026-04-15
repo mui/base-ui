@@ -1,4 +1,6 @@
 'use client';
+/* eslint-disable no-underscore-dangle */
+
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
@@ -23,7 +25,6 @@ import { createAttribute } from '../utils/createAttribute';
 import { contains, getTarget, isEventTargetWithin, isRootElement } from '../utils/element';
 import { isReactEvent } from '../utils/event';
 import { getNodeChildren } from '../utils/nodes';
-/* eslint-disable no-underscore-dangle */
 
 type PressType = 'intentional' | 'sloppy';
 
@@ -199,9 +200,8 @@ export function useDismiss(
     );
   });
 
-  const isReferencePressEnabled = useStableCallback(referencePress);
   const closeOnReferencePress = useStableCallback((event: React.SyntheticEvent) => {
-    if (!isReferencePressEnabled()) {
+    if (!referencePress()) {
       return;
     }
 

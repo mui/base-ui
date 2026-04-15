@@ -217,7 +217,6 @@ export function useDelayGroup(
     store,
     currentIdRef,
     delayRef,
-    timeoutMs,
     initialDelayRef,
     currentContextRef,
     timeout,

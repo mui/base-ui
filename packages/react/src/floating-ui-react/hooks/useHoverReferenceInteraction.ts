@@ -13,7 +13,7 @@ import { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { Delay, FloatingContext, FloatingRootContext } from '../types';
-import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
+import { contains, getTarget } from '../utils/element';
 import { isMouseLikePointerType } from '../utils/event';
 import {
   applySafePolygonPointerEventsMutation,
@@ -25,6 +25,7 @@ import {
   getDelay,
   getRestMs,
   isClickLikeOpenEvent as isClickLikeOpenEventShared,
+  isInsideEnabledTrigger,
 } from './useHoverShared';
 
 export interface UseHoverReferenceInteractionProps {
@@ -93,10 +94,6 @@ export function useHoverReferenceInteraction(
 
   const isClickLikeOpenEvent = useStableCallback(() => {
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
-  });
-
-  const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
-    return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
   });
 
   const isOverInactiveTrigger = useStableCallback(
@@ -290,9 +287,7 @@ export function useHoverReferenceInteraction(
 
       const handleCloseContextBase = dataRef.current.floatingContext ?? getHandleCloseContext?.();
 
-      const ignoreRelatedTargetTrigger = isRelatedTargetInsideEnabledTrigger(event.relatedTarget);
-
-      if (ignoreRelatedTargetTrigger) {
+      if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
         return;
       }
 
@@ -361,7 +356,6 @@ export function useHoverReferenceInteraction(
     isActiveTrigger,
     isOverInactiveTrigger,
     isClickLikeOpenEvent,
-    isRelatedTargetInsideEnabledTrigger,
     mouseOnly,
     move,
     restMsRef,

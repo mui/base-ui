@@ -27,11 +27,14 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const referenceElement = rootContext.useState('referenceElement');
   const floatingElement = rootContext.useState('floatingElement');
   const domReferenceElement = rootContext.useState('domReferenceElement');
-  const rootContextElements = {
-    reference: referenceElement,
-    floating: floatingElement,
-    domReference: domReferenceElement,
-  };
+  const rootContextElements = React.useMemo(
+    () => ({
+      reference: referenceElement,
+      floating: floatingElement,
+      domReference: domReferenceElement,
+    }),
+    [referenceElement, floatingElement, domReferenceElement],
+  );
 
   const [positionReference, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
   const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);

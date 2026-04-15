@@ -8,7 +8,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isElement } from '@floating-ui/utils/dom';
 import type { FloatingContext, FloatingRootContext } from '../types';
-import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
+import { contains, getTarget } from '../utils/element';
 import { getNodeChildren } from '../utils/nodes';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -19,7 +19,12 @@ import {
   isInteractiveElement,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
-import { getDelay, isClickLikeOpenEvent as isClickLikeOpenEventShared } from './useHoverShared';
+import {
+  getDelay,
+  isClickLikeOpenEvent as isClickLikeOpenEventShared,
+  isHoverOpenEvent,
+  isInsideEnabledTrigger,
+} from './useHoverShared';
 
 export type UseHoverFloatingInteractionProps = {
   /**
@@ -68,8 +73,7 @@ export function useHoverFloatingInteraction(
   });
 
   const isHoverOpen = useStableCallback(() => {
-    const type = dataRef.current.openEvent?.type;
-    return type?.includes('mouse') && type !== 'mousedown';
+    return isHoverOpenEvent(dataRef.current.openEvent?.type);
   });
 
   const clearPointerEvents = useStableCallback(() => {
@@ -148,10 +152,6 @@ export function useHoverFloatingInteraction(
       return undefined;
     }
 
-    function isRelatedTargetInsideEnabledTrigger(target: EventTarget | null) {
-      return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
-    }
-
     function hasParentChildren() {
       return !!(tree && parentId && getNodeChildren(tree.nodesRef.current, parentId).length > 0);
     }
@@ -189,12 +189,12 @@ export function useHoverFloatingInteraction(
     }
 
     function onFloatingMouseLeave(event: MouseEvent) {
-      if (hasParentChildren()) {
-        tree?.events.on('floating.closed', onNodeClosed);
+      if (hasParentChildren() && tree) {
+        tree.events.on('floating.closed', onNodeClosed);
         return;
       }
 
-      if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
+      if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;

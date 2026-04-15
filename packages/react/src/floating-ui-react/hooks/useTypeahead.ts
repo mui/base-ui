@@ -219,11 +219,9 @@ export function useTypeahead(
   });
 
   const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
-  const reference: ElementProps['reference'] = sharedProps;
-  const floating: ElementProps['floating'] = sharedProps;
 
   return React.useMemo(
-    () => (enabled ? { reference, floating } : {}),
-    [enabled, reference, floating],
+    () => (enabled ? { reference: sharedProps, floating: sharedProps } : {}),
+    [enabled, sharedProps],
   );
 }

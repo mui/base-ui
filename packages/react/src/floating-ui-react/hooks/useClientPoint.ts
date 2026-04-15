@@ -193,11 +193,11 @@ export function useClientPoint(
 
     if (!dataRef.current.openEvent || isMouseBasedEvent(dataRef.current.openEvent)) {
       cleanupListenerRef.current = addEventListener(win, 'mousemove', handleMouseMove);
-      return cleanupListener;
+    } else {
+      store.set('positionReference', domReference);
     }
 
-    store.set('positionReference', domReference);
-    return undefined;
+    return cleanupListener;
   }, [openCheck, enabled, floating, dataRef, domReference, store, setReference, reactive]);
 
   React.useEffect(() => {

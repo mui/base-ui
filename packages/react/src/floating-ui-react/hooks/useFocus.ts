@@ -19,6 +19,7 @@ import {
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { FloatingUIOpenChangeDetails } from '../../internals/types';
+
 const isMacSafari = isMac && isSafari;
 
 export interface UseFocusProps {
