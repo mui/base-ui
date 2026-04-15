@@ -268,7 +268,7 @@ jobs:
               echo "On master branch; no baseline to compare against. Skipping baseline."
               exit 0
             fi
-            git fetch --no-tags --unshallow origin master
+            git fetch --no-tags origin master
             BASE_SHA=$(git merge-base HEAD origin/master)
             echo "Baseline commit: $BASE_SHA"
             git worktree add /tmp/base-worktree "$BASE_SHA"
