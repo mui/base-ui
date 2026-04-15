@@ -106,7 +106,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 </Link>
                 <Link
                   className="Text sz-1"
-                  href="https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc"
+                  href="https://bsky.app/profile/base-ui.com"
                   rel="noopener noreferrer"
                 >
                   Bluesky
