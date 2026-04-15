@@ -6,7 +6,7 @@ export default function ExampleTooltip() {
   return (
     <Tooltip.Provider>
       <div className={styles.Panel}>
-        <Tooltip.Root trackCursorAxis="both">
+        <Tooltip.Root>
           <Tooltip.Trigger className={styles.Button}>
             <BoldIcon className={styles.Icon} aria-label="Bold" />
           </Tooltip.Trigger>
@@ -22,7 +22,7 @@ export default function ExampleTooltip() {
           </Tooltip.Portal>
         </Tooltip.Root>
 
-        <Tooltip.Root trackCursorAxis="both">
+        <Tooltip.Root>
           <Tooltip.Trigger className={styles.Button}>
             <ItalicIcon className={styles.Icon} aria-label="Italic" />
           </Tooltip.Trigger>
@@ -38,7 +38,7 @@ export default function ExampleTooltip() {
           </Tooltip.Portal>
         </Tooltip.Root>
 
-        <Tooltip.Root trackCursorAxis="both">
+        <Tooltip.Root>
           <Tooltip.Trigger className={styles.Button}>
             <UnderlineIcon className={styles.Icon} aria-label="Underline" />
           </Tooltip.Trigger>
