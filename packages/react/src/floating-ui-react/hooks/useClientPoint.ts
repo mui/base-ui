@@ -118,6 +118,7 @@ export function useClientPoint(
   const open = store.useState('open');
   const floating = store.useState('floatingElement');
   const domReference = store.useState('domReferenceElement');
+
   const dataRef = store.context.dataRef;
 
   const initialRef = React.useRef(false);

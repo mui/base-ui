@@ -27,6 +27,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const referenceElement = rootContext.useState('referenceElement');
   const floatingElement = rootContext.useState('floatingElement');
   const domReferenceElement = rootContext.useState('domReferenceElement');
+
   const rootContextElements = React.useMemo(
     () => ({
       reference: referenceElement,

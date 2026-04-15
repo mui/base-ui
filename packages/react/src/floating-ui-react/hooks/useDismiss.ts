@@ -1,6 +1,5 @@
 'use client';
 /* eslint-disable no-underscore-dangle */
-
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
@@ -160,6 +159,8 @@ export function useDismiss(
   const pressStartPreventedRef = React.useRef(false);
   // Ignore only the very next outside click after dragging from inside to outside.
   const suppressNextOutsideClickRef = React.useRef(false);
+  const isComposingRef = React.useRef(false);
+  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
   const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
 
@@ -178,9 +179,6 @@ export function useDismiss(
     clearInsideReactTreeTimeout.clear();
     dataRef.current.insideReactTree = false;
   });
-
-  const isComposingRef = React.useRef(false);
-  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
   const hasBlockingChild = useStableCallback(
     (bubbleKey: '__escapeKeyBubbles' | '__outsidePressBubbles') => {

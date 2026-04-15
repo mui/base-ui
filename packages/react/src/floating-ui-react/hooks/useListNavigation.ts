@@ -261,6 +261,7 @@ export function useListNavigation(
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');
+
   const dataRef = store.context.dataRef;
 
   if (process.env.NODE_ENV !== 'production') {

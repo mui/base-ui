@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
