@@ -5,7 +5,7 @@ export default function ExampleTooltip() {
   return (
     <Tooltip.Provider>
       <div className="flex border border-gray-200 rounded-md bg-gray-50 p-0.5">
-        <Tooltip.Root>
+        <Tooltip.Root trackCursorAxis="both">
           <Tooltip.Trigger
             className="
               flex size-8 items-center justify-center
@@ -55,7 +55,7 @@ export default function ExampleTooltip() {
           </Tooltip.Portal>
         </Tooltip.Root>
 
-        <Tooltip.Root>
+        <Tooltip.Root trackCursorAxis="both">
           <Tooltip.Trigger
             className="
               flex size-8 items-center justify-center
@@ -105,7 +105,7 @@ export default function ExampleTooltip() {
           </Tooltip.Portal>
         </Tooltip.Root>
 
-        <Tooltip.Root>
+        <Tooltip.Root trackCursorAxis="both">
           <Tooltip.Trigger
             className="
               flex size-8 items-center justify-center

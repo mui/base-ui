@@ -375,11 +375,13 @@ test('reattaches window listener after cursor returns from floating element to r
     screen.getByTestId('reference'),
     new MouseEvent('mousemove', {
       bubbles: true,
-      clientX: 500,
-      clientY: 500,
+      clientX: 600,
+      clientY: 700,
     }),
   );
   await flushMicrotasks();
+
+  expectLocation({ x: 600, y: 700 });
 
   fireEvent(
     document.body,
