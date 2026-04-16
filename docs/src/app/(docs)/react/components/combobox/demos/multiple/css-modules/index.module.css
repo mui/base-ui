@@ -122,36 +122,6 @@
   }
 }
 
-.Trigger {
-  box-sizing: border-box;
-  position: absolute;
-  right: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: none;
-  background: none;
-  color: var(--color-gray-500);
-  border-radius: 0.25rem;
-
-  &:hover {
-    color: var(--color-gray-700);
-    background-color: var(--color-gray-100);
-  }
-
-  &:focus {
-    outline: 2px solid var(--color-blue-500);
-    outline-offset: 2px;
-  }
-}
-
-.TriggerIcon {
-  width: 1rem;
-  height: 1rem;
-}
-
 .Positioner {
   outline: 0;
   z-index: 50;
