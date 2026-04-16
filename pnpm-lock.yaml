@@ -24,8 +24,8 @@ importers:
         specifier: 0.0.3-canary.5
         version: 0.0.3-canary.5
       '@mui/internal-test-utils':
-        specifier: 2.0.18-canary.19
-        version: 2.0.18-canary.19(@playwright/test@1.59.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(@vitest/utils@4.1.2)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)
+        specifier: 2.0.18-canary.20
+        version: 2.0.18-canary.20(@playwright/test@1.59.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(@vitest/utils@4.1.2)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)
       '@next/eslint-plugin-next':
         specifier: 16.1.6
         version: 16.1.6
@@ -2271,8 +2271,8 @@ packages:
   '@mui/internal-netlify-cache@0.0.3-canary.5':
     resolution: {integrity: sha512-3HiXaQ2x8nwwvXxMjXcy1uHVnhbCpWTAbyjkrpNeycJ2afSNnmHVLFq5Nu7K7QOJnYGwlcKjX9kBVGUv1aJp1w==}
 
-  '@mui/internal-test-utils@2.0.18-canary.19':
-    resolution: {integrity: sha512-GLJU2kU3e0D3oBStzBiNQTwQqXV/CTsmVFjGPDWWWl8WpJcyp3WhyhnhJyr48TNUEp12j8dsFcMez+3GLE4GTw==}
+  '@mui/internal-test-utils@2.0.18-canary.20':
+    resolution: {integrity: sha512-U7PFoTkovwVlXX5bmqmRnmUWSa6vn0J+wbkfM9s1vds0lyy5QCiRuqZUtFV9z1Ih3V1JkYQbR7ZsLadS2fvOsg==}
     peerDependencies:
       '@emotion/cache': '11'
       '@emotion/react': '11'
@@ -11480,7 +11480,7 @@ snapshots:
 
   '@mui/internal-netlify-cache@0.0.3-canary.5': {}
 
-  '@mui/internal-test-utils@2.0.18-canary.19(@playwright/test@1.59.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(@vitest/utils@4.1.2)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)':
+  '@mui/internal-test-utils@2.0.18-canary.20(@playwright/test@1.59.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(@vitest/utils@4.1.2)(chai@6.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@22.18.13)(esbuild@0.27.7)(jiti@2.6.1)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))(vitest@4.1.2)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@playwright/test': 1.59.1
