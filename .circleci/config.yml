@@ -274,6 +274,8 @@ jobs:
             git worktree add /tmp/base-worktree "$BASE_SHA"
             cd /tmp/base-worktree
             pnpm install --frozen-lockfile
+            # TODO: remove before merging — use the preview reporter so sha/branch metadata is correct
+            pnpm -F ./test/performance add -D @mui/internal-benchmark@https://pkg.pr.new/@mui/internal-benchmark@c891ec6
             pnpm release:build
             BENCHMARK_BRANCH=master pnpm test:benchmark
             echo 'export BENCHMARK_BASELINE_PATH=/tmp/base-worktree/test/performance/benchmarks/results.json' >> "$BASH_ENV"
