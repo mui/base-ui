@@ -54,7 +54,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 </Link>
                 <Link
                   className="Text sz-1"
-                  href="https://discord.com/invite/g6C3hUtuxz"
+                  href="https://base-ui.com/r/discord"
                   rel="noopener noreferrer"
                 >
                   Discord
@@ -92,7 +92,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 </Link>
                 <Link
                   className="Text sz-1"
-                  href="https://discord.com/invite/g6C3hUtuxz"
+                  href="https://base-ui.com/r/discord"
                   rel="noopener noreferrer"
                 >
                   Discord
