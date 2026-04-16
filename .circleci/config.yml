@@ -275,7 +275,7 @@ jobs:
             cd /tmp/base-worktree
             pnpm install --frozen-lockfile
             pnpm release:build
-            pnpm test:benchmark
+            BENCHMARK_BRANCH=master pnpm test:benchmark
             echo 'export BENCHMARK_BASELINE_PATH=/tmp/base-worktree/test/performance/benchmarks/results.json' >> "$BASH_ENV"
       - run:
           name: Run head benchmarks
