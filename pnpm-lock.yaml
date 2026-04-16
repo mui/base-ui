@@ -159,8 +159,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.14)(react@19.2.4)
       '@mui/internal-docs-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@b213647
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@b213647(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)(typescript@6.0.2)
+        specifier: 0.8.1-canary.0
+        version: 0.8.1-canary.0(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)(typescript@6.0.2)
       '@next/mdx':
         specifier: ^16.1.6
         version: 16.2.2(@mdx-js/loader@3.1.1(webpack@5.105.4(esbuild@0.27.7)))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.4))
@@ -2250,9 +2250,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@b213647':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@b213647}
-    version: 0.8.0
+  '@mui/internal-docs-infra@0.8.1-canary.0':
+    resolution: {integrity: sha512-1wfHJNcEYRW7CkwnCkgqgZnkp/Myrypp1D9E5z3E8SABZDKxOW+KCPSUpprqb3wcUdxvjzrMFy0WCF8mFXk/og==}
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -2260,7 +2259,7 @@ packages:
       next: ^15.0.0 || ^16.0.0
       prettier: ^3.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
-      typescript: ^5.9.3
+      typescript: ^6.0.2
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -3760,9 +3759,9 @@ packages:
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
 
-  '@sidvind/better-ajv-errors@5.0.0':
-    resolution: {integrity: sha512-FeI/V2KGtOaDX+r0akidCGYy79lVR4YnAqk1GFgZFuHADErCAEmtZL4+IdCAcDXHqfZsII3fs9DrfC1pIR+19w==}
-    engines: {node: ^20.19 || ^22.12 || >= 24.0}
+  '@sidvind/better-ajv-errors@4.0.1':
+    resolution: {integrity: sha512-6arF1ssKxItxgitPYXafUoLmsVBA6K7m9+ZGj6hLDoBl7nWpJ33EInwQUdHTle2METeWGxgQiqSex20KZRykew==}
+    engines: {node: '>= 18'}
     peerDependencies:
       ajv: ^7.0.0 || ^8.0.0
 
@@ -6412,8 +6411,8 @@ packages:
     resolution: {integrity: sha512-n6l5uca7/y5joxZ3LUePhzmBFUJ+U2YWzhMa8XUTecSeSlQiZdF5XAd/Q3/WUl0VsXgUwWi8I7CNIwdI5WN1SQ==}
     engines: {node: '>=20.10'}
 
-  html-validate@10.13.0:
-    resolution: {integrity: sha512-3Lw/gGLu6EmMsl8LzAYyolDapVfZf60i0azWKxeoklhmS0Y145igwQ+MOPqIGZLGC3uP8SOBNXwLbZVPU9Ok7w==}
+  html-validate@10.12.2:
+    resolution: {integrity: sha512-DDVzwARl0qVtRgPHA+h+9FTQ6vvsGHCJurWOkVRnc+b/q4IXlNSdcQ/PQQW9DIQxBfMmZ0uc/pqwPrHNUF+muQ==}
     engines: {node: ^20.19.0 || ^22.16.0 || >= 24.0.0}
     hasBin: true
     peerDependencies:
@@ -9198,8 +9197,8 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@1.0.0-beta.2:
-    resolution: {integrity: sha512-vcpVgRHrNBbhoHj4qcjNf5hvA2BEskNyoZLvasUOv0bls/Py1akVTyeCwElSxj5XfcG+a0TTETVG/PyNc2Eh6A==}
+  typescript-api-extractor@1.0.0-beta.3:
+    resolution: {integrity: sha512-kniM+MhKK2egY8Vs6etsX8oWdBtjDOoSSPI0p7p5zlGtEuYfdozS5aCyJReLSTpLP+c2886oJ2c/6Nw7cTyJEQ==}
     engines: {node: '>=22'}
     peerDependencies:
       typescript: ^5.8
@@ -11402,7 +11401,7 @@ snapshots:
       git-url-parse: 16.1.0
       globals: 17.4.0
       globby: 16.2.0
-      html-validate: 10.13.0(jest-diff@30.3.0)(vitest@4.1.2)
+      html-validate: 10.12.2(jest-diff@30.3.0)(vitest@4.1.2)
       minimatch: 10.2.5
       node-html-parser: 7.1.0
       open: 11.0.0
@@ -11438,7 +11437,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@b213647(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)(typescript@6.0.2)':
+  '@mui/internal-docs-infra@0.8.1-canary.0(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)(typescript@6.0.2)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@babel/standalone': 7.29.2
@@ -11466,7 +11465,7 @@ snapshots:
       remark-stringify: 11.0.0
       remark-typography: 0.7.3
       typescript: 6.0.2
-      typescript-api-extractor: 1.0.0-beta.2(typescript@6.0.2)
+      typescript-api-extractor: 1.0.0-beta.3(typescript@6.0.2)
       uint8-to-base64: 0.2.1
       unified: 11.0.5
       unist-util-visit: 5.1.0
@@ -12955,7 +12954,7 @@ snapshots:
 
   '@sec-ant/readable-stream@0.4.1': {}
 
-  '@sidvind/better-ajv-errors@5.0.0(ajv@8.18.0)':
+  '@sidvind/better-ajv-errors@4.0.1(ajv@8.18.0)':
     dependencies:
       ajv: 8.18.0
       kleur: 4.1.5
@@ -16121,10 +16120,10 @@ snapshots:
 
   html-tags@5.1.0: {}
 
-  html-validate@10.13.0(jest-diff@30.3.0)(vitest@4.1.2):
+  html-validate@10.12.2(jest-diff@30.3.0)(vitest@4.1.2):
     dependencies:
       '@html-validate/stylish': 5.2.0
-      '@sidvind/better-ajv-errors': 5.0.0(ajv@8.18.0)
+      '@sidvind/better-ajv-errors': 4.0.1(ajv@8.18.0)
       ajv: 8.18.0
       glob: 13.0.6
       kleur: 4.1.5
@@ -19607,7 +19606,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-api-extractor@1.0.0-beta.2(typescript@6.0.2):
+  typescript-api-extractor@1.0.0-beta.3(typescript@6.0.2):
     dependencies:
       es-toolkit: 1.45.1
       typescript: 6.0.2
