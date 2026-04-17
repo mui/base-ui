@@ -22,10 +22,6 @@
     }
   }
 
-  &:active:not([data-disabled]) {
-    background-color: light-dark(var(--color-gray-400), var(--color-gray-600));
-  }
-
   &:focus-visible {
     outline-width: 2px;
     outline-style: solid;
