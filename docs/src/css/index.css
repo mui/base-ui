@@ -25,12 +25,6 @@
 /* `source(none)` disables automatic detection of sources to generate Tailwind classes. Use the safelist below instead. */
 @import 'tailwindcss/utilities' layer(utilities) source(none);
 
-/* ═══ Demo-specific theme ═══ */
-/* We defined grays, red, and blue in the theme used for demos. */
-/* Uses gray scale that is roughly compatible with Tailwind's grays. */
-/* This is injected in demos when opening in a sandbox like StackBlitz. */
-@import '../demo-data/theme/css-modules/theme.css' layer(theme);
-
 /* ═══ Docs-only imports ═══ */
 
 @import './fonts/index.css';
@@ -67,24 +61,20 @@
   --color-white: white;
   --color-black: black;
 
-  /* Gray, red and blue colors defined in file://../demo-data/theme/css-modules/theme.css */
-  --color-gray-50: inherit;
-  --color-gray-100: inherit;
-  --color-gray-200: inherit;
-  --color-gray-300: inherit;
-  --color-gray-400: inherit;
-  --color-gray-500: inherit;
-  --color-gray-600: inherit;
-  --color-gray-700: inherit;
-  --color-gray-800: inherit;
-  --color-gray-900: inherit;
-  --color-gray-950: inherit;
+  --color-gray-50: oklch(98.5% 0.002 247.839deg);
+  --color-gray-100: oklch(96.7% 0.003 264.542deg);
+  --color-gray-200: oklch(92.8% 0.006 264.531deg);
+  --color-gray-300: oklch(87.2% 0.01 258.338deg);
+  --color-gray-400: oklch(70.7% 0.022 261.325deg);
+  --color-gray-500: oklch(55.1% 0.027 264.364deg);
+  --color-gray-600: oklch(44.6% 0.03 256.802deg);
+  --color-gray-700: oklch(37.3% 0.034 259.733deg);
+  --color-gray-800: oklch(27.8% 0.033 256.848deg);
+  --color-gray-900: oklch(21% 0.034 264.665deg);
+  --color-gray-950: oklch(13% 0.028 261.692deg);
 
-  --color-blue: inherit;
-  --color-red: inherit;
-
-  --color-blue-800: var(--color-blue);
-  --color-red-800: var(--color-red);
+  --color-blue-800: oklch(42.4% 0.199 265.638deg);
+  --color-red-800: oklch(44.4% 0.177 26.899deg);
 
   /* Typography */
   --font-mono: 'Paper Mono', monospace;
@@ -146,6 +136,10 @@
     --pink-t1: hsl(316deg 84% 51%);
     --grape-t1: hsl(276deg 66% 54%);
     --lime-t1: hsl(91deg 64% 38.75%);
+
+    /* Legacy colors */
+    --color-blue: oklch(45% 50% 264deg);
+    --color-red: oklch(50% 55% 31deg);
 
     /* Functional colors */
     --color-content: white;
@@ -266,6 +260,9 @@
       --pink-t1: hsl(316deg 86% 68%);
       --grape-t1: hsl(276deg 86% 70%);
       --lime-t1: hsl(91deg 72% 56%);
+
+      --color-blue: oklch(69% 50% 264deg);
+      --color-red: oklch(80% 55% 31deg);
 
       /* Functional colors */
       --color-content: black;
