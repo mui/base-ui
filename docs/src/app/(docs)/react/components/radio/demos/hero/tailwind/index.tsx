@@ -18,7 +18,7 @@ export default function ExampleRadioGroup() {
       <label className="flex items-center gap-2 text-sm leading-5 font-normal text-gray-900 dark:text-gray-50">
         <Radio.Root
           value="fuji-apple"
-          className="flex size-4 items-center justify-center border rounded-full p-0 border-gray-900 bg-gray-50 text-gray-50 dark:border-gray-50 dark:bg-gray-900 dark:text-gray-900 data-checked:bg-gray-900 data-checked:text-gray-50 dark:data-checked:bg-gray-50 dark:data-checked:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="flex size-4 shrink-0 items-center justify-center border rounded-full p-0 border-gray-900 bg-gray-50 text-gray-50 dark:border-gray-50 dark:bg-gray-900 dark:text-gray-900 data-checked:bg-gray-900 data-checked:text-gray-50 dark:data-checked:bg-gray-50 dark:data-checked:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           <Radio.Indicator className="flex items-center justify-center data-unchecked:hidden before:size-2 before:rounded-full before:bg-current" />
         </Radio.Root>
@@ -28,7 +28,7 @@ export default function ExampleRadioGroup() {
       <label className="flex items-center gap-2 text-sm leading-5 font-normal text-gray-900 dark:text-gray-50">
         <Radio.Root
           value="gala-apple"
-          className="flex size-4 items-center justify-center border rounded-full p-0 border-gray-900 bg-gray-50 text-gray-50 dark:border-gray-50 dark:bg-gray-900 dark:text-gray-900 data-checked:bg-gray-900 data-checked:text-gray-50 dark:data-checked:bg-gray-50 dark:data-checked:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="flex size-4 shrink-0 items-center justify-center border rounded-full p-0 border-gray-900 bg-gray-50 text-gray-50 dark:border-gray-50 dark:bg-gray-900 dark:text-gray-900 data-checked:bg-gray-900 data-checked:text-gray-50 dark:data-checked:bg-gray-50 dark:data-checked:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           <Radio.Indicator className="flex items-center justify-center data-unchecked:hidden before:size-2 before:rounded-full before:bg-current" />
         </Radio.Root>
@@ -38,7 +38,7 @@ export default function ExampleRadioGroup() {
       <label className="flex items-center gap-2 text-sm leading-5 font-normal text-gray-900 dark:text-gray-50">
         <Radio.Root
           value="granny-smith-apple"
-          className="flex size-4 items-center justify-center border rounded-full p-0 border-gray-900 bg-gray-50 text-gray-50 dark:border-gray-50 dark:bg-gray-900 dark:text-gray-900 data-checked:bg-gray-900 data-checked:text-gray-50 dark:data-checked:bg-gray-50 dark:data-checked:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="flex size-4 shrink-0 items-center justify-center border rounded-full p-0 border-gray-900 bg-gray-50 text-gray-50 dark:border-gray-50 dark:bg-gray-900 dark:text-gray-900 data-checked:bg-gray-900 data-checked:text-gray-50 dark:data-checked:bg-gray-50 dark:data-checked:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2"
         >
           <Radio.Indicator className="flex items-center justify-center data-unchecked:hidden before:size-2 before:rounded-full before:bg-current" />
         </Radio.Root>
