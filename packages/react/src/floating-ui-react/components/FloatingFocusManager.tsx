@@ -105,18 +105,6 @@ function getFirstTabbableElement(container: Element | null) {
   return tabbable(container)[0] || container;
 }
 
-function isFocusable(element: Element | null) {
-  if (!element || !element.isConnected) {
-    return false;
-  }
-
-  if (typeof element.checkVisibility === 'function') {
-    return element.checkVisibility();
-  }
-
-  return isElementVisible(element);
-}
-
 function handleTabIndex(
   floatingFocusElement: HTMLElement,
   orderRef: React.RefObject<Array<'reference' | 'floating' | 'content'>>,
@@ -501,7 +489,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         if (
           restoreFocus &&
           currentTarget !== domReference &&
-          !isFocusable(target) &&
+          !isElementVisible(target) &&
           activeElement(doc) === doc.body
         ) {
           // Let `FloatingPortal` effect knows that focus is still inside the
