@@ -1,8 +1,49 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, flushMicrotasks, waitFor, act } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
+
+const rapidHoverAnimationStyles = `
+  .test-navigation-menu-popup {
+    transition:
+      width 350ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 350ms cubic-bezier(0.22, 1, 0.36, 1);
+    width: var(--popup-width);
+    height: var(--popup-height);
+  }
+`;
+
+function TestNavigationMenuRapidHoverSizing() {
+  return (
+    <NavigationMenu.Root>
+      {/* eslint-disable-next-line react/no-danger */}
+      <style dangerouslySetInnerHTML={{ __html: rapidHoverAnimationStyles }} />
+      <NavigationMenu.List style={{ display: 'flex' }}>
+        <NavigationMenu.Item value="product">
+          <NavigationMenu.Trigger>Product</NavigationMenu.Trigger>
+          <NavigationMenu.Content>
+            <div style={{ width: 700, height: 420 }}>Product panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item value="solutions">
+          <NavigationMenu.Trigger>Solutions</NavigationMenu.Trigger>
+          <NavigationMenu.Content>
+            <div style={{ width: 500, height: 320 }}>Solutions panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup data-testid="popup-root" className="test-navigation-menu-popup">
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
 
 describe('<NavigationMenu.Trigger />', () => {
   const { render } = createRenderer();
@@ -223,4 +264,45 @@ describe('<NavigationMenu.Trigger />', () => {
       expect(Math.abs(secondLeft - firstLeft)).toBeGreaterThan(20);
     });
   });
+
+  it.skipIf(isJSDOM)(
+    'does not let a previously hovered trigger reapply popup sizes after a later switch',
+    async () => {
+      const user = userEvent.setup({ pointerEventsCheck: 0 });
+
+      await render(<TestNavigationMenuRapidHoverSizing />);
+
+      await user.hover(screen.getByRole('button', { name: 'Product' }));
+
+      const popupRoot = await screen.findByTestId('popup-root');
+      const setPropertySpy = vi.spyOn(popupRoot.style, 'setProperty');
+
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 80);
+        });
+      });
+
+      await user.hover(screen.getByRole('button', { name: 'Solutions' }));
+
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 200);
+        });
+      });
+
+      const popupWidthCalls = (
+        setPropertySpy.mock.calls as Array<[property: string, value: string, priority?: string]>
+      )
+        .filter((call) => call[0] === '--popup-width')
+        .map((call) => call[1]);
+
+      const solutionsWidthIndex = popupWidthCalls.indexOf('500px');
+
+      expect(solutionsWidthIndex).toBeGreaterThan(-1);
+      expect(popupWidthCalls.slice(solutionsWidthIndex + 1)).not.toContain('700px');
+
+      setPropertySpy.mockRestore();
+    },
+  );
 });
