@@ -35,7 +35,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 ) {
   const { className, finalFocus, initialFocus, render, style, ...elementProps } = componentProps;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
 
   const descriptionElementId = store.useState('descriptionElementId');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
@@ -47,9 +47,11 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
   const open = store.useState('open');
   const openMethod = store.useState('openMethod');
+  const role = store.useState('role');
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
-  const role = store.useState('role');
+  const floatingId = floatingRootContext.useState('floatingId');
+  const popupId = elementProps.id ?? floatingId;
 
   useDialogPortalContext();
 
@@ -89,6 +91,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     props: [
       rootPopupProps,
       {
+        id: popupId,
         'aria-labelledby': titleElementId ?? undefined,
         'aria-describedby': descriptionElementId ?? undefined,
         role,

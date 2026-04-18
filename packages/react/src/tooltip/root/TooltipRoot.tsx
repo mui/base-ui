@@ -69,6 +69,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   const open = !disabled && openState;
 
   const activeTriggerId = store.useState('activeTriggerId');
+  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
   store.useSyncedValues({
@@ -86,7 +87,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   useImplicitActiveTrigger(store);
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
-  const floatingRootContext = store.select('floatingRootContext');
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
@@ -116,10 +116,8 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   }, [transitionStatus, isInstantPhase, lastOpenChangeReason, instantType, store]);
 
   useIsoLayoutEffect(() => {
-    if (open) {
-      if (activeTriggerId == null) {
-        store.set('payload', undefined);
-      }
+    if (open && activeTriggerId == null) {
+      store.set('payload', undefined);
     }
   }, [store, activeTriggerId, open]);
 
@@ -132,6 +130,33 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
     [forceUnmount, handleImperativeClose],
   );
+
+  const shouldRenderInteractions = open || mounted;
+
+  return (
+    <TooltipRootContext.Provider value={store as TooltipRootContext}>
+      {shouldRenderInteractions && (
+        <TooltipInteractions
+          store={store}
+          disabled={disabled}
+          trackCursorAxis={trackCursorAxis}
+        />
+      )}
+      {typeof children === 'function' ? children({ payload }) : children}
+    </TooltipRootContext.Provider>
+  );
+});
+
+function TooltipInteractions<Payload>({
+  store,
+  disabled,
+  trackCursorAxis,
+}: {
+  store: TooltipStore<Payload>;
+  disabled: boolean;
+  trackCursorAxis: 'none' | 'x' | 'y' | 'both';
+}) {
+  const floatingRootContext = store.select('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
@@ -157,12 +182,8 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     popupProps,
   });
 
-  return (
-    <TooltipRootContext.Provider value={store as TooltipRootContext}>
-      {typeof children === 'function' ? children({ payload }) : children}
-    </TooltipRootContext.Provider>
-  );
-});
+  return null;
+}
 
 export interface TooltipRootState {}
 

@@ -33,7 +33,7 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
     native: nativeButton,
   });
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
   useClosePartRegistration();
 
   const element = useRenderElement('button', componentProps, {

@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDialogRoot } from './useDialogRoot';
+import { fastComponent } from '@base-ui/utils/fastHooks';
+import { useDialogRoot, DialogInteractions } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -17,7 +18,9 @@ export const IsDrawerContext = React.createContext(false);
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
+export const DialogRoot = fastComponent(function DialogRoot<Payload>(
+  props: DialogRoot.Props<Payload>,
+) {
   const {
     children,
     open: openProp,
@@ -63,27 +66,36 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
-  useDialogRoot({
+  const dialogRootResult = useDialogRoot({
     store,
     actionsRef,
-    parentContext: parentDialogRootContext?.store.context,
+    parentContext: parentDialogRootContext?.context,
     isDrawer,
-    onOpenChange,
-    triggerIdProp,
   });
 
-  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
+  const shouldRenderInteractions = open || mounted;
 
   return (
     <IsDrawerContext.Provider value={false}>
-      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+      <DialogRootContext.Provider value={store as DialogRootContext}>
+        {shouldRenderInteractions && (
+          <DialogInteractions
+            store={store}
+            forceUnmount={dialogRootResult.forceUnmount}
+            triggerProps={dialogRootResult.triggerProps}
+            parentContext={dialogRootResult.parentContext}
+            isDrawer={dialogRootResult.isDrawer}
+          />
+        )}
         {typeof children === 'function' ? children({ payload }) : children}
       </DialogRootContext.Provider>
     </IsDrawerContext.Provider>
   );
-}
+});
 
 export interface DialogRootState {}
 

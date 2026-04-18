@@ -50,7 +50,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ...elementProps
   } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 

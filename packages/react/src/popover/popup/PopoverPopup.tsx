@@ -36,7 +36,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { className, render, initialFocus, finalFocus, style, ...elementProps } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
 
   const positioner = usePopoverPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -54,6 +54,8 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const openReason = store.useState('openChangeReason');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');
+  const floatingId = floatingContext.useState('floatingId');
+  const popupId = elementProps.id ?? floatingId;
 
   useOpenChangeComplete({
     open,
@@ -106,6 +108,8 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     props: [
       popupProps,
       {
+        id: popupId,
+        role: 'dialog',
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
         onKeyDown(event) {

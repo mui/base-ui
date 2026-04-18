@@ -427,9 +427,9 @@ function DrawerProviderReporter() {
   const providerContext = useDrawerProviderContext(true);
   const dialogRootContext = useDialogRootContext(false);
 
-  const open = dialogRootContext.store.useState('open');
-  const nestedOpenDialogCount = dialogRootContext.store.useState('nestedOpenDialogCount');
-  const popupElement = dialogRootContext.store.useState('popupElement');
+  const open = dialogRootContext.useState('open');
+  const nestedOpenDialogCount = dialogRootContext.useState('nestedOpenDialogCount');
+  const popupElement = dialogRootContext.useState('popupElement');
 
   const isTopmost = nestedOpenDialogCount === 0;
 
@@ -467,10 +467,10 @@ function DrawerProviderReporter() {
     }
 
     function handleCloseWatcher(event: Event) {
-      if (!dialogRootContext.store.select('open')) {
+      if (!dialogRootContext.select('open')) {
         return;
       }
-      dialogRootContext.store.setOpen(false, createChangeEventDetails(REASONS.closeWatcher, event));
+      dialogRootContext.setOpen(false, createChangeEventDetails(REASONS.closeWatcher, event));
     }
 
     const closeWatcher = new CloseWatcherCtor();
@@ -480,7 +480,7 @@ function DrawerProviderReporter() {
       unsubscribe();
       closeWatcher.destroy();
     };
-  }, [dialogRootContext.store, isTopmost, open, popupElement]);
+  }, [dialogRootContext, isTopmost, open, popupElement]);
 
   return null;
 }

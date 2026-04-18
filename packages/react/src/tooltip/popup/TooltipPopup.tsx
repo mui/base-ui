@@ -38,6 +38,8 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
   const floatingContext = store.useState('floatingRootContext');
+  const floatingId = floatingContext.useState('floatingId');
+  const popupId = elementProps.id ?? floatingId;
 
   useOpenChangeComplete({
     open,
@@ -68,7 +70,14 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
-    props: [popupProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
+    props: [
+      popupProps,
+      {
+        id: popupId,
+      },
+      getDisabledMountTransitionStyles(transitionStatus),
+      elementProps,
+    ],
     stateAttributesMapping,
   });
 

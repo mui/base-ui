@@ -851,6 +851,29 @@ describe('<Dialog.Root />', () => {
     });
 
     describe('prop: actionsRef', () => {
+      it('keeps imperative actions available while closed', async () => {
+        const actionsRef = React.createRef<Dialog.Root.Actions>();
+
+        const { user } = await render(<TestDialog rootProps={{ actionsRef }} />);
+
+        expect(actionsRef.current).not.toBe(null);
+
+        const trigger = screen.getByRole('button', { name: 'Open' });
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+
+        expect(actionsRef.current).not.toBe(null);
+      });
+
       it('unmounts the dialog when the `unmount` method is called', async () => {
         const actionsRef = {
           current: {
@@ -1330,7 +1353,7 @@ function DialogOpenChangeSpy(props: {
   onOpenChange: (details: { open: boolean; reason: string | null | undefined }) => void;
 }) {
   const { onOpenChange } = props;
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
   const floatingRootContext = store.useState('floatingRootContext');
 
   React.useEffect(() => {

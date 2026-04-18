@@ -1024,6 +1024,29 @@ describe('<Popover.Root />', () => {
     });
 
     describe('prop: actionsRef', () => {
+      it('keeps imperative actions available while closed', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+
+        const { user } = await render(<TestPopover rootProps={{ actionsRef }} />);
+
+        expect(actionsRef.current).not.toBe(null);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+
+        expect(actionsRef.current).not.toBe(null);
+      });
+
       it('unmounts the popover when the `unmount` method is called', async () => {
         const actionsRef = {
           current: {

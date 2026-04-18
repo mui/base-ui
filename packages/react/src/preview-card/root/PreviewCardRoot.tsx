@@ -1,8 +1,11 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDismiss, useInteractions, FloatingTree } from '../../floating-ui-react';
+import { useDismiss, FloatingTree } from '../../floating-ui-react';
+import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
+import { mergeProps } from '../../merge-props';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import {
   createChangeEventDetails,
@@ -63,10 +66,8 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   const { forceUnmount } = useOpenStateTransitions(open, store);
 
   useIsoLayoutEffect(() => {
-    if (open) {
-      if (activeTriggerId == null) {
-        store.set('payload', undefined);
-      }
+    if (open && activeTriggerId == null) {
+      store.set('payload', undefined);
     }
   }, [store, activeTriggerId, open]);
 
@@ -81,12 +82,19 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   );
 
   const dismiss = useDismiss(floatingRootContext);
-
-  const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([dismiss]);
-
-  const activeTriggerProps = React.useMemo(() => getReferenceProps(), [getReferenceProps]);
-  const inactiveTriggerProps = React.useMemo(() => getTriggerProps(), [getTriggerProps]);
-  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
+  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
+  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
+  const popupProps = React.useMemo(
+    () =>
+      mergeProps(
+        {
+          tabIndex: -1,
+          [FOCUSABLE_ATTRIBUTE]: '',
+        },
+        dismiss.floating,
+      ),
+    [dismiss.floating],
+  );
 
   store.useSyncedValues({
     activeTriggerProps,

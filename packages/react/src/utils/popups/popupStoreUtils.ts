@@ -181,7 +181,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<any>>(
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
 
   useOpenChangeComplete({
-    enabled: !preventUnmountingOnClose,
+    enabled: mounted && !open && !preventUnmountingOnClose,
     open,
     ref: store.context.popupRef,
     onComplete() {
