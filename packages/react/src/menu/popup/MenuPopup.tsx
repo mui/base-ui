@@ -55,6 +55,9 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const activeTriggerElement = store.useState('activeTriggerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
+  const activeTriggerId = store.useState('activeTriggerId');
+  const floatingId = floatingContext.useState('floatingId');
+  const popupId = elementProps.id ?? floatingId;
 
   const isContextMenu = parent.type === 'context-menu';
 
@@ -111,6 +114,9 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     props: [
       popupProps,
       {
+        id: popupId,
+        role: 'menu',
+        'aria-labelledby': activeTriggerId ?? undefined,
         onKeyDown(event) {
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();

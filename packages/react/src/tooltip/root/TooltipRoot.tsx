@@ -120,10 +120,8 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   }, [transitionStatus, isInstantPhase, lastOpenChangeReason, instantType, store]);
 
   useIsoLayoutEffect(() => {
-    if (open) {
-      if (activeTriggerId == null) {
-        store.set('payload', undefined);
-      }
+    if (open && activeTriggerId == null) {
+      store.set('payload', undefined);
     }
   }, [store, activeTriggerId, open]);
 

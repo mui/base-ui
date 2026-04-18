@@ -54,17 +54,15 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const dialogRoot = useDialogRoot({
     store,
     actionsRef,
-    parentContext: parentDialogRootContext?.store.context,
+    parentContext: parentDialogRootContext?.context,
     isDrawer: false,
   });
 
   const shouldRenderInteractions = open || mounted;
 
-  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
-
   return (
     <IsDrawerContext.Provider value={false}>
-      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+      <DialogRootContext.Provider value={store as DialogRootContext}>
         {shouldRenderInteractions && <DialogInteractions store={store} dialogRoot={dialogRoot} />}
         {typeof children === 'function' ? children({ payload }) : children}
       </DialogRootContext.Provider>

@@ -423,7 +423,7 @@ function DrawerProviderReporter() {
   const drawerId = useId();
 
   const providerContext = useDrawerProviderContext(true);
-  const { store } = useDialogRootContext(false);
+  const store = useDialogRootContext(false);
 
   const open = store.useState('open');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');

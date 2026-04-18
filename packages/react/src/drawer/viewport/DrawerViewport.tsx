@@ -69,7 +69,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 ) {
   const { render, className, style, children, ...elementProps } = props;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
   const {
     swipeDirection,
     notifyParentSwipingChange,

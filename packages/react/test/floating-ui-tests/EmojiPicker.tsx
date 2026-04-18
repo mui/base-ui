@@ -15,7 +15,6 @@ import {
   useFloating,
   useInteractions,
   useListNavigation,
-  useRole,
 } from '../../src/floating-ui-react';
 import { Button } from './Button';
 import styles from './EmojiPicker.module.css';
@@ -135,7 +134,6 @@ export function Main() {
   const { getReferenceProps, getFloatingProps } = useInteractions([
     useClick(context),
     useDismiss(context),
-    useRole(context, { role: 'menu' }),
   ]);
 
   // Handles the list navigation where the reference is the inner input, not
@@ -201,6 +199,9 @@ export function Main() {
             className={styles.Trigger}
             aria-label="Choose emoji"
             aria-describedby="emoji-label"
+            aria-haspopup="menu"
+            aria-expanded={open}
+            aria-controls={open ? context.floatingId : undefined}
             data-open={open ? '' : undefined}
             {...getReferenceProps()}
           >
@@ -225,6 +226,8 @@ export function Main() {
                   ref={refs.setFloating}
                   className={styles.Floating}
                   style={floatingStyles}
+                  id={context.floatingId}
+                  role="menu"
                   {...getFloatingProps(getListFloatingProps())}
                 >
                   <span className={styles.Label}>Emoji Picker</span>

@@ -37,7 +37,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { render, className, style, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
 
   const positioner = usePopoverPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;

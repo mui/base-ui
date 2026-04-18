@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useDialogRoot, DialogInteractions } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -17,7 +18,9 @@ export const IsDrawerContext = React.createContext(false);
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
+export const DialogRoot = fastComponent(function DialogRoot<Payload>(
+  props: DialogRoot.Props<Payload>,
+) {
   const {
     children,
     open: openProp,
@@ -70,23 +73,21 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   const dialogRoot = useDialogRoot({
     store,
     actionsRef,
-    parentContext: parentDialogRootContext?.store.context,
+    parentContext: parentDialogRootContext?.context,
     isDrawer,
   });
 
   const shouldRenderInteractions = open || mounted;
 
-  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
-
   return (
     <IsDrawerContext.Provider value={false}>
-      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+      <DialogRootContext.Provider value={store as DialogRootContext}>
         {shouldRenderInteractions && <DialogInteractions store={store} dialogRoot={dialogRoot} />}
         {typeof children === 'function' ? children({ payload }) : children}
       </DialogRootContext.Provider>
     </IsDrawerContext.Provider>
   );
-}
+});
 
 export interface DialogRootState {}
 

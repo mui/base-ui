@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
@@ -26,7 +27,7 @@ import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
+export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -46,7 +47,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   } = componentProps;
 
   const rootContext = usePopoverRootContext(true);
-  const store = handle?.store ?? rootContext?.store;
+  const store = handle?.store ?? rootContext;
   if (!store) {
     throw new Error(
       'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
@@ -54,6 +55,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
+  const open = store.useState('open');
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);

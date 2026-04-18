@@ -2,6 +2,7 @@
 import c from 'clsx';
 import * as React from 'react';
 import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
+import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
 import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
@@ -24,7 +25,6 @@ import {
   useHover,
   useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
   useFocus,
 } from '../../src/floating-ui-react';
@@ -94,6 +94,7 @@ export const MenuComponent = React.forwardRef<
 
   const parent = React.useContext(MenuContext);
   const item = useCompositeListItem();
+  const triggerId = useBaseUiId();
 
   const { floatingStyles, refs, context } = useFloating({
     nodeId,
@@ -120,7 +121,6 @@ export const MenuComponent = React.forwardRef<
     ignoreMouse: isNested,
   });
   const focus = useFocus(context, { enabled: openOnFocus });
-  const role = useRole(context, { role: 'menu' });
   const dismiss = useDismiss(context, { bubbles: true });
   const listNavigation = useListNavigation(context, {
     listRef: elementsRef,
@@ -139,7 +139,6 @@ export const MenuComponent = React.forwardRef<
   const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
     hover,
     click,
-    role,
     dismiss,
     focus,
     listNavigation,
@@ -211,6 +210,10 @@ export const MenuComponent = React.forwardRef<
       <button
         type="button"
         ref={useMergedRefsN([refs.setReference, item.ref, forwardedRef])}
+        id={triggerId}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? context.floatingId : undefined}
         data-open={isOpen ? '' : undefined}
         // eslint-disable-next-line no-nested-ternary
         tabIndex={!isNested ? props.tabIndex : parent.activeIndex === item.index ? 0 : -1}
@@ -268,6 +271,9 @@ export const MenuComponent = React.forwardRef<
               >
                 <div
                   ref={refs.setFloating}
+                  id={context.floatingId}
+                  role="menu"
+                  aria-labelledby={triggerId}
                   className={c(
                     styles.Panel,
                     {

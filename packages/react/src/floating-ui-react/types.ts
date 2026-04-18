@@ -22,7 +22,6 @@ export type { HandleCloseContext, HandleClose } from './hooks/useHoverShared';
 export type { UseHoverFloatingInteractionProps } from './hooks/useHoverFloatingInteraction';
 export type { UseHoverReferenceInteractionProps } from './hooks/useHoverReferenceInteraction';
 export type { UseListNavigationProps } from './hooks/useListNavigation';
-export type { UseRoleProps } from './hooks/useRole';
 export type { UseTypeaheadProps } from './hooks/useTypeahead';
 export type { UseFloatingRootContextOptions } from './hooks/useFloatingRootContext';
 export type { UseInteractionsReturn } from './hooks/useInteractions';

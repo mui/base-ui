@@ -32,7 +32,7 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
   React.useImperativeHandle(
     actionsRef,
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
+    [actionsRef, forceUnmount, handleImperativeClose],
   );
 
   return { parentContext, isDrawer };

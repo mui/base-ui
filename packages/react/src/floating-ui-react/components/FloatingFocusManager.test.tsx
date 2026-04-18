@@ -29,7 +29,6 @@ import {
   useFloatingParentNodeId,
   useHover,
   useInteractions,
-  useRole,
 } from '../index';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
 import { Main as Navigation } from '../../../test/floating-ui-tests/Navigation';
@@ -1583,7 +1582,19 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const role = useRole(context);
+        const role = React.useMemo(
+          () => ({
+            reference: {
+              'aria-expanded': isOpen,
+              'aria-controls': isOpen ? 'floating' : undefined,
+            },
+            floating: {
+              id: 'floating',
+              role: 'listbox' as const,
+            },
+          }),
+          [isOpen],
+        );
         const dismiss = useDismiss(context);
         const click = useClick(context);
 
@@ -1630,7 +1641,19 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const role = useRole(context);
+        const role = React.useMemo(
+          () => ({
+            reference: {
+              'aria-expanded': isOpen,
+              'aria-controls': isOpen ? 'floating' : undefined,
+            },
+            floating: {
+              id: 'floating',
+              role: 'listbox' as const,
+            },
+          }),
+          [isOpen],
+        );
         const dismiss = useDismiss(context);
         const click = useClick(context);
 
@@ -1750,7 +1773,20 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const role = useRole(context);
+        const role = React.useMemo(
+          () => ({
+            reference: {
+              'aria-haspopup': 'dialog' as const,
+              'aria-expanded': isOpen,
+              'aria-controls': isOpen ? 'floating' : undefined,
+            },
+            floating: {
+              id: 'floating',
+              role: 'dialog' as const,
+            },
+          }),
+          [isOpen],
+        );
 
         const { getReferenceProps, getFloatingProps } = useInteractions([role]);
 

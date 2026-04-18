@@ -191,8 +191,8 @@ export interface UseListNavigationProps {
    * (such as an input), but allow arrow keys to navigate list items.
    * This is common in autocomplete listbox components.
    * Your virtually-focused list items must have a unique `id` set on them.
-   * If you're using a component role with the `useRole()` Hook, then an `id` is
-   * generated automatically.
+   * Ensure the popup provides a stable `id` so `aria-activedescendant` can
+   * reference the active option correctly.
    * @default false
    */
   virtual?: boolean | undefined;

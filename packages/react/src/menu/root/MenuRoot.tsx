@@ -14,7 +14,6 @@ import {
   useFloatingParentNodeId,
   useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
   useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
@@ -104,7 +103,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
 
   const store = MenuStore.useStore(handle?.store, {
-    open: defaultOpen,
+    open: openProp ?? defaultOpen,
     openProp,
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
@@ -133,7 +132,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   const open = store.useState('open');
+  const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
+  const popupElement = store.useState('popupElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
@@ -386,7 +387,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
   const dismiss = useDismiss(floatingRootContext, {
-    enabled: !disabled,
+    enabled: open && !disabled,
     bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
     outsidePress() {
       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
@@ -396,10 +397,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       return allowOutsidePressDismissalRef.current;
     },
     externalTree: nested ? floatingTreeRoot : undefined,
-  });
-
-  const role = useRole(floatingRootContext, {
-    role: 'menu',
   });
 
   const direction = useDirection();
@@ -441,6 +438,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     listRef: store.context.itemLabels,
     elementsRef: store.context.itemDomElements,
     activeIndex,
+    enabled: open,
     resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {
       if (open && index !== activeIndex) {
@@ -452,10 +450,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const { getReferenceProps, getFloatingProps, getItemProps, getTriggerProps } = useInteractions([
     dismiss,
-    role,
     listNavigation,
     typeahead,
   ]);
+
+  const hasTriggerWithoutId = open && activeTriggerId == null;
 
   const activeTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(
@@ -466,11 +465,14 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         },
       },
       interactionTypeProps,
+      {
+        'aria-haspopup': 'menu' as const,
+        'aria-expanded': open,
+        'aria-controls': open ? popupElement?.id : undefined,
+      },
     );
-
-    delete mergedProps.role;
     return mergedProps;
-  }, [getReferenceProps, store, interactionTypeProps]);
+  }, [getReferenceProps, interactionTypeProps, open, popupElement, store]);
 
   const inactiveTriggerProps = React.useMemo(() => {
     const triggerProps = getTriggerProps();
@@ -478,11 +480,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       return triggerProps;
     }
 
-    const mergedProps = mergeProps(triggerProps, interactionTypeProps);
-    delete mergedProps.role;
-    delete mergedProps['aria-controls'];
+    const mergedProps = mergeProps(triggerProps, interactionTypeProps, {
+      'aria-haspopup': 'menu' as const,
+      'aria-expanded': hasTriggerWithoutId,
+      'aria-controls': hasTriggerWithoutId ? popupElement?.id : undefined,
+    });
     return mergedProps;
-  }, [getTriggerProps, interactionTypeProps]);
+  }, [getTriggerProps, hasTriggerWithoutId, interactionTypeProps, popupElement]);
 
   const popupProps = React.useMemo(
     () =>

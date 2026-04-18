@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useDismiss, FloatingTree, useFloatingParentNodeId } from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
@@ -87,20 +88,13 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   React.useImperativeHandle(
     props.actionsRef,
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
+    [forceUnmount, handleImperativeClose, props.actionsRef],
   );
 
   const shouldRenderInteractions = open || mounted;
 
-  const popoverContext: PopoverRootContext<Payload> = React.useMemo(
-    () => ({
-      store,
-    }),
-    [store],
-  );
-
   return (
-    <PopoverRootContext.Provider value={popoverContext as PopoverRootContext<unknown>}>
+    <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
       {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </PopoverRootContext.Provider>
@@ -113,7 +107,9 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>) {
+export const PopoverRoot = fastComponent(function PopoverRoot<Payload = unknown>(
+  props: PopoverRoot.Props<Payload>,
+) {
   if (usePopoverRootContext(true)) {
     return <PopoverRootComponent props={props} />;
   }
@@ -123,7 +119,7 @@ export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>
       <PopoverRootComponent props={props} />
     </FloatingTree>
   );
-}
+});
 
 export interface PopoverRootState {}
 

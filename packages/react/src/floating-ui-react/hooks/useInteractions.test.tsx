@@ -10,7 +10,6 @@ import {
   useHover,
   useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
 } from '../index';
 
@@ -111,6 +110,20 @@ describe('useInteractions', () => {
 
       const listRef = React.useRef([]);
       const { context } = useFloating({ open, onOpenChange: setOpen });
+      const roleProps = React.useMemo(
+        () => ({
+          reference: {
+            'aria-haspopup': 'dialog' as const,
+            'aria-expanded': open,
+            'aria-controls': open ? 'floating-id' : undefined,
+          },
+          floating: {
+            id: 'floating-id',
+            role: 'dialog' as const,
+          },
+        }),
+        [open],
+      );
 
       // NOTE: if `ref`-related props are not memoized, this will cause
       // an infinite loop as they must be memoized externally (as done by React).
@@ -119,7 +132,7 @@ describe('useInteractions', () => {
         useHover(context, { handleClose }),
         useFocus(context),
         useClick(context),
-        useRole(context),
+        roleProps,
         useDismiss(context),
         useListNavigation(context, {
           listRef,

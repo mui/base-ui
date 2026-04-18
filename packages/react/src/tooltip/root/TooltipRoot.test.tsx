@@ -291,6 +291,14 @@ describe('<Tooltip.Root />', () => {
     });
 
     describe('prop: actionsRef', () => {
+      it('keeps imperative actions available while closed', async () => {
+        const actionsRef = React.createRef<Tooltip.Root.Actions>();
+
+        await render(<TestTooltip rootProps={{ actionsRef }} />);
+
+        expect(actionsRef.current).not.toBe(null);
+      });
+
       it('unmounts the tooltip when the `unmount` method is called', async () => {
         const actionsRef = {
           current: {
@@ -859,6 +867,31 @@ describe('<Tooltip.Root />', () => {
         fireEvent.click(trigger);
 
         expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('calls onOpenChange once when the trigger is clicked closed', async () => {
+        const onOpenChange = vi.fn();
+
+        await render(<TestTooltip rootProps={{ onOpenChange }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
+
+        onOpenChange.mockClear();
+
+        fireEvent.click(trigger);
+
+        expect(screen.queryByText('Content')).toBe(null);
+        expect(onOpenChange.mock.calls.length).toBe(1);
+        expect(onOpenChange.mock.calls[0][0]).toBe(false);
       });
 
       it('should not close when the trigger is clicked after delay duration and closeOnClick is false', async () => {
