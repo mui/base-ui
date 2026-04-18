@@ -21,8 +21,8 @@ export function Header() {
     <header className="Header">
       <div className="HeaderInner">
         <SkipNav>Skip to contents</SkipNav>
-        <NextLink href="/" className="HeaderLogoLink">
-          <Logo aria-label="Base UI" />
+        <NextLink href="/" className="HeaderLogoLink" aria-label="Base UI - Go to homepage">
+          <Logo aria-label="Base UI" />
         </NextLink>
         <div className="HeaderDesktopActions">
           <Search containedScroll enableKeyboardShortcut />
@@ -30,6 +30,7 @@ export function Header() {
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui/react"
             rel="noopener"
+            aria-label={`npm version ${process.env.LIB_VERSION}`}
           >
             <NpmIcon />
             {process.env.LIB_VERSION}
