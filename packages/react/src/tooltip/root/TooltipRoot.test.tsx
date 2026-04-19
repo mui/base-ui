@@ -35,6 +35,25 @@ describe('<Tooltip.Root />', () => {
     triggerMouseAction: 'hover',
   });
 
+  it('does not set aria-describedby on the trigger', async () => {
+    await render(
+      <Tooltip.Root defaultOpen>
+        <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    await flushMicrotasks();
+
+    expect(screen.getByRole('button', { name: 'Trigger' }).getAttribute('aria-describedby')).toBe(
+      null,
+    );
+  });
+
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerTooltip },
     { name: 'detached triggers', Component: DetachedTriggerTooltip },

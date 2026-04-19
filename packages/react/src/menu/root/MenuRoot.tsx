@@ -435,7 +435,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     listRef: store.context.itemLabels,
     elementsRef: store.context.itemDomElements,
     activeIndex,
-    enabled: open,
+    enabled: open && !disabled,
     resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {
       if (open && index !== activeIndex) {

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { mergeProps } from '../../merge-props';
 import {

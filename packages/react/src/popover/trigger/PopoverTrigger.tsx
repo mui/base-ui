@@ -60,6 +60,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const open = store.useState('open');
+  const activeTriggerId = store.useState('activeTriggerId');
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
@@ -111,6 +112,9 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     disabled,
     open: isOpenedByThisTrigger,
   };
+  const controlsPopup =
+    open &&
+    (isOpenedByThisTrigger || activeTriggerId == null || store.context.triggerElements.size === 1);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -142,7 +146,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
         id: thisTriggerId,
         'aria-haspopup': 'dialog' as const,
         'aria-expanded': isOpenedByThisTrigger,
-        'aria-controls': open ? popupElement?.id : undefined,
+        'aria-controls': controlsPopup ? popupElement?.id : undefined,
       },
       elementProps,
       getButtonProps,

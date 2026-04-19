@@ -54,11 +54,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
-  const open = store.useState('open');
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
-  const popupElement = store.useState('popupElement');
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
@@ -140,12 +138,11 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
       focusProps,
       rootTriggerProps,
       {
-        'aria-describedby': open ? popupElement?.id : undefined,
         onPointerDown() {
           store.set('closeOnClick', closeOnClick);
         },
         onClick(event) {
-          if (closeOnClick && !open) {
+          if (closeOnClick && !store.select('open')) {
             store.setOpen(
               false,
               createChangeEventDetails(REASONS.triggerPress, event.nativeEvent),

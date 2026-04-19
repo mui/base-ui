@@ -220,6 +220,46 @@ describe('<Popover.Root />', () => {
       expect(screen.queryByTestId('content')).toBe(null);
     });
 
+    it('synchronizes ARIA attributes on the active trigger', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Trigger 1</Popover.Trigger>
+          <Popover.Trigger>Trigger 2</Popover.Trigger>
+
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Popover Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(trigger1);
+
+      const popup = await screen.findByRole('dialog');
+      const trigger1Controls = trigger1.getAttribute('aria-controls');
+      expect(trigger1Controls).not.toBe(null);
+      expect(popup.getAttribute('id')).toBe(trigger1Controls);
+      expect(trigger2.getAttribute('aria-controls')).toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(trigger2);
+
+      const trigger2Controls = trigger2.getAttribute('aria-controls');
+      expect(trigger2Controls).not.toBe(null);
+      expect(popup.getAttribute('id')).toBe(trigger2Controls);
+      expect(trigger1.getAttribute('aria-controls')).toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    });
+
     it('allows setting an initially open popover', async () => {
       const testPopover = Popover.createHandle<number>();
       await render(

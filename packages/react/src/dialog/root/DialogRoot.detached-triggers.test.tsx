@@ -150,7 +150,17 @@ describe('<Dialog.Root />', () => {
       await waitFor(() => {
         expect(trigger1).toHaveAttribute('aria-expanded', 'true');
       });
+      expect(trigger2.getAttribute('aria-controls')).toBe(null);
       expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(trigger2);
+
+      const trigger2Controls = trigger2.getAttribute('aria-controls');
+      expect(trigger2Controls).not.toBe(null);
+      expect(dialog.getAttribute('id')).toBe(trigger2Controls);
+      expect(trigger1.getAttribute('aria-controls')).toBe(null);
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('sets the payload when opening programmatically with a controlled triggerId', async () => {

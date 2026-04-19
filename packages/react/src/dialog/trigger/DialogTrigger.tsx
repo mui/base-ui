@@ -44,6 +44,7 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const open = store.useState('open');
+  const activeTriggerId = store.useState('activeTriggerId');
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const popupElement = store.useState('popupElement');
@@ -72,6 +73,9 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
     disabled,
     open: isOpenedByThisTrigger,
   };
+  const controlsPopup =
+    open &&
+    (isOpenedByThisTrigger || activeTriggerId == null || store.context.triggerElements.size === 1);
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
@@ -86,7 +90,7 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
         id: thisTriggerId,
         'aria-haspopup': 'dialog' as const,
         'aria-expanded': isOpenedByThisTrigger,
-        'aria-controls': open ? popupElement?.id : undefined,
+        'aria-controls': controlsPopup ? popupElement?.id : undefined,
       },
       elementProps,
       getButtonProps,
