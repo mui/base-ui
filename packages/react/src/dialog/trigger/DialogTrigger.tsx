@@ -44,7 +44,6 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
-  const open = store.useState('open');
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const popupId = store.useState('triggerPopupId', thisTriggerId);
