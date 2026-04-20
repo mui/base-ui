@@ -47,11 +47,36 @@ describe('<Tooltip.Root />', () => {
       </Tooltip.Root>,
     );
 
-    await flushMicrotasks();
-
     expect(screen.getByRole('button', { name: 'Trigger' }).getAttribute('aria-describedby')).toBe(
       null,
     );
+  });
+
+  it.skipIf(isJSDOM)('tracks the cursor on the first open from a cold mount', async () => {
+    await render(
+      <ContainedTriggerTooltip
+        rootProps={{ trackCursorAxis: 'both' }}
+        triggerProps={{ delay: 0, style: { width: 120, height: 40 } }}
+        positionerProps={{ side: 'bottom', align: 'start' }}
+        popupProps={{ style: { width: 40, height: 20 } }}
+      />,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+    fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+    fireEvent.mouseEnter(trigger, { clientX: 36, clientY: 18 });
+    fireEvent.mouseMove(trigger, { clientX: 36, clientY: 18 });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toBeVisible();
+    });
+
+    await waitFor(() => {
+      const positionerRect = screen.getByTestId('positioner').getBoundingClientRect();
+      expect(Math.abs(positionerRect.left - 36)).toBeLessThanOrEqual(6);
+      expect(Math.abs(positionerRect.top - 18)).toBeLessThanOrEqual(1);
+    });
   });
 
   describe.for([

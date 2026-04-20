@@ -12,6 +12,7 @@ import {
   PopupStoreSelectors,
   PopupTriggerMap,
   popupStoreSelectors,
+  shouldCurrentTriggerOwnOpenPopup,
   useImplicitActiveTrigger,
   usePopupInteractionProps,
   usePopupRootSync,
@@ -354,6 +355,41 @@ describe('usePopupInteractionProps', () => {
     expect(store.state.inactiveTriggerProps).toEqual({});
     expect(store.state.popupProps).not.toBe(popupProps);
     expect(store.state.popupProps).toEqual({});
+  });
+});
+
+describe('shouldCurrentTriggerOwnOpenPopup', () => {
+  it('returns true for the trigger that opened the popup', () => {
+    expect(
+      shouldCurrentTriggerOwnOpenPopup({
+        open: true,
+        isOpenedByThisTrigger: true,
+        activeTriggerId: 'trigger-1',
+        triggerCount: 2,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns true for an open single-trigger popup without an active trigger id', () => {
+    expect(
+      shouldCurrentTriggerOwnOpenPopup({
+        open: true,
+        isOpenedByThisTrigger: false,
+        activeTriggerId: null,
+        triggerCount: 1,
+      }),
+    ).toBe(true);
+  });
+
+  it('returns false for an open multi-trigger popup without an active trigger id', () => {
+    expect(
+      shouldCurrentTriggerOwnOpenPopup({
+        open: true,
+        isOpenedByThisTrigger: false,
+        activeTriggerId: null,
+        triggerCount: 2,
+      }),
+    ).toBe(false);
   });
 });
 
