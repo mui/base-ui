@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -15,6 +16,8 @@ const rapidHoverAnimationStyles = `
 `;
 
 function TestNavigationMenuRapidHoverSizing() {
+  const [isProductExpanded, setIsProductExpanded] = React.useState(false);
+
   return (
     <NavigationMenu.Root>
       {/* eslint-disable-next-line react/no-danger */}
@@ -23,7 +26,16 @@ function TestNavigationMenuRapidHoverSizing() {
         <NavigationMenu.Item value="product">
           <NavigationMenu.Trigger>Product</NavigationMenu.Trigger>
           <NavigationMenu.Content>
-            <div style={{ width: 700, height: 420 }}>Product panel</div>
+            <div>
+              <button type="button" onClick={() => setIsProductExpanded(true)}>
+                Expand Product
+              </button>
+              {isProductExpanded ? (
+                <div style={{ width: 760, height: 460 }}>Expanded product panel</div>
+              ) : (
+                <div style={{ width: 700, height: 420 }}>Product panel</div>
+              )}
+            </div>
           </NavigationMenu.Content>
         </NavigationMenu.Item>
 
@@ -47,6 +59,12 @@ function TestNavigationMenuRapidHoverSizing() {
 
 function getPopupWidthCalls(calls: Array<[property: string, value: string, priority?: string]>) {
   return calls.filter((call) => call[0] === '--popup-width').map((call) => call[1]);
+}
+
+function getPositionerWidthCalls(
+  calls: Array<[property: string, value: string, priority?: string]>,
+) {
+  return calls.filter((call) => call[0] === '--positioner-width').map((call) => call[1]);
 }
 
 describe('<NavigationMenu.Trigger />', () => {
@@ -312,6 +330,85 @@ describe('<NavigationMenu.Trigger />', () => {
       });
 
       setPropertySpy.mockRestore();
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'does not let interrupted mutation resizing reapply popup sizes after a later switch',
+    async () => {
+      const user = userEvent.setup({ pointerEventsCheck: 0 });
+
+      await render(<TestNavigationMenuRapidHoverSizing />);
+
+      await user.hover(screen.getByRole('button', { name: 'Product' }));
+
+      const popupRoot = await screen.findByTestId('popup-root');
+      const positioner = popupRoot.parentElement as HTMLElement;
+      const setPositionerPropertySpy = vi.spyOn(positioner.style, 'setProperty');
+      const getPositionerWidthCallsSince = (startIndex = 0) =>
+        getPositionerWidthCalls(
+          setPositionerPropertySpy.mock.calls.slice(startIndex) as Array<
+            [property: string, value: string, priority?: string]
+          >,
+        );
+
+      await waitFor(() => {
+        expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('700px');
+      });
+
+      let popupWidth = 700;
+      let popupHeight = 420;
+
+      Object.defineProperty(popupRoot, 'offsetWidth', {
+        configurable: true,
+        get: () => popupWidth,
+      });
+      Object.defineProperty(popupRoot, 'offsetHeight', {
+        configurable: true,
+        get: () => popupHeight,
+      });
+
+      popupRoot.style.setProperty('--popup-width', '700px');
+      popupRoot.style.setProperty('--popup-height', '420px');
+
+      popupWidth = 760;
+      popupHeight = 460;
+      await user.click(screen.getByRole('button', { name: 'Expand Product' }));
+
+      await waitFor(() => {
+        expect(
+          setPositionerPropertySpy.mock.calls.some(
+            (call) => call[0] === '--positioner-width' && call[1] === '760px',
+          ),
+        ).toBe(true);
+      });
+
+      popupWidth = 500;
+      popupHeight = 320;
+      const callsBeforeSolutionsHover = setPositionerPropertySpy.mock.calls.length;
+
+      await user.hover(screen.getByRole('button', { name: 'Solutions' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Solutions panel')).toBeVisible();
+      });
+
+      await waitFor(() => {
+        const positionerWidthCallsAfterSwitch =
+          getPositionerWidthCallsSince(callsBeforeSolutionsHover);
+        const solutionsWidthIndex = positionerWidthCallsAfterSwitch.indexOf('500px');
+
+        expect(solutionsWidthIndex).toBeGreaterThan(-1);
+        expect(positionerWidthCallsAfterSwitch.slice(solutionsWidthIndex + 1)).not.toContain(
+          '760px',
+        );
+      });
+
+      await waitFor(() => {
+        expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
+      });
+
+      setPositionerPropertySpy.mockRestore();
     },
   );
 });

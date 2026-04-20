@@ -150,9 +150,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       return;
     }
 
+    mutationFrame.cancel();
     sizeFrame.cancel();
     cancelAutoSizeReset();
-  }, [isActiveItem, sizeFrame, cancelAutoSizeReset]);
+  }, [isActiveItem, mutationFrame, sizeFrame, cancelAutoSizeReset]);
 
   function setAutoSizes() {
     if (!popupElement) {
@@ -303,6 +304,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           setSharedFixedSizes(currentWidth, currentHeight);
 
           sizeFrame.request(() => {
+            if (!isActiveItemRef.current) {
+              return;
+            }
+
             setSharedFixedSizes(measuredWidth, measuredHeight);
             scheduleAutoSizeReset();
           });
