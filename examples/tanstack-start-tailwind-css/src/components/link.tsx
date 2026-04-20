@@ -13,7 +13,7 @@ export function Link({ className, ...props }: React.ComponentPropsWithoutRef<'a'
 }
 
 export const styles = [
-  'text-[var(--color-blue)] underline underline-offset-2',
-  'decoration-[1px] decoration-[color-mix(in_oklab,var(--color-blue),transparent)] hover:decoration-[var(--color-blue)]',
-  'focus-visible:outline-2 focus-visible:outline-[var(--color-blue)] focus-visible:outline-offset-[-2px] focus-visible:rounded-[var(--radius-sm)]',
+  'text-blue-600 underline underline-offset-2 dark:text-blue-400',
+  'decoration-1 decoration-blue-600/40 hover:decoration-blue-600 dark:decoration-blue-400/50 dark:hover:decoration-blue-400',
+  'focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-blue-600 dark:focus-visible:outline-blue-400',
 ];

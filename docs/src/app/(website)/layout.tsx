@@ -1,4 +1,4 @@
-// Keep CSS imports first to ensure layers are declared before component styles
+// Keep CSS imports first to ensure CSS layer order is correct
 import 'docs/src/css/index.css';
 import './css/index.css';
 
@@ -54,7 +54,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 </Link>
                 <Link
                   className="Text sz-1"
-                  href="https://discord.com/invite/g6C3hUtuxz"
+                  href="https://base-ui.com/r/discord"
                   rel="noopener noreferrer"
                 >
                   Discord
@@ -92,7 +92,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 </Link>
                 <Link
                   className="Text sz-1"
-                  href="https://discord.com/invite/g6C3hUtuxz"
+                  href="https://base-ui.com/r/discord"
                   rel="noopener noreferrer"
                 >
                   Discord
@@ -104,13 +104,13 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 >
                   npm
                 </Link>
-                <a
-                  className="Text sz-1 Link"
-                  href="https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc"
+                <Link
+                  className="Text sz-1"
+                  href="https://bsky.app/profile/base-ui.com"
                   rel="noopener noreferrer"
                 >
                   Bluesky
-                </a>
+                </Link>
               </nav>
             </footer>
           </div>
@@ -146,6 +146,7 @@ export const metadata: Metadata = {
     canonical: './',
   },
   icons: {
+    // Based on https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs
     icon: [
       {
         rel: 'icon',

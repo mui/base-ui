@@ -178,7 +178,7 @@ export default function ExampleCreatableCombobox() {
                       <span className="col-start-1">
                         <PlusIcon className="size-3" />
                       </span>
-                      <div className="col-start-2">Create "{item.creatable}"</div>
+                      <span className="col-start-2">Create "{item.creatable}"</span>
                     </Combobox.Item>
                   ) : (
                     <Combobox.Item
@@ -189,7 +189,7 @@ export default function ExampleCreatableCombobox() {
                       <Combobox.ItemIndicator className="col-start-1">
                         <CheckIcon className="size-3" />
                       </Combobox.ItemIndicator>
-                      <div className="col-start-2">{item.value}</div>
+                      <span className="col-start-2">{item.value}</span>
                     </Combobox.Item>
                   )
                 }

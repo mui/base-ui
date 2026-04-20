@@ -19,9 +19,10 @@ function App(
   inProps: Omit<Partial<UseListNavigationProps>, 'listRef'> & {
     disableFirstItem?: boolean;
     hideFirstItem?: boolean;
+    firstItemStyle?: React.CSSProperties;
   } = {},
 ) {
-  const { disableFirstItem, hideFirstItem, ...props } = inProps;
+  const { disableFirstItem, hideFirstItem, firstItemStyle, ...props } = inProps;
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
@@ -48,29 +49,37 @@ function App(
       {open && (
         <div role="menu" {...getFloatingProps({ ref: refs.setFloating })}>
           <ul>
-            {['one', 'two', 'three'].map((string, index) => (
-              // eslint-disable-next-line
-              <li
-                data-testid={`item-${index}`}
-                aria-selected={activeIndex === index}
-                key={string}
-                style={hideFirstItem && index === 0 ? { display: 'none' } : undefined}
-                tabIndex={-1}
-                aria-disabled={
-                  (disableFirstItem && index === 0) ||
-                  (typeof props.disabledIndices === 'function'
-                    ? props.disabledIndices?.(index)
-                    : props.disabledIndices?.includes(index))
-                }
-                {...getItemProps({
-                  ref(node: HTMLLIElement) {
-                    listRef.current[index] = node;
-                  },
-                })}
-              >
-                {string}
-              </li>
-            ))}
+            {['one', 'two', 'three'].map((string, index) => {
+              let style: React.CSSProperties | undefined;
+
+              if (index === 0) {
+                style = hideFirstItem ? { display: 'none' } : firstItemStyle;
+              }
+
+              return (
+                // eslint-disable-next-line
+                <li
+                  data-testid={`item-${index}`}
+                  aria-selected={activeIndex === index}
+                  key={string}
+                  style={style}
+                  tabIndex={-1}
+                  aria-disabled={
+                    (disableFirstItem && index === 0) ||
+                    (typeof props.disabledIndices === 'function'
+                      ? props.disabledIndices?.(index)
+                      : props.disabledIndices?.includes(index))
+                  }
+                  {...getItemProps({
+                    ref(node: HTMLLIElement) {
+                      listRef.current[index] = node;
+                    },
+                  })}
+                >
+                  {string}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
@@ -266,6 +275,21 @@ describe('useListNavigation', () => {
 
   it('skips items hidden with CSS in navigation', async () => {
     render(<App hideFirstItem loopFocus disabledIndices={[]} />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('item-1')).toHaveFocus();
+    });
+
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-2')).toHaveFocus();
+    });
+  });
+
+  it('skips visibility:hidden items in navigation', async () => {
+    render(<App firstItemStyle={{ visibility: 'hidden' }} loopFocus disabledIndices={[]} />);
 
     fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
     expect(screen.getByRole('menu')).toBeInTheDocument();
@@ -775,15 +799,19 @@ describe('useListNavigation', () => {
       await flushMicrotasks();
     });
 
-    it('does not clear the active item on pointer leave when the pointer is still within bounds', async () => {
+    it('clears the active item when the pointer leaves a clipped container while still within the item bounds', async () => {
       const spy = vi.fn();
       render(<App onNavigate={spy} />);
 
       fireEvent.click(screen.getByRole('button'));
 
+      const menu = screen.getByRole('menu');
       const item = screen.getByTestId('item-1');
 
-      vi.spyOn(item, 'getBoundingClientRect').mockReturnValue({
+      menu.style.overflow = 'auto';
+      menu.style.maxHeight = '40px';
+
+      vi.spyOn(menu, 'getBoundingClientRect').mockReturnValue({
         x: 0,
         y: 0,
         top: 0,
@@ -797,24 +825,39 @@ describe('useListNavigation', () => {
         },
       });
 
-      fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowDown' });
+      vi.spyOn(item, 'getBoundingClientRect').mockReturnValue({
+        x: 0,
+        y: 0,
+        top: 0,
+        right: 100,
+        bottom: 80,
+        left: 0,
+        width: 100,
+        height: 80,
+        toJSON() {
+          return {};
+        },
+      });
+
+      fireEvent.mouseMove(item);
 
       await waitFor(() => {
         expect(item).toHaveFocus();
       });
 
-      const callsBeforeLeave = spy.mock.calls.length;
-
       await act(async () => {
         fireEvent.pointerLeave(item, {
           clientX: 50,
-          clientY: 20,
+          clientY: 60,
           pointerType: 'mouse',
+          relatedTarget: document.body,
         });
       });
 
-      await flushMicrotasks();
-      expect(spy).toHaveBeenCalledTimes(callsBeforeLeave);
+      await waitFor(() => {
+        expect(item).toHaveAttribute('aria-selected', 'false');
+      });
+      expect(spy.mock.calls.at(-1)?.[0]).toBe(null);
     });
   });
 

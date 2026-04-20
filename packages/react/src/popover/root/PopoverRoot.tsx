@@ -77,24 +77,9 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [store, open]);
 
-  const createPopoverEventDetails = React.useCallback(
-    (reason: PopoverRoot.ChangeEventReason) => {
-      const details: PopoverRoot.ChangeEventDetails =
-        createChangeEventDetails<PopoverRoot.ChangeEventReason>(
-          reason,
-        ) as PopoverRoot.ChangeEventDetails;
-      details.preventUnmountOnClose = () => {
-        store.set('preventUnmountingOnClose', true);
-      };
-
-      return details;
-    },
-    [store],
-  );
-
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createPopoverEventDetails(REASONS.imperativeAction));
-  }, [store, createPopoverEventDetails]);
+    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+  }, [store]);
 
   React.useImperativeHandle(
     props.actionsRef,
