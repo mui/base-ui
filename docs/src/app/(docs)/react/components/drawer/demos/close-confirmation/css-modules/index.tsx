@@ -8,49 +8,49 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import styles from './index.module.css';
 
 type DrawerFormValues = {
-  notes: string;
+  note: string;
 };
 
 export default function ExampleDrawer() {
-  const [open, setOpen] = React.useState(false);
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const [note, setNote] = React.useState('');
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [confirmationOpen, setConfirmationOpen] = React.useState(false);
+  const [draftNote, setDraftNote] = React.useState('');
   const [savedNote, setSavedNote] = React.useState('');
 
-  const isDirty = note !== savedNote;
+  const hasUnsavedChanges = draftNote !== savedNote;
 
   const handleSubmit = useStableCallback((formValues: DrawerFormValues) => {
-    setSavedNote(formValues.notes);
-    setNote(formValues.notes);
-    setOpen(false);
+    setSavedNote(formValues.note);
+    setDraftNote(formValues.note);
+    setDrawerOpen(false);
   });
 
   const handleOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: Drawer.Root.ChangeEventDetails) => {
       if (nextOpen) {
-        setOpen(true);
+        setDrawerOpen(true);
         return;
       }
 
-      if (isDirty) {
+      if (hasUnsavedChanges) {
         eventDetails.cancel();
-        setConfirmOpen(true);
+        setConfirmationOpen(true);
         return;
       }
 
-      setOpen(false);
+      setDrawerOpen(false);
     },
   );
 
   const discardChanges = useStableCallback(() => {
-    setNote(savedNote);
-    setConfirmOpen(false);
-    setOpen(false);
+    setDraftNote(savedNote);
+    setConfirmationOpen(false);
+    setDrawerOpen(false);
   });
 
   return (
     <div className={styles.Demo}>
-      <Drawer.Root swipeDirection="right" open={open} onOpenChange={handleOpenChange}>
+      <Drawer.Root swipeDirection="right" open={drawerOpen} onOpenChange={handleOpenChange}>
         <section className={styles.Summary} aria-labelledby="drawer-form-summary">
           <div className={styles.SummaryContent}>
             <p id="drawer-form-summary" className={styles.SummaryLabel}>
@@ -75,12 +75,12 @@ export default function ExampleDrawer() {
                 </div>
 
                 <Form className={styles.Form} onFormSubmit={handleSubmit}>
-                  <Field.Root name="notes" className={styles.Field}>
+                  <Field.Root name="note" className={styles.Field}>
                     <Field.Label className={styles.Label}>Note</Field.Label>
                     <Field.Control
                       render={<textarea rows={8} />}
-                      value={note}
-                      onValueChange={setNote}
+                      value={draftNote}
+                      onValueChange={setDraftNote}
                       placeholder="Write a short note..."
                       autoFocus
                       className={styles.Textarea}
@@ -102,7 +102,8 @@ export default function ExampleDrawer() {
         </Drawer.Portal>
       </Drawer.Root>
 
-      <AlertDialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
+      {/* Confirmation dialog */}
+      <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Backdrop className={styles.AlertBackdrop} />
           <AlertDialog.Viewport className={styles.AlertViewport}>

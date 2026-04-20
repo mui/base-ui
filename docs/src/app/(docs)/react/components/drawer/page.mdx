@@ -172,7 +172,11 @@ import { DemoDrawerSwipeArea } from './demos/swipe-area';
 
 ### Close confirmation
 
-Use `eventDetails.cancel()` in `onOpenChange` to prevent the drawer from closing when there are unsaved changes, and open a confirmation prompt instead.
+This example shows a nested confirmation dialog that opens if in-progress changes in the drawer are about to be discarded.
+
+To implement this, the drawer should be controlled. The confirmation dialog may be opened when `onOpenChange` receives a request to close and there are unsaved changes. This way, the confirmation is automatically shown when the user presses `Esc`, clicks the backdrop, clicks a close button, or dismisses the drawer with a swipe gesture.
+
+Use `eventDetails.cancel()` in `onOpenChange` to prevent the drawer from closing while the confirmation prompt is shown.
 
 ```tsx title="Close confirmation"
 <Drawer.Root
@@ -185,9 +189,9 @@ Use `eventDetails.cancel()` in `onOpenChange` to prevent the drawer from closing
 >
 ```
 
-import { DemoDrawerFormConfirmation } from './demos/form-confirmation';
+import { DemoDrawerCloseConfirmation } from './demos/close-confirmation';
 
-<DemoDrawerFormConfirmation />
+<DemoDrawerCloseConfirmation />
 
 ### Action sheet with separate destructive action
 

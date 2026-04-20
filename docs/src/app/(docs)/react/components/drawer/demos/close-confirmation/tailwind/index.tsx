@@ -7,49 +7,49 @@ import { Form } from '@base-ui/react/form';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
 type DrawerFormValues = {
-  notes: string;
+  note: string;
 };
 
 export default function ExampleDrawer() {
-  const [open, setOpen] = React.useState(false);
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
-  const [note, setNote] = React.useState('');
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [confirmationOpen, setConfirmationOpen] = React.useState(false);
+  const [draftNote, setDraftNote] = React.useState('');
   const [savedNote, setSavedNote] = React.useState('');
 
-  const isDirty = note !== savedNote;
+  const hasUnsavedChanges = draftNote !== savedNote;
 
   const handleSubmit = useStableCallback((formValues: DrawerFormValues) => {
-    setSavedNote(formValues.notes);
-    setNote(formValues.notes);
-    setOpen(false);
+    setSavedNote(formValues.note);
+    setDraftNote(formValues.note);
+    setDrawerOpen(false);
   });
 
   const handleOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: Drawer.Root.ChangeEventDetails) => {
       if (nextOpen) {
-        setOpen(true);
+        setDrawerOpen(true);
         return;
       }
 
-      if (isDirty) {
+      if (hasUnsavedChanges) {
         eventDetails.cancel();
-        setConfirmOpen(true);
+        setConfirmationOpen(true);
         return;
       }
 
-      setOpen(false);
+      setDrawerOpen(false);
     },
   );
 
   const discardChanges = useStableCallback(() => {
-    setNote(savedNote);
-    setConfirmOpen(false);
-    setOpen(false);
+    setDraftNote(savedNote);
+    setConfirmationOpen(false);
+    setDrawerOpen(false);
   });
 
   return (
     <div className="flex w-full flex-col items-center gap-6">
-      <Drawer.Root swipeDirection="right" open={open} onOpenChange={handleOpenChange}>
+      <Drawer.Root swipeDirection="right" open={drawerOpen} onOpenChange={handleOpenChange}>
         <section
           className="box-border flex min-h-[12.5rem] w-[min(100%,28rem)] flex-col gap-1.5 rounded-xl border border-gray-200 bg-gray-50 p-5 text-gray-900"
           aria-labelledby="drawer-form-summary"
@@ -84,14 +84,14 @@ export default function ExampleDrawer() {
                 </div>
 
                 <Form className="flex flex-1 flex-col gap-5" onFormSubmit={handleSubmit}>
-                  <Field.Root name="notes" className="flex flex-1 flex-col gap-1">
+                  <Field.Root name="note" className="flex flex-1 flex-col gap-1">
                     <Field.Label className="text-sm leading-5 font-bold text-gray-900">
                       Note
                     </Field.Label>
                     <Field.Control
                       render={<textarea rows={8} />}
-                      value={note}
-                      onValueChange={setNote}
+                      value={draftNote}
+                      onValueChange={setDraftNote}
                       placeholder="Write a short note..."
                       autoFocus
                       className="box-border m-0 w-full min-h-48 rounded-md border border-gray-200 bg-transparent p-3.5 font-inherit text-base font-normal text-gray-900 resize-y focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
@@ -119,7 +119,8 @@ export default function ExampleDrawer() {
         </Drawer.Portal>
       </Drawer.Root>
 
-      <AlertDialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
+      {/* Confirmation dialog */}
+      <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Backdrop className="fixed inset-0 min-h-dvh z-50 bg-black opacity-20 transition-opacity duration-150 dark:opacity-70 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 supports-[-webkit-touch-callout:none]:absolute" />
           <AlertDialog.Viewport className="fixed inset-0 z-50 flex items-center justify-center p-4">
