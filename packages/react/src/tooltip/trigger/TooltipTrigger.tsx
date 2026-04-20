@@ -143,10 +143,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
         },
         onClick(event) {
           if (closeOnClick && !store.select('open')) {
-            store.setOpen(
-              false,
-              createChangeEventDetails(REASONS.triggerPress, event.nativeEvent),
-            );
+            store.setOpen(false, createChangeEventDetails(REASONS.triggerPress, event.nativeEvent));
           }
         },
         id: thisTriggerId,

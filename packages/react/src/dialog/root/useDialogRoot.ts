@@ -2,10 +2,7 @@
 import * as React from 'react';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { mergeProps } from '../../merge-props';
-import {
-  useDismiss,
-  useSyncedFloatingRootContext,
-} from '../../floating-ui-react';
+import { useDismiss, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';

@@ -136,11 +136,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>
       {shouldRenderInteractions && (
-        <TooltipInteractions
-          store={store}
-          disabled={disabled}
-          trackCursorAxis={trackCursorAxis}
-        />
+        <TooltipInteractions store={store} disabled={disabled} trackCursorAxis={trackCursorAxis} />
       )}
       {typeof children === 'function' ? children({ payload }) : children}
     </TooltipRootContext.Provider>
