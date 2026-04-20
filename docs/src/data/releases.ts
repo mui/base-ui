@@ -14,6 +14,7 @@ export const releases: Release[] = [
     date: '2026-04-20',
     highlights: [
       'Fix `display: contents` tabbability.',
+      'Fix multi-argument event handler forwarding in `mergeProps`.',
       'Improve pointer-leave highlight handling in clipped scroll containers.',
       '`date-fns` peer dependencies are now optional.',
     ],

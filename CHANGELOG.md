@@ -8,6 +8,7 @@ _Apr 20, 2026_
 
 - Clear highlight on pointer leave when item is clipped by scroll container (#4604) by @atomiks
 - Fix `display: contents` tabbability (#4642) by @atomiks
+- Fix multi-argument event handler forwarding in `mergeProps` (#4598) by @atomiks
 - Mark `date-fns` peer dependencies as optional (#4639) by @LukasTy
 
 All contributors of this release in alphabetical order : @atomiks, @LukasTy
