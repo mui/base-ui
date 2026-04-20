@@ -19,9 +19,10 @@ function App(
   inProps: Omit<Partial<UseListNavigationProps>, 'listRef'> & {
     disableFirstItem?: boolean;
     hideFirstItem?: boolean;
+    firstItemStyle?: React.CSSProperties;
   } = {},
 ) {
-  const { disableFirstItem, hideFirstItem, ...props } = inProps;
+  const { disableFirstItem, hideFirstItem, firstItemStyle, ...props } = inProps;
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
@@ -48,29 +49,37 @@ function App(
       {open && (
         <div role="menu" {...getFloatingProps({ ref: refs.setFloating })}>
           <ul>
-            {['one', 'two', 'three'].map((string, index) => (
-              // eslint-disable-next-line
-              <li
-                data-testid={`item-${index}`}
-                aria-selected={activeIndex === index}
-                key={string}
-                style={hideFirstItem && index === 0 ? { display: 'none' } : undefined}
-                tabIndex={-1}
-                aria-disabled={
-                  (disableFirstItem && index === 0) ||
-                  (typeof props.disabledIndices === 'function'
-                    ? props.disabledIndices?.(index)
-                    : props.disabledIndices?.includes(index))
-                }
-                {...getItemProps({
-                  ref(node: HTMLLIElement) {
-                    listRef.current[index] = node;
-                  },
-                })}
-              >
-                {string}
-              </li>
-            ))}
+            {['one', 'two', 'three'].map((string, index) => {
+              let style: React.CSSProperties | undefined;
+
+              if (index === 0) {
+                style = hideFirstItem ? { display: 'none' } : firstItemStyle;
+              }
+
+              return (
+                // eslint-disable-next-line
+                <li
+                  data-testid={`item-${index}`}
+                  aria-selected={activeIndex === index}
+                  key={string}
+                  style={style}
+                  tabIndex={-1}
+                  aria-disabled={
+                    (disableFirstItem && index === 0) ||
+                    (typeof props.disabledIndices === 'function'
+                      ? props.disabledIndices?.(index)
+                      : props.disabledIndices?.includes(index))
+                  }
+                  {...getItemProps({
+                    ref(node: HTMLLIElement) {
+                      listRef.current[index] = node;
+                    },
+                  })}
+                >
+                  {string}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
@@ -266,6 +275,21 @@ describe('useListNavigation', () => {
 
   it('skips items hidden with CSS in navigation', async () => {
     render(<App hideFirstItem loopFocus disabledIndices={[]} />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId('item-1')).toHaveFocus();
+    });
+
+    fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-2')).toHaveFocus();
+    });
+  });
+
+  it('skips visibility:hidden items in navigation', async () => {
+    render(<App firstItemStyle={{ visibility: 'hidden' }} loopFocus disabledIndices={[]} />);
 
     fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
     expect(screen.getByRole('menu')).toBeInTheDocument();
