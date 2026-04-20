@@ -5,22 +5,25 @@ import { InteractionType, useEnhancedClickHandler } from '@base-ui/utils/useEnha
 import { isIOS } from '@base-ui/utils/detectBrowser';
 import { useValueChanged } from '../internals/useValueChanged';
 
+function normalizeInteractionType(interactionType: InteractionType) {
+  return (
+    interactionType ||
+    // On iOS Safari, the hitslop around touch targets means tapping outside an element's
+    // bounds does not fire `pointerdown` but does fire `mousedown`.
+    (isIOS ? 'touch' : '')
+  );
+}
+
 export function useOpenMethodTriggerProps(
   open: boolean | (() => boolean),
   setOpenMethod: (interactionType: InteractionType | null) => void,
 ) {
   const handleTriggerClick = useStableCallback(
-    (_: React.MouseEvent, interactionType: InteractionType) => {
+    (_: React.MouseEvent | React.PointerEvent, interactionType: InteractionType) => {
       const isOpen = typeof open === 'function' ? open() : open;
 
       if (!isOpen) {
-        setOpenMethod(
-          interactionType ||
-            // On iOS Safari, the hitslop around touch targets means tapping outside an element's
-            // bounds does not fire `pointerdown` but does fire `mousedown`. The `interactionType`
-            // will be "" in that case.
-            (isIOS ? 'touch' : ''),
-        );
+        setOpenMethod(normalizeInteractionType(interactionType));
       }
     },
   );

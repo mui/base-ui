@@ -223,11 +223,16 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     open: isOpenedByThisTrigger,
   };
 
+  const interactionTypeProps = useOpenMethodTriggerProps(store.select('open'), (interactionType) => {
+    store.set('openMethod', interactionType);
+  });
+
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
     localInteractionProps.getReferenceProps(),
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
+    interactionTypeProps,
     {
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
