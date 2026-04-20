@@ -133,7 +133,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     [forceUnmount, handleImperativeClose],
   );
 
-  const shouldRenderInteractions = open || mounted;
+  const shouldRenderInteractions = open || mounted || (!disabled && trackCursorAxis !== 'none');
 
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>

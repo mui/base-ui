@@ -442,7 +442,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     onTypingChange,
   });
 
-  const hasTriggerWithoutId = open && activeTriggerId == null;
+  const hasTriggerWithoutId =
+    open && activeTriggerId == null && store.context.triggerElements.size === 1;
 
   const activeTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(

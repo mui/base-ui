@@ -1122,5 +1122,39 @@ describe('<MenuRoot />', () => {
 
       expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
+
+    it('does not mark multiple controlled triggers as expanded when no active trigger is set', async () => {
+      const menuHandle = Menu.createHandle();
+
+      await render(
+        <div>
+          <Menu.Trigger handle={menuHandle}>Trigger 1</Menu.Trigger>
+          <Menu.Trigger handle={menuHandle}>Trigger 2</Menu.Trigger>
+          <Menu.Root handle={menuHandle} open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      const triggers = [trigger1, trigger2];
+      const expandedTriggerCount = triggers.filter(
+        (trigger) => trigger.getAttribute('aria-expanded') === 'true',
+      ).length;
+      const controlsTriggerCount = triggers.filter(
+        (trigger) => trigger.getAttribute('aria-controls') != null,
+      ).length;
+
+      expect(expandedTriggerCount).toBeLessThanOrEqual(1);
+      expect(controlsTriggerCount).toBeLessThanOrEqual(1);
+    });
   });
 });

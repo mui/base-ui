@@ -65,7 +65,7 @@ export function shouldCurrentTriggerOwnOpenPopup({
   activeTriggerId: string | null;
   triggerCount: number;
 }) {
-  return open && (isOpenedByThisTrigger || activeTriggerId == null || triggerCount === 1);
+  return open && (isOpenedByThisTrigger || (activeTriggerId == null && triggerCount === 1));
 }
 
 /**
