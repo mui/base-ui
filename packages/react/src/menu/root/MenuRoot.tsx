@@ -130,9 +130,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   const open = store.useState('open');
+  const mounted = store.useState('mounted');
   const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
-  const popupElement = store.useState('popupElement');
+  const popupId = store.useState('popupId');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
@@ -459,11 +460,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       {
         'aria-haspopup': 'menu' as const,
         'aria-expanded': open,
-        'aria-controls': open ? popupElement?.id : undefined,
+        'aria-controls': open ? popupId : undefined,
       },
     );
     return mergedProps;
-  }, [getReferenceProps, open, popupElement, store]);
+  }, [getReferenceProps, open, popupId, store]);
 
   const inactiveTriggerProps = React.useMemo(() => {
     const triggerProps = getTriggerProps();
@@ -474,10 +475,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     const mergedProps = mergeProps(triggerProps, {
       'aria-haspopup': 'menu' as const,
       'aria-expanded': hasTriggerWithoutId,
-      'aria-controls': hasTriggerWithoutId ? popupElement?.id : undefined,
+      'aria-controls': hasTriggerWithoutId ? popupId : undefined,
     });
     return mergedProps;
-  }, [getTriggerProps, hasTriggerWithoutId, popupElement]);
+  }, [getTriggerProps, hasTriggerWithoutId, popupId]);
 
   const shouldSyncPopupProps = open || mounted;
   const popupProps = React.useMemo(
