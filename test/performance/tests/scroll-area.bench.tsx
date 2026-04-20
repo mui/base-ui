@@ -4,7 +4,7 @@ import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 import styles from './styles/scroll-area.module.css';
 
-const scrollAreaRows = createRows(300, 'Scroll area');
+const scrollAreaRows = createRows(150, 'Scroll area');
 
 function ScrollAreaMountList() {
   return (

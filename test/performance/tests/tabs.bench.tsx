@@ -4,7 +4,7 @@ import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 import styles from './styles/tabs.module.css';
 
-const tabsRows = createRows(200, 'Tabs');
+const tabsRows = createRows(100, 'Tabs');
 const tabValues = ['overview', 'details', 'activity'] as const;
 
 function TabsMountList() {

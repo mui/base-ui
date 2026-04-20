@@ -4,7 +4,7 @@ import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 import styles from './styles/popover.module.css';
 
-const popoverRows = createRows(300, 'Popover');
+const popoverRows = createRows(150, 'Popover');
 
 function PopoverMountList() {
   return (

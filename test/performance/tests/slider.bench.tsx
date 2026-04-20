@@ -4,7 +4,7 @@ import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 import styles from './styles/slider.module.css';
 
-const sliderRows = createRows(300, 'Slider');
+const sliderRows = createRows(150, 'Slider');
 
 function SliderMountList() {
   return (
