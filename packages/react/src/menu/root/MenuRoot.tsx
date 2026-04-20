@@ -36,6 +36,7 @@ import {
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
+  usePopupId,
   usePopupRootSync,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
@@ -157,12 +158,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const mounted = store.useState('mounted');
   const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
-  const popupElement = store.useState('popupElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const parent = store.useState('parent');
+  const popupId = usePopupId(store);
 
   const activeIndex = store.useState('activeIndex');
   const payload = store.useState('payload') as Payload | undefined;
@@ -458,11 +459,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       {
         'aria-haspopup': 'menu' as const,
         'aria-expanded': open,
-        'aria-controls': open ? popupElement?.id : undefined,
+        'aria-controls': open ? popupId : undefined,
       },
     );
     return mergedProps;
-  }, [dismiss.reference, listNavigation.reference, typeahead.reference, open, popupElement, store]);
+  }, [dismiss.reference, listNavigation.reference, typeahead.reference, open, popupId, store]);
 
   const inactiveTriggerProps = React.useMemo(() => {
     const triggerProps = mergeProps(listNavigation.trigger, dismiss.trigger);
@@ -473,10 +474,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     const mergedProps = mergeProps(triggerProps, {
       'aria-haspopup': 'menu' as const,
       'aria-expanded': hasTriggerWithoutId,
-      'aria-controls': hasTriggerWithoutId ? popupElement?.id : undefined,
+      'aria-controls': hasTriggerWithoutId ? popupId : undefined,
     });
     return mergedProps;
-  }, [dismiss.trigger, listNavigation.trigger, hasTriggerWithoutId, popupElement]);
+  }, [dismiss.trigger, listNavigation.trigger, hasTriggerWithoutId, popupId]);
 
   const popupProps = React.useMemo(
     () =>

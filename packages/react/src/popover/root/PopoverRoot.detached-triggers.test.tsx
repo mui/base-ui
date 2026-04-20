@@ -260,6 +260,36 @@ describe('<Popover.Root />', () => {
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
+    it('keeps a custom popup id synchronized to the active trigger', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Trigger 1</Popover.Trigger>
+          <Popover.Trigger>Trigger 2</Popover.Trigger>
+
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup id="custom-popover-id">Popover Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+
+      const popup = await screen.findByRole('dialog');
+      expect(popup).toHaveAttribute('id', 'custom-popover-id');
+      expect(trigger1).toHaveAttribute('aria-controls', 'custom-popover-id');
+      expect(trigger2).not.toHaveAttribute('aria-controls');
+
+      await user.click(trigger2);
+
+      expect(trigger2).toHaveAttribute('aria-controls', 'custom-popover-id');
+      expect(trigger1).not.toHaveAttribute('aria-controls');
+    });
+
     it('allows setting an initially open popover', async () => {
       const testPopover = Popover.createHandle<number>();
       await render(

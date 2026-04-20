@@ -54,6 +54,16 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
   );
 }
 
+export function usePopupId<State extends PopupStoreState<any>>(
+  store: ReactStore<State, PopupStoreContext<any>, PopupStoreSelectors>,
+) {
+  const popupElement = store.useState('popupElement');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingId = floatingRootContext.useState('floatingId');
+
+  return popupElement?.id ?? floatingId;
+}
+
 export function shouldCurrentTriggerOwnOpenPopup({
   open,
   isOpenedByThisTrigger,

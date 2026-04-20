@@ -17,7 +17,11 @@ import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
-import { shouldCurrentTriggerOwnOpenPopup, useTriggerDataForwarding } from '../../utils/popups';
+import {
+  shouldCurrentTriggerOwnOpenPopup,
+  usePopupId,
+  useTriggerDataForwarding,
+} from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
@@ -60,7 +64,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const popupElement = store.useState('popupElement');
+  const popupId = usePopupId(store);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -147,7 +151,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
         id: thisTriggerId,
         'aria-haspopup': 'dialog' as const,
         'aria-expanded': isOpenedByThisTrigger,
-        'aria-controls': controlsPopup ? popupElement?.id : undefined,
+        'aria-controls': controlsPopup ? popupId : undefined,
       },
       elementProps,
       getButtonProps,

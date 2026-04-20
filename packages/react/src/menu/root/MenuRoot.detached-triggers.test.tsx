@@ -1156,5 +1156,39 @@ describe('<MenuRoot />', () => {
       expect(expandedTriggerCount).toBeLessThanOrEqual(1);
       expect(controlsTriggerCount).toBeLessThanOrEqual(1);
     });
+
+    it('keeps a custom popup id synchronized to the active trigger', async () => {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Trigger 1</Menu.Trigger>
+          <Menu.Trigger>Trigger 2</Menu.Trigger>
+
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup id="custom-menu-id">
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+
+      const menu = await screen.findByRole('menu');
+      expect(menu).toHaveAttribute('id', 'custom-menu-id');
+      expect(trigger1).toHaveAttribute('aria-controls', 'custom-menu-id');
+      expect(trigger2).not.toHaveAttribute('aria-controls');
+
+      await user.click(trigger2);
+
+      await waitFor(() => {
+        expect(trigger2).toHaveAttribute('aria-controls', 'custom-menu-id');
+        expect(trigger1).not.toHaveAttribute('aria-controls');
+      });
+    });
   });
 });

@@ -7,7 +7,11 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { DialogHandle } from '../store/DialogHandle';
-import { shouldCurrentTriggerOwnOpenPopup, useTriggerDataForwarding } from '../../utils/popups';
+import {
+  shouldCurrentTriggerOwnOpenPopup,
+  usePopupId,
+  useTriggerDataForwarding,
+} from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useClick } from '../../floating-ui-react';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
@@ -47,7 +51,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   const activeTriggerId = store.useState('activeTriggerId');
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const popupElement = store.useState('popupElement');
+  const popupId = usePopupId(store);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -95,7 +99,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
         id: thisTriggerId,
         'aria-haspopup': 'dialog' as const,
         'aria-expanded': isOpenedByThisTrigger,
-        'aria-controls': controlsPopup ? popupElement?.id : undefined,
+        'aria-controls': controlsPopup ? popupId : undefined,
       },
       elementProps,
       getButtonProps,

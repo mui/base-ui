@@ -163,6 +163,34 @@ describe('<Dialog.Root />', () => {
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
+    it('keeps a custom popup id synchronized to the active trigger', async () => {
+      const { user } = await render(
+        <Dialog.Root>
+          <Dialog.Trigger>Trigger 1</Dialog.Trigger>
+          <Dialog.Trigger>Trigger 2</Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Popup id="custom-dialog-id">Dialog Content</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+
+      const dialog = await screen.findByRole('dialog');
+      expect(dialog).toHaveAttribute('id', 'custom-dialog-id');
+      expect(trigger1).toHaveAttribute('aria-controls', 'custom-dialog-id');
+      expect(trigger2).not.toHaveAttribute('aria-controls');
+
+      await user.click(trigger2);
+
+      expect(trigger2).toHaveAttribute('aria-controls', 'custom-dialog-id');
+      expect(trigger1).not.toHaveAttribute('aria-controls');
+    });
+
     it('sets the payload when opening programmatically with a controlled triggerId', async () => {
       function App() {
         const [open, setOpen] = React.useState(false);
