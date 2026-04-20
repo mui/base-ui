@@ -3,6 +3,7 @@ import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
@@ -12,6 +13,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  useFloatingRootContextSync,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -167,9 +169,12 @@ export class MenuStore<Payload> extends ReactStore<
     });
   }
 
-  setOpen(open: boolean, eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>) {
+  setOpen = (
+    open: boolean,
+    eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
+  ) => {
     this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
-  }
+  };
 
   public static useStore<Payload>(
     externalStore: MenuStore<Payload> | undefined,
@@ -180,7 +185,20 @@ export class MenuStore<Payload> extends ReactStore<
       return new MenuStore<Payload>(initialState);
     }).current;
 
-    return externalStore ?? internalStore;
+    const store = externalStore ?? internalStore;
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const floatingRootContext = useSyncedFloatingRootContext({
+      popupStore: store,
+      onOpenChange: store.setOpen,
+    });
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useFloatingRootContextSync(store, floatingRootContext, {
+      notifyOnChange: externalStore != null,
+    });
+
+    return store;
   }
 
   private unsubscribeParentListener: (() => void) | null = null;

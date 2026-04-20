@@ -16,7 +16,6 @@ import {
   useFloatingRootContext,
   useFloatingTree,
   useHoverReferenceInteraction,
-  useInteractions,
 } from '../../floating-ui-react';
 import {
   applySafePolygonPointerEventsMutation,
@@ -54,6 +53,7 @@ import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
+import { mergeProps } from '../../merge-props';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
@@ -627,7 +627,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     stickIfOpen,
     toggle: isActiveItem,
   });
-  const { getReferenceProps } = useInteractions([hover, click]);
+  const referenceProps = React.useMemo(
+    () => mergeProps(click.reference, hover?.reference),
+    [click.reference, hover?.reference],
+  );
 
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
@@ -805,7 +808,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, handleTriggerElement, buttonRef]}
         props={[
-          getReferenceProps,
+          referenceProps,
           dismissProps?.reference || EMPTY_ARRAY,
           defaultProps,
           elementProps,

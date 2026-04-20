@@ -122,7 +122,9 @@ export const SelectItem = React.memo(
     });
 
     const rootProps = getItemProps({ active: highlighted, selected });
-    rootProps.id = undefined;
+    if ('id' in rootProps) {
+      rootProps.id = undefined;
+    }
 
     const state: SelectItemState = {
       disabled,

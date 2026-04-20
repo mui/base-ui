@@ -74,7 +74,14 @@ export class TooltipStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
+    const currentOpen = this.state.openProp ?? this.state.open;
     const reason = eventDetails.reason;
+    const nextTriggerId = eventDetails.trigger?.id ?? null;
+    const currentTriggerId = this.state.activeTriggerId;
+
+    if (currentOpen === nextOpen && (!nextOpen || nextTriggerId === currentTriggerId)) {
+      return;
+    }
 
     const isHover = reason === REASONS.triggerHover;
     const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;

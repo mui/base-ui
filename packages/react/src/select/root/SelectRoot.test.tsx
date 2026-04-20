@@ -4206,7 +4206,12 @@ describe('<Select.Root />', () => {
       );
 
       const optionA = screen.getByRole('option', { name: 'a' });
+      const popup = screen.getByRole('listbox');
       await user.hover(optionA);
+
+      await waitFor(() => {
+        expect(popup).toHaveFocus();
+      });
 
       await user.keyboard('{ArrowDown}');
 
@@ -4214,7 +4219,6 @@ describe('<Select.Root />', () => {
         expect(optionA).toHaveAttribute('data-highlighted');
       });
 
-      const popup = screen.getByRole('listbox');
       await user.unhover(popup);
 
       await waitFor(() => {

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { act, render } from '@testing-library/react';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -12,6 +13,7 @@ import {
   popupStoreSelectors,
   useImplicitActiveTrigger,
   usePopupInteractionProps,
+  usePopupRootSync,
   useTriggerRegistration,
 } from './';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
@@ -20,6 +22,24 @@ import type { BaseUIChangeEventDetails } from '../../types';
 function createStore() {
   return new ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>(
     createInitialPopupStoreState(),
+    {
+      triggerElements: new PopupTriggerMap(),
+      popupRef: React.createRef<HTMLElement | null>(),
+      onOpenChangeComplete: undefined,
+    },
+    popupStoreSelectors,
+  );
+}
+
+type SyncState = PopupStoreState<unknown> & { openMethod: InteractionType | null };
+
+function createSyncStore(initialState: Partial<SyncState> = {}) {
+  return new ReactStore<SyncState, PopupStoreContext<unknown>, PopupStoreSelectors>(
+    {
+      ...createInitialPopupStoreState(),
+      openMethod: null,
+      ...initialState,
+    },
     {
       triggerElements: new PopupTriggerMap(),
       popupRef: React.createRef<HTMLElement | null>(),
@@ -101,6 +121,17 @@ function PopupInteractionPropsTest({
     popupProps,
   });
 
+  return null;
+}
+
+function PopupRootSyncTest({
+  store,
+  open,
+}: {
+  store: ReactStore<SyncState, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  open: boolean;
+}) {
+  usePopupRootSync(store, open);
   return null;
 }
 
@@ -316,5 +347,31 @@ describe('usePopupInteractionProps', () => {
     expect(store.state.inactiveTriggerProps).toEqual({});
     expect(store.state.popupProps).not.toBe(popupProps);
     expect(store.state.popupProps).toEqual({});
+  });
+});
+
+describe('usePopupRootSync', () => {
+  it('clears openMethod after the popup closes', () => {
+    const store = createSyncStore({ openMethod: 'touch' });
+
+    const { rerender } = render(<PopupRootSyncTest store={store} open />);
+
+    expect(store.state.openMethod).toBe('touch');
+
+    rerender(<PopupRootSyncTest store={store} open={false} />);
+
+    expect(store.state.openMethod).toBe(null);
+  });
+
+  it('clears openMethod when the popup root unmounts', () => {
+    const store = createSyncStore({ openMethod: 'touch' });
+
+    const { unmount } = render(<PopupRootSyncTest store={store} open />);
+
+    expect(store.state.openMethod).toBe('touch');
+
+    unmount();
+
+    expect(store.state.openMethod).toBe(null);
   });
 });

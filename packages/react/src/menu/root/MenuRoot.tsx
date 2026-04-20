@@ -35,6 +35,7 @@ import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
   PayloadChildRenderFunction,
+  useFloatingRootContextSync,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
@@ -342,10 +343,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     nested: floatingParentNodeIdFromContext != null,
     onOpenChange: setOpen,
   });
+  useFloatingRootContextSync(store, floatingRootContext, {
+    notifyOnChange: handle?.store != null,
+  });
 
   const floatingEvents = floatingRootContext.context.events;
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     const handleSetOpenEvent = ({
       open: nextOpen,
       eventDetails,

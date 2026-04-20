@@ -14,10 +14,10 @@ import {
   ElementProps,
   useDismiss,
   useFloatingRootContext,
-  useInteractions,
   useListNavigation,
   useClick,
 } from '../../floating-ui-react';
+import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
@@ -45,6 +45,7 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
+import { mergeProps } from '../../merge-props';
 import {
   stringifyAsLabel,
   stringifyAsValue,
@@ -59,6 +60,11 @@ import {
   selectedValueIncludes,
 } from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
+
+type ItemUserProps = Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & {
+  active?: boolean | undefined;
+  selected?: boolean | undefined;
+};
 
 /**
  * @internal
@@ -1091,18 +1097,48 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-    role,
-    click,
-    dismiss,
-    listNavigation,
-  ]);
+  const inputProps = React.useMemo(
+    () =>
+      mergeProps(
+        listNavigation.reference,
+        dismiss.reference,
+        click.reference,
+        role.reference,
+      ),
+    [click.reference, dismiss.reference, listNavigation.reference, role.reference],
+  );
+
+  const popupProps = React.useMemo(
+    () =>
+      mergeProps(
+        { tabIndex: -1, [FOCUSABLE_ATTRIBUTE]: '' },
+        listNavigation.floating,
+        dismiss.floating,
+        role.floating,
+      ),
+    [dismiss.floating, listNavigation.floating, role.floating],
+  );
+
+  const getItemProps = React.useCallback(
+    (userProps?: ItemUserProps) => {
+      if (typeof listNavigation.item === 'function') {
+        return { ...listNavigation.item(userProps ?? {}) };
+      }
+
+      if (listNavigation.item) {
+        return { ...listNavigation.item };
+      }
+
+      return EMPTY_OBJECT;
+    },
+    [listNavigation],
+  );
 
   useOnFirstRender(() => {
     store.update({
       inline: inlineProp,
-      popupProps: getFloatingProps(),
-      inputProps: getReferenceProps(),
+      popupProps,
+      inputProps,
       triggerProps,
       getItemProps,
       setOpen,
@@ -1125,8 +1161,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       transitionStatus,
       items,
       inline: inlineProp,
-      popupProps: getFloatingProps(),
-      inputProps: getReferenceProps(),
+      popupProps,
+      inputProps,
       triggerProps,
       openMethod,
       getItemProps,
@@ -1158,8 +1194,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     mounted,
     transitionStatus,
     items,
-    getFloatingProps,
-    getReferenceProps,
+    popupProps,
+    inputProps,
     getItemProps,
     openMethod,
     triggerProps,
