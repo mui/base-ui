@@ -7,6 +7,7 @@ import { REASONS } from '../../internals/reasons';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -51,12 +52,14 @@ export class TooltipStore<Payload> extends ReactStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
+    floatingRootContextOptions?: PopupFloatingRootContextOptions,
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
-    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+    state.floatingRootContext = createPopupFloatingRootContext(
+      triggerElements,
+      floatingRootContextOptions,
+    );
 
     super(
       state,
@@ -140,7 +143,7 @@ export class TooltipStore<Payload> extends ReactStore<
     /* eslint-disable react-hooks/rules-of-hooks */
     const store = usePopupStore(
       externalStore,
-      (floatingId, nested) => new TooltipStore<Payload>(initialState, floatingId, nested),
+      (floatingId, nested) => new TooltipStore<Payload>(initialState, { floatingId, nested }),
     ).store;
     /* eslint-enable react-hooks/rules-of-hooks */
 

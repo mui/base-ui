@@ -10,6 +10,7 @@ import { REASONS } from '../../internals/reasons';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -86,8 +87,7 @@ export class PopoverStore<Payload> extends ReactStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
+    floatingRootContextOptions?: PopupFloatingRootContextOptions,
   ) {
     const initial = { ...createInitialState<Payload>(), ...initialState };
     const triggerElements = new PopupTriggerMap();
@@ -98,8 +98,7 @@ export class PopoverStore<Payload> extends ReactStore<
 
     initial.floatingRootContext = createPopupFloatingRootContext(
       triggerElements,
-      floatingId,
-      nested,
+      floatingRootContextOptions,
     );
 
     super(
@@ -195,7 +194,7 @@ export class PopoverStore<Payload> extends ReactStore<
   ) {
     const { store, internalStore } = usePopupStore(
       externalStore,
-      (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
+      (floatingId, nested) => new PopoverStore<Payload>(initialState, { floatingId, nested }),
     );
 
     React.useEffect(() => internalStore?.disposeEffect(), [internalStore]);

@@ -11,6 +11,7 @@ import { HTMLProps } from '../../internals/types';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -114,10 +115,7 @@ export class MenuStore<Payload> extends ReactStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingRootContextOptions?: {
-      floatingId?: string;
-      nested?: boolean;
-    },
+    floatingRootContextOptions?: PopupFloatingRootContextOptions,
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
