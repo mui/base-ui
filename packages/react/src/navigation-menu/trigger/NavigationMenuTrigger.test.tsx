@@ -45,9 +45,7 @@ function TestNavigationMenuRapidHoverSizing() {
   );
 }
 
-function getPopupWidthCalls(
-  calls: Array<[property: string, value: string, priority?: string]>,
-) {
+function getPopupWidthCalls(calls: Array<[property: string, value: string, priority?: string]>) {
   return calls.filter((call) => call[0] === '--popup-width').map((call) => call[1]);
 }
 
