@@ -12,12 +12,7 @@ export const releases: Release[] = [
     version: 'v1.4.1',
     versionSlug: 'v1-4-1',
     date: '2026-04-20',
-    highlights: [
-      'Fix `display: contents` tabbability.',
-      'Fix multi-argument event handler forwarding in `mergeProps`.',
-      'Improve pointer-leave highlight handling in clipped scroll containers.',
-      '`date-fns` peer dependencies are now optional.',
-    ],
+    highlights: ['Fix package installation errors and regressions.'],
   },
   {
     version: 'v1.4.0',
