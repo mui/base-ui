@@ -610,9 +610,10 @@ describe('<Popover.Root />', () => {
 
           const comboboxInput = screen.getByTestId('combobox-input');
           await user.click(comboboxInput);
-          await flushMicrotasks();
-
-          expect(screen.getByRole('listbox')).toBeVisible();
+          await screen.findByRole('listbox');
+          await waitFor(() => {
+            expect(comboboxInput).toHaveFocus();
+          });
 
           const trigger = screen.getByTestId('trigger');
           expect(trigger).not.toHaveAttribute('aria-hidden', 'true');
