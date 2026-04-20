@@ -45,6 +45,12 @@ function TestNavigationMenuRapidHoverSizing() {
   );
 }
 
+function getPopupWidthCalls(
+  calls: Array<[property: string, value: string, priority?: string]>,
+) {
+  return calls.filter((call) => call[0] === '--popup-width').map((call) => call[1]);
+}
+
 describe('<NavigationMenu.Trigger />', () => {
   const { render } = createRenderer();
 
@@ -276,31 +282,36 @@ describe('<NavigationMenu.Trigger />', () => {
 
       const popupRoot = await screen.findByTestId('popup-root');
       const setPropertySpy = vi.spyOn(popupRoot.style, 'setProperty');
+      const getWidthCallsSince = (startIndex = 0) =>
+        getPopupWidthCalls(
+          setPropertySpy.mock.calls.slice(startIndex) as Array<
+            [property: string, value: string, priority?: string]
+          >,
+        );
 
-      await act(async () => {
-        await new Promise<void>((resolve) => {
-          setTimeout(resolve, 80);
-        });
+      await waitFor(() => {
+        expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('700px');
       });
+
+      const callsBeforeSolutionsHover = setPropertySpy.mock.calls.length;
 
       await user.hover(screen.getByRole('button', { name: 'Solutions' }));
 
-      await act(async () => {
-        await new Promise<void>((resolve) => {
-          setTimeout(resolve, 200);
-        });
+      await waitFor(() => {
+        expect(screen.getByText('Solutions panel')).toBeVisible();
       });
 
-      const popupWidthCalls = (
-        setPropertySpy.mock.calls as Array<[property: string, value: string, priority?: string]>
-      )
-        .filter((call) => call[0] === '--popup-width')
-        .map((call) => call[1]);
+      await waitFor(() => {
+        const popupWidthCallsAfterSwitch = getWidthCallsSince(callsBeforeSolutionsHover);
+        const solutionsWidthIndex = popupWidthCallsAfterSwitch.indexOf('500px');
 
-      const solutionsWidthIndex = popupWidthCalls.indexOf('500px');
+        expect(solutionsWidthIndex).toBeGreaterThan(-1);
+        expect(popupWidthCallsAfterSwitch.slice(solutionsWidthIndex + 1)).not.toContain('700px');
+      });
 
-      expect(solutionsWidthIndex).toBeGreaterThan(-1);
-      expect(popupWidthCalls.slice(solutionsWidthIndex + 1)).not.toContain('700px');
+      await waitFor(() => {
+        expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+      });
 
       setPropertySpy.mockRestore();
     },
