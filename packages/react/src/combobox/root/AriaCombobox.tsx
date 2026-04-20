@@ -1098,13 +1098,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const inputProps = React.useMemo(
-    () =>
-      mergeProps(
-        listNavigation.reference,
-        dismiss.reference,
-        click.reference,
-        role.reference,
-      ),
+    () => mergeProps(listNavigation.reference, dismiss.reference, click.reference, role.reference),
     [click.reference, dismiss.reference, listNavigation.reference, role.reference],
   );
 

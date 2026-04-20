@@ -15,7 +15,6 @@ import {
   useInteractions,
   useListNavigation,
   useTypeahead,
-  useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
@@ -35,7 +34,6 @@ import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
   PayloadChildRenderFunction,
-  useFloatingRootContextSync,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
@@ -127,7 +125,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const rootId = useId();
-  const floatingId = useId();
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
@@ -337,15 +334,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     },
   );
 
-  const floatingRootContext = useSyncedFloatingRootContext({
-    popupStore: store,
-    floatingId,
-    nested: floatingParentNodeIdFromContext != null,
-    onOpenChange: setOpen,
-  });
-  useFloatingRootContextSync(store, floatingRootContext, {
-    notifyOnChange: handle?.store != null,
-  });
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const floatingEvents = floatingRootContext.context.events;
 

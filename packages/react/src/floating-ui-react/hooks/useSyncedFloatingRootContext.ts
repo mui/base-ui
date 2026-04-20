@@ -1,8 +1,7 @@
 'use client';
-import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { ReactStore } from '@base-ui/utils/store';
 import { isElement } from '@floating-ui/utils/dom';
+import { ReactStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { BaseUIChangeEventDetails } from '../../types';
 import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
 import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
@@ -17,15 +16,14 @@ export interface UseSyncedFloatingRootContextOptions<
    * Whether the Popup element is passed to Floating UI as the floating element instead of the default Positioner.
    */
   treatPopupAsFloatingElement?: boolean | undefined;
-  floatingRootContext?: FloatingRootStore | undefined;
+  floatingRootContext: FloatingRootStore;
   floatingId: string | undefined;
   nested: boolean;
   onOpenChange(open: boolean, eventDetails: OpenChangeEventDetails): void;
 }
 
 /**
- * Keeps a FloatingRootStore in sync with the provided PopupStore.
- * Uses the provided FloatingRootStore when one exists, otherwise creates one once and updates it on every render.
+ * Synchronizes popup-backed floating root state after commit.
  */
 export function useSyncedFloatingRootContext<
   State extends PopupStoreState<unknown>,
@@ -37,7 +35,7 @@ export function useSyncedFloatingRootContext<
   const {
     popupStore,
     treatPopupAsFloatingElement = false,
-    floatingRootContext: floatingRootContextProp,
+    floatingRootContext,
     floatingId,
     nested,
     onOpenChange,
@@ -48,29 +46,6 @@ export function useSyncedFloatingRootContext<
   const floatingElement = popupStore.useState(
     treatPopupAsFloatingElement ? 'popupElement' : 'positionerElement',
   );
-  const triggerElements = popupStore.context.triggerElements;
-
-  const handleOpenChange = onOpenChange as (
-    open: boolean,
-    eventDetails: BaseUIChangeEventDetails<string>,
-  ) => void;
-
-  const internalStoreRef = React.useRef<FloatingRootStore | null>(null);
-  if (floatingRootContextProp === undefined && internalStoreRef.current === null) {
-    internalStoreRef.current = new FloatingRootStore({
-      open,
-      transitionStatus: undefined,
-      referenceElement,
-      floatingElement,
-      triggerElements,
-      onOpenChange: handleOpenChange,
-      floatingId,
-      syncOnly: true,
-      nested,
-    });
-  }
-
-  const store = floatingRootContextProp ?? internalStoreRef.current!;
 
   popupStore.useSyncedValue('floatingId', floatingId as State['floatingId']);
 
@@ -86,16 +61,27 @@ export function useSyncedFloatingRootContext<
       valuesToSync.domReferenceElement = referenceElement;
     }
 
-    if (store.state.positionReference === store.state.referenceElement) {
+    if (
+      floatingRootContext.state.positionReference === floatingRootContext.state.referenceElement
+    ) {
       valuesToSync.positionReference = referenceElement;
     }
 
-    store.update(valuesToSync);
-  }, [open, floatingId, referenceElement, floatingElement, store]);
+    floatingRootContext.update(valuesToSync);
+    floatingRootContext.context.onOpenChange = onOpenChange as (
+      open: boolean,
+      eventDetails: BaseUIChangeEventDetails<string>,
+    ) => void;
+    floatingRootContext.context.nested = nested;
+  }, [
+    open,
+    floatingId,
+    referenceElement,
+    floatingElement,
+    floatingRootContext,
+    nested,
+    onOpenChange,
+  ]);
 
-  // Keep non-reactive context values fresh for interactions that call `store.setOpen`.
-  store.context.onOpenChange = handleOpenChange;
-  store.context.nested = nested;
-
-  return store;
+  return floatingRootContext;
 }

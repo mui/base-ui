@@ -103,11 +103,21 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
   };
 }
 
+export interface PopupFloatingRootContextOptions {
+  floatingId?: string | undefined;
+  nested?: boolean | undefined;
+}
+
 export function createPopupFloatingRootContext(
   triggerElements: PopupTriggerMap,
-  floatingId?: string | undefined,
-  nested = false,
+  optionsOrFloatingId: PopupFloatingRootContextOptions | string | undefined = {},
+  nestedArg = false,
 ) {
+  const { floatingId, nested } =
+    typeof optionsOrFloatingId === 'object'
+      ? { floatingId: optionsOrFloatingId.floatingId, nested: optionsOrFloatingId.nested ?? false }
+      : { floatingId: optionsOrFloatingId, nested: nestedArg };
+
   return new FloatingRootStore({
     open: false,
     transitionStatus: undefined,

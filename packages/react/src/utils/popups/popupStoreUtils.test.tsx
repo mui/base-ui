@@ -6,6 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import {
   createInitialPopupStoreState,
+  createPopupFloatingRootContext,
   PopupStoreContext,
   PopupStoreState,
   PopupStoreSelectors,
@@ -20,10 +21,14 @@ import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import type { BaseUIChangeEventDetails } from '../../types';
 
 function createStore() {
+  const triggerElements = new PopupTriggerMap();
   return new ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>(
-    createInitialPopupStoreState(),
     {
-      triggerElements: new PopupTriggerMap(),
+      ...createInitialPopupStoreState(),
+      floatingRootContext: createPopupFloatingRootContext(triggerElements),
+    },
+    {
+      triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
     },
@@ -34,14 +39,16 @@ function createStore() {
 type SyncState = PopupStoreState<unknown> & { openMethod: InteractionType | null };
 
 function createSyncStore(initialState: Partial<SyncState> = {}) {
+  const triggerElements = new PopupTriggerMap();
   return new ReactStore<SyncState, PopupStoreContext<unknown>, PopupStoreSelectors>(
     {
       ...createInitialPopupStoreState(),
+      floatingRootContext: createPopupFloatingRootContext(triggerElements),
       openMethod: null,
       ...initialState,
     },
     {
-      triggerElements: new PopupTriggerMap(),
+      triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
     },

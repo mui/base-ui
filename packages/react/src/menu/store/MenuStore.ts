@@ -1,19 +1,20 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useId } from '@base-ui/utils/useId';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import { useFloatingParentNodeId, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
 import {
+  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  useFloatingRootContextSync,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -111,9 +112,22 @@ export class MenuStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  constructor(initialState?: Partial<State<Payload>>) {
+  constructor(
+    initialState?: Partial<State<Payload>>,
+    floatingRootContextOptions?: {
+      floatingId?: string;
+      nested?: boolean;
+    },
+  ) {
+    const triggerElements = new PopupTriggerMap();
+    const state = { ...createInitialState<Payload>(), ...initialState };
+    state.floatingRootContext = createPopupFloatingRootContext(
+      triggerElements,
+      floatingRootContextOptions,
+    );
+
     super(
-      { ...createInitialState(), ...initialState },
+      state,
       {
         positionerRef: React.createRef<HTMLElement | null>(),
         popupRef: React.createRef<HTMLElement | null>(),
@@ -124,7 +138,7 @@ export class MenuStore<Payload> extends ReactStore<
         triggerFocusTargetRef: React.createRef<HTMLElement>(),
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         onOpenChangeComplete: undefined,
-        triggerElements: new PopupTriggerMap(),
+        triggerElements,
       },
       selectors,
     );
@@ -173,7 +187,10 @@ export class MenuStore<Payload> extends ReactStore<
     open: boolean,
     eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
+    this.state.floatingRootContext.context.events.emit('setOpen', {
+      open,
+      eventDetails,
+    });
   };
 
   public static useStore<Payload>(
@@ -181,21 +198,24 @@ export class MenuStore<Payload> extends ReactStore<
     initialState: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    const floatingId = useId();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const nested = useFloatingParentNodeId() != null;
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const internalStore = useRefWithInit(() => {
-      return new MenuStore<Payload>(initialState);
+      return new MenuStore<Payload>(initialState, { floatingId, nested });
     }).current;
 
     const store = externalStore ?? internalStore;
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const floatingRootContext = useSyncedFloatingRootContext({
+    useSyncedFloatingRootContext({
       popupStore: store,
+      floatingRootContext: store.state.floatingRootContext,
+      floatingId,
+      nested,
       onOpenChange: store.setOpen,
-    });
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useFloatingRootContextSync(store, floatingRootContext, {
-      notifyOnChange: externalStore != null,
     });
 
     return store;
