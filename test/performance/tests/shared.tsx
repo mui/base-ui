@@ -1,4 +1,5 @@
 import * as React from 'react';
+import './styles/theme.css';
 
 export interface BenchmarkRow {
   id: number;
