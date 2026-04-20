@@ -4,7 +4,8 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
-import { useClientPoint, useDismiss, useInteractions } from '../../floating-ui-react';
+import { useClientPoint, useDismiss } from '../../floating-ui-react';
+import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -14,6 +15,7 @@ import {
   useOpenStateTransitions,
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
+import { mergeProps } from '../../merge-props';
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../internals/reasons';
@@ -163,14 +165,23 @@ function TooltipInteractions<Payload>({
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
-  const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([
-    dismiss,
-    clientPoint,
-  ]);
-
-  const activeTriggerProps = React.useMemo(() => getReferenceProps(), [getReferenceProps]);
-  const inactiveTriggerProps = React.useMemo(() => getTriggerProps(), [getTriggerProps]);
-  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
+  const activeTriggerProps = React.useMemo(
+    () => mergeProps(clientPoint.reference, dismiss.reference),
+    [clientPoint.reference, dismiss.reference],
+  );
+  const inactiveTriggerProps = React.useMemo(
+    () => mergeProps(clientPoint.trigger, dismiss.trigger),
+    [clientPoint.trigger, dismiss.trigger],
+  );
+  const popupProps = React.useMemo(
+    () =>
+      mergeProps(
+        { tabIndex: -1, [FOCUSABLE_ATTRIBUTE]: '' },
+        clientPoint.floating,
+        dismiss.floating,
+      ),
+    [clientPoint.floating, dismiss.floating],
+  );
 
   store.useSyncedValues({
     activeTriggerProps,

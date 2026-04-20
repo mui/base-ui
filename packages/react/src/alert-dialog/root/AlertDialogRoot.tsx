@@ -56,7 +56,6 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     actionsRef,
     parentContext: parentDialogRootContext?.context,
     isDrawer: false,
-    externalStore: handle?.store != null,
   });
 
   const shouldRenderInteractions = open || mounted;

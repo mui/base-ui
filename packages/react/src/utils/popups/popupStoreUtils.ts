@@ -5,14 +5,12 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import {
   PopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreSelectors,
 } from './store';
-import { useOpenInteractionType } from '../useOpenInteractionType';
 
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
@@ -54,6 +52,20 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
     },
     [store, id],
   );
+}
+
+export function shouldCurrentTriggerOwnOpenPopup({
+  open,
+  isOpenedByThisTrigger,
+  activeTriggerId,
+  triggerCount,
+}: {
+  open: boolean;
+  isOpenedByThisTrigger: boolean;
+  activeTriggerId: string | null;
+  triggerCount: number;
+}) {
+  return open && (isOpenedByThisTrigger || activeTriggerId == null || triggerCount === 1);
 }
 
 /**
@@ -202,40 +214,48 @@ export function usePopupRootSync<
   },
 >(
   store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
-  {
-    open,
-    externalStore,
-    onOpenChange,
-    treatPopupAsFloatingElement = false,
-  }: {
-    open: boolean;
-    externalStore: boolean;
-    onOpenChange: (open: boolean, eventDetails: any) => void;
-    treatPopupAsFloatingElement?: boolean | undefined;
-  },
+  { open }: { open: boolean },
 ) {
-  const floatingRootContext = useSyncedFloatingRootContext({
-    popupStore: store,
-    onOpenChange,
-    treatPopupAsFloatingElement,
-  });
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
-  const previousFloatingRootContextRef = React.useRef(store.state.floatingRootContext);
-
-  store.state.floatingRootContext = floatingRootContext;
-
-  useIsoLayoutEffect(() => {
-    if (externalStore && previousFloatingRootContextRef.current !== floatingRootContext) {
-      previousFloatingRootContextRef.current = floatingRootContext;
-      store.notifyAll();
-    }
-  }, [externalStore, floatingRootContext, store]);
-
   React.useEffect(() => {
     if (!open && store.state.openMethod !== null) {
-      store.set('openMethod', null as State['openMethod']);
+      store.set('openMethod', null);
     }
   }, [open, store]);
 
-  return { openMethod, triggerProps };
+  React.useEffect(
+    () => () => {
+      if (store.state.openMethod !== null) {
+        store.set('openMethod', null);
+      }
+    },
+    [store],
+  );
+}
+
+export function useFloatingRootContextSync<State extends PopupStoreState<any>>(
+  store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
+  floatingRootContext: State['floatingRootContext'],
+  {
+    notifyOnChange,
+  }: {
+    notifyOnChange: boolean;
+  },
+) {
+  const previousFloatingRootContextRef = React.useRef(store.state.floatingRootContext);
+
+  if (store.state.floatingRootContext !== floatingRootContext) {
+    // Keep the current render path in sync so detached triggers using a recreated handle
+    // can read the new floating context before effects run.
+    (store.state as State).floatingRootContext = floatingRootContext;
+  }
+
+  useIsoLayoutEffect(() => {
+    if (notifyOnChange && previousFloatingRootContextRef.current !== floatingRootContext) {
+      previousFloatingRootContextRef.current = floatingRootContext;
+      store.notifyAll();
+      return;
+    }
+
+    previousFloatingRootContextRef.current = floatingRootContext;
+  }, [floatingRootContext, notifyOnChange, store]);
 }

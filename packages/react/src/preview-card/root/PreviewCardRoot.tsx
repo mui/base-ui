@@ -57,8 +57,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
-  const floatingRootContext = store.select('floatingRootContext');
-
+  const floatingRootContext = store.useState('floatingRootContext');
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload') as Payload | undefined;
 

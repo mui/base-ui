@@ -15,10 +15,10 @@ import {
   useClick,
   useDismiss,
   useFloatingRootContext,
-  useInteractions,
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
+import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -37,7 +37,12 @@ import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
-import { mergeProps } from '../../merge-props';
+import { mergeProps, mergePropsN } from '../../merge-props';
+
+type ItemUserProps = Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & {
+  active?: boolean | undefined;
+  selected?: boolean | undefined;
+};
 
 /**
  * Groups all parts of the select.
@@ -378,24 +383,53 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-    click,
-    dismiss,
-    listNavigation,
-    typeahead,
+  const mergedTriggerProps = React.useMemo(() => {
+    return mergePropsN([
+      generatedId ? { id: generatedId } : EMPTY_OBJECT,
+      interactionTypeProps,
+      typeahead.reference,
+      listNavigation.reference,
+      dismiss.reference,
+      click.reference,
+    ]);
+  }, [
+    click.reference,
+    dismiss.reference,
+    generatedId,
+    interactionTypeProps,
+    listNavigation.reference,
+    typeahead.reference,
   ]);
 
-  const mergedTriggerProps = React.useMemo(() => {
-    return mergeProps(
-      getReferenceProps(),
-      interactionTypeProps,
-      generatedId ? { id: generatedId } : EMPTY_OBJECT,
-    );
-  }, [getReferenceProps, interactionTypeProps, generatedId]);
+  const popupProps = React.useMemo(
+    () =>
+      mergeProps(
+        { tabIndex: -1, [FOCUSABLE_ATTRIBUTE]: '' },
+        typeahead.floating,
+        listNavigation.floating,
+        dismiss.floating,
+      ),
+    [dismiss.floating, listNavigation.floating, typeahead.floating],
+  );
+
+  const getItemProps = React.useCallback(
+    (userProps?: ItemUserProps) => {
+      if (typeof listNavigation.item === 'function') {
+        return { ...listNavigation.item(userProps ?? {}) };
+      }
+
+      if (listNavigation.item) {
+        return { ...listNavigation.item };
+      }
+
+      return EMPTY_OBJECT;
+    },
+    [listNavigation],
+  );
 
   useOnFirstRender(() => {
     store.update({
-      popupProps: getFloatingProps(),
+      popupProps,
       triggerProps: mergedTriggerProps,
     });
   });
@@ -409,7 +443,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       open,
       mounted,
       transitionStatus,
-      popupProps: getFloatingProps(),
+      popupProps,
       triggerProps: mergedTriggerProps,
       items,
       itemToStringLabel,
@@ -426,7 +460,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     open,
     mounted,
     transitionStatus,
-    getFloatingProps,
+    popupProps,
     mergedTriggerProps,
     items,
     itemToStringLabel,

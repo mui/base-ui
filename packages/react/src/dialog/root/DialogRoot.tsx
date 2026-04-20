@@ -75,7 +75,6 @@ export const DialogRoot = fastComponent(function DialogRoot<Payload>(
     actionsRef,
     parentContext: parentDialogRootContext?.context,
     isDrawer,
-    externalStore: handle?.store != null,
   });
 
   const shouldRenderInteractions = open || mounted;

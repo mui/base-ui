@@ -4,6 +4,7 @@ import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
   createInitialPopupStoreState,
@@ -64,7 +65,14 @@ export class TooltipStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
+    const currentOpen = this.state.openProp ?? this.state.open;
     const reason = eventDetails.reason;
+    const nextTriggerId = eventDetails.trigger?.id ?? null;
+    const currentTriggerId = this.state.activeTriggerId;
+
+    if (currentOpen === nextOpen && (!nextOpen || nextTriggerId === currentTriggerId)) {
+      return;
+    }
 
     const isHover = reason === REASONS.triggerHover;
     const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
@@ -113,6 +121,13 @@ export class TooltipStore<Payload> extends ReactStore<
       changeState();
     }
   };
+
+  cancelPendingOpen(event: MouseEvent | PointerEvent) {
+    this.state.floatingRootContext.dispatchOpenChange(
+      false,
+      createChangeEventDetails(REASONS.triggerPress, event),
+    );
+  }
 
   static useStore<Payload>(
     externalStore: TooltipStore<Payload> | undefined,

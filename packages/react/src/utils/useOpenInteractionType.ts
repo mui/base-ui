@@ -10,6 +10,7 @@ function normalizeInteractionType(interactionType: InteractionType) {
     interactionType ||
     // On iOS Safari, the hitslop around touch targets means tapping outside an element's
     // bounds does not fire `pointerdown` but does fire `mousedown`.
+    // The `interactionType` will be '' in that case.
     (isIOS ? 'touch' : '')
   );
 }

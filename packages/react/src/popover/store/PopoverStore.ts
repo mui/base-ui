@@ -6,6 +6,7 @@ import { Timeout } from '@base-ui/utils/useTimeout';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { PopoverRoot } from './../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -14,6 +15,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  useFloatingRootContextSync,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
@@ -177,6 +179,16 @@ export class PopoverStore<Payload> extends ReactStore<
     }).current;
 
     const store = externalStore ?? internalStore;
+
+    const floatingRootContext = useSyncedFloatingRootContext({
+      popupStore: store,
+      onOpenChange: store.setOpen,
+    });
+
+    useFloatingRootContextSync(store, floatingRootContext, {
+      notifyOnChange: externalStore != null,
+    });
+
     useOnMount(internalStore.disposeEffect);
     return store;
   }

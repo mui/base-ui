@@ -8,6 +8,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  useFloatingRootContextSync,
 } from '../../utils/popups';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
@@ -119,18 +120,10 @@ export class PreviewCardStore<Payload> extends ReactStore<
       onOpenChange: store.setOpen,
     });
 
-    if (!externalStore) {
-      // It's safe to set this here because when this code runs for the first time,
-      // nothing has had a chance to subscribe to the `store` yet.
-      // For subsequent renders, the `floatingRootContext` reference remains the same,
-      // so it's basically a no-op.
-      (store.state as State<Payload>).floatingRootContext = floatingRootContext;
-    }
-
-    store.useSyncedValue(
-      'floatingRootContext',
-      externalStore ? floatingRootContext : store.state.floatingRootContext,
-    );
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useFloatingRootContextSync(store, floatingRootContext, {
+      notifyOnChange: externalStore != null,
+    });
 
     return store;
   }

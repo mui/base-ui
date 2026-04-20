@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { fastComponent } from '@base-ui/utils/fastHooks';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   useDismiss,
   FloatingTree,
@@ -64,13 +65,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
-  const hasExternalStore = handle?.store != null;
-  const { openMethod: rootOpenMethod, triggerProps: rootInteractionTypeTriggerProps } =
-    usePopupRootSync(store, {
-      open,
-      externalStore: hasExternalStore,
-      onOpenChange: store.setOpen,
-    });
+  usePopupRootSync(store, { open });
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
@@ -86,14 +81,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const nested = useFloatingParentNodeId() != null;
 
   store.useSyncedValues({
-    activeTriggerProps: hasExternalStore
-      ? rootInteractionTypeTriggerProps
-      : store.state.activeTriggerProps,
-    inactiveTriggerProps: hasExternalStore
-      ? rootInteractionTypeTriggerProps
-      : store.state.inactiveTriggerProps,
     modal,
-    openMethod: hasExternalStore ? rootOpenMethod : store.state.openMethod,
     nested,
   });
 
@@ -137,8 +125,8 @@ function PopoverInteractions({
     },
   });
 
-  const activeTriggerProps = dismiss.reference;
-  const inactiveTriggerProps = dismiss.trigger;
+  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
+  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
 
   const popupProps = React.useMemo(() => {
     return mergeProps(

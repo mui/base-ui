@@ -71,6 +71,44 @@ describe('<PreviewCard.Root />', () => {
       });
     });
 
+    it('keeps detached triggers hoverable during Fast Refresh-like handle recreation', async () => {
+      function Test({ handle }: { handle: PreviewCard.Handle<unknown> }) {
+        return (
+          <React.Fragment>
+            <button type="button" aria-label="Initial focus" autoFocus />
+            <PreviewCard.Trigger href="#" handle={handle} delay={0}>
+              Trigger
+            </PreviewCard.Trigger>
+
+            <PreviewCard.Root handle={handle}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup>Content</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user, setProps } = await render(<Test handle={PreviewCard.createHandle()} />);
+
+      const trigger = screen.getByRole('link', { name: 'Trigger' });
+
+      await user.hover(trigger);
+      expect(screen.getByText('Content')).toBeVisible();
+
+      await user.unhover(trigger);
+      await waitFor(() => {
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      await setProps({ handle: PreviewCard.createHandle() });
+
+      await user.hover(screen.getByRole('link', { name: 'Trigger' }));
+      expect(screen.getByText('Content')).toBeVisible();
+    });
+
     it('should open the preview card immediately when hovering another trigger', async () => {
       const popupId = randomStringValue();
       const { user } = await render(

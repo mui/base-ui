@@ -16,8 +16,6 @@ import {
   useHoverReferenceInteraction,
 } from '../../floating-ui-react';
 import { TooltipTriggerDataAttributes } from './TooltipTriggerDataAttributes';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
 
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -143,7 +141,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
         },
         onClick(event) {
           if (closeOnClick && !store.select('open')) {
-            store.setOpen(false, createChangeEventDetails(REASONS.triggerPress, event.nativeEvent));
+            store.cancelPendingOpen(event.nativeEvent);
           }
         },
         id: thisTriggerId,

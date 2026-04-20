@@ -119,7 +119,9 @@ export const SelectItem = React.memo(
     };
 
     const rootProps = getItemProps({ active: highlighted, selected });
-    rootProps.id = undefined;
+    if ('id' in rootProps) {
+      rootProps.id = undefined;
+    }
 
     const lastKeyRef = React.useRef<string | null>(null);
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { type DialogRoot } from '../root/DialogRoot';
 import {
   createInitialPopupStoreState,
@@ -9,6 +10,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  useFloatingRootContextSync,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -114,7 +116,21 @@ export class DialogStore<Payload> extends ReactStore<
       return new DialogStore<Payload>(initialState);
     }).current;
 
-    return externalStore ?? internalStore;
+    const store = externalStore ?? internalStore;
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const floatingRootContext = useSyncedFloatingRootContext({
+      popupStore: store,
+      onOpenChange: store.setOpen,
+      treatPopupAsFloatingElement: true,
+    });
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useFloatingRootContextSync(store, floatingRootContext, {
+      notifyOnChange: externalStore != null,
+    });
+
+    return store;
   }
 }
 

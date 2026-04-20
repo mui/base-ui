@@ -913,6 +913,28 @@ describe('<Tooltip.Root />', () => {
         expect(onOpenChange.mock.calls[0][0]).toBe(false);
       });
 
+      it('does not call onOpenChange when the trigger is clicked before opening', async () => {
+        const onOpenChange = vi.fn();
+
+        await render(<TestTooltip rootProps={{ onOpenChange }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+
+        fireEvent.click(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+        expect(onOpenChange).not.toHaveBeenCalled();
+      });
+
       it('should not close when the trigger is clicked after delay duration and closeOnClick is false', async () => {
         await render(<TestTooltip triggerProps={{ closeOnClick: false }} />);
 

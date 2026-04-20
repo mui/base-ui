@@ -12,7 +12,6 @@ import {
   useFloatingTree,
   useFocus,
   useHoverReferenceInteraction,
-  useInteractions,
   useFloatingNodeId,
   useFloatingParentNodeId,
 } from '../../floating-ui-react';
@@ -39,6 +38,7 @@ import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
+import { mergeProps } from '../../merge-props';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -212,7 +212,10 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     mouseDownAction: 'open',
   });
 
-  const localInteractionProps = useInteractions([click, focus]);
+  const localReferenceProps = React.useMemo(
+    () => mergeProps(focus.reference, click.reference),
+    [focus.reference, click.reference],
+  );
 
   const state: MenuTriggerState = {
     disabled,
@@ -220,13 +223,14 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
-  const interactionTypeProps = useOpenMethodTriggerProps(store.select('open'), (interactionType) => {
+  const open = store.useState('open');
+  const interactionTypeProps = useOpenMethodTriggerProps(open, (interactionType) => {
     store.set('openMethod', interactionType);
   });
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
-    localInteractionProps.getReferenceProps(),
+    localReferenceProps,
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
     interactionTypeProps,
@@ -246,7 +250,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
         doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
       },
     },
-    isInMenubar ? { role: 'menuitem' } : {},
+    isInMenubar ? { role: 'menuitem' } : EMPTY_OBJECT,
     mixedToggleHandlers,
     elementProps,
     getButtonProps,

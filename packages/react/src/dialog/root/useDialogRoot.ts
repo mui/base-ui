@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { mergeProps } from '../../merge-props';
 import { useDismiss } from '../../floating-ui-react';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
@@ -16,29 +17,13 @@ import {
 } from '../../utils/popups';
 
 export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootReturnValue {
-  const { store, parentContext, actionsRef, isDrawer, externalStore } = params;
+  const { store, parentContext, actionsRef, isDrawer } = params;
 
   const open = store.useState('open');
-  const { openMethod: rootOpenMethod, triggerProps: rootInteractionTypeTriggerProps } =
-    usePopupRootSync(store, {
-      open,
-      externalStore,
-      onOpenChange: store.setOpen,
-      treatPopupAsFloatingElement: true,
-    });
+  usePopupRootSync(store, { open });
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store);
-
-  store.useSyncedValues({
-    activeTriggerProps: externalStore
-      ? rootInteractionTypeTriggerProps
-      : store.state.activeTriggerProps,
-    inactiveTriggerProps: externalStore
-      ? rootInteractionTypeTriggerProps
-      : store.state.inactiveTriggerProps,
-    openMethod: externalStore ? rootOpenMethod : store.state.openMethod,
-  });
 
   const handleImperativeClose = React.useCallback(() => {
     store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
@@ -149,8 +134,8 @@ export function DialogInteractions({
     };
   }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
-  const activeTriggerProps = dismiss.reference;
-  const inactiveTriggerProps = dismiss.trigger;
+  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
+  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
 
   const popupProps = React.useMemo(
     () =>
@@ -180,7 +165,6 @@ export interface UseDialogRootParameters {
   actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
   parentContext?: DialogStore<unknown>['context'] | undefined;
   isDrawer: boolean;
-  externalStore: boolean;
 }
 
 export interface UseDialogRootReturnValue {

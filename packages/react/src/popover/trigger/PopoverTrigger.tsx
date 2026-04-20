@@ -15,14 +15,13 @@ import {
   safePolygon,
   useClick,
   useHoverReferenceInteraction,
-  useInteractions,
 } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { shouldCurrentTriggerOwnOpenPopup, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
@@ -108,16 +107,18 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     store.set('openMethod', interactionType);
   });
 
-  const localProps = useInteractions([click]);
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const state: PopoverTriggerState = {
     disabled,
     open: isOpenedByThisTrigger,
   };
-  const controlsPopup =
-    open &&
-    (isOpenedByThisTrigger || activeTriggerId == null || store.context.triggerElements.size === 1);
+  const controlsPopup = shouldCurrentTriggerOwnOpenPopup({
+    open,
+    isOpenedByThisTrigger,
+    activeTriggerId,
+    triggerCount: store.context.triggerElements.size,
+  });
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -141,8 +142,9 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     state,
     ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
-      localProps.getReferenceProps(),
-      handle?.store ? rootTriggerProps : interactionTypeProps,
+      click.reference,
+      rootTriggerProps,
+      interactionTypeProps,
       hoverProps,
       {
         [CLICK_TRIGGER_IDENTIFIER as string]: '',
