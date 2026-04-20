@@ -38,6 +38,7 @@ import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
+import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -219,12 +220,16 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const interactionTypeProps = useOpenMethodTriggerProps(store.select('open'), (interactionType) => {
+    store.set('openMethod', interactionType);
+  });
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
     localInteractionProps.getReferenceProps(),
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
+    interactionTypeProps,
     {
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {

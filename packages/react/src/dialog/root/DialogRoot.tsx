@@ -75,6 +75,7 @@ export const DialogRoot = fastComponent(function DialogRoot<Payload>(
     actionsRef,
     parentContext: parentDialogRootContext?.context,
     isDrawer,
+    externalStore: handle?.store != null,
   });
 
   const shouldRenderInteractions = open || mounted;
@@ -85,8 +86,6 @@ export const DialogRoot = fastComponent(function DialogRoot<Payload>(
         {shouldRenderInteractions && (
           <DialogInteractions
             store={store}
-            forceUnmount={dialogRootResult.forceUnmount}
-            triggerProps={dialogRootResult.triggerProps}
             parentContext={dialogRootResult.parentContext}
             isDrawer={dialogRootResult.isDrawer}
           />

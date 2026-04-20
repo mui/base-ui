@@ -177,7 +177,6 @@ export class PopoverStore<Payload> extends ReactStore<
     }).current;
 
     const store = externalStore ?? internalStore;
-
     useOnMount(internalStore.disposeEffect);
     return store;
   }

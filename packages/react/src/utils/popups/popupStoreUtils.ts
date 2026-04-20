@@ -5,12 +5,14 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import {
   PopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreSelectors,
 } from './store';
+import { useOpenInteractionType } from '../useOpenInteractionType';
 
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
@@ -192,4 +194,48 @@ export function useOpenStateTransitions<State extends PopupStoreState<any>>(
   });
 
   return { forceUnmount, transitionStatus };
+}
+
+export function usePopupRootSync<
+  State extends PopupStoreState<any> & {
+    openMethod: unknown;
+  },
+>(
+  store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
+  {
+    open,
+    externalStore,
+    onOpenChange,
+    treatPopupAsFloatingElement = false,
+  }: {
+    open: boolean;
+    externalStore: boolean;
+    onOpenChange: (open: boolean, eventDetails: any) => void;
+    treatPopupAsFloatingElement?: boolean | undefined;
+  },
+) {
+  const floatingRootContext = useSyncedFloatingRootContext({
+    popupStore: store,
+    onOpenChange,
+    treatPopupAsFloatingElement,
+  });
+  const { openMethod, triggerProps } = useOpenInteractionType(open);
+  const previousFloatingRootContextRef = React.useRef(store.state.floatingRootContext);
+
+  store.state.floatingRootContext = floatingRootContext;
+
+  useIsoLayoutEffect(() => {
+    if (externalStore && previousFloatingRootContextRef.current !== floatingRootContext) {
+      previousFloatingRootContextRef.current = floatingRootContext;
+      store.notifyAll();
+    }
+  }, [externalStore, floatingRootContext, store]);
+
+  React.useEffect(() => {
+    if (!open && store.state.openMethod !== null) {
+      store.set('openMethod', null as State['openMethod']);
+    }
+  }, [open, store]);
+
+  return { openMethod, triggerProps };
 }

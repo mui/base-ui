@@ -11,6 +11,7 @@ import { DialogHandle } from '../store/DialogHandle';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useClick, useInteractions } from '../../floating-ui-react';
+import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**
  * A button that opens the dialog.
@@ -66,8 +67,12 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null });
+  const interactionTypeProps = useOpenMethodTriggerProps(open, (interactionType) => {
+    store.set('openMethod', interactionType);
+  });
 
   const localInteractionProps = useInteractions([click]);
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const state: DialogTriggerState = {
     disabled,
@@ -77,14 +82,12 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
     open &&
     (isOpenedByThisTrigger || activeTriggerId == null || store.context.triggerElements.size === 1);
 
-  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
-
   return useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
       localInteractionProps.getReferenceProps(),
-      rootTriggerProps,
+      handle?.store ? rootTriggerProps : interactionTypeProps,
       {
         [CLICK_TRIGGER_IDENTIFIER as string]: '',
         id: thisTriggerId,

@@ -131,11 +131,19 @@ export class TooltipStore<Payload> extends ReactStore<
       onOpenChange: store.setOpen,
     });
 
-    // It's safe to set this here because when this code runs for the first time,
-    // nothing has had a chance to subscribe to the `store` yet.
-    // For subsequent renders, the `floatingRootContext` reference remains the same,
-    // so it's basically a no-op.
-    (store.state as State<any>).floatingRootContext = floatingRootContext;
+    if (!externalStore) {
+      // It's safe to set this here because when this code runs for the first time,
+      // nothing has had a chance to subscribe to the `store` yet.
+      // For subsequent renders, the `floatingRootContext` reference remains the same,
+      // so it's basically a no-op.
+      (store.state as State<any>).floatingRootContext = floatingRootContext;
+    }
+
+    store.useSyncedValue(
+      'floatingRootContext',
+      externalStore ? floatingRootContext : store.state.floatingRootContext,
+    );
+
     return store;
   }
 }

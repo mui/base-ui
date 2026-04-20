@@ -24,6 +24,7 @@ import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
+import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**
  * A button that opens the popover.
@@ -103,9 +104,11 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
+  const interactionTypeProps = useOpenMethodTriggerProps(open, (interactionType) => {
+    store.set('openMethod', interactionType);
+  });
 
   const localProps = useInteractions([click]);
-
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const state: PopoverTriggerState = {
@@ -139,8 +142,8 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
       localProps.getReferenceProps(),
+      handle?.store ? rootTriggerProps : interactionTypeProps,
       hoverProps,
-      rootTriggerProps,
       {
         [CLICK_TRIGGER_IDENTIFIER as string]: '',
         id: thisTriggerId,

@@ -20,6 +20,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**
  * A menu item that opens a submenu.
@@ -158,6 +159,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const localInteractionProps = useInteractions([click]);
 
   const rootTriggerProps = store.useState('triggerProps', true);
+  const interactionTypeProps = useOpenMethodTriggerProps(store.select('open'), (interactionType) => {
+    store.set('openMethod', interactionType);
+  });
   delete rootTriggerProps.id;
 
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
@@ -169,6 +173,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
       localInteractionProps.getReferenceProps(),
       hoverProps,
       rootTriggerProps,
+      interactionTypeProps,
       itemProps,
       {
         tabIndex: open || highlighted ? 0 : -1,

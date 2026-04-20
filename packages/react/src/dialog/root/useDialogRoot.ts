@@ -2,37 +2,42 @@
 import * as React from 'react';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { mergeProps } from '../../merge-props';
-import { useDismiss, useSyncedFloatingRootContext } from '../../floating-ui-react';
+import { useDismiss } from '../../floating-ui-react';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
-import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';
+import {
+  useImplicitActiveTrigger,
+  useOpenStateTransitions,
+  usePopupRootSync,
+} from '../../utils/popups';
 
 export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootReturnValue {
-  const { store, parentContext, actionsRef, isDrawer } = params;
+  const { store, parentContext, actionsRef, isDrawer, externalStore } = params;
 
   const open = store.useState('open');
-
-  const { openMethod, triggerProps } = useOpenInteractionType(open);
+  const { openMethod: rootOpenMethod, triggerProps: rootInteractionTypeTriggerProps } =
+    usePopupRootSync(store, {
+      open,
+      externalStore,
+      onOpenChange: store.setOpen,
+      treatPopupAsFloatingElement: true,
+    });
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store);
 
-  const floatingRootContext = useSyncedFloatingRootContext({
-    popupStore: store,
-    onOpenChange: store.setOpen,
-    treatPopupAsFloatingElement: true,
-  });
-
   store.useSyncedValues({
-    activeTriggerProps: triggerProps,
-    inactiveTriggerProps: triggerProps,
-    openMethod,
-    floatingRootContext,
+    activeTriggerProps: externalStore
+      ? rootInteractionTypeTriggerProps
+      : store.state.activeTriggerProps,
+    inactiveTriggerProps: externalStore
+      ? rootInteractionTypeTriggerProps
+      : store.state.inactiveTriggerProps,
+    openMethod: externalStore ? rootOpenMethod : store.state.openMethod,
   });
 
   const handleImperativeClose = React.useCallback(() => {
@@ -42,22 +47,18 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
   React.useImperativeHandle(
     actionsRef,
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [actionsRef, forceUnmount, handleImperativeClose],
+    [forceUnmount, handleImperativeClose],
   );
 
-  return { forceUnmount, triggerProps, parentContext, isDrawer };
+  return { parentContext, isDrawer };
 }
 
 export function DialogInteractions({
   store,
-  forceUnmount,
-  triggerProps,
   parentContext,
   isDrawer,
 }: {
   store: DialogStore<any>;
-  forceUnmount: () => void;
-  triggerProps: Record<string, unknown>;
   parentContext: DialogStore<unknown>['context'] | undefined;
   isDrawer: boolean;
 }) {
@@ -148,15 +149,8 @@ export function DialogInteractions({
     };
   }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
-  const activeTriggerProps = React.useMemo(
-    () => mergeProps(dismiss.reference, triggerProps),
-    [dismiss.reference, triggerProps],
-  );
-
-  const inactiveTriggerProps = React.useMemo(
-    () => mergeProps(dismiss.trigger, triggerProps),
-    [dismiss.trigger, triggerProps],
-  );
+  const activeTriggerProps = dismiss.reference;
+  const inactiveTriggerProps = dismiss.trigger;
 
   const popupProps = React.useMemo(
     () =>
@@ -186,11 +180,10 @@ export interface UseDialogRootParameters {
   actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
   parentContext?: DialogStore<unknown>['context'] | undefined;
   isDrawer: boolean;
+  externalStore: boolean;
 }
 
 export interface UseDialogRootReturnValue {
-  forceUnmount: () => void;
-  triggerProps: Record<string, unknown>;
   parentContext: DialogStore<unknown>['context'] | undefined;
   isDrawer: boolean;
 }
