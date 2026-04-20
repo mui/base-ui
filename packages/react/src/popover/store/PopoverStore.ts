@@ -13,6 +13,7 @@ import { REASONS } from '../../internals/reasons';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -87,10 +88,7 @@ export class PopoverStore<Payload> extends ReactStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingRootContextOptions?: {
-      floatingId?: string;
-      nested?: boolean;
-    },
+    floatingRootContextOptions?: PopupFloatingRootContextOptions,
   ) {
     const initial = { ...createInitialState<Payload>(), ...initialState };
     const triggerElements = new PopupTriggerMap();

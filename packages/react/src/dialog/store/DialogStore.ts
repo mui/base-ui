@@ -8,6 +8,7 @@ import { type DialogRoot } from '../root/DialogRoot';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -57,10 +58,7 @@ export class DialogStore<Payload> extends ReactStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingRootContextOptions?: {
-      floatingId?: string;
-      nested?: boolean;
-    },
+    floatingRootContextOptions?: PopupFloatingRootContextOptions,
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(initialState);

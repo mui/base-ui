@@ -6,6 +6,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -38,10 +39,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingRootContextOptions?: {
-      floatingId?: string;
-      nested?: boolean;
-    },
+    floatingRootContextOptions?: PopupFloatingRootContextOptions,
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
