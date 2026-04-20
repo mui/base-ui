@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { useId } from '@base-ui/utils/useId';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import { useFloatingParentNodeId, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { type DialogRoot } from '../root/DialogRoot';
 import {
+  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  useFloatingRootContextSync,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -54,15 +55,28 @@ export class DialogStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  constructor(initialState?: Partial<State<Payload>>) {
+  constructor(
+    initialState?: Partial<State<Payload>>,
+    floatingRootContextOptions?: {
+      floatingId?: string;
+      nested?: boolean;
+    },
+  ) {
+    const triggerElements = new PopupTriggerMap();
+    const state = createInitialState<Payload>(initialState);
+    state.floatingRootContext = createPopupFloatingRootContext(
+      triggerElements,
+      floatingRootContextOptions,
+    );
+
     super(
-      createInitialState<Payload>(initialState),
+      state,
       {
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
         outsidePressEnabledRef: { current: true },
-        triggerElements: new PopupTriggerMap(),
+        triggerElements,
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
       },
@@ -112,22 +126,25 @@ export class DialogStore<Payload> extends ReactStore<
     initialState?: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    const floatingId = useId();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const nested = useFloatingParentNodeId() != null;
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const internalStore = useRefWithInit(() => {
-      return new DialogStore<Payload>(initialState);
+      return new DialogStore<Payload>(initialState, { floatingId, nested });
     }).current;
 
     const store = externalStore ?? internalStore;
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const floatingRootContext = useSyncedFloatingRootContext({
+    useSyncedFloatingRootContext({
       popupStore: store,
-      onOpenChange: store.setOpen,
       treatPopupAsFloatingElement: true,
-    });
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useFloatingRootContextSync(store, floatingRootContext, {
-      notifyOnChange: externalStore != null,
+      floatingRootContext: store.state.floatingRootContext,
+      floatingId,
+      nested,
+      onOpenChange: store.setOpen,
     });
 
     return store;

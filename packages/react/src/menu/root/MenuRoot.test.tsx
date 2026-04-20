@@ -51,7 +51,10 @@ describe('<Menu.Root />', () => {
   ])('when using $name', ({ Component: TestMenu }) => {
     it('labels the popup by the active trigger and exposes menu trigger ARIA', async () => {
       const { user } = await render(
-        <TestMenu triggerProps={{ id: 'trigger-1' }} submenuTriggerProps={{ id: 'submenu-trigger' }} />,
+        <TestMenu
+          triggerProps={{ id: 'trigger-1' }}
+          submenuTriggerProps={{ id: 'submenu-trigger' }}
+        />,
       );
 
       const trigger = screen.getByRole('button', { name: 'Toggle' });
@@ -66,7 +69,10 @@ describe('<Menu.Root />', () => {
 
     it('reflects a controlled initially open menu on first render', async () => {
       await render(
-        <TestMenu rootProps={{ open: true, triggerId: 'trigger-1' }} triggerProps={{ id: 'trigger-1' }} />,
+        <TestMenu
+          rootProps={{ open: true, triggerId: 'trigger-1' }}
+          triggerProps={{ id: 'trigger-1' }}
+        />,
       );
 
       const trigger = screen.getByRole('button', { name: 'Toggle' });

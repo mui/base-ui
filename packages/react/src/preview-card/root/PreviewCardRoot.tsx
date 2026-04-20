@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponent } from '@base-ui/utils/fastHooks';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -20,7 +21,9 @@ import {
 } from '../../utils/popups';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
 
-function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>) {
+const PreviewCardRootComponent = fastComponent(function PreviewCardRootComponent<Payload>(
+  props: PreviewCardRoot.Props<Payload>,
+) {
   const {
     open: openProp,
     defaultOpen = false,
@@ -57,8 +60,8 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
-  const floatingRootContext = store.useState('floatingRootContext');
   const activeTriggerId = store.useState('activeTriggerId');
+  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
   useImplicitActiveTrigger(store);
@@ -79,6 +82,19 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
     [forceUnmount, handleImperativeClose],
   );
+
+  const shouldRenderInteractions = open || mounted;
+
+  return (
+    <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
+      {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
+      {typeof children === 'function' ? children({ payload }) : children}
+    </PreviewCardRootContext.Provider>
+  );
+});
+
+function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<Payload> }) {
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext);
   const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
@@ -101,11 +117,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     popupProps,
   });
 
-  return (
-    <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
-      {typeof children === 'function' ? children({ payload }) : children}
-    </PreviewCardRootContext.Provider>
-  );
+  return null;
 }
 
 /**

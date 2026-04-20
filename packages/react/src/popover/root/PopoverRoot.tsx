@@ -3,11 +3,7 @@ import * as React from 'react';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import {
-  useDismiss,
-  FloatingTree,
-  useFloatingParentNodeId,
-} from '../../floating-ui-react';
+import { useDismiss, FloatingTree, useFloatingParentNodeId } from '../../floating-ui-react';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
@@ -99,9 +95,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   return (
     <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
-      {shouldRenderInteractions && (
-        <PopoverInteractions store={store} modal={modal} />
-      )}
+      {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </PopoverRootContext.Provider>
   );
@@ -114,7 +108,7 @@ function PopoverInteractions({
   store: PopoverStore<any>;
   modal: boolean | 'trap-focus';
 }) {
-  const floatingRootContext = store.select('floatingRootContext');
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext, {
     outsidePressEvent: {

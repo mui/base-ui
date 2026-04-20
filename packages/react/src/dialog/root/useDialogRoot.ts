@@ -51,7 +51,7 @@ export function DialogInteractions({
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
   const popupElement = store.useState('popupElement');
-  const floatingRootContext = store.select('floatingRootContext');
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const [ownNestedOpenDrawers, setOwnNestedOpenDrawers] = React.useState(0);

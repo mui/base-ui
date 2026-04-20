@@ -231,31 +231,3 @@ export function usePopupRootSync<
     [store],
   );
 }
-
-export function useFloatingRootContextSync<State extends PopupStoreState<any>>(
-  store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
-  floatingRootContext: State['floatingRootContext'],
-  {
-    notifyOnChange,
-  }: {
-    notifyOnChange: boolean;
-  },
-) {
-  const previousFloatingRootContextRef = React.useRef(store.state.floatingRootContext);
-
-  if (store.state.floatingRootContext !== floatingRootContext) {
-    // Keep the current render path in sync so detached triggers using a recreated handle
-    // can read the new floating context before effects run.
-    (store.state as State).floatingRootContext = floatingRootContext;
-  }
-
-  useIsoLayoutEffect(() => {
-    if (notifyOnChange && previousFloatingRootContextRef.current !== floatingRootContext) {
-      previousFloatingRootContextRef.current = floatingRootContext;
-      store.notifyAll();
-      return;
-    }
-
-    previousFloatingRootContextRef.current = floatingRootContext;
-  }, [floatingRootContext, notifyOnChange, store]);
-}

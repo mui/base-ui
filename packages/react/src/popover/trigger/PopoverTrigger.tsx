@@ -11,11 +11,7 @@ import {
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
-import {
-  safePolygon,
-  useClick,
-  useHoverReferenceInteraction,
-} from '../../floating-ui-react';
+import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';

@@ -506,11 +506,18 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
             dismiss.floating,
           )
         : EMPTY_OBJECT,
-    [dismiss.floating, listNavigation.floating, parent.type, shouldSyncPopupProps, store, typeahead.floating],
+    [
+      dismiss.floating,
+      listNavigation.floating,
+      parent.type,
+      shouldSyncPopupProps,
+      store,
+      typeahead.floating,
+    ],
   );
 
   const itemProps = React.useMemo(
-    () => (shouldSyncPopupProps ? listNavigation.item ?? EMPTY_OBJECT : EMPTY_OBJECT),
+    () => (shouldSyncPopupProps ? (listNavigation.item ?? EMPTY_OBJECT) : EMPTY_OBJECT),
     [listNavigation.item, shouldSyncPopupProps],
   );
 

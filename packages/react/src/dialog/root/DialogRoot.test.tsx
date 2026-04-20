@@ -64,6 +64,19 @@ describe('<Dialog.Root />', () => {
       );
     });
 
+    it('supports Escape immediately after first open from a closed initial mount', async () => {
+      const { user } = await render(<TestDialog />);
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      await screen.findByRole('dialog');
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+    });
+
     describe('prop: onOpenChange', () => {
       it('calls onOpenChange with the new open state', async () => {
         const handleOpenChange = vi.fn();

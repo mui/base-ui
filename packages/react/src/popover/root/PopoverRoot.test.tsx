@@ -44,6 +44,19 @@ describe('<Popover.Root />', () => {
       expect(screen.getByText('Toggle')).not.toBe(null);
     });
 
+    it('supports outside press immediately after first open from a closed initial mount', async () => {
+      const { user } = await render(<TestPopover />);
+
+      await user.click(screen.getByRole('button', { name: 'Toggle' }));
+      await screen.findByRole('dialog');
+
+      await user.click(document.body);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+    });
+
     describe('uncontrolled open', () => {
       it('should close when the anchor is clicked twice', async () => {
         await render(<TestPopover />);

@@ -5,6 +5,7 @@ import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   createInitialPopupStoreState,
+  createPopupFloatingRootContext,
   PopupStoreContext,
   PopupStoreState,
   PopupStoreSelectors,
@@ -15,10 +16,14 @@ import {
 import { usePopupRootSync } from './popupStoreUtils';
 
 function createStore() {
+  const triggerElements = new PopupTriggerMap();
   return new ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>(
-    createInitialPopupStoreState(),
     {
-      triggerElements: new PopupTriggerMap(),
+      ...createInitialPopupStoreState(),
+      floatingRootContext: createPopupFloatingRootContext(triggerElements),
+    },
+    {
+      triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
     },
@@ -28,14 +33,16 @@ function createStore() {
 type SyncState = PopupStoreState<unknown> & { openMethod: string | null };
 
 function createSyncStore(initialState: Partial<SyncState> = {}) {
+  const triggerElements = new PopupTriggerMap();
   return new ReactStore<SyncState, PopupStoreContext<unknown>, PopupStoreSelectors>(
     {
       ...createInitialPopupStoreState(),
+      floatingRootContext: createPopupFloatingRootContext(triggerElements),
       openMethod: null,
       ...initialState,
     },
     {
-      triggerElements: new PopupTriggerMap(),
+      triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
     },

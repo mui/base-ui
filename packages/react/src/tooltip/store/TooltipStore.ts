@@ -1,12 +1,14 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { useId } from '@base-ui/utils/useId';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type TooltipRoot } from '../root/TooltipRoot';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import { useFloatingParentNodeId, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
+  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
@@ -48,14 +50,27 @@ export class TooltipStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  constructor(initialState?: Partial<State<Payload>>) {
+  constructor(
+    initialState?: Partial<State<Payload>>,
+    floatingRootContextOptions?: {
+      floatingId?: string;
+      nested?: boolean;
+    },
+  ) {
+    const triggerElements = new PopupTriggerMap();
+    const state = { ...createInitialState<Payload>(), ...initialState };
+    state.floatingRootContext = createPopupFloatingRootContext(
+      triggerElements,
+      floatingRootContextOptions,
+    );
+
     super(
-      { ...createInitialState(), ...initialState },
+      state,
       {
         popupRef: React.createRef<HTMLElement | null>(),
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
-        triggerElements: new PopupTriggerMap(),
+        triggerElements,
       },
       selectors,
     );
@@ -134,30 +149,25 @@ export class TooltipStore<Payload> extends ReactStore<
     initialState?: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    const floatingId = useId();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const nested = useFloatingParentNodeId() != null;
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const internalStore = useRefWithInit(() => {
-      return new TooltipStore<Payload>(initialState);
+      return new TooltipStore<Payload>(initialState, { floatingId, nested });
     }).current;
 
     const store = externalStore ?? internalStore;
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const floatingRootContext = useSyncedFloatingRootContext({
+    useSyncedFloatingRootContext({
       popupStore: store,
+      floatingRootContext: store.state.floatingRootContext,
+      floatingId,
+      nested,
       onOpenChange: store.setOpen,
     });
-
-    if (!externalStore) {
-      // It's safe to set this here because when this code runs for the first time,
-      // nothing has had a chance to subscribe to the `store` yet.
-      // For subsequent renders, the `floatingRootContext` reference remains the same,
-      // so it's basically a no-op.
-      (store.state as State<any>).floatingRootContext = floatingRootContext;
-    }
-
-    store.useSyncedValue(
-      'floatingRootContext',
-      externalStore ? floatingRootContext : store.state.floatingRootContext,
-    );
 
     return store;
   }
