@@ -1,5 +1,17 @@
 # Versions
 
+## v1.4.1
+
+_Apr 20, 2026_
+
+### General Changes
+
+- Clear highlight on pointer leave when item is clipped by scroll container (#4604) by @atomiks
+- Fix `display: contents` tabbability (#4642) by @atomiks
+- Mark `date-fns` peer dependencies as optional (#4639) by @LukasTy
+
+All contributors of this release in alphabetical order : @atomiks, @LukasTy
+
 ## v1.4.0
 
 _Apr 13, 2026_

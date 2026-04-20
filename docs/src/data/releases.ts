@@ -9,6 +9,16 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.4.1',
+    versionSlug: 'v1-4-1',
+    date: '2026-04-20',
+    highlights: [
+      'Fix `display: contents` tabbability.',
+      'Improve pointer-leave highlight handling in clipped scroll containers.',
+      '`date-fns` peer dependencies are now optional.',
+    ],
+  },
+  {
     version: 'v1.4.0',
     versionSlug: 'v1-4-0',
     date: '2026-04-13',
