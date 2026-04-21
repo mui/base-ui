@@ -146,14 +146,13 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
 
-  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
-
   const swipe = useDrawerViewportContext(true);
+  const { snapPoints, activeSnapPoint, activeSnapPointOffset } = useDrawerSnapPoints();
+  useDialogPortalContext();
+
+  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
   const swiping = swipe?.swiping ?? false;
   const swipeStrength = swipe?.swipeStrength ?? null;
-  const { snapPoints, activeSnapPoint, activeSnapPointOffset } = useDrawerSnapPoints();
-
-  useDialogPortalContext();
 
   const [popupHeight, setPopupHeight] = React.useState(0);
 

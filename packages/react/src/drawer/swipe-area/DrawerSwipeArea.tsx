@@ -418,6 +418,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
             return;
           }
           swipePointerProps.onPointerDown?.(event);
+
           // Prevent native text selection/drag gestures from competing with swipe-open dragging.
           if (event.cancelable) {
             event.preventDefault();

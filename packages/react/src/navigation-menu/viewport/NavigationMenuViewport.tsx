@@ -74,7 +74,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   componentProps: NavigationMenuViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, id: idProp, style, ...elementProps } = componentProps;
+  const { render, className, style, children, id: idProp, ...elementProps } = componentProps;
 
   const id = useId(idProp);
 

@@ -378,7 +378,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         setValue(valuesRef.current[index], createChangeEventDetails('none'));
       }
     },
-    onTypingChange(typing) {
+    onTyping(typing) {
       typingRef.current = typing;
     },
   });

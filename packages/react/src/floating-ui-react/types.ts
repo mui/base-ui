@@ -22,6 +22,7 @@ export type { HandleCloseContext, HandleClose } from './hooks/useHoverShared';
 export type { UseHoverFloatingInteractionProps } from './hooks/useHoverFloatingInteraction';
 export type { UseHoverReferenceInteractionProps } from './hooks/useHoverReferenceInteraction';
 export type { UseListNavigationProps } from './hooks/useListNavigation';
+export type { UseRoleProps } from './hooks/useRole';
 export type { UseTypeaheadProps } from './hooks/useTypeahead';
 export type { UseFloatingRootContextOptions } from './hooks/useFloatingRootContext';
 export type { UseInteractionsReturn } from './hooks/useInteractions';
@@ -118,8 +119,6 @@ export interface FloatingEvents {
 export interface ContextData {
   openEvent?: Event | undefined;
   floatingContext?: FloatingContext | undefined;
-  /** @deprecated use `onTypingChange` prop in `useTypeahead` */
-  typing?: boolean | undefined;
   [key: string]: any;
 }
 
@@ -203,7 +202,7 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
    */
   nodeId?: string | undefined;
   /**
-   * External FlatingTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
 }

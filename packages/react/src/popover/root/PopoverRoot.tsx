@@ -1,10 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { fastComponent } from '@base-ui/utils/fastHooks';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { useDismiss, FloatingTree, useFloatingParentNodeId } from '../../floating-ui-react';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
+import {
+  useDismiss,
+  useInteractions,
+  useRole,
+  FloatingTree,
+  useFloatingParentNodeId,
+  useSyncedFloatingRootContext,
+} from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
 import { PopoverHandle } from '../store/PopoverHandle';
@@ -16,10 +20,9 @@ import { REASONS } from '../../internals/reasons';
 import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
-  usePopupRootSync,
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
-import { mergeProps } from '../../merge-props';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
@@ -55,24 +58,18 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
-  store.useContextCallback('onOpenChange', onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
-
   const open = store.useState('open');
-  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
   const nested = useFloatingParentNodeId() != null;
 
-  usePopupRootSync(store, { open });
+  store.useContextCallback('onOpenChange', onOpenChange);
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
+
+  const { openMethod, triggerProps: interactionTypeTriggerProps } = useOpenInteractionType(open);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
     store.update({ stickIfOpen: true, openChangeReason: null });
-  });
-
-  store.useSyncedValues({
-    modal,
-    nested,
   });
 
   React.useEffect(() => {
@@ -91,24 +88,10 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     [forceUnmount, handleImperativeClose],
   );
 
-  const shouldRenderInteractions = open || mounted;
-
-  return (
-    <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
-      {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
-      {typeof children === 'function' ? children({ payload }) : children}
-    </PopoverRootContext.Provider>
-  );
-}
-
-function PopoverInteractions({
-  store,
-  modal,
-}: {
-  store: PopoverStore<any>;
-  modal: boolean | 'trap-focus';
-}) {
-  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingRootContext = useSyncedFloatingRootContext({
+    popupStore: store,
+    onOpenChange: store.setOpen,
+  });
 
   const dismiss = useDismiss(floatingRootContext, {
     outsidePressEvent: {
@@ -119,26 +102,37 @@ function PopoverInteractions({
     },
   });
 
-  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
-  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
+  const role = useRole(floatingRootContext);
+
+  const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([dismiss, role]);
+
+  const activeTriggerProps = React.useMemo(() => {
+    return getReferenceProps(interactionTypeTriggerProps);
+  }, [getReferenceProps, interactionTypeTriggerProps]);
+
+  const inactiveTriggerProps = React.useMemo(() => {
+    return getTriggerProps(interactionTypeTriggerProps);
+  }, [getTriggerProps, interactionTypeTriggerProps]);
 
   const popupProps = React.useMemo(() => {
-    return mergeProps(
-      {
-        tabIndex: -1,
-        [FOCUSABLE_ATTRIBUTE]: '',
-      },
-      dismiss.floating,
-    );
-  }, [dismiss.floating]);
+    return getFloatingProps();
+  }, [getFloatingProps]);
 
   store.useSyncedValues({
+    modal,
+    openMethod,
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,
+    floatingRootContext,
+    nested,
   });
 
-  return null;
+  return (
+    <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
+      {typeof children === 'function' ? children({ payload }) : children}
+    </PopoverRootContext.Provider>
+  );
 }
 
 /**
@@ -147,9 +141,7 @@ function PopoverInteractions({
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-export const PopoverRoot = fastComponent(function PopoverRoot<Payload = unknown>(
-  props: PopoverRoot.Props<Payload>,
-) {
+export function PopoverRoot<Payload = unknown>(props: PopoverRoot.Props<Payload>) {
   if (usePopoverRootContext(true)) {
     return <PopoverRootComponent props={props} />;
   }
@@ -159,7 +151,7 @@ export const PopoverRoot = fastComponent(function PopoverRoot<Payload = unknown>
       <PopoverRootComponent props={props} />
     </FloatingTree>
   );
-});
+}
 
 export interface PopoverRootState {}
 

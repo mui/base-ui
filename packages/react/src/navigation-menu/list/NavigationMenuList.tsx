@@ -24,7 +24,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   componentProps: NavigationMenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLUListElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const nodeId = useNavigationMenuTreeContext();
 

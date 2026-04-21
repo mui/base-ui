@@ -5,21 +5,24 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
   FloatingTree,
   useDismiss,
   useFloatingNodeId,
   useFloatingParentNodeId,
+  useInteractions,
   useListNavigation,
+  useRole,
   useTypeahead,
+  useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -36,8 +39,6 @@ import {
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
-  usePopupId,
-  usePopupRootSync,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
@@ -126,20 +127,16 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const rootId = useId();
   const floatingTreeRoot = store.useState('floatingTreeRoot');
-  const floatingRootContext = store.useState('floatingRootContext');
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const parent = store.useState('parent');
-  const popupId = usePopupId(store);
 
   const activeIndex = store.useState('activeIndex');
   const payload = store.useState('payload') as Payload | undefined;
@@ -161,17 +158,18 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     }
   }
 
-  useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.update({ allowMouseEnter: false, stickIfOpen: true });
-  });
-
-  usePopupRootSync(store, { open });
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
 
   store.useSyncedValues({
     disabled: disabledProp,
     modal: parent.type === undefined ? modalProp : undefined,
+    openMethod,
     rootId,
+  });
+
+  useImplicitActiveTrigger(store);
+  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
+    store.update({ allowMouseEnter: false, stickIfOpen: true });
   });
 
   useIsoLayoutEffect(() => {
@@ -337,9 +335,14 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     },
   );
 
+  const floatingRootContext = useSyncedFloatingRootContext({
+    popupStore: store,
+    onOpenChange: setOpen,
+  });
+
   const floatingEvents = floatingRootContext.context.events;
 
-  useIsoLayoutEffect(() => {
+  React.useEffect(() => {
     const handleSetOpenEvent = ({
       open: nextOpen,
       eventDetails,
@@ -378,10 +381,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
-  const shouldSyncPopupProps = open || mounted;
-
   const dismiss = useDismiss(floatingRootContext, {
-    enabled: shouldSyncPopupProps && !disabled,
+    enabled: !disabled,
     bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
     outsidePress() {
       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
@@ -391,6 +392,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       return allowOutsidePressDismissalRef.current;
     },
     externalTree: nested ? floatingTreeRoot : undefined,
+  });
+
+  const role = useRole(floatingRootContext, {
+    role: 'menu',
   });
 
   const direction = useDirection();
@@ -421,7 +426,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const onTypingChange = React.useCallback(
+  const onTyping = React.useCallback(
     (nextTyping: boolean) => {
       store.context.typingRef.current = nextTyping;
     },
@@ -432,97 +437,80 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     listRef: store.context.itemLabels,
     elementsRef: store.context.itemDomElements,
     activeIndex,
-    enabled: shouldSyncPopupProps && !disabled,
     resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {
       if (open && index !== activeIndex) {
         store.set('activeIndex', index);
       }
     },
-    onTypingChange,
+    onTyping,
   });
 
-  const hasTriggerWithoutId =
-    open && activeTriggerId == null && store.context.triggerElements.size === 1;
+  const { getReferenceProps, getFloatingProps, getItemProps, getTriggerProps } = useInteractions([
+    dismiss,
+    role,
+    listNavigation,
+    typeahead,
+  ]);
 
   const activeTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(
+      getReferenceProps(),
       {
         onMouseMove() {
           store.set('allowMouseEnter', true);
         },
       },
-      typeahead.reference,
-      listNavigation.reference,
-      dismiss.reference,
-      {
-        'aria-haspopup': 'menu' as const,
-        'aria-expanded': open,
-        'aria-controls': open ? popupId : undefined,
-      },
+      interactionTypeProps,
     );
+
+    delete mergedProps.role;
     return mergedProps;
-  }, [dismiss.reference, listNavigation.reference, typeahead.reference, open, popupId, store]);
+  }, [getReferenceProps, store, interactionTypeProps]);
 
   const inactiveTriggerProps = React.useMemo(() => {
-    const triggerProps = mergeProps(listNavigation.trigger, dismiss.trigger);
+    const triggerProps = getTriggerProps();
     if (!triggerProps) {
       return triggerProps;
     }
 
-    const mergedProps = mergeProps(triggerProps, {
-      'aria-haspopup': 'menu' as const,
-      'aria-expanded': hasTriggerWithoutId,
-      'aria-controls': hasTriggerWithoutId ? popupId : undefined,
-    });
+    const mergedProps = mergeProps(triggerProps, interactionTypeProps);
+    delete mergedProps.role;
+    delete mergedProps['aria-controls'];
     return mergedProps;
-  }, [dismiss.trigger, listNavigation.trigger, hasTriggerWithoutId, popupId]);
+  }, [getTriggerProps, interactionTypeProps]);
 
   const popupProps = React.useMemo(
     () =>
-      shouldSyncPopupProps
-        ? mergeProps(
-            { tabIndex: -1, [FOCUSABLE_ATTRIBUTE]: '' },
-            {
-              onMouseMove() {
-                store.set('allowMouseEnter', true);
-                if (parent.type === 'menu') {
-                  store.set('hoverEnabled', false);
-                }
-              },
-              onClick() {
-                if (store.select('hoverEnabled')) {
-                  store.set('hoverEnabled', false);
-                }
-              },
-              onKeyDown(event: React.KeyboardEvent) {
-                const relay = store.select('keyboardEventRelay');
-                if (relay && !event.isPropagationStopped()) {
-                  relay(event);
-                }
-              },
-            },
-            typeahead.floating,
-            listNavigation.floating,
-            dismiss.floating,
-          )
-        : EMPTY_OBJECT,
-    [
-      dismiss.floating,
-      listNavigation.floating,
-      parent.type,
-      shouldSyncPopupProps,
-      store,
-      typeahead.floating,
-    ],
+      getFloatingProps({
+        onMouseMove() {
+          store.set('allowMouseEnter', true);
+          if (parent.type === 'menu') {
+            store.set('hoverEnabled', false);
+          }
+        },
+        onClick() {
+          if (store.select('hoverEnabled')) {
+            store.set('hoverEnabled', false);
+          }
+        },
+        onKeyDown(event) {
+          // The Menubar's CompositeRoot captures keyboard events via
+          // event delegation. This works well when Menu.Root is nested inside Menubar,
+          // but with detached triggers we need to manually forward the event to the CompositeRoot.
+          const relay = store.select('keyboardEventRelay');
+          if (relay && !event.isPropagationStopped()) {
+            relay(event);
+          }
+        },
+      }),
+    [getFloatingProps, parent.type, store],
   );
 
-  const itemProps = React.useMemo(
-    () => (shouldSyncPopupProps ? (listNavigation.item ?? EMPTY_OBJECT) : EMPTY_OBJECT),
-    [listNavigation.item, shouldSyncPopupProps],
-  );
+  const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
   store.useSyncedValues({
+    floatingRootContext,
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,

@@ -78,21 +78,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     snapToSequentialPoints,
   } = useDrawerRootContext();
   const providerContext = useDrawerProviderContext(true);
-  const visualStateStore = providerContext?.visualStateStore;
-
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const nested = store.useState('nested');
-  const nestedOpenDrawerCount = store.useState('nestedOpenDrawerCount');
-  const viewportElement = store.useState('viewportElement');
-  const popupElementState = store.useState('popupElement');
-
-  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
-  const scrollAxis =
-    swipeDirection === 'left' || swipeDirection === 'right' ? 'horizontal' : 'vertical';
-  const isVerticalScrollAxis = scrollAxis === 'vertical';
-  const crossScrollAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
-
   const {
     snapPoints,
     resolvedSnapPoints,
@@ -101,6 +86,20 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     setActiveSnapPoint,
     popupHeight,
   } = useDrawerSnapPoints();
+
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const nested = store.useState('nested');
+  const nestedOpenDrawerCount = store.useState('nestedOpenDrawerCount');
+  const viewportElement = store.useState('viewportElement');
+  const popupElementState = store.useState('popupElement');
+
+  const visualStateStore = providerContext?.visualStateStore;
+  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
+  const scrollAxis =
+    swipeDirection === 'left' || swipeDirection === 'right' ? 'horizontal' : 'vertical';
+  const isVerticalScrollAxis = scrollAxis === 'vertical';
+  const crossScrollAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
 
   const [swipeRelease, setSwipeRelease] = React.useState<number | null>(null);
   const pendingSwipeCloseSnapPointRef = React.useRef<typeof activeSnapPoint>(undefined);

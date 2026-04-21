@@ -16,7 +16,7 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   componentProps: SelectGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, id: idProp, style, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { setLabelId } = useSelectGroupContext();
 

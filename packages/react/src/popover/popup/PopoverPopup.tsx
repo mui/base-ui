@@ -54,12 +54,9 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const openReason = store.useState('openChangeReason');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');
-  const floatingId = floatingContext.useState('floatingId');
   const disabled = store.useState('disabled');
   const openOnHover = store.useState('openOnHover');
   const closeDelay = store.useState('closeDelay');
-
-  const popupId = elementProps.id ?? floatingId;
 
   useOpenChangeComplete({
     open,
@@ -109,8 +106,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     props: [
       popupProps,
       {
-        id: popupId,
-        role: 'dialog',
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
         onKeyDown(event) {

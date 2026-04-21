@@ -102,9 +102,6 @@ function SyncedFloatingRootContextTest({
 }) {
   const floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,
-    floatingRootContext: store.state.floatingRootContext,
-    floatingId: 'floating-id',
-    nested: false,
     onOpenChange,
   });
 
