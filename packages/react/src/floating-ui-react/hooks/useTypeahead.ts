@@ -26,8 +26,9 @@ export interface UseTypeaheadProps {
   onMatch?: ((index: number) => void) | undefined;
   /**
    * Optional list of item elements that correspond to `listRef` indices.
-   * When an element exists for an index, typeahead skips it if it is hidden
-   * via CSS (`display: none`).
+   * When an element exists for an index, typeahead skips it if it is hidden by
+   * `display: none`, `visibility: hidden|collapse`, or other
+   * browser-reported visibility checks.
    */
   elementsRef?: React.RefObject<Array<HTMLElement | null>> | undefined;
   /**

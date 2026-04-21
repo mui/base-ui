@@ -43,8 +43,7 @@ export default function Homepage() {
               process.env.SOURCE_CODE_REPO,
               'https://x.com/base_ui',
               'https://www.npmjs.com/package/@base-ui/react',
-              'https://discord.com/invite/g6C3hUtuxz',
-              'https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc',
+              'https://bsky.app/profile/base-ui.com',
             ],
           }),
         }}

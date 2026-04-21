@@ -285,4 +285,18 @@ describe('useTypeahead', () => {
     await userEvent.keyboard('a');
     expect(spy).toHaveBeenCalledWith(1);
   });
+
+  it('skips visibility:hidden items when matching with elementsRef', async () => {
+    const spy = vi.fn();
+    render(<ComboboxWithElementsRef onMatch={spy} />);
+
+    const apple = screen.getByRole('option', { name: 'apple' });
+
+    apple.style.visibility = 'hidden';
+
+    await userEvent.click(screen.getByRole('combobox'));
+
+    await userEvent.keyboard('a');
+    expect(spy).toHaveBeenCalledWith(1);
+  });
 });
