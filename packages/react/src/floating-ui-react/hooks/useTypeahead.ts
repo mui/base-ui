@@ -32,9 +32,9 @@ export interface UseTypeaheadProps {
    */
   elementsRef?: React.RefObject<Array<HTMLElement | null>> | undefined;
   /**
-   * Callback invoked with the typing state as the user types.
+   * Callback invoked with the current typing activity as the user types.
    */
-  onTypingChange?: ((isTyping: boolean) => void) | undefined;
+  onTyping?: ((isTyping: boolean) => void) | undefined;
   /**
    * Whether the Hook is enabled, including all internal Effects and event
    * handlers.
@@ -67,7 +67,7 @@ export function useTypeahead(
     elementsRef,
     activeIndex,
     onMatch: onMatchProp,
-    onTypingChange,
+    onTyping,
     enabled = true,
     resetMs = 750,
     selectedIndex = null,
@@ -112,12 +112,12 @@ export function useTypeahead(
     if (stringRef.current.length > 0 && event.key === ' ') {
       // Space should continue the in-progress typeahead session.
       stopEvent(event);
-      onTypingChange?.(true);
+      onTyping?.(true);
     }
 
     if (stringRef.current.length > 0 && stringRef.current[0] !== ' ') {
       if (getMatchingIndex(listContent, stringRef.current) === -1 && event.key !== ' ') {
-        onTypingChange?.(false);
+        onTyping?.(false);
       }
     }
 
@@ -135,7 +135,7 @@ export function useTypeahead(
 
     if (open && event.key !== ' ') {
       stopEvent(event);
-      onTypingChange?.(true);
+      onTyping?.(true);
     }
 
     // Capture whether this is a new typing session before mutating the string.
@@ -161,7 +161,7 @@ export function useTypeahead(
     timeout.start(resetMs, () => {
       stringRef.current = '';
       prevIndexRef.current = matchIndexRef.current;
-      onTypingChange?.(false);
+      onTyping?.(false);
     });
 
     // Compute the starting index for this search.
@@ -177,7 +177,7 @@ export function useTypeahead(
       matchIndexRef.current = index;
     } else if (event.key !== ' ') {
       stringRef.current = '';
-      onTypingChange?.(false);
+      onTyping?.(false);
     }
   });
 
@@ -197,7 +197,7 @@ export function useTypeahead(
     timeout.clear();
     stringRef.current = '';
     prevIndexRef.current = matchIndexRef.current;
-    onTypingChange?.(false);
+    onTyping?.(false);
   });
 
   useIsoLayoutEffect(() => {

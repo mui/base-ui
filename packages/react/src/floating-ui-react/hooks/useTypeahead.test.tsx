@@ -13,7 +13,7 @@ beforeEach(() => {
 const useImpl = ({
   addUseClick = false,
   ...props
-}: Pick<UseTypeaheadProps, 'onMatch' | 'onTypingChange'> & {
+}: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping'> & {
   list?: Array<string>;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -33,7 +33,7 @@ const useImpl = ({
       setActiveIndex(index);
       props.onMatch?.(index);
     },
-    onTypingChange: props.onTypingChange,
+    onTyping: props.onTyping,
   });
   const click = useClick(context, {
     enabled: addUseClick,
@@ -59,7 +59,7 @@ const useImpl = ({
 };
 
 function Combobox(
-  props: Pick<UseTypeaheadProps, 'onMatch' | 'onTypingChange'> & {
+  props: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping'> & {
     list?: Array<string>;
   },
 ) {
@@ -261,9 +261,9 @@ describe('useTypeahead', () => {
     expect((await screen.findByRole('option', { selected: true })).textContent).toBe('three');
   });
 
-  it('onTypingChange is called when typing starts or stops', async () => {
+  it('onTyping is called with typing activity', async () => {
     const spy = vi.fn();
-    render(<Combobox onTypingChange={spy} list={['one', 'two', 'three']} />);
+    render(<Combobox onTyping={spy} list={['one', 'two', 'three']} />);
 
     act(() => screen.getByRole('combobox').focus());
 

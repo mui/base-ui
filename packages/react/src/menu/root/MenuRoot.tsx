@@ -426,7 +426,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const onTypingChange = React.useCallback(
+  const onTyping = React.useCallback(
     (nextTyping: boolean) => {
       store.context.typingRef.current = nextTyping;
     },
@@ -443,7 +443,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         store.set('activeIndex', index);
       }
     },
-    onTypingChange,
+    onTyping,
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps, getTriggerProps } = useInteractions([
