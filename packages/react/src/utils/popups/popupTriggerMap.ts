@@ -24,7 +24,7 @@ export class PopupTriggerMap {
     }
 
     if (existingElement !== undefined) {
-      // We assume that the same element won't be registered under multiple ids.
+      // We assume that the same element won't be registered under multiple IDs.
       // This is safe considering how useTriggerRegistration is implemented.
       this.elementsSet.delete(existingElement);
     }
@@ -46,12 +46,13 @@ export class PopupTriggerMap {
   /**
    * Removes the trigger element with the given ID.
    */
-  public delete(id: string) {
+  public delete(id: string): boolean {
     const element = this.idMap.get(id);
     if (element) {
       this.elementsSet.delete(element);
-      this.idMap.delete(id);
     }
+
+    return this.idMap.delete(id);
   }
 
   /**
