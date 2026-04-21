@@ -1,22 +1,20 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
-import { useId } from '@base-ui/utils/useId';
 import { Timeout } from '@base-ui/utils/useTimeout';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { useFloatingParentNodeId, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { PopoverRoot } from './../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
-  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  setOpenTriggerState,
+  usePopupStore,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
@@ -85,10 +83,7 @@ export class PopoverStore<Payload> extends ReactStore<
   Context,
   Selectors
 > {
-  constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingRootContextOptions?: PopupFloatingRootContextOptions,
-  ) {
+  constructor(initialState?: Partial<State<Payload>>, floatingId?: string, nested?: boolean) {
     const initial = { ...createInitialState<Payload>(), ...initialState };
     const triggerElements = new PopupTriggerMap();
 
@@ -98,7 +93,8 @@ export class PopoverStore<Payload> extends ReactStore<
 
     initial.floatingRootContext = createPopupFloatingRootContext(
       triggerElements,
-      floatingRootContextOptions,
+      floatingId,
+      nested,
     );
 
     super(
@@ -147,13 +143,7 @@ export class PopoverStore<Payload> extends ReactStore<
         openChangeReason: eventDetails.reason,
       };
 
-      // If a popup is closing, the `trigger` may be null.
-      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-      const newTriggerId = eventDetails.trigger?.id ?? null;
-      if (newTriggerId || nextOpen) {
-        updatedState.activeTriggerId = newTriggerId;
-        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-      }
+      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
 
       this.update(updatedState);
     };
@@ -185,22 +175,10 @@ export class PopoverStore<Payload> extends ReactStore<
     initialState: Partial<State<Payload>>,
   ) {
     /* eslint-disable react-hooks/rules-of-hooks */
-    const floatingId = useId();
-    const nested = useFloatingParentNodeId() != null;
-
-    const internalStore = useRefWithInit(() => {
-      return new PopoverStore<Payload>(initialState, { floatingId, nested });
-    }).current;
-
-    const store = externalStore ?? internalStore;
-
-    useSyncedFloatingRootContext({
-      popupStore: store,
-      floatingRootContext: store.state.floatingRootContext,
-      floatingId,
-      nested,
-      onOpenChange: store.setOpen,
-    });
+    const { store, internalStore } = usePopupStore(
+      externalStore,
+      (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
+    );
 
     useOnMount(internalStore.disposeEffect);
     /* eslint-enable react-hooks/rules-of-hooks */

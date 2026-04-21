@@ -1,13 +1,11 @@
 'use client';
-import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { ReactStore } from '@base-ui/utils/store';
+import type { ReactStore } from '@base-ui/utils/store';
 import { isElement } from '@floating-ui/utils/dom';
-import { BaseUIChangeEventDetails } from '../../types';
-import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
-import { useFloatingParentNodeId } from '../components/FloatingTree';
-import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
+import type { BaseUIChangeEventDetails } from '../../types';
+import type { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
+import { type FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
 
 export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreState<any>> {
   popupStore: ReactStore<State, PopupStoreContext<any>, PopupStoreSelectors>;
@@ -16,8 +14,8 @@ export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreSta
    */
   treatPopupAsFloatingElement?: boolean | undefined;
   floatingRootContext?: FloatingRootStore | undefined;
-  floatingId?: string | undefined;
-  nested?: boolean | undefined;
+  floatingId: string | undefined;
+  nested: boolean;
   onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
 }
 
@@ -32,13 +30,10 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
     popupStore,
     treatPopupAsFloatingElement = false,
     floatingRootContext,
+    floatingId,
+    nested,
     onOpenChange,
   } = options;
-
-  const generatedFloatingId = useId();
-  const derivedNested = useFloatingParentNodeId() != null;
-  const floatingId = options.floatingId ?? generatedFloatingId;
-  const nested = options.nested ?? derivedNested;
 
   const open = popupStore.useState('open');
   const referenceElement = popupStore.useState('activeTriggerElement');

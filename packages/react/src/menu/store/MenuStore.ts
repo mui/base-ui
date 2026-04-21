@@ -1,21 +1,18 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { useId } from '@base-ui/utils/useId';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useFloatingParentNodeId, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
-  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  usePopupStore,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -113,16 +110,10 @@ export class MenuStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingRootContextOptions?: PopupFloatingRootContextOptions,
-  ) {
+  constructor(initialState?: Partial<State<Payload>>, floatingId?: string, nested?: boolean) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
-    state.floatingRootContext = createPopupFloatingRootContext(
-      triggerElements,
-      floatingRootContextOptions,
-    );
+    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
     super(
       state,
@@ -196,22 +187,10 @@ export class MenuStore<Payload> extends ReactStore<
     initialState: Partial<State<Payload>>,
   ) {
     /* eslint-disable react-hooks/rules-of-hooks */
-    const floatingId = useId();
-    const nested = useFloatingParentNodeId() != null;
-
-    const internalStore = useRefWithInit(() => {
-      return new MenuStore<Payload>(initialState, { floatingId, nested });
-    }).current;
-
-    const store = externalStore ?? internalStore;
-
-    useSyncedFloatingRootContext({
-      popupStore: store,
-      floatingRootContext: store.state.floatingRootContext,
-      floatingId,
-      nested,
-      onOpenChange: store.setOpen,
-    });
+    const { store } = usePopupStore(
+      externalStore,
+      (floatingId, nested) => new MenuStore<Payload>(initialState, floatingId, nested),
+    );
     /* eslint-enable react-hooks/rules-of-hooks */
 
     return store;

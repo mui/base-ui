@@ -63,7 +63,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const payload = store.useState('payload') as Payload | undefined;
   const nested = useFloatingParentNodeId() != null;
 
-  usePopupRootSync(store, { open });
+  usePopupRootSync(store, open);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {

@@ -17,11 +17,7 @@ import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
-import {
-  shouldCurrentTriggerOwnOpenPopup,
-  usePopupId,
-  useTriggerDataForwarding,
-} from '../../utils/popups';
+import { usePopupId, useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
@@ -135,12 +131,10 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     open: isOpenedByThisTrigger,
   };
 
-  const controlsPopup = shouldCurrentTriggerOwnOpenPopup({
-    open,
-    isOpenedByThisTrigger,
-    activeTriggerId,
-    triggerCount: store.context.triggerElements.size,
-  });
+  const controlsPopup =
+    open &&
+    (isOpenedByThisTrigger ||
+      (activeTriggerId == null && store.context.triggerElements.size === 1));
 
   const element = useRenderElement('button', componentProps, {
     state,

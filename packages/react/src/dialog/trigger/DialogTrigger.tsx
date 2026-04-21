@@ -7,11 +7,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { DialogHandle } from '../store/DialogHandle';
-import {
-  shouldCurrentTriggerOwnOpenPopup,
-  usePopupId,
-  useTriggerDataForwarding,
-} from '../../utils/popups';
+import { usePopupId, useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useClick } from '../../floating-ui-react';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
@@ -81,12 +77,10 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     open: isOpenedByThisTrigger,
   };
 
-  const controlsPopup = shouldCurrentTriggerOwnOpenPopup({
-    open,
-    isOpenedByThisTrigger,
-    activeTriggerId,
-    triggerCount: store.context.triggerElements.size,
-  });
+  const controlsPopup =
+    open &&
+    (isOpenedByThisTrigger ||
+      (activeTriggerId == null && store.context.triggerElements.size === 1));
 
   return useRenderElement('button', componentProps, {
     state,
