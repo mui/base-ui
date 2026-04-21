@@ -53,7 +53,6 @@ import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
-import { mergeProps } from '../../merge-props';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
@@ -617,20 +616,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     getHandleCloseContext: getInlineHandleCloseContext,
   });
 
-  const hover = React.useMemo(
-    () => (hoverProps ? { reference: hoverProps } : undefined),
-    [hoverProps],
-  );
-
   const click = useClick(context, {
     enabled: interactionsEnabled,
     stickIfOpen,
     toggle: isActiveItem,
   });
-  const referenceProps = React.useMemo(
-    () => mergeProps(click.reference, hover?.reference),
-    [click.reference, hover?.reference],
-  );
 
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
@@ -808,7 +798,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, handleTriggerElement, buttonRef]}
         props={[
-          referenceProps,
+          click.reference,
+          hoverProps,
           dismissProps?.reference || EMPTY_ARRAY,
           defaultProps,
           elementProps,

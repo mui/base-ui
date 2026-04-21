@@ -38,7 +38,6 @@ import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
-import { mergeProps } from '../../merge-props';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -212,11 +211,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     mouseDownAction: 'open',
   });
 
-  const localReferenceProps = React.useMemo(
-    () => mergeProps(focus.reference, click.reference),
-    [focus.reference, click.reference],
-  );
-
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
   const open = store.useState('open');
   const interactionTypeProps = useOpenMethodTriggerProps(open, (interactionType) => {
@@ -233,11 +227,13 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
-    localReferenceProps,
+    focus.reference,
+    click.reference,
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
     interactionTypeProps,
     {
+      'aria-haspopup': 'menu' as const,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
         if (store.select('open')) {
