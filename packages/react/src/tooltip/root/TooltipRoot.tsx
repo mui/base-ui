@@ -5,12 +5,12 @@ import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss } from '../../floating-ui-react';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import {
+  FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   type PayloadChildRenderFunction,
@@ -272,12 +272,7 @@ function TooltipInteractions<Payload>({
     [clientPoint.trigger, dismiss.trigger],
   );
   const popupProps = React.useMemo(
-    () =>
-      mergeProps(
-        { tabIndex: -1, [FOCUSABLE_ATTRIBUTE]: '' },
-        clientPoint.floating,
-        dismiss.floating,
-      ),
+    () => mergeProps(FOCUSABLE_POPUP_PROPS, clientPoint.floating, dismiss.floating),
     [clientPoint.floating, dismiss.floating],
   );
 

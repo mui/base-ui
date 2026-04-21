@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
@@ -185,6 +184,7 @@ export class PopoverStore<Payload> extends ReactStore<
     externalStore: PopoverStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
+    /* eslint-disable react-hooks/rules-of-hooks */
     const floatingId = useId();
     const nested = useFloatingParentNodeId() != null;
 
@@ -203,6 +203,8 @@ export class PopoverStore<Payload> extends ReactStore<
     });
 
     useOnMount(internalStore.disposeEffect);
+    /* eslint-enable react-hooks/rules-of-hooks */
+
     return store;
   }
 

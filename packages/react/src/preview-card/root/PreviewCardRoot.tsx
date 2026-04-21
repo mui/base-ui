@@ -5,7 +5,6 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { mergeProps } from '../../merge-props';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import {
@@ -15,6 +14,7 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
+  FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
@@ -200,14 +200,7 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
   const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
   const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
   const popupProps = React.useMemo(
-    () =>
-      mergeProps(
-        {
-          tabIndex: -1,
-          [FOCUSABLE_ATTRIBUTE]: '',
-        },
-        dismiss.floating,
-      ),
+    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
     [dismiss.floating],
   );
 

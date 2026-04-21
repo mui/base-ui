@@ -18,7 +18,7 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { ClosePartProvider, useClosePartCount } from '../../utils/closePart';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopupState> = {
   ...baseMapping,
@@ -110,8 +110,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       {
         id: popupId,
         role: 'dialog',
-        tabIndex: -1,
-        [FOCUSABLE_ATTRIBUTE]: '',
+        ...FOCUSABLE_POPUP_PROPS,
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
         onKeyDown(event) {
@@ -119,7 +118,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
             event.stopPropagation();
           }
         },
-      } as React.HTMLAttributes<HTMLDivElement> & Record<typeof FOCUSABLE_ATTRIBUTE, string>,
+      },
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],

@@ -18,7 +18,7 @@ import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 const stateAttributesMapping: StateAttributesMapping<MenuPopupState> = {
   ...baseMapping,
@@ -116,15 +116,14 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       {
         id: popupId,
         role: 'menu',
-        tabIndex: -1,
-        [FOCUSABLE_ATTRIBUTE]: '',
+        ...FOCUSABLE_POPUP_PROPS,
         'aria-labelledby': activeTriggerId ?? undefined,
         onKeyDown(event) {
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
           }
         },
-      } as React.HTMLAttributes<HTMLDivElement> & Record<typeof FOCUSABLE_ATTRIBUTE, string>,
+      },
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
       { 'data-rootownerid': rootId } as Record<string, string>,

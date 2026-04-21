@@ -119,19 +119,16 @@ export class PreviewCardStore<Payload> extends ReactStore<
     externalStore: PreviewCardStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    /* eslint-disable react-hooks/rules-of-hooks */
     const floatingId = useId();
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const nested = useFloatingParentNodeId() != null;
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const internalStore = useRefWithInit(() => {
       return new PreviewCardStore<Payload>(initialState, { floatingId, nested });
     }).current;
 
     const store = externalStore ?? internalStore;
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useSyncedFloatingRootContext({
       popupStore: store,
       floatingRootContext: store.state.floatingRootContext,
@@ -139,6 +136,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
       nested,
       onOpenChange: store.setOpen,
     });
+    /* eslint-enable react-hooks/rules-of-hooks */
 
     return store;
   }

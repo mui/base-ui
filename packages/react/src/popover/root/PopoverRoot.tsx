@@ -4,7 +4,6 @@ import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useDismiss, FloatingTree, useFloatingParentNodeId } from '../../floating-ui-react';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
 import { PopoverHandle } from '../store/PopoverHandle';
@@ -14,6 +13,7 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
+  FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupRootSync,
@@ -241,13 +241,7 @@ function PopoverInteractions({
   const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
 
   const popupProps = React.useMemo(() => {
-    return mergeProps(
-      {
-        tabIndex: -1,
-        [FOCUSABLE_ATTRIBUTE]: '',
-      },
-      dismiss.floating,
-    );
+    return mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating);
   }, [dismiss.floating]);
 
   store.useSyncedValues({

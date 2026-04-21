@@ -4,13 +4,13 @@ import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { mergeProps } from '../../merge-props';
 import { useDismiss } from '../../floating-ui-react';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
 import {
+  FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupRootSync,
@@ -150,14 +150,7 @@ export function DialogInteractions({
   const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
 
   const popupProps = React.useMemo(
-    () =>
-      mergeProps(
-        {
-          tabIndex: -1,
-          [FOCUSABLE_ATTRIBUTE]: '',
-        },
-        dismiss.floating,
-      ),
+    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
     [dismiss.floating],
   );
 

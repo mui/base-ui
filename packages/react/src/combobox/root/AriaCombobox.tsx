@@ -17,7 +17,6 @@ import {
   useListNavigation,
   useClick,
 } from '../../floating-ui-react';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
@@ -42,6 +41,7 @@ import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from '.
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
@@ -1081,12 +1081,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const popupProps = React.useMemo(
     () =>
-      mergeProps(
-        { tabIndex: -1, [FOCUSABLE_ATTRIBUTE]: '' },
-        listNavigation.floating,
-        dismiss.floating,
-        role.floating,
-      ),
+      mergeProps(FOCUSABLE_POPUP_PROPS, listNavigation.floating, dismiss.floating, role.floating),
     [dismiss.floating, listNavigation.floating, role.floating],
   );
 

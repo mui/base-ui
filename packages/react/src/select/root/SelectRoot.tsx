@@ -18,7 +18,6 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -37,6 +36,7 @@ import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps, mergePropsN } from '../../merge-props';
 
 type ItemUserProps = Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & {
@@ -404,7 +404,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const popupProps = React.useMemo(
     () =>
       mergeProps(
-        { tabIndex: -1, [FOCUSABLE_ATTRIBUTE]: '' },
+        FOCUSABLE_POPUP_PROPS,
         typeahead.floating,
         listNavigation.floating,
         dismiss.floating,

@@ -15,7 +15,6 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
-import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
@@ -33,6 +32,7 @@ import { mergeProps } from '../../merge-props';
 import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
+  FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
@@ -482,7 +482,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     () =>
       shouldSyncPopupProps
         ? mergeProps(
-            { tabIndex: -1, [FOCUSABLE_ATTRIBUTE]: '' },
+            FOCUSABLE_POPUP_PROPS,
             {
               onMouseMove() {
                 store.set('allowMouseEnter', true);
