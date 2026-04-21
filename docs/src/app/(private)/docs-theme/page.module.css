@@ -18,7 +18,7 @@
 .kicker {
   margin: 0 0 var(--space-8);
   color: var(--gray-t1);
-  font-size: var(--font-size-12);
+  font-size: var(--font-size-13);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -35,7 +35,7 @@
   margin: 0;
   color: var(--gray-t1);
   font-family: var(--font-mono);
-  font-size: var(--font-size-12);
+  font-size: var(--font-size-13);
 }
 
 .colorMatrixSection + .colorMatrixSection {
@@ -62,13 +62,13 @@
   align-items: center;
   color: var(--gray-t1);
   font-family: var(--font-mono);
-  font-size: var(--font-size-12);
+  font-size: var(--font-size-13);
 }
 
 .colorMatrixHeaderCell {
   color: var(--gray-p2);
   font-family: var(--font-mono);
-  font-size: var(--font-size-12);
+  font-size: var(--font-size-13);
   text-transform: lowercase;
   text-align: center;
 }
@@ -99,7 +99,7 @@
   justify-content: center;
   color: black;
   font-family: var(--font-mono);
-  font-size: var(--font-size-12);
+  font-size: var(--font-size-13);
   opacity: 0;
   pointer-events: none;
 }
