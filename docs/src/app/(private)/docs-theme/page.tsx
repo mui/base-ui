@@ -15,7 +15,7 @@ const allCoreRows = [...coreColorRows, ...accentColorRows];
 const typefaces = [
   { token: 'font-sans', sample: 'Die Grotesk A for UI copy' },
   { token: 'font-sans-b', sample: 'Die Grotesk B for headings' },
-  { token: 'font-mono', sample: 'Söhne Mono for code and data' },
+  { token: 'font-mono', sample: 'Paper Mono for code and data' },
   { token: 'font-serif', sample: 'Georgia for editorial accents' },
 ] as const;
 
