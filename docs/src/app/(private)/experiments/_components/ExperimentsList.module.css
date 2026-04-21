@@ -6,7 +6,7 @@
   & a {
     display: block;
     text-decoration: none;
-    color: var(--color-foreground);
+    color: var(--color-gray-800);
     padding: 4px 8px;
     border-radius: 0.375rem;
     margin-left: -8px;

@@ -21,7 +21,7 @@
 }
 
 .Trigger:focus-visible {
-  outline: 2px solid var(--color-blue-800);
+  outline: 2px solid var(--color-blue);
   outline-offset: -1px;
 }
 

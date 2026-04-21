@@ -8,7 +8,7 @@
 }
 
 .text {
-  color: var(--color-foreground);
+  color: var(--color-gray-800);
 
   &:hover {
     background-color: var(--color-gray-100);

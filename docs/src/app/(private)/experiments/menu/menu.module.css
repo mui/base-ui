@@ -388,12 +388,12 @@
   }
 
   .DialogConfirm:hover {
-    background: var(--color-blue-700);
+    background: oklch(0.488 0.243 264.376);
   }
 }
 
 .DialogConfirm {
-  background: var(--color-blue-600);
+  background: oklch(0.546 0.245 262.881);
 }
 
 .LinkItem {

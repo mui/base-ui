@@ -1,5 +1,5 @@
 .root {
-  border-right: 1px solid var(--color-gridline);
+  border-right: 1px solid var(--color-gray-200);
   overflow: auto;
 
   & h2 {
