@@ -2,6 +2,7 @@
 import * as React from 'react';
 import c from 'clsx';
 import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
+import { useTestInteractions } from '#test-utils';
 import { useBaseUiId } from '../../src/internals/useBaseUiId';
 import { CompositeList } from '../../src/internals/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
@@ -23,14 +24,13 @@ import {
   useFloatingParentNodeId,
   useFloatingTree,
   useHover,
-  useInteractions,
   useListNavigation,
   useTypeahead,
 } from '../../src/floating-ui-react';
 import styles from './MenuOrientation.module.css';
 
 type MenuContextType = {
-  getItemProps: ReturnType<typeof useInteractions>['getItemProps'];
+  getItemProps: ReturnType<typeof useTestInteractions>['getItemProps'];
   activeIndex: number | null;
   setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setHasFocusInside: React.Dispatch<React.SetStateAction<boolean>>;
@@ -127,7 +127,7 @@ export const MenuComponent = React.forwardRef<
     activeIndex,
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
     hover,
     click,
     dismiss,

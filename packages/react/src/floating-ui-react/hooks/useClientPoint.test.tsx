@@ -3,11 +3,12 @@ import * as React from 'react';
 import type { Coords } from '@floating-ui/react-dom';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { useTestInteractions } from '#test-utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { PopupTriggerMap } from '../../utils/popups';
 import { FloatingRootStore } from '../components/FloatingRootStore';
-import { useClientPoint, useFloating, useInteractions } from '../index';
+import { useClientPoint, useFloating } from '../index';
 
 function expectLocation({ x, y }: Coords) {
   expect(Number(screen.getByTestId('x')?.textContent)).toBe(x);
@@ -57,7 +58,9 @@ function App({
     enabled,
     axis,
   });
-  const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([clientPoint]);
+  const { getReferenceProps, getTriggerProps, getFloatingProps } = useTestInteractions([
+    clientPoint,
+  ]);
 
   const rect = elements.reference?.getBoundingClientRect();
   const referenceProps = useTriggerProps ? getTriggerProps() : getReferenceProps();

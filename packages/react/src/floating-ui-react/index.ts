@@ -19,7 +19,6 @@ export { useFocus } from './hooks/useFocus';
 export { useHoverFloatingInteraction } from './hooks/useHoverFloatingInteraction';
 export { useHoverReferenceInteraction } from './hooks/useHoverReferenceInteraction';
 export { useHover } from './hooks/useHover';
-export { useInteractions } from './hooks/useInteractions';
 export { useListNavigation } from './hooks/useListNavigation';
 export { useTypeahead } from './hooks/useTypeahead';
 export { safePolygon } from './safePolygon';

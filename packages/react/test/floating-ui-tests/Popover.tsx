@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 'use client';
 import * as React from 'react';
+import { useTestInteractions } from '#test-utils';
 import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
 import type { Placement } from '../../src/floating-ui-react/types';
 import {
@@ -19,7 +20,6 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
   useHover,
-  useInteractions,
 } from '../../src/floating-ui-react';
 import styles from './Popover.module.css';
 
@@ -126,7 +126,7 @@ function PopoverComponent({
   const triggerId = `${id}-trigger`;
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
     useHover(hover ? context : fallbackContext, {
       handleClose: safePolygon({ blockPointerEvents: true }),
     }),
