@@ -1,17 +1,7 @@
 /*
- * Main stylesheet for docs/private surfaces. Also used in e2e/regression tests.
+ * Main stylesheet for the public site: docs, home page, careers, etc. Also used in e2e/regression tests.
  *
- * This app has three separate parts, each one in a separate folder:
- *   1. (docs): public documentation.
- *     - Demos live inside (docs), but they follow other rules. Read below.
- *   2. (private): mostly experiments.
- *   3. (website): home page, careers, etc.
- *
- * The three parts are styled using our custom utilities and styles (except demos, read below):
- *   - (docs) and (private) use this stylesheet.
- *   - (website) uses its own stylesheet for now, but in the future it will also use this one.
- *
- * These rules apply to all parts (except demos):
+ * Rules when writing CSS for the public site (except demos):
  *   - Components' CSS must be wrapped in "@layer components".
  *   - Use component name as the prefix to avoid conflicts, e.g. ".SelectTriggerIcon".
  *   - Prefix CSS variables with component name too, e.g. "--root-layout-padding-x".
@@ -23,7 +13,7 @@
  *
  * Demos:
  * - Do not use our custom styles or CSS vars in demos.
- * - Only the Tailwind demos in the (docs) use Tailwind (`app/(docs)/react/**\/tailwind\/**\/*`).
+ * - Only the Tailwind demos in the (docs) use Tailwind.
  *   - Use only what's available in Tailwind's default theme, both classes and CSS vars.
  */
 
