@@ -1100,7 +1100,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return { ...listNavigation.item };
       }
 
-      return EMPTY_OBJECT;
+      return {};
     },
     [listNavigation],
   );

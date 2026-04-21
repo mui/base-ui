@@ -1734,6 +1734,29 @@ describe('<Select.Root />', () => {
       expect(screen.queryByRole('listbox')).toBe(null);
       expect(handleOpenChange.mock.calls.length).toBe(0);
     });
+
+    it('should prevent value changes when readOnly with items', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root readOnly onValueChange={handleValueChange} defaultOpen>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'a' }));
+
+      expect(handleValueChange.mock.calls.length).toBe(0);
+    });
   });
 
   describe('prop: id', () => {
