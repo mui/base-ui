@@ -156,8 +156,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.14)(react@19.2.4)
       '@mui/internal-docs-infra':
-        specifier: 0.7.1-canary.0
-        version: 0.7.1-canary.0(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)(typescript@6.0.2)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@cc673ce
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@cc673ce(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)(typescript@6.0.2)
       '@next/mdx':
         specifier: ^16.1.6
         version: 16.2.2(@mdx-js/loader@3.1.1(webpack@5.105.4(esbuild@0.27.7)))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.4))
@@ -2244,8 +2244,9 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.7.1-canary.0':
-    resolution: {integrity: sha512-3gwRRk7KtFsGnRgc75i0BpvFcMBEm6EyPOVA43W0Jbh93/zGF3D3+FRbUGn2sbj6TNBhdNDw/q7QLcofSIPpLg==}
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@cc673ce':
+    resolution: {integrity: sha512-lewIeRTbeaMZvRZX8xBeaxdQl1JQijThx7htxr6zPadA++wvoGtL9Nw62XxC7EYtUSfAC0VNgOESBwD195k2JA==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@cc673ce}
+    version: 0.8.0
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -2253,7 +2254,7 @@ packages:
       next: ^15.0.0 || ^16.0.0
       prettier: ^3.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
-      typescript: ^5.9.3
+      typescript: ^6.0.2
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -9191,8 +9192,8 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@1.0.0-beta.2:
-    resolution: {integrity: sha512-vcpVgRHrNBbhoHj4qcjNf5hvA2BEskNyoZLvasUOv0bls/Py1akVTyeCwElSxj5XfcG+a0TTETVG/PyNc2Eh6A==}
+  typescript-api-extractor@1.0.0-beta.3:
+    resolution: {integrity: sha512-kniM+MhKK2egY8Vs6etsX8oWdBtjDOoSSPI0p7p5zlGtEuYfdozS5aCyJReLSTpLP+c2886oJ2c/6Nw7cTyJEQ==}
     engines: {node: '>=22'}
     peerDependencies:
       typescript: ^5.8
@@ -11431,7 +11432,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.7.1-canary.0(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)(typescript@6.0.2)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@cc673ce(@types/react@19.2.14)(next@16.1.7(@babel/core@7.29.0)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(prettier@3.8.1)(react@19.2.4)(typescript@6.0.2)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@babel/standalone': 7.29.2
@@ -11459,7 +11460,7 @@ snapshots:
       remark-stringify: 11.0.0
       remark-typography: 0.7.3
       typescript: 6.0.2
-      typescript-api-extractor: 1.0.0-beta.2(typescript@6.0.2)
+      typescript-api-extractor: 1.0.0-beta.3(typescript@6.0.2)
       uint8-to-base64: 0.2.1
       unified: 11.0.5
       unist-util-visit: 5.1.0
@@ -19600,7 +19601,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-api-extractor@1.0.0-beta.2(typescript@6.0.2):
+  typescript-api-extractor@1.0.0-beta.3(typescript@6.0.2):
     dependencies:
       es-toolkit: 1.45.1
       typescript: 6.0.2
