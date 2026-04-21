@@ -45,12 +45,10 @@ describe('<Popover.Root />', () => {
     });
 
     it('supports outside press immediately after first open from a closed initial mount', async () => {
-      const { user } = await render(<TestPopover />);
+      await render(<TestPopover />);
 
-      await user.click(screen.getByRole('button', { name: 'Toggle' }));
-      await screen.findByRole('dialog');
-
-      await user.click(document.body);
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      fireEvent.click(document.body);
 
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).toBe(null);

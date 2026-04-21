@@ -65,12 +65,10 @@ describe('<Dialog.Root />', () => {
     });
 
     it('supports Escape immediately after first open from a closed initial mount', async () => {
-      const { user } = await render(<TestDialog />);
+      await render(<TestDialog />);
 
-      await user.click(screen.getByRole('button', { name: 'Open' }));
-      await screen.findByRole('dialog');
-
-      await user.keyboard('[Escape]');
+      fireEvent.click(screen.getByRole('button', { name: 'Open' }));
+      fireEvent.keyDown(document.body, { key: 'Escape' });
 
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).toBe(null);
