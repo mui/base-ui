@@ -83,10 +83,11 @@ export function useClick(
       nextOpen: boolean,
       nativeEvent: MouseEvent,
       target: HTMLElement,
+      pointerType: 'mouse' | 'pen' | 'touch' | undefined,
     ) {
       const details = createChangeEventDetails(reason, nativeEvent, target);
 
-      if (nextOpen && pointerTypeRef.current === 'touch' && touchOpenDelay > 0) {
+      if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
         touchOpenTimeout.start(touchOpenDelay, () => {
           store.setOpen(true, details);
         });
@@ -157,7 +158,7 @@ export function useClick(
         const target = getTarget(nativeEvent);
 
         if (isTypeableElement(target)) {
-          setOpenWithTouchDelay(nextOpen, nativeEvent, target as HTMLElement);
+          setOpenWithTouchDelay(nextOpen, nativeEvent, target as HTMLElement, pointerType);
           return;
         }
 
@@ -168,7 +169,7 @@ export function useClick(
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          setOpenWithTouchDelay(nextOpen, nativeEvent, eventCurrentTarget);
+          setOpenWithTouchDelay(nextOpen, nativeEvent, eventCurrentTarget, pointerType);
         });
       },
       onClick(event) {
@@ -197,7 +198,12 @@ export function useClick(
             openEventType === 'keydown' ||
             openEventType === 'keyup',
         );
-        setOpenWithTouchDelay(nextOpen, event.nativeEvent, event.currentTarget as HTMLElement);
+        setOpenWithTouchDelay(
+          nextOpen,
+          event.nativeEvent,
+          event.currentTarget as HTMLElement,
+          pointerType,
+        );
       },
       onKeyDown() {
         pointerTypeRef.current = undefined;

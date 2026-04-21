@@ -176,6 +176,40 @@ describe.skipIf(!isJSDOM)('useClick', () => {
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
   });
 
+  test('delays touch opening from the deferred mousedown event path', async () => {
+    vi.useFakeTimers();
+
+    const frameCallbacks: FrameRequestCallback[] = [];
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frameCallbacks.push(callback);
+      return frameCallbacks.length;
+    });
+
+    render(<App event="mousedown" touchOpenDelay={100} />);
+
+    const button = screen.getByRole('button');
+
+    await act(async () => {
+      button.dispatchEvent(createPointerEvent('pointerdown', 'touch'));
+      button.dispatchEvent(createMouseEvent('mousedown'));
+      button.dispatchEvent(createMouseEvent('click'));
+    });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+    await act(async () => {
+      frameCallbacks.forEach((callback) => callback(0));
+    });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+    await act(async () => {
+      vi.advanceTimersByTime(100);
+    });
+
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+  });
+
   test('does not delay touch closing', async () => {
     vi.useFakeTimers();
 
