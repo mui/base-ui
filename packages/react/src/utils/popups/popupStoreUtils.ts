@@ -14,10 +14,10 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { HTMLProps } from '../../internals/types';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import {
-  PopupStoreState,
-  PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreSelectors,
+  type PopupStoreState,
+  type PopupStoreContext,
+  type PopupStoreSelectors,
 } from './store';
 
 export const FOCUSABLE_POPUP_PROPS = {
@@ -129,20 +129,6 @@ export function setOpenTriggerState(
     state.activeTriggerId = triggerId;
     state.activeTriggerElement = trigger ?? null;
   }
-}
-
-export function shouldCurrentTriggerOwnOpenPopup({
-  open,
-  isOpenedByThisTrigger,
-  activeTriggerId,
-  triggerCount,
-}: {
-  open: boolean;
-  isOpenedByThisTrigger: boolean;
-  activeTriggerId: string | null;
-  triggerCount: number;
-}) {
-  return open && (isOpenedByThisTrigger || (activeTriggerId == null && triggerCount === 1));
 }
 
 /**

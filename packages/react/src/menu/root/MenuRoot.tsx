@@ -38,6 +38,7 @@ import {
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
+  setOpenTriggerState,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
@@ -309,13 +310,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       };
       openEventRef.current = eventDetails.event ?? null;
 
-      // If a popup is closing, the `trigger` may be null.
-      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-      const newTriggerId = eventDetails.trigger?.id ?? null;
-      if (newTriggerId || nextOpen) {
-        updatedState.activeTriggerId = newTriggerId;
-        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-      }
+      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
 
       store.update(updatedState);
 

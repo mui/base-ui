@@ -381,41 +381,6 @@ describe('usePopupInteractionProps', () => {
   });
 });
 
-describe('shouldCurrentTriggerOwnOpenPopup', () => {
-  it('returns true for the trigger that opened the popup', () => {
-    expect(
-      shouldCurrentTriggerOwnOpenPopup({
-        open: true,
-        isOpenedByThisTrigger: true,
-        activeTriggerId: 'trigger-1',
-        triggerCount: 2,
-      }),
-    ).toBe(true);
-  });
-
-  it('returns true for an open single-trigger popup without an active trigger id', () => {
-    expect(
-      shouldCurrentTriggerOwnOpenPopup({
-        open: true,
-        isOpenedByThisTrigger: false,
-        activeTriggerId: null,
-        triggerCount: 1,
-      }),
-    ).toBe(true);
-  });
-
-  it('returns false for an open multi-trigger popup without an active trigger id', () => {
-    expect(
-      shouldCurrentTriggerOwnOpenPopup({
-        open: true,
-        isOpenedByThisTrigger: false,
-        activeTriggerId: null,
-        triggerCount: 2,
-      }),
-    ).toBe(false);
-  });
-});
-
 describe('usePopupRootSync', () => {
   it('clears openMethod after the popup closes', () => {
     const store = createSyncStore({ openMethod: 'touch' });
