@@ -40,7 +40,7 @@ export default function ExampleCombobox() {
         </Combobox.Portal>
       </Combobox.Root>
 
-      <hr className="bui-my-4" />
+      <hr style={{ marginBlock: '1rem' }} />
 
       <h2>Without manually specified index</h2>
       <Combobox.Root items={fruits}>
@@ -76,7 +76,7 @@ export default function ExampleCombobox() {
         </Combobox.Portal>
       </Combobox.Root>
 
-      <hr className="bui-my-4" />
+      <hr style={{ marginBlock: '1rem' }} />
 
       <h2>Open API (no filtering)</h2>
       <Combobox.Root>

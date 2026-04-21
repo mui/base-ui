@@ -47,7 +47,7 @@
 .sidebar {
   box-sizing: border-box;
   width: var(--sidebar-width);
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   position: fixed;
   top: 0;
   bottom: 0;

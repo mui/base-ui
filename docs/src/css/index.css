@@ -102,46 +102,6 @@
   --font-sans: 'die grotesk a', system-ui, sans-serif;
   --font-sans-b: 'die grotesk b', system-ui, sans-serif;
   --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
-
-  --text-xs: 0.8125rem;
-  --text-xs--line-height: 1.25rem;
-  --text-xs--letter-spacing: 0.001em;
-
-  --text-sm: 0.875rem;
-  --text-sm--line-height: 1.25rem;
-  --text-sm--letter-spacing: 0.016em;
-
-  --text-base: 1rem;
-  --text-base--line-height: 1.5rem;
-  --text-base--letter-spacing: 0em;
-
-  --text-lg: 1.125rem;
-  --text-lg--line-height: 1.75rem;
-  --text-lg--letter-spacing: -0.0025em;
-
-  --text-xl: 1.3125rem;
-  --text-xl--line-height: 1.625rem;
-  --text-xl--letter-spacing: -0.005em;
-
-  --text-2xl: 1.5rem;
-  --text-2xl--line-height: 1.25;
-  --text-2xl--letter-spacing: -0.0125em;
-
-  --text-3xl: 1.875rem;
-  --text-3xl--line-height: 1.2;
-  --text-3xl--letter-spacing: -0.015em;
-
-  --text-4xl: 2.25rem;
-  --text-4xl--line-height: 2.5rem;
-  --text-4xl--letter-spacing: -0.015em;
-
-  --text-5xl: 3rem;
-  --text-5xl--line-height: 1;
-  --text-5xl--letter-spacing: -0.015em;
-
-  --text-6xl: 3.75rem;
-  --text-6xl--line-height: 0.95;
-  --text-6xl--letter-spacing: -0.015em;
 }
 
 /* ═══ Demo isolation ═══ */
@@ -156,11 +116,6 @@
 
   [data-demo]:not([data-demo='tailwind']) * {
     all: revert-layer;
-  }
-
-  [data-demo='tailwind'] {
-    --text-sm--letter-spacing: 0em;
-    --text-md--letter-spacing: 0em;
   }
 }
 

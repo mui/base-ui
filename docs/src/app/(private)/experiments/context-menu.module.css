@@ -20,8 +20,8 @@
 
 .SectionTitle {
   margin: 0 0 1rem;
-  font-size: var(--text-xl);
-  line-height: var(--text-xl--line-height);
+  font-size: 1.25rem;
+  line-height: 1.75rem;
   font-weight: 600;
 }
 
@@ -59,7 +59,7 @@
 .Item {
   cursor: default;
   padding: 0.5rem 0.75rem;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
 }
 
 .Item:hover {
@@ -76,7 +76,7 @@
   justify-content: space-between;
   cursor: default;
   padding: 0.5rem 0.75rem;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
 }
 
 .SubmenuTrigger:hover {
@@ -157,8 +157,8 @@
 
 .LabelSecondary {
   display: block;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .BluePrimary {
@@ -257,7 +257,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  font-size: var(--text-base);
+  font-size: 1rem;
   color: var(--color-gray-600);
 }
 
@@ -269,7 +269,7 @@
   border: 1px solid var(--color-gray-300);
   border-radius: 0.375rem;
   padding: 0.375rem 0.75rem;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   color: var(--color-gray-800);
 }
 
@@ -302,8 +302,8 @@
 }
 
 .DisabledLabel {
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--color-gray-700);
 }
 
@@ -329,7 +329,7 @@
   cursor: default;
   padding: 0.5rem 0.75rem;
   text-align: left;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
 }
 
 .SpecialTrigger:hover {

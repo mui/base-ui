@@ -3,16 +3,16 @@
 }
 
 .Title {
-  font-size: var(--text-lg);
-  line-height: var(--text-lg--line-height);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
   font-weight: 600;
   color: var(--color-gray-900);
 }
 
 .Description {
   margin-top: 0.25rem;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--color-gray-600);
 }
 
@@ -21,8 +21,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 500;
   color: var(--color-gray-900);
 }
@@ -75,7 +75,7 @@
 
 .SectionTitle {
   margin-bottom: 0.75rem;
-  font-size: var(--text-base);
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-gray-900);
 }
@@ -96,7 +96,7 @@
   border-radius: 0.375rem;
   background: var(--color-gray-50);
   padding: 0 0.875rem;
-  font-size: var(--text-base);
+  font-size: 1rem;
   font-weight: 500;
   color: var(--color-gray-900);
 }
@@ -212,7 +212,7 @@
   display: flex;
   cursor: default;
   padding: 0.5rem 2rem 0.5rem 1rem;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   line-height: 1rem;
   user-select: none;
   outline: none;
@@ -242,8 +242,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 500;
   color: var(--color-gray-900);
 }
@@ -260,7 +260,7 @@
   background: canvas;
   padding-left: 0.875rem;
   padding-right: 2rem;
-  font-size: var(--text-base);
+  font-size: 1rem;
   color: var(--color-gray-900);
 }
 
@@ -340,7 +340,7 @@
   display: flex;
   cursor: default;
   padding: 0.5rem 2rem 0.5rem 1rem;
-  font-size: var(--text-base);
+  font-size: 1rem;
   line-height: 1rem;
   user-select: none;
   outline: none;
@@ -360,13 +360,13 @@
 }
 
 .InnerTitle {
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
 .InnerDescription {
   margin-top: 0.25rem;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   color: var(--color-gray-600);
 }
 

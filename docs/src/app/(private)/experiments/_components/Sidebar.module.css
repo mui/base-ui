@@ -5,7 +5,7 @@
   & h2 {
     text-transform: uppercase;
     font-weight: bold;
-    font-size: var(--text-xs);
+    font-size: 0.75rem;
     color: var(--color-gray-500);
   }
 }
