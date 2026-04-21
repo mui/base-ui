@@ -4,7 +4,9 @@ import { Tooltip } from '@base-ui/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { OPEN_DELAY } from '../utils/constants';
+import { TooltipStore } from '../store/TooltipStore';
 import { REASONS } from '../../internals/reasons';
 
 describe('<Tooltip.Root />', () => {
@@ -33,6 +35,25 @@ describe('<Tooltip.Root />', () => {
     ),
     render,
     triggerMouseAction: 'hover',
+  });
+
+  it('allows the same trigger to reopen after an internal close in controlled mode', () => {
+    const trigger = document.createElement('button');
+    trigger.id = 'trigger';
+
+    const store = new TooltipStore({
+      open: false,
+      openProp: true,
+      activeTriggerId: trigger.id,
+      activeTriggerElement: trigger,
+    });
+    const onOpenChange = vi.fn();
+    store.context.onOpenChange = onOpenChange;
+
+    store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, undefined, trigger));
+
+    expect(onOpenChange.mock.calls.length).toBe(1);
+    expect(store.state.open).toBe(true);
   });
 
   it('does not set aria-describedby on the trigger', async () => {

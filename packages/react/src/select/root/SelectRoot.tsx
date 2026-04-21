@@ -436,7 +436,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         return { ...listNavigation.item };
       }
 
-      return EMPTY_OBJECT;
+      return {};
     },
     [listNavigation],
   );

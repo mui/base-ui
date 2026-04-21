@@ -82,7 +82,11 @@ export class TooltipStore<Payload> extends ReactStore<
     const nextTriggerId = eventDetails.trigger?.id ?? null;
     const currentTriggerId = this.state.activeTriggerId;
 
-    if (currentOpen === nextOpen && (!nextOpen || nextTriggerId === currentTriggerId)) {
+    const isAlreadyClosed = !currentOpen && !nextOpen;
+    const isAlreadyOpenByThisTrigger =
+      currentOpen && nextOpen && this.state.open && nextTriggerId === currentTriggerId;
+
+    if (isAlreadyClosed || isAlreadyOpenByThisTrigger) {
       return;
     }
 
