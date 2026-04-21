@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import * as React from 'react';
 
+import 'docs/src/css/index.css';
+
 import styles from './page.module.css';
 
 const coreScaleSteps = ['s1', 's2', 'c1', 'c2', 'c3', 'p1', 'p2', 't1', 't2'] as const;
@@ -29,7 +31,7 @@ const shadows = ['1', '2', '3', '4', '5'] as const;
 
 export default function ThemePage() {
   return (
-    <main className={styles.page} data-theme="redesign">
+    <main className={styles.page}>
       <header className={styles.hero}>
         <p className={styles.kicker}>
           <span aria-hidden="true">🔒</span> Private

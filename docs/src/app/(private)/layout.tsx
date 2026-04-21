@@ -1,35 +1,11 @@
 import * as React from 'react';
 import { Metadata, Viewport } from 'next';
-import 'docs/src/css/index.css';
-import './layout.css';
+import './index.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
     // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
     <html lang="en">
-      <head>
-        <link
-          rel="preload"
-          href="/fonts/die-grotesk-a-regular.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/die-grotesk-a-bold.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/die-grotesk-b-bold.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
   );
