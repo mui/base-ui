@@ -273,28 +273,38 @@
     --color-docs-infra-syntax-nullish: var(--color-blue);
   }
 
-  /* Line highlighting */
-  pre [data-hl] {
+  /* Frame highlighting */
+  pre .frame[data-frame-type='highlighted'] {
     background-color: var(--color-line-highlight);
   }
 
-  pre [data-hl='strong'] {
+  /* Line highlighting */
+  pre .line[data-hl] {
+    background-color: var(--color-line-highlight);
+  }
+
+  pre .line[data-hl='strong'] {
     background-color: var(--color-line-highlight-strong);
   }
 
-  /* Word highlighting */
-  pre [data-hl]:not(.line) {
+  /* Mark (text) highlighting */
+  pre mark {
     display: inline-flex;
+    background-color: var(--color-line-highlight);
+    color: var(--color-blue);
   }
 
-  /* Make highlighted words blue */
-  pre [data-hl]:not(.line),
-  pre [data-hl]:not(.line) > * {
+  pre mark > * {
     color: var(--color-blue);
   }
 
   /* Stronger emphasis for highlighted words inside already highlighted lines */
-  pre .line[data-hl] [data-hl]:not(.line) {
+  pre mark[data-hl] {
     background-color: var(--color-line-highlight-strong);
+  }
+
+  /* Inside a strong highlighted line, mark steps up further */
+  pre mark[data-hl='strong'] {
+    background-color: var(--color-line-highlight-strong-mark);
   }
 }

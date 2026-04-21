@@ -214,6 +214,7 @@
     --color-selection: oklch(80% 28% 264deg / 50%);
     --color-line-highlight: oklch(80% 28% 264deg / 20%);
     --color-line-highlight-strong: oklch(80% 28% 264deg / 35%);
+    --color-line-highlight-strong-mark: oklch(80% 28% 264deg / 50%);
 
     /* Syntax highlighting */
     --color-gray: var(--color-gray-600);
@@ -329,6 +330,7 @@
       --color-selection: oklch(50% 50% 264deg / 40%);
       --color-line-highlight: oklch(50% 50% 264deg / 20%);
       --color-line-highlight-strong: oklch(50% 50% 264deg / 35%);
+      --color-line-highlight-strong-mark: oklch(50% 50% 264deg / 50%);
 
       /* Syntax highlighting */
       --color-gray: var(--color-gray-600);
@@ -406,6 +408,7 @@
     --color-highlight: initial;
     --color-line-highlight: initial;
     --color-line-highlight-strong: initial;
+    --color-line-highlight-strong-mark: initial;
 
     --color-gray: initial;
     --color-navy: initial;
