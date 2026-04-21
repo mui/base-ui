@@ -20,20 +20,14 @@ export const DialogClose = React.forwardRef(function DialogClose(
   const {
     render,
     className,
+    style,
     disabled = false,
     nativeButton = true,
-    style,
     ...elementProps
   } = componentProps;
 
   const { store } = useDialogRootContext();
   const open = store.useState('open');
-
-  function handleClick(event: React.MouseEvent) {
-    if (open) {
-      store.setOpen(false, createChangeEventDetails(REASONS.closePress, event.nativeEvent));
-    }
-  }
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -41,6 +35,12 @@ export const DialogClose = React.forwardRef(function DialogClose(
   });
 
   const state: DialogCloseState = { disabled };
+
+  function handleClick(event: React.MouseEvent) {
+    if (open) {
+      store.setOpen(false, createChangeEventDetails(REASONS.closePress, event.nativeEvent));
+    }
+  }
 
   return useRenderElement('button', componentProps, {
     state,

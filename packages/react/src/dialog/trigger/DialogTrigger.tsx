@@ -24,12 +24,12 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   const {
     render,
     className,
+    style,
     disabled = false,
     nativeButton = true,
     id: idProp,
     payload,
     handle,
-    style,
     ...elementProps
   } = componentProps;
 

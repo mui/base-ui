@@ -236,7 +236,7 @@ export interface FloatingFocusManagerProps {
    */
   beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null> | undefined;
   /**
-   * External FlatingTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
   /**
@@ -349,15 +349,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     const doc = ownerDocument(floatingFocusElement);
     return addEventListener(doc, 'keydown', onKeyDown);
-  }, [
-    disabled,
-    domReference,
-    floatingFocusElement,
-    modal,
-    orderRef,
-    isUntrappedTypeableCombobox,
-    getTabbableContent,
-  ]);
+  }, [disabled, floatingFocusElement, modal, isUntrappedTypeableCombobox, getTabbableContent]);
 
   // Track pointer/keyboard interactions to disambiguate focus and outside presses.
   React.useEffect(() => {
@@ -650,7 +642,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     domReference,
     floating,
     modal,
-    orderRef,
     portalContext,
     isUntrappedTypeableCombobox,
     tree,
@@ -713,7 +704,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     disabled,
     open,
     floatingFocusElement,
-    ignoreInitialFocus,
     getTabbableContent,
     initialFocusRef,
     openInteractionTypeRef,
@@ -843,7 +833,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floating,
     floatingFocusElement,
     returnFocusRef,
-    dataRef,
     events,
     tree,
     domReference,
@@ -868,6 +857,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       activeEl.blur();
     }
   }, [open, floating]);
+
   // Synchronize the `context` & `modal` value to the FloatingPortal context.
   // It will decide whether or not it needs to render its own guards.
   useIsoLayoutEffect(() => {
