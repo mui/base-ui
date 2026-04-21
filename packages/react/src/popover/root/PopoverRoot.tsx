@@ -101,6 +101,40 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   );
 }
 
+function PopoverInteractions({
+  store,
+  modal,
+}: {
+  store: PopoverStore<any>;
+  modal: boolean | 'trap-focus';
+}) {
+  const floatingRootContext = store.useState('floatingRootContext');
+
+  const dismiss = useDismiss(floatingRootContext, {
+    outsidePressEvent: {
+      // Ensure `aria-hidden` on outside elements is removed immediately
+      // on outside press when trapping focus.
+      mouse: modal === 'trap-focus' ? 'sloppy' : 'intentional',
+      touch: 'sloppy',
+    },
+  });
+
+  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
+  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
+
+  const popupProps = React.useMemo(() => {
+    return mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating);
+  }, [dismiss.floating]);
+
+  usePopupInteractionProps(store, {
+    activeTriggerProps,
+    inactiveTriggerProps,
+    popupProps,
+  });
+
+  return null;
+}
+
 /**
  * Groups all parts of the popover.
  * Doesn't render its own HTML element.

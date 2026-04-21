@@ -111,23 +111,18 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     native: nativeButton,
   });
 
-  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = {
-    open(value) {
-      if (value && openReason === REASONS.triggerPress) {
-        return pressableTriggerOpenStateMapping.open(value);
-      }
+  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = React.useMemo(
+    () => ({
+      open(value) {
+        if (value && openReason === REASONS.triggerPress) {
+          return pressableTriggerOpenStateMapping.open(value);
+        }
 
-      return triggerOpenStateMapping.open(value);
-    },
-  };
-
-  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
-    useTriggerFocusGuards(store, triggerElementRef);
-
-  const state: PopoverTriggerState = {
-    disabled,
-    open: isOpenedByThisTrigger,
-  };
+        return triggerOpenStateMapping.open(value);
+      },
+    }),
+    [openReason],
+  );
 
   const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
     useTriggerFocusGuards(store, triggerElementRef);
@@ -136,13 +131,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     disabled,
     open: isOpenedByThisTrigger,
   };
-
-  const controlsPopup = shouldCurrentTriggerOwnOpenPopup({
-    open,
-    isOpenedByThisTrigger,
-    activeTriggerId,
-    triggerCount: store.context.triggerElements.size,
-  });
 
   const element = useRenderElement('button', componentProps, {
     state,

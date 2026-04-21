@@ -18,6 +18,7 @@ import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 const stateAttributesMapping: StateAttributesMapping<MenuPopupState> = {
   ...baseMapping,
@@ -49,16 +50,14 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
+  const activeTriggerId = store.useState('activeTriggerId');
   const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
-  const activeTriggerId = store.useState('activeTriggerId');
   const floatingId = floatingContext.useState('floatingId');
-  const hoverEnabled = store.useState('hoverEnabled');
-  const disabled = store.useState('disabled');
 
   const popupId = elementProps.id ?? floatingId;
 
@@ -119,6 +118,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       {
         id: popupId,
         role: 'menu',
+        ...FOCUSABLE_POPUP_PROPS,
         'aria-labelledby': activeTriggerId ?? undefined,
         onKeyDown(event) {
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
