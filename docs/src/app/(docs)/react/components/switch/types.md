@@ -32,19 +32,19 @@ Renders a `<span>` element and a hidden `<input>` beside.
 
 **Root Data Attributes:**
 
-| Attribute      | Type | Description                                                               |
-| :------------- | :--- | :------------------------------------------------------------------------ |
-| data-checked   | -    | Present when the switch is checked.                                       |
-| data-unchecked | -    | Present when the switch is not checked.                                   |
-| data-disabled  | -    | Present when the switch is disabled.                                      |
-| data-readonly  | -    | Present when the switch is readonly.                                      |
-| data-required  | -    | Present when the switch is required.                                      |
-| data-valid     | -    | Present when the switch is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the switch is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the switch's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the switch has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the switch is active (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the switch is focused (when wrapped in Field.Root).          |
+| Attribute      | Type | Description                                                                  |
+| :------------- | :--- | :--------------------------------------------------------------------------- |
+| data-checked   | -    | Present when the switch is checked.                                          |
+| data-unchecked | -    | Present when the switch is not checked.                                      |
+| data-disabled  | -    | Present when the switch is disabled.                                         |
+| data-readonly  | -    | Present when the switch is readonly.                                         |
+| data-required  | -    | Present when the switch is required.                                         |
+| data-valid     | -    | Present when the switch is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the switch is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the switch's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the switch has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the switch is active (when wrapped in Field.Root).              |
+| data-focused   | -    | Present when the switch is focused (when wrapped in Field.Root).             |
 
 ### Root.Props
 
@@ -117,19 +117,19 @@ Renders a `<span>`.
 
 **Thumb Data Attributes:**
 
-| Attribute      | Type | Description                                                               |
-| :------------- | :--- | :------------------------------------------------------------------------ |
-| data-checked   | -    | Present when the switch is checked.                                       |
-| data-unchecked | -    | Present when the switch is not checked.                                   |
-| data-disabled  | -    | Present when the switch is disabled.                                      |
-| data-readonly  | -    | Present when the switch is readonly.                                      |
-| data-required  | -    | Present when the switch is required.                                      |
-| data-valid     | -    | Present when the switch is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the switch is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the switch's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the switch has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the switch is active (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the switch is focused (when wrapped in Field.Root).          |
+| Attribute      | Type | Description                                                                  |
+| :------------- | :--- | :--------------------------------------------------------------------------- |
+| data-checked   | -    | Present when the switch is checked.                                          |
+| data-unchecked | -    | Present when the switch is not checked.                                      |
+| data-disabled  | -    | Present when the switch is disabled.                                         |
+| data-readonly  | -    | Present when the switch is readonly.                                         |
+| data-required  | -    | Present when the switch is required.                                         |
+| data-valid     | -    | Present when the switch is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the switch is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the switch's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the switch has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the switch is active (when wrapped in Field.Root).              |
+| data-focused   | -    | Present when the switch is focused (when wrapped in Field.Root).             |
 
 ### Thumb.Props
 

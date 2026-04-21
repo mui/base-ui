@@ -59,6 +59,7 @@ export const metadata: Metadata = {
     ttl: 604800,
   },
   icons: {
+    // Based on https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs
     icon: [
       {
         rel: 'icon',

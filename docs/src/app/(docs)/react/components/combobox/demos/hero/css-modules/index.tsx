@@ -34,7 +34,7 @@ export default function ExampleCombobox() {
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>{item.label}</div>
+                  <span className={styles.ItemText}>{item.label}</span>
                 </Combobox.Item>
               )}
             </Combobox.List>

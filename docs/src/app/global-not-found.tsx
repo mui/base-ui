@@ -1,5 +1,6 @@
-import { Link } from 'docs/src/components/Link';
 import Layout from './(website)/layout';
+// eslint-disable-next-line import/order -- We import the layout first to ensure the CSS layer order is correct
+import { Link } from 'docs/src/components/Link';
 
 export default function NotFoundPage() {
   return (

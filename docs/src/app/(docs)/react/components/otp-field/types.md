@@ -37,18 +37,18 @@ Renders a `<div>` element.
 
 **Root Data Attributes:**
 
-| Attribute     | Type | Description                                                                  |
-| :------------ | :--- | :--------------------------------------------------------------------------- |
-| data-disabled | -    | Present when the OTP field is disabled.                                      |
-| data-readonly | -    | Present when the OTP field is readonly.                                      |
-| data-required | -    | Present when the OTP field is required.                                      |
-| data-valid    | -    | Present when the OTP field is in valid state (when wrapped in Field.Root).   |
-| data-invalid  | -    | Present when the OTP field is in invalid state (when wrapped in Field.Root). |
-| data-dirty    | -    | Present when the OTP field's value has changed (when wrapped in Field.Root). |
-| data-touched  | -    | Present when the OTP field has been touched (when wrapped in Field.Root).    |
-| data-complete | -    | Present when all slots are filled.                                           |
-| data-filled   | -    | Present when the OTP field contains at least one character.                  |
-| data-focused  | -    | Present when one of the OTP field inputs is focused.                         |
+| Attribute     | Type | Description                                                                     |
+| :------------ | :--- | :------------------------------------------------------------------------------ |
+| data-disabled | -    | Present when the OTP field is disabled.                                         |
+| data-readonly | -    | Present when the OTP field is readonly.                                         |
+| data-required | -    | Present when the OTP field is required.                                         |
+| data-valid    | -    | Present when the OTP field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid  | -    | Present when the OTP field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty    | -    | Present when the OTP field's value has changed (when wrapped in Field.Root).    |
+| data-touched  | -    | Present when the OTP field has been touched (when wrapped in Field.Root).       |
+| data-complete | -    | Present when all slots are filled.                                              |
+| data-filled   | -    | Present when the OTP field contains at least one character.                     |
+| data-focused  | -    | Present when one of the OTP field inputs is focused.                            |
 
 ### Root.Props
 
@@ -164,18 +164,18 @@ Renders an `<input>` element.
 
 **Input Data Attributes:**
 
-| Attribute     | Type | Description                                                                  |
-| :------------ | :--- | :--------------------------------------------------------------------------- |
-| data-disabled | -    | Present when the OTP field is disabled.                                      |
-| data-readonly | -    | Present when the OTP field is readonly.                                      |
-| data-required | -    | Present when the OTP field is required.                                      |
-| data-valid    | -    | Present when the OTP field is in valid state (when wrapped in Field.Root).   |
-| data-invalid  | -    | Present when the OTP field is in invalid state (when wrapped in Field.Root). |
-| data-dirty    | -    | Present when the OTP field's value has changed (when wrapped in Field.Root). |
-| data-touched  | -    | Present when the OTP field has been touched (when wrapped in Field.Root).    |
-| data-complete | -    | Present when all slots are filled.                                           |
-| data-filled   | -    | Present when the input contains a character.                                 |
-| data-focused  | -    | Present when any OTP field input is focused.                                 |
+| Attribute     | Type | Description                                                                     |
+| :------------ | :--- | :------------------------------------------------------------------------------ |
+| data-disabled | -    | Present when the OTP field is disabled.                                         |
+| data-readonly | -    | Present when the OTP field is readonly.                                         |
+| data-required | -    | Present when the OTP field is required.                                         |
+| data-valid    | -    | Present when the OTP field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid  | -    | Present when the OTP field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty    | -    | Present when the OTP field's value has changed (when wrapped in Field.Root).    |
+| data-touched  | -    | Present when the OTP field has been touched (when wrapped in Field.Root).       |
+| data-complete | -    | Present when all slots are filled.                                              |
+| data-filled   | -    | Present when the input contains a character.                                    |
+| data-focused  | -    | Present when any OTP field input is focused.                                    |
 
 ### Input.Props
 

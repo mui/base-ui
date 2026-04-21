@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -534,10 +533,6 @@ export function useListNavigation(
         forceSyncFocusRef.current = true;
 
         const relatedTarget = event.relatedTarget as HTMLElement | null;
-
-        if (isMouseWithinBounds(event)) {
-          return;
-        }
 
         if (!focusItemOnHover || listRef.current.includes(relatedTarget)) {
           return;

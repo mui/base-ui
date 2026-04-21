@@ -61,7 +61,7 @@ export default function ExampleMultipleCombobox() {
                   <Combobox.ItemIndicator className="col-start-1">
                     <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>
-                  <div className="col-start-2">{language.value}</div>
+                  <span className="col-start-2">{language.value}</span>
                 </Combobox.Item>
               )}
             </Combobox.List>

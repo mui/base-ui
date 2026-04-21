@@ -124,7 +124,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   }, [store, activeTriggerId, open]);
 
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createTooltipEventDetails(store, REASONS.imperativeAction));
+    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }, [store]);
 
   React.useImperativeHandle(
@@ -163,20 +163,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     </TooltipRootContext.Provider>
   );
 });
-
-function createTooltipEventDetails<Payload>(
-  store: TooltipStore<Payload>,
-  reason: TooltipRoot.ChangeEventReason,
-) {
-  const details: TooltipRoot.ChangeEventDetails =
-    createChangeEventDetails<TooltipRoot.ChangeEventReason>(
-      reason,
-    ) as TooltipRoot.ChangeEventDetails;
-  details.preventUnmountOnClose = () => {
-    store.set('preventUnmountingOnClose', true);
-  };
-  return details;
-}
 
 export interface TooltipRootState {}
 

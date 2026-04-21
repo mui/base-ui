@@ -36,16 +36,16 @@ export default function ExampleFuzzyMatchingAutocomplete() {
                 >
                   <Autocomplete.Value>
                     {(value) => (
-                      <div className="flex w-full flex-col gap-1">
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex-1 font-bold leading-5">
+                      <span className="flex w-full flex-col gap-1">
+                        <span className="flex items-center justify-between gap-3">
+                          <span className="flex-1 font-bold leading-5">
                             {highlightText(item.title, value)}
-                          </div>
-                        </div>
-                        <div className="text-sm leading-5 text-gray-600">
+                          </span>
+                        </span>
+                        <span className="text-sm leading-5 text-gray-600">
                           {highlightText(item.description, value)}
-                        </div>
-                      </div>
+                        </span>
+                      </span>
                     )}
                   </Autocomplete.Value>
                 </Autocomplete.Item>

@@ -132,7 +132,7 @@ function VirtualizedList({
               <Combobox.ItemIndicator className="col-start-1">
                 <CheckIcon className="size-3" />
               </Combobox.ItemIndicator>
-              <div className="col-start-2">{item.name}</div>
+              <span className="col-start-2">{item.name}</span>
             </Combobox.Item>
           );
         })}

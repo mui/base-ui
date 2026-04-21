@@ -1,4 +1,4 @@
-// Keep CSS imports first to ensure layers are declared before component styles
+// Keep CSS imports first to ensure CSS layer order is correct
 import 'docs/src/css/index.css';
 import './layout.css';
 
@@ -132,6 +132,7 @@ export const metadata: Metadata = {
     canonical: './',
   },
   icons: {
+    // Based on https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs
     icon: [
       {
         rel: 'icon',

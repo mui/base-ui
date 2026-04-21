@@ -43,8 +43,7 @@ export default function Homepage() {
               process.env.SOURCE_CODE_REPO,
               'https://x.com/base_ui',
               'https://www.npmjs.com/package/@base-ui/react',
-              'https://discord.com/invite/g6C3hUtuxz',
-              'https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc',
+              'https://bsky.app/profile/base-ui.com',
             ],
           }),
         }}
@@ -197,6 +196,10 @@ export default function Homepage() {
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text sz-2">Michał Dudak</span>
               <span className="Text sz-2">Engineer</span>
+            </li>
+            <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
+              <span className="Text sz-2">Aarón García</span>
+              <span className="Text sz-2">Design Engineer</span>
             </li>
             <li className="ListItem bui-d-g bui-gtc-2 bui-g-8 bp3:bui-g-9">
               <span className="Text sz-2">Vlad Moroz</span>

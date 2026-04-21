@@ -336,22 +336,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     },
   );
 
-  const createMenuEventDetails = React.useCallback(
-    (reason: MenuRoot.ChangeEventReason) => {
-      const details: MenuRoot.ChangeEventDetails =
-        createChangeEventDetails<MenuRoot.ChangeEventReason>(reason) as MenuRoot.ChangeEventDetails;
-      details.preventUnmountOnClose = () => {
-        store.set('preventUnmountingOnClose', true);
-      };
-
-      return details;
-    },
-    [store],
-  );
-
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createMenuEventDetails(REASONS.imperativeAction));
-  }, [store, createMenuEventDetails]);
+    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+  }, [store]);
 
   React.useImperativeHandle(
     actionsRef,
