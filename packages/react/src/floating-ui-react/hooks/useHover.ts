@@ -20,7 +20,6 @@ import {
   getRestMs,
   isClickLikeOpenEvent as isClickLikeOpenEventShared,
   isHoverOpenEvent,
-  isInsideEnabledTrigger,
 } from './useHoverShared';
 
 export type { HandleCloseContext, HandleClose } from './useHoverShared';
@@ -235,7 +234,9 @@ export function useHover(
       restTimeout.clear();
       restTimeoutPendingRef.current = false;
 
-      if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
+      const triggers = store.context.triggerElements;
+
+      if (event.relatedTarget && triggers.hasElement(event.relatedTarget as Element)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;
@@ -281,7 +282,9 @@ export function useHover(
         return;
       }
 
-      if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
+      const triggers = store.context.triggerElements;
+
+      if (event.relatedTarget && triggers.hasElement(event.relatedTarget as Element)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;
