@@ -146,53 +146,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   );
 });
 
-function TooltipInteractions<Payload>({
-  store,
-  disabled,
-  trackCursorAxis,
-}: {
-  store: TooltipStore<Payload>;
-  disabled: boolean;
-  trackCursorAxis: 'none' | 'x' | 'y' | 'both';
-}) {
-  const floatingRootContext = store.useState('floatingRootContext');
-
-  const dismiss = useDismiss(floatingRootContext, {
-    enabled: !disabled,
-    referencePress: () => store.select('closeOnClick'),
-  });
-  const clientPoint = useClientPoint(floatingRootContext, {
-    enabled: !disabled && trackCursorAxis !== 'none',
-    axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
-  });
-
-  const activeTriggerProps = React.useMemo(
-    () => mergeProps(clientPoint.reference, dismiss.reference),
-    [clientPoint.reference, dismiss.reference],
-  );
-  const inactiveTriggerProps = React.useMemo(
-    () => mergeProps(clientPoint.trigger, dismiss.trigger),
-    [clientPoint.trigger, dismiss.trigger],
-  );
-  const popupProps = React.useMemo(
-    () =>
-      mergeProps(
-        { tabIndex: -1, [FOCUSABLE_ATTRIBUTE]: '' },
-        clientPoint.floating,
-        dismiss.floating,
-      ),
-    [clientPoint.floating, dismiss.floating],
-  );
-
-  store.useSyncedValues({
-    activeTriggerProps,
-    inactiveTriggerProps,
-    popupProps,
-  });
-
-  return null;
-}
-
 export interface TooltipRootState {}
 
 export interface TooltipRootProps<Payload = unknown> {
@@ -288,4 +241,51 @@ export namespace TooltipRoot {
   export type Actions = TooltipRootActions;
   export type ChangeEventReason = TooltipRootChangeEventReason;
   export type ChangeEventDetails = TooltipRootChangeEventDetails;
+}
+
+function TooltipInteractions<Payload>({
+  store,
+  disabled,
+  trackCursorAxis,
+}: {
+  store: TooltipStore<Payload>;
+  disabled: boolean;
+  trackCursorAxis: 'none' | 'x' | 'y' | 'both';
+}) {
+  const floatingRootContext = store.useState('floatingRootContext');
+
+  const dismiss = useDismiss(floatingRootContext, {
+    enabled: !disabled,
+    referencePress: () => store.select('closeOnClick'),
+  });
+  const clientPoint = useClientPoint(floatingRootContext, {
+    enabled: !disabled && trackCursorAxis !== 'none',
+    axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
+  });
+
+  const activeTriggerProps = React.useMemo(
+    () => mergeProps(clientPoint.reference, dismiss.reference),
+    [clientPoint.reference, dismiss.reference],
+  );
+  const inactiveTriggerProps = React.useMemo(
+    () => mergeProps(clientPoint.trigger, dismiss.trigger),
+    [clientPoint.trigger, dismiss.trigger],
+  );
+  const popupProps = React.useMemo(
+    () =>
+      mergeProps(
+        { tabIndex: -1, [FOCUSABLE_ATTRIBUTE]: '' },
+        clientPoint.floating,
+        dismiss.floating,
+      ),
+    [clientPoint.floating, dismiss.floating],
+  );
+
+  store.useSyncedValues({
+    activeTriggerProps,
+    inactiveTriggerProps,
+    popupProps,
+  });
+
+  return null;
 }

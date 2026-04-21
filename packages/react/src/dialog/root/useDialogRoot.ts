@@ -38,6 +38,18 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
   return { parentContext, isDrawer };
 }
 
+export interface UseDialogRootParameters {
+  store: DialogStore<any>;
+  actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
+  parentContext?: DialogStore<unknown>['context'] | undefined;
+  isDrawer: boolean;
+}
+
+export interface UseDialogRootReturnValue {
+  parentContext: DialogStore<unknown>['context'] | undefined;
+  isDrawer: boolean;
+}
+
 export function DialogInteractions({
   store,
   parentContext,
@@ -158,16 +170,4 @@ export function DialogInteractions({
   });
 
   return null;
-}
-
-export interface UseDialogRootParameters {
-  store: DialogStore<any>;
-  actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
-  parentContext?: DialogStore<unknown>['context'] | undefined;
-  isDrawer: boolean;
-}
-
-export interface UseDialogRootReturnValue {
-  parentContext: DialogStore<unknown>['context'] | undefined;
-  isDrawer: boolean;
 }
