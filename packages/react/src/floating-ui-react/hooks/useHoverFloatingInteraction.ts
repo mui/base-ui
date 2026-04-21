@@ -1,27 +1,30 @@
 'use client';
 import * as React from 'react';
-import { isElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
-
-import type { FloatingContext, FloatingRootContext } from '../types';
-import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
-import { getNodeChildren } from '../utils/nodes';
-
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import type { FloatingContext, FloatingRootContext } from '../types';
+import { contains, getTarget } from '../utils/element';
+import { getNodeChildren } from '../utils/nodes';
 import {
   applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
   isInteractiveElement,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
-import { getDelay, isClickLikeOpenEvent as isClickLikeOpenEventShared } from './useHoverShared';
+import {
+  getDelay,
+  isClickLikeOpenEvent as isClickLikeOpenEventShared,
+  isHoverOpenEvent,
+  isInsideEnabledTrigger,
+} from './useHoverShared';
 
 export type UseHoverFloatingInteractionProps = {
   /**
@@ -50,61 +53,31 @@ export function useHoverFloatingInteraction(
   context: FloatingRootContext | FloatingContext,
   parameters: UseHoverFloatingInteractionProps = {},
 ): void {
+  const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
+
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');
   const { dataRef } = store.context;
 
-  const { enabled = true, closeDelay: closeDelayProp = 0, nodeId: nodeIdProp } = parameters;
-
-  const instance = useHoverInteractionSharedState(store);
-
   const tree = useFloatingTree();
   const parentId = useFloatingParentNodeId();
+  const instance = useHoverInteractionSharedState(store);
+
+  const childClosedTimeout = useTimeout();
 
   const isClickLikeOpenEvent = useStableCallback(() => {
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
   const isHoverOpen = useStableCallback(() => {
-    const type = dataRef.current.openEvent?.type;
-    return type?.includes('mouse') && type !== 'mousedown';
+    return isHoverOpenEvent(dataRef.current.openEvent?.type);
   });
-
-  const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
-    return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
-  });
-
-  const closeWithDelay = React.useCallback(
-    (event: MouseEvent) => {
-      const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
-      const close = () => {
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-        tree?.events.emit('floating.closed', event);
-      };
-      if (closeDelay) {
-        instance.openChangeTimeout.start(closeDelay, close);
-      } else {
-        instance.openChangeTimeout.clear();
-        close();
-      }
-    },
-    [closeDelayProp, store, instance, tree],
-  );
 
   const clearPointerEvents = useStableCallback(() => {
     clearSafePolygonPointerEventsMutation(instance);
-  });
-
-  const handleInteractInside = useStableCallback((event: PointerEvent) => {
-    const target = getTarget(event) as Element | null;
-    if (!isInteractiveElement(target)) {
-      instance.interactedInside = false;
-      return;
-    }
-
-    instance.interactedInside = target?.closest('[aria-haspopup]') != null;
   });
 
   useIsoLayoutEffect(() => {
@@ -174,11 +147,38 @@ export function useHoverFloatingInteraction(
     clearPointerEvents,
   ]);
 
-  const childClosedTimeout = useTimeout();
-
   React.useEffect(() => {
     if (!enabled) {
       return undefined;
+    }
+
+    function hasParentChildren() {
+      return !!(tree && parentId && getNodeChildren(tree.nodesRef.current, parentId).length > 0);
+    }
+
+    function closeWithDelay(event: MouseEvent) {
+      const closeDelay = getDelay(closeDelayProp, 'close', instance.pointerType);
+      const close = () => {
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+        tree?.events.emit('floating.closed', event);
+      };
+
+      if (closeDelay) {
+        instance.openChangeTimeout.start(closeDelay, close);
+      } else {
+        instance.openChangeTimeout.clear();
+        close();
+      }
+    }
+
+    function handleInteractInside(event: PointerEvent) {
+      const target = getTarget(event) as Element | null;
+      if (!isInteractiveElement(target)) {
+        instance.interactedInside = false;
+        return;
+      }
+
+      instance.interactedInside = target?.closest('[aria-haspopup]') != null;
     }
 
     function onFloatingMouseEnter() {
@@ -189,12 +189,12 @@ export function useHoverFloatingInteraction(
     }
 
     function onFloatingMouseLeave(event: MouseEvent) {
-      if (tree && parentId && getNodeChildren(tree.nodesRef.current, parentId).length > 0) {
+      if (hasParentChildren() && tree) {
         tree.events.on('floating.closed', onNodeClosed);
         return;
       }
 
-      if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
+      if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;
@@ -227,7 +227,7 @@ export function useHoverFloatingInteraction(
     }
 
     function onNodeClosed(event: MouseEvent) {
-      if (!tree || !parentId || getNodeChildren(tree.nodesRef.current, parentId).length > 0) {
+      if (!tree || !parentId || hasParentChildren()) {
         return;
       }
       // Allow the mouseenter event to fire in case child was closed because mouse moved into parent.
@@ -252,12 +252,10 @@ export function useHoverFloatingInteraction(
     floatingElement,
     store,
     dataRef,
+    closeDelayProp,
     nodeIdProp,
     isClickLikeOpenEvent,
-    isRelatedTargetInsideEnabledTrigger,
-    closeWithDelay,
     clearPointerEvents,
-    handleInteractInside,
     instance,
     tree,
     parentId,

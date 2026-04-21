@@ -16,7 +16,7 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   componentProps: MenuGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, id: idProp, style, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 

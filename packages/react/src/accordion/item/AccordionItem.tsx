@@ -91,10 +91,9 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
-      hidden: !collapsible.mounted,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
   );
 
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
@@ -109,11 +108,12 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   const state: AccordionItemState = React.useMemo(
     () => ({
       ...rootState,
+      hidden: !isOpen && !collapsible.mounted,
       index,
       disabled,
       open: isOpen,
     }),
-    [disabled, index, isOpen, rootState],
+    [collapsible.mounted, disabled, index, isOpen, rootState],
   );
 
   const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
@@ -145,6 +145,10 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 });
 
 export interface AccordionItemState extends AccordionRootState {
+  /**
+   * Whether the accordion item's panel is currently hidden.
+   */
+  hidden: boolean;
   /**
    * The item index.
    */
