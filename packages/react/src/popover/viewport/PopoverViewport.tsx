@@ -30,6 +30,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, children, ...elementProps } = componentProps;
+
   const { store } = usePopoverRootContext();
   const { side } = usePopoverPositionerContext();
 

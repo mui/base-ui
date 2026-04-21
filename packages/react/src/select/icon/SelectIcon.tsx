@@ -17,7 +17,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   componentProps: SelectIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = useSelectRootContext();
   const open = useStore(store, selectors.open);

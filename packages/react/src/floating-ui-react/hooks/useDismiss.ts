@@ -116,7 +116,7 @@ export interface UseDismissProps {
     | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined }
     | undefined;
   /**
-   * External FlatingTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
 }
@@ -155,14 +155,14 @@ export function useDismiss(
   const outsidePressEnabled = outsidePress !== false;
   const getOutsidePressEventProp = useStableCallback(() => outsidePressEvent);
 
+  const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
+
   const pressStartedInsideRef = React.useRef(false);
   const pressStartPreventedRef = React.useRef(false);
   // Ignore only the very next outside click after dragging from inside to outside.
   const suppressNextOutsideClickRef = React.useRef(false);
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
-
-  const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
 
   const touchStateRef = React.useRef<{
     startTime: number;
@@ -243,6 +243,43 @@ export function useDismiss(
     dataRef.current.insideReactTree = true;
     clearInsideReactTreeTimeout.start(0, clearInsideReactTree);
   });
+
+  const markPressStartedInsideReactTree = useStableCallback(
+    (event: React.PointerEvent | React.MouseEvent) => {
+      if (!open || !enabled || event.button !== 0) {
+        return;
+      }
+
+      const target = getTarget(event.nativeEvent) as Element | null;
+
+      // Only treat presses that start within the floating DOM subtree as inside.
+      // This avoids suppressing parent dismissal when interacting with nested portals.
+      if (!contains(store.select('floatingElement'), target)) {
+        return;
+      }
+
+      if (!pressStartedInsideRef.current) {
+        pressStartedInsideRef.current = true;
+        pressStartPreventedRef.current = false;
+      }
+    },
+  );
+
+  const markInsidePressStartPrevented = useStableCallback(
+    (event: React.PointerEvent | React.MouseEvent) => {
+      if (!open || !enabled) {
+        return;
+      }
+
+      if (!(event.defaultPrevented || event.nativeEvent.defaultPrevented)) {
+        return;
+      }
+
+      if (pressStartedInsideRef.current) {
+        pressStartPreventedRef.current = true;
+      }
+    },
+  );
 
   React.useEffect(() => {
     if (!open || !enabled) {
@@ -684,41 +721,6 @@ export function useDismiss(
       }),
     }),
     [closeOnEscapeKeyDown, closeOnReferencePress, referencePressEvent],
-  );
-
-  const markPressStartedInsideReactTree = useStableCallback(
-    (event: React.PointerEvent | React.MouseEvent) => {
-      if (!open || !enabled || event.button !== 0) {
-        return;
-      }
-      const target = getTarget(event.nativeEvent) as Element | null;
-      // Only treat presses that start within the floating DOM subtree as inside.
-      // This avoids suppressing parent dismissal when interacting with nested portals.
-      if (!contains(store.select('floatingElement'), target)) {
-        return;
-      }
-
-      if (!pressStartedInsideRef.current) {
-        pressStartedInsideRef.current = true;
-        pressStartPreventedRef.current = false;
-      }
-    },
-  );
-
-  const markInsidePressStartPrevented = useStableCallback(
-    (event: React.PointerEvent | React.MouseEvent) => {
-      if (!open || !enabled) {
-        return;
-      }
-
-      if (!(event.defaultPrevented || event.nativeEvent.defaultPrevented)) {
-        return;
-      }
-
-      if (pressStartedInsideRef.current) {
-        pressStartPreventedRef.current = true;
-      }
-    },
   );
 
   const floating: ElementProps['floating'] = React.useMemo(

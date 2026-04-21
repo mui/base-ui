@@ -74,32 +74,13 @@ export function useTypeahead(
   } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
 
   const timeout = useTimeout();
   const stringRef = React.useRef('');
   const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
   const matchIndexRef = React.useRef<number | null>(null);
-
-  useIsoLayoutEffect(() => {
-    if (!open && selectedIndex !== null) {
-      return;
-    }
-
-    timeout.clear();
-    matchIndexRef.current = null;
-
-    if (stringRef.current !== '') {
-      stringRef.current = '';
-    }
-  }, [open, selectedIndex, timeout]);
-
-  useIsoLayoutEffect(() => {
-    // Sync arrow key navigation but not typeahead navigation.
-    if (open && stringRef.current === '') {
-      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
-    }
-  }, [open, selectedIndex, activeIndex]);
 
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     function isVisible(index: number) {
@@ -218,6 +199,26 @@ export function useTypeahead(
     prevIndexRef.current = matchIndexRef.current;
     onTypingChange?.(false);
   });
+
+  useIsoLayoutEffect(() => {
+    if (!open && selectedIndex !== null) {
+      return;
+    }
+
+    timeout.clear();
+    matchIndexRef.current = null;
+
+    if (stringRef.current !== '') {
+      stringRef.current = '';
+    }
+  }, [open, selectedIndex, timeout]);
+
+  useIsoLayoutEffect(() => {
+    // Sync arrow key navigation but not typeahead navigation.
+    if (open && stringRef.current === '') {
+      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
+    }
+  }, [open, selectedIndex, activeIndex]);
 
   const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
 

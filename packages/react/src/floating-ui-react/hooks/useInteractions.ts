@@ -24,10 +24,10 @@ export interface UseInteractionsReturn {
  * @see https://floating-ui.com/docs/useInteractions
  */
 export function useInteractions(propsList: Array<ElementProps | void> = []): UseInteractionsReturn {
-  const referenceDeps = propsList.map((key) => key?.reference);
-  const floatingDeps = propsList.map((key) => key?.floating);
-  const itemDeps = propsList.map((key) => key?.item);
-  const triggerDeps = propsList.map((key) => key?.trigger);
+  const referenceDeps = propsList.map((interactionProps) => interactionProps?.reference);
+  const floatingDeps = propsList.map((interactionProps) => interactionProps?.floating);
+  const itemDeps = propsList.map((interactionProps) => interactionProps?.item);
+  const triggerDeps = propsList.map((interactionProps) => interactionProps?.trigger);
 
   const getReferenceProps = React.useCallback(
     (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'reference'),

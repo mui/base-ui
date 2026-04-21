@@ -4,6 +4,7 @@ import * as React from 'react';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useClick, useFloating, useHover, useInteractions } from '../index';
 import { REASONS } from '../../internals/reasons';
+import type { UseFloatingOptions } from '../types';
 import type { UseClickProps } from './useClick';
 
 function App({
@@ -13,7 +14,7 @@ function App({
   ...props
 }: UseClickProps & {
   initialOpen?: boolean;
-  onOpenChange?: ReturnType<typeof vi.fn>;
+  onOpenChange?: UseFloatingOptions['onOpenChange'];
   typeable?: boolean;
 }) {
   const [open, setOpen] = React.useState(initialOpen);
@@ -35,17 +36,41 @@ function App({
   );
 }
 
+function createMouseEvent(type: string, options: MouseEventInit = {}) {
+  return new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    button: 0,
+    ...options,
+  });
+}
+
+function createPointerEvent(type: string, pointerType: PointerEvent['pointerType']) {
+  const event = createMouseEvent(type) as PointerEvent;
+  Object.defineProperty(event, 'pointerType', {
+    value: pointerType,
+  });
+  return event;
+}
+
 async function click(element: Element) {
   await act(async () => {
-    fireEvent.click(element);
+    element.dispatchEvent(createMouseEvent('click'));
   });
 }
 
 async function pressMouse(element: Element) {
   await act(async () => {
-    fireEvent.pointerDown(element, { pointerType: 'mouse' });
-    fireEvent.mouseDown(element, { button: 0 });
-    fireEvent.click(element);
+    element.dispatchEvent(createPointerEvent('pointerdown', 'mouse'));
+    element.dispatchEvent(createMouseEvent('mousedown'));
+    element.dispatchEvent(createMouseEvent('click'));
+  });
+}
+
+async function hover(element: Element) {
+  await act(async () => {
+    element.dispatchEvent(createMouseEvent('mouseover', { relatedTarget: document.body }));
+    element.dispatchEvent(createMouseEvent('mouseenter', { relatedTarget: document.body }));
   });
 }
 
@@ -126,10 +151,8 @@ describe.skipIf(!isJSDOM)('useClick', () => {
 
     const button = screen.getByRole('button');
 
-    await act(async () => {
-      fireEvent.pointerDown(button, { pointerType: 'mouse' });
-      fireEvent.click(button);
-    });
+    fireEvent.pointerDown(button, { pointerType: 'mouse' });
+    fireEvent.click(button);
 
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
@@ -141,10 +164,8 @@ describe.skipIf(!isJSDOM)('useClick', () => {
 
     const button = screen.getByRole('button');
 
-    await act(async () => {
-      fireEvent.pointerDown(button, { pointerType: 'touch' });
-      fireEvent.click(button);
-    });
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    fireEvent.click(button);
 
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
 
@@ -162,10 +183,8 @@ describe.skipIf(!isJSDOM)('useClick', () => {
 
     const button = screen.getByRole('button');
 
-    await act(async () => {
-      fireEvent.pointerDown(button, { pointerType: 'touch' });
-      fireEvent.click(button);
-    });
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    fireEvent.click(button);
 
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
@@ -207,9 +226,7 @@ describe.skipIf(!isJSDOM)('useClick', () => {
 
     const button = screen.getByRole('button');
 
-    await act(async () => {
-      fireEvent.mouseEnter(button);
-    });
+    await hover(button);
     await click(button);
 
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
@@ -239,9 +256,7 @@ describe.skipIf(!isJSDOM)('useClick', () => {
 
     const button = screen.getByRole('button');
 
-    await act(async () => {
-      fireEvent.mouseEnter(button);
-    });
+    await hover(button);
     await click(button);
 
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();

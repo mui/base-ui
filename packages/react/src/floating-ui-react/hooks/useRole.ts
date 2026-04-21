@@ -43,15 +43,14 @@ export function useRole(
   const floatingElement = store.useState('floatingElement');
 
   const defaultReferenceId = useId();
-  const referenceId = domReference?.id || defaultReferenceId;
+  const parentId = useFloatingParentNodeId();
   const floatingId = React.useMemo(
     () => getFloatingFocusElement(floatingElement)?.id || defaultFloatingId,
     [floatingElement, defaultFloatingId],
   );
 
+  const referenceId = domReference?.id || defaultReferenceId;
   const ariaRole = (componentRoleToAriaRoleMap.get(role) ?? role) as AriaRole | false | undefined;
-
-  const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
 
   const trigger: ElementProps['trigger'] = React.useMemo(() => {

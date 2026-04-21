@@ -96,6 +96,19 @@ export function useHover(
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, interactedInsideRef.current);
   });
 
+  const cleanupMouseMoveHandler = useStableCallback(() => {
+    unbindMouseMoveRef.current();
+    handlerRef.current = undefined;
+  });
+
+  const clearPointerEvents = useStableCallback(() => {
+    if (performedPointerEventsMutationRef.current) {
+      const body = ownerDocument(floatingElement).body;
+      body.style.pointerEvents = '';
+      performedPointerEventsMutationRef.current = false;
+    }
+  });
+
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.
   React.useEffect(() => {
@@ -143,19 +156,6 @@ export function useHover(
     const html = ownerDocument(floatingElement).documentElement;
     return addEventListener(html, 'mouseleave', onLeave);
   }, [floatingElement, open, store, handleCloseRef, isHoverOpen, isClickLikeOpenEvent]);
-
-  const cleanupMouseMoveHandler = useStableCallback(() => {
-    unbindMouseMoveRef.current();
-    handlerRef.current = undefined;
-  });
-
-  const clearPointerEvents = useStableCallback(() => {
-    if (performedPointerEventsMutationRef.current) {
-      const body = ownerDocument(floatingElement).body;
-      body.style.pointerEvents = '';
-      performedPointerEventsMutationRef.current = false;
-    }
-  });
 
   // Registering the mouse events on the reference directly to bypass React's
   // delegation system. If the cursor was on a disabled element and then entered

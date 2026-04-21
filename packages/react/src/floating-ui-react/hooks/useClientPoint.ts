@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
-import { getWindow } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { getWindow } from '@floating-ui/utils/dom';
+import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { contains, getTarget } from '../utils/element';
 import { isMouseLikePointerType } from '../utils/event';
-
-import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
 function createVirtualElement(
   domElement: Element | null | undefined,

@@ -236,7 +236,7 @@ export interface FloatingFocusManagerProps {
    */
   beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null> | undefined;
   /**
-   * External FlatingTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
   /**
@@ -857,6 +857,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       activeEl.blur();
     }
   }, [open, floating]);
+
   // Synchronize the `context` & `modal` value to the FloatingPortal context.
   // It will decide whether or not it needs to render its own guards.
   useIsoLayoutEffect(() => {

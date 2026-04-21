@@ -24,7 +24,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   props: PopoverBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, style, ...elementProps } = props;
+  const { render, className, style, ...elementProps } = props;
 
   const { store } = usePopoverRootContext();
 

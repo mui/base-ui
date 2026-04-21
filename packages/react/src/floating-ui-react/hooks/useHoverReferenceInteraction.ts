@@ -87,11 +87,6 @@ export function useHoverReferenceInteraction(
   const enabledRef = useValueAsRef(enabled);
   const isClosingRef = useValueAsRef(isClosing);
 
-  if (isActiveTrigger) {
-    // eslint-disable-next-line no-underscore-dangle
-    instance.handleCloseOptions = handleCloseRef.current?.__options;
-  }
-
   const isClickLikeOpenEvent = useStableCallback(() => {
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
@@ -134,6 +129,11 @@ export function useHoverReferenceInteraction(
   const clearPointerEvents = useStableCallback(() => {
     clearSafePolygonPointerEventsMutation(instance);
   });
+
+  if (isActiveTrigger) {
+    // eslint-disable-next-line no-underscore-dangle
+    instance.handleCloseOptions = handleCloseRef.current?.__options;
+  }
 
   React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
 

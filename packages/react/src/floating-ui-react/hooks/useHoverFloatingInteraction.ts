@@ -7,12 +7,12 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isElement } from '@floating-ui/utils/dom';
-import type { FloatingContext, FloatingRootContext } from '../types';
-import { contains, getTarget } from '../utils/element';
-import { getNodeChildren } from '../utils/nodes';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
+import type { FloatingContext, FloatingRootContext } from '../types';
+import { contains, getTarget } from '../utils/element';
+import { getNodeChildren } from '../utils/nodes';
 import {
   applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
