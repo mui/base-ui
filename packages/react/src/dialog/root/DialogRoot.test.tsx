@@ -1278,6 +1278,63 @@ describe('<Dialog.Root />', () => {
   });
 
   it.skipIf(isJSDOM)(
+    'returns focus to the menu trigger when a detached dialog trigger unmounts',
+    async () => {
+      function MenuDialog() {
+        const dialogHandle = useRefWithInit(() => Dialog.createHandle()).current;
+
+        return (
+          <React.Fragment>
+            <Menu.Root>
+              <Menu.Trigger>Open menu</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item render={<Dialog.Trigger handle={dialogHandle} />} nativeButton>
+                      Open dialog
+                    </Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+
+            <Dialog.Root handle={dialogHandle}>
+              <Dialog.Portal>
+                <Dialog.Popup>Dialog content</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<MenuDialog />);
+
+      const menuTrigger = screen.getByRole('button', { name: 'Open menu' });
+      await user.click(menuTrigger);
+      expect(menuTrigger).toHaveFocus();
+
+      const dialogTrigger = await screen.findByRole('menuitem', { name: 'Open dialog' });
+      await user.click(dialogTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(menuTrigger).toHaveFocus();
+      });
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'keeps focus trapped when dialog content contains a non-scrollable scroll area',
     async () => {
       const { user } = await render(
