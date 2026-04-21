@@ -21,7 +21,6 @@ export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootRet
 
   const open = store.useState('open');
   usePopupRootSync(store, open);
-
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store);
 

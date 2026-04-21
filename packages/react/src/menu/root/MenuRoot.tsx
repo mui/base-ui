@@ -162,12 +162,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     }
   }
 
+  usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
     store.update({ allowMouseEnter: false, stickIfOpen: true });
   });
-
-  usePopupRootSync(store, open);
 
   store.useSyncedValues({
     disabled: disabledProp,
