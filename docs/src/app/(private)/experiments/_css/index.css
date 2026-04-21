@@ -1,3 +1,7 @@
+@layer theme, base, components, utilities;
+
+@import './reset.css' layer(base);
+
 @layer theme {
   :root {
     --color-blue: oklch(45% 50% 264deg);

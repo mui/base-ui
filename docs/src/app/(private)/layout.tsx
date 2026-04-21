@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Metadata, Viewport } from 'next';
-import './index.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
