@@ -18,6 +18,8 @@
     --color-gray-800: oklch(12% 5% 264deg / 85%);
     --color-gray-900: oklch(12% 5% 264deg / 90%);
     --color-gray-950: oklch(12% 5% 264deg / 95%);
+
+    --ease-out-fast: cubic-bezier(0.45, 1.005, 0, 1.005);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -54,14 +56,6 @@
 
   body {
     position: relative;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
-  }
-
-  html,
-  body {
-    padding: 0;
-    margin: 0;
   }
 }
