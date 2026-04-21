@@ -9,7 +9,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   safePolygon,
   useClick,
@@ -798,8 +798,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, handleTriggerElement, buttonRef]}
         props={[
-          click.reference,
-          hoverProps,
+          click.reference ?? EMPTY_OBJECT,
+          hoverProps ?? EMPTY_OBJECT,
           dismissProps?.reference || EMPTY_ARRAY,
           defaultProps,
           elementProps,

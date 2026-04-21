@@ -227,8 +227,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
-    focus.reference,
-    click.reference,
+    focus.reference ?? EMPTY_OBJECT,
+    click.reference ?? EMPTY_OBJECT,
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
     interactionTypeProps,
