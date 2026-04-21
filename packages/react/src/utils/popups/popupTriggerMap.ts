@@ -2,48 +2,67 @@
  * Data structure to keep track of popup trigger elements by their IDs.
  */
 export class PopupTriggerMap extends Map<string, Element> {
+  private elementsSet = new Set<Element>();
+
   /**
    * Adds a trigger element with the given ID.
    *
    * Note: The provided element is assumed to not be registered under multiple IDs.
    */
   public add(id: string, element: Element) {
-    const existingElement = this.get(id);
+    this.set(id, element);
+  }
+
+  public set(id: string, element: Element): this {
+    const existingElement = super.get(id);
     if (existingElement === element) {
-      return;
+      return this;
     }
 
-    this.set(id, element);
+    if (existingElement !== undefined) {
+      this.elementsSet.delete(existingElement);
+    }
+
+    this.elementsSet.add(element);
+    super.set(id, element);
 
     if (process.env.NODE_ENV !== 'production') {
-      for (const [otherId, otherElement] of this) {
-        if (otherId !== id && otherElement === element) {
-          throw new Error(
-            'Base UI: A trigger element cannot be registered under multiple IDs in PopupTriggerMap.',
-          );
-        }
+      if (this.elementsSet.size !== this.size) {
+        throw new Error(
+          'Base UI: A trigger element cannot be registered under multiple IDs in PopupTriggerMap.',
+        );
       }
     }
+
+    return this;
+  }
+
+  public delete(id: string): boolean {
+    const element = super.get(id);
+    if (element) {
+      this.elementsSet.delete(element);
+    }
+
+    return super.delete(id);
+  }
+
+  public clear() {
+    this.elementsSet.clear();
+    super.clear();
   }
 
   /**
    * Whether the given element is registered as a trigger.
    */
   public hasElement(element: Element): boolean {
-    for (const triggerElement of this.values()) {
-      if (triggerElement === element) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.elementsSet.has(element);
   }
 
   /**
    * Whether there is a registered trigger element matching the given predicate.
    */
   public hasMatchingElement(predicate: (el: Element) => boolean): boolean {
-    for (const element of this.values()) {
+    for (const element of this.elementsSet) {
       if (predicate(element)) {
         return true;
       }
@@ -63,6 +82,6 @@ export class PopupTriggerMap extends Map<string, Element> {
    * Returns an iterable of all registered trigger elements.
    */
   public elements(): IterableIterator<Element> {
-    return this.values();
+    return this.elementsSet.values();
   }
 }
