@@ -60,6 +60,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const open = store.useState('open');
   const payload = store.useState('payload') as Payload | undefined;
+  const nested = useFloatingParentNodeId() != null;
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
@@ -124,7 +125,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     inactiveTriggerProps,
     popupProps,
     floatingRootContext,
-    nested: useFloatingParentNodeId() != null,
+    nested,
   });
 
   const popoverContext: PopoverRootContext<Payload> = React.useMemo(

@@ -34,6 +34,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const {
     render,
     className,
+    style,
     anchor,
     positionMethod = 'absolute',
     side = 'bottom',
@@ -46,7 +47,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     sticky = false,
     disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
-    style,
     ...elementProps
   } = componentProps;
 

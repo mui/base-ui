@@ -34,6 +34,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const {
     render,
     className,
+    style,
     label,
     id: idProp,
     nativeButton = false,
@@ -41,7 +42,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     delay = 100,
     closeDelay = 0,
     disabled: disabledProp = false,
-    style,
     ...elementProps
   } = componentProps;
 

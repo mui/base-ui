@@ -1,44 +1,34 @@
 'use client';
-import { Collapsible } from '@base-ui/react/collapsible';
-import { ChevronIcon } from './_icons';
+import * as Collapsible from './_components/Collapsible';
 import styles from './collapsible.module.css';
+
+const PARAGRAPH =
+  'He rubbed his eyes, and came close to the picture, and examined it again. There were no signs of any change when he looked into the actual painting, and yet there was no doubt that the whole expression had altered. It was not a mere fancy of his own. The thing was horribly apparent.';
+
+function StoryContent() {
+  return (
+    <Collapsible.Content>
+      <p>{PARAGRAPH}</p>
+    </Collapsible.Content>
+  );
+}
 
 export default function PlainCollapsible() {
   return (
     <div className={styles.grid}>
       <div className={styles.wrapper}>
         <pre>keepMounted: true</pre>
-        <Collapsible.Root className={styles.Root} defaultOpen>
-          <Collapsible.Trigger className={styles.Trigger}>
-            <ChevronIcon className={styles.Icon} />
-            Trigger
-          </Collapsible.Trigger>
-          <Collapsible.Panel className={styles.Panel} keepMounted>
-            <div className={styles.Content}>
-              <p>
-                He rubbed his eyes, and came close to the picture, and examined it again. There were
-                no signs of any change when he looked into the actual painting, and yet there was no
-                doubt that the whole expression had altered. It was not a mere fancy of his own. The
-                thing was horribly apparent.
-              </p>
-            </div>
+        <Collapsible.Root defaultOpen>
+          <Collapsible.Trigger>Trigger 1</Collapsible.Trigger>
+          <Collapsible.Panel keepMounted>
+            <StoryContent />
           </Collapsible.Panel>
         </Collapsible.Root>
 
-        <Collapsible.Root className={styles.Root} defaultOpen={false}>
-          <Collapsible.Trigger className={styles.Trigger}>
-            <ChevronIcon className={styles.Icon} />
-            Trigger
-          </Collapsible.Trigger>
-          <Collapsible.Panel className={styles.Panel} keepMounted>
-            <div className={styles.Content}>
-              <p>
-                He rubbed his eyes, and came close to the picture, and examined it again. There were
-                no signs of any change when he looked into the actual painting, and yet there was no
-                doubt that the whole expression had altered. It was not a mere fancy of his own. The
-                thing was horribly apparent.
-              </p>
-            </div>
+        <Collapsible.Root defaultOpen={false}>
+          <Collapsible.Trigger>Trigger 2</Collapsible.Trigger>
+          <Collapsible.Panel keepMounted>
+            <StoryContent />
           </Collapsible.Panel>
         </Collapsible.Root>
         <small>———</small>
@@ -46,37 +36,17 @@ export default function PlainCollapsible() {
 
       <div className={styles.wrapper}>
         <pre>keepMounted: false</pre>
-        <Collapsible.Root className={styles.Root} defaultOpen>
-          <Collapsible.Trigger className={styles.Trigger}>
-            <ChevronIcon className={styles.Icon} />
-            Trigger
-          </Collapsible.Trigger>
-          <Collapsible.Panel className={styles.Panel} keepMounted={false}>
-            <div className={styles.Content}>
-              <p>
-                He rubbed his eyes, and came close to the picture, and examined it again. There were
-                no signs of any change when he looked into the actual painting, and yet there was no
-                doubt that the whole expression had altered. It was not a mere fancy of his own. The
-                thing was horribly apparent.
-              </p>
-            </div>
+        <Collapsible.Root defaultOpen>
+          <Collapsible.Trigger>Trigger 3</Collapsible.Trigger>
+          <Collapsible.Panel keepMounted={false}>
+            <StoryContent />
           </Collapsible.Panel>
         </Collapsible.Root>
 
-        <Collapsible.Root className={styles.Root} defaultOpen={false}>
-          <Collapsible.Trigger className={styles.Trigger}>
-            <ChevronIcon className={styles.Icon} />
-            Trigger
-          </Collapsible.Trigger>
-          <Collapsible.Panel className={styles.Panel} keepMounted={false}>
-            <div className={styles.Content}>
-              <p>
-                He rubbed his eyes, and came close to the picture, and examined it again. There were
-                no signs of any change when he looked into the actual painting, and yet there was no
-                doubt that the whole expression had altered. It was not a mere fancy of his own. The
-                thing was horribly apparent.
-              </p>
-            </div>
+        <Collapsible.Root defaultOpen={false}>
+          <Collapsible.Trigger>Trigger 4</Collapsible.Trigger>
+          <Collapsible.Panel keepMounted={false}>
+            <StoryContent />
           </Collapsible.Panel>
         </Collapsible.Root>
         <small>———</small>

@@ -1,19 +1,20 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
-import type { Delay, FloatingContext, FloatingRootContext } from '../types';
-import { contains, getTarget, isTargetInsideEnabledTrigger } from '../utils/element';
-import { isMouseLikePointerType } from '../utils/event';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { isElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
+import type { Delay, FloatingContext, FloatingRootContext } from '../types';
+import { contains, getTarget } from '../utils/element';
+import { isMouseLikePointerType } from '../utils/event';
 import {
   applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
@@ -24,8 +25,8 @@ import {
   getDelay,
   getRestMs,
   isClickLikeOpenEvent as isClickLikeOpenEventShared,
+  isInsideEnabledTrigger,
 } from './useHoverShared';
-import { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
 
 export interface UseHoverReferenceInteractionProps {
   enabled?: boolean | undefined;
@@ -57,9 +58,6 @@ export function useHoverReferenceInteraction(
   context: FloatingRootContext | FloatingContext,
   props: UseHoverReferenceInteractionProps = {},
 ): HTMLProps | undefined {
-  const store = 'rootStore' in context ? context.rootStore : context;
-  const { dataRef, events } = store.context;
-
   const {
     enabled = true,
     delay = 0,
@@ -74,6 +72,10 @@ export function useHoverReferenceInteraction(
     isClosing,
   } = props;
 
+  const store = 'rootStore' in context ? context.rootStore : context;
+
+  const { dataRef, events } = store.context;
+
   const tree = useFloatingTree(externalTree);
 
   const instance = useHoverInteractionSharedState(store);
@@ -85,17 +87,8 @@ export function useHoverReferenceInteraction(
   const enabledRef = useValueAsRef(enabled);
   const isClosingRef = useValueAsRef(isClosing);
 
-  if (isActiveTrigger) {
-    // eslint-disable-next-line no-underscore-dangle
-    instance.handleCloseOptions = handleCloseRef.current?.__options;
-  }
-
   const isClickLikeOpenEvent = useStableCallback(() => {
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
-  });
-
-  const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
-    return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
   });
 
   const isOverInactiveTrigger = useStableCallback(
@@ -124,20 +117,6 @@ export function useHoverReferenceInteraction(
     },
   );
 
-  const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
-    const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
-    if (closeDelay) {
-      instance.openChangeTimeout.start(closeDelay, () => {
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-        tree?.events.emit('floating.closed', event);
-      });
-    } else if (runElseBranch) {
-      instance.openChangeTimeout.clear();
-      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-      tree?.events.emit('floating.closed', event);
-    }
-  });
-
   const cleanupMouseMoveHandler = useStableCallback(() => {
     if (!instance.handler) {
       return;
@@ -150,6 +129,11 @@ export function useHoverReferenceInteraction(
   const clearPointerEvents = useStableCallback(() => {
     clearSafePolygonPointerEventsMutation(instance);
   });
+
+  if (isActiveTrigger) {
+    // eslint-disable-next-line no-underscore-dangle
+    instance.handleCloseOptions = handleCloseRef.current?.__options;
+  }
 
   React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
 
@@ -182,6 +166,20 @@ export function useHoverReferenceInteraction(
   React.useEffect(() => {
     if (!enabled) {
       return undefined;
+    }
+
+    function closeWithDelay(event: MouseEvent, runElseBranch = true) {
+      const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
+      if (closeDelay) {
+        instance.openChangeTimeout.start(closeDelay, () => {
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+          tree?.events.emit('floating.closed', event);
+        });
+      } else if (runElseBranch) {
+        instance.openChangeTimeout.clear();
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+        tree?.events.emit('floating.closed', event);
+      }
     }
 
     const trigger =
@@ -289,9 +287,7 @@ export function useHoverReferenceInteraction(
 
       const handleCloseContextBase = dataRef.current.floatingContext ?? getHandleCloseContext?.();
 
-      const ignoreRelatedTargetTrigger = isRelatedTargetInsideEnabledTrigger(event.relatedTarget);
-
-      if (ignoreRelatedTargetTrigger) {
+      if (isInsideEnabledTrigger(event.relatedTarget, store.context.triggerElements)) {
         return;
       }
 
@@ -353,7 +349,6 @@ export function useHoverReferenceInteraction(
     clearPointerEvents,
     dataRef,
     delayRef,
-    closeWithDelay,
     store,
     enabled,
     handleCloseRef,
@@ -361,7 +356,6 @@ export function useHoverReferenceInteraction(
     isActiveTrigger,
     isOverInactiveTrigger,
     isClickLikeOpenEvent,
-    isRelatedTargetInsideEnabledTrigger,
     mouseOnly,
     move,
     restMsRef,
