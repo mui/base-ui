@@ -92,27 +92,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   );
 }
 
-function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<Payload> }) {
-  const floatingRootContext = store.useState('floatingRootContext');
-
-  const dismiss = useDismiss(floatingRootContext);
-
-  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
-  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
-  const popupProps = React.useMemo(
-    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
-    [dismiss.floating],
-  );
-
-  usePopupInteractionProps(store, {
-    activeTriggerProps,
-    inactiveTriggerProps,
-    popupProps,
-  });
-
-  return null;
-}
-
 /**
  * Groups all parts of the preview card.
  * Doesn't render its own HTML element.
@@ -212,4 +191,25 @@ export namespace PreviewCardRoot {
   export type Actions = PreviewCardRootActions;
   export type ChangeEventReason = PreviewCardRootChangeEventReason;
   export type ChangeEventDetails = PreviewCardRootChangeEventDetails;
+}
+
+function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<Payload> }) {
+  const floatingRootContext = store.useState('floatingRootContext');
+
+  const dismiss = useDismiss(floatingRootContext);
+
+  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
+  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
+  const popupProps = React.useMemo(
+    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
+    [dismiss.floating],
+  );
+
+  usePopupInteractionProps(store, {
+    activeTriggerProps,
+    inactiveTriggerProps,
+    popupProps,
+  });
+
+  return null;
 }
