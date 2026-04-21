@@ -274,7 +274,8 @@
   }
 
   /* Frame highlighting */
-  pre .frame[data-frame-type='highlighted'] {
+  pre .frame[data-frame-type='highlighted'],
+  pre .frame[data-frame-type='highlighted-unfocused'] {
     background-color: var(--color-line-highlight);
   }
 
