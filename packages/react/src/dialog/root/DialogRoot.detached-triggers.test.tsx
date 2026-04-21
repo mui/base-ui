@@ -138,6 +138,8 @@ describe('<Dialog.Root />', () => {
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
+      expect(trigger1).toHaveAttribute('aria-haspopup', 'dialog');
+      expect(trigger2).toHaveAttribute('aria-haspopup', 'dialog');
       expect(trigger1).toHaveAttribute('aria-expanded', 'false');
       expect(trigger2).toHaveAttribute('aria-expanded', 'false');
 

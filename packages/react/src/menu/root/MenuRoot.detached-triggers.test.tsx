@@ -1052,6 +1052,7 @@ describe('<MenuRoot />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Trigger' });
+      expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
       expect(screen.queryByRole('menu')).toBe(null);
 
       await act(async () => {
@@ -1063,6 +1064,7 @@ describe('<MenuRoot />', () => {
 
       expect(screen.getByTestId('content').textContent).toBe('Content');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-controls', screen.getByRole('menu').id);
 
       await act(async () => {
         menuHandle.close();
@@ -1072,6 +1074,7 @@ describe('<MenuRoot />', () => {
       });
 
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveAttribute('aria-controls');
     });
 
     it('sets the payload associated with the trigger', async () => {
@@ -1100,6 +1103,8 @@ describe('<MenuRoot />', () => {
 
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(trigger1).toHaveAttribute('aria-haspopup', 'menu');
+      expect(trigger2).toHaveAttribute('aria-haspopup', 'menu');
       expect(screen.queryByRole('menu')).toBe(null);
 
       await act(async () => {
@@ -1111,7 +1116,9 @@ describe('<MenuRoot />', () => {
 
       expect(screen.getByTestId('content').textContent).toBe('2');
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger2).toHaveAttribute('aria-controls', screen.getByRole('menu').id);
       expect(trigger1).not.toHaveAttribute('aria-expanded', 'true');
+      expect(trigger1).not.toHaveAttribute('aria-controls');
 
       await act(async () => {
         menuHandle.close();

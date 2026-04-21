@@ -4,7 +4,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Select.Trigger />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Select.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
@@ -13,6 +13,24 @@ describe('<Select.Trigger />', () => {
       return render(<Select.Root open>{node}</Select.Root>);
     },
   }));
+
+  describe('accessibility attributes', () => {
+    it('sets closed trigger ARIA attributes during server render', () => {
+      renderToString(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveAttribute('role', 'combobox');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
+      expect(trigger).not.toHaveAttribute('aria-controls');
+    });
+  });
 
   describe('disabled state', () => {
     it('cannot be focused when disabled', async () => {
