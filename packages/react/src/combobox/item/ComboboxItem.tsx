@@ -138,16 +138,9 @@ export const ComboboxItem = React.memo(
       composite: true,
     });
 
-    const rootProps = getItemProps({
-      active: highlighted,
-      selected,
-    });
-    if ('id' in rootProps) {
-      rootProps.id = undefined;
-    }
-    if ('onFocus' in rootProps) {
-      rootProps.onFocus = undefined;
-    }
+    const rootProps = getItemProps({ active: highlighted, selected });
+    rootProps.id = undefined;
+    rootProps.onFocus = undefined;
 
     const state: ComboboxItemState = {
       disabled,
