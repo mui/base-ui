@@ -388,12 +388,12 @@
   }
 
   .DialogConfirm:hover {
-    background: oklch(0.488 0.243 264.376);
+    background: oklch(48.8% 0.243 264.376deg);
   }
 }
 
 .DialogConfirm {
-  background: oklch(0.546 0.245 262.881);
+  background: oklch(54.6% 0.245 262.881deg);
 }
 
 .LinkItem {
