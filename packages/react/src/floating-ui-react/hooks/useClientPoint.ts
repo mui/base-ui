@@ -1,12 +1,11 @@
 'use client';
 import * as React from 'react';
-import { getWindow } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { getWindow } from '@floating-ui/utils/dom';
+import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { contains, getTarget } from '../utils/element';
 import { isMouseLikePointerType } from '../utils/event';
-
-import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
 function createVirtualElement(
   domElement: Element | null | undefined,
@@ -111,14 +110,15 @@ export function useClientPoint(
   context: FloatingRootContext | FloatingContext,
   props: UseClientPointProps = {},
 ): ElementProps {
+  const { enabled = true, axis = 'both' } = props;
+
   const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const floating = store.useState('floatingElement');
   const domReference = store.useState('domReferenceElement');
-  const dataRef = store.context.dataRef;
 
-  const { enabled = true, axis = 'both' } = props;
+  const dataRef = store.context.dataRef;
 
   const initialRef = React.useRef(false);
   const cleanupListenerRef = React.useRef<null | (() => void)>(null);
@@ -159,6 +159,7 @@ export function useClientPoint(
       // If there's no cleanup, there's no listener, but we want to ensure
       // we add the listener if the cursor landed on the floating element and
       // then back on the reference (i.e. it's interactive).
+      setReference(event.clientX, event.clientY, event.currentTarget as Element);
       setReactive([]);
     }
   });
@@ -169,9 +170,14 @@ export function useClientPoint(
   // the dismissal touch point.
   const openCheck = isMouseLikePointerType(pointerType) ? floating : open;
 
-  const addListener = React.useCallback(() => {
+  React.useEffect(() => {
     if (!openCheck || !enabled) {
       return undefined;
+    }
+
+    function cleanupListener() {
+      cleanupListenerRef.current?.();
+      cleanupListenerRef.current = null;
     }
 
     const win = getWindow(floating);
@@ -182,27 +188,18 @@ export function useClientPoint(
       if (!contains(floating, target)) {
         setReference(event.clientX, event.clientY);
       } else {
-        cleanupListenerRef.current?.();
-        cleanupListenerRef.current = null;
+        cleanupListener();
       }
     }
 
     if (!dataRef.current.openEvent || isMouseBasedEvent(dataRef.current.openEvent)) {
-      const cleanup = () => {
-        cleanupListenerRef.current?.();
-        cleanupListenerRef.current = null;
-      };
       cleanupListenerRef.current = addEventListener(win, 'mousemove', handleMouseMove);
-      return cleanup;
+    } else {
+      store.set('positionReference', domReference);
     }
 
-    store.set('positionReference', domReference);
-    return undefined;
-  }, [openCheck, enabled, floating, dataRef, domReference, store, setReference]);
-
-  React.useEffect(() => {
-    return addListener();
-  }, [addListener, reactive]);
+    return cleanupListener;
+  }, [openCheck, enabled, floating, dataRef, domReference, store, setReference, reactive]);
 
   React.useEffect(() => {
     if (enabled && !floating) {

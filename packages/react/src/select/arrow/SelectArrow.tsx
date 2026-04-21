@@ -26,7 +26,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   componentProps: SelectArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = useSelectRootContext();
   const { side, align, arrowRef, arrowStyles, arrowUncentered, alignItemWithTriggerActive } =
