@@ -46,7 +46,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const popupProps = store.useState('popupProps');
   const mounted = store.useState('mounted');
   const instantType = store.useState('instantType');
-  const triggerElement = store.useState('activeTriggerElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
@@ -55,11 +55,17 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const popupId = floatingContext.useState('floatingId');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
-  const activeTriggerElement = store.useState('activeTriggerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
 
   const isContextMenu = parent.type === 'context-menu';
+  let activeTriggerLabelId = activeTriggerId ?? undefined;
+  if (activeTriggerElement != null) {
+    activeTriggerLabelId = undefined;
+    if (activeTriggerElement.isConnected && activeTriggerElement.id) {
+      activeTriggerLabelId = activeTriggerElement.id;
+    }
+  }
 
   useOpenChangeComplete({
     open,
@@ -117,7 +123,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
         id: popupId,
         role: 'menu',
         ...FOCUSABLE_POPUP_PROPS,
-        'aria-labelledby': activeTriggerId ?? undefined,
+        'aria-labelledby': activeTriggerLabelId,
         onKeyDown(event) {
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
@@ -132,7 +138,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   let returnFocus = parent.type === undefined || isContextMenu;
   if (
-    triggerElement ||
+    activeTriggerElement ||
     (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress)
   ) {
     returnFocus = true;
