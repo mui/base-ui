@@ -1,5 +1,6 @@
 /**
  * Data structure to keep track of popup trigger elements by their IDs.
+ * Uses the inherited Map for ID lookups and a Set mirror for efficient element lookups.
  */
 export class PopupTriggerMap extends Map<string, Element> {
   private elementsSet = new Set<Element>();
@@ -20,6 +21,8 @@ export class PopupTriggerMap extends Map<string, Element> {
     }
 
     if (existingElement !== undefined) {
+      // We assume that the same element won't be registered under multiple IDs.
+      // This is safe considering how useTriggerRegistration is implemented.
       this.elementsSet.delete(existingElement);
     }
 
@@ -37,6 +40,9 @@ export class PopupTriggerMap extends Map<string, Element> {
     return this;
   }
 
+  /**
+   * Removes the trigger element with the given ID.
+   */
   public delete(id: string): boolean {
     const element = super.get(id);
     if (element) {
