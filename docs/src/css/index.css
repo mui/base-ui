@@ -65,7 +65,6 @@
 /* Temporary sources until Tailwind CSS vars are no longer used in them */
 @source './mdx-components.css';
 @source '../src/components/**/*.css';
-@source '../app/(private)/experiments/**/*.css';
 
 /* ═══ Tailwind theme ═══ */
 /* Register demo-relevant tokens so Tailwind can generate utility classes. */
