@@ -2,6 +2,7 @@
 import * as React from 'react';
 import c from 'clsx';
 import { useId } from '@base-ui/utils/useId';
+import { useTestInteractions } from '#test-utils';
 import type { Placement } from '../../src/floating-ui-react/types';
 import {
   arrow,
@@ -13,7 +14,6 @@ import {
   useClick,
   useDismiss,
   useFloating,
-  useInteractions,
   useListNavigation,
 } from '../../src/floating-ui-react';
 import { Button } from './Button';
@@ -131,7 +131,7 @@ export function Main() {
   });
 
   // Handles opening the floating element via the Choose Emoji button.
-  const { getReferenceProps, getFloatingProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
     useClick(context),
     useDismiss(context),
   ]);
@@ -142,7 +142,7 @@ export function Main() {
     getReferenceProps: getInputProps,
     getFloatingProps: getListFloatingProps,
     getItemProps,
-  } = useInteractions([
+  } = useTestInteractions([
     useListNavigation(context, {
       listRef,
       onNavigate: open ? setActiveIndex : undefined,

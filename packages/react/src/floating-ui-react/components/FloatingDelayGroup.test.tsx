@@ -5,13 +5,8 @@ import * as React from 'react';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
 
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import {
-  FloatingDelayGroup,
-  useDelayGroup,
-  useFloating,
-  useHover,
-  useInteractions,
-} from '../index';
+import { useTestInteractions } from '#test-utils';
+import { FloatingDelayGroup, useDelayGroup, useFloating, useHover } from '../index';
 
 interface Props {
   label: string;
@@ -28,7 +23,7 @@ function Tooltip({ children, label }: Props) {
 
   const { delayRef } = useDelayGroup(context, { open });
   const hover = useHover(context, { delay: () => delayRef.current });
-  const { getReferenceProps } = useInteractions([hover]);
+  const { getReferenceProps } = useTestInteractions([hover]);
 
   const renderCount = React.useRef(0);
   const renderCountRef = React.useRef<HTMLSpanElement | null>(null);
