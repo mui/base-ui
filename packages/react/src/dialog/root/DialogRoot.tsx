@@ -17,7 +17,7 @@ export const IsDrawerContext = React.createContext(false);
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export const DialogRoot = function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
+export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   const {
     children,
     open: openProp,
@@ -90,7 +90,7 @@ export const DialogRoot = function DialogRoot<Payload>(props: DialogRoot.Props<P
       </DialogRootContext.Provider>
     </IsDrawerContext.Provider>
   );
-};
+}
 
 export interface DialogRootState {}
 

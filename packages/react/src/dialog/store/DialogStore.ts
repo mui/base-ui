@@ -123,19 +123,16 @@ export class DialogStore<Payload> extends ReactStore<
     externalStore: DialogStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    /* eslint-disable react-hooks/rules-of-hooks */
     const floatingId = useId();
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const nested = useFloatingParentNodeId() != null;
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const internalStore = useRefWithInit(() => {
       return new DialogStore<Payload>(initialState, { floatingId, nested });
     }).current;
 
     const store = externalStore ?? internalStore;
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useSyncedFloatingRootContext({
       popupStore: store,
       treatPopupAsFloatingElement: true,
@@ -144,6 +141,7 @@ export class DialogStore<Payload> extends ReactStore<
       nested,
       onOpenChange: store.setOpen,
     });
+    /* eslint-enable react-hooks/rules-of-hooks */
 
     return store;
   }
