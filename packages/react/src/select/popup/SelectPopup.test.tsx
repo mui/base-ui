@@ -21,74 +21,76 @@ describe('<Select.Popup />', () => {
     },
   }));
 
-  it('has aria attributes when no Select.List is present', async () => {
-    const { user } = await render(
-      <Select.Root multiple>
-        <Select.Trigger>Trigger</Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner>
-            <Select.Popup data-testid="popup">Popup</Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>,
-    );
+  describe('accessibility attributes', () => {
+    it('has aria attributes when no Select.List is present', async () => {
+      const { user } = await render(
+        <Select.Root multiple>
+          <Select.Trigger>Trigger</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup data-testid="popup">Popup</Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
 
-    const trigger = screen.getByRole('combobox');
+      const trigger = screen.getByRole('combobox');
 
-    expect(trigger).not.toHaveAttribute('aria-controls');
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveAttribute('aria-controls');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
-    await user.click(trigger);
+      await user.click(trigger);
 
-    const popup = await screen.findByTestId('popup');
-    const listbox = await screen.findByRole('listbox');
+      const popup = await screen.findByTestId('popup');
+      const listbox = await screen.findByRole('listbox');
 
-    expect(popup).toBe(listbox);
-    expect(popup.id).not.toBe('');
-    expect(popup).toHaveAttribute('aria-multiselectable', 'true');
-    expect(trigger).toHaveAttribute('aria-controls', popup.id);
-    expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
-  });
+      expect(popup).toBe(listbox);
+      expect(popup.id).not.toBe('');
+      expect(popup).toHaveAttribute('aria-multiselectable', 'true');
+      expect(trigger).toHaveAttribute('aria-controls', popup.id);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
+    });
 
-  it('places aria attributes on Select.List instead if it is present', async () => {
-    const { user } = await render(
-      <Select.Root multiple>
-        <Select.Trigger>Trigger</Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner>
-            <Select.Popup data-testid="popup">
-              <Select.List data-testid="list">
-                <Select.Item value="1">Item 1</Select.Item>
-                <Select.Item value="2">Item 2</Select.Item>
-              </Select.List>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>,
-    );
+    it('places aria attributes on Select.List instead if it is present', async () => {
+      const { user } = await render(
+        <Select.Root multiple>
+          <Select.Trigger>Trigger</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup data-testid="popup">
+                <Select.List data-testid="list">
+                  <Select.Item value="1">Item 1</Select.Item>
+                  <Select.Item value="2">Item 2</Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
 
-    const trigger = screen.getByRole('combobox');
+      const trigger = screen.getByRole('combobox');
 
-    expect(trigger).not.toHaveAttribute('aria-controls');
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
+      expect(trigger).not.toHaveAttribute('aria-controls');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
 
-    await user.click(trigger);
+      await user.click(trigger);
 
-    const popup = await screen.findByTestId('popup');
-    const list = await screen.findByTestId('list');
-    const listbox = await screen.findByRole('listbox');
+      const popup = await screen.findByTestId('popup');
+      const list = await screen.findByTestId('list');
+      const listbox = await screen.findByRole('listbox');
 
-    expect(list).toBe(listbox);
-    expect(list).toHaveAttribute('aria-multiselectable');
-    expect(popup).toHaveAttribute('role', 'presentation');
-    expect(popup).not.toHaveAttribute('aria-multiselectable');
-    expect(list.id).not.toBe('');
-    expect(trigger).toHaveAttribute('aria-controls', list.id);
-    expect(trigger).not.toHaveAttribute('aria-controls', popup.id);
-    expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
+      expect(list).toBe(listbox);
+      expect(list).toHaveAttribute('aria-multiselectable');
+      expect(popup).toHaveAttribute('role', 'presentation');
+      expect(popup).not.toHaveAttribute('aria-multiselectable');
+      expect(list.id).not.toBe('');
+      expect(trigger).toHaveAttribute('aria-controls', list.id);
+      expect(trigger).not.toHaveAttribute('aria-controls', popup.id);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
+    });
   });
 
   it('restores transform-related inline styles after measurement', async () => {
