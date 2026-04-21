@@ -103,7 +103,7 @@ export default function Page() {
   const [checkboxGroupValue, setCheckboxGroupValue] = React.useState<string[]>([]);
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)' }}>
+    <div>
       <h1>Form</h1>
 
       <hr style={{ margin: '1rem 0' }} />
