@@ -18,6 +18,7 @@ import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 
 const stateAttributesMapping: StateAttributesMapping<MenuPopupState> = {
   ...baseMapping,
@@ -49,7 +50,9 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
+  const activeTriggerId = store.useState('activeTriggerId');
   const floatingContext = store.useState('floatingRootContext');
+  const popupId = floatingContext.useState('floatingId');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
   const activeTriggerElement = store.useState('activeTriggerElement');
@@ -111,12 +114,17 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     props: [
       popupProps,
       {
+        id: popupId,
+        role: 'menu',
+        tabIndex: -1,
+        [FOCUSABLE_ATTRIBUTE]: '',
+        'aria-labelledby': activeTriggerId ?? undefined,
         onKeyDown(event) {
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
           }
         },
-      },
+      } as React.HTMLAttributes<HTMLDivElement> & Record<typeof FOCUSABLE_ATTRIBUTE, string>,
       getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
       { 'data-rootownerid': rootId } as Record<string, string>,
