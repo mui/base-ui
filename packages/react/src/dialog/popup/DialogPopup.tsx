@@ -52,6 +52,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
   const floatingId = floatingRootContext.useState('floatingId');
+
   const popupId = elementProps.id ?? floatingId;
 
   useDialogPortalContext();

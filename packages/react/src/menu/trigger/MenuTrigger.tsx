@@ -218,6 +218,10 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   );
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const open = store.useState('open');
+  const interactionTypeProps = useOpenMethodTriggerProps(open, (interactionType) => {
+    store.set('openMethod', interactionType);
+  });
 
   const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
     useTriggerFocusGuards(store, triggerElementRef);
@@ -226,11 +230,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     disabled,
     open: isOpenedByThisTrigger,
   };
-
-  const open = store.useState('open');
-  const interactionTypeProps = useOpenMethodTriggerProps(open, (interactionType) => {
-    store.set('openMethod', interactionType);
-  });
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [

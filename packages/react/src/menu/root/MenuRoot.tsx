@@ -126,6 +126,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const rootId = useId();
   const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const floatingRootContext = store.useState('floatingRootContext');
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
@@ -334,8 +335,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       }
     },
   );
-
-  const floatingRootContext = store.useState('floatingRootContext');
 
   const floatingEvents = floatingRootContext.context.events;
 

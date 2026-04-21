@@ -129,6 +129,21 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     open: isOpenedByThisTrigger,
   };
 
+  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
+    useTriggerFocusGuards(store, triggerElementRef);
+
+  const state: PopoverTriggerState = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
+
+  const controlsPopup = shouldCurrentTriggerOwnOpenPopup({
+    open,
+    isOpenedByThisTrigger,
+    activeTriggerId,
+    triggerCount: store.context.triggerElements.size,
+  });
+
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],

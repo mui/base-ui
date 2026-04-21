@@ -57,6 +57,9 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const disabled = store.useState('disabled');
   const activeTriggerId = store.useState('activeTriggerId');
   const floatingId = floatingContext.useState('floatingId');
+  const hoverEnabled = store.useState('hoverEnabled');
+  const disabled = store.useState('disabled');
+
   const popupId = elementProps.id ?? floatingId;
 
   const isContextMenu = parent.type === 'context-menu';

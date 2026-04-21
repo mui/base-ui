@@ -143,6 +143,29 @@ function PopupRootSyncTest({
   return null;
 }
 
+let syncedFloatingRootCallbackDuringRender:
+  | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
+  | undefined;
+
+function SyncedFloatingRootContextTest({
+  store,
+  onOpenChange,
+}: {
+  store: ReactStore<SyncState, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+}) {
+  const floatingRootContext = useSyncedFloatingRootContext({
+    popupStore: store,
+    floatingRootContext: store.state.floatingRootContext,
+    floatingId: 'floating-id',
+    nested: false,
+    onOpenChange,
+  });
+
+  syncedFloatingRootCallbackDuringRender = floatingRootContext.context.onOpenChange;
+  return null;
+}
+
 describe('PopupTriggerMap', () => {
   it('stores and retrieves elements by id', () => {
     const map = new PopupTriggerMap();
@@ -416,5 +439,18 @@ describe('usePopupRootSync', () => {
     unmount();
 
     expect(store.state.openMethod).toBe(null);
+  });
+});
+
+describe('useSyncedFloatingRootContext', () => {
+  it('wires sync-only open changes before layout effects run', () => {
+    const store = createSyncStore();
+    const onOpenChange = vi.fn();
+
+    syncedFloatingRootCallbackDuringRender = undefined;
+
+    render(<SyncedFloatingRootContextTest store={store} onOpenChange={onOpenChange} />);
+
+    expect(syncedFloatingRootCallbackDuringRender).toBe(onOpenChange);
   });
 });

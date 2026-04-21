@@ -129,6 +129,8 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
+  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
+
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, registerTrigger, triggerElementRef],
