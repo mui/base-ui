@@ -13,7 +13,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
+  border-radius: 0.375rem;
   border: 1px solid var(--color-gray-200);
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
