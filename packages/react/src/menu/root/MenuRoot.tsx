@@ -124,9 +124,55 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
+  const rootId = useId();
   const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const floatingRootContext = store.useState('floatingRootContext');
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
+
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const activeTriggerId = store.useState('activeTriggerId');
+  const activeTriggerElement = store.useState('activeTriggerElement');
+  const positionerElement = store.useState('positionerElement');
+  const hoverEnabled = store.useState('hoverEnabled');
+  const disabled = store.useState('disabled');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const parent = store.useState('parent');
+  const popupId = usePopupId(store);
+
+  const activeIndex = store.useState('activeIndex');
+  const payload = store.useState('payload') as Payload | undefined;
+  const floatingParentNodeId = store.useState('floatingParentNodeId');
+
+  const openEventRef = React.useRef<Event | null>(null);
+  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
+  const allowOutsidePressDismissalTimeout = useTimeout();
+  const allowTouchToCloseRef = React.useRef(true);
+  const allowTouchToCloseTimeout = useTimeout();
+
+  const nested = floatingParentNodeId != null;
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (parent.type !== undefined && modalProp !== undefined) {
+      console.warn(
+        'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
+      );
+    }
+  }
+
+  useImplicitActiveTrigger(store);
+  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
+    store.update({ allowMouseEnter: false, stickIfOpen: true });
+  });
+
+  usePopupRootSync(store, { open });
+
+  store.useSyncedValues({
+    disabled: disabledProp,
+    modal: parent.type === undefined ? modalProp : undefined,
+    rootId,
+  });
 
   useIsoLayoutEffect(() => {
     if (contextMenuContext && !parentMenuRootContext) {
@@ -153,41 +199,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     floatingParentNodeIdFromContext,
     store,
   ]);
-
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const activeTriggerId = store.useState('activeTriggerId');
-  const activeTriggerElement = store.useState('activeTriggerElement');
-  const positionerElement = store.useState('positionerElement');
-  const hoverEnabled = store.useState('hoverEnabled');
-  const disabled = store.useState('disabled');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const parent = store.useState('parent');
-  const popupId = usePopupId(store);
-
-  const activeIndex = store.useState('activeIndex');
-  const payload = store.useState('payload') as Payload | undefined;
-  const floatingParentNodeId = store.useState('floatingParentNodeId');
-
-  const openEventRef = React.useRef<Event | null>(null);
-
-  const nested = floatingParentNodeId != null;
-
-  if (process.env.NODE_ENV !== 'production') {
-    if (parent.type !== undefined && modalProp !== undefined) {
-      console.warn(
-        'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
-      );
-    }
-  }
-
-  useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.update({ allowMouseEnter: false, stickIfOpen: true });
-  });
-
-  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
-  const allowOutsidePressDismissalTimeout = useTimeout();
 
   React.useEffect(() => {
     if (!open) {
@@ -217,9 +228,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       store.set('hoverEnabled', true);
     }
   }, [open, hoverEnabled, store]);
-
-  const allowTouchToCloseRef = React.useRef(true);
-  const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useStableCallback(
     (
@@ -329,13 +337,23 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     },
   );
 
-  usePopupRootSync(store, { open });
+  const floatingEvents = floatingRootContext.context.events;
 
-  store.useSyncedValues({
-    disabled: disabledProp,
-    modal: parent.type === undefined ? modalProp : undefined,
-    rootId: useId(),
-  });
+  useIsoLayoutEffect(() => {
+    const handleSetOpenEvent = ({
+      open: nextOpen,
+      eventDetails,
+    }: {
+      open: boolean;
+      eventDetails: MenuRoot.ChangeEventDetails;
+    }) => setOpen(nextOpen, eventDetails);
+
+    floatingEvents.on('setOpen', handleSetOpenEvent);
+
+    return () => {
+      floatingEvents?.off('setOpen', handleSetOpenEvent);
+    };
+  }, [floatingEvents, setOpen]);
 
   const handleImperativeClose = React.useCallback(() => {
     store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
@@ -361,25 +379,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
   const shouldSyncPopupProps = open || mounted;
-  const floatingRootContext = store.useState('floatingRootContext');
-
-  const floatingEvents = floatingRootContext.context.events;
-
-  useIsoLayoutEffect(() => {
-    const handleSetOpenEvent = ({
-      open: nextOpen,
-      eventDetails,
-    }: {
-      open: boolean;
-      eventDetails: MenuRoot.ChangeEventDetails;
-    }) => setOpen(nextOpen, eventDetails);
-
-    floatingEvents.on('setOpen', handleSetOpenEvent);
-
-    return () => {
-      floatingEvents?.off('setOpen', handleSetOpenEvent);
-    };
-  }, [floatingEvents, setOpen]);
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: shouldSyncPopupProps && !disabled,

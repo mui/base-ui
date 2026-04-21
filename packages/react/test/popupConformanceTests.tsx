@@ -77,6 +77,16 @@ export function popupConformanceTests(config: PopupTestConfig) {
         }
 
         if (triggerMouseAction === 'click') {
+          it('has controlled-open trigger ARIA attributes', async () => {
+            await render(prepareComponent({ root: { open: true } }));
+            const trigger = getTrigger();
+            const popup = getPopup();
+
+            expect(popup).not.toBe(null);
+            expect(trigger).toHaveAttribute('aria-expanded', 'true');
+            expect(trigger).toHaveAttribute('aria-controls', popup?.id);
+          });
+
           it('has the `aria-controls` attribute on the trigger', async () => {
             const { user } = await render(prepareComponent({}));
             const trigger = getTrigger();

@@ -58,17 +58,11 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
     }
 
     floatingRootContext.update(valuesToSync);
-    floatingRootContext.context.onOpenChange = onOpenChange;
-    floatingRootContext.context.nested = nested;
-  }, [
-    open,
-    floatingId,
-    referenceElement,
-    floatingElement,
-    floatingRootContext,
-    nested,
-    onOpenChange,
-  ]);
+  }, [open, floatingId, referenceElement, floatingElement, floatingRootContext]);
+
+  // Keep sync-only open changes live before descendants can fire layout/autoFocus events.
+  floatingRootContext.context.onOpenChange = onOpenChange;
+  floatingRootContext.context.nested = nested;
 
   return floatingRootContext;
 }

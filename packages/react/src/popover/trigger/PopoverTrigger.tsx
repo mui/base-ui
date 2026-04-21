@@ -38,6 +38,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   const {
     render,
     className,
+    style,
     disabled = false,
     nativeButton = true,
     handle,
@@ -46,7 +47,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     delay = OPEN_DELAY,
     closeDelay = 0,
     id: idProp,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -109,17 +109,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
-  const state: PopoverTriggerState = {
-    disabled,
-    open: isOpenedByThisTrigger,
-  };
-  const controlsPopup = shouldCurrentTriggerOwnOpenPopup({
-    open,
-    isOpenedByThisTrigger,
-    activeTriggerId,
-    triggerCount: store.context.triggerElements.size,
-  });
-
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
@@ -137,6 +126,21 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     }),
     [openReason],
   );
+
+  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
+    useTriggerFocusGuards(store, triggerElementRef);
+
+  const state: PopoverTriggerState = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
+
+  const controlsPopup = shouldCurrentTriggerOwnOpenPopup({
+    open,
+    isOpenedByThisTrigger,
+    activeTriggerId,
+    triggerCount: store.context.triggerElements.size,
+  });
 
   const element = useRenderElement('button', componentProps, {
     state,
@@ -158,9 +162,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     ],
     stateAttributesMapping,
   });
-
-  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
-    useTriggerFocusGuards(store, triggerElementRef);
 
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
   // regardless of whether the focus guards are rendered or not.

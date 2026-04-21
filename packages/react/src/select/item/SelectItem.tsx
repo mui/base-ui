@@ -36,11 +36,11 @@ export const SelectItem = React.memo(
     const {
       render,
       className,
+      style,
       value: itemValue = null,
       label,
       disabled = false,
       nativeButton = false,
-      style,
       ...elementProps
     } = componentProps;
 
@@ -112,17 +112,6 @@ export const SelectItem = React.memo(
       }
     }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
 
-    const state: SelectItemState = {
-      disabled,
-      selected,
-      highlighted,
-    };
-
-    const rootProps = getItemProps({ active: highlighted, selected });
-    if ('id' in rootProps) {
-      rootProps.id = undefined;
-    }
-
     const lastKeyRef = React.useRef<string | null>(null);
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
     const didPointerDownRef = React.useRef(false);
@@ -133,6 +122,17 @@ export const SelectItem = React.memo(
       native: nativeButton,
       composite: true,
     });
+
+    const rootProps = getItemProps({ active: highlighted, selected });
+    if ('id' in rootProps) {
+      rootProps.id = undefined;
+    }
+
+    const state: SelectItemState = {
+      disabled,
+      selected,
+      highlighted,
+    };
 
     function commitSelection(event: MouseEvent) {
       const selectedValue = store.state.value;

@@ -97,6 +97,7 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
   const floatingRootContext = store.useState('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext);
+
   const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
   const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
   const popupProps = React.useMemo(

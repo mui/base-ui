@@ -117,7 +117,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   componentProps: DrawerPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, initialFocus, render, style, ...elementProps } = componentProps;
+  const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
 
   const store = useDialogRootContext();
 
@@ -304,6 +304,8 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   const resolvedInitialFocus = initialFocus === undefined ? store.context.popupRef : initialFocus;
 
+  const setPopupElement = store.useStateSetter('popupElement');
+
   const state: DrawerPopupState = {
     open,
     nested,
@@ -387,7 +389,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       },
       elementProps,
     ],
-    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement],
     stateAttributesMapping,
   });
 

@@ -61,6 +61,8 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
+  const nested = useFloatingParentNodeId() != null;
+
   usePopupRootSync(store, { open });
 
   useImplicitActiveTrigger(store);
@@ -68,18 +70,16 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     store.update({ stickIfOpen: true, openChangeReason: null });
   });
 
+  store.useSyncedValues({
+    modal,
+    nested,
+  });
+
   React.useEffect(() => {
     if (!open) {
       store.context.stickIfOpenTimeout.clear();
     }
   }, [store, open]);
-
-  const nested = useFloatingParentNodeId() != null;
-
-  store.useSyncedValues({
-    modal,
-    nested,
-  });
 
   const handleImperativeClose = React.useCallback(() => {
     store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));

@@ -81,11 +81,11 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    className,
     render,
+    className,
+    style,
     disabled = false,
     swipeDirection: swipeDirectionProp,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -109,14 +109,14 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   const open = store.useState('open');
 
-  const resolvedSwipeDirection = swipeDirectionProp ?? oppositeSwipeDirection[swipeDirection];
-  const dismissDirection = oppositeSwipeDirection[resolvedSwipeDirection];
-  const enabled = !disabled && (!open || swipeActive);
-
   const resetDragDelta = useStableCallback(() => {
     dragDeltaRef.current.x = 0;
     dragDeltaRef.current.y = 0;
   });
+
+  const resolvedSwipeDirection = swipeDirectionProp ?? oppositeSwipeDirection[swipeDirection];
+  const dismissDirection = oppositeSwipeDirection[resolvedSwipeDirection];
+  const enabled = !disabled && (!open || swipeActive);
 
   function disableDismissForSwipe() {
     releaseDismissTimeout.clear();

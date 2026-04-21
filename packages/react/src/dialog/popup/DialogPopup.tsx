@@ -33,7 +33,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   componentProps: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, initialFocus, render, style, ...elementProps } = componentProps;
+  const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
 
   const store = useDialogRootContext();
 
@@ -51,6 +51,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
   const floatingId = floatingRootContext.useState('floatingId');
+
   const popupId = elementProps.id ?? floatingId;
 
   useDialogPortalContext();
@@ -78,6 +79,8 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
+
+  const setPopupElement = store.useStateSetter('popupElement');
 
   const state: DialogPopupState = {
     open,
@@ -108,7 +111,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       },
       elementProps,
     ],
-    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement],
     stateAttributesMapping,
   });
 

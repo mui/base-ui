@@ -55,6 +55,9 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const activeTriggerElement = store.useState('activeTriggerElement');
   const activeTriggerId = store.useState('activeTriggerId');
   const floatingId = floatingContext.useState('floatingId');
+  const hoverEnabled = store.useState('hoverEnabled');
+  const disabled = store.useState('disabled');
+
   const popupId = elementProps.id ?? floatingId;
 
   const isContextMenu = parent.type === 'context-menu';
@@ -84,13 +87,17 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     };
   }, [floatingTreeRoot.events, store]);
 
-  const hoverEnabled = store.useState('hoverEnabled');
-  const disabled = store.useState('disabled');
-
   useHoverFloatingInteraction(floatingContext, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
     closeDelay,
   });
+
+  const setPopupElement = React.useCallback(
+    (element: HTMLElement | null) => {
+      store.set('popupElement', element);
+    },
+    [store],
+  );
 
   const state: MenuPopupState = {
     transitionStatus,
@@ -100,13 +107,6 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     nested: parent.type === 'menu',
     instant: instantType,
   };
-
-  const setPopupElement = React.useCallback(
-    (element: HTMLElement | null) => {
-      store.set('popupElement', element);
-    },
-    [store],
-  );
 
   const element = useRenderElement('div', componentProps, {
     state,

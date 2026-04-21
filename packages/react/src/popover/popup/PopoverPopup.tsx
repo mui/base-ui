@@ -34,7 +34,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   componentProps: PopoverPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, initialFocus, finalFocus, style, ...elementProps } = componentProps;
+  const { render, className, style, initialFocus, finalFocus, ...elementProps } = componentProps;
 
   const store = usePopoverRootContext();
 
@@ -55,6 +55,10 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');
   const floatingId = floatingContext.useState('floatingId');
+  const disabled = store.useState('disabled');
+  const openOnHover = store.useState('openOnHover');
+  const closeDelay = store.useState('closeDelay');
+
   const popupId = elementProps.id ?? floatingId;
 
   useOpenChangeComplete({
@@ -66,10 +70,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       }
     },
   });
-
-  const disabled = store.useState('disabled');
-  const openOnHover = store.useState('openOnHover');
-  const closeDelay = store.useState('closeDelay');
 
   useHoverFloatingInteraction(floatingContext, { enabled: openOnHover && !disabled, closeDelay });
 
@@ -85,13 +85,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
-  const state: PopoverPopupState = {
-    open,
-    side: positioner.side,
-    align: positioner.align,
-    instant: instantType,
-    transitionStatus,
-  };
   const focusManagerModal = modal !== false && hasClosePart;
   store.useSyncedValue('focusManagerModal', focusManagerModal);
 
@@ -101,6 +94,14 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
     [store],
   );
+
+  const state: PopoverPopupState = {
+    open,
+    side: positioner.side,
+    align: positioner.align,
+    instant: instantType,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
