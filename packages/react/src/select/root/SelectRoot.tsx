@@ -39,11 +39,6 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps, mergePropsN } from '../../merge-props';
 
-type ItemUserProps = Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & {
-  active?: boolean | undefined;
-  selected?: boolean | undefined;
-};
-
 /**
  * Groups all parts of the select.
  * Doesn't render its own HTML element.
@@ -413,7 +408,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const getItemProps = React.useCallback(
-    (userProps?: ItemUserProps) => {
+    (
+      userProps?: Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & {
+        active?: boolean | undefined;
+        selected?: boolean | undefined;
+      },
+    ) => {
       if (typeof listNavigation.item === 'function') {
         return { ...listNavigation.item(userProps ?? {}) };
       }

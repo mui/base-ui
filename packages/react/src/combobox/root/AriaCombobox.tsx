@@ -61,11 +61,6 @@ import {
 } from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
-type ItemUserProps = Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & {
-  active?: boolean | undefined;
-  selected?: boolean | undefined;
-};
-
 /**
  * @internal
  */
@@ -1086,7 +1081,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 
   const getItemProps = React.useCallback(
-    (userProps?: ItemUserProps) => {
+    (
+      userProps?: Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & {
+        active?: boolean | undefined;
+        selected?: boolean | undefined;
+      },
+    ) => {
       if (typeof listNavigation.item === 'function') {
         return { ...listNavigation.item(userProps ?? {}) };
       }
