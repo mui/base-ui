@@ -4,27 +4,25 @@ import { Toggle } from '@base-ui/react/toggle';
 
 export default function ExampleToggle() {
   return (
-    <div className="flex gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5">
-      <Toggle
-        aria-label="Favorite"
-        className="flex size-8 items-center justify-center rounded-xs text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:text-gray-900"
-        render={(props, state) => {
-          if (state.pressed) {
-            return (
-              <button type="button" {...props}>
-                <HeartFilledIcon className="size-5" />
-              </button>
-            );
-          }
-
+    <Toggle
+      aria-label="Favorite"
+      className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-gray-50 select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 data-pressed:text-gray-900 dark:data-pressed:text-gray-50"
+      render={(props, state) => {
+        if (state.pressed) {
           return (
             <button type="button" {...props}>
-              <HeartOutlineIcon className="size-5" />
+              <HeartFilledIcon className="size-5" />
             </button>
           );
-        }}
-      />
-    </div>
+        }
+
+        return (
+          <button type="button" {...props}>
+            <HeartOutlineIcon className="size-5" />
+          </button>
+        );
+      }}
+    />
   );
 }
 

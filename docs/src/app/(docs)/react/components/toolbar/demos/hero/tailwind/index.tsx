@@ -12,7 +12,7 @@ export default function ExampleToolbar() {
           render={<Toggle />}
           aria-label="Align left"
           value="align-left"
-          className="flex h-8 items-center justify-center rounded-xs px-[0.75rem] font-[inherit] text-sm font-normal text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
+          className="flex h-8 items-center justify-center rounded-xs px-[0.75rem] font-[inherit] text-sm font-normal text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-pressed:bg-gray-100 data-pressed:text-gray-900"
         >
           Align Left
         </Toolbar.Button>
@@ -20,7 +20,7 @@ export default function ExampleToolbar() {
           render={<Toggle />}
           aria-label="Align right"
           value="align-right"
-          className="flex h-8 items-center justify-center rounded-xs px-[0.75rem] font-[inherit] text-sm font-normal text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
+          className="flex h-8 items-center justify-center rounded-xs px-[0.75rem] font-[inherit] text-sm font-normal text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-pressed:bg-gray-100 data-pressed:text-gray-900"
         >
           Align Right
         </Toolbar.Button>
@@ -28,13 +28,13 @@ export default function ExampleToolbar() {
       <Toolbar.Separator className="m-1 h-4 w-px bg-gray-300" />
       <Toolbar.Group className="flex gap-1" aria-label="Numerical format">
         <Toolbar.Button
-          className="flex size-8 items-center justify-center rounded-xs px-[0.75rem] font-[inherit] text-sm font-normal text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
+          className="flex size-8 items-center justify-center rounded-xs px-[0.75rem] font-[inherit] text-sm font-normal text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-pressed:bg-gray-100 data-pressed:text-gray-900"
           aria-label="Format as currency"
         >
           $
         </Toolbar.Button>
         <Toolbar.Button
-          className="flex size-8 items-center justify-center rounded-xs px-[0.75rem] font-[inherit] text-sm font-normal text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-[pressed]:bg-gray-100 data-[pressed]:text-gray-900"
+          className="flex size-8 items-center justify-center rounded-xs px-[0.75rem] font-[inherit] text-sm font-normal text-gray-600 select-none hover:bg-gray-100 focus-visible:bg-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-200 data-pressed:bg-gray-100 data-pressed:text-gray-900"
           aria-label="Format as percent"
         >
           %
