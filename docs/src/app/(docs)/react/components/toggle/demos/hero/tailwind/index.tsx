@@ -11,14 +11,14 @@ export default function ExampleToggle() {
         if (state.pressed) {
           return (
             <button type="button" {...props}>
-              <HeartFilledIcon className="size-5" />
+              <HeartFilledIcon className="size-4" />
             </button>
           );
         }
 
         return (
           <button type="button" {...props}>
-            <HeartOutlineIcon className="size-5" />
+            <HeartOutlineIcon className="size-4" />
           </button>
         );
       }}
