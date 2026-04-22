@@ -4,43 +4,44 @@
   min-height: 9rem;
   flex-direction: column;
   justify-content: center;
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-gray-900), var(--color-gray-50));
 }
 
 .Icon {
   width: 0.75rem;
   height: 0.75rem;
-  transition: transform 150ms ease-out;
+  transition: transform 100ms ease-out;
 }
 
 .Trigger {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
+  height: 2rem;
+  padding: 0 0.875rem;
   margin: 0;
-  border: 0;
-  outline: 0;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-900);
+  border: none;
+  border-radius: 0;
+  background-color: light-dark(var(--color-gray-200), var(--color-gray-800));
+  color: light-dark(var(--color-gray-900), var(--color-gray-50));
   font-family: inherit;
   font-size: 0.875rem;
-  line-height: 1.25rem;
   font-weight: 400;
+  line-height: 1.25rem;
+  user-select: none;
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-200);
+      background-color: light-dark(var(--color-gray-300), var(--color-gray-700));
     }
   }
 
-  &:active {
-    background-color: var(--color-gray-200);
-  }
-
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
+    outline-width: 2px;
+    outline-style: solid;
+    outline-offset: 2px;
   }
 
   &[data-panel-open] .Icon {
@@ -56,7 +57,7 @@
   overflow: hidden;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  transition: all 150ms ease-out;
+  transition: height 150ms ease-out;
 
   &[hidden]:not([hidden='until-found']) {
     display: none;
@@ -72,9 +73,5 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-top: 0.25rem;
-  padding: 0.5rem 0 0.5rem 1.75rem;
-  border-radius: 0.25rem;
-  background-color: var(--color-gray-100);
-  cursor: text;
+  padding: 0.5rem 0.875rem;
 }
