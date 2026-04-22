@@ -330,6 +330,7 @@ Renders a `<button>` element.
 | :------------------ | :--- | :-------------------------------------------- |
 | data-popup-open     | -    | Present when the corresponding popup is open. |
 | data-disabled       | -    | Present when the button is disabled.          |
+| data-visible        | -    | Present when the clear button is visible.     |
 | data-starting-style | -    | Present when the button is animating in.      |
 | data-ending-style   | -    | Present when the button is animating out.     |
 
@@ -345,6 +346,8 @@ type ComboboxClearState = {
   open: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the clear button should be visible. */
+  visible: boolean;
   /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };

@@ -1,4 +1,5 @@
 import { expect } from 'vitest';
+import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
@@ -105,6 +106,68 @@ describe('<Combobox.Clear />', () => {
 
     fireEvent.click(clear);
     expect(screen.getByTestId('clear')).not.toBe(null);
+  });
+
+  it('exposes visible state to Combobox.Clear render props when rendered inside the popup', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultValue="a">
+        <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.Input />
+              <Combobox.Clear
+                keepMounted
+                data-testid="clear"
+                className={(state) => (state.visible ? 'visible' : 'hidden')}
+              />
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByTestId('trigger'));
+
+    const clear = await screen.findByTestId('clear');
+
+    expect(clear).toHaveClass('visible');
+    expect(clear).toHaveAttribute('data-visible', '');
+
+    await user.click(clear);
+
+    await waitFor(() => {
+      expect(clear).toHaveClass('hidden');
+      expect(clear).not.toHaveAttribute('data-visible');
+    });
+  });
+
+  it('exposes visible state to Autocomplete.Clear render props and data attributes', async () => {
+    const { user } = await render(
+      <Autocomplete.Root defaultValue="test input">
+        <Autocomplete.Input />
+        <Autocomplete.Clear
+          keepMounted
+          data-testid="clear"
+          className={(state) => (state.visible ? 'visible' : 'hidden')}
+        />
+      </Autocomplete.Root>,
+    );
+
+    const clear = screen.getByTestId('clear');
+
+    expect(clear).toHaveClass('visible');
+    expect(clear).toHaveAttribute('data-visible', '');
+
+    await user.click(clear);
+
+    await waitFor(() => {
+      expect(clear).toHaveClass('hidden');
+      expect(clear).not.toHaveAttribute('data-visible');
+    });
   });
 
   describe.skipIf(isJSDOM)('animations', () => {
