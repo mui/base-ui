@@ -22,13 +22,13 @@
     }
   }
 
+  &[data-disabled] {
+    color: light-dark(var(--color-gray-500), var(--color-gray-400));
+  }
+
   &:focus-visible {
     outline-width: 2px;
     outline-style: solid;
     outline-offset: 2px;
-  }
-
-  &[data-disabled] {
-    color: light-dark(var(--color-gray-500), var(--color-gray-400));
   }
 }
