@@ -98,11 +98,7 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
 export function usePopupId<State extends PopupStoreState<any>>(
   store: ReactStore<State, PopupStoreContext<any>, PopupStoreSelectors>,
 ) {
-  const popupElement = store.useState('popupElement');
-  const floatingRootContext = store.useState('floatingRootContext');
-  const floatingId = floatingRootContext.useState('floatingId');
-
-  return popupElement?.id ?? floatingId;
+  return store.useState('popupId');
 }
 
 export function setOpenTriggerState(
@@ -118,15 +114,6 @@ export function setOpenTriggerState(
     state.activeTriggerId = triggerId;
     state.activeTriggerElement = trigger ?? null;
   }
-}
-
-export function shouldCurrentTriggerOwnOpenPopup(
-  open: boolean,
-  isOpenedByThisTrigger: boolean,
-  activeTriggerId: string | null,
-  triggerCount: number,
-) {
-  return open && (isOpenedByThisTrigger || activeTriggerId == null || triggerCount === 1);
 }
 
 /**

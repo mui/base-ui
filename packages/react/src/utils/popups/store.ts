@@ -30,6 +30,7 @@ export type PopupStoreState<Payload> = {
   transitionStatus: TransitionStatus;
 
   floatingRootContext: FloatingRootContext;
+  floatingId: string | undefined;
   /**
    * Whether to prevent unmounting the popup when closed.
    * Useful for interactling with JS animation libraries that control unmounting themselves.
@@ -83,6 +84,7 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     mounted: false,
     transitionStatus: undefined,
     floatingRootContext: getEmptyRootContext(),
+    floatingId: undefined,
     preventUnmountingOnClose: false,
     payload: undefined,
     activeTriggerId: null,
@@ -105,7 +107,7 @@ export function createPopupFloatingRootContext(
   triggerElements: PopupTriggerMap,
   options: PopupFloatingRootContextOptions = {},
 ) {
-  const { floatingId = '', nested = false } = options;
+  const { floatingId, nested = false } = options;
 
   return new FloatingRootStore({
     open: false,
@@ -149,9 +151,10 @@ function getOpen(state: S) {
   return state.openProp ?? state.open;
 }
 
-const popupIdSelector = createSelector(
-  (state: S) => state.popupElement?.id ?? state.floatingRootContext.state.floatingId,
-);
+const popupIdSelector = createSelector((state: S) => {
+  const popupId = state.popupElement?.id ?? state.floatingId;
+  return popupId || undefined;
+});
 
 export const popupStoreSelectors = {
   open: createSelector(getOpen),
