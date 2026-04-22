@@ -1,9 +1,9 @@
 .Meter {
-  box-sizing: border-box;
   display: grid;
   grid-template-columns: 1fr 1fr;
   row-gap: 0.5rem;
   width: 15rem;
+  max-width: 100%;
 }
 
 .Label {
@@ -14,7 +14,6 @@
 }
 
 .Value {
-  margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: light-dark(var(--color-gray-900), var(--color-gray-50));
