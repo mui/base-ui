@@ -5,14 +5,10 @@ import { InteractionType, useEnhancedClickHandler } from '@base-ui/utils/useEnha
 import { isIOS } from '@base-ui/utils/detectBrowser';
 import { useValueChanged } from '../internals/useValueChanged';
 
-/**
- * Determines the interaction type (keyboard, mouse, touch, etc.) that opened the component.
- *
- * @param open The open state of the component.
- */
-export function useOpenInteractionType(open: boolean) {
-  const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
-
+export function useOpenMethodTriggerProps(
+  open: boolean,
+  setOpenMethod: (interactionType: InteractionType | null) => void,
+) {
   const handleTriggerClick = useStableCallback(
     (_: React.MouseEvent, interactionType: InteractionType) => {
       if (!open) {
@@ -27,22 +23,38 @@ export function useOpenInteractionType(open: boolean) {
     },
   );
 
+  const { onClick, onPointerDown } = useEnhancedClickHandler(handleTriggerClick);
+
+  return React.useMemo(
+    () => ({
+      onClick,
+      onPointerDown,
+    }),
+    [onClick, onPointerDown],
+  );
+}
+
+/**
+ * Determines the interaction type (keyboard, mouse, touch, etc.) that opened the component.
+ *
+ * @param open The open state of the component.
+ */
+export function useOpenInteractionType(open: boolean) {
+  const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
+
+  const triggerProps = useOpenMethodTriggerProps(open, setOpenMethod);
+
   useValueChanged(open, (previousOpen) => {
     if (previousOpen && !open) {
       setOpenMethod(null);
     }
   });
 
-  const { onClick, onPointerDown } = useEnhancedClickHandler(handleTriggerClick);
-
   return React.useMemo(
     () => ({
       openMethod,
-      triggerProps: {
-        onClick,
-        onPointerDown,
-      },
+      triggerProps,
     }),
-    [openMethod, onClick, onPointerDown],
+    [openMethod, triggerProps],
   );
 }

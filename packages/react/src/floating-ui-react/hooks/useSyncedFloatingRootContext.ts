@@ -15,6 +15,9 @@ export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreSta
    * Whether the Popup element is passed to Floating UI as the floating element instead of the default Positioner.
    */
   treatPopupAsFloatingElement?: boolean | undefined;
+  floatingRootContext?: FloatingRootStore | undefined;
+  floatingId?: string | undefined;
+  nested?: boolean | undefined;
   onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
 }
 
@@ -25,10 +28,17 @@ export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreSta
 export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>(
   options: UseSyncedFloatingRootContextOptions<State>,
 ): FloatingRootStore {
-  const { popupStore, treatPopupAsFloatingElement = false, onOpenChange } = options;
+  const {
+    popupStore,
+    treatPopupAsFloatingElement = false,
+    floatingRootContext: floatingRootContextProp,
+    floatingId: floatingIdProp,
+    nested: nestedProp,
+    onOpenChange,
+  } = options;
 
-  const floatingId = useId();
-  const nested = useFloatingParentNodeId() != null;
+  const generatedFloatingId = useId();
+  const floatingParentNodeId = useFloatingParentNodeId();
 
   const open = popupStore.useState('open');
   const referenceElement = popupStore.useState('activeTriggerElement');
@@ -37,7 +47,10 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
   );
   const triggerElements = popupStore.context.triggerElements;
 
-  const store = useRefWithInit(
+  const floatingId = floatingIdProp ?? generatedFloatingId;
+  const nested = nestedProp ?? floatingParentNodeId != null;
+
+  const internalStore = useRefWithInit(
     () =>
       new FloatingRootStore({
         open,
@@ -51,6 +64,8 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
         nested,
       }),
   ).current;
+
+  const store = floatingRootContextProp ?? internalStore;
 
   useIsoLayoutEffect(() => {
     const valuesToSync: Partial<FloatingRootState> = {

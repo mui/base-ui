@@ -9,6 +9,7 @@ import {
   PopupStoreState,
   PopupStoreSelectors,
   PopupTriggerMap,
+  shouldCurrentTriggerOwnOpenPopup,
   useTriggerRegistration,
 } from './';
 
@@ -126,5 +127,23 @@ describe('useTriggerRegistration', () => {
     unmount();
     expect(store.context.triggerElements.getById('second')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
+  });
+});
+
+describe('shouldCurrentTriggerOwnOpenPopup', () => {
+  it('lets the opened trigger own the popup', () => {
+    expect(shouldCurrentTriggerOwnOpenPopup(true, true, 'trigger-1', 2)).toBe(true);
+  });
+
+  it('lets the only trigger own the popup before an active trigger is known', () => {
+    expect(shouldCurrentTriggerOwnOpenPopup(true, false, null, 1)).toBe(true);
+  });
+
+  it('lets triggers claim the popup before an active trigger is known', () => {
+    expect(shouldCurrentTriggerOwnOpenPopup(true, false, null, 2)).toBe(true);
+  });
+
+  it('does not let inactive triggers own the popup once another trigger is active', () => {
+    expect(shouldCurrentTriggerOwnOpenPopup(true, false, 'trigger-1', 2)).toBe(false);
   });
 });
