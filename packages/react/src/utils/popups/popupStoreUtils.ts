@@ -95,12 +95,6 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
   );
 }
 
-export function usePopupId<State extends PopupStoreState<any>>(
-  store: ReactStore<State, PopupStoreContext<any>, PopupStoreSelectors>,
-) {
-  return store.useState('popupId');
-}
-
 export function setOpenTriggerState(
   state: Partial<PopupStoreState<any>>,
   open: boolean,
