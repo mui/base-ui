@@ -9,9 +9,11 @@ import {
   PopupStoreState,
   PopupStoreSelectors,
   PopupTriggerMap,
-  shouldCurrentTriggerOwnOpenPopup,
+  popupStoreSelectors,
   useTriggerRegistration,
 } from './';
+import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import type { BaseUIChangeEventDetails } from '../../types';
 
 function createStore() {
   return new ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>(
@@ -21,6 +23,7 @@ function createStore() {
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
     },
+    popupStoreSelectors,
   );
 }
 
@@ -46,6 +49,27 @@ function TestTrigger({
     };
   }, [register, repeat, element]);
 
+  return null;
+}
+
+function PopupIdTest({
+  store,
+  floatingId,
+  onOpenChange,
+}: {
+  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  floatingId: string | undefined;
+  onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+}) {
+  useSyncedFloatingRootContext({
+    popupStore: store,
+    floatingRootContext: store.state.floatingRootContext,
+    floatingId,
+    nested: false,
+    onOpenChange,
+  });
+
+  store.useState('popupId');
   return null;
 }
 
@@ -130,20 +154,22 @@ describe('useTriggerRegistration', () => {
   });
 });
 
-describe('shouldCurrentTriggerOwnOpenPopup', () => {
-  it('lets the opened trigger own the popup', () => {
-    expect(shouldCurrentTriggerOwnOpenPopup(true, true, 'trigger-1', 2)).toBe(true);
+describe('popupId selector', () => {
+  it('syncs the floating id into the popup store for trigger ownership selectors', () => {
+    const store = createStore();
+
+    render(<PopupIdTest store={store} floatingId="popup-id" onOpenChange={vi.fn()} />);
+
+    expect(store.state.floatingId).toBe('popup-id');
+    expect(store.select('popupId')).toBe('popup-id');
   });
 
-  it('lets the only trigger own the popup before an active trigger is known', () => {
-    expect(shouldCurrentTriggerOwnOpenPopup(true, false, null, 1)).toBe(true);
-  });
+  it('omits popup id when the floating id is empty', () => {
+    const store = createStore();
 
-  it('lets triggers claim the popup before an active trigger is known', () => {
-    expect(shouldCurrentTriggerOwnOpenPopup(true, false, null, 2)).toBe(true);
-  });
+    render(<PopupIdTest store={store} floatingId="" onOpenChange={vi.fn()} />);
 
-  it('does not let inactive triggers own the popup once another trigger is active', () => {
-    expect(shouldCurrentTriggerOwnOpenPopup(true, false, 'trigger-1', 2)).toBe(false);
+    expect(store.state.floatingId).toBe('');
+    expect(store.select('popupId')).toBeUndefined();
   });
 });

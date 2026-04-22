@@ -146,7 +146,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
         id: thisTriggerId,
         'aria-haspopup': 'dialog' as const,
         'aria-expanded': isOpenedByThisTrigger,
-        'aria-controls': popupId,
+        'aria-controls': popupId || undefined,
       },
       elementProps,
       getButtonProps,

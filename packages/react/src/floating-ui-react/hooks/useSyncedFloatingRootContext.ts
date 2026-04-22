@@ -67,6 +67,8 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
 
   const store = floatingRootContextProp ?? internalStore;
 
+  popupStore.useSyncedValue('floatingId', floatingId as State['floatingId']);
+
   useIsoLayoutEffect(() => {
     const valuesToSync: Partial<FloatingRootState> = {
       open,

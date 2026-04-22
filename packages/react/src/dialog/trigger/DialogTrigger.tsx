@@ -95,7 +95,7 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
         id: thisTriggerId,
         'aria-haspopup': 'dialog' as const,
         'aria-expanded': isOpenedByThisTrigger,
-        'aria-controls': popupId,
+        'aria-controls': popupId || undefined,
       },
       elementProps,
       getButtonProps,
