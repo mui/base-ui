@@ -2,12 +2,13 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
-import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { REASONS } from '../../internals/reasons';
 import { useDialogRootContext } from './DialogRootContext';
 
@@ -1277,6 +1278,81 @@ describe('<Dialog.Root />', () => {
     });
   });
 
+  describe.for([
+    { name: 'body', target: 'body' as const },
+    { name: 'html', target: 'html' as const },
+  ])('when a third-party $name lock hands off to the dialog', ({ target }) => {
+    it('keeps the page scroll-locked', async () => {
+      function App() {
+        const [dialogOpen, setDialogOpen] = React.useState(false);
+        const element = getScrollLockElement(document, target);
+        const timeout = useTimeout();
+
+        React.useEffect(() => {
+          return () => {
+            element.style.overflow = '';
+          };
+        }, [element]);
+
+        return (
+          <React.Fragment>
+            <button
+              onClick={() => {
+                element.style.overflow = 'hidden';
+                timeout.start(50, () => {
+                  element.style.overflow = '';
+                });
+                setDialogOpen(true);
+              }}
+            >
+              Open dialog
+            </button>
+            <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+              <Dialog.Portal>
+                <Dialog.Popup>
+                  <Dialog.Close>Close dialog</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      const doc = document;
+
+      fireEvent.click(screen.getByRole('button', { name: 'Open dialog' }));
+      await act(async () => {
+        await wait(0);
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+      expect(isScrollLocked(doc)).toBe(true);
+
+      await act(async () => {
+        await wait(75);
+      });
+      await waitFor(() => {
+        expect(isScrollLocked(doc)).toBe(true);
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }));
+      await act(async () => {
+        await wait(0);
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(isScrollLocked(doc)).toBe(false);
+      });
+    });
+  });
+
   it.skipIf(isJSDOM)(
     'keeps focus trapped when dialog content contains a non-scrollable scroll area',
     async () => {
@@ -1345,6 +1421,16 @@ function DialogOpenChangeSpy(props: {
   }, [floatingRootContext, onOpenChange]);
 
   return null;
+}
+
+function isScrollLocked(doc: Document) {
+  return /hidden|clip/.test(
+    getComputedStyle(doc.documentElement).overflowY + getComputedStyle(doc.body).overflowY,
+  );
+}
+
+function getScrollLockElement(doc: Document, target: 'body' | 'html') {
+  return target === 'body' ? doc.body : doc.documentElement;
 }
 
 type TestDialogProps = {
