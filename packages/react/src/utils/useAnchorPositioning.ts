@@ -343,10 +343,10 @@ export function useAnchorPositioning(
       },
     }),
     arrow(
-      () => ({
+      (state) => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
-        element: arrowRef.current || ownerDocument(arrowRef.current).createElement('div'),
+        element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
         padding: arrowPadding,
         offsetParent: 'floating',
       }),
