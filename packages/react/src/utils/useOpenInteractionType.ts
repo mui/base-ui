@@ -6,12 +6,14 @@ import { isIOS } from '@base-ui/utils/detectBrowser';
 import { useValueChanged } from '../internals/useValueChanged';
 
 export function useOpenMethodTriggerProps(
-  open: boolean,
+  open: boolean | (() => boolean),
   setOpenMethod: (interactionType: InteractionType | null) => void,
 ) {
   const handleTriggerClick = useStableCallback(
     (_: React.MouseEvent, interactionType: InteractionType) => {
-      if (!open) {
+      const isOpen = typeof open === 'function' ? open() : open;
+
+      if (!isOpen) {
         setOpenMethod(
           interactionType ||
             // On iOS Safari, the hitslop around touch targets means tapping outside an element's

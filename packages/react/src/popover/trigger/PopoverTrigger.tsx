@@ -17,11 +17,7 @@ import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
-import {
-  shouldCurrentTriggerOwnOpenPopup,
-  usePopupId,
-  useTriggerDataForwarding,
-} from '../../utils/popups';
+import { useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
@@ -59,12 +55,14 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
-  const open = store.useState('open');
-  const activeTriggerId = store.useState('activeTriggerId');
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const popupId = usePopupId(store);
+  const popupId = store.useState(
+    'triggerPopupId',
+    thisTriggerId,
+    store.context.triggerElements.size,
+  );
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -103,9 +101,12 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
-  const interactionTypeProps = useOpenMethodTriggerProps(open, (interactionType) => {
-    store.set('openMethod', interactionType);
-  });
+  const interactionTypeProps = useOpenMethodTriggerProps(
+    () => store.select('open'),
+    (interactionType) => {
+      store.set('openMethod', interactionType);
+    },
+  );
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
@@ -132,13 +133,6 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
     open: isOpenedByThisTrigger,
   };
 
-  const controlsPopup = shouldCurrentTriggerOwnOpenPopup(
-    open,
-    isOpenedByThisTrigger,
-    activeTriggerId,
-    store.context.triggerElements.size,
-  );
-
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
@@ -152,7 +146,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
         id: thisTriggerId,
         'aria-haspopup': 'dialog' as const,
         'aria-expanded': isOpenedByThisTrigger,
-        'aria-controls': controlsPopup ? popupId : undefined,
+        'aria-controls': popupId,
       },
       elementProps,
       getButtonProps,

@@ -8,11 +8,7 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { DialogHandle } from '../store/DialogHandle';
-import {
-  shouldCurrentTriggerOwnOpenPopup,
-  usePopupId,
-  useTriggerDataForwarding,
-} from '../../utils/popups';
+import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useClick } from '../../floating-ui-react';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
@@ -48,11 +44,13 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
-  const open = store.useState('open');
-  const activeTriggerId = store.useState('activeTriggerId');
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const popupId = usePopupId(store);
+  const popupId = store.useState(
+    'triggerPopupId',
+    thisTriggerId,
+    store.context.triggerElements.size,
+  );
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -71,9 +69,12 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null });
-  const interactionTypeProps = useOpenMethodTriggerProps(open, (interactionType) => {
-    store.set('openMethod', interactionType);
-  });
+  const interactionTypeProps = useOpenMethodTriggerProps(
+    () => store.select('open'),
+    (interactionType) => {
+      store.set('openMethod', interactionType);
+    },
+  );
 
   const state: DialogTriggerState = {
     disabled,
@@ -81,13 +82,6 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
   };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
-
-  const controlsPopup = shouldCurrentTriggerOwnOpenPopup(
-    open,
-    isOpenedByThisTrigger,
-    activeTriggerId,
-    store.context.triggerElements.size,
-  );
 
   return useRenderElement('button', componentProps, {
     state,
@@ -101,7 +95,7 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
         id: thisTriggerId,
         'aria-haspopup': 'dialog' as const,
         'aria-expanded': isOpenedByThisTrigger,
-        'aria-controls': controlsPopup ? popupId : undefined,
+        'aria-controls': popupId,
       },
       elementProps,
       getButtonProps,
