@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
+import { fastComponent } from '@base-ui/utils/fastHooks';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDismiss, useInteractions, FloatingTree } from '../../floating-ui-react';
+import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import {
   createChangeEventDetails,
@@ -11,13 +13,17 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
+  FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
 } from '../../utils/popups';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
+import { mergeProps } from '../../merge-props';
 
-function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>) {
+const PreviewCardRootComponent = fastComponent(function PreviewCardRootComponent<Payload>(
+  props: PreviewCardRoot.Props<Payload>,
+) {
   const {
     open: openProp,
     defaultOpen = false,
@@ -54,9 +60,8 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
-  const floatingRootContext = store.select('floatingRootContext');
-
   const activeTriggerId = store.useState('activeTriggerId');
+  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
   useImplicitActiveTrigger(store);
@@ -80,13 +85,26 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     [forceUnmount, handleImperativeClose],
   );
 
+  const shouldRenderInteractions = open || mounted;
+
+  return (
+    <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
+      {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
+      {typeof children === 'function' ? children({ payload }) : children}
+    </PreviewCardRootContext.Provider>
+  );
+});
+
+function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<Payload> }) {
+  const floatingRootContext = store.useState('floatingRootContext');
+
   const dismiss = useDismiss(floatingRootContext);
-
-  const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([dismiss]);
-
-  const activeTriggerProps = React.useMemo(() => getReferenceProps(), [getReferenceProps]);
-  const inactiveTriggerProps = React.useMemo(() => getTriggerProps(), [getTriggerProps]);
-  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
+  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
+  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
+  const popupProps = React.useMemo(
+    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
+    [dismiss.floating],
+  );
 
   store.useSyncedValues({
     activeTriggerProps,
@@ -94,11 +112,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     popupProps,
   });
 
-  return (
-    <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
-      {typeof children === 'function' ? children({ payload }) : children}
-    </PreviewCardRootContext.Provider>
-  );
+  return null;
 }
 
 /**

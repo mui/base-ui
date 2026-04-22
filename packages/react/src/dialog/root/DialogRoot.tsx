@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDialogRoot } from './useDialogRoot';
+import { useDialogRoot, DialogInteractions } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -63,22 +63,31 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
-  useDialogRoot({
+  const dialogRootResult = useDialogRoot({
     store,
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
     isDrawer,
-    onOpenChange,
-    triggerIdProp,
   });
+
+  const shouldRenderInteractions = open || mounted;
 
   const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
 
   return (
     <IsDrawerContext.Provider value={false}>
       <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+        {shouldRenderInteractions && (
+          <DialogInteractions
+            store={store}
+            parentContext={dialogRootResult.parentContext}
+            isDrawer={dialogRootResult.isDrawer}
+          />
+        )}
         {typeof children === 'function' ? children({ payload }) : children}
       </DialogRootContext.Provider>
     </IsDrawerContext.Provider>

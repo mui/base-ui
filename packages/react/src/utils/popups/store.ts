@@ -1,6 +1,7 @@
 import { createSelector } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FloatingRootContext } from '../../floating-ui-react';
+import { FloatingRootStore } from '../../floating-ui-react/components/FloatingRootStore';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
@@ -93,6 +94,30 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
   };
+}
+
+export interface PopupFloatingRootContextOptions {
+  floatingId?: string | undefined;
+  nested?: boolean | undefined;
+}
+
+export function createPopupFloatingRootContext(
+  triggerElements: PopupTriggerMap,
+  options: PopupFloatingRootContextOptions = {},
+) {
+  const { floatingId = '', nested = false } = options;
+
+  return new FloatingRootStore({
+    open: false,
+    transitionStatus: undefined,
+    floatingElement: null,
+    referenceElement: null,
+    triggerElements,
+    floatingId,
+    syncOnly: true,
+    nested,
+    onOpenChange: undefined,
+  });
 }
 
 export type PopupStoreContext<ChangeEventDetails> = {

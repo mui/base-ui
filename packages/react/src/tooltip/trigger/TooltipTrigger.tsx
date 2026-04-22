@@ -139,6 +139,11 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
         onPointerDown() {
           store.set('closeOnClick', closeOnClick);
         },
+        onClick(event) {
+          if (closeOnClick && !store.select('open')) {
+            store.cancelPendingOpen(event.nativeEvent);
+          }
+        },
         id: thisTriggerId,
         [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
       } as React.HTMLAttributes<Element>,
