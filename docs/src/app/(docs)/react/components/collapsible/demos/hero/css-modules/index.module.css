@@ -4,7 +4,7 @@
   min-height: 9rem;
   flex-direction: column;
   justify-content: center;
-  color: light-dark(var(--color-gray-900), var(--color-gray-50));
+  color: light-dark(var(--color-gray-900), white);
 }
 
 .Icon {
@@ -25,7 +25,7 @@
   border: none;
   border-radius: 0;
   background-color: light-dark(var(--color-gray-200), var(--color-gray-800));
-  color: light-dark(var(--color-gray-900), var(--color-gray-50));
+  color: light-dark(var(--color-gray-900), white);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;

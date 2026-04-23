@@ -4,8 +4,8 @@
   width: 20rem;
   max-width: 100%;
   flex-direction: column;
-  border-bottom: 1px solid light-dark(var(--color-gray-900), var(--color-gray-50));
-  color: light-dark(var(--color-gray-900), var(--color-gray-50));
+  border-bottom: 1px solid light-dark(var(--color-gray-900), white);
+  color: light-dark(var(--color-gray-900), white);
 }
 
 .Header {
@@ -22,10 +22,10 @@
   padding: 0.5rem 0;
   margin: 0;
   border: none;
-  border-top: 1px solid light-dark(var(--color-gray-900), var(--color-gray-50));
+  border-top: 1px solid light-dark(var(--color-gray-900), white);
   border-radius: 0;
   background-color: transparent;
-  color: light-dark(var(--color-gray-900), var(--color-gray-50));
+  color: light-dark(var(--color-gray-900), white);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
