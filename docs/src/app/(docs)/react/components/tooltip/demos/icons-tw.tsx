@@ -22,7 +22,6 @@ export function ArrowSvg(props: React.ComponentProps<'svg'>) {
 export function InfoIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="20"
       height="20"
       viewBox="0 0 24 24"
@@ -43,7 +42,6 @@ export function InfoIcon(props: React.ComponentProps<'svg'>) {
 export function HelpIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="20"
       height="20"
       viewBox="0 0 24 24"
@@ -64,7 +62,6 @@ export function HelpIcon(props: React.ComponentProps<'svg'>) {
 export function AlertIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="20"
       height="20"
       viewBox="0 0 24 24"
