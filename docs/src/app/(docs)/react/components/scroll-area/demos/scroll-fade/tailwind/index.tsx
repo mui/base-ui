@@ -4,7 +4,7 @@ export default function ExampleScrollAreaScrollFade() {
   return (
     <ScrollArea.Root className="box-border h-48 w-96 max-w-[calc(100vw-8rem)] bg-gray-100 dark:bg-gray-800">
       <ScrollArea.Viewport className="h-full bg-gray-100 dark:bg-gray-800 mask-linear-[to_bottom,transparent_0,black_min(40px,var(--scroll-area-overflow-y-start)),black_calc(100%_-_min(40px,var(--scroll-area-overflow-y-end,40px))),transparent_100%] mask-no-repeat focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
-        <ScrollArea.Content className="flex flex-col gap-4 py-3 pr-6 pl-4 text-sm leading-[1.375rem] text-gray-950 dark:text-white">
+        <ScrollArea.Content className="flex flex-col gap-4 py-2 pr-5 pl-3 text-sm leading-[1.375rem] text-gray-950 dark:text-white">
           <p>
             Vernacular architecture is building done outside any academic tradition, and without
             professional guidance. It is not a particular architectural movement or style, but
