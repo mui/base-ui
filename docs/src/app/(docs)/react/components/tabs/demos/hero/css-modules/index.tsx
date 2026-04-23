@@ -4,7 +4,7 @@ import styles from './index.module.css';
 
 export default function ExampleTabs() {
   return (
-    <Tabs.Root className={styles.Tabs} defaultValue="overview">
+    <Tabs.Root defaultValue="overview">
       <Tabs.List className={styles.List}>
         <Tabs.Tab className={styles.Tab} value="overview">
           Overview
