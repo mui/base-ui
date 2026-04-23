@@ -12,21 +12,21 @@ export default function ExampleToggleGroupMultiple() {
       <Toggle
         aria-label="Bold"
         value="bold"
-        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
+        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
       >
         <BoldIcon />
       </Toggle>
       <Toggle
         aria-label="Italic"
         value="italic"
-        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
+        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
       >
         <ItalicIcon />
       </Toggle>
       <Toggle
         aria-label="Underline"
         value="underline"
-        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
+        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
       >
         <UnderlineIcon />
       </Toggle>
