@@ -5,25 +5,25 @@ export default function ExampleSeparator() {
     <div className="flex gap-4 text-nowrap">
       <a
         href="#"
-        className="text-sm text-gray-900 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
+        className="text-sm text-gray-950 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
       >
         Home
       </a>
       <a
         href="#"
-        className="text-sm text-gray-900 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
+        className="text-sm text-gray-950 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
       >
         Pricing
       </a>
       <a
         href="#"
-        className="text-sm text-gray-900 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
+        className="text-sm text-gray-950 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
       >
         Blog
       </a>
       <a
         href="#"
-        className="text-sm text-gray-900 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
+        className="text-sm text-gray-950 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
       >
         Support
       </a>
@@ -32,13 +32,13 @@ export default function ExampleSeparator() {
 
       <a
         href="#"
-        className="text-sm text-gray-900 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
+        className="text-sm text-gray-950 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
       >
         Log in
       </a>
       <a
         href="#"
-        className="text-sm text-gray-900 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
+        className="text-sm text-gray-950 decoration-gray-300 decoration-1 underline-offset-2 hover:underline focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:decoration-gray-700"
       >
         Sign up
       </a>

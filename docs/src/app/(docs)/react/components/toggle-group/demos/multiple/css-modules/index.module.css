@@ -2,7 +2,7 @@
   display: flex;
   gap: 1px;
   padding: 1px;
-  border: 1px solid light-dark(var(--color-gray-900), white);
+  border: 1px solid light-dark(var(--color-gray-950), white);
 }
 
 .Button {
@@ -17,7 +17,7 @@
   border: none;
   border-radius: 0;
   background-color: transparent;
-  color: light-dark(var(--color-gray-900), white);
+  color: light-dark(var(--color-gray-950), white);
   user-select: none;
 
   @media (hover: hover) {
@@ -27,8 +27,8 @@
   }
 
   &[data-pressed] {
-    background-color: light-dark(var(--color-gray-900), white);
-    color: light-dark(white, var(--color-gray-900));
+    background-color: light-dark(var(--color-gray-950), white);
+    color: light-dark(white, var(--color-gray-950));
   }
 
   &:focus-visible {

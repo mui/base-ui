@@ -5,11 +5,11 @@ export default function ExampleAccordion() {
   return (
     <Accordion.Root
       multiple
-      className="flex w-80 max-w-full flex-col border-b border-gray-900 text-gray-900 dark:border-white dark:text-white"
+      className="flex w-80 max-w-full flex-col border-b border-gray-950 text-gray-950 dark:border-white dark:text-white"
     >
       <Accordion.Item>
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-gray-900 bg-transparent py-2 text-left text-sm leading-5 font-normal text-gray-900 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-gray-950 bg-transparent py-2 text-left text-sm leading-5 font-normal text-gray-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
             What is Base UI?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
@@ -24,7 +24,7 @@ export default function ExampleAccordion() {
 
       <Accordion.Item>
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-gray-900 bg-transparent py-2 text-left text-sm leading-5 font-normal text-gray-900 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-gray-950 bg-transparent py-2 text-left text-sm leading-5 font-normal text-gray-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
             How do I get started?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
@@ -39,7 +39,7 @@ export default function ExampleAccordion() {
 
       <Accordion.Item>
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-gray-900 bg-transparent py-2 text-left text-sm leading-5 font-normal text-gray-900 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-gray-950 bg-transparent py-2 text-left text-sm leading-5 font-normal text-gray-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
             Can I use it for my project?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>

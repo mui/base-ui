@@ -10,13 +10,13 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
-  color: light-dark(var(--color-gray-900), white);
+  color: light-dark(var(--color-gray-950), white);
 }
 
 .Value {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-gray-900), white);
+  color: light-dark(var(--color-gray-950), white);
   text-align: right;
 }
 
@@ -28,6 +28,6 @@
 }
 
 .Indicator {
-  background-color: light-dark(var(--color-gray-900), white);
+  background-color: light-dark(var(--color-gray-950), white);
   transition: width 500ms;
 }
