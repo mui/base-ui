@@ -3,7 +3,7 @@ import { Avatar } from '@base-ui/react/avatar';
 export default function ExampleAvatar() {
   return (
     <div className="flex gap-4">
-      <Avatar.Root className="inline-flex size-8 items-center justify-center overflow-hidden rounded-full bg-gray-200 align-middle text-sm leading-none font-normal text-gray-900 select-none dark:bg-gray-800 dark:text-gray-50">
+      <Avatar.Root className="inline-flex size-8 items-center justify-center overflow-hidden rounded-full bg-gray-200 align-middle text-sm leading-none font-normal text-gray-900 select-none dark:bg-gray-800 dark:text-white">
         <Avatar.Image
           src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
           width="48"
@@ -14,7 +14,7 @@ export default function ExampleAvatar() {
           LT
         </Avatar.Fallback>
       </Avatar.Root>
-      <Avatar.Root className="inline-flex size-8 items-center justify-center overflow-hidden rounded-full bg-gray-200 align-middle text-sm leading-none font-normal text-gray-900 select-none dark:bg-gray-800 dark:text-gray-50">
+      <Avatar.Root className="inline-flex size-8 items-center justify-center overflow-hidden rounded-full bg-gray-200 align-middle text-sm leading-none font-normal text-gray-900 select-none dark:bg-gray-800 dark:text-white">
         LT
       </Avatar.Root>
     </div>
