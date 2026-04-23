@@ -18,7 +18,7 @@ import {
   useListNavigation,
   useClick,
 } from '../../floating-ui-react';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget, isListIndexDisabled } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -1048,11 +1048,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
     cols: grid ? 2 : 1,
     orientation: grid ? 'horizontal' : undefined,
-    disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
         return;
+      }
+
+      if (nextActiveIndex != null) {
+        const nextItem = listRef.current[nextActiveIndex];
+        if (nextItem?.hasAttribute('data-disabled') || isListIndexDisabled(listRef, nextActiveIndex)) {
+          return;
+        }
       }
 
       if (!event) {

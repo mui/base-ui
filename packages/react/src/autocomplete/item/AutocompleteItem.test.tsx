@@ -98,4 +98,70 @@ describe('<Autocomplete.Item />', () => {
       expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute('data-selected'),
     );
   });
+
+  describe('prop: disabled', () => {
+    it('does not highlight disabled items with keyboard navigation', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['one', 'two', 'three']} openOnInputClick>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item} disabled={item === 'two'}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{ArrowDown}');
+
+      const twoOption = screen.getByRole('option', { name: 'two' });
+      const threeOption = screen.getByRole('option', { name: 'three' });
+
+      expect(twoOption).not.toHaveAttribute('data-highlighted');
+      expect(threeOption).toHaveAttribute('data-highlighted');
+    });
+
+    it('does not highlight disabled items on pointer hover', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['one', 'two', 'three']} openOnInputClick>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item} disabled={item === 'two'}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      const twoOption = screen.getByRole('option', { name: 'two' });
+      await user.hover(twoOption);
+
+      expect(twoOption).not.toHaveAttribute('data-highlighted');
+    });
+  });
 });
