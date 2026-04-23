@@ -3,6 +3,7 @@
   width: 24rem;
   height: 8.5rem;
   max-width: calc(100vw - 8rem);
+  background-color: light-dark(white, var(--color-gray-950));
 }
 
 .Viewport {
@@ -35,10 +36,7 @@
 .Scrollbar {
   display: flex;
   justify-content: center;
-  background-color: light-dark(
-    color-mix(in srgb, var(--color-gray-900) 25%, transparent),
-    color-mix(in srgb, var(--color-gray-50) 25%, transparent)
-  );
+  background-color: light-dark(rgb(0 0 0 / 12%), rgb(255 255 255 / 12%));
   width: 1rem;
   margin: 1px;
   opacity: 0;
@@ -65,8 +63,5 @@
 
 .Thumb {
   width: 100%;
-  background-color: light-dark(
-    color-mix(in srgb, var(--color-gray-900) 80%, transparent),
-    color-mix(in srgb, var(--color-gray-50) 80%, transparent)
-  );
+  background-color: light-dark(var(--color-gray-900), white);
 }
