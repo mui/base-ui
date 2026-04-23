@@ -33,4 +33,4 @@ function ScrollAreaMountList() {
   );
 }
 
-benchmark('Scroll Area mount (300 instances)', () => <ScrollAreaMountList />);
+benchmark('Scroll Area mount (150 instances)', () => <ScrollAreaMountList />);

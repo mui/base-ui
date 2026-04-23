@@ -24,4 +24,4 @@ function SliderMountList() {
   );
 }
 
-benchmark('Slider mount (300 instances)', () => <SliderMountList />);
+benchmark('Slider mount (150 instances)', () => <SliderMountList />);
