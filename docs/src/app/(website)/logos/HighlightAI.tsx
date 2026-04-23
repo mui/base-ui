@@ -2,14 +2,7 @@ import * as React from 'react';
 
 export function HighlightAI(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="32"
-      height="32"
-      viewBox="0 0 32 32"
-      fill="none"
-      {...props}
-    >
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" {...props}>
       <path
         d="M0.799805 6.4002C0.799805 4.63288 2.21757 3.2002 3.96647 3.2002C5.71537 3.2002 7.13314 4.63288 7.13314 6.4002V25.6002C7.13314 27.3675 5.71537 28.8002 3.96647 28.8002C2.21757 28.8002 0.799805 27.3675 0.799805 25.6002V6.4002Z"
         fill="currentcolor"
