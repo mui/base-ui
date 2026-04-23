@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: start;
   gap: 0.25rem;
-  color: light-dark(var(--color-gray-900), var(--color-gray-50));
+  color: light-dark(var(--color-gray-900), white);
 }
 
 .Caption {
@@ -29,22 +29,21 @@
   height: 1rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid light-dark(var(--color-gray-900), var(--color-gray-50));
+  border: 1px solid light-dark(var(--color-gray-900), white);
   border-radius: 0;
-  background-color: light-dark(var(--color-gray-50), var(--color-gray-900));
-  color: light-dark(var(--color-gray-50), var(--color-gray-900));
+  background-color: light-dark(white, var(--color-gray-900));
+  color: light-dark(white, var(--color-gray-900));
   padding: 0;
   margin: 0;
 
   &[data-checked],
   &[data-indeterminate] {
-    background-color: light-dark(var(--color-gray-900), var(--color-gray-50));
-    color: light-dark(var(--color-gray-50), var(--color-gray-900));
+    background-color: light-dark(var(--color-gray-900), white);
+    color: light-dark(white, var(--color-gray-900));
   }
 
   &:focus-visible {
-    outline-width: 2px;
-    outline-style: solid;
+    outline: 2px solid var(--color-blue-800);
     outline-offset: 2px;
   }
 }
