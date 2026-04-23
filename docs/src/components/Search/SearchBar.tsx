@@ -58,7 +58,6 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
           {i !== arr.length - 1 && (
             <svg
               className="SearchBreadcrumbSeparator"
-              xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
               fill="none"

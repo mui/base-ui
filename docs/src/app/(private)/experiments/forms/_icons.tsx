@@ -32,14 +32,7 @@ export function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 export function HorizontalRuleIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 24 24"
-      fill="currentcolor"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentcolor" {...props}>
       <line
         x1="3"
         y1="12"

@@ -7,7 +7,7 @@ export default function Nothing() {
 
 export function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" {...props}>
       <line x1="17" y1="10" x2="3" y2="10" />
       <line x1="21" y1="6" x2="3" y2="6" />
       <line x1="21" y1="14" x2="3" y2="14" />
@@ -18,7 +18,7 @@ export function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
 
 export function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" {...props}>
       <line x1="18" y1="10" x2="6" y2="10" />
       <line x1="21" y1="6" x2="3" y2="6" />
       <line x1="21" y1="14" x2="3" y2="14" />
@@ -29,7 +29,7 @@ export function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
 
 export function AlignRightIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" {...props}>
       <line x1="21" y1="10" x2="7" y2="10" />
       <line x1="21" y1="6" x2="3" y2="6" />
       <line x1="21" y1="14" x2="3" y2="14" />
@@ -40,7 +40,7 @@ export function AlignRightIcon(props: React.ComponentProps<'svg'>) {
 
 export function BoldIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" {...props}>
       <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
       <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
     </svg>
@@ -49,7 +49,7 @@ export function BoldIcon(props: React.ComponentProps<'svg'>) {
 
 export function ItalicsIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" {...props}>
       <line x1="19" y1="4" x2="10" y2="4" />
       <line x1="14" y1="20" x2="5" y2="20" />
       <line x1="15" y1="4" x2="9" y2="20" />
@@ -59,7 +59,7 @@ export function ItalicsIcon(props: React.ComponentProps<'svg'>) {
 
 export function UnderlineIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" {...props}>
       <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3" />
       <line x1="4" y1="21" x2="20" y2="21" />
     </svg>
@@ -106,7 +106,7 @@ export function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 export function MoreHorizontalIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" {...props}>
       <circle cx="12" cy="12" r="1" />
       <circle cx="19" cy="12" r="1" />
       <circle cx="5" cy="12" r="1" />
@@ -132,7 +132,7 @@ export function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
 
 export function MessageCircleIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" {...props}>
       <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
     </svg>
   );
@@ -140,7 +140,7 @@ export function MessageCircleIcon(props: React.ComponentProps<'svg'>) {
 
 export function MousePointerIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" {...props}>
       <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
       <path d="M13 13l6 6" />
     </svg>
@@ -149,15 +149,7 @@ export function MousePointerIcon(props: React.ComponentProps<'svg'>) {
 
 export function CursorGrowIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      width="26"
-      height="14"
-      viewBox="0 0 24 14"
-      fill="black"
-      stroke="white"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
+    <svg width="26" height="14" viewBox="0 0 24 14" fill="black" stroke="white" {...props}>
       <path d="M19.5 5.5L6.49737 5.51844V2L1 6.9999L6.5 12L6.49737 8.5L19.5 8.5V12L25 6.9999L19.5 2V5.5Z" />
     </svg>
   );
@@ -172,7 +164,6 @@ export function PlusIcon(props: React.ComponentProps<'svg'>) {
       fill="none"
       stroke="currentcolor"
       strokeWidth="1.6"
-      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M0 5H5M10 5H5M5 5V0M5 5V10" />
@@ -189,7 +180,6 @@ export function MinusIcon(props: React.ComponentProps<'svg'>) {
       fill="none"
       stroke="currentcolor"
       strokeWidth="1.6"
-      xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
       <path d="M0 5H10" />
@@ -207,15 +197,7 @@ export function BellIcon(props: React.ComponentProps<'svg'>) {
 
 export function TrashIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      {...props}
-    >
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
       <polyline points="3 6 5 6 21 6" />
       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
       <line x1="10" y1="11" x2="10" y2="17" />
@@ -226,15 +208,7 @@ export function TrashIcon(props: React.ComponentProps<'svg'>) {
 
 export function SlidersIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      {...props}
-    >
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
       <line x1="4" y1="21" x2="4" y2="14" />
       <line x1="4" y1="10" x2="4" y2="3" />
       <line x1="12" y1="21" x2="12" y2="12" />

@@ -74,7 +74,6 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 function MinusIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
       viewBox="0 0 16 16"
@@ -91,7 +90,6 @@ function MinusIcon(props: React.ComponentProps<'svg'>) {
 function CircleAlertIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
       viewBox="0 0 24 24"
@@ -112,7 +110,6 @@ function CircleAlertIcon(props: React.ComponentProps<'svg'>) {
 function SignalHighIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
       viewBox="0 0 24 24"
@@ -134,7 +131,6 @@ function SignalHighIcon(props: React.ComponentProps<'svg'>) {
 function SignalMediumIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
       viewBox="0 0 24 24"
@@ -156,7 +152,6 @@ function SignalMediumIcon(props: React.ComponentProps<'svg'>) {
 function SignalLowIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
       viewBox="0 0 24 24"
