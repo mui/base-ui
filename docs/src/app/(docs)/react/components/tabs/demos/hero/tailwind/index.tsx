@@ -23,22 +23,22 @@ export default function ExampleTabs() {
         >
           Account
         </Tabs.Tab>
-        <Tabs.Indicator className="absolute top-0 left-0 -z-1 h-full w-(--active-tab-width) translate-x-(--active-tab-left) border-x border-t border-gray-900 bg-white transition-[translate,width] duration-150 ease-in-out dark:border-white dark:bg-gray-900" />
+        <Tabs.Indicator className="absolute top-0 left-0 -z-1 h-full w-(--active-tab-width) translate-x-(--active-tab-left) border-x border-t border-gray-900 bg-white transition-[translate,width] duration-150 ease-in-out dark:border-white dark:bg-gray-950" />
       </Tabs.List>
       <Tabs.Panel
-        className="relative flex h-32 items-center justify-center border border-gray-900 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-900 [&[hidden]]:hidden"
+        className="relative flex h-32 items-center justify-center border border-gray-900 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-950 [&[hidden]]:hidden"
         value="overview"
       >
         <OverviewIcon className="size-10 text-gray-400 dark:text-gray-500" />
       </Tabs.Panel>
       <Tabs.Panel
-        className="relative flex h-32 items-center justify-center border border-gray-900 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-900 [&[hidden]]:hidden"
+        className="relative flex h-32 items-center justify-center border border-gray-900 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-950 [&[hidden]]:hidden"
         value="projects"
       >
         <ProjectIcon className="size-10 text-gray-400 dark:text-gray-500" />
       </Tabs.Panel>
       <Tabs.Panel
-        className="relative flex h-32 items-center justify-center border border-gray-900 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-900 [&[hidden]]:hidden"
+        className="relative flex h-32 items-center justify-center border border-gray-900 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-950 [&[hidden]]:hidden"
         value="account"
       >
         <PersonIcon className="size-10 text-gray-400 dark:text-gray-500" />
