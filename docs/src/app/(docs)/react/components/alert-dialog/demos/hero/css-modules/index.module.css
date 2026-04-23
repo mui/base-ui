@@ -3,37 +3,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 2.5rem;
+  height: 2rem;
   padding: 0 0.875rem;
   margin: 0;
-  outline: 0;
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.375rem;
-  background-color: var(--color-gray-50);
+  border: none;
+  background-color: light-dark(var(--color-gray-200), var(--color-gray-800));
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.5rem;
-  color: var(--color-gray-900);
+  line-height: 1.25rem;
+  color: light-dark(var(--color-gray-900), white);
   user-select: none;
 
   &[data-color='red'] {
-    color: var(--color-red);
+    color: light-dark(var(--color-red-700), var(--color-red-400));
   }
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-100);
+      background-color: light-dark(var(--color-gray-300), var(--color-gray-700));
     }
   }
 
-  &:active {
-    background-color: var(--color-gray-100);
-  }
-
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: 2px;
   }
 }
 
@@ -42,7 +36,7 @@
   min-height: 100dvh;
   inset: 0;
   background-color: black;
-  opacity: 0.2;
+  opacity: 0.08;
   transition: opacity 150ms;
 
   /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
@@ -69,15 +63,15 @@
   width: 24rem;
   max-width: calc(100vw - 3rem);
   margin-top: -2rem;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  outline: 1px solid var(--color-gray-300);
-  background-color: var(--color-gray-50);
-  color: var(--color-gray-900);
+  padding: 0.75rem;
+  border: 1px solid light-dark(var(--color-gray-900), white);
+  background-color: light-dark(white, var(--color-gray-950));
+  color: light-dark(var(--color-gray-900), white);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transition: all 150ms;
 
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-gray-300);
+    box-shadow: none;
   }
 
   &[data-starting-style],
@@ -88,22 +82,22 @@
 }
 
 .Title {
-  margin-top: -0.375rem;
-  margin-bottom: 0.25rem;
-  font-size: 1.125rem;
-  line-height: 1.75rem;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 700;
 }
 
 .Description {
-  margin: 0 0 1.5rem;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  color: var(--color-gray-600);
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: light-dark(var(--color-gray-600), var(--color-gray-400));
 }
 
 .Actions {
   display: flex;
   justify-content: end;
-  gap: 1rem;
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
