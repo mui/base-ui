@@ -151,6 +151,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         triggerElement: null,
         positionerElement: null,
         listElement: null,
+        popupSide: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
         hasScrollArrows: false,
