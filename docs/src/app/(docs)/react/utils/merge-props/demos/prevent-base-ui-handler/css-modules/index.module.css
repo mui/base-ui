@@ -12,8 +12,8 @@
 
 .Label {
   font-size: 0.875rem;
-  line-height: 1.5rem;
-  color: light-dark(var(--color-gray-900), var(--color-gray-50));
+  line-height: 1.25rem;
+  color: light-dark(var(--color-gray-950), white);
 }
 
 .Toggle {
@@ -28,7 +28,7 @@
   border: none;
   border-radius: 0;
   background-color: transparent;
-  color: light-dark(var(--color-gray-900), var(--color-gray-50));
+  color: light-dark(var(--color-gray-950), white);
   user-select: none;
 
   @media (hover: hover) {
@@ -38,8 +38,7 @@
   }
 
   &:focus-visible {
-    outline-width: 2px;
-    outline-style: solid;
+    outline: 2px solid var(--color-blue-800);
     outline-offset: 2px;
   }
 }
@@ -55,16 +54,15 @@
   align-items: center;
   justify-content: center;
   height: 2rem;
-  padding: 0 0.875rem;
+  padding: 0 0.75rem;
   margin: 0;
   border: none;
-  border-radius: 0;
   background-color: light-dark(var(--color-gray-200), var(--color-gray-800));
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.5rem;
-  color: light-dark(var(--color-gray-900), var(--color-gray-50));
+  line-height: 1.25rem;
+  color: light-dark(var(--color-gray-950), white);
   user-select: none;
 
   @media (hover: hover) {
@@ -74,8 +72,7 @@
   }
 
   &:focus-visible {
-    outline-width: 2px;
-    outline-style: solid;
+    outline: 2px solid var(--color-blue-800);
     outline-offset: 2px;
   }
 }
