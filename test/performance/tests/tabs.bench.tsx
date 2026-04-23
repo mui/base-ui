@@ -31,4 +31,4 @@ function TabsMountList() {
   );
 }
 
-benchmark('Tabs mount (200 instances)', () => <TabsMountList />);
+benchmark('Tabs mount (100 instances)', () => <TabsMountList />);

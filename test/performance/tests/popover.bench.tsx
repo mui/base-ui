@@ -30,4 +30,4 @@ function PopoverMountList() {
   );
 }
 
-benchmark('Popover mount (300 instances)', () => <PopoverMountList />);
+benchmark('Popover mount (150 instances)', () => <PopoverMountList />);
