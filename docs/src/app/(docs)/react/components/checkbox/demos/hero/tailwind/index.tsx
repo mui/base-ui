@@ -3,10 +3,10 @@ import { Checkbox } from '@base-ui/react/checkbox';
 
 export default function ExampleCheckbox() {
   return (
-    <label className="flex items-center gap-2 text-sm leading-5 font-normal text-gray-900 dark:text-white">
+    <label className="flex items-center gap-2 text-sm leading-5 font-normal text-gray-950 dark:text-white">
       <Checkbox.Root
         defaultChecked
-        className="flex size-4 shrink-0 items-center justify-center border rounded-none p-0 border-gray-900 bg-white text-white dark:border-white dark:bg-gray-900 dark:text-gray-900 data-checked:bg-gray-900 data-checked:text-white dark:data-checked:bg-white dark:data-checked:text-gray-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
+        className="flex size-4 shrink-0 items-center justify-center border rounded-none p-0 border-gray-950 bg-white text-white dark:border-white dark:bg-gray-950 dark:text-gray-950 data-checked:bg-gray-950 data-checked:text-white dark:data-checked:bg-white dark:data-checked:text-gray-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
       >
         <Checkbox.Indicator className="flex data-unchecked:hidden">
           <CheckIcon className="size-3" />

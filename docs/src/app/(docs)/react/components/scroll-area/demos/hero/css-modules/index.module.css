@@ -8,7 +8,7 @@
 
 .Viewport {
   height: 100%;
-  outline: 1px solid light-dark(var(--color-gray-900), white);
+  outline: 1px solid light-dark(var(--color-gray-950), white);
   outline-offset: -1px;
 
   &:focus-visible {
@@ -30,7 +30,7 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.375rem;
-  color: light-dark(var(--color-gray-900), white);
+  color: light-dark(var(--color-gray-950), white);
 }
 
 .Scrollbar {
@@ -63,5 +63,5 @@
 
 .Thumb {
   width: 100%;
-  background-color: light-dark(var(--color-gray-900), white);
+  background-color: light-dark(var(--color-gray-950), white);
 }

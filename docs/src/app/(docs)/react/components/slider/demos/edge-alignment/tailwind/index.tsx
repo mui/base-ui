@@ -5,8 +5,8 @@ export default function EdgeAlignedThumb() {
     <Slider.Root thumbAlignment="edge" defaultValue={25}>
       <Slider.Control className="flex w-56 touch-none items-center py-3 select-none">
         <Slider.Track className="h-1 w-full bg-gray-200 select-none dark:bg-gray-800">
-          <Slider.Indicator className="bg-gray-900 select-none dark:bg-white" />
-          <Slider.Thumb className="box-border size-4 border border-gray-900 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-800 dark:border-white dark:bg-gray-900" />
+          <Slider.Indicator className="bg-gray-950 select-none dark:bg-white" />
+          <Slider.Thumb className="box-border size-4 border border-gray-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-800 dark:border-white dark:bg-gray-950" />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>

@@ -7,7 +7,7 @@
 
 .Viewport {
   height: 100%;
-  outline: 1px solid light-dark(var(--color-gray-900), white);
+  outline: 1px solid light-dark(var(--color-gray-950), white);
   outline-offset: -1px;
 
   &:focus-visible {
@@ -90,5 +90,5 @@
 
 .Thumb {
   width: 100%;
-  background-color: light-dark(var(--color-gray-900), white);
+  background-color: light-dark(var(--color-gray-950), white);
 }
