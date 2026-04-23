@@ -3,8 +3,8 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 export default function ExampleScrollArea() {
   return (
     <ScrollArea.Root className="h-[8.5rem] w-96 max-w-[calc(100vw-8rem)]">
-      <ScrollArea.Viewport className="h-full rounded-md outline-1 -outline-offset-1 outline-gray-200 focus-visible:outline-2 focus-visible:outline-blue-800">
-        <div className="flex flex-col gap-4 py-3 pr-6 pl-4 text-sm leading-[1.375rem] text-gray-900">
+      <ScrollArea.Viewport className="h-full outline-1 -outline-offset-1 outline-gray-900 dark:outline-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+        <div className="flex flex-col gap-4 py-3 pr-6 pl-4 text-sm leading-[1.375rem] text-gray-900 dark:text-white">
           <p>
             Vernacular architecture is building done outside any academic tradition, and without
             professional guidance. It is not a particular architectural movement or style, but
@@ -26,8 +26,8 @@ export default function ExampleScrollArea() {
           </p>
         </div>
       </ScrollArea.Viewport>
-      <ScrollArea.Scrollbar className="m-2 flex w-1 justify-center rounded-sm bg-gray-200 opacity-0 transition-opacity pointer-events-none data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[hovering]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-0 data-[scrolling]:pointer-events-auto">
-        <ScrollArea.Thumb className="w-full rounded-sm bg-gray-500" />
+      <ScrollArea.Scrollbar className="m-px flex w-4 justify-center bg-gray-900/25 dark:bg-gray-50/25 opacity-0 transition-opacity pointer-events-none before:absolute before:h-full before:w-5 before:content-[''] data-[hovering]:opacity-100 data-[hovering]:delay-0 data-[hovering]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-0 data-[scrolling]:pointer-events-auto">
+        <ScrollArea.Thumb className="w-full bg-gray-900/80 dark:bg-gray-50/80" />
       </ScrollArea.Scrollbar>
     </ScrollArea.Root>
   );
