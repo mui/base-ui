@@ -7,12 +7,12 @@
 
 .Viewport {
   height: 100%;
-  border-radius: 0.375rem;
-  outline: 1px solid var(--color-gray-200);
+  outline: 1px solid light-dark(var(--color-gray-900), white);
   outline-offset: -1px;
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
@@ -29,16 +29,18 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.375rem;
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-gray-900), white);
 }
 
 .Scrollbar {
   display: flex;
   justify-content: center;
-  background-color: var(--color-gray-200);
-  width: 0.25rem;
-  border-radius: 0.375rem;
-  margin: 0.5rem;
+  background-color: light-dark(
+    color-mix(in srgb, var(--color-gray-900) 25%, transparent),
+    color-mix(in srgb, var(--color-gray-50) 25%, transparent)
+  );
+  width: 1rem;
+  margin: 1px;
   opacity: 0;
   transition: opacity 150ms;
   pointer-events: none;
@@ -63,6 +65,8 @@
 
 .Thumb {
   width: 100%;
-  border-radius: inherit;
-  background-color: var(--color-gray-500);
+  background-color: light-dark(
+    color-mix(in srgb, var(--color-gray-900) 80%, transparent),
+    color-mix(in srgb, var(--color-gray-50) 80%, transparent)
+  );
 }
