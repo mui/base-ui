@@ -44,7 +44,8 @@
 
 /* ═══ Safelist to generate Tailwind classes ═══ */
 
-@source '../app/(docs)/react/**/demos/**/*.{ts,tsx}';
+/* TODO: Remove the .css extension once all CSS module demos are migrated to the new look */
+@source '../app/(docs)/react/**/demos/**/*.{ts,tsx,css}';
 
 /* Temporary sources until Tailwind CSS vars are no longer used in them */
 @source './mdx-components.css';
@@ -74,7 +75,9 @@
   --color-gray-950: oklch(13% 0.028 261.692deg);
 
   --color-blue-800: oklch(42.4% 0.199 265.638deg);
-  --color-red-800: oklch(44.4% 0.177 26.899deg);
+
+  --color-red-400: oklch(70.4% 0.191 22.216deg);
+  --color-red-700: oklch(50.5% 0.213 27.518deg);
 
   /* Typography */
   --font-mono: 'Paper Mono', monospace;
