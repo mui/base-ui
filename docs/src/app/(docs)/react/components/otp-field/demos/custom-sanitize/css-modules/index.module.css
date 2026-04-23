@@ -43,24 +43,24 @@
 
 .InputInvalidA {
   border-color: var(--color-red);
-  outline: 2px solid var(--color-red-800);
+  outline: 2px solid light-dark(var(--color-red-700), var(--color-red-400));
   outline-offset: -1px;
   animation: otp-field-shake-a 180ms ease-in-out;
 
   &:focus {
-    outline: 2px solid var(--color-red-800);
+    outline: 2px solid light-dark(var(--color-red-700), var(--color-red-400));
     outline-offset: -1px;
   }
 }
 
 .InputInvalidB {
   border-color: var(--color-red);
-  outline: 2px solid var(--color-red-800);
+  outline: 2px solid light-dark(var(--color-red-700), var(--color-red-400));
   outline-offset: -1px;
   animation: otp-field-shake-b 180ms ease-in-out;
 
   &:focus {
-    outline: 2px solid var(--color-red-800);
+    outline: 2px solid light-dark(var(--color-red-700), var(--color-red-400));
     outline-offset: -1px;
   }
 }

@@ -42,7 +42,7 @@ export default function Page() {
           placeholder="Enter name"
           className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 font-normal"
         />
-        <Field.Error className="text-sm text-red-800" />
+        <Field.Error className="text-sm text-red-700 dark:text-red-400" />
       </Field.Root>
       <Field.Root name="age" className="flex flex-col items-start gap-1">
         <Field.Label className="text-sm font-bold text-gray-900">Age</Field.Label>
@@ -50,7 +50,7 @@ export default function Page() {
           placeholder="Enter age"
           className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 font-normal"
         />
-        <Field.Error className="text-sm text-red-800" />
+        <Field.Error className="text-sm text-red-700 dark:text-red-400" />
       </Field.Root>
       <Button
         type="submit"
