@@ -1056,7 +1056,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (nextActiveIndex != null) {
         const nextItem = listRef.current[nextActiveIndex];
-        if (nextItem?.hasAttribute('data-disabled') || isListIndexDisabled(listRef, nextActiveIndex)) {
+        if (
+          nextItem?.hasAttribute('data-disabled') ||
+          isListIndexDisabled(listRef?.current, nextActiveIndex)
+        ) {
           return;
         }
       }
