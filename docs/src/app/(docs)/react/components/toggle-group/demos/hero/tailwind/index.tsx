@@ -11,21 +11,21 @@ export default function ExampleToggleGroup() {
       <Toggle
         aria-label="Align left"
         value="left"
-        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
+        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
       >
         <AlignLeftIcon className="size-4" />
       </Toggle>
       <Toggle
         aria-label="Align center"
         value="center"
-        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
+        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
       >
         <AlignCenterIcon className="size-4" />
       </Toggle>
       <Toggle
         aria-label="Align right"
         value="right"
-        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
+        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-900 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-pressed:bg-gray-900 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-900"
       >
         <AlignRightIcon className="size-4" />
       </Toggle>

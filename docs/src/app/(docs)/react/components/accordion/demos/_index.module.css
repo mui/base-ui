@@ -34,8 +34,7 @@
   user-select: none;
 
   &:focus-visible {
-    outline-width: 2px;
-    outline-style: solid;
+    outline: 2px solid var(--color-blue-800);
     z-index: 1;
   }
 }
