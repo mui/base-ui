@@ -44,10 +44,7 @@
 .Scrollbar {
   display: flex;
   justify-content: center;
-  background-color: light-dark(
-    color-mix(in srgb, var(--color-gray-900) 25%, transparent),
-    color-mix(in srgb, var(--color-gray-50) 25%, transparent)
-  );
+  background-color: light-dark(rgb(0 0 0 / 8%), rgb(255 255 255 / 12%));
   width: 1rem;
   margin: 1px;
   opacity: 0;
@@ -74,22 +71,5 @@
 
 .Thumb {
   width: 100%;
-  background-color: light-dark(
-    color-mix(in srgb, var(--color-gray-900) 80%, transparent),
-    color-mix(in srgb, var(--color-gray-50) 80%, transparent)
-  );
-}
-
-.ScrollUp {
-  position: absolute;
-  top: 0;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.15s;
-  pointer-events: none;
-
-  [data-overflow-y-start] & {
-    opacity: 1;
-    pointer-events: auto;
-  }
+  background-color: light-dark(var(--color-gray-900), white);
 }

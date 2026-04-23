@@ -43,10 +43,7 @@
 .Scrollbar {
   display: flex;
   position: relative;
-  background-color: light-dark(
-    color-mix(in srgb, var(--color-gray-900) 25%, transparent),
-    color-mix(in srgb, var(--color-gray-50) 25%, transparent)
-  );
+  background-color: light-dark(rgb(0 0 0 / 12%), rgb(255 255 255 / 12%));
   margin: 1px;
   opacity: 0;
   transition: opacity 150ms;
@@ -93,8 +90,5 @@
 
 .Thumb {
   width: 100%;
-  background-color: light-dark(
-    color-mix(in srgb, var(--color-gray-900) 80%, transparent),
-    color-mix(in srgb, var(--color-gray-50) 80%, transparent)
-  );
+  background-color: light-dark(var(--color-gray-900), white);
 }
