@@ -30,19 +30,15 @@
 .Backdrop {
   position: fixed;
   inset: 0;
+  background-color: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));
   transition-duration: 600ms;
   transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;
   transition-timing-function: var(--ease-out-fast);
   backdrop-filter: blur(1.5px);
-  background-image: linear-gradient(to bottom, rgb(0 0 0 / 5%) 0, rgb(0 0 0 / 10%) 50%);
 
   /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
   @supports (-webkit-touch-callout: none) {
     position: absolute;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    opacity: 0.7;
   }
 
   &[data-starting-style],
@@ -169,8 +165,8 @@
   right: -0.25rem;
   top: -0.25rem;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
   border: none;
   background-color: transparent;

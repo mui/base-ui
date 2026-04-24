@@ -9,7 +9,7 @@ export default function InsideScrollDialog() {
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-150 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
+        <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-150 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 dark:opacity-50 supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 flex items-center justify-center overflow-hidden py-6 [@media(min-height:600px)]:pb-12 [@media(min-height:600px)]:pt-8">
           <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden bg-white dark:bg-gray-950 p-4 text-gray-950 dark:text-white border border-gray-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-all duration-150 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0">
             <div className="mb-1 flex items-start justify-between gap-3">
@@ -18,8 +18,8 @@ export default function InsideScrollDialog() {
             <Dialog.Description className="m-0 mb-3 text-sm leading-5 text-gray-600 dark:text-gray-400">
               This layout keeps the popup fully on screen while allowing its content to scroll.
             </Dialog.Description>
-            <ScrollArea.Root className="relative flex min-h-0 flex-1 overflow-hidden border-y border-gray-950 dark:border-white">
-              <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-4 pr-4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+            <ScrollArea.Root className="relative flex min-h-0 flex-auto overflow-hidden border-y border-gray-950 dark:border-white">
+              <ScrollArea.Viewport className="flex-auto min-h-0 overflow-y-auto overscroll-contain py-4 pr-4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
                 <ScrollArea.Content className="flex flex-col gap-4">
                   {CONTENT_SECTIONS.map((item) => (
                     <section key={item.title}>

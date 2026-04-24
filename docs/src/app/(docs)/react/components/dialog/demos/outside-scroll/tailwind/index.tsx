@@ -11,7 +11,7 @@ export default function OutsideScrollDialog() {
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/5%)_0,rgb(0_0_0/10%)_50%)] opacity-100 transition-[backdrop-filter,opacity] duration-[600ms] ease-[var(--ease-out-fast)] backdrop-blur-[1.5px] data-[starting-style]:backdrop-blur-0 data-[starting-style]:opacity-0 data-[ending-style]:backdrop-blur-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
+        <Dialog.Backdrop className="fixed inset-0 bg-black/20 dark:bg-black/50 transition-[backdrop-filter,opacity] duration-[600ms] ease-[var(--ease-out-fast)] backdrop-blur-[1.5px] data-[starting-style]:backdrop-blur-0 data-[starting-style]:opacity-0 data-[ending-style]:backdrop-blur-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="group/dialog fixed inset-0">
           <ScrollArea.Root
             style={{ position: undefined }}
@@ -30,7 +30,7 @@ export default function OutsideScrollDialog() {
                     </Dialog.Title>
                     <Dialog.Close
                       aria-label="Close"
-                      className="relative top-[-0.25rem] right-[-0.25rem] flex items-center justify-center w-7 h-7 bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-gray-950 dark:hover:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+                      className="relative top-[-0.25rem] right-[-0.25rem] inline-flex items-center justify-center w-8 h-8 bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-gray-950 dark:hover:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
                     >
                       <XIcon className="h-4 w-4" />
                     </Dialog.Close>
@@ -70,7 +70,7 @@ export default function OutsideScrollDialog() {
                 </Dialog.Popup>
               </ScrollArea.Content>
             </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar className="pointer-events-none flex w-3 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-[250ms] data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-[75ms] data-[scrolling]:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-[75ms] hover:delay-[0ms] group-data-[ending-style]/dialog:opacity-0 group-data-[ending-style]/dialog:duration-300">
+            <ScrollArea.Scrollbar className="pointer-events-none flex w-3 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-[250ms] data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-[75ms] data-[scrolling]:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-[75ms] hover:delay-[0ms] group-data-[ending-style]/dialog:opacity-0 group-data-[ending-style]/dialog:duration-[250ms]">
               <ScrollArea.Thumb className="w-full bg-gray-950 dark:bg-white" />
             </ScrollArea.Scrollbar>
           </ScrollArea.Root>
