@@ -68,11 +68,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    @media (--xs) {
-      padding: 3rem 1.5rem;
-      min-height: 11.25rem; /* Match .DemoCodeBlockRoot pre min-height */
-    }
   }
 
   .DemoToolbar {
