@@ -31,9 +31,8 @@
   position: fixed;
   min-height: 100dvh;
   inset: 0;
-  background-color: black;
-  opacity: 0.7;
-  backdrop-filter: blur(2px);
+  background-color: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));
+  backdrop-filter: blur(1px);
   transition:
     opacity 150ms,
     backdrop-filter 150ms;
@@ -41,10 +40,6 @@
   /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
   @supports (-webkit-touch-callout: none) {
     position: absolute;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    opacity: 0.7;
   }
 
   &[data-starting-style],
@@ -58,7 +53,7 @@
   inset: 0;
   display: grid;
   place-items: center;
-  padding: 2.5rem 1rem;
+  padding: 3rem 1rem;
 
   @media (min-width: 80rem) {
     padding-block: 1.5rem;
@@ -66,9 +61,11 @@
 }
 
 .PopupRoot {
+  position: relative;
   display: flex;
   justify-content: center;
   width: 100%;
+  max-width: 70rem;
   height: 100%;
   transition: opacity 150ms;
   pointer-events: none;
@@ -76,6 +73,10 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
+  }
+
+  @media (min-width: 80rem) {
+    max-width: none;
   }
 }
 
@@ -104,34 +105,39 @@
 .Close {
   box-sizing: border-box;
   position: absolute;
-  top: 0.5rem;
-  right: 0.75rem;
+  top: -2.5rem;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: auto;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
   margin: 0;
-  border: none;
-  background-color: transparent;
-  color: white;
+  border: 1px solid light-dark(var(--color-gray-950), white);
+  background-color: light-dark(white, var(--color-gray-950));
+  color: light-dark(var(--color-gray-950), white);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
 
-  &:focus-visible {
-    outline: 2px solid var(--color-blue-800);
-    outline-offset: -2px;
+  @media (prefers-color-scheme: dark) {
+    box-shadow: none;
+  }
+
+  @media (min-width: 80rem) {
+    top: 0;
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
   @media (hover: hover) {
     &:hover {
-      background-color: rgb(255 255 255 / 0.1);
+      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
     }
   }
 
-  @media (min-width: 80rem) {
-    top: 0.75rem;
-    width: 2.5rem;
-    height: 2.5rem;
+  &:focus-visible {
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
