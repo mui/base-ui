@@ -3,36 +3,36 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
   margin: 0;
-  outline: 0;
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.375rem;
-  background-color: var(--color-gray-50);
-  color: var(--color-gray-900);
-  user-select: none;
-  font-size: 1rem;
+  border: none;
+  background-color: light-dark(var(--color-gray-200), var(--color-gray-800));
+  font-family: inherit;
+  font-size: 0.875rem;
   font-weight: 400;
+  line-height: 1.25rem;
+  color: light-dark(var(--color-gray-950), white);
+  user-select: none;
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-100);
+      background-color: light-dark(var(--color-gray-300), var(--color-gray-700));
     }
   }
 
   &:active {
-    background-color: var(--color-gray-100);
+    background-color: light-dark(var(--color-gray-300), var(--color-gray-700));
   }
 
   &[data-popup-open] {
-    background-color: var(--color-gray-100);
+    background-color: light-dark(var(--color-gray-300), var(--color-gray-700));
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: 2px;
   }
 }
 
@@ -61,9 +61,10 @@
 
 .Popup {
   position: relative;
-  background-color: canvas;
-  color: var(--color-gray-900);
-  border-radius: 0.5rem;
+  background-color: light-dark(white, var(--color-gray-950));
+  color: light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-gray-950), white);
+  filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
   transform-origin: var(--transform-origin);
 
   /* These are required to make the size animations work */
@@ -77,6 +78,10 @@
   transition-timing-function: var(--easing);
   transition-duration: var(--animation-duration);
 
+  @media (prefers-color-scheme: dark) {
+    filter: none;
+  }
+
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
@@ -86,29 +91,17 @@
   &[data-instant] {
     transition: none;
   }
-
-  @media (prefers-color-scheme: light) {
-    outline: 1px solid var(--color-gray-200);
-    box-shadow:
-      0 10px 15px -3px var(--color-gray-200),
-      0 4px 6px -4px var(--color-gray-200);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-gray-300);
-    outline-offset: -1px;
-  }
 }
 
 .Viewport {
-  --viewport-inline-padding: 1.5rem;
+  --viewport-inline-padding: 1rem;
   box-sizing: border-box;
   /* Required to clip the overflowing content during the slide in/out animations */
   position: relative;
   overflow: clip;
   width: 100%;
   height: 100%;
-  padding: 1rem var(--viewport-inline-padding);
+  padding: 0.75rem var(--viewport-inline-padding);
 
   [data-previous],
   [data-current] {
@@ -147,58 +140,60 @@
 }
 
 .Arrow {
-  display: flex;
+  display: block;
+  position: relative;
+  width: 12px;
+  height: 6px;
+  overflow: clip;
   transition: left calc(var(--animation-duration)) var(--easing);
 
   &[data-side='top'] {
-    bottom: -8px;
+    bottom: -6px;
     rotate: 180deg;
   }
 
   &[data-side='bottom'] {
-    top: -8px;
+    top: -6px;
     rotate: 0deg;
   }
 
   &[data-side='left'] {
-    right: -13px;
+    right: -9px;
     rotate: 90deg;
   }
 
   &[data-side='right'] {
-    left: -13px;
+    left: -9px;
     rotate: -90deg;
   }
-}
 
-.ArrowFill {
-  fill: canvas;
-}
-
-.ArrowOuterStroke {
-  @media (prefers-color-scheme: light) {
-    fill: var(--color-gray-200);
-  }
-}
-
-.ArrowInnerStroke {
-  @media (prefers-color-scheme: dark) {
-    fill: var(--color-gray-300);
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    box-sizing: border-box;
+    width: calc(6px * sqrt(2));
+    height: calc(6px * sqrt(2));
+    background-color: light-dark(white, var(--color-gray-950));
+    border: 1px solid light-dark(var(--color-gray-950), white);
+    transform: translate(-50%, 50%) rotate(45deg);
   }
 }
 
 .Title {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 700;
 }
 
 .Description {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  color: var(--color-gray-600);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: light-dark(var(--color-gray-600), var(--color-gray-400));
 }
 
 .Container {
@@ -210,7 +205,6 @@
   display: grid;
   grid-template-columns: auto auto;
   column-gap: 16px;
-  margin: 0 -8px;
 
   .Title {
     grid-column: 2;
@@ -222,7 +216,8 @@
     grid-row: 2;
 
     font-size: 0.875rem;
-    color: var(--color-gray-600);
+    line-height: 1.25rem;
+    color: light-dark(var(--color-gray-600), var(--color-gray-400));
   }
 
   .Avatar {
@@ -233,12 +228,11 @@
     justify-content: center;
     align-items: center;
     vertical-align: middle;
-    border-radius: 100%;
     user-select: none;
     font-weight: 700;
-    color: var(--color-gray-900);
-    background-color: var(--color-gray-100);
-    font-size: 1rem;
+    color: light-dark(var(--color-gray-950), white);
+    background-color: light-dark(var(--color-gray-200), var(--color-gray-800));
+    font-size: 0.875rem;
     line-height: 1;
     overflow: hidden;
     height: 3rem;
@@ -256,20 +250,28 @@
     grid-row: 3;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.5rem;
     margin-top: 0.5rem;
     padding-top: 0.5rem;
-    border-top: 1px solid var(--color-gray-200);
+    border-top: 1px solid light-dark(var(--color-gray-950), white);
     font-size: 0.875rem;
+    line-height: 1.25rem;
 
     a {
-      color: var(--color-gray-900);
-      text-decoration: none;
+      color: light-dark(var(--color-gray-950), white);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.16em;
 
       @media (hover: hover) {
         &:hover {
-          text-decoration: underline;
+          text-decoration: none;
         }
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--color-blue-800);
+        outline-offset: 2px;
       }
     }
   }
