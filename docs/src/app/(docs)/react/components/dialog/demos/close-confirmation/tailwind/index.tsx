@@ -34,7 +34,7 @@ export default function ExampleDialog() {
             New tweet
           </Dialog.Title>
           <form
-            className="mt-4 flex flex-col gap-4"
+            className="mt-1 flex flex-col gap-4"
             onSubmit={(event) => {
               event.preventDefault();
               // Close the dialog when submitting
@@ -44,7 +44,7 @@ export default function ExampleDialog() {
             <textarea
               aria-labelledby={titleId}
               required
-              className="min-h-32 w-full border border-gray-950 dark:border-white bg-transparent px-3 py-2 text-sm leading-5 text-gray-950 dark:text-white placeholder:text-gray-600 dark:placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-blue-800"
+              className="min-h-32 w-full border border-gray-950 dark:border-white bg-transparent px-2 py-2 text-sm font-normal leading-5 text-gray-950 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800"
               placeholder="What’s on your mind?"
               value={textareaValue}
               onChange={(event) => setTextareaValue(event.target.value)}
