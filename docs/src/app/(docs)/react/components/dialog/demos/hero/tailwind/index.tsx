@@ -3,7 +3,7 @@ import { Dialog } from '@base-ui/react/dialog';
 export default function ExampleDialog() {
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800">
+      <Dialog.Trigger className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
         View notifications
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -14,7 +14,7 @@ export default function ExampleDialog() {
             You are all caught up. Good job!
           </Dialog.Description>
           <div className="flex justify-end gap-3 mt-4">
-            <Dialog.Close className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800">
+            <Dialog.Close className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
               Close
             </Dialog.Close>
           </div>

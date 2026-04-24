@@ -23,7 +23,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-blue-800);
-    outline-offset: 2px;
+    outline-offset: -2px;
   }
 }
 
@@ -118,8 +118,8 @@
   color: white;
 
   &:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 2px;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 
   @media (hover: hover) {

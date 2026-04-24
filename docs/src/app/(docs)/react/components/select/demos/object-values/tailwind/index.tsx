@@ -9,7 +9,7 @@ export default function ObjectValueSelect() {
         <Select.Label className="cursor-default text-sm leading-5 font-bold text-gray-950 dark:text-white">
           Shipping method
         </Select.Label>
-        <Select.Trigger className="flex min-h-8 min-w-[16rem] items-start justify-between gap-3 pl-3 pr-2 py-1.5 text-sm leading-5 bg-gray-200 text-gray-950 select-none hover:bg-gray-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-300 font-normal dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:data-[popup-open]:bg-gray-700">
+        <Select.Trigger className="flex min-h-8 min-w-[16rem] items-start justify-between gap-3 pl-3 pr-2 py-1.5 text-sm leading-5 bg-gray-200 text-gray-950 select-none hover:bg-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-300 font-normal dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:data-[popup-open]:bg-gray-700">
           <Select.Value>
             {(method: ShippingMethod) => (
               <span className="flex flex-col items-start gap-0.5">

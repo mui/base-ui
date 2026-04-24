@@ -7,7 +7,7 @@ type AlertPayload = { message: string };
 const demoAlertDialog = AlertDialog.createHandle<AlertPayload>();
 
 const buttonClasses =
-  'flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800';
+  'flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800';
 
 const dangerButtonClasses = `${buttonClasses} text-red-700 dark:text-red-400`;
 
