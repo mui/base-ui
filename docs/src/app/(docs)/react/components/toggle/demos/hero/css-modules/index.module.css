@@ -14,9 +14,13 @@
   user-select: none;
 
   @media (hover: hover) {
-    &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+    &:hover {
+      background-color: light-dark(var(--color-gray-50), var(--color-gray-900));
     }
+  }
+
+  &:active {
+    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
   }
 
   &[data-pressed] {

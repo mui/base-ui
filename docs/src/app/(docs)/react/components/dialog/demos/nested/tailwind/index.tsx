@@ -3,7 +3,7 @@ import { Dialog } from '@base-ui/react/dialog';
 export default function ExampleDialog() {
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+      <Dialog.Trigger className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
         View notifications
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -28,7 +28,7 @@ export default function ExampleDialog() {
                       Review your settings here.
                     </Dialog.Description>
                     <div className="flex items-center justify-end gap-3 mt-4">
-                      <Dialog.Close className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+                      <Dialog.Close className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
                         Close
                       </Dialog.Close>
                     </div>
@@ -37,7 +37,7 @@ export default function ExampleDialog() {
               </Dialog.Root>
             </div>
 
-            <Dialog.Close className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+            <Dialog.Close className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
               Close
             </Dialog.Close>
           </div>

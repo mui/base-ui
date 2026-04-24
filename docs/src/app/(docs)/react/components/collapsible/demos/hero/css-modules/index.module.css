@@ -22,9 +22,9 @@
   height: 2rem;
   padding: 0 0.5rem 0 0.75rem;
   margin: 0;
-  border: none;
+  border: 1px solid light-dark(var(--color-gray-950), white);
   border-radius: 0;
-  background-color: light-dark(var(--color-gray-200), var(--color-gray-800));
+  background-color: light-dark(white, var(--color-gray-950));
   color: light-dark(var(--color-gray-950), white);
   font-family: inherit;
   font-size: 0.875rem;
@@ -34,8 +34,12 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-gray-300), var(--color-gray-700));
+      background-color: light-dark(var(--color-gray-50), var(--color-gray-900));
     }
+  }
+
+  &:active {
+    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
   }
 
   &:focus-visible {

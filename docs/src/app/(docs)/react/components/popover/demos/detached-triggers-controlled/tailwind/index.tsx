@@ -18,7 +18,7 @@ export default function PopoverDetachedTriggersSimpleDemo() {
     <React.Fragment>
       <div className="flex gap-2 flex-wrap justify-center">
         <Popover.Trigger
-          className="flex size-8 items-center justify-center bg-gray-200 dark:bg-gray-800 text-gray-950 dark:text-white text-sm font-normal select-none hover:bg-gray-300 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-700 data-[popup-open]:bg-gray-300 dark:data-[popup-open]:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           handle={demoPopover}
           id="trigger-1"
         >
@@ -26,7 +26,7 @@ export default function PopoverDetachedTriggersSimpleDemo() {
         </Popover.Trigger>
 
         <Popover.Trigger
-          className="flex size-8 items-center justify-center bg-gray-200 dark:bg-gray-800 text-gray-950 dark:text-white text-sm font-normal select-none hover:bg-gray-300 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-700 data-[popup-open]:bg-gray-300 dark:data-[popup-open]:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           handle={demoPopover}
           id="trigger-2"
         >
@@ -34,7 +34,7 @@ export default function PopoverDetachedTriggersSimpleDemo() {
         </Popover.Trigger>
 
         <Popover.Trigger
-          className="flex size-8 items-center justify-center bg-gray-200 dark:bg-gray-800 text-gray-950 dark:text-white text-sm font-normal select-none hover:bg-gray-300 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-700 data-[popup-open]:bg-gray-300 dark:data-[popup-open]:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           handle={demoPopover}
           id="trigger-3"
         >
@@ -43,7 +43,7 @@ export default function PopoverDetachedTriggersSimpleDemo() {
 
         <button
           type="button"
-          className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           onClick={() => {
             setTriggerId('trigger-2');
             setOpen(true);

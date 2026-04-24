@@ -13,7 +13,7 @@ export default function ExampleSelectGrouped() {
         Produce
       </Field.Label>
       <Select.Root items={groupedProduce}>
-        <Select.Trigger className="flex h-8 min-w-44 items-center justify-between gap-3 pl-3 pr-2 text-sm leading-5 bg-gray-200 text-gray-950 select-none hover:bg-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-300 font-normal dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 dark:data-[popup-open]:bg-gray-700">
+        <Select.Trigger className="flex h-8 min-w-44 items-center justify-between gap-3 pl-3 pr-2 text-sm leading-5 border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 font-normal">
           <Select.Value
             className="data-[placeholder]:text-gray-600 dark:data-[placeholder]:text-gray-400"
             placeholder="Select produce"

@@ -8,7 +8,7 @@ export default function DialogDetachedTriggersSimpleDemo() {
   return (
     <React.Fragment>
       <Dialog.Trigger
-        className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         handle={demoDialog}
       >
         View notifications
@@ -23,7 +23,7 @@ export default function DialogDetachedTriggersSimpleDemo() {
               You are all caught up. Good job!
             </Dialog.Description>
             <div className="flex justify-end gap-3 mt-4">
-              <Dialog.Close className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+              <Dialog.Close className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
                 Close
               </Dialog.Close>
             </div>
