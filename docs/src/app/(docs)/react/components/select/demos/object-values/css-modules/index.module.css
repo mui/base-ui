@@ -25,8 +25,8 @@
   padding-right: 0.5rem;
   margin: 0;
   outline: 0;
-  border: none;
-  background-color: light-dark(var(--color-gray-200), var(--color-gray-800));
+  border: 1px solid light-dark(var(--color-gray-950), white);
+  background-color: light-dark(white, var(--color-gray-950));
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -37,12 +37,16 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-gray-300), var(--color-gray-700));
+      background-color: light-dark(var(--color-gray-50), var(--color-gray-900));
     }
   }
 
   &[data-popup-open] {
-    background-color: light-dark(var(--color-gray-300), var(--color-gray-700));
+    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+  }
+
+  &:active {
+    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
   }
 
   &:focus-visible {
