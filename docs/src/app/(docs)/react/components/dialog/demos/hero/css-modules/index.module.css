@@ -34,7 +34,6 @@
   background-color: black;
   opacity: 0.2;
   transition: opacity 150ms;
-  touch-action: none;
 
   /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
   @supports (-webkit-touch-callout: none) {
@@ -66,7 +65,6 @@
   color: light-dark(var(--color-gray-950), white);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transition: all 150ms;
-  touch-action: none;
 
   @media (prefers-color-scheme: dark) {
     box-shadow: none;
