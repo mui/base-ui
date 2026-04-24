@@ -7,7 +7,7 @@ export default function OutsideScrollDialog() {
   const popupRef = React.useRef<HTMLDivElement>(null);
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800">
+      <Dialog.Trigger className="flex h-8 items-center justify-center bg-gray-200 dark:bg-gray-800 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-300 dark:hover:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -30,7 +30,7 @@ export default function OutsideScrollDialog() {
                     </Dialog.Title>
                     <Dialog.Close
                       aria-label="Close"
-                      className="relative top-[-0.25rem] right-[-0.25rem] flex items-center justify-center w-7 h-7 bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-gray-950 dark:hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
+                      className="relative top-[-0.25rem] right-[-0.25rem] flex items-center justify-center w-7 h-7 bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-gray-950 dark:hover:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
                     >
                       <XIcon className="h-4 w-4" />
                     </Dialog.Close>

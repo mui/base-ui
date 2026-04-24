@@ -6,7 +6,7 @@ export default function ExampleToggle() {
   return (
     <Toggle
       aria-label="Favorite"
-      className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-pressed:text-gray-950 dark:data-pressed:text-white"
+      className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-pressed:text-gray-950 dark:data-pressed:text-white"
       render={(props, state) => {
         if (state.pressed) {
           return (
