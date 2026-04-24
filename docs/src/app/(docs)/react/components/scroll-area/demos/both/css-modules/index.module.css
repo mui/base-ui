@@ -6,9 +6,9 @@
 }
 
 .Viewport {
+  box-sizing: border-box;
   height: 100%;
-  outline: 1px solid light-dark(var(--color-gray-950), white);
-  outline-offset: -1px;
+  border: 1px solid light-dark(var(--color-gray-950), white);
 
   &:focus-visible {
     outline: 2px solid var(--color-blue-800);
