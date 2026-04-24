@@ -36,12 +36,13 @@
   backdrop-filter: blur(1.5px);
   background-image: linear-gradient(to bottom, rgb(0 0 0 / 5%) 0, rgb(0 0 0 / 10%) 50%);
 
-  @media (prefers-color-scheme: dark) {
-    opacity: 0.7;
-  }
-
+  /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
   @supports (-webkit-touch-callout: none) {
     position: absolute;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    opacity: 0.7;
   }
 
   &[data-starting-style],
