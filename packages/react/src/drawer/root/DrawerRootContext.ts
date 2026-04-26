@@ -12,6 +12,10 @@ export interface DrawerNestedSwipeProgressStore {
 }
 
 export interface DrawerRootContext {
+  /**
+   * Whether built-in mobile input repositioning should be disabled.
+   */
+  disableInputRepositioning: boolean;
   swipeDirection: DrawerSwipeDirection;
   /**
    * Whether snap points can be skipped based on swipe velocity.

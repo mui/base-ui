@@ -46,6 +46,8 @@ import { Drawer } from '@base-ui/react/drawer';
 
 Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer. Add `data-base-ui-swipe-ignore` to a descendant when you need to opt that element out of swipe dismissal for all input types.
 
+Bottom-sheet drawers automatically reposition focused text inputs for software keyboards. Set `disableInputRepositioning` to keep the legacy browser-driven behavior.
+
 ## Examples
 
 ### State
@@ -98,6 +100,7 @@ Positioning is handled by your styles. `swipeDirection` defaults to `"down"` for
 ```
 
 import { DemoDrawerPosition } from './demos/position';
+import { DemoDrawerVirtualKeyboardAware } from './demos/virtual-keyboard-aware';
 
 <DemoDrawerPosition />
 
@@ -137,6 +140,16 @@ import { DemoDrawerSnapPoints } from './demos/snap-points';
 <DemoDrawerSnapPoints />
 
 By default, the drawer can skip snap points when swiping quickly. Specify the `snapToSequentialPoints` prop to disable velocity-based skipping so the snap target is determined by drag distance (you can still drag past multiple points).
+
+### Virtual keyboard aware
+
+Bottom-sheet drawers automatically react to software keyboards. This pattern keeps the main list scrollable while a footer field stays pinned outside the scroll container. Set `disableInputRepositioning` on `<Drawer.Root>` if you want to opt back into the legacy browser-driven scrolling behavior instead.
+
+```tsx title="Virtual keyboard aware drawer"
+<Drawer.Root>{/* ... */}</Drawer.Root>
+```
+
+<DemoDrawerVirtualKeyboardAware />
 
 ### Indent effect
 
