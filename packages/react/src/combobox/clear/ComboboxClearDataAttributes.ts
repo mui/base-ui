@@ -13,6 +13,10 @@ export enum ComboboxClearDataAttributes {
    */
   disabled = 'data-disabled',
   /**
+   * Present when the clear button is visible.
+   */
+  visible = 'data-visible',
+  /**
    * Present when the button is animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,

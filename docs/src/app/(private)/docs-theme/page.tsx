@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import * as React from 'react';
 
+import 'docs/src/css/index.css';
+
 import styles from './page.module.css';
 
 const coreScaleSteps = ['s1', 's2', 'c1', 'c2', 'c3', 'p1', 'p2', 't1', 't2'] as const;
@@ -13,7 +15,7 @@ const allCoreRows = [...coreColorRows, ...accentColorRows];
 const typefaces = [
   { token: 'font-sans', sample: 'Die Grotesk A for UI copy' },
   { token: 'font-sans-b', sample: 'Die Grotesk B for headings' },
-  { token: 'font-mono', sample: 'Söhne Mono for code and data' },
+  { token: 'font-mono', sample: 'Paper Mono for code and data' },
   { token: 'font-serif', sample: 'Georgia for editorial accents' },
 ] as const;
 
@@ -29,7 +31,7 @@ const shadows = ['1', '2', '3', '4', '5'] as const;
 
 export default function ThemePage() {
   return (
-    <main className={styles.page} data-theme="redesign">
+    <main className={styles.page}>
       <header className={styles.hero}>
         <p className={styles.kicker}>
           <span aria-hidden="true">🔒</span> Private

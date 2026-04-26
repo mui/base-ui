@@ -69,7 +69,6 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 function ClearIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -87,7 +86,6 @@ function ClearIcon(props: React.ComponentProps<'svg'>) {
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

@@ -103,7 +103,7 @@ export default function Page() {
   const [checkboxGroupValue, setCheckboxGroupValue] = React.useState<string[]>([]);
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)' }}>
+    <div>
       <h1>Form</h1>
 
       <hr style={{ margin: '1rem 0' }} />
@@ -508,14 +508,7 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 function HorizontalRuleIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 24 24"
-      fill="currentcolor"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentcolor" {...props}>
       <line
         x1="3"
         y1="12"

@@ -40,7 +40,7 @@ export default function ExampleCombobox() {
         </Combobox.Portal>
       </Combobox.Root>
 
-      <hr className="bui-my-4" />
+      <hr style={{ marginBlock: '1rem' }} />
 
       <h2>Without manually specified index</h2>
       <Combobox.Root items={fruits}>
@@ -76,7 +76,7 @@ export default function ExampleCombobox() {
         </Combobox.Portal>
       </Combobox.Root>
 
-      <hr className="bui-my-4" />
+      <hr style={{ marginBlock: '1rem' }} />
 
       <h2>Open API (no filtering)</h2>
       <Combobox.Root>
@@ -125,7 +125,6 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 function ClearIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -143,7 +142,6 @@ function ClearIcon(props: React.ComponentProps<'svg'>) {
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
