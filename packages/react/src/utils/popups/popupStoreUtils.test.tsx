@@ -173,3 +173,49 @@ describe('popupId selector', () => {
     expect(store.select('popupId')).toBeUndefined();
   });
 });
+
+describe('triggerPopupId selector', () => {
+  it('uses the effective open state for controlled popups', () => {
+    const store = createStore();
+
+    store.update({
+      openProp: true,
+      activeTriggerId: 'trigger',
+      floatingId: 'popup-id',
+    });
+
+    expect(store.select('isOpenedByTrigger', 'trigger')).toBe(true);
+    expect(store.select('triggerPopupId', 'trigger', 2)).toBe('popup-id');
+    expect(store.select('isOpenedByTrigger', 'other-trigger')).toBe(false);
+    expect(store.select('triggerPopupId', 'other-trigger', 2)).toBeUndefined();
+  });
+
+  it('lets a single trigger own a controlled open popup when the active trigger is unknown', () => {
+    const store = createStore();
+
+    store.update({
+      openProp: true,
+      activeTriggerId: null,
+      floatingId: 'popup-id',
+    });
+
+    expect(store.select('isOpenedByTrigger', 'trigger')).toBe(false);
+    expect(store.select('triggerPopupId', 'trigger', 1)).toBe('popup-id');
+    expect(store.select('triggerPopupId', 'trigger', 2)).toBeUndefined();
+  });
+
+  it('prefers an explicit popup element id over the generated floating id', () => {
+    const store = createStore();
+    const popupElement = document.createElement('div');
+    popupElement.id = 'explicit-popup-id';
+
+    store.update({
+      open: true,
+      activeTriggerId: 'trigger',
+      floatingId: 'generated-popup-id',
+      popupElement,
+    });
+
+    expect(store.select('triggerPopupId', 'trigger', 1)).toBe('explicit-popup-id');
+  });
+});

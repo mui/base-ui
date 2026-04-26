@@ -147,13 +147,41 @@ const activeTriggerIdSelector = createSelector(
   (state: S) => state.triggerIdProp ?? state.activeTriggerId,
 );
 
+const openSelector = createSelector((state: S) => state.openProp ?? state.open);
+
 const popupIdSelector = createSelector((state: S) => {
   const popupId = state.popupElement?.id ?? state.floatingId;
   return popupId || undefined;
 });
 
+function triggerOwnsOpenPopup(state: S, triggerId: string | undefined) {
+  if (triggerId === undefined) {
+    return false;
+  }
+
+  const activeTriggerId = activeTriggerIdSelector(state);
+  return openSelector(state) && activeTriggerId === triggerId;
+}
+
+function triggerOwnsOpenPopupOrIsOnlyTrigger(
+  state: S,
+  triggerId: string | undefined,
+  triggerCount: number,
+) {
+  if (triggerOwnsOpenPopup(state, triggerId)) {
+    return true;
+  }
+
+  return (
+    triggerId !== undefined &&
+    openSelector(state) &&
+    activeTriggerIdSelector(state) == null &&
+    triggerCount === 1
+  );
+}
+
 export const popupStoreSelectors = {
-  open: createSelector((state: S) => state.openProp ?? state.open),
+  open: openSelector,
   mounted: createSelector((state: S) => state.mounted),
   transitionStatus: createSelector((state: S) => state.transitionStatus),
   floatingRootContext: createSelector((state: S) => state.floatingRootContext),
@@ -175,9 +203,8 @@ export const popupStoreSelectors = {
   /**
    * Whether the popup is open and was activated by a trigger with the given ID.
    */
-  isOpenedByTrigger: createSelector(
-    (state: S, triggerId: string | undefined) =>
-      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.open,
+  isOpenedByTrigger: createSelector((state: S, triggerId: string | undefined) =>
+    triggerOwnsOpenPopup(state, triggerId),
   ),
   /**
    * Whether the popup is mounted and was activated by a trigger with the given ID.
@@ -191,16 +218,9 @@ export const popupStoreSelectors = {
    */
   triggerPopupId: createSelector(
     (state: S, triggerId: string | undefined, triggerCount: number) => {
-      if (triggerId === undefined) {
-        return undefined;
-      }
-
-      const activeTriggerId = activeTriggerIdSelector(state);
-      const ownsPopup =
-        (state.openProp ?? state.open) &&
-        (activeTriggerId === triggerId || (activeTriggerId == null && triggerCount === 1));
-
-      return ownsPopup ? popupIdSelector(state) : undefined;
+      return triggerOwnsOpenPopupOrIsOnlyTrigger(state, triggerId, triggerCount)
+        ? popupIdSelector(state)
+        : undefined;
     },
   ),
 

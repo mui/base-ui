@@ -57,12 +57,9 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingContext = store.useState('floatingRootContext');
+  const triggerCount = store.context.triggerElements.size;
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const popupId = store.useState(
-    'triggerPopupId',
-    thisTriggerId,
-    store.context.triggerElements.size,
-  );
+  const popupId = store.useState('triggerPopupId', thisTriggerId, triggerCount);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 

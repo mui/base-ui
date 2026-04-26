@@ -145,6 +145,9 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
+  const floatingId = floatingRootContext.useState('floatingId');
+
+  const popupId = elementProps.id ?? floatingId;
 
   const swipe = useDrawerViewportContext(true);
   useDialogPortalContext();
@@ -360,6 +363,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     props: [
       rootPopupProps,
       {
+        id: popupId,
         'aria-labelledby': titleElementId,
         'aria-describedby': descriptionElementId,
         role,

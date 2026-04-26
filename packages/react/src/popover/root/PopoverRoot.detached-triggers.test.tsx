@@ -124,6 +124,30 @@ describe('<Popover.Root />', () => {
       expect(screen.getByTestId('content').textContent).toBe('2');
     });
 
+    it('synchronizes ARIA attributes in controlled mode', async () => {
+      await render(
+        <Popover.Root open triggerId="trigger-2">
+          <Popover.Trigger id="trigger-1">Trigger 1</Popover.Trigger>
+          <Popover.Trigger id="trigger-2">Trigger 2</Popover.Trigger>
+
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Popover Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const popup = await screen.findByRole('dialog');
+
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger1).not.toHaveAttribute('aria-controls');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger2.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+    });
+
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
       const { user } = await render(
         <Popover.Root>

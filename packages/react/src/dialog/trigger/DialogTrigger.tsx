@@ -45,12 +45,9 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const floatingContext = store.useState('floatingRootContext');
+  const triggerCount = store.context.triggerElements.size;
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const popupId = store.useState(
-    'triggerPopupId',
-    thisTriggerId,
-    store.context.triggerElements.size,
-  );
+  const popupId = store.useState('triggerPopupId', thisTriggerId, triggerCount);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
