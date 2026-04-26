@@ -17,7 +17,7 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { findItemIndex } from '../../internals/itemEquality';
 
 /**
  * An individual item in the list.
@@ -99,37 +99,33 @@ export const ComboboxItem = React.memo(
       const visibleMap = store.state.valuesRef.current;
       visibleMap[index] = itemValue;
 
-      // Stable registry that doesn't depend on filtering. Assume that no
-      // filtering had occurred at this point; otherwise, an `items` prop is
-      // required.
-      if (selectionMode !== 'none') {
-        store.state.allValuesRef.current.push(itemValue);
-      }
+      const itemValues = visibleMap.slice();
+      store.update({
+        itemValues,
+        allItemValues: itemValues,
+      });
 
       return () => {
+        if (!store.state.open) {
+          visibleMap.length = 0;
+          store.set('itemValues', []);
+          return;
+        }
+
         delete visibleMap[index];
+        const nextItemValues = visibleMap.slice();
+        store.update({
+          itemValues: nextItemValues,
+          allItemValues: nextItemValues,
+        });
       };
-    }, [hasRegistered, hasItems, index, itemValue, store, selectionMode]);
+    }, [hasRegistered, hasItems, index, itemValue, store]);
 
     useIsoLayoutEffect(() => {
       if (!open) {
         didPointerDownRef.current = false;
-        return;
       }
-
-      if (!hasRegistered || hasItems) {
-        return;
-      }
-
-      const selectedValue = store.state.selectedValue;
-      const lastSelectedValue = Array.isArray(selectedValue)
-        ? selectedValue[selectedValue.length - 1]
-        : selectedValue;
-
-      if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
-        store.set('selectedIndex', index);
-      }
-    }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
+    }, [open]);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,

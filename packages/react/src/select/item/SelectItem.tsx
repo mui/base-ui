@@ -81,11 +81,13 @@ export const SelectItem = React.memo(
 
       const values = valuesRef.current;
       values[index] = itemValue;
+      store.set('itemValues', values.slice());
 
       return () => {
         delete values[index];
+        store.set('itemValues', values.slice());
       };
-    }, [hasRegistered, index, itemValue, valuesRef]);
+    }, [hasRegistered, index, itemValue, valuesRef, store]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -95,15 +97,18 @@ export const SelectItem = React.memo(
       const selectedValue = store.state.value;
 
       let selectedCandidate = selectedValue;
-      if (multiple && Array.isArray(selectedValue) && selectedValue.length > 0) {
-        selectedCandidate = selectedValue[selectedValue.length - 1];
+      if (multiple) {
+        const selectedValues = Array.isArray(selectedValue) ? selectedValue : [];
+        if (selectedValues.length === 0) {
+          return;
+        }
+        selectedCandidate = selectedValues[selectedValues.length - 1];
       }
 
       if (
         selectedCandidate !== undefined &&
         compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
       ) {
-        store.set('selectedIndex', index);
         // Make sure SelectPopup can measure the selected item on first open.
         // SelectItemText can still update this ref later when focus moves.
         if (textRef.current) {

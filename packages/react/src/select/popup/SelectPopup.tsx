@@ -408,7 +408,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       if (
         highlightItemOnHover &&
-        store.state.selectedIndex === null &&
+        selectors.selectedIndex(store.state) === null &&
         store.state.activeIndex === null &&
         listRef.current[0] != null
       ) {

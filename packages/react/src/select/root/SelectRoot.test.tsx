@@ -3127,6 +3127,117 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it('does not force mount the popup after a programmatic value change', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      function Test() {
+        const [value, setValue] = React.useState<string | null>(null);
+
+        return (
+          <div>
+            <button type="button" data-testid="set-value" onClick={() => setValue('b')}>
+              Set value
+            </button>
+            <Select.Root value={value} onValueChange={setValue}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value placeholder="Pick one" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup>
+                    <Select.Item value="a">a</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                    <Select.Item value="c">c</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.queryByTestId('positioner')).toBe(null);
+
+      await user.click(screen.getByTestId('set-value'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('trigger')).toHaveTextContent('b');
+        expect(screen.queryByTestId('positioner')).toBe(null);
+      });
+
+      await user.click(screen.getByTestId('trigger'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected');
+      });
+    });
+
+    it.skipIf(isJSDOM)(
+      'resets aligned positioning after controlled value reset and option replacement',
+      async () => {
+        function Test() {
+          const [group, setGroup] = React.useState<'a' | 'b'>('a');
+          const [value, setValue] = React.useState<string | null>(null);
+          const options = Array.from({ length: 40 }, (_, index) => `${group}-${index}`);
+
+          return (
+            <div style={{ paddingTop: 120, paddingLeft: 32 }}>
+              <button
+                data-testid="replace-options"
+                onClick={() => {
+                  setGroup('b');
+                  setValue(null);
+                }}
+              >
+                Replace options
+              </button>
+              <Select.Root value={value} onValueChange={setValue}>
+                <Select.Trigger data-testid="trigger" style={{ width: 160, height: 36 }}>
+                  <Select.Value placeholder="Pick one" />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner data-testid="positioner">
+                    <Select.Popup style={{ maxHeight: 'none', minHeight: 100 }}>
+                      {options.map((option, index) => (
+                        <Select.Item key={index} value={option}>
+                          <Select.ItemText>{option}</Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        await user.click(await screen.findByRole('option', { name: 'a-35' }));
+        await user.click(screen.getByTestId('replace-options'));
+        await user.click(trigger);
+
+        const listbox = await screen.findByRole('listbox');
+        const positioner = screen.getByTestId('positioner');
+        const firstOption = screen.getByRole('option', { name: 'b-0' });
+
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('aria-expanded', 'true');
+          expect(listbox.scrollTop).toBe(0);
+          expect(firstOption.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+            positioner.getBoundingClientRect().top,
+          );
+        });
+      },
+    );
+
     it('falls back to null when both selected and initial default are removed (uncontrolled)', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();
@@ -3677,6 +3788,44 @@ describe('<Select.Root />', () => {
       const mainInput = container.querySelector<HTMLInputElement>('input[aria-hidden="true"]');
       expect(mainInput).not.toBe(null);
       expect(mainInput?.value).toBe('');
+    });
+
+    it('treats an empty multiple value as no selection with array-valued items', async () => {
+      const emptyValue: string[] = [];
+      const filledValue = ['a'];
+      const value: string[][] = [];
+
+      const { user } = await render(
+        <Select.Root<string[], true>
+          multiple
+          value={value}
+          highlightItemOnHover={false}
+          isItemEqualToValue={(item, selectedItem) =>
+            item.length === selectedItem.length &&
+            item.every((entry, index) => entry === selectedItem[index])
+          }
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value={filledValue}>Filled array</Select.Item>
+                <Select.Item value={emptyValue}>Empty array</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+
+      await screen.findByRole('option', { name: 'Filled array' });
+      const emptyOption = screen.getByRole('option', { name: 'Empty array' });
+      await flushMicrotasks();
+
+      expect(emptyOption).not.toHaveAttribute('data-highlighted');
     });
 
     it('does not mark the hidden input as required when selection exists', async () => {

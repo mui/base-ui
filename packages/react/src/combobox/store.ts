@@ -3,7 +3,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../utils/useAnchorPositioning';
-import { compareItemEquality } from '../internals/itemEquality';
+import { compareItemEquality, findItemIndex } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
@@ -27,7 +27,8 @@ export type State = {
   inline: boolean;
 
   activeIndex: number | null;
-  selectedIndex: number | null;
+  itemValues: readonly any[];
+  allItemValues: readonly any[];
 
   popupProps: HTMLProps;
   inputProps: HTMLProps;
@@ -57,7 +58,6 @@ export type State = {
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   clearRef: React.RefObject<HTMLButtonElement | null>;
   valuesRef: React.RefObject<Array<any>>;
-  allValuesRef: React.RefObject<Array<any>>;
   selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
   setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
@@ -65,7 +65,6 @@ export type State = {
   setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setIndices: (indices: {
     activeIndex?: number | null | undefined;
-    selectedIndex?: number | null | undefined;
     type?: 'keyboard' | 'pointer' | 'none' | undefined;
   }) => void;
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
@@ -130,7 +129,9 @@ export const selectors = {
   inline: createSelector((state: State) => state.inline),
 
   activeIndex: createSelector((state: State) => state.activeIndex),
-  selectedIndex: createSelector((state: State) => state.selectedIndex),
+  itemValues: createSelector((state: State) => state.itemValues),
+  allItemValues: createSelector((state: State) => state.allItemValues),
+  selectedIndex: createSelector(getSelectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
   isSelected: createSelector((state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
@@ -176,3 +177,16 @@ export const selectors = {
   autoHighlight: createSelector((state: State) => state.autoHighlight),
   submitOnItemClick: createSelector((state: State) => state.submitOnItemClick),
 };
+
+function getSelectedIndex(state: State) {
+  if (state.selectionMode === 'none') {
+    return null;
+  }
+
+  const selectedValue = Array.isArray(state.selectedValue)
+    ? state.selectedValue[state.selectedValue.length - 1]
+    : state.selectedValue;
+  const registry = state.open || state.inline ? state.itemValues : state.allItemValues;
+  const index = findItemIndex(registry, selectedValue, state.isItemEqualToValue);
+  return index === -1 ? null : index;
+}
