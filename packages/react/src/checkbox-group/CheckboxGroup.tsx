@@ -100,11 +100,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     }
   }, []);
 
-  useRegisterFieldControl(controlRef, {
-    enabled: !!fieldName,
-    id,
-    value,
-  });
+  useRegisterFieldControl(controlRef, fieldName ? id : undefined, value);
 
   const resolvedValue = value ?? EMPTY_ARRAY;
 

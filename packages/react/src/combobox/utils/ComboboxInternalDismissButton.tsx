@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -23,12 +22,12 @@ export const ComboboxInternalDismissButton = React.forwardRef<HTMLSpanElement>(
 
     const mergedRef = useMergedRefs(forwardedRef, buttonRef);
 
-    const handleDismiss = useStableCallback((event: DismissEvent) => {
+    function handleDismiss(event: DismissEvent) {
       store.state.setOpen(
         false,
         createChangeEventDetails(REASONS.closePress, event.nativeEvent, event.currentTarget),
       );
-    });
+    }
 
     const dismissProps = getButtonProps({
       onClick: handleDismiss,

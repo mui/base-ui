@@ -75,6 +75,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     name: 'RadioGroup',
     state: 'value',
   });
+  const [touched, setTouched] = React.useState(false);
 
   const onValueChange = useStableCallback(onValueChangeProp);
 
@@ -147,13 +148,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return undefined;
   });
 
-  const getFieldValue = useStableCallback(() => checkedValue ?? null);
-
-  useRegisterFieldControl(controlRef, {
-    id,
-    value: checkedValue,
-    getValue: getFieldValue,
-  });
+  useRegisterFieldControl(controlRef, id, checkedValue ?? null);
 
   useValueChanged(checkedValue, () => {
     clearErrors(name);
@@ -172,8 +167,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       setInputRef(fallbackInput);
     }
   });
-
-  const [touched, setTouched] = React.useState(false);
 
   const ariaLabelledby = elementProps['aria-labelledby'] ?? labelId ?? fieldsetContext?.legendId;
 

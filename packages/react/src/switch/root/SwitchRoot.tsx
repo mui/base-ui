@@ -98,10 +98,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     state: 'checked',
   });
 
-  useRegisterFieldControl(switchRef, {
-    id,
-    value: checked,
-  });
+  useRegisterFieldControl(switchRef, id, checked);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {

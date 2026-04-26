@@ -30,6 +30,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, children, ...elementProps } = componentProps;
+
   const store = useTooltipRootContext();
   const positioner = useTooltipPositionerContext();
 

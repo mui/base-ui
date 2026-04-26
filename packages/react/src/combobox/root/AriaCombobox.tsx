@@ -437,13 +437,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
-  const getFieldValue = useStableCallback(() => fieldStringValue);
+  const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
-  useRegisterFieldControl(inputInsidePopup ? triggerRef : inputRef, {
+  useRegisterFieldControl(
+    inputInsidePopup ? triggerRef : inputRef,
     id,
-    value: fieldRawValue,
-    getValue: getFieldValue,
-  });
+    fieldRawValue,
+    getStringifiedValueForForm,
+  );
 
   const forceMount = useStableCallback(() => {
     if (items) {

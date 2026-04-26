@@ -13,6 +13,7 @@ import { type TransitionStatus, useTransitionStatus } from '../../internals/useT
  */
 export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
   const { children } = props;
+
   const { validityData, invalid } = useFieldRootContext(false);
 
   const combinedFieldValidityData = React.useMemo(
