@@ -207,24 +207,29 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       }
 
       const registry = valuesRef.current;
+      let nextIndex: number | null;
 
       if (multiple) {
         const currentValue = Array.isArray(value) ? value : [];
         if (currentValue.length === 0) {
-          store.set('selectedIndex', null);
-          return;
+          nextIndex = null;
+        } else {
+          const lastValue = currentValue[currentValue.length - 1];
+          const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
+          nextIndex = lastIndex === -1 ? null : lastIndex;
         }
-
-        const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-        store.set('selectedIndex', lastIndex === -1 ? null : lastIndex);
-        return;
+      } else {
+        const index = findItemIndex(registry, value as Value, isItemEqualToValue);
+        nextIndex = index === -1 ? null : index;
       }
 
-      const index = findItemIndex(registry, value as Value, isItemEqualToValue);
-      store.set('selectedIndex', index === -1 ? null : index);
+      store.set('selectedIndex', nextIndex);
+
+      if (nextIndex === null) {
+        selectedItemTextRef.current = null;
+      }
     },
-    [multiple, open, value, valuesRef, isItemEqualToValue, store],
+    [multiple, open, value, valuesRef, isItemEqualToValue, store, selectedItemTextRef],
   );
 
   useValueChanged(value, () => {
