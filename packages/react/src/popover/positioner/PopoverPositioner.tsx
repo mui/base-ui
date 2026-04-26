@@ -120,6 +120,19 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
+
+  useIsoLayoutEffect(() => {
+    // This needs cleanup when the positioner unmounts, so use a local effect
+    // instead of `store.useContextCallback`, which is intended for root-lived callbacks.
+    store.context.updatePosition = positioning.update;
+
+    return () => {
+      if (store.context.updatePosition === positioning.update) {
+        store.context.updatePosition = undefined;
+      }
+    };
+  }, [positioning.update, store]);
+
   const state: PopoverPositionerState = {
     open,
     side: positioning.side,

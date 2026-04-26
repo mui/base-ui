@@ -73,6 +73,7 @@
     "@wooorm/starry-night": "3.9.0",
     "baseline-browser-mapping": "2.10.12",
     "cross-env": "10.1.0",
+    "maplibre-gl": "^5.22.0",
     "mdast-util-mdx-jsx": "3.2.0",
     "motion": "12.38.0",
     "prettier": "3.8.1",

@@ -538,6 +538,14 @@ function close(): void;
 
 Closes the popover.
 
+```typescript
+function updatePosition(): void;
+```
+
+Re-positions the popover.
+Useful for anchors whose position changes outside of React's lifecycle,
+such as virtual anchors during canvas animations.
+
 ## External Types
 
 ### PayloadChildRenderFunction
