@@ -2,8 +2,9 @@ import * as React from 'react';
 import { Slider } from '@base-ui/react/slider';
 import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
+import styles from './styles/slider.module.css';
 
-const sliderRows = createRows(300, 'Slider');
+const sliderRows = createRows(150, 'Slider');
 
 function SliderMountList() {
   return (
@@ -11,10 +12,10 @@ function SliderMountList() {
       {(row) => (
         <Slider.Root key={row.id} defaultValue={50}>
           <Slider.Value />
-          <Slider.Control aria-label={row.label}>
-            <Slider.Track>
-              <Slider.Indicator />
-              <Slider.Thumb />
+          <Slider.Control aria-label={row.label} className={styles.Control}>
+            <Slider.Track className={styles.Track}>
+              <Slider.Indicator className={styles.Indicator} />
+              <Slider.Thumb className={styles.Thumb} />
             </Slider.Track>
           </Slider.Control>
         </Slider.Root>
@@ -23,4 +24,4 @@ function SliderMountList() {
   );
 }
 
-benchmark('Slider mount (300 instances)', () => <SliderMountList />);
+benchmark('Slider mount (150 instances)', () => <SliderMountList />);
