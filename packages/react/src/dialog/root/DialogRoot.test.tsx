@@ -1318,8 +1318,6 @@ describe('<Dialog.Root />', () => {
 
       await waitFor(() => {
         expect(screen.queryByRole('menu')).toBe(null);
-      });
-      await waitFor(() => {
         expect(screen.queryByRole('dialog')).not.toBe(null);
       });
 
