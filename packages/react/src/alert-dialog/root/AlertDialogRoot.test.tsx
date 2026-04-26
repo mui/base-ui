@@ -52,6 +52,27 @@ describe('<AlertDialog.Root />', () => {
     );
   });
 
+  it('synchronizes trigger ARIA attributes in controlled mode', async () => {
+    await render(
+      <AlertDialog.Root open triggerId="trigger-2">
+        <AlertDialog.Trigger id="trigger-1">Trigger 1</AlertDialog.Trigger>
+        <AlertDialog.Trigger id="trigger-2">Trigger 2</AlertDialog.Trigger>
+        <AlertDialog.Portal>
+          <AlertDialog.Popup>Dialog</AlertDialog.Popup>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>,
+    );
+
+    const trigger1 = screen.getByText('Trigger 1');
+    const trigger2 = screen.getByText('Trigger 2');
+    const popup = screen.getByRole('alertdialog');
+
+    expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger1).not.toHaveAttribute('aria-controls');
+    expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger2.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+  });
+
   describe('prop: onOpenChange', () => {
     it('calls onOpenChange with the new open state', async () => {
       const handleOpenChange = vi.fn();
