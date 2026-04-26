@@ -55,6 +55,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const touched = touchedProp ?? touchedState;
 
   const markedDirtyRef = React.useRef(false);
+  const registeredFieldIdRef = React.useRef<string | undefined>(undefined);
 
   const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {
@@ -115,6 +116,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     state,
     name,
     shouldValidateOnChange,
+    registeredFieldIdRef,
   });
 
   const handleImperativeValidate = React.useCallback(() => {
@@ -127,6 +129,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalid,
     markedDirtyRef,
     name,
+    registeredFieldIdRef,
     setValidityData,
     validityData,
   });

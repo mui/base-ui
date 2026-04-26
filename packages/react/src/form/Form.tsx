@@ -77,11 +77,11 @@ export const Form = React.forwardRef(function Form<
     if (fieldName) {
       const namedField = values.find((field) => field.name === fieldName);
       if (namedField) {
-        namedField.validate(false);
+        namedField.validate();
       }
     } else {
       values.forEach((field) => {
-        field.validate(false);
+        field.validate();
       });
     }
   }, []);
@@ -100,7 +100,8 @@ export const Form = React.forwardRef(function Form<
 
           let values = Array.from(formRef.current.fields.values());
 
-          // Async validation isn't supported to stop the submit event.
+          // Async validation isn't supported to stop the submit event. Field validation
+          // updates the form registry synchronously so the submit event can be prevented.
           values.forEach((field) => {
             field.validate();
           });

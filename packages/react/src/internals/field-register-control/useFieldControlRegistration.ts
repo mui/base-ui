@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getCombinedFieldValidityData } from '../../field/utils/getCombinedFieldValidityData';
@@ -15,7 +14,15 @@ export interface FieldControlRegistration {
 }
 
 export function useFieldControlRegistration(params: UseFieldControlRegistrationParameters) {
-  const { commit, invalid, markedDirtyRef, name, setValidityData, validityData } = params;
+  const {
+    commit,
+    invalid,
+    markedDirtyRef,
+    name,
+    registeredFieldIdRef,
+    setValidityData,
+    validityData,
+  } = params;
 
   const { formRef } = useFormContext();
 
@@ -36,7 +43,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     return registration.value;
   });
 
-  const validate = useStableCallback((flushSync = true) => {
+  const validate = useStableCallback(() => {
     const registration = registrationRef.current;
     if (!registration) {
       return;
@@ -48,13 +55,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     }
 
     markedDirtyRef.current = true;
-
-    if (!flushSync) {
-      commit(nextValue);
-    } else {
-      // Synchronously update the validity state so the submit event can be prevented.
-      ReactDOM.flushSync(() => commit(nextValue));
-    }
+    commit(nextValue);
   });
 
   function refreshRegistration() {
@@ -126,6 +127,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
         activeFieldControlSourceRef.current = null;
         deleteRegistration();
         registrationRef.current = null;
+        registeredFieldIdRef.current = undefined;
       }
       return;
     }
@@ -134,6 +136,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 
     activeFieldControlSourceRef.current = source;
     registrationRef.current = registration;
+    registeredFieldIdRef.current = registration.id;
 
     if (previousId && previousId !== registration.id) {
       deleteRegistration(previousId);
@@ -145,10 +148,11 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 }
 
 export interface UseFieldControlRegistrationParameters {
-  commit: (value: unknown) => void;
+  commit: (value: unknown, revalidate?: boolean) => void;
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
+  registeredFieldIdRef: React.RefObject<string | undefined>;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
   validityData: FieldValidityData;
 }

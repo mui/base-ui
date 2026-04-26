@@ -51,6 +51,7 @@ export function useFieldValidation(
     state,
     name,
     shouldValidateOnChange,
+    registeredFieldIdRef,
   } = params;
 
   const { controlId, getDescriptionProps } = useLabelableContext();
@@ -62,6 +63,31 @@ export function useFieldValidation(
     const element = inputRef.current;
     if (!element) {
       return;
+    }
+
+    function updateRegisteredFieldValidity(
+      nextValidityData: FieldValidityData,
+      externalInvalid = invalid,
+    ) {
+      const fieldId = registeredFieldIdRef.current ?? controlId;
+      if (fieldId == null) {
+        return;
+      }
+
+      const currentFieldData = formRef.current.fields.get(fieldId);
+      if (!currentFieldData) {
+        return;
+      }
+
+      const validityDataWithFormErrors = getCombinedFieldValidityData(
+        nextValidityData,
+        externalInvalid,
+      );
+
+      formRef.current.fields.set(fieldId, {
+        ...currentFieldData,
+        validityData: validityDataWithFormErrors,
+      });
     }
 
     if (revalidate) {
@@ -84,15 +110,7 @@ export function useFieldValidation(
         };
         element.setCustomValidity('');
 
-        if (controlId) {
-          const currentFieldData = formRef.current.fields.get(controlId);
-          if (currentFieldData) {
-            formRef.current.fields.set(controlId, {
-              ...currentFieldData,
-              ...getCombinedFieldValidityData(nextValidityData, false), // invalid = false
-            });
-          }
-        }
+        updateRegisteredFieldValidity(nextValidityData, false);
         setValidityData(nextValidityData);
         return;
       }
@@ -219,16 +237,8 @@ export function useFieldValidation(
       initialValue: validityData.initialValue,
     };
 
-    if (controlId) {
-      const currentFieldData = formRef.current.fields.get(controlId);
-      if (currentFieldData) {
-        formRef.current.fields.set(controlId, {
-          ...currentFieldData,
-          // Keep Form-level errors part of overall field validity for submit blocking/focus logic.
-          ...getCombinedFieldValidityData(nextValidityData, invalid),
-        });
-      }
-    }
+    // Keep Form-level errors part of overall field validity for submit blocking/focus logic.
+    updateRegisteredFieldValidity(nextValidityData);
 
     setValidityData(nextValidityData);
   });
@@ -318,6 +328,7 @@ export interface UseFieldValidationParameters {
   state: FieldRootState;
   name: string | undefined;
   shouldValidateOnChange: () => boolean;
+  registeredFieldIdRef: React.RefObject<string | undefined>;
 }
 
 export interface UseFieldValidationReturnValue {

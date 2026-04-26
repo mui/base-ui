@@ -14,7 +14,7 @@ export interface FormContext {
       string,
       {
         name: string | undefined;
-        validate: (flushSync?: boolean | undefined) => void;
+        validate: () => void;
         validityData: FieldValidityData;
         controlRef: React.RefObject<HTMLElement | null>;
         getValue: () => unknown;
