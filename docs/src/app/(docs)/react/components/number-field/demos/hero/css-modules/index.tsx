@@ -44,10 +44,11 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 10 10"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1"
       {...props}
     >
-      <path d="M0 5H5M10 5H5M5 5V0M5 5V10" />
+      <path d="M5 0.5V9.5" />
+      <path d="M0.5 5H9.5" />
     </svg>
   );
 }
@@ -60,10 +61,10 @@ function MinusIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 10 10"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1"
       {...props}
     >
-      <path d="M0 5H10" />
+      <path d="M0.5 5H9.5" />
     </svg>
   );
 }
