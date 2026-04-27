@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { Combobox } from '@base-ui/react/combobox';
 import { Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
-import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Drawer.Viewport />', () => {
@@ -34,6 +34,97 @@ describe('<Drawer.Viewport />', () => {
       configurable: true,
     });
     return touchMove;
+  }
+
+  function createNativeTouchEnd(target: EventTarget, point: { clientX: number; clientY: number }) {
+    const touchEnd = new Event('touchend', { bubbles: true, cancelable: true });
+    Object.defineProperty(touchEnd, 'changedTouches', {
+      value: [createTouch(target, point)],
+      configurable: true,
+    });
+    Object.defineProperty(touchEnd, 'touches', {
+      value: [],
+      configurable: true,
+    });
+    return touchEnd;
+  }
+
+  function mockVisualViewport(height: number) {
+    const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'visualViewport');
+    const listeners = new Map<string, Set<EventListener>>();
+
+    const visualViewport: Pick<VisualViewport, 'addEventListener' | 'removeEventListener'> & {
+      height: number;
+      offsetTop: number;
+      scale: number;
+    } = {
+      height,
+      offsetTop: 0,
+      scale: 1,
+      addEventListener(type: string, listener: EventListener) {
+        if (!listeners.has(type)) {
+          listeners.set(type, new Set());
+        }
+
+        listeners.get(type)?.add(listener);
+      },
+      removeEventListener(type: string, listener: EventListener) {
+        listeners.get(type)?.delete(listener);
+      },
+    };
+
+    Object.defineProperty(window, 'visualViewport', {
+      configurable: true,
+      value: visualViewport as VisualViewport,
+    });
+
+    return {
+      restore() {
+        if (originalDescriptor) {
+          Object.defineProperty(window, 'visualViewport', originalDescriptor);
+        } else {
+          Object.defineProperty(window, 'visualViewport', {
+            configurable: true,
+            value: undefined,
+          });
+        }
+      },
+      resize(nextHeight: number, nextOffsetTop = visualViewport.offsetTop) {
+        visualViewport.height = nextHeight;
+        visualViewport.offsetTop = nextOffsetTop;
+        listeners.get('resize')?.forEach((listener) => listener(new Event('resize')));
+      },
+      setScale(nextScale: number) {
+        visualViewport.scale = nextScale;
+        listeners.get('resize')?.forEach((listener) => listener(new Event('resize')));
+      },
+    };
+  }
+
+  function mockWindowInnerHeight(innerHeight: number) {
+    const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'innerHeight');
+
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: innerHeight,
+    });
+
+    return () => {
+      if (originalDescriptor) {
+        Object.defineProperty(window, 'innerHeight', originalDescriptor);
+      }
+    };
+  }
+
+  function getInputRepositioningFiller(popup: HTMLElement): HTMLElement | null {
+    const element = popup.previousElementSibling;
+
+    return element instanceof HTMLElement &&
+      element.getAttribute('aria-hidden') === 'true' &&
+      element.style.pointerEvents === 'none' &&
+      element.style.bottom === '0px'
+      ? element
+      : null;
   }
 
   it('clears text selection on swipe start', async () => {
@@ -179,6 +270,628 @@ describe('<Drawer.Viewport />', () => {
       expect(backdrop).toHaveAttribute('data-swiping', '');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it.skipIf(isJSDOM)('mutates popup styles while the visual viewport is reduced', async () => {
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(800);
+    let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+
+    try {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.Portal>
+            <Drawer.Viewport data-testid="viewport">
+              <Drawer.Popup data-testid="popup" style={{ backgroundColor: 'rgb(255, 255, 255)' }}>
+                <input data-testid="input" type="text" />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const popup = screen.getByTestId('popup');
+      const input = screen.getByTestId('input');
+      activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+      activeElementSpy.mockReturnValue(input);
+
+      await act(async () => {
+        visualViewport.resize(500);
+      });
+
+      await waitFor(() => {
+        const filler = getInputRepositioningFiller(popup);
+
+        expect(window.getComputedStyle(popup).maxHeight).toBe('500px');
+        expect(popup.style.bottom).toBe('');
+        expect(popup.style.transform).toBe('translateY(0px)');
+        expect(popup.style.translate).toBe('0px -300px');
+        expect(filler).not.toBeNull();
+        expect(filler?.style.position).toBe('fixed');
+        expect(filler?.style.bottom).toBe('0px');
+        expect(filler?.style.height).toBe('301px');
+        expect(filler?.style.backgroundColor).toBe('rgb(255, 255, 255)');
+        expect(filler?.style.transition).toBe('none');
+        expect(filler?.style.zIndex).toBe('1');
+      });
+    } finally {
+      activeElementSpy?.mockRestore();
+      visualViewport.restore();
+      restoreInnerHeight();
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'preserves the visible top gap and negative bottom bleed when mutating popup styles',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+      let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+      let rectSpy: ReturnType<typeof vi.spyOn> | null = null;
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.Portal>
+              <Drawer.Viewport data-testid="viewport">
+                <Drawer.Popup
+                  data-testid="popup"
+                  style={{ backgroundColor: 'rgb(255, 255, 255)', marginBottom: '-48px' }}
+                >
+                  <input data-testid="input" type="text" />
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>,
+        );
+
+        const popup = screen.getByTestId('popup');
+        const input = screen.getByTestId('input');
+        activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+        activeElementSpy.mockReturnValue(input);
+        rectSpy = vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue({
+          x: 0,
+          y: 32,
+          width: 320,
+          height: 300,
+          top: 32,
+          right: 320,
+          bottom: 332,
+          left: 0,
+          toJSON() {
+            return {};
+          },
+        });
+
+        await act(async () => {
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          const filler = getInputRepositioningFiller(popup);
+
+          expect(window.getComputedStyle(popup).maxHeight).toBe('516px');
+          expect(popup.style.bottom).toBe('');
+          expect(popup.style.translate).toBe('0px -300px');
+          expect(filler).not.toBeNull();
+          expect(filler?.style.bottom).toBe('0px');
+          expect(filler?.style.width).toBe('320px');
+          expect(filler?.style.height).toBe('301px');
+          expect(filler?.style.transition).toBe('none');
+          expect(filler?.style.zIndex).toBe('1');
+        });
+      } finally {
+        rectSpy?.mockRestore();
+        activeElementSpy?.mockRestore();
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('accounts for the visual viewport offset when lifting the popup', async () => {
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(800);
+    let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+    let rectSpy: ReturnType<typeof vi.spyOn> | null = null;
+    const originalElementFromPoint = document.elementFromPoint;
+
+    try {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.Portal>
+            <Drawer.Viewport data-testid="viewport">
+              <Drawer.Popup
+                data-testid="popup"
+                style={{
+                  backgroundColor: 'rgb(255, 255, 255)',
+                  marginBottom: '-48px',
+                  maxHeight: '816px',
+                }}
+              >
+                <input data-testid="input" type="text" />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const popup = screen.getByTestId('popup');
+      const input = screen.getByTestId('input');
+      activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+      rectSpy = vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue({
+        x: 0,
+        y: 52,
+        width: 320,
+        height: 300,
+        top: 52,
+        right: 320,
+        bottom: 352,
+        left: 0,
+        toJSON() {
+          return {};
+        },
+      });
+      document.elementFromPoint = () => input;
+
+      fireEvent.touchStart(input, {
+        touches: [
+          createTouch(input, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+      fireEvent.touchEnd(input, {
+        changedTouches: [
+          createTouch(input, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+      activeElementSpy.mockReturnValue(input);
+
+      await act(async () => {
+        visualViewport.resize(500, 20);
+      });
+
+      await waitFor(() => {
+        const filler = getInputRepositioningFiller(popup);
+
+        expect(window.getComputedStyle(popup).maxHeight).toBe('none');
+        expect(popup.style.top).toBe('52px');
+        expect(popup.style.bottom).toBe('280px');
+        expect(popup.style.translate).toBe('0px');
+        expect(filler).not.toBeNull();
+        expect(filler?.style.height).toBe('281px');
+        expect(filler?.style.transition).toContain('height 400ms');
+      });
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      rectSpy?.mockRestore();
+      activeElementSpy?.mockRestore();
+      visualViewport.restore();
+      restoreInnerHeight();
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'does not mutate popup styles when input repositioning is disabled',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+      let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+
+      try {
+        await render(
+          <Drawer.Root open modal={false} disableInputRepositioning>
+            <Drawer.Portal>
+              <Drawer.Viewport data-testid="viewport">
+                <Drawer.Popup data-testid="popup">
+                  <input data-testid="input" type="text" />
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>,
+        );
+
+        const popup = screen.getByTestId('popup');
+        const input = screen.getByTestId('input');
+        activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+        activeElementSpy.mockReturnValue(input);
+
+        await act(async () => {
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          expect(popup.style.maxHeight).toBe('');
+          expect(popup.style.bottom).toBe('');
+          expect(popup.style.translate).toBe('');
+          expect(getInputRepositioningFiller(popup)).toBeNull();
+        });
+      } finally {
+        activeElementSpy?.mockRestore();
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'neutralizes nested drawer stack transforms while mutating popup styles',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+      let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+      const originalElementFromPoint = document.elementFromPoint;
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <Drawer.Root open modal={false}>
+                    <Drawer.Portal>
+                      <Drawer.Viewport>
+                        <Drawer.Popup
+                          data-testid="nested-popup"
+                          style={{
+                            backgroundColor: 'rgb(255, 255, 255)',
+                            maxHeight: '688px',
+                            transform: 'translateY(24px) scale(0.95)',
+                          }}
+                        >
+                          <input data-testid="nested-input" type="text" />
+                        </Drawer.Popup>
+                      </Drawer.Viewport>
+                    </Drawer.Portal>
+                  </Drawer.Root>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>,
+        );
+
+        const popup = screen.getByTestId('nested-popup');
+        const input = screen.getByTestId('nested-input');
+        activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+        document.elementFromPoint = () => input;
+
+        fireEvent.touchStart(input, {
+          touches: [
+            createTouch(input, {
+              clientX: 0,
+              clientY: 0,
+            }),
+          ],
+        });
+        fireEvent.touchEnd(input, {
+          changedTouches: [
+            createTouch(input, {
+              clientX: 0,
+              clientY: 0,
+            }),
+          ],
+        });
+        activeElementSpy.mockReturnValue(input);
+
+        await act(async () => {
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          const filler = getInputRepositioningFiller(popup);
+
+          expect(window.getComputedStyle(popup).maxHeight).toBe('490px');
+          expect(popup.style.bottom).toBe('');
+          expect(popup.style.transform).toBe('none');
+          expect(popup.style.translate).toBe('0px -300px');
+          expect(filler).not.toBeNull();
+          expect(filler?.style.height).toBe('301px');
+          expect(filler?.style.transition).toBe('none');
+        });
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+        activeElementSpy?.mockRestore();
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'starts closing input repositioning on blur before the visual viewport is restored',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+      let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup data-testid="popup">
+                  <input data-testid="input" type="text" />
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>,
+        );
+
+        const popup = screen.getByTestId('popup');
+        const input = screen.getByTestId('input');
+        activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+        activeElementSpy.mockReturnValue(input);
+
+        await act(async () => {
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          expect(popup.style.translate).toBe('0px -300px');
+        });
+
+        fireEvent.focusOut(input, { relatedTarget: null });
+
+        expect(popup.style.maxHeight).not.toBe('');
+        expect(popup.style.translate).toBe('0px');
+      } finally {
+        activeElementSpy?.mockRestore();
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'restores authored max-height immediately on blur for self-scrolling popups',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+      let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup data-testid="popup" style={{ overflowY: 'auto' }}>
+                  <input data-testid="input" type="text" />
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>,
+        );
+
+        const popup = screen.getByTestId('popup');
+        const input = screen.getByTestId('input');
+        activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+        activeElementSpy.mockReturnValue(input);
+
+        await act(async () => {
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          expect(popup.style.translate).toBe('0px -300px');
+        });
+
+        fireEvent.focusOut(input, { relatedTarget: null });
+
+        expect(popup.style.maxHeight).toBe('');
+        expect(popup.style.translate).toBe('0px');
+      } finally {
+        activeElementSpy?.mockRestore();
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'scrolls the popup instead of a focused textarea when revealing it',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+      let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+      let popupRectSpy: ReturnType<typeof vi.spyOn> | null = null;
+      let textareaRectSpy: ReturnType<typeof vi.spyOn> | null = null;
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup data-testid="popup" style={{ overflowY: 'auto' }}>
+                  <textarea data-testid="textarea" defaultValue="Scrollable field" rows={3} />
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>,
+        );
+
+        const popup = screen.getByTestId('popup');
+        const textarea = screen.getByTestId('textarea');
+
+        activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+        activeElementSpy.mockReturnValue(textarea);
+
+        Object.defineProperty(popup, 'clientHeight', {
+          configurable: true,
+          value: 300,
+        });
+        Object.defineProperty(popup, 'scrollHeight', {
+          configurable: true,
+          value: 900,
+        });
+        Object.defineProperty(popup, 'scrollTop', {
+          configurable: true,
+          writable: true,
+          value: 0,
+        });
+
+        Object.defineProperty(textarea, 'clientHeight', {
+          configurable: true,
+          value: 60,
+        });
+        Object.defineProperty(textarea, 'scrollHeight', {
+          configurable: true,
+          value: 200,
+        });
+        Object.defineProperty(textarea, 'scrollTop', {
+          configurable: true,
+          writable: true,
+          value: 0,
+        });
+
+        popupRectSpy = vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue({
+          x: 0,
+          y: 200,
+          width: 320,
+          height: 300,
+          top: 200,
+          right: 320,
+          bottom: 500,
+          left: 0,
+          toJSON() {
+            return {};
+          },
+        });
+        textareaRectSpy = vi.spyOn(textarea, 'getBoundingClientRect').mockImplementation(() => {
+          const top = 420 - popup.scrollTop;
+
+          return {
+            x: 16,
+            y: top,
+            width: 288,
+            height: 60,
+            top,
+            right: 304,
+            bottom: top + 60,
+            left: 16,
+            toJSON() {
+              return {};
+            },
+          };
+        });
+
+        fireEvent.focusIn(textarea);
+
+        await act(async () => {
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          expect((popup as HTMLElement).scrollTop).toBe(100);
+          expect((textarea as HTMLTextAreaElement).scrollTop).toBe(0);
+        });
+      } finally {
+        textareaRectSpy?.mockRestore();
+        popupRectSpy?.mockRestore();
+        activeElementSpy?.mockRestore();
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('does not mutate popup styles while pinch-zoomed', async () => {
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(800);
+    let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+
+    try {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.Portal>
+            <Drawer.Viewport data-testid="viewport">
+              <Drawer.Popup data-testid="popup">
+                <input data-testid="input" type="text" />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const popup = screen.getByTestId('popup');
+      const input = screen.getByTestId('input');
+      activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+      activeElementSpy.mockReturnValue(input);
+
+      await act(async () => {
+        visualViewport.setScale(1.5);
+        visualViewport.resize(500);
+      });
+
+      await waitFor(() => {
+        expect(popup.style.maxHeight).toBe('');
+        expect(popup.style.bottom).toBe('');
+        expect(popup.style.translate).toBe('');
+        expect(getInputRepositioningFiller(popup)).toBeNull();
+      });
+    } finally {
+      activeElementSpy?.mockRestore();
+      visualViewport.restore();
+      restoreInnerHeight();
+    }
+  });
+
+  it.skipIf(isJSDOM)('preserves native taps on an already-focused keyboard input', async () => {
+    await render(
+      <Drawer.Root open modal={false}>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <input data-testid="input" type="text" />
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+
+    await act(async () => {
+      input.focus();
+    });
+
+    const focusSpy = vi.spyOn(input, 'focus');
+    const activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
+    activeElementSpy.mockReturnValue(input);
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => input;
+
+    try {
+      fireEvent.touchStart(input, {
+        touches: [
+          createTouch(input, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      const touchEnd = createNativeTouchEnd(input, {
+        clientX: 0,
+        clientY: 0,
+      });
+
+      await act(async () => {
+        input.dispatchEvent(touchEnd);
+        await flushMicrotasks();
+      });
+
+      expect(touchEnd.defaultPrevented).toBe(false);
+      expect(focusSpy).not.toHaveBeenCalled();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      activeElementSpy.mockRestore();
+      focusSpy.mockRestore();
     }
   });
 
@@ -897,6 +1610,7 @@ describe('<Drawer.Viewport />', () => {
     await render(
       <Drawer.Root open swipeDirection="down">
         <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
           <Drawer.Viewport>
             <Drawer.Popup>
               <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
@@ -909,35 +1623,45 @@ describe('<Drawer.Viewport />', () => {
     );
 
     const scroll = screen.getByTestId('scroll');
+    const backdrop = screen.getByTestId('backdrop');
     Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
     Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
     scroll.scrollTop = 0;
 
-    fireEvent.touchStart(scroll, {
-      touches: [
-        createTouch(scroll, {
-          clientX: 0,
-          clientY: 0,
-        }),
-      ],
-    });
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
 
-    const prevented = fireEvent.touchMove(scroll, {
-      touches: [
-        createTouch(scroll, {
-          clientX: 0,
-          clientY: 10,
-        }),
-      ],
-    });
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
 
-    expect(prevented).toBe(false);
+      const touchMove = createNativeTouchMove(scroll, {
+        clientX: 0,
+        clientY: 10,
+      });
+
+      await act(async () => {
+        scroll.dispatchEvent(touchMove);
+        await flushMicrotasks();
+      });
+
+      expect(backdrop).toHaveAttribute('data-swiping');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
   });
 
   it('prevents touchmove at scroll bottom when swiping up on scrollable content', async () => {
     await render(
       <Drawer.Root open swipeDirection="up">
         <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
           <Drawer.Viewport>
             <Drawer.Popup>
               <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
@@ -950,35 +1674,45 @@ describe('<Drawer.Viewport />', () => {
     );
 
     const scroll = screen.getByTestId('scroll');
+    const backdrop = screen.getByTestId('backdrop');
     Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
     Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
     scroll.scrollTop = 80;
 
-    fireEvent.touchStart(scroll, {
-      touches: [
-        createTouch(scroll, {
-          clientX: 0,
-          clientY: 20,
-        }),
-      ],
-    });
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
 
-    const prevented = fireEvent.touchMove(scroll, {
-      touches: [
-        createTouch(scroll, {
-          clientX: 0,
-          clientY: 10,
-        }),
-      ],
-    });
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 20,
+          }),
+        ],
+      });
 
-    expect(prevented).toBe(false);
+      const touchMove = createNativeTouchMove(scroll, {
+        clientX: 0,
+        clientY: 10,
+      });
+
+      await act(async () => {
+        scroll.dispatchEvent(touchMove);
+        await flushMicrotasks();
+      });
+
+      expect(backdrop).toHaveAttribute('data-swiping');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
   });
 
   it('prevents touchmove when a scrollable ancestor wraps the popup at the top', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">
         <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
           <Drawer.Viewport>
             <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
               <Drawer.Popup>
@@ -993,37 +1727,47 @@ describe('<Drawer.Viewport />', () => {
     );
 
     const scroll = screen.getByTestId('scroll');
+    const backdrop = screen.getByTestId('backdrop');
     Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
     Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
     scroll.scrollTop = 0;
 
     const item = screen.getByTestId('item');
 
-    fireEvent.touchStart(item, {
-      touches: [
-        createTouch(item, {
-          clientX: 0,
-          clientY: 0,
-        }),
-      ],
-    });
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => item;
 
-    const prevented = fireEvent.touchMove(item, {
-      touches: [
-        createTouch(item, {
-          clientX: 0,
-          clientY: 10,
-        }),
-      ],
-    });
+    try {
+      fireEvent.touchStart(item, {
+        touches: [
+          createTouch(item, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
 
-    expect(prevented).toBe(false);
+      const touchMove = createNativeTouchMove(item, {
+        clientX: 0,
+        clientY: 10,
+      });
+
+      await act(async () => {
+        item.dispatchEvent(touchMove);
+        await flushMicrotasks();
+      });
+
+      expect(backdrop).toHaveAttribute('data-swiping');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
   });
 
   it('prevents touchmove when there is no scroll container', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">
         <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
           <Drawer.Viewport>
             <Drawer.Popup data-testid="popup">
               <Drawer.Content>Content</Drawer.Content>
@@ -1034,26 +1778,35 @@ describe('<Drawer.Viewport />', () => {
     );
 
     const popup = screen.getByTestId('popup');
+    const backdrop = screen.getByTestId('backdrop');
 
-    fireEvent.touchStart(popup, {
-      touches: [
-        createTouch(popup, {
-          clientX: 0,
-          clientY: 0,
-        }),
-      ],
-    });
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => popup;
 
-    const prevented = fireEvent.touchMove(popup, {
-      touches: [
-        createTouch(popup, {
-          clientX: 0,
-          clientY: 10,
-        }),
-      ],
-    });
+    try {
+      fireEvent.touchStart(popup, {
+        touches: [
+          createTouch(popup, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
 
-    expect(prevented).toBe(false);
+      const touchMove = createNativeTouchMove(popup, {
+        clientX: 0,
+        clientY: 10,
+      });
+
+      await act(async () => {
+        popup.dispatchEvent(touchMove);
+        await flushMicrotasks();
+      });
+
+      expect(backdrop).toHaveAttribute('data-swiping');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
   });
 
   it('does not block touchmove on native range inputs', async () => {

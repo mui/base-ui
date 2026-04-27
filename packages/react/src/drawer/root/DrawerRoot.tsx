@@ -45,6 +45,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
     swipeDirection = 'down',
+    disableInputRepositioning = false,
     snapToSequentialPoints = false,
     snapPoints,
     snapPoint: snapPointProp,
@@ -174,6 +175,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
 
   const contextValue: DrawerRootContext = React.useMemo(
     () => ({
+      disableInputRepositioning,
       swipeDirection,
       snapToSequentialPoints,
       snapPoints,
@@ -196,6 +198,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
     }),
     [
       resolvedActiveSnapPoint,
+      disableInputRepositioning,
       frontmostHeight,
       hasNestedDrawer,
       nestedSwiping,
@@ -323,6 +326,11 @@ export interface DrawerRootProps<Payload = unknown> {
    * @default 'down'
    */
   swipeDirection?: DrawerSwipeDirection | undefined;
+  /**
+   * Disables automatic software-keyboard input repositioning for bottom-sheet drawers.
+   * @default false
+   */
+  disableInputRepositioning?: boolean | undefined;
   /**
    * Snap points used to position the drawer.
    * Use numbers between 0 and 1 to represent fractions of the viewport height,
