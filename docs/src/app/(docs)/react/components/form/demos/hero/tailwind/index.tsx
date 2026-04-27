@@ -28,14 +28,16 @@ export default function ExampleForm() {
       }}
     >
       <Field.Root name="url" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-bold text-gray-900">Homepage</Field.Label>
+        <Field.Label className="text-sm font-bold text-gray-950 dark:text-white">
+          Homepage
+        </Field.Label>
         <Field.Control
           type="url"
           required
           defaultValue="https://example.com"
           placeholder="https://example.com"
           pattern="https?://.*"
-          className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 font-normal"
+          className="h-8 w-full border border-gray-950 bg-transparent px-2 text-sm font-normal text-gray-950 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-gray-400"
         />
         <Field.Error className="text-sm text-red-700 dark:text-red-400" />
       </Field.Root>
@@ -43,7 +45,7 @@ export default function ExampleForm() {
         disabled={loading}
         focusableWhenDisabled
         type="submit"
-        className="flex items-center justify-center h-10 px-3.5 m-0 outline-0 border border-gray-200 rounded-md bg-gray-50 font-inherit text-base font-normal leading-6 text-gray-900 select-none hover:data-[disabled]:bg-gray-50 hover:bg-gray-100 active:data-[disabled]:bg-gray-50 active:bg-gray-200 active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] active:border-t-gray-300 active:data-[disabled]:shadow-none active:data-[disabled]:border-t-gray-200 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 data-[disabled]:text-gray-500"
+        className="flex h-8 items-center justify-center rounded-none border border-gray-950 bg-white px-3 text-sm leading-5 font-normal text-gray-950 select-none hover:not-data-disabled:bg-gray-50 active:not-data-disabled:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-disabled:text-gray-500 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:not-data-disabled:bg-gray-900 dark:active:not-data-disabled:bg-gray-800 dark:data-disabled:text-gray-400"
       >
         Submit
       </Button>
