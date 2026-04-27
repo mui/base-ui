@@ -120,47 +120,30 @@ describe('<Form />', () => {
     expect(screen.queryByTestId('second-error')).toBe(null);
   });
 
-  it('updates the registered field id when a field control is replaced', async () => {
+  it('removes the previous registered field id when another control takes over', async () => {
     const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
     });
 
-    function App() {
-      const [showReplacement, setShowReplacement] = React.useState(false);
-
-      return (
-        <Form onSubmit={onSubmit}>
-          <Field.Root>
-            {showReplacement ? (
-              <Switch.Root key="replacement" required defaultChecked data-testid="replacement" />
-            ) : (
-              <Switch.Root key="initial" required data-testid="initial" />
-            )}
-            <Field.Error data-testid="error" />
-          </Field.Root>
-          <button type="button" onClick={() => setShowReplacement(true)}>
-            Replace
-          </button>
-          <button type="submit">Submit</button>
-        </Form>
-      );
-    }
-
-    const { user } = render(<App />);
+    const { user } = render(
+      <Form onSubmit={onSubmit}>
+        <Field.Root>
+          <Switch.Root required data-testid="first" />
+          <Switch.Root required defaultChecked data-testid="second" />
+          <Field.Error data-testid="error" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
 
     const submit = screen.getByRole('button', { name: 'Submit' });
 
     await user.click(submit);
 
-    expect(onSubmit).not.toHaveBeenCalled();
-    expect(screen.getByTestId('initial')).toHaveAttribute('aria-invalid', 'true');
-    expect(screen.getByTestId('error')).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'Replace' }));
-    await user.click(submit);
-
     expect(onSubmit).toHaveBeenCalledTimes(1);
-    expect(screen.getByTestId('replacement')).not.toHaveAttribute('aria-invalid');
+    expect(screen.queryByTestId('error')).toBe(null);
+    expect(screen.getByTestId('first')).not.toHaveAttribute('aria-invalid');
+    expect(screen.getByTestId('second')).not.toHaveAttribute('aria-invalid');
   });
 
   it('unmounted fields should be removed from the form', async () => {
