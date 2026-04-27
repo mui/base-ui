@@ -69,6 +69,7 @@
 
 .Popup {
   box-sizing: border-box;
+  outline: 0;
   padding-block: 0.25rem;
   border: 1px solid light-dark(var(--color-gray-950), white);
   background-color: light-dark(white, var(--color-gray-950));

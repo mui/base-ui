@@ -70,6 +70,7 @@
 
 .Popup {
   box-sizing: border-box;
+  outline: 0;
   border: 1px solid light-dark(var(--color-gray-950), white);
   background-color: light-dark(white, var(--color-gray-950));
   background-clip: padding-box;
@@ -117,8 +118,9 @@
 .GroupLabel {
   box-sizing: border-box;
   padding: 0.5rem 1rem 0.25rem calc(0.625rem + 0.75rem + 0.5rem);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 700;
+  line-height: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: light-dark(var(--color-gray-500), var(--color-gray-400));
