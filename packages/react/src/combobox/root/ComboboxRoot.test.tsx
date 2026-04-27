@@ -1175,6 +1175,106 @@ describe('<Combobox.Root />', () => {
         });
       });
 
+      it('starts keyboard navigation from the filtered items after filtering out the selected item', async () => {
+        const items = ['apple', 'banana', 'cherry'];
+
+        const { user } = await render(
+          <Combobox.Root items={items} multiple defaultValue={['cherry']}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        await user.type(input, 'ba');
+        const banana = await screen.findByRole('option', { name: 'banana' });
+
+        await user.keyboard('{ArrowDown}');
+
+        await waitFor(() => {
+          expect(banana).toHaveAttribute('data-highlighted');
+        });
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+        });
+      });
+
+      it('updates derived indices when an item unmounts while closed but kept mounted', async () => {
+        function App() {
+          const [showCherry, setShowCherry] = React.useState(true);
+
+          return (
+            <React.Fragment>
+              <button
+                type="button"
+                data-testid="remove-cherry"
+                onClick={() => setShowCherry(false)}
+              >
+                Remove cherry
+              </button>
+              <Combobox.Root value="cherry">
+                <Combobox.Input data-testid="input" />
+                <SelectedIndexProbe />
+                <Combobox.Portal keepMounted>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="apple">apple</Combobox.Item>
+                        <Combobox.Item value="banana">banana</Combobox.Item>
+                        {showCherry && <Combobox.Item value="cherry">cherry</Combobox.Item>}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        await screen.findByRole('option', { name: 'cherry' });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('2');
+        });
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-expanded', 'false');
+        });
+
+        await user.click(screen.getByTestId('remove-cherry'));
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('null');
+        });
+
+        await user.click(input);
+
+        await screen.findByRole('option', { name: 'apple' });
+
+        await waitFor(() => {
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+        });
+      });
+
       it('should create multiple hidden inputs for form submission', async () => {
         const items = ['a', 'b', 'c'];
         await render(

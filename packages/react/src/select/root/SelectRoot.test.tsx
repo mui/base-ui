@@ -3166,13 +3166,18 @@ describe('<Select.Root />', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('trigger')).toHaveTextContent('b');
-        expect(screen.queryByTestId('positioner')).toBe(null);
       });
+      expect(screen.queryByTestId('positioner')).toBe(null);
 
       await user.click(screen.getByTestId('trigger'));
 
+      const option = await screen.findByRole('option', { name: 'b' });
+
       await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected');
+        expect(option).toHaveAttribute('data-selected');
+      });
+      await waitFor(() => {
+        expect(option).toHaveAttribute('data-highlighted');
       });
     });
 

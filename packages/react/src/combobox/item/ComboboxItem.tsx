@@ -18,6 +18,7 @@ import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { findItemIndex } from '../../internals/itemEquality';
+import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 
 /**
  * An individual item in the list.
@@ -51,6 +52,7 @@ export const ComboboxItem = React.memo(
 
     const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
+    const keepPortalMounted = useComboboxPortalContext(true);
     const { flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
 
     const open = useStore(store, selectors.open);
@@ -106,7 +108,9 @@ export const ComboboxItem = React.memo(
       });
 
       return () => {
-        if (!store.state.open) {
+        const preserveClosedRegistry =
+          !store.state.open && !keepPortalMounted && !store.state.forceMounted;
+        if (preserveClosedRegistry) {
           visibleMap.length = 0;
           store.set('itemValues', []);
           return;
@@ -119,7 +123,7 @@ export const ComboboxItem = React.memo(
           allItemValues: nextItemValues,
         });
       };
-    }, [hasRegistered, hasItems, index, itemValue, store]);
+    }, [hasRegistered, hasItems, index, itemValue, keepPortalMounted, store]);
 
     useIsoLayoutEffect(() => {
       if (!open) {

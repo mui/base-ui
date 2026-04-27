@@ -768,7 +768,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [multiple, open, selectedValue, selectionMode]);
 
   let listNavigationSelectedIndex: number | null = null;
-  if (pendingQueryHighlight === null && queryChangedAfterOpen && activeIndex != null) {
+  if (queryChangedAfterOpen) {
     listNavigationSelectedIndex = activeIndex;
   } else if (selectionMode !== 'none' && listNavigationSelectedValue !== NO_ACTIVE_VALUE) {
     const registry = hasItems ? flatItems : allItemValues;

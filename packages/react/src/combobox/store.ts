@@ -183,9 +183,14 @@ function getSelectedIndex(state: State) {
     return null;
   }
 
-  const selectedValue = Array.isArray(state.selectedValue)
-    ? state.selectedValue[state.selectedValue.length - 1]
-    : state.selectedValue;
+  let selectedValue = state.selectedValue;
+  if (state.selectionMode === 'multiple') {
+    if (!Array.isArray(selectedValue) || selectedValue.length === 0) {
+      return null;
+    }
+    selectedValue = selectedValue[selectedValue.length - 1];
+  }
+
   const registry = state.open || state.inline ? state.itemValues : state.allItemValues;
   const index = findItemIndex(registry, selectedValue, state.isItemEqualToValue);
   return index === -1 ? null : index;

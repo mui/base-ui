@@ -115,7 +115,7 @@ export const SelectItem = React.memo(
           selectedItemTextRef.current = textRef.current;
         }
       }
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
+    }, [hasRegistered, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
 
     const lastKeyRef = React.useRef<string | null>(null);
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
