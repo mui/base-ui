@@ -4,7 +4,9 @@ import { Tooltip } from '@base-ui/react/tooltip';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { OPEN_DELAY } from '../utils/constants';
+import { TooltipStore } from '../store/TooltipStore';
 import { REASONS } from '../../internals/reasons';
 
 describe('<Tooltip.Root />', () => {
@@ -33,6 +35,69 @@ describe('<Tooltip.Root />', () => {
     ),
     render,
     triggerMouseAction: 'hover',
+  });
+
+  it('allows the same trigger to reopen after an internal close in controlled mode', () => {
+    const trigger = document.createElement('button');
+    trigger.id = 'trigger';
+
+    const store = new TooltipStore({
+      open: false,
+      openProp: true,
+      activeTriggerId: trigger.id,
+      activeTriggerElement: trigger,
+    });
+    const onOpenChange = vi.fn();
+    store.context.onOpenChange = onOpenChange;
+
+    store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, undefined, trigger));
+
+    expect(onOpenChange.mock.calls.length).toBe(1);
+    expect(store.state.open).toBe(true);
+  });
+
+  it('does not set aria-describedby on the trigger', async () => {
+    await render(
+      <Tooltip.Root defaultOpen>
+        <Tooltip.Trigger>Trigger</Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>Content</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Trigger' }).getAttribute('aria-describedby')).toBe(
+      null,
+    );
+  });
+
+  it.skipIf(isJSDOM)('tracks the cursor on the first open from a cold mount', async () => {
+    await render(
+      <ContainedTriggerTooltip
+        rootProps={{ trackCursorAxis: 'both' }}
+        triggerProps={{ delay: 0, style: { width: 120, height: 40 } }}
+        positionerProps={{ side: 'bottom', align: 'start' }}
+        popupProps={{ style: { width: 40, height: 20 } }}
+      />,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+    fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+    fireEvent.mouseEnter(trigger, { clientX: 36, clientY: 18 });
+    fireEvent.mouseMove(trigger, { clientX: 36, clientY: 18 });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toBeVisible();
+    });
+
+    await waitFor(() => {
+      const positionerRect = screen.getByTestId('positioner').getBoundingClientRect();
+      expect(Math.abs(positionerRect.left - 36)).toBeLessThanOrEqual(6);
+      expect(Math.abs(positionerRect.top - 18)).toBeLessThanOrEqual(1);
+    });
   });
 
   describe.for([
@@ -291,6 +356,14 @@ describe('<Tooltip.Root />', () => {
     });
 
     describe('prop: actionsRef', () => {
+      it('keeps imperative actions available while closed', async () => {
+        const actionsRef = React.createRef<Tooltip.Root.Actions>();
+
+        await render(<TestTooltip rootProps={{ actionsRef }} />);
+
+        expect(actionsRef.current).not.toBe(null);
+      });
+
       it('unmounts the tooltip when the `unmount` method is called', async () => {
         const actionsRef = {
           current: {
@@ -859,6 +932,53 @@ describe('<Tooltip.Root />', () => {
         fireEvent.click(trigger);
 
         expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('calls onOpenChange once when the trigger is clicked closed', async () => {
+        const onOpenChange = vi.fn();
+
+        await render(<TestTooltip rootProps={{ onOpenChange }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
+
+        onOpenChange.mockClear();
+
+        fireEvent.click(trigger);
+
+        expect(screen.queryByText('Content')).toBe(null);
+        expect(onOpenChange.mock.calls.length).toBe(1);
+        expect(onOpenChange.mock.calls[0][0]).toBe(false);
+      });
+
+      it('does not call onOpenChange when the trigger is clicked before opening', async () => {
+        const onOpenChange = vi.fn();
+
+        await render(<TestTooltip rootProps={{ onOpenChange }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+
+        fireEvent.click(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+        expect(onOpenChange).not.toHaveBeenCalled();
       });
 
       it('should not close when the trigger is clicked after delay duration and closeOnClick is false', async () => {

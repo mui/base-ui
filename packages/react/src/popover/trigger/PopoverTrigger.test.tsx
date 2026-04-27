@@ -12,7 +12,7 @@ import {
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Popover.Trigger />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Popover.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
@@ -69,6 +69,41 @@ describe('<Popover.Trigger />', () => {
 
       await user.keyboard('[Tab]');
       expect(document.activeElement).not.toBe(trigger);
+    });
+  });
+
+  describe('accessibility attributes', () => {
+    it('sets closed trigger ARIA attributes during server render', () => {
+      renderToString(
+        <Popover.Root>
+          <Popover.Trigger data-testid="trigger">Open</Popover.Trigger>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger).not.toHaveAttribute('aria-controls');
+    });
+
+    it('links the open trigger to the popup', async () => {
+      await render(
+        <Popover.Root defaultOpen defaultTriggerId="trigger">
+          <Popover.Trigger id="trigger">Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup id="popup">Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      const popup = screen.getByRole('dialog');
+
+      expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger).toHaveAttribute('aria-controls', popup.id);
     });
   });
 

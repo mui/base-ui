@@ -18,6 +18,7 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { ClosePartProvider, useClosePartCount } from '../../utils/closePart';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopupState> = {
   ...baseMapping,
@@ -36,7 +37,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 ) {
   const { render, className, style, initialFocus, finalFocus, ...elementProps } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
 
   const positioner = usePopoverPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -54,6 +55,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const openReason = store.useState('openChangeReason');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');
+  const popupId = floatingContext.useState('floatingId');
   const disabled = store.useState('disabled');
   const openOnHover = store.useState('openOnHover');
   const closeDelay = store.useState('closeDelay');
@@ -106,6 +108,9 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     props: [
       popupProps,
       {
+        id: popupId,
+        role: 'dialog',
+        ...FOCUSABLE_POPUP_PROPS,
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
         onKeyDown(event) {

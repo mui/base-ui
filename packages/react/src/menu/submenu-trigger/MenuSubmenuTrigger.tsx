@@ -4,12 +4,7 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
-import {
-  safePolygon,
-  useClick,
-  useHoverReferenceInteraction,
-  useInteractions,
-} from '../../floating-ui-react';
+import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -20,6 +15,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**
  * A menu item that opens a submenu.
@@ -155,10 +151,11 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     stickIfOpen: false,
   });
 
-  const localInteractionProps = useInteractions([click]);
-
   const rootTriggerProps = store.useState('triggerProps', true);
-  delete rootTriggerProps.id;
+  const openState = store.useState('open');
+  const interactionTypeProps = useOpenMethodTriggerProps(openState, (interactionType) => {
+    store.set('openMethod', interactionType);
+  });
 
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
 
@@ -166,9 +163,10 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     state,
     stateAttributesMapping: triggerOpenStateMapping,
     props: [
-      localInteractionProps.getReferenceProps(),
+      click.reference,
       hoverProps,
       rootTriggerProps,
+      interactionTypeProps,
       itemProps,
       {
         tabIndex: open || highlighted ? 0 : -1,

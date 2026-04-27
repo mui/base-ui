@@ -2,6 +2,7 @@
 import * as React from 'react';
 import c from 'clsx';
 import { useId } from '@base-ui/utils/useId';
+import { useTestInteractions } from '#test-utils';
 import type { Placement } from '../../src/floating-ui-react/types';
 import {
   arrow,
@@ -13,9 +14,7 @@ import {
   useClick,
   useDismiss,
   useFloating,
-  useInteractions,
   useListNavigation,
-  useRole,
 } from '../../src/floating-ui-react';
 import { Button } from './Button';
 import styles from './EmojiPicker.module.css';
@@ -132,10 +131,9 @@ export function Main() {
   });
 
   // Handles opening the floating element via the Choose Emoji button.
-  const { getReferenceProps, getFloatingProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
     useClick(context),
     useDismiss(context),
-    useRole(context, { role: 'menu' }),
   ]);
 
   // Handles the list navigation where the reference is the inner input, not
@@ -144,7 +142,7 @@ export function Main() {
     getReferenceProps: getInputProps,
     getFloatingProps: getListFloatingProps,
     getItemProps,
-  } = useInteractions([
+  } = useTestInteractions([
     useListNavigation(context, {
       listRef,
       onNavigate: open ? setActiveIndex : undefined,
@@ -201,6 +199,9 @@ export function Main() {
             className={styles.Trigger}
             aria-label="Choose emoji"
             aria-describedby="emoji-label"
+            aria-haspopup="menu"
+            aria-expanded={open}
+            aria-controls={open ? context.floatingId : undefined}
             data-open={open ? '' : undefined}
             {...getReferenceProps()}
           >
@@ -225,6 +226,8 @@ export function Main() {
                   ref={refs.setFloating}
                   className={styles.Floating}
                   style={floatingStyles}
+                  id={context.floatingId}
+                  role="menu"
                   {...getFloatingProps(getListFloatingProps())}
                 >
                   <span className={styles.Label}>Emoji Picker</span>

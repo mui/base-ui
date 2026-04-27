@@ -1299,7 +1299,7 @@ describe('<Combobox.Root />', () => {
     });
   });
 
-  describe('aria attributes', () => {
+  describe('accessibility attributes', () => {
     it('sets all aria attributes on the input when closed', async () => {
       await render(
         <Combobox.Root>

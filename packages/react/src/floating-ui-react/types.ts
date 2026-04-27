@@ -6,7 +6,6 @@ import type {
 import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 
-import type { ExtendedUserProps } from './hooks/useInteractions';
 import type { FloatingTreeStore } from './components/FloatingTreeStore';
 import type { FloatingRootStore } from './components/FloatingRootStore';
 
@@ -22,10 +21,8 @@ export type { HandleCloseContext, HandleClose } from './hooks/useHoverShared';
 export type { UseHoverFloatingInteractionProps } from './hooks/useHoverFloatingInteraction';
 export type { UseHoverReferenceInteractionProps } from './hooks/useHoverReferenceInteraction';
 export type { UseListNavigationProps } from './hooks/useListNavigation';
-export type { UseRoleProps } from './hooks/useRole';
 export type { UseTypeaheadProps } from './hooks/useTypeahead';
 export type { UseFloatingRootContextOptions } from './hooks/useFloatingRootContext';
-export type { UseInteractionsReturn } from './hooks/useInteractions';
 export type { SafePolygonOptions } from './safePolygon';
 export type { FloatingTreeProps, FloatingNodeProps } from './components/FloatingTree';
 export type {
@@ -146,6 +143,11 @@ export interface FloatingNodeType {
 }
 
 export type FloatingTreeType = FloatingTreeStore;
+
+export type ExtendedUserProps = {
+  active?: boolean | undefined;
+  selected?: boolean | undefined;
+};
 
 export interface ElementProps {
   reference?: React.HTMLProps<Element> | undefined;

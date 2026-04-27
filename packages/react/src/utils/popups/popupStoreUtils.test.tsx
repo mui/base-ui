@@ -1,25 +1,54 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   createInitialPopupStoreState,
+  createPopupFloatingRootContext,
   PopupStoreContext,
   PopupStoreState,
   PopupStoreSelectors,
   PopupTriggerMap,
+  popupStoreSelectors,
   useTriggerRegistration,
 } from './';
+import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import type { BaseUIChangeEventDetails } from '../../types';
+import { usePopupRootSync } from './popupStoreUtils';
 
 function createStore() {
+  const triggerElements = new PopupTriggerMap();
   return new ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>(
-    createInitialPopupStoreState(),
     {
-      triggerElements: new PopupTriggerMap(),
+      ...createInitialPopupStoreState(),
+      floatingRootContext: createPopupFloatingRootContext(triggerElements),
+    },
+    {
+      triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
     },
+  );
+}
+
+type SyncState = PopupStoreState<unknown> & { openMethod: string | null };
+
+function createSyncStore(initialState: Partial<SyncState> = {}) {
+  const triggerElements = new PopupTriggerMap();
+  return new ReactStore<SyncState, PopupStoreContext<unknown>, PopupStoreSelectors>(
+    {
+      ...createInitialPopupStoreState(),
+      floatingRootContext: createPopupFloatingRootContext(triggerElements),
+      openMethod: null,
+      ...initialState,
+    },
+    {
+      triggerElements,
+      popupRef: React.createRef<HTMLElement | null>(),
+      onOpenChangeComplete: undefined,
+    },
+    popupStoreSelectors,
   );
 }
 
@@ -45,6 +74,39 @@ function TestTrigger({
     };
   }, [register, repeat, element]);
 
+  return null;
+}
+
+function PopupRootSyncTest({
+  store,
+  open,
+}: {
+  store: ReactStore<SyncState, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  open: boolean;
+}) {
+  usePopupRootSync(store, open);
+  return null;
+}
+
+let syncedFloatingRootCallbackDuringRender:
+  | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
+  | undefined;
+
+function SyncedFloatingRootContextTest({
+  store,
+  onOpenChange,
+}: {
+  store: ReactStore<SyncState, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+}) {
+  const floatingRootContext = useSyncedFloatingRootContext({
+    popupStore: store,
+    floatingId: '',
+    nested: false,
+    onOpenChange,
+  });
+
+  syncedFloatingRootCallbackDuringRender = floatingRootContext.context.onOpenChange;
   return null;
 }
 
@@ -126,5 +188,48 @@ describe('useTriggerRegistration', () => {
     unmount();
     expect(store.context.triggerElements.getById('second')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
+  });
+});
+
+describe('usePopupRootSync', () => {
+  it('clears openMethod after the popup closes', async () => {
+    const store = createSyncStore({ openMethod: 'touch' });
+
+    const { rerender } = render(<PopupRootSyncTest store={store} open />);
+
+    expect(store.state.openMethod).toBe('touch');
+
+    rerender(<PopupRootSyncTest store={store} open={false} />);
+
+    await waitFor(() => {
+      expect(store.state.openMethod).toBe(null);
+    });
+  });
+
+  it('clears openMethod when the popup root unmounts', async () => {
+    const store = createSyncStore({ openMethod: 'touch' });
+
+    const { unmount } = render(<PopupRootSyncTest store={store} open />);
+
+    expect(store.state.openMethod).toBe('touch');
+
+    unmount();
+
+    await waitFor(() => {
+      expect(store.state.openMethod).toBe(null);
+    });
+  });
+});
+
+describe('useSyncedFloatingRootContext', () => {
+  it('wires sync-only open changes before layout effects run', () => {
+    const store = createSyncStore();
+    const onOpenChange = vi.fn();
+
+    syncedFloatingRootCallbackDuringRender = undefined;
+
+    render(<SyncedFloatingRootContextTest store={store} onOpenChange={onOpenChange} />);
+
+    expect(syncedFloatingRootCallbackDuringRender).toBe(onOpenChange);
   });
 });

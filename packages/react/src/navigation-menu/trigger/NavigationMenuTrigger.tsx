@@ -9,14 +9,13 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   safePolygon,
   useClick,
   useFloatingRootContext,
   useFloatingTree,
   useHoverReferenceInteraction,
-  useInteractions,
 } from '../../floating-ui-react';
 import {
   applySafePolygonPointerEventsMutation,
@@ -617,17 +616,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     getHandleCloseContext: getInlineHandleCloseContext,
   });
 
-  const hover = React.useMemo(
-    () => (hoverProps ? { reference: hoverProps } : undefined),
-    [hoverProps],
-  );
-
   const click = useClick(context, {
     enabled: interactionsEnabled,
     stickIfOpen,
     toggle: isActiveItem,
   });
-  const { getReferenceProps } = useInteractions([hover, click]);
 
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
@@ -805,7 +798,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, handleTriggerElement, buttonRef]}
         props={[
-          getReferenceProps,
+          click.reference ?? EMPTY_OBJECT,
+          hoverProps ?? EMPTY_OBJECT,
           dismissProps?.reference || EMPTY_ARRAY,
           defaultProps,
           elementProps,

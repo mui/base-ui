@@ -34,7 +34,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   const { render, className, style, children, ...elementProps } = componentProps;
 
   const keepMounted = useDialogPortalContext();
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
 
   const open = store.useState('open');
   const nested = store.useState('nested');

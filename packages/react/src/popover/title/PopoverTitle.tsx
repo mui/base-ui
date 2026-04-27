@@ -18,7 +18,7 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const { store } = usePopoverRootContext();
+  const store = usePopoverRootContext();
 
   const id = useBaseUiId(elementProps.id);
 

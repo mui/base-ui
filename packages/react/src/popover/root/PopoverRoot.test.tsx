@@ -44,6 +44,17 @@ describe('<Popover.Root />', () => {
       expect(screen.getByText('Toggle')).not.toBe(null);
     });
 
+    it('supports outside press immediately after first open from a closed initial mount', async () => {
+      await render(<TestPopover />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      fireEvent.click(document.body);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+    });
+
     describe('uncontrolled open', () => {
       it('should close when the anchor is clicked twice', async () => {
         await render(<TestPopover />);
@@ -597,9 +608,10 @@ describe('<Popover.Root />', () => {
 
           const comboboxInput = screen.getByTestId('combobox-input');
           await user.click(comboboxInput);
-          await flushMicrotasks();
-
-          expect(screen.getByRole('listbox')).toBeVisible();
+          await screen.findByRole('listbox');
+          await waitFor(() => {
+            expect(comboboxInput).toHaveFocus();
+          });
 
           const trigger = screen.getByTestId('trigger');
           expect(trigger).not.toHaveAttribute('aria-hidden', 'true');
@@ -1024,6 +1036,29 @@ describe('<Popover.Root />', () => {
     });
 
     describe('prop: actionsRef', () => {
+      it('keeps imperative actions available while closed', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+
+        const { user } = await render(<TestPopover rootProps={{ actionsRef }} />);
+
+        expect(actionsRef.current).not.toBe(null);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+
+        expect(actionsRef.current).not.toBe(null);
+      });
+
       it('unmounts the popover when the `unmount` method is called', async () => {
         const actionsRef = {
           current: {

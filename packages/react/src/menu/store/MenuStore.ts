@@ -2,16 +2,17 @@ import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
 import {
+  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  usePopupStore,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -109,9 +110,13 @@ export class MenuStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  constructor(initialState?: Partial<State<Payload>>) {
+  constructor(initialState?: Partial<State<Payload>>, floatingId?: string, nested?: boolean) {
+    const triggerElements = new PopupTriggerMap();
+    const state = { ...createInitialState<Payload>(), ...initialState };
+    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+
     super(
-      { ...createInitialState(), ...initialState },
+      state,
       {
         positionerRef: React.createRef<HTMLElement | null>(),
         popupRef: React.createRef<HTMLElement | null>(),
@@ -122,7 +127,7 @@ export class MenuStore<Payload> extends ReactStore<
         triggerFocusTargetRef: React.createRef<HTMLElement>(),
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         onOpenChangeComplete: undefined,
-        triggerElements: new PopupTriggerMap(),
+        triggerElements,
       },
       selectors,
     );
@@ -167,20 +172,28 @@ export class MenuStore<Payload> extends ReactStore<
     });
   }
 
-  setOpen(open: boolean, eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>) {
-    this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
-  }
+  setOpen = (
+    open: boolean,
+    eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
+  ) => {
+    this.state.floatingRootContext.context.events.emit('setOpen', {
+      open,
+      eventDetails,
+    });
+  };
 
   public static useStore<Payload>(
     externalStore: MenuStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const internalStore = useRefWithInit(() => {
-      return new MenuStore<Payload>(initialState);
-    }).current;
+    /* eslint-disable react-hooks/rules-of-hooks */
+    const { store } = usePopupStore(
+      externalStore,
+      (floatingId, nested) => new MenuStore<Payload>(initialState, floatingId, nested),
+    );
+    /* eslint-enable react-hooks/rules-of-hooks */
 
-    return externalStore ?? internalStore;
+    return store;
   }
 
   private unsubscribeParentListener: (() => void) | null = null;

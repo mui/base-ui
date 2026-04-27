@@ -14,7 +14,6 @@ import {
   ElementProps,
   useDismiss,
   useFloatingRootContext,
-  useInteractions,
   useListNavigation,
   useClick,
 } from '../../floating-ui-react';
@@ -42,9 +41,11 @@ import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from '.
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
+import { mergeProps } from '../../merge-props';
 import {
   stringifyAsLabel,
   stringifyAsValue,
@@ -1068,18 +1069,42 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-    role,
-    click,
-    dismiss,
-    listNavigation,
-  ]);
+  const inputProps = React.useMemo(
+    () => mergeProps(listNavigation.reference, dismiss.reference, click.reference, role.reference),
+    [click.reference, dismiss.reference, listNavigation.reference, role.reference],
+  );
+
+  const popupProps = React.useMemo(
+    () =>
+      mergeProps(FOCUSABLE_POPUP_PROPS, listNavigation.floating, dismiss.floating, role.floating),
+    [dismiss.floating, listNavigation.floating, role.floating],
+  );
+
+  const getItemProps = React.useCallback(
+    (
+      userProps?: Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & {
+        active?: boolean | undefined;
+        selected?: boolean | undefined;
+      },
+    ) => {
+      if (typeof listNavigation.item === 'function') {
+        return { ...listNavigation.item(userProps ?? {}) };
+      }
+
+      if (listNavigation.item) {
+        return { ...listNavigation.item };
+      }
+
+      return {};
+    },
+    [listNavigation],
+  );
 
   useOnFirstRender(() => {
     store.update({
       inline: inlineProp,
-      popupProps: getFloatingProps(),
-      inputProps: getReferenceProps(),
+      popupProps,
+      inputProps,
       triggerProps,
       getItemProps,
       setOpen,
@@ -1102,8 +1127,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       transitionStatus,
       items,
       inline: inlineProp,
-      popupProps: getFloatingProps(),
-      inputProps: getReferenceProps(),
+      popupProps,
+      inputProps,
       triggerProps,
       openMethod,
       getItemProps,
@@ -1134,8 +1159,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     mounted,
     transitionStatus,
     items,
-    getFloatingProps,
-    getReferenceProps,
+    popupProps,
+    inputProps,
     getItemProps,
     openMethod,
     triggerProps,

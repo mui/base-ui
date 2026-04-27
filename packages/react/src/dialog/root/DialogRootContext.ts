@@ -2,9 +2,7 @@
 import * as React from 'react';
 import { DialogStore } from '../store/DialogStore';
 
-export interface DialogRootContext<Payload = unknown> {
-  store: DialogStore<Payload>;
-}
+export type DialogRootContext<Payload = unknown> = DialogStore<Payload>;
 
 export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);
 

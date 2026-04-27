@@ -18,6 +18,7 @@ import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 const stateAttributesMapping: StateAttributesMapping<MenuPopupState> = {
   ...baseMapping,
@@ -45,18 +46,26 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const popupProps = store.useState('popupProps');
   const mounted = store.useState('mounted');
   const instantType = store.useState('instantType');
-  const triggerElement = store.useState('activeTriggerElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
+  const activeTriggerId = store.useState('activeTriggerId');
   const floatingContext = store.useState('floatingRootContext');
+  const popupId = floatingContext.useState('floatingId');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
-  const activeTriggerElement = store.useState('activeTriggerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
 
   const isContextMenu = parent.type === 'context-menu';
+  let activeTriggerLabelId = activeTriggerId ?? undefined;
+  if (activeTriggerElement != null) {
+    activeTriggerLabelId = undefined;
+    if (activeTriggerElement.isConnected && activeTriggerElement.id) {
+      activeTriggerLabelId = activeTriggerElement.id;
+    }
+  }
 
   useOpenChangeComplete({
     open,
@@ -111,6 +120,10 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     props: [
       popupProps,
       {
+        id: popupId,
+        role: 'menu',
+        ...FOCUSABLE_POPUP_PROPS,
+        'aria-labelledby': activeTriggerLabelId,
         onKeyDown(event) {
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
@@ -125,7 +138,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   let returnFocus = parent.type === undefined || isContextMenu;
   if (
-    triggerElement ||
+    activeTriggerElement ||
     (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress)
   ) {
     returnFocus = true;

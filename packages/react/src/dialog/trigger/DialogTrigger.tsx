@@ -7,9 +7,10 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { DialogHandle } from '../store/DialogHandle';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { usePopupId, useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useClick, useInteractions } from '../../floating-ui-react';
+import { useClick } from '../../floating-ui-react';
+import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**
  * A button that opens the dialog.
@@ -34,7 +35,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   } = componentProps;
 
   const dialogRootContext = useDialogRootContext(true);
-  const store = handle?.store ?? dialogRootContext?.store;
+  const store = handle?.store ?? dialogRootContext;
   if (!store) {
     throw new Error(
       'Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.',
@@ -42,8 +43,11 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
+  const open = store.useState('open');
+  const activeTriggerId = store.useState('activeTriggerId');
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const popupId = usePopupId(store);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -62,23 +66,36 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null });
+  const interactionTypeProps = useOpenMethodTriggerProps(open, (interactionType) => {
+    store.set('openMethod', interactionType);
+  });
 
-  const localInteractionProps = useInteractions([click]);
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const state: DialogTriggerState = {
     disabled,
     open: isOpenedByThisTrigger,
   };
 
-  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const controlsPopup =
+    open &&
+    (isOpenedByThisTrigger ||
+      (activeTriggerId == null && store.context.triggerElements.size === 1));
 
   return useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
-      localInteractionProps.getReferenceProps(),
+      click.reference,
       rootTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: thisTriggerId },
+      interactionTypeProps,
+      {
+        [CLICK_TRIGGER_IDENTIFIER as string]: '',
+        id: thisTriggerId,
+        'aria-haspopup': 'dialog' as const,
+        'aria-expanded': isOpenedByThisTrigger,
+        'aria-controls': controlsPopup ? popupId : undefined,
+      },
       elementProps,
       getButtonProps,
     ],

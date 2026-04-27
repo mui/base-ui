@@ -1,14 +1,12 @@
 import * as React from 'react';
+import type { ElementProps, ExtendedUserProps } from '../src/floating-ui-react/types';
+import {
+  ACTIVE_KEY,
+  FOCUSABLE_ATTRIBUTE,
+  SELECTED_KEY,
+} from '../src/floating-ui-react/utils/constants';
 
-import type { ElementProps } from '../types';
-import { ACTIVE_KEY, FOCUSABLE_ATTRIBUTE, SELECTED_KEY } from '../utils/constants';
-
-export type ExtendedUserProps = {
-  [ACTIVE_KEY]?: boolean | undefined;
-  [SELECTED_KEY]?: boolean | undefined;
-};
-
-export interface UseInteractionsReturn {
+export interface UseTestInteractionsReturn {
   getReferenceProps: (userProps?: React.HTMLProps<Element>) => Record<string, unknown>;
   getFloatingProps: (userProps?: React.HTMLProps<HTMLElement>) => Record<string, unknown>;
   getItemProps: (
@@ -17,13 +15,9 @@ export interface UseInteractionsReturn {
   getTriggerProps: (userProps?: React.HTMLProps<Element>) => Record<string, unknown>;
 }
 
-/**
- * Merges an array of interaction hooks' props into prop getters, allowing
- * event handler functions to be composed together without overwriting one
- * another.
- * @see https://floating-ui.com/docs/useInteractions
- */
-export function useInteractions(propsList: Array<ElementProps | void> = []): UseInteractionsReturn {
+export function useTestInteractions(
+  propsList: Array<ElementProps | void> = [],
+): UseTestInteractionsReturn {
   const referenceDeps = propsList.map((interactionProps) => interactionProps?.reference);
   const floatingDeps = propsList.map((interactionProps) => interactionProps?.floating);
   const itemDeps = propsList.map((interactionProps) => interactionProps?.item);

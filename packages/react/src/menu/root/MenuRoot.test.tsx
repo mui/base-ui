@@ -49,6 +49,54 @@ describe('<Menu.Root />', () => {
     { name: 'contained triggers', Component: ContainedTriggerMenu },
     { name: 'detached triggers', Component: DetachedTriggerMenu },
   ])('when using $name', ({ Component: TestMenu }) => {
+    it('labels the popup by the active trigger and exposes menu trigger ARIA', async () => {
+      const { user } = await render(
+        <TestMenu
+          triggerProps={{ id: 'trigger-1' }}
+          submenuTriggerProps={{ id: 'submenu-trigger' }}
+        />,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
+
+      await user.click(trigger);
+
+      const popup = await screen.findByRole('menu');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(popup).toHaveAttribute('aria-labelledby', 'trigger-1');
+    });
+
+    it('labels an initially open popup by the rendered trigger id when a render override changes it', async () => {
+      await render(
+        <TestMenu
+          rootProps={{ open: true }}
+          triggerProps={{ render: <button id="rendered-trigger" type="button" /> }}
+        />,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      expect(trigger).toHaveAttribute('id', 'rendered-trigger');
+
+      const popup = screen.getByRole('menu');
+      expect(popup).toHaveAttribute('aria-labelledby', 'rendered-trigger');
+    });
+
+    it('reflects a controlled initially open menu on first render', async () => {
+      await render(
+        <TestMenu
+          rootProps={{ open: true, triggerId: 'trigger-1' }}
+          triggerProps={{ id: 'trigger-1' }}
+        />,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      const popup = screen.getByRole('menu');
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(popup).toHaveAttribute('aria-labelledby', 'trigger-1');
+    });
+
     describe('keyboard navigation', () => {
       it('changes the highlighted item using the arrow keys', async () => {
         await render(<TestMenu />);

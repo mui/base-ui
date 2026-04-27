@@ -77,11 +77,26 @@ export function popupConformanceTests(config: PopupTestConfig) {
         }
 
         if (triggerMouseAction === 'click') {
-          it('has the `aria-controls` attribute on the trigger', async () => {
+          it('has controlled-open trigger ARIA attributes', async () => {
             await render(prepareComponent({ root: { open: true } }));
             const trigger = getTrigger();
             const popup = getPopup();
+
+            expect(popup).not.toBe(null);
+            expect(trigger).toHaveAttribute('aria-expanded', 'true');
             expect(trigger).toHaveAttribute('aria-controls', popup?.id);
+          });
+
+          it('has the `aria-controls` attribute on the trigger', async () => {
+            const { user } = await render(prepareComponent({}));
+            const trigger = getTrigger();
+
+            await user.click(trigger);
+
+            await waitFor(() => {
+              const popup = getPopup();
+              expect(trigger).toHaveAttribute('aria-controls', popup?.id);
+            });
           });
 
           it('has the `aria-expanded` attribute on the trigger when open', async () => {
@@ -113,10 +128,16 @@ export function popupConformanceTests(config: PopupTestConfig) {
           }
 
           it('allows a custom `id` prop', async () => {
-            await render(prepareComponent({ root: { open: true }, popup: { id: 'TestId' } }));
+            const { user } = await render(prepareComponent({ popup: { id: 'TestId' } }));
             const trigger = getTrigger();
-            const popup = getPopup();
-            expect(trigger.getAttribute('aria-controls')).toBe(popup?.getAttribute('id'));
+
+            await user.click(trigger);
+
+            await waitFor(() => {
+              const popup = getPopup();
+              expect(popup).toHaveAttribute('id', 'TestId');
+              expect(trigger.getAttribute('aria-controls')).toBe('TestId');
+            });
           });
         }
       });

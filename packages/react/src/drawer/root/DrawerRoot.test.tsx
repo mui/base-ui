@@ -765,19 +765,34 @@ describe('<Drawer.Root />', () => {
     );
 
     await flushMicrotasks();
+    const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+    const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+    expect(trigger1).toHaveAttribute('aria-haspopup', 'dialog');
+    expect(trigger2).toHaveAttribute('aria-haspopup', 'dialog');
+    expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByTestId('payload')).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Trigger 1' }));
+    fireEvent.click(trigger1);
     await flushMicrotasks();
     expect(screen.getByTestId('payload').textContent).toBe('1');
+    expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger1).toHaveAttribute('aria-controls', screen.getByRole('dialog').id);
+    expect(trigger2).not.toHaveAttribute('aria-controls');
 
     fireEvent.click(screen.getByText('Close'));
     await flushMicrotasks();
     expect(screen.queryByTestId('payload')).toBeNull();
+    expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger1).not.toHaveAttribute('aria-controls');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Trigger 2' }));
+    fireEvent.click(trigger2);
     await flushMicrotasks();
     expect(screen.getByTestId('payload').textContent).toBe('2');
+    expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger2).toHaveAttribute('aria-controls', screen.getByRole('dialog').id);
+    expect(trigger1).not.toHaveAttribute('aria-controls');
   });
 
   it('resets the active snap point when closing', async () => {

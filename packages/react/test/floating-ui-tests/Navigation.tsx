@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useTestInteractions } from '#test-utils';
 import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
 import {
   flip,
@@ -15,7 +16,6 @@ import {
   useFloatingNodeId,
   useFocus,
   useHover,
-  useInteractions,
 } from '../../src/floating-ui-react';
 import styles from './Navigation.module.css';
 
@@ -61,7 +61,7 @@ export const NavigationItem = React.forwardRef<
     placement: 'right-start',
   });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
     useHover(hasChildren ? context : fallbackContext, {
       handleClose: safePolygon(),
     }),

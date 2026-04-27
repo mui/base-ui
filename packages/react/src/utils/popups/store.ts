@@ -1,10 +1,11 @@
 import { createSelector } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingRootContext } from '../../floating-ui-react/types';
+import { FloatingRootStore } from '../../floating-ui-react/components/FloatingRootStore';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
-import { HTMLProps } from '../../internals/types';
+import type { HTMLProps } from '../../internals/types';
 
 /**
  * State common to all popup stores.
@@ -95,6 +96,24 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
   };
 }
 
+export function createPopupFloatingRootContext(
+  triggerElements: PopupTriggerMap,
+  floatingId = '',
+  nested = false,
+) {
+  return new FloatingRootStore({
+    open: false,
+    transitionStatus: undefined,
+    floatingElement: null,
+    referenceElement: null,
+    triggerElements,
+    floatingId,
+    syncOnly: true,
+    nested,
+    onOpenChange: undefined,
+  });
+}
+
 export type PopupStoreContext<ChangeEventDetails> = {
   /**
    * Map of registered trigger elements.
@@ -120,8 +139,10 @@ const activeTriggerIdSelector = createSelector(
   (state: S) => state.triggerIdProp ?? state.activeTriggerId,
 );
 
+const openSelector = createSelector((state: S) => state.openProp ?? state.open);
+
 export const popupStoreSelectors = {
-  open: createSelector((state: S) => state.openProp ?? state.open),
+  open: openSelector,
   mounted: createSelector((state: S) => state.mounted),
   transitionStatus: createSelector((state: S) => state.transitionStatus),
   floatingRootContext: createSelector((state: S) => state.floatingRootContext),
@@ -143,8 +164,10 @@ export const popupStoreSelectors = {
    * Whether the popup is open and was activated by a trigger with the given ID.
    */
   isOpenedByTrigger: createSelector(
-    (state: S, triggerId: string | undefined) =>
-      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.open,
+    activeTriggerIdSelector,
+    openSelector,
+    (activeTriggerId, open, triggerId: string | undefined) =>
+      triggerId !== undefined && activeTriggerId === triggerId && open,
   ),
   /**
    * Whether the popup is mounted and was activated by a trigger with the given ID.

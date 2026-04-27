@@ -1,16 +1,57 @@
 'use client';
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
+import type { ReactStore } from '@base-ui/utils/store';
+import { useId } from '@base-ui/utils/useId';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
+import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
+import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import type { HTMLProps } from '../../internals/types';
 import {
-  PopupStoreState,
-  PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreSelectors,
+  type PopupStoreState,
+  type PopupStoreContext,
+  type PopupStoreSelectors,
 } from './store';
+
+export const FOCUSABLE_POPUP_PROPS = {
+  tabIndex: -1,
+  [FOCUSABLE_ATTRIBUTE]: '',
+} as HTMLProps<HTMLElement> & Record<typeof FOCUSABLE_ATTRIBUTE, string>;
+
+type PopupStoreWithOpen = ReactStore<any, PopupStoreContext<any>, PopupStoreSelectors> & {
+  setOpen(open: boolean, eventDetails: any): void;
+};
+
+export function usePopupStore<Store extends PopupStoreWithOpen>(
+  externalStore: Store | undefined,
+  createStore: (floatingId: string | undefined, nested: boolean) => Store,
+  treatPopupAsFloatingElement = false,
+) {
+  const floatingId = useId();
+  const nested = useFloatingParentNodeId() != null;
+
+  const internalStore = useRefWithInit(() => {
+    return createStore(floatingId, nested);
+  }).current;
+
+  const store = externalStore ?? internalStore;
+
+  useSyncedFloatingRootContext({
+    popupStore: store,
+    treatPopupAsFloatingElement,
+    floatingRootContext: store.state.floatingRootContext,
+    floatingId,
+    nested,
+    onOpenChange: store.setOpen,
+  });
+
+  return { store, internalStore };
+}
 
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
@@ -52,6 +93,28 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
     },
     [store, id],
   );
+}
+
+export function usePopupId<State extends PopupStoreState<any>>(
+  store: ReactStore<State, PopupStoreContext<any>, PopupStoreSelectors>,
+) {
+  const popupElement = store.useState('popupElement');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingId = floatingRootContext.useState('floatingId');
+
+  return popupElement?.id ?? floatingId;
+}
+
+export function setOpenTriggerState(
+  state: Partial<PopupStoreState<any>>,
+  open: boolean,
+  trigger: Element | undefined,
+) {
+  const triggerId = trigger?.id ?? null;
+  if (triggerId || open) {
+    state.activeTriggerId = triggerId;
+    state.activeTriggerElement = trigger ?? null;
+  }
 }
 
 /**
@@ -181,7 +244,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<any>>(
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
 
   useOpenChangeComplete({
-    enabled: !preventUnmountingOnClose,
+    enabled: mounted && !open && !preventUnmountingOnClose,
     open,
     ref: store.context.popupRef,
     onComplete() {
@@ -192,4 +255,25 @@ export function useOpenStateTransitions<State extends PopupStoreState<any>>(
   });
 
   return { forceUnmount, transitionStatus };
+}
+
+export function usePopupRootSync<
+  State extends PopupStoreState<any> & {
+    openMethod: unknown;
+  },
+>(store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>, open: boolean) {
+  React.useEffect(() => {
+    if (!open && store.state.openMethod !== null) {
+      store.set('openMethod', null);
+    }
+  }, [open, store]);
+
+  React.useEffect(
+    () => () => {
+      if (store.state.openMethod !== null) {
+        store.set('openMethod', null);
+      }
+    },
+    [store],
+  );
 }

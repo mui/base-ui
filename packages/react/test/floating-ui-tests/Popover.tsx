@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 'use client';
 import * as React from 'react';
+import { useTestInteractions } from '#test-utils';
 import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
 import type { Placement } from '../../src/floating-ui-react/types';
 import {
@@ -19,8 +20,6 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
   useHover,
-  useInteractions,
-  useRole,
 } from '../../src/floating-ui-react';
 import styles from './Popover.module.css';
 
@@ -124,14 +123,14 @@ function PopoverComponent({
   const id = React.useId();
   const labelId = `${id}-label`;
   const descriptionId = `${id}-description`;
+  const triggerId = `${id}-trigger`;
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
     useHover(hover ? context : fallbackContext, {
       handleClose: safePolygon({ blockPointerEvents: true }),
     }),
     useClick(context),
-    useRole(context),
     useDismiss(context, {
       bubbles,
     }),
@@ -144,6 +143,10 @@ function PopoverComponent({
           children,
           getReferenceProps({
             ref: refs.setReference,
+            id: triggerId,
+            'aria-haspopup': 'dialog',
+            'aria-expanded': open,
+            'aria-controls': open ? context.floatingId : undefined,
             'data-open': open ? '' : undefined,
           } as React.HTMLProps<Element>),
         )}
@@ -154,6 +157,8 @@ function PopoverComponent({
               className={styles.Floating}
               ref={refs.setFloating}
               style={floatingStyles}
+              id={context.floatingId}
+              role="dialog"
               aria-labelledby={labelId}
               aria-describedby={descriptionId}
               {...getFloatingProps()}

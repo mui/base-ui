@@ -335,6 +335,29 @@ describe('<AlertDialog.Root />', () => {
       });
       expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
+
+    it('keeps a custom popup id synchronized to the active trigger', async () => {
+      const { user } = await render(
+        <AlertDialog.Root>
+          <AlertDialog.Trigger>Trigger 1</AlertDialog.Trigger>
+          <AlertDialog.Trigger>Trigger 2</AlertDialog.Trigger>
+
+          <AlertDialog.Portal>
+            <AlertDialog.Popup id="custom-alert-dialog-id">Alert dialog content</AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+
+      const dialog = await screen.findByRole('alertdialog');
+      expect(dialog).toHaveAttribute('id', 'custom-alert-dialog-id');
+      expect(trigger1).toHaveAttribute('aria-controls', 'custom-alert-dialog-id');
+      expect(trigger2).not.toHaveAttribute('aria-controls');
+    });
   });
 
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {

@@ -482,7 +482,7 @@ describe('<Combobox.Trigger />', () => {
     });
   });
 
-  describe('aria attributes', () => {
+  describe('accessibility attributes', () => {
     it('sets aria-required attribute when required (input inside popup)', async () => {
       await render(
         <Combobox.Root required>
@@ -506,7 +506,7 @@ describe('<Combobox.Trigger />', () => {
       expect(trigger).not.toHaveAttribute('aria-required');
     });
 
-    it('sets all aria attributes on the input when closed', async () => {
+    it('sets all aria attributes on the trigger when closed', async () => {
       await render(
         <Combobox.Root>
           <Combobox.Trigger data-testid="trigger" />
@@ -528,7 +528,7 @@ describe('<Combobox.Trigger />', () => {
       expect(trigger).not.toHaveAttribute('aria-controls');
     });
 
-    it('sets all aria attributes on the input when open', async () => {
+    it('sets all aria attributes on the trigger when open', async () => {
       const { user } = await render(
         <Combobox.Root>
           <Combobox.Trigger data-testid="trigger" />

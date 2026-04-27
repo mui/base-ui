@@ -7,7 +7,7 @@ import { describeConformance, createRenderer } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Trigger />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
   const user = userEvent.setup();
 
   describeConformance(<Menu.Trigger />, () => ({
@@ -112,18 +112,19 @@ describe('<Menu.Trigger />', () => {
   });
 
   describe('accessibility attributes', () => {
-    it('has the aria-haspopup attribute', async () => {
-      await render(
+    it('sets closed trigger ARIA attributes during server render', () => {
+      renderToString(
         <Menu.Root>
-          <Menu.Trigger />
+          <Menu.Trigger data-testid="trigger">Open</Menu.Trigger>
         </Menu.Root>,
       );
 
-      const button = screen.getByRole('button');
-      expect(button).toHaveAttribute('aria-haspopup');
+      const button = screen.getByTestId('trigger');
+      expect(button).toHaveAttribute('aria-haspopup', 'menu');
+      expect(button).not.toHaveAttribute('aria-controls');
     });
 
-    it('has the aria-expanded=false attribute when closed', async () => {
+    it('sets closed trigger ARIA attributes after client render', async () => {
       await render(
         <Menu.Root>
           <Menu.Trigger />
@@ -131,18 +132,31 @@ describe('<Menu.Trigger />', () => {
       );
 
       const button = screen.getByRole('button');
+      expect(button).toHaveAttribute('aria-haspopup', 'menu');
       expect(button).toHaveAttribute('aria-expanded', 'false');
+      expect(button).not.toHaveAttribute('aria-controls');
     });
 
-    it('has the aria-expanded=true attribute when open', async () => {
+    it('links the open trigger to the popup', async () => {
       await render(
-        <Menu.Root open>
-          <Menu.Trigger>Toggle</Menu.Trigger>
+        <Menu.Root open triggerId="trigger">
+          <Menu.Trigger id="trigger">Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup id="popup">
+                <Menu.Item>Item</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
       const button = screen.getByRole('button', { name: 'Toggle' });
+      const popup = screen.getByRole('menu');
+
+      expect(button).toHaveAttribute('aria-haspopup', 'menu');
       expect(button).toHaveAttribute('aria-expanded', 'true');
+      expect(button).toHaveAttribute('aria-controls', popup.id);
     });
   });
 

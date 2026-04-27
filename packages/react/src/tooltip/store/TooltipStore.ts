@@ -1,16 +1,18 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type TooltipRoot } from '../root/TooltipRoot';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
+  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  setOpenTriggerState,
+  usePopupStore,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -47,14 +49,18 @@ export class TooltipStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  constructor(initialState?: Partial<State<Payload>>) {
+  constructor(initialState?: Partial<State<Payload>>, floatingId?: string, nested?: boolean) {
+    const triggerElements = new PopupTriggerMap();
+    const state = { ...createInitialState<Payload>(), ...initialState };
+    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+
     super(
-      { ...createInitialState(), ...initialState },
+      state,
       {
         popupRef: React.createRef<HTMLElement | null>(),
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
-        triggerElements: new PopupTriggerMap(),
+        triggerElements,
       },
       selectors,
     );
@@ -64,7 +70,18 @@ export class TooltipStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
+    const currentOpen = this.state.openProp ?? this.state.open;
     const reason = eventDetails.reason;
+    const nextTriggerId = eventDetails.trigger?.id ?? null;
+    const currentTriggerId = this.state.activeTriggerId;
+
+    const isAlreadyClosed = !currentOpen && !nextOpen;
+    const isAlreadyOpenByThisTrigger =
+      currentOpen && nextOpen && this.state.open && nextTriggerId === currentTriggerId;
+
+    if (isAlreadyClosed || isAlreadyOpenByThisTrigger) {
+      return;
+    }
 
     const isHover = reason === REASONS.triggerHover;
     const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
@@ -94,13 +111,7 @@ export class TooltipStore<Payload> extends ReactStore<
         updatedState.instantType = undefined;
       }
 
-      // If a popup is closing, the `trigger` may be null.
-      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-      const newTriggerId = eventDetails.trigger?.id ?? null;
-      if (newTriggerId || nextOpen) {
-        updatedState.activeTriggerId = newTriggerId;
-        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-      }
+      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
 
       this.update(updatedState);
     };
@@ -114,28 +125,24 @@ export class TooltipStore<Payload> extends ReactStore<
     }
   };
 
+  cancelPendingOpen(event: MouseEvent | PointerEvent) {
+    this.state.floatingRootContext.dispatchOpenChange(
+      false,
+      createChangeEventDetails(REASONS.triggerPress, event),
+    );
+  }
+
   static useStore<Payload>(
     externalStore: TooltipStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const internalStore = useRefWithInit(() => {
-      return new TooltipStore<Payload>(initialState);
-    }).current;
+    /* eslint-disable react-hooks/rules-of-hooks */
+    const { store } = usePopupStore(
+      externalStore,
+      (floatingId, nested) => new TooltipStore<Payload>(initialState, floatingId, nested),
+    );
+    /* eslint-enable react-hooks/rules-of-hooks */
 
-    const store = externalStore ?? internalStore;
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const floatingRootContext = useSyncedFloatingRootContext({
-      popupStore: store,
-      onOpenChange: store.setOpen,
-    });
-
-    // It's safe to set this here because when this code runs for the first time,
-    // nothing has had a chance to subscribe to the `store` yet.
-    // For subsequent renders, the `floatingRootContext` reference remains the same,
-    // so it's basically a no-op.
-    (store.state as State<any>).floatingRootContext = floatingRootContext;
     return store;
   }
 }
