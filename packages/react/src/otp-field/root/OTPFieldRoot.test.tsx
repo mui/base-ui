@@ -350,6 +350,25 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
       });
 
+      it('fires `input-paste` when a complete paste replaces a complete OTP', async () => {
+        const onValueComplete = vi.fn();
+
+        await render(<OTPField onValueComplete={onValueComplete} />);
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        pasteText(firstInput, '123456');
+        pasteText(firstInput, '654321');
+        pasteText(firstInput, '654321');
+
+        expect(onValueComplete).toHaveBeenCalledTimes(3);
+        expect(onValueComplete.mock.calls[0]?.[0]).toBe('123456');
+        expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
+        expect(onValueComplete.mock.calls[1]?.[0]).toBe('654321');
+        expect(onValueComplete.mock.calls[1]?.[1].reason).toBe(REASONS.inputPaste);
+        expect(onValueComplete.mock.calls[2]?.[0]).toBe('654321');
+        expect(onValueComplete.mock.calls[2]?.[1].reason).toBe(REASONS.inputPaste);
+      });
+
       it('fires `input-paste` when pasting into a middle slot completes the OTP', async () => {
         const onValueComplete = vi.fn();
 
