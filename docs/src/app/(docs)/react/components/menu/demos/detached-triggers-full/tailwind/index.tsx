@@ -36,22 +36,25 @@ type MenuKey = keyof typeof MENUS;
 const demoMenu = Menu.createHandle<MenuKey>();
 
 const triggerClass = `
-  flex h-10 items-center justify-center
-  rounded-md border border-gray-200 bg-gray-50
-  px-3.5 text-base font-normal text-gray-900
+  flex h-8 items-center justify-center
+  rounded-none border border-gray-950 bg-white
+  px-3 text-sm leading-5 font-normal text-gray-950
   select-none
-  hover:bg-gray-100 active:bg-gray-100 data-popup-open:bg-gray-100
+  hover:bg-gray-50 active:bg-gray-100 data-[popup-open]:bg-gray-100
+  dark:border-white dark:bg-gray-950 dark:text-white
+  dark:hover:bg-gray-900 dark:active:bg-gray-800 dark:data-[popup-open]:bg-gray-800
   focus-visible:outline focus-visible:outline-2
-  focus-visible:-outline-offset-1 focus-visible:outline-blue-800
+  focus-visible:-outline-offset-2 focus-visible:outline-blue-800
 `;
 
 const itemClass = `
   flex cursor-default py-2 pr-8 pl-4
   text-sm leading-4 outline-none select-none
-  data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50
+  data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-white
   data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1
   data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1]
-  data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900
+  data-[highlighted]:before:bg-gray-950 data-[highlighted]:before:content-['']
+  dark:data-[highlighted]:text-gray-950 dark:data-[highlighted]:before:bg-white
 `;
 
 export default function MenuDetachedTriggersFullDemo() {
@@ -83,15 +86,14 @@ export default function MenuDetachedTriggersFullDemo() {
               <Menu.Popup
                 className={`
                   relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] py-1
-                  origin-[var(--transform-origin)] rounded-md
-                  bg-[canvas] text-gray-900 shadow-lg shadow-gray-200
-                  outline outline-1 outline-gray-200
+                  origin-[var(--transform-origin)] border border-gray-950
+                  bg-white text-gray-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))]
                   transition-[width,height,opacity,scale]
                   duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]
                   data-[starting-style]:scale-90 data-[starting-style]:opacity-0
                   data-[ending-style]:scale-90 data-[ending-style]:opacity-0
                   data-instant:transition-none
-                  dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300
+                  dark:border-white dark:bg-gray-950 dark:text-white dark:[filter:none]
                 `}
               >
                 <Menu.Arrow
@@ -137,7 +139,7 @@ export default function MenuDetachedTriggersFullDemo() {
                       <React.Fragment key={groupIndex}>
                         <Menu.Group>
                           {groupIndex === 0 && (
-                            <Menu.GroupLabel className="px-4 py-2 text-xs tracking-[0.05em] text-gray-500 uppercase">
+                            <Menu.GroupLabel className="px-4 py-2 text-xs tracking-[0.05em] text-gray-600 uppercase dark:text-gray-400">
                               {MENUS[payload].heading}
                             </Menu.GroupLabel>
                           )}
@@ -148,7 +150,7 @@ export default function MenuDetachedTriggersFullDemo() {
                           ))}
                         </Menu.Group>
                         {groupIndex < MENUS[payload].groups.length - 1 && (
-                          <Menu.Separator className="mx-4 my-1.5 h-px bg-gray-200" />
+                          <Menu.Separator className="mx-1 my-1 h-px bg-gray-950 dark:bg-white" />
                         )}
                       </React.Fragment>
                     ))}
@@ -167,15 +169,15 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <path
         d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
-        className="fill-[canvas]"
+        className="fill-white dark:fill-gray-950"
       />
       <path
         d="M8.99542 1.85876C9.75604 1.17425 10.9106 1.17422 11.6713 1.85878L16.5281 6.22989C17.0789 6.72568 17.7938 7.00001 18.5349 7.00001L15.89 7L11.0023 2.60207C10.622 2.2598 10.0447 2.2598 9.66436 2.60207L4.77734 7L2.13171 7.00001C2.87284 7.00001 3.58774 6.72568 4.13861 6.22989L8.99542 1.85876Z"
-        className="fill-gray-200 dark:fill-none"
+        className="fill-gray-950 dark:fill-white"
       />
       <path
         d="M10.3333 3.34539L5.47654 7.71648C4.55842 8.54279 3.36693 9 2.13172 9H0V8H2.13172C3.11989 8 4.07308 7.63423 4.80758 6.97318L9.66437 2.60207C10.0447 2.25979 10.622 2.2598 11.0023 2.60207L15.8591 6.97318C16.5936 7.63423 17.5468 8 18.5349 8H20V9H18.5349C17.2998 9 16.1083 8.54278 15.1901 7.71648L10.3333 3.34539Z"
-        className="dark:fill-gray-300"
+        className="fill-white dark:fill-gray-950"
       />
     </svg>
   );
