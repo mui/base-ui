@@ -147,6 +147,10 @@
     background-color: light-dark(var(--color-gray-950), white);
   }
 
+  &[data-highlighted][data-popup-open]::before {
+    background-color: light-dark(var(--color-gray-950), white);
+  }
+
   &[data-disabled] {
     color: light-dark(var(--color-gray-500), var(--color-gray-400));
   }
