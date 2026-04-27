@@ -42,7 +42,7 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
       height="10"
       viewBox="0 0 10 10"
       fill="none"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeWidth="1.6"
       {...props}
     >
@@ -58,7 +58,7 @@ function MinusIcon(props: React.ComponentProps<'svg'>) {
       height="10"
       viewBox="0 0 10 10"
       fill="none"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeWidth="1.6"
       {...props}
     >
