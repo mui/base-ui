@@ -22,9 +22,7 @@ export default function OTPFieldGroupedDemo() {
             />
           ))}
         </div>
-        <OTPField.Separator className={styles.Separator}>
-          <SeparatorMark className={styles.SeparatorIcon} />
-        </OTPField.Separator>
+        <OTPField.Separator className={styles.Separator} />
         <div className={styles.Group}>
           {Array.from({ length: 3 }, (_, index) => (
             <OTPField.Input
@@ -36,13 +34,5 @@ export default function OTPFieldGroupedDemo() {
         </div>
       </OTPField.Root>
     </div>
-  );
-}
-
-function SeparatorMark(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 20 4" width="20" height="4" fill="none" {...props}>
-      <path d="M2 2H18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
   );
 }
