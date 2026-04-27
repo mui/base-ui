@@ -8,7 +8,7 @@ export default function OTPFieldGroupedDemo() {
 
   return (
     <div className="flex w-full max-w-80 flex-col items-start gap-1">
-      <label htmlFor={id} className="text-sm font-bold text-gray-900">
+      <label htmlFor={id} className="text-sm leading-5 font-bold text-gray-950 dark:text-white">
         Verification code
       </label>
       <OTPField.Root id={id} length={OTP_LENGTH} className="flex w-full items-center gap-2">
@@ -16,32 +16,22 @@ export default function OTPFieldGroupedDemo() {
           {Array.from({ length: 3 }, (_, index) => (
             <OTPField.Input
               key={index}
-              className="box-border m-0 h-11 w-10 rounded-lg border border-gray-300 bg-transparent text-center font-inherit text-lg font-medium text-gray-900 outline-none focus:outline-solid focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+              className="box-border m-0 h-10 w-10 rounded-none border border-gray-950 bg-transparent text-center font-inherit text-base font-normal text-gray-950 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white"
               aria-label={`Character ${index + 1} of ${OTP_LENGTH}`}
             />
           ))}
         </div>
-        <OTPField.Separator className="flex w-4 items-center justify-center text-gray-500">
-          <SeparatorMark />
-        </OTPField.Separator>
+        <OTPField.Separator className="h-px w-4 bg-current text-gray-950 dark:text-white" />
         <div className="flex gap-2">
           {Array.from({ length: 3 }, (_, index) => (
             <OTPField.Input
               key={index + 3}
-              className="box-border m-0 h-11 w-10 rounded-lg border border-gray-300 bg-transparent text-center font-inherit text-lg font-medium text-gray-900 outline-none focus:outline-solid focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+              className="box-border m-0 h-10 w-10 rounded-none border border-gray-950 bg-transparent text-center font-inherit text-base font-normal text-gray-950 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white"
               aria-label={`Character ${index + 4} of ${OTP_LENGTH}`}
             />
           ))}
         </div>
       </OTPField.Root>
     </div>
-  );
-}
-
-function SeparatorMark(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 20 4" width="20" height="4" fill="none" {...props}>
-      <path d="M2 2H18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
   );
 }
