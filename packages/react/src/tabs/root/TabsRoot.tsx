@@ -68,7 +68,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   } = componentProps;
 
   // Treat `defaultValue={undefined}` the same as omitting the prop entirely.
-  // This keeps mount-time fallback behavior aligned with React's usual prop semantics.
   const hasExplicitDefaultValueProp = defaultValueProp !== undefined;
   const resolvedDefaultValue = hasExplicitDefaultValueProp ? defaultValueProp : 0;
 
@@ -202,6 +201,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     },
   );
 
+  const notifyAutoSelection = useStableCallback(
+    (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
+      onValueChangeProp?.(newValue, eventDetails);
+    },
+  );
+
   const registerMountedTabPanel = useStableCallback(
     (panelValue: TabsTab.Value | number, panelId: string) => {
       setMountedTabPanels((prev) => {
@@ -240,13 +245,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
   const getTabIdByPanelValue = React.useCallback(
-    (tabPanelValue: TabsTab.Value) => {
-      if (!derivedTabData.tabIdByValue.has(tabPanelValue)) {
-        return null;
-      }
+    (tabPanelValue: TabsTab.Value) => derivedTabData.tabIdByValue.get(tabPanelValue),
+    [derivedTabData],
+  );
 
-      return derivedTabData.tabIdByValue.get(tabPanelValue);
-    },
+  const hasRegisteredTabForPanel = React.useCallback(
+    (tabPanelValue: TabsTab.Value) => derivedTabData.tabIdByValue.has(tabPanelValue),
     [derivedTabData],
   );
 
@@ -255,6 +259,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
+      hasRegisteredTabForPanel,
       onValueChange,
       orientation,
       registerMountedTabPanel,
@@ -268,6 +273,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
+      hasRegisteredTabForPanel,
       onValueChange,
       orientation,
       registerMountedTabPanel,
@@ -288,9 +294,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const hasRegisteredTabRef = React.useRef(false);
 
   // When `defaultValue` explicitly points to a disabled tab, we honor that choice
-  // on mount (keeping the disabled tab selected). But once the tab becomes enabled
-  // and then disabled again, we treat it as a dynamic change and fire onValueChange.
-  // This ref tracks whether the initial "honor disabled default" grace period is active.
+  // on mount (keeping the disabled tab selected). Any subsequent change to the value
+  // or to that tab's disabled status ends the grace period — afterwards the disabled
+  // selection is treated like any other dynamic disabled-selection fallback.
   const honorDisabledDefaultRef = React.useRef(false);
 
   useIsoLayoutEffect(() => {
@@ -332,11 +338,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       activationDirection: 'none' as const,
     });
 
-    // Notify the user's callback directly (bypassing the standard onValueChange
-    // which would recompute activationDirection). Then always apply the fallback
-    // — cancel() is a no-op for automatic selections since the disabled/missing
-    // tab can't stay selected.
-    onValueChangeProp?.(decision.nextValue, eventDetails);
+    // Notify the user's callback directly, bypassing the standard onValueChange
+    // (which would recompute activationDirection). We don't read isCanceled here:
+    // a disabled or missing tab can't remain selected, so cancel() has no effect.
+    notifyAutoSelection(decision.nextValue, eventDetails);
     setValue(decision.nextValue);
     setActivationDirectionState({
       previousValue: decision.nextValue,
@@ -347,7 +352,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     derivedTabData.selectedTabMetadata,
     hasExplicitDefaultValueProp,
     isControlled,
-    onValueChangeProp,
+    notifyAutoSelection,
     resolvedDefaultValue,
     setValue,
     tabMap,
@@ -524,9 +529,6 @@ function resolveAutoSelection(input: ResolveAutoSelectionInput): ResolveAutoSele
 
   let nextHonorDisabledDefault = previousHonorDisabledDefault;
 
-  // An explicit disabled default is honored only for the initial mount state.
-  // Once that tab becomes enabled and later disabled again, we treat it like any
-  // other dynamic disabled-selection fallback.
   if (isInitialRun) {
     nextHonorDisabledDefault =
       hasExplicitDefaultValueProp && value === resolvedDefaultValue && selectionIsDisabled;

@@ -36,6 +36,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   const {
     value: selectedValue,
     getTabIdByPanelValue,
+    hasRegisteredTabForPanel,
     orientation,
     tabActivationDirection,
     tabRegistrationSettled,
@@ -58,7 +59,12 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   });
 
   const correspondingTabId = getTabIdByPanelValue(value);
-  const open = value === selectedValue && (!tabRegistrationSettled || correspondingTabId !== null);
+  // Until the initial registration pass settles, allow opening based on `value`
+  // alone so SSR-rendered content paints without a flash. Afterwards, the panel
+  // must have a corresponding tab — opening one without a matching tab forces the
+  // auto-select effect to swap selection again, causing a remount loop.
+  const open =
+    value === selectedValue && (!tabRegistrationSettled || hasRegisteredTabForPanel(value));
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
   const hidden = !mounted;
 
@@ -76,7 +82,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     ref: [forwardedRef, listItemRef, panelRef],
     props: [
       {
-        'aria-labelledby': correspondingTabId ?? undefined,
+        'aria-labelledby': correspondingTabId,
         hidden,
         id,
         role: 'tabpanel',

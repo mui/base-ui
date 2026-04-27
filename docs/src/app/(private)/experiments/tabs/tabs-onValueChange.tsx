@@ -36,6 +36,7 @@ export default function TabsRegressionExperiment() {
   const [appliedDefaultValue, setAppliedDefaultValue] = React.useState<Tabs.Tab.Value | undefined>(
     0,
   );
+  const [keepPanelsMounted, setKeepPanelsMounted] = React.useState(true);
   const [mountKey, setMountKey] = React.useState(0);
   const [events, setEvents] = React.useState<ChangeEventEntry[]>([]);
 
@@ -67,6 +68,7 @@ export default function TabsRegressionExperiment() {
     setTabs(INITIAL_TABS);
     setDefaultValueInput('0');
     setAppliedDefaultValue(0);
+    setKeepPanelsMounted(true);
     setEvents([]);
     setMountKey((prevKey) => prevKey + 1);
   }, []);
@@ -92,13 +94,15 @@ export default function TabsRegressionExperiment() {
           <h1 className={classes.title}>Tabs onValueChange</h1>
           <p className={classes.description}>
             Toggle tabs on and off, change the next <code>defaultValue</code>, then remount to test
-            fallback behavior manually. Panels stay mounted so stale visibility is easy to spot.
+            fallback behavior manually. Switch panel mounting modes to check stale visibility and
+            remount behavior.
           </p>
         </div>
         <div className={classes.summary}>
           <div>Mount key: {mountKey}</div>
           <div>Next defaultValue: {formatValue(parsedDefaultValue)}</div>
           <div>Rendered tabs: {renderedTabs.length}</div>
+          <div>Panels keepMounted: {keepPanelsMounted ? 'yes' : 'no'}</div>
         </div>
       </div>
 
@@ -126,6 +130,11 @@ export default function TabsRegressionExperiment() {
                 Reset everything
               </Button>
             </div>
+            <Switch
+              label="Keep panels mounted"
+              checked={keepPanelsMounted}
+              onCheckedChange={setKeepPanelsMounted}
+            />
           </div>
 
           <div className={classes.tabControls}>
@@ -180,7 +189,7 @@ export default function TabsRegressionExperiment() {
                   key={tab.id}
                   className={clsx(sharedTabsClasses.panel, !tab.rendered && classes.panelGhost)}
                   value={tab.id}
-                  keepMounted
+                  keepMounted={keepPanelsMounted}
                 >
                   <div className={classes.panelDetails}>
                     <strong>{tab.label}</strong>

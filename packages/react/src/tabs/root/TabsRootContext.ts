@@ -22,10 +22,16 @@ export interface TabsRootContext {
   getTabElementBySelectedValue: (selectedValue: TabsTab.Value | undefined) => HTMLElement | null;
   /**
    * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value.
-   * Returns `null` when no corresponding Tab has registered.
+   * Returns `undefined` when no corresponding Tab has registered or the registered
+   * Tab has no id assigned yet.
    * @param (any) panelValue Value to find the Tab for.
    */
-  getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined | null;
+  getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined;
+  /**
+   * Returns `true` when a Tab has registered for the given TabPanel value.
+   * @param (any) panelValue Value to find the Tab for.
+   */
+  hasRegisteredTabForPanel: (panelValue: TabsTab.Value) => boolean;
   /**
    * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value.
    * @param (any) tabValue Value to find the TabPanel for.
