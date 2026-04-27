@@ -12,7 +12,7 @@ import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
-import { useCSPContext } from '../../csp-provider/CSPContext';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,

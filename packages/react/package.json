@@ -76,6 +76,7 @@
     "./internals/composite": "./src/internals/composite/index.ts",
     "./internals/constants": "./src/internals/constants.ts",
     "./internals/createBaseUIEventDetails": "./src/internals/createBaseUIEventDetails.ts",
+    "./internals/csp-context": "./src/internals/csp-context/index.ts",
     "./internals/direction-context": "./src/internals/direction-context/index.ts",
     "./internals/field-constants": "./src/internals/field-constants/index.ts",
     "./internals/field-register-control": "./src/internals/field-register-control/index.ts",
