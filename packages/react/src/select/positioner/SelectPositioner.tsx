@@ -184,7 +184,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
           setValue(nextValue, eventDetails);
 
           if (nextValue === null) {
-            store.set('selectedIndex', null);
             selectedItemTextRef.current = null;
           }
         }
@@ -204,7 +203,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
           setValue(nextValue, eventDetails);
 
           if (nextValue.length === 0) {
-            store.set('selectedIndex', null);
             selectedItemTextRef.current = null;
           }
         }

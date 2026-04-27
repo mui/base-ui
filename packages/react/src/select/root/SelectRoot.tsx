@@ -33,7 +33,7 @@ import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
-import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { defaultItemEquality } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
@@ -115,6 +115,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const scrollArrowsMountedCountRef = React.useRef(0);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
+  const initialValueRef = React.useRef(value);
   const typingRef = React.useRef(false);
   const keyboardActiveRef = React.useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
@@ -145,7 +146,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         forceMount: false,
         openMethod: null,
         activeIndex: null,
-        selectedIndex: null,
+        itemValues: EMPTY_ARRAY,
         popupProps: {},
         triggerProps: {},
         triggerElement: null,
@@ -188,44 +189,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     getValue: getFieldValue,
   });
 
-  const initialValueRef = React.useRef(value);
-  useIsoLayoutEffect(() => {
-    // Ensure the values and labels are registered for programmatic value changes.
-    if (value !== initialValueRef.current) {
-      store.set('forceMount', true);
-    }
-  }, [store, value]);
-
   useIsoLayoutEffect(() => {
     setFilled(multiple ? Array.isArray(value) && value.length > 0 : value != null);
   }, [multiple, value, setFilled]);
 
-  useIsoLayoutEffect(
-    function syncSelectedIndex() {
-      if (open) {
-        return;
-      }
-
-      const registry = valuesRef.current;
-
-      if (multiple) {
-        const currentValue = Array.isArray(value) ? value : [];
-        if (currentValue.length === 0) {
-          store.set('selectedIndex', null);
-          return;
-        }
-
-        const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-        store.set('selectedIndex', lastIndex === -1 ? null : lastIndex);
-        return;
-      }
-
-      const index = findItemIndex(registry, value as Value, isItemEqualToValue);
-      store.set('selectedIndex', index === -1 ? null : index);
-    },
-    [multiple, open, value, valuesRef, isItemEqualToValue, store],
-  );
+  useIsoLayoutEffect(() => {
+    if (!open && selectedIndex === null) {
+      selectedItemTextRef.current = null;
+    }
+  }, [open, selectedIndex]);
 
   useValueChanged(value, () => {
     clearErrors(name);

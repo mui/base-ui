@@ -876,6 +876,405 @@ describe('<Combobox.Root />', () => {
         });
       });
 
+      it('derives selectedIndex on first open after a programmatic value change without the items prop', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>(null);
+
+          return (
+            <React.Fragment>
+              <button type="button" data-testid="set-external" onClick={() => setValue('banana')}>
+                Set external
+              </button>
+              <Combobox.Root value={value} onValueChange={setValue}>
+                <Combobox.Input data-testid="input" />
+                <SelectedIndexProbe />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="apple">apple</Combobox.Item>
+                        <Combobox.Item value="banana">banana</Combobox.Item>
+                        <Combobox.Item value="cherry">cherry</Combobox.Item>
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        expect(screen.queryByRole('listbox')).toBe(null);
+
+        await user.click(screen.getByTestId('set-external'));
+
+        expect(screen.getByTestId('selected-index').textContent).toBe('null');
+        expect(screen.queryByRole('listbox')).toBe(null);
+
+        await user.click(screen.getByTestId('input'));
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('1');
+        });
+
+        expect(screen.getByRole('option', { name: 'banana' })).toHaveAttribute(
+          'aria-selected',
+          'true',
+        );
+      });
+
+      it('highlights the selected item on open after a programmatic value change without the items prop', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>(null);
+
+          return (
+            <React.Fragment>
+              <button type="button" data-testid="set-external" onClick={() => setValue('banana')}>
+                Set external
+              </button>
+              <Combobox.Root value={value} onValueChange={setValue}>
+                <Combobox.Input data-testid="input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="apple">apple</Combobox.Item>
+                        <Combobox.Item value="banana">banana</Combobox.Item>
+                        <Combobox.Item value="cherry">cherry</Combobox.Item>
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByTestId('set-external'));
+        await user.click(screen.getByTestId('input'));
+
+        const input = screen.getByRole('combobox');
+        const banana = await screen.findByRole('option', { name: 'banana' });
+
+        await waitFor(() => {
+          expect(banana).toHaveAttribute('data-highlighted');
+          expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+        });
+      });
+
+      it('does not highlight a removed selected item on reopen without the items prop', async () => {
+        function App() {
+          const [showCherry, setShowCherry] = React.useState(true);
+
+          return (
+            <React.Fragment>
+              <button
+                type="button"
+                data-testid="remove-cherry"
+                onClick={() => setShowCherry(false)}
+              >
+                Remove cherry
+              </button>
+              <Combobox.Root value="cherry">
+                <Combobox.Input data-testid="input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="apple">apple</Combobox.Item>
+                        <Combobox.Item value="banana">banana</Combobox.Item>
+                        {showCherry && <Combobox.Item value="cherry">cherry</Combobox.Item>}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        const cherry = await screen.findByRole('option', { name: 'cherry' });
+
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+        });
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+        });
+
+        await user.click(screen.getByTestId('remove-cherry'));
+        await user.click(input);
+        await screen.findByRole('option', { name: 'apple' });
+        await flushMicrotasks();
+
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      it.skipIf(isJSDOM)(
+        'scrolls the selected item into view on open without the items prop',
+        async () => {
+          const items = Array.from({ length: 30 }, (_, index) => `item-${index}`);
+
+          function App() {
+            const [value, setValue] = React.useState<string | null>(null);
+
+            return (
+              <React.Fragment>
+                <button
+                  type="button"
+                  data-testid="set-external"
+                  onClick={() => setValue('item-25')}
+                >
+                  Set external
+                </button>
+                <Combobox.Root value={value} onValueChange={setValue}>
+                  <Combobox.Input data-testid="input" />
+                  <Combobox.Portal>
+                    <Combobox.Positioner>
+                      <Combobox.Popup
+                        data-testid="popup"
+                        style={{ maxHeight: 80, overflow: 'auto' }}
+                      >
+                        <Combobox.List>
+                          {items.map((item) => (
+                            <Combobox.Item
+                              key={item}
+                              value={item}
+                              style={{ display: 'block', height: 24 }}
+                            >
+                              {item}
+                            </Combobox.Item>
+                          ))}
+                        </Combobox.List>
+                      </Combobox.Popup>
+                    </Combobox.Positioner>
+                  </Combobox.Portal>
+                </Combobox.Root>
+              </React.Fragment>
+            );
+          }
+
+          const { user } = await render(<App />);
+
+          await user.click(screen.getByTestId('set-external'));
+          await user.click(screen.getByTestId('input'));
+
+          const popup = screen.getByTestId('popup');
+          const option = await screen.findByRole('option', { name: 'item-25' });
+
+          await waitFor(() => {
+            expect(option).toHaveAttribute('data-highlighted');
+            expect(popup.scrollTop).toBeGreaterThan(0);
+
+            const popupRect = popup.getBoundingClientRect();
+            const optionRect = option.getBoundingClientRect();
+            expect(optionRect.top).toBeGreaterThanOrEqual(popupRect.top);
+            expect(optionRect.bottom).toBeLessThanOrEqual(popupRect.bottom);
+          });
+        },
+      );
+
+      it('re-syncs selectedIndex after an external controlled update when closing without the items prop', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>('apple');
+
+          return (
+            <Combobox.Root value={value} onValueChange={setValue}>
+              <Combobox.Input data-testid="input" />
+              <SelectedIndexProbe />
+              <button type="button" data-testid="set-external" onClick={() => setValue('cherry')}>
+                Set external
+              </button>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="apple">apple</Combobox.Item>
+                      <Combobox.Item value="banana">banana</Combobox.Item>
+                      <Combobox.Item value="cherry">cherry</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('0');
+        });
+
+        await user.click(screen.getByTestId('set-external'));
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).toBe(null);
+          expect(screen.getByTestId('selected-index').textContent).toBe('2');
+        });
+
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('2');
+        });
+      });
+
+      it('resets selectedIndex when clearing all selections while open without the items prop', async () => {
+        function App() {
+          const [value, setValue] = React.useState(['apple', 'banana']);
+
+          return (
+            <Combobox.Root multiple value={value} onValueChange={setValue}>
+              <Combobox.Input data-testid="input" />
+              <SelectedIndexProbe />
+              <button type="button" data-testid="clear" onClick={() => setValue([])}>
+                Clear
+              </button>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="apple">apple</Combobox.Item>
+                      <Combobox.Item value="banana">banana</Combobox.Item>
+                      <Combobox.Item value="cherry">cherry</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByTestId('input'));
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+        expect(screen.getByTestId('selected-index').textContent).toBe('1');
+
+        await user.click(screen.getByTestId('clear'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('null');
+        });
+      });
+
+      it('starts keyboard navigation from the filtered items after filtering out the selected item', async () => {
+        const items = ['apple', 'banana', 'cherry'];
+
+        const { user } = await render(
+          <Combobox.Root items={items} multiple defaultValue={['cherry']}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        await user.type(input, 'ba');
+        const banana = await screen.findByRole('option', { name: 'banana' });
+
+        await user.keyboard('{ArrowDown}');
+
+        await waitFor(() => {
+          expect(banana).toHaveAttribute('data-highlighted');
+        });
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+        });
+      });
+
+      it('updates derived indices when an item unmounts while closed but kept mounted', async () => {
+        function App() {
+          const [showCherry, setShowCherry] = React.useState(true);
+
+          return (
+            <React.Fragment>
+              <button
+                type="button"
+                data-testid="remove-cherry"
+                onClick={() => setShowCherry(false)}
+              >
+                Remove cherry
+              </button>
+              <Combobox.Root value="cherry">
+                <Combobox.Input data-testid="input" />
+                <SelectedIndexProbe />
+                <Combobox.Portal keepMounted>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="apple">apple</Combobox.Item>
+                        <Combobox.Item value="banana">banana</Combobox.Item>
+                        {showCherry && <Combobox.Item value="cherry">cherry</Combobox.Item>}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const input = screen.getByTestId('input');
+
+        await user.click(input);
+        await screen.findByRole('option', { name: 'cherry' });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('2');
+        });
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-expanded', 'false');
+        });
+
+        await user.click(screen.getByTestId('remove-cherry'));
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('null');
+        });
+
+        await user.click(input);
+
+        await screen.findByRole('option', { name: 'apple' });
+
+        await waitFor(() => {
+          expect(input).not.toHaveAttribute('aria-activedescendant');
+        });
+      });
+
       it('should create multiple hidden inputs for form submission', async () => {
         const items = ['a', 'b', 'c'];
         await render(
