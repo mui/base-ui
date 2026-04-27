@@ -56,10 +56,11 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const markedDirtyRef = React.useRef(false);
   const registeredFieldIdRef = React.useRef<string | undefined>(undefined);
-  const getRegisteredFieldId = useStableCallback(() => registeredFieldIdRef.current);
-  const setRegisteredFieldId = useStableCallback((id: string | undefined) => {
+
+  const getRegisteredFieldId = React.useCallback(() => registeredFieldIdRef.current, []);
+  const setRegisteredFieldId = React.useCallback((id: string | undefined) => {
     registeredFieldIdRef.current = id;
-  });
+  }, []);
 
   const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {
