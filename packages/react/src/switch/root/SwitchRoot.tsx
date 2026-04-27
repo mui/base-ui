@@ -6,24 +6,24 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useButton } from '../../use-button';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useButton } from '../../internals/use-button';
 import { SwitchRootContext } from './SwitchRootContext';
 import { stateAttributesMapping } from '../stateAttributesMapping';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
-import { useValueChanged } from '../../utils/useValueChanged';
+import { useValueChanged } from '../../internals/useValueChanged';
 
 /**
  * Represents the switch itself.
@@ -198,6 +198,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
               return;
             }
 
+            if (readOnly) {
+              event.preventDefault();
+              return;
+            }
+
             const nextChecked = event.currentTarget.checked;
             const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
@@ -226,6 +231,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       hiddenInputId,
       name,
       onCheckedChange,
+      readOnly,
       required,
       setCheckedState,
       validation,
@@ -257,7 +263,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       {!checked && name && uncheckedValue !== undefined && (
         <input type="hidden" form={form} name={name} value={uncheckedValue} />
       )}
-      <input {...inputProps} />
+      <input {...inputProps} suppressHydrationWarning />
     </SwitchRootContext.Provider>
   );
 });

@@ -19,7 +19,7 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { LabelableProvider } from '../../labelable-provider';
+import { LabelableProvider } from '../../internals/labelable-provider';
 
 describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();

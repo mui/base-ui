@@ -4,7 +4,7 @@ import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 describe('<Combobox.Input />', () => {
   const { render } = createRenderer();
@@ -505,6 +505,68 @@ describe('<Combobox.Input />', () => {
       expect(input.value).toBe('abxxxycd');
       expect(input.selectionStart).toBe(6);
       expect(input.selectionEnd).toBe(6);
+    });
+
+    it('removes the last rendered chip when pressing Backspace in an empty input', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root
+          multiple
+          defaultValue={['apple', 'banana', 'cherry']}
+          onValueChange={handleValueChange}
+        >
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: string[]) => (
+                <React.Fragment>
+                  {value.slice(0, 2).map((item) => (
+                    <Combobox.Chip key={item}>{item}</Combobox.Chip>
+                  ))}
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.keyboard('{Backspace}');
+
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['apple', 'cherry']);
+    });
+
+    it('removes the last selected value when no chips are rendered', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root
+          multiple
+          defaultValue={['apple', 'banana']}
+          onValueChange={handleValueChange}
+        >
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: string[]) => (
+                <React.Fragment>
+                  <span>{`+${value.length} selected`}</span>
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.keyboard('{Backspace}');
+
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['apple']);
     });
 
     it('closes the popup when tabbing out', async () => {

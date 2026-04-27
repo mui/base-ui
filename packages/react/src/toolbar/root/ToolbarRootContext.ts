@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { Orientation } from '../../utils/types';
-import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import type { Orientation } from '../../internals/types';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { ToolbarRoot } from './ToolbarRoot';
 
 export interface ToolbarRootContext {

@@ -2,12 +2,12 @@
 import * as React from 'react';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
-import { fieldValidityMapping } from '../../field/utils/constants';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { DEFAULT_STEP } from '../utils/constants';
 import {
   ARABIC_DETECT_RE,
@@ -23,14 +23,14 @@ import {
 } from '../utils/parse';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
+} from '../../internals/createBaseUIEventDetails';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
-import { useValueChanged } from '../../utils/useValueChanged';
-import { REASONS } from '../../utils/reasons';
+import { useValueChanged } from '../../internals/useValueChanged';
+import { REASONS } from '../../internals/reasons';
 
 const stateAttributesMapping = {
   ...fieldValidityMapping,
@@ -212,9 +212,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       // Normalize only the displayed text
       const canonicalText = formatNumber(committed, locale, formatOptions);
-      const maxPrecisionText = formatNumberMaxPrecision(parsedValue, locale, formatOptions);
       const shouldPreserveFullPrecision =
-        !hasExplicitPrecision && parsedValue === value && inputValue === maxPrecisionText;
+        !hasExplicitPrecision &&
+        parsedValue === value &&
+        inputValue === formatNumberMaxPrecision(parsedValue, locale, formatOptions);
 
       if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
         setInputValue(canonicalText);

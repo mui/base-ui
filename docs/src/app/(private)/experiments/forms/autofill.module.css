@@ -1,5 +1,4 @@
 .Page {
-  font-family: var(--font-sans);
   padding: 24px;
   display: flex;
   flex-direction: column;

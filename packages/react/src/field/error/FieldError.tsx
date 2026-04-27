@@ -2,17 +2,17 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { type FieldRootState } from '../root/FieldRoot';
-import { useFieldRootContext } from '../root/FieldRootContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { fieldValidityMapping } from '../utils/constants';
-import { useFormContext } from '../../form/FormContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import type { BaseUIComponentProps } from '../../internals/types';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
 
 const stateAttributesMapping: StateAttributesMapping<FieldErrorState> = {
   ...fieldValidityMapping,

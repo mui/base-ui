@@ -13,8 +13,8 @@ import {
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../createBaseUIEventDetails';
-import { REASONS } from '../reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Minimal store interface required by the focus guard hook.

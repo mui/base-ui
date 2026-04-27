@@ -1,7 +1,7 @@
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { fieldValidityMapping } from '../../field/utils/constants';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import { RadioRootDataAttributes } from '../root/RadioRootDataAttributes';
 
 export const stateAttributesMapping = {

@@ -1,4 +1,4 @@
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { MenuStore } from './MenuStore';
 
 export class MenuHandle<Payload> {

@@ -40,14 +40,20 @@
     --color-prettylights-syntax-meta-diff-range: var(--color-violet);
 
     /* Docs-infra extensions for concepts not in prettylights */
+    --color-docs-infra-syntax-number: var(--color-blue);
+    --color-docs-infra-syntax-boolean: var(--color-blue);
     --color-docs-infra-syntax-nullish: var(--color-gray-500);
-    --color-docs-infra-syntax-other: var(--color-foreground);
-    --color-docs-infra-syntax-bracket-tag: var(--color-gray);
-    --color-docs-infra-syntax-bracket-curly: var(--color-gray);
-    --color-docs-infra-syntax-bracket-round: var(--color-gray);
-    --color-docs-infra-syntax-bracket-square: var(--color-gray);
-    --color-docs-infra-syntax-bracket-angle: var(--color-gray);
-    --color-docs-infra-syntax-bracket-quote: var(--color-gray);
+    --color-docs-infra-syntax-attr-key: var(--color-violet);
+    --color-docs-infra-syntax-attr-value: var(--color-navy);
+    --color-docs-infra-syntax-attr-equals: var(--color-red);
+    --color-docs-infra-syntax-data-attr: var(--color-blue);
+    --color-docs-infra-syntax-css-property: var(--color-foreground);
+    --color-docs-infra-syntax-css-value: var(--color-blue);
+    --color-docs-infra-syntax-this: var(--color-red);
+    --color-docs-infra-syntax-builtin-type: var(--color-blue);
+    --color-docs-infra-syntax-jsx: var(--color-blue);
+    --color-docs-infra-syntax-html-tag: var(--color-green);
+    --color-docs-infra-syntax-jsx-tag: var(--color-blue);
   }
 }
 
@@ -174,96 +180,70 @@
 
   /* Docs-infra extensions (.di-* classes) */
 
+  .di-num {
+    color: var(--color-docs-infra-syntax-number);
+  }
+
+  .di-bool {
+    color: var(--color-docs-infra-syntax-boolean);
+  }
+
   /* Nullish values (null, undefined) */
   .di-n {
     color: var(--color-docs-infra-syntax-nullish);
   }
 
-  /* Default text color */
-  .di-d {
-    color: var(--color-foreground);
+  .di-ak {
+    color: var(--color-docs-infra-syntax-attr-key);
   }
 
-  /* Parameter highlighting */
-  .di-p {
-    color: var(--color-prettylights-syntax-storage-modifier-import);
+  .di-av {
+    color: var(--color-docs-infra-syntax-attr-value);
   }
 
-  /* Misc/other markup styling */
-  .di-o {
-    color: var(--color-docs-infra-syntax-other);
+  .di-ae {
+    color: var(--color-docs-infra-syntax-attr-equals);
   }
 
-  /* Bracket types */
+  .di-da {
+    color: var(--color-docs-infra-syntax-data-attr);
+  }
+
+  .di-cp {
+    color: var(--color-docs-infra-syntax-css-property);
+  }
+
+  .di-cv {
+    color: var(--color-docs-infra-syntax-css-value);
+  }
+
+  .di-this {
+    color: var(--color-docs-infra-syntax-this);
+  }
+
   .di-bt {
-    color: var(--color-docs-infra-syntax-bracket-tag);
+    color: var(--color-docs-infra-syntax-builtin-type);
   }
 
-  .di-bc {
-    color: var(--color-docs-infra-syntax-bracket-curly);
+  .di-jsx {
+    color: var(--color-docs-infra-syntax-jsx);
   }
 
-  .di-br {
-    color: var(--color-docs-infra-syntax-bracket-round);
+  .di-ht {
+    color: var(--color-docs-infra-syntax-html-tag);
   }
 
-  .di-bs {
-    color: var(--color-docs-infra-syntax-bracket-square);
-  }
-
-  .di-ba {
-    color: var(--color-docs-infra-syntax-bracket-angle);
-  }
-
-  .di-bq {
-    color: var(--color-docs-infra-syntax-bracket-quote);
-  }
-
-  /* Diff additions */
-  .di-ins {
-    color: var(--color-prettylights-syntax-markup-inserted-text);
-    background-color: var(--color-prettylights-syntax-markup-inserted-bg);
-  }
-
-  /* Diff deletions */
-  .di-del {
-    color: var(--color-prettylights-syntax-markup-deleted-text);
-    background-color: var(--color-prettylights-syntax-markup-deleted-bg);
-  }
-
-  /* Diff changes */
-  .di-chg {
-    color: var(--color-prettylights-syntax-markup-changed-text);
-    background-color: var(--color-prettylights-syntax-markup-changed-bg);
-  }
-
-  /* Diff ignored/untracked */
-  .di-ign {
-    color: var(--color-prettylights-syntax-markup-ignored-text);
-    background-color: var(--color-prettylights-syntax-markup-ignored-bg);
-  }
-
-  /* Diff range indicator */
-  .di-rng {
-    font-weight: bold;
-    color: var(--color-prettylights-syntax-meta-diff-range);
+  .di-jt {
+    color: var(--color-docs-infra-syntax-jsx-tag);
   }
 
   /* Special handling for CSS language */
-  [data-language='css'] {
+  .language-css {
     --color-prettylights-syntax-variable: var(--color-navy);
   }
 
-  /* Target CSS property names in CSS code blocks
-   Property names are .pl-c1 elements that are followed by a text node containing ':'
-   This distinguishes them from function names like 'var' which are followed by '(' */
-  [data-language='css'] .line > .pl-c1:first-of-type {
-    color: var(--color-foreground);
-  }
-
   /* Inline code and highlighted characters - collapse most colors to blue */
-  [data-inline],
-  [data-highlighted-chars] {
+  .MdCode[data-inline] {
     --color-prettylights-syntax-comment: var(--color-blue);
     --color-prettylights-syntax-constant: var(--color-blue);
     --color-prettylights-syntax-entity: var(--color-blue);
@@ -272,14 +252,6 @@
     --color-prettylights-syntax-variable: var(--color-blue);
     --color-prettylights-syntax-storage-modifier-import: var(--color-blue);
     --color-docs-infra-syntax-nullish: var(--color-blue);
-  }
-
-  /* Table code - recover some syntax highlighting */
-  [data-table-code] {
-    --color-prettylights-syntax-entity: var(--color-violet);
-    --color-prettylights-syntax-keyword: var(--color-red);
-    --color-prettylights-syntax-string: var(--color-navy);
-    --color-docs-infra-syntax-nullish: var(--color-gray-500);
   }
 
   /* Line highlighting */
@@ -291,15 +263,19 @@
     background-color: var(--color-line-highlight-strong);
   }
 
-  /* Character/word highlighting */
-  pre [data-hlc] {
-    color: var(--color-blue);
-    background-color: var(--color-inline-highlight);
+  /* Word highlighting */
+  pre [data-hl]:not(.line) {
+    display: inline-flex;
   }
 
-  /* Hide JSDoc comment frames in inline and table code contexts */
-  [data-inline] .frame[data-frame-type='comment'],
-  [data-table-code] .frame[data-frame-type='comment'] {
-    display: none;
+  /* Make highlighted words blue */
+  pre [data-hl]:not(.line),
+  pre [data-hl]:not(.line) > * {
+    color: var(--color-blue);
+  }
+
+  /* Stronger emphasis for highlighted words inside already highlighted lines */
+  pre .line[data-hl] [data-hl]:not(.line) {
+    background-color: var(--color-line-highlight-strong);
   }
 }

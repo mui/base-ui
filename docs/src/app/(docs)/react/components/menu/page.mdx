@@ -24,21 +24,29 @@ import { Menu } from '@base-ui/react/menu';
     <Menu.Positioner>
       <Menu.Popup>
         <Menu.Arrow />
-        <Menu.Viewport>
-          <Menu.Item />
-          <Menu.LinkItem />
-          <Menu.Separator />
-          <Menu.Group>
-            <Menu.GroupLabel />
-          </Menu.Group>
-          <Menu.RadioGroup>
-            <Menu.RadioItem />
-          </Menu.RadioGroup>
-          <Menu.CheckboxItem />
-          <Menu.SubmenuRoot>
-            <Menu.SubmenuTrigger />
-          </Menu.SubmenuRoot>
-        </Menu.Viewport>
+        <Menu.Item />
+        <Menu.LinkItem />
+        <Menu.Separator />
+
+        <Menu.SubmenuRoot>
+          <Menu.SubmenuTrigger />
+        </Menu.SubmenuRoot>
+
+        <Menu.Group>
+          <Menu.GroupLabel />
+        </Menu.Group>
+
+        <Menu.RadioGroup>
+          <Menu.RadioItem>
+            <Menu.RadioItemIndicator />
+          </Menu.RadioItem>
+        </Menu.RadioGroup>
+
+        <Menu.CheckboxItem>
+          <Menu.CheckboxItemIndicator />
+        </Menu.CheckboxItem>
+
+        <Menu.Viewport />
       </Menu.Popup>
     </Menu.Positioner>
   </Menu.Portal>
@@ -95,7 +103,7 @@ import { DemoMenuGroupLabels } from './demos/group-labels';
 
 To create a submenu, nest another menu inside the parent menu with `<Menu.SubmenuRoot>`. Use the `<Menu.SubmenuTrigger>` part for the menu item that opens the nested menu.
 
-```jsx {11-21} {12}#strong title="Adding a submenu"
+```jsx title="Adding a submenu"
 <Menu.Root>
   <Menu.Trigger />
   <Menu.Portal>
@@ -104,8 +112,10 @@ To create a submenu, nest another menu inside the parent menu with `<Menu.Submen
         <Menu.Arrow />
         <Menu.Item />
 
+        {/* @highlight-start */}
         {/* Submenu */}
         <Menu.SubmenuRoot>
+          {/* @highlight */}
           <Menu.SubmenuTrigger />
           <Menu.Portal>
             <Menu.Positioner>
@@ -116,6 +126,7 @@ To create a submenu, nest another menu inside the parent menu with `<Menu.Submen
             </Menu.Positioner>
           </Menu.Portal>
         </Menu.SubmenuRoot>
+        {/* @highlight-end */}
       </Menu.Popup>
     </Menu.Positioner>
   </Menu.Portal>
@@ -138,7 +149,7 @@ Use the `<Menu.LinkItem>` part to create a link.
 
 In order to open a dialog using a menu, control the dialog state and open it imperatively using the `onClick` handler on the menu item.
 
-```tsx {12-13,17-18,24-25,28-29} title="Connecting a dialog to a menu"
+```tsx title="Connecting a dialog to a menu"
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
@@ -153,15 +164,19 @@ function ExampleMenu() {
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
+              {/* @highlight-start */}
               {/* Open the dialog when the menu item is clicked */}
               <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
+              {/* @highlight-end */}
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
 
+      {/* @highlight-start */}
       {/* Control the dialog state */}
       <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+        {/* @highlight-end */}
         <Dialog.Portal>
           <Dialog.Backdrop />
           <Dialog.Popup>
@@ -184,13 +199,17 @@ When the trigger and menu content need to live in different parts of the tree (f
 Note that only top-level menus can have detached triggers.
 Submenus must have their triggers defined within the `SubmenuRoot` part.
 
-```jsx title="Detached triggers" {3,7} "handle={demoMenu}"
+```jsx title="Detached triggers"
 const demoMenu = Menu.createHandle();
 
+// @highlight
+// @highlight-text "handle={demoMenu}"
 <Menu.Trigger handle={demoMenu}>
   Actions
 </Menu.Trigger>
 
+// @highlight
+// @highlight-text "handle={demoMenu}"
 <Menu.Root handle={demoMenu}>
   <Menu.Portal>
     <Menu.Positioner>
@@ -235,29 +254,34 @@ Menus can render different content depending on which trigger opened them.
 Pass a `payload` prop to each `<Menu.Trigger>` and read it via a function child on `<Menu.Root>`.
 Provide a type argument to `createHandle()` to strongly type the payload.
 
-```jsx title="Detached triggers with payload" {6,8,12,17}
+```jsx title="Detached triggers with payload"
 const menus = {
   file: ['New', 'Open', 'Save'],
   edit: ['Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
 }
 
+// @highlight
 const demoMenu = Menu.createHandle<{ items: string[] }>();
 
+// @highlight
+// @highlight-text "payload"
 <Menu.Trigger handle={demoMenu} payload={{ items: menus.file }}>
   File
 </Menu.Trigger>
 
+// @highlight
+// @highlight-text "payload"
 <Menu.Trigger handle={demoMenu} payload={{ items: menus.edit }}>
   Edit
 </Menu.Trigger>
 
 <Menu.Root handle={demoMenu}>
-  {({ payload }) => (
+  {({ payload }) => ( // @highlight-text "payload"
     <Menu.Portal>
       <Menu.Positioner>
         <Menu.Popup>
           <Menu.Viewport>
-            {(payload?.items ?? []).map((item) => (
+            {(payload?.items ?? []).map((item) => ( // @highlight-text "payload"
               <Menu.Item key={item}>{item}</Menu.Item>
             ))}
           </Menu.Viewport>

@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { useButton } from '../../use-button/useButton';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { useButton } from '../../internals/use-button/useButton';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
 } from '../../utils/popupStateMapping';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import {
   safePolygon,
   useClick,
@@ -18,9 +18,9 @@ import {
 } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 
@@ -37,6 +37,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const {
     render,
     className,
+    style,
     disabled = false,
     nativeButton = true,
     handle,
@@ -45,7 +46,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     delay = OPEN_DELAY,
     closeDelay = 0,
     id: idProp,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -95,6 +95,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
+    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
@@ -102,11 +103,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const localProps = useInteractions([click]);
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
-
-  const state: PopoverTriggerState = {
-    disabled,
-    open: isOpenedByThisTrigger,
-  };
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -126,6 +122,14 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     [openReason],
   );
 
+  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
+    useTriggerFocusGuards(store, triggerElementRef);
+
+  const state: PopoverTriggerState = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
+
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
@@ -139,9 +143,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ],
     stateAttributesMapping,
   });
-
-  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
-    useTriggerFocusGuards(store, triggerElementRef);
 
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
   // regardless of whether the focus guards are rendered or not.

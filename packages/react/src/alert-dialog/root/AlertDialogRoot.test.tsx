@@ -3,7 +3,7 @@ import * as React from 'react';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 describe('<AlertDialog.Root />', () => {
   const { render } = createRenderer();

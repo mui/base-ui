@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectItemContext } from '../item/SelectItemContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A text label of the select item.
@@ -19,7 +19,7 @@ export const SelectItemText = React.memo(
     const { indexRef, textRef, selectedByFocus, hasRegistered } = useSelectItemContext();
     const { selectedItemTextRef } = useSelectRootContext();
 
-    const { className, render, style, ...elementProps } = componentProps;
+    const { render, className, style, ...elementProps } = componentProps;
 
     const localRef = React.useCallback(
       (node: HTMLElement | null) => {

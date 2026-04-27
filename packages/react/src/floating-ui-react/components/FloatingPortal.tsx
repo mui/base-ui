@@ -7,6 +7,7 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -15,15 +16,15 @@ import {
   getNextTabbable,
   isOutsideEvent,
 } from '../utils/tabbable';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import {
   useRenderElement,
   type UseRenderElementComponentProps,
-} from '../../utils/useRenderElement';
-import { EMPTY_OBJECT, ownerVisuallyHidden } from '../../utils/constants';
-import type { BaseUIComponentProps } from '../../utils/types';
+} from '../../internals/useRenderElement';
+import { ownerVisuallyHidden } from '../../internals/constants';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -164,7 +165,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean | undefined },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, container, className, render, renderGuards, style, ...elementProps } =
+  const { render, className, style, children, container, renderGuards, ...elementProps } =
     componentProps;
 
   const { portalNode, portalSubtree } = useFloatingPortalNode({

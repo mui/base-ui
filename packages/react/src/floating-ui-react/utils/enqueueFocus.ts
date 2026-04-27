@@ -1,3 +1,4 @@
+import { NOOP } from '@base-ui/utils/empty';
 import type { FocusableElement } from './tabbable';
 
 interface Options {
@@ -15,7 +16,15 @@ export function enqueueFocus(el: FocusableElement | null, options: Options = {})
   const exec = () => el?.focus({ preventScroll });
   if (sync) {
     exec();
-  } else {
-    rafId = requestAnimationFrame(exec);
+    return NOOP;
   }
+
+  const currentRafId = requestAnimationFrame(exec);
+  rafId = currentRafId;
+  return () => {
+    if (rafId === currentRafId) {
+      cancelAnimationFrame(currentRafId);
+      rafId = 0;
+    }
+  };
 }

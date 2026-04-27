@@ -7,7 +7,7 @@ import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useFloating, useHover, useInteractions } from '../index';
 import type { UseHoverProps } from './useHover';
 import { Popover } from '../../../test/floating-ui-tests/Popover';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 function App({ showReference = true, ...props }: UseHoverProps & { showReference?: boolean }) {
   const [open, setOpen] = React.useState(false);

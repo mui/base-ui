@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useTriggerDataForwarding } from '../../utils/popups';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import {
@@ -30,8 +30,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const {
-    className,
     render,
+    className,
+    style,
     handle,
     payload,
     disabled: disabledProp,
@@ -39,7 +40,6 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     closeOnClick = true,
     closeDelay,
     id: idProp,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -119,13 +119,14 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
+    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
 
-  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
-
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+
+  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
   const element = useRenderElement('button', componentProps, {
     state,

@@ -25,7 +25,7 @@ import {
   type Middleware,
   type FloatingTreeStore,
 } from '../floating-ui-react';
-import { useDirection } from '../direction-provider/DirectionContext';
+import { useDirection } from '../internals/direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
@@ -343,10 +343,10 @@ export function useAnchorPositioning(
       },
     }),
     arrow(
-      () => ({
+      (state) => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
-        element: arrowRef.current || ownerDocument(arrowRef.current).createElement('div'),
+        element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
         padding: arrowPadding,
         offsetParent: 'floating',
       }),

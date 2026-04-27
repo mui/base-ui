@@ -12,12 +12,12 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { isIOS } from '@base-ui/utils/detectBrowser';
 import { activeElement } from '../../floating-ui-react/utils';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   getNumberLocaleDetails,
   PERMILLE,
@@ -37,8 +37,8 @@ import {
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
   type ReasonToEvent,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -496,6 +496,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         aria-hidden
         tabIndex={-1}
         style={name ? visuallyHiddenInput : visuallyHidden}
+        suppressHydrationWarning
       />
     </NumberFieldRootContext.Provider>
   );

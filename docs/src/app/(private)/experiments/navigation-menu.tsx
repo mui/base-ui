@@ -208,6 +208,105 @@ export default function ExampleNavigationMenu() {
         </NavigationMenu.Portal>
       </NavigationMenu.Root>
 
+      <NavigationMenu.Root className={styles.Root} style={{ marginTop: '2rem' }}>
+        <NavigationMenu.List className={styles.List}>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger className={styles.Trigger}>
+              Overview
+              <NavigationMenu.Icon className={styles.Icon}>
+                <ChevronDownIcon />
+              </NavigationMenu.Icon>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.Content}>
+              <table role="presentation">
+                <tbody>
+                  <tr>
+                    <td>
+                      <ul className={styles.GridLinkList}>
+                        {overviewLinks.map((item) => (
+                          <li key={item.href}>
+                            <Link className={styles.LinkCard} href={item.href}>
+                              <h3 className={styles.LinkTitle}>{item.title}</h3>
+                              <p className={styles.LinkDescription}>{item.description}</p>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td>
+                      <ul className={styles.FlexLinkList}>
+                        <li>
+                          <Link className={styles.LinkCard} href="/react/components">
+                            <h3 className={styles.LinkTitle}>Components</h3>
+                            <p className={styles.LinkDescription}>
+                              Browse primitives for building product UI.
+                            </p>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link className={styles.LinkCard} href="/react/hooks">
+                            <h3 className={styles.LinkTitle}>Hooks</h3>
+                            <p className={styles.LinkDescription}>
+                              Use shared behavior without adopting styles.
+                            </p>
+                          </Link>
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+
+          <NavigationMenu.Item>
+            <Link className={styles.Trigger} href="https://github.com/mui/base-ui">
+              GitHub
+            </Link>
+          </NavigationMenu.Item>
+
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger className={styles.Trigger}>
+              Handbook
+              <NavigationMenu.Icon className={styles.Icon}>
+                <ChevronDownIcon />
+              </NavigationMenu.Icon>
+            </NavigationMenu.Trigger>
+            <NavigationMenu.Content className={styles.Content}>
+              <ul className={styles.FlexLinkList}>
+                {handbookLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link className={styles.LinkCard} href={item.href}>
+                      <h3 className={styles.LinkTitle}>{item.title}</h3>
+                      <p className={styles.LinkDescription}>{item.description}</p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner
+            className={styles.Positioner}
+            sideOffset={10}
+            collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
+            style={{
+              ['--duration' as string]: '1.25s',
+              ['--easing' as string]: 'linear',
+            }}
+          >
+            <NavigationMenu.Popup className={styles.Popup}>
+              <NavigationMenu.Arrow className={styles.Arrow}>
+                <ArrowSvg />
+              </NavigationMenu.Arrow>
+              <NavigationMenu.Viewport className={styles.Viewport} />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>
+
       <NavigationMenu.Root className={styles.Root} style={{ position: 'absolute', bottom: 100 }}>
         <NavigationMenu.List className={styles.List}>
           <NavigationMenu.Item>
@@ -430,7 +529,7 @@ function Link(props: NavigationMenu.Link.Props) {
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" strokeWidth="1.5" />
+      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }

@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useButton } from '../../use-button';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useButton } from '../../internals/use-button';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useClosePartRegistration } from '../../utils/closePart';
 
 /**
@@ -21,9 +21,9 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
   const {
     render,
     className,
+    style,
     disabled = false,
     nativeButton = true,
-    style,
     ...elementProps
   } = componentProps;
 

@@ -17,15 +17,7 @@ function renderHighlight(text: string): React.ReactNode {
   const parts = text.split(/`([^`]+)`/);
   return parts.length === 1
     ? text
-    : parts.map((part, i) =>
-        i % 2 === 1 ? (
-          <Code key={i} data-inline style={{ color: 'var(--syntax-default)' }}>
-            {part}
-          </Code>
-        ) : (
-          part
-        ),
-      );
+    : parts.map((part, i) => (i % 2 === 1 ? <Code key={i}>{part}</Code> : part));
 }
 
 export function ReleaseTimeline() {

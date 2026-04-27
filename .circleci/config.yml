@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/0913e8254e8626b56e03ea048567da0273f0bd18/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/3feee347096f50b441cad3087743bd1c5aef8651/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -248,6 +248,24 @@ jobs:
       - store_test_results:
           path: test-results
 
+  test_benchmark:
+    <<: *default-job
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.59.1-noble
+    resource_class: medium
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - run:
+          name: Build packages
+          command: pnpm release:build
+      - run:
+          name: Run benchmarks
+          environment:
+            BENCHMARK_UPLOAD: 'true'
+          command: pnpm test:benchmark
+
 workflows:
   pipeline:
     when:
@@ -280,6 +298,9 @@ workflows:
       - docs_validate:
           <<: *default-context
           name: 'Validating Docs'
+      - test_benchmark:
+          <<: *default-context
+          name: 'Benchmark tests'
       - test_unit_compiler:
           <<: *default-context
           name: 'JSDOM tests (React Compiler)'

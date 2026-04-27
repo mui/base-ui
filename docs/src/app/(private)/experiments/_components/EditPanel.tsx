@@ -4,7 +4,6 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { basename, dirname, extname, resolve } from 'node:path';
 import type { DemoFile } from 'docs/src/blocks/Demo';
-import { highlighter } from 'docs/src/syntax-highlighting';
 import { SandboxLink } from './SandboxLink';
 
 /**
@@ -23,11 +22,6 @@ function getLocalImports(content: string, baseDirectory: string): string[] {
 
   return localPaths.map((file) => resolve(baseDirectory, file));
 }
-
-const shikiLanguageMapping = {
-  jsx: 'js',
-  ts: 'tsx',
-} as Record<string, string>;
 
 /**
  * Lists all the dependencies of the provided files, including transitive dependencies (only in case of JS/TS files).
@@ -64,10 +58,6 @@ export async function getDependencyFiles(
       }
 
       const content = await readFile(path, 'utf-8');
-      const prettyContent = highlighter.codeToHtml(content, {
-        lang: shikiLanguageMapping[extension.slice(1)] ?? extension.slice(1),
-        theme: 'base-ui',
-      });
 
       const canHaveDependencies = type === 'ts' || type === 'js';
       const transitiveDependencies = canHaveDependencies
@@ -78,7 +68,6 @@ export async function getDependencyFiles(
         {
           name: basename(path),
           content,
-          prettyContent,
           path,
           type,
         } satisfies DemoFile,

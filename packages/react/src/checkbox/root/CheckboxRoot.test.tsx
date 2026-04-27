@@ -190,6 +190,25 @@ describe('<Checkbox.Root />', () => {
 
       expect(checkbox).toHaveAttribute('aria-checked', 'false');
     });
+
+    it('should not change its state when its label is clicked', async () => {
+      await render(
+        <label data-testid="label">
+          <Checkbox.Root readOnly />
+        </label>,
+      );
+      const [checkbox] = screen.getAllByRole('checkbox');
+
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+      const labelElement = screen.getByTestId('label');
+
+      await act(async () => {
+        labelElement.click();
+      });
+
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    });
   });
 
   describe('prop: indeterminate', () => {

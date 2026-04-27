@@ -60,7 +60,8 @@ Use the viewport overflow CSS variables to drive a CSS mask, which gradually inc
 
 For SSR, a fallback can be used as part of the end-side `var()` call so the mask is visible before the overflow CSS variables hydrate.
 
-```css title="SSR fallback" ", 40px"
+```css title="SSR fallback"
+/* @highlight-text ", 40px" */
 var(--scroll-area-overflow-y-end, 40px);
 ```
 
@@ -79,9 +80,10 @@ When the fade is applied to `<ScrollArea.Viewport>` itself, the variables can be
 
 Use `<Tabs.List>`'s `render` prop to render `<ScrollArea.Viewport>` directly when the tab list itself needs the viewport overflow values for a mask fade. This keeps the mask logic on the same element that receives the scroll state.
 
-```jsx title="Tabs with ScrollArea" {3}
+```jsx title="Tabs with ScrollArea"
 <Tabs.Root defaultValue="overview">
   <ScrollArea.Root>
+    {/* @highlight */}
     <Tabs.List render={<ScrollArea.Viewport />}>
       <Tabs.Tab value="overview">Overview</Tabs.Tab>
       <Tabs.Indicator />

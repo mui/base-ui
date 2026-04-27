@@ -19,6 +19,7 @@ Use `<Field.Label>` or a native `<label>` to label the following controls:
 
 - `Input`
 - `NumberField`
+- `OTPField`
 - `Autocomplete`
 - `Combobox` (input outside popup)
 - `Checkbox`
@@ -88,7 +89,7 @@ import { Slider } from '@base-ui/react/slider';
 
 Compose `<Fieldset>` when a single label applies to multiple controls, such as a range slider with multiple thumbs or a section that combines several inputs. For checkbox and radio groups, keep the group label in `<Fieldset.Legend>` and wrap each option with `<Field.Item>`:
 
-```tsx {10-11, 18, 22-23, 26} title="Composing range slider and radio group with fieldset"
+```tsx title="Composing range slider and radio group with fieldset"
 import { Form } from '@base-ui/react/form';
 import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
@@ -98,22 +99,28 @@ import { Slider } from '@base-ui/react/slider';
 
 <Form>
   <Field.Root>
+    {/* @highlight-start */}
     <Fieldset.Root render={<Slider.Root />}>
       <Fieldset.Legend>Price range</Fieldset.Legend>
+      {/* @highlight-end */}
       <Slider.Control>
         <Slider.Track>
           <Slider.Thumb aria-label="Minimum price" />
           <Slider.Thumb aria-label="Maximum price" />
         </Slider.Track>
       </Slider.Control>
+      {/* @highlight */}
     </Fieldset.Root>
   </Field.Root>
 
   <Field.Root>
+    {/* @highlight-start */}
     <Fieldset.Root render={<RadioGroup />}>
       <Fieldset.Legend>Storage type</Fieldset.Legend>
+      {/* @highlight-end */}
       <Radio.Root value="ssd" />
       <Radio.Root value="hdd" />
+      {/* @highlight */}
     </Fieldset.Root>
   </Field.Root>
 </Form>;
@@ -121,7 +128,7 @@ import { Slider } from '@base-ui/react/slider';
 
 `<Field.Item>` should enclose each checkbox or radio option so every control has its own label and description:
 
-```tsx {10,14-15,19} title="Explicitly labeling checkboxes in a checkbox group"
+```tsx title="Explicitly labeling checkboxes in a checkbox group"
 import { Form } from '@base-ui/react/form';
 import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
@@ -131,15 +138,19 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 <Field.Root>
   <Fieldset.Root render={<CheckboxGroup />}>
     <Fieldset.Legend>Backup schedule</Fieldset.Legend>
+    {/* @highlight */}
     <Field.Item>
       <Checkbox.Root value="daily" />
       <Field.Label>Daily</Field.Label>
       <Field.Description>Daily at 00:00</Field.Description>
+      {/* @highlight-start */}
     </Field.Item>
     <Field.Item>
+      {/* @highlight-end */}
       <Checkbox.Root value="monthly" />
       <Field.Label>Monthly</Field.Label>
       <Field.Description>On the 5th of every month at 23:59</Field.Description>
+      {/* @highlight */}
     </Field.Item>
   </Fieldset.Root>
 </Field.Root>;
@@ -149,13 +160,16 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 
 Pass the `name` prop to `<Field.Root>` to include the wrapped control's value when a parent form is submitted:
 
-```tsx {6} title="Assigning field name to combobox" "name"
+```tsx title="Assigning field name to combobox"
 import { Form } from '@base-ui/react/form';
 import { Field } from '@base-ui/react/field';
 import { Combobox } from '@base-ui/react/combobox';
 
 <Form>
+  {/* @highlight-start */}
+  {/* @highlight-text "name" */}
   <Field.Root name="country">
+    {/* @highlight-end */}
     <Field.Label>Country of residence</Field.Label>
     <Combobox.Root />
   </Field.Root>
@@ -166,16 +180,18 @@ import { Combobox } from '@base-ui/react/combobox';
 
 You can take over form submission using the native `onSubmit`, or custom `onFormSubmit` props:
 
-```tsx {4-9} title="Native submission using onSubmit"
+```tsx title="Native submission using onSubmit"
 import { Form } from '@base-ui/react/form';
 
 <Form
+  // @highlight-start
   onSubmit={async (event) => {
     // Prevent the browser's default full-page refresh
     event.preventDefault();
     // Create a FormData object
     const formData = new FormData(event.currentTarget);
     // Send the FormData instance in a fetch request
+    // @highlight-end
     await fetch('https://api.example.com', {
       method: 'POST',
       body: formData,
@@ -186,16 +202,18 @@ import { Form } from '@base-ui/react/form';
 
 When using `onFormSubmit`, you receive form values as a JavaScript object, with `eventDetails` provided as a second argument. Additionally, `preventDefault()` is automatically called on the native submit event:
 
-```tsx {4-9} title="Submission using onFormSubmit"
+```tsx title="Submission using onFormSubmit"
 import { Form } from '@base-ui/react/form';
 
 <Form
+  // @highlight-start
   onFormSubmit={async (formValues) => {
     const payload = {
       product_id: formValues.id,
       order_quantity: formValues.quantity,
     };
     await fetch('https://api.example.com', {
+      // @highlight-end
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -250,14 +268,16 @@ Use the `validationMode` prop to configure when validation is performed:
 
 `validationDebounceTime` can be used to debounce the function in use cases such as asynchronous requests or text fields that validate `onChange`.
 
-```tsx {5-7} title="Text input using custom asynchronous validation"
+```tsx title="Text input using custom asynchronous validation"
 import { Field } from '@base-ui/react/field';
 
 <Field.Root
   name="username"
+  {/* @highlight-start */}
   validationMode="onChange"
   validationDebounceTime={300}
   validate={async (value) => {
+  // @highlight-end
     if (value === 'admin') {
       /* return an error message when invalid */
       return 'Reserved for system use.';
@@ -287,26 +307,26 @@ You can pass errors returned by (post-submission) server-side validation to the 
 
 This should be an object with field names as keys, and an error string or array of strings as the value. Once a field's value changes, any corresponding error in `errors` will be cleared from the field state.
 
-```tsx title="Displaying errors returned by server-side validation" "errors"
+```tsx title="Displaying errors returned by server-side validation"
 import { Form } from '@base-ui/react/form';
 import { Field } from '@base-ui/react/field';
 
 async function submitToServer(/* payload */) {
   return {
-    errors: {
+    errors: { {// @highlight-text "errors"
       promoCode: 'This promo code has expired',
     },
   };
 }
 
-const [errors, setErrors] = React.useState();
+const [errors, setErrors] = React.useState(); // @highlight-text "errors"
 
 <Form
-  errors={errors}
+  errors={errors} { // @highlight-text "errors"
   onSubmit={async (event) => {
     event.preventDefault();
     const response = await submitToServer(/* data */);
-    setErrors(response.errors);
+    setErrors(response.errors); // @highlight-text "errors"
   }}
 >
   <Field.Root name="promoCode" />
@@ -315,7 +335,7 @@ const [errors, setErrors] = React.useState();
 
 When using [Server Functions with Form Actions](https://react.dev/reference/rsc/server-functions#server-functions-with-use-action-state) you can return server-side errors from `useActionState` to the `errors` prop. A demo is available [here](/react/components/form#submit-with-a-server-function).
 
-```tsx title="Returning errors from useActionState" "state" "errors" "formAction"
+```tsx title="Returning errors from useActionState"
 // app/form.tsx
 /* prettier-ignore */
 'use client';
@@ -323,8 +343,10 @@ import { Form } from '@base-ui/react/form';
 import { Field } from '@base-ui/react/field';
 import { login } from './actions';
 
+// @highlight-text "state" "formAction"
 const [state, formAction, loading] = React.useActionState(login, {});
 
+// @highlight-text "state" "errors" "formAction"
 <Form action={formAction} errors={state.errors}>
   <Field.Root name="password">
     <Field.Control />
@@ -340,6 +362,7 @@ export async function login(formData: FormData) {
 
   if (!result.success) {
     return {
+      // @highlight-text "errors"
       errors: {
         password: 'Invalid username or password',
       },
@@ -384,8 +407,8 @@ const { control, handleSubmit } = useForm<FormValues>({
 
 Use the `<Controller>` component to integrate with any `<Field>` component, forwarding the `name`, `field`, and `fieldState` render props to the appropriate part:
 
-```tsx {11-17,22-26} title="Integrating the controller component with Base UI field" "ref" "value" "onBlur" "onChange" "invalid" "isTouched" "isDirty" "error"
-import { useForm, Controller } from "react-hook-form"
+```tsx title="Integrating the controller component with Base UI field"
+import { useForm, Controller } from "react-hook-form";
 import { Field } from '@base-ui/react/field';
 
 const { control, handleSubmit} = useForm({
@@ -395,26 +418,33 @@ const { control, handleSubmit} = useForm({
 })
 
 <Controller
+  {/* @highlight-start */}
   name="username"
   control={control}
   render={({
+    // @highlight-text "ref" "value" "onBlur" "onChange"
     field: { name, ref, value, onBlur, onChange },
+    // @highlight-text "invalid" "isTouched" "isDirty" "error"
     fieldState: { invalid, isTouched, isDirty, error },
   }) => (
+    {/* @highlight-text "invalid" "isTouched" "isDirty" */}
     <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+    {/* @highlight-end */}
       <Field.Label>Username</Field.Label>
       <Field.Description>
         May appear where you contribute or are mentioned. You can remove it at any time.
       </Field.Description>
+      {/* @highlight-start */}
       <Field.Control
         placeholder="e.g. alice132"
-        value={value}
-        onBlur={onBlur}
-        onValueChange={onChange}
-        ref={ref}
+        value={value} {/* @highlight-text "value" */}
+        onBlur={onBlur} {/* @highlight-text "onBlur" */}
+        onValueChange={onChange} {/* @highlight-text "onChange" */}
+        ref={ref} {/* @highlight-text "ref" */}
       />
-      <Field.Error match={!!error}>
-        {error?.message}
+      {/* @highlight-end */}
+      <Field.Error match={!!error}> {/* @highlight-text "error" */}
+        {error?.message} {/* @highlight-text "error" */}
       </Field.Error>
     </Field.Root>
   )}
@@ -427,11 +457,12 @@ For React Hook Form to focus invalid fields when performing validation, you must
 
 Specify `rules` on the `<Controller>` in the same format as [`register`](https://react-hook-form.com/docs/useform/register) options, and use the `match` prop to delegate control of the error rendering:
 
-```tsx {5-15, 33-35} title="Defining validation rules and displaying errors"
-import { Controller } from "react-hook-form"
+```tsx title="Defining validation rules and displaying errors"
+import { Controller } from "react-hook-form";
 import { Field } from '@base-ui/react/field';
 
 <Controller
+  {/* @highlight-start */}
   name="username"
   control={control}
   rules={{
@@ -443,6 +474,7 @@ import { Field } from '@base-ui/react/field';
       }
       return null;
     },
+    {/* @highlight-end */}
   }}
   render={({
     field: { name, ref, value, onBlur, onChange },
@@ -460,9 +492,11 @@ import { Field } from '@base-ui/react/field';
         onValueChange={onChange}
         ref={ref}
       />
+      {/* @highlight-start */}
       <Field.Error match={!!error}>
         {error?.message}
       </Field.Error>
+      {/* @highlight-end */}
     </Field.Root>
   )}
 />
@@ -503,7 +537,7 @@ import { DemoTanstackForm } from './demos/tanstack-form';
 
 Create a form instance with the `useForm` hook, assigning the initial value of each field by their name in the `defaultValues` parameter:
 
-```tsx {13-14} title="Initialize a form instance"
+```tsx title="Initialize a form instance"
 import { useForm } from '@tanstack/react-form';
 
 interface FormValues {
@@ -516,8 +550,10 @@ const defaultValues: FormValues = {
   email: '',
 };
 
+{/* @highlight-start */}
 /* useForm returns a form instance */
 const form = useForm<FormValues>({
+{/* @highlight-end */}
   defaultValues,
 });
 ```
@@ -526,31 +562,39 @@ const form = useForm<FormValues>({
 
 Use the `<form.Field>` component from the form instance to integrate with Base UI components using the `children` prop, forwarding the various `field` render props to the appropriate part:
 
-```tsx {7-9, 11-14, 18-20, 24} title="Integrating TanStack Form with Base UI components" "field.name" "value" "isValid" "isDirty" "isTouched" "handleChange" "handleBlur"
+```tsx title="Integrating TanStack Form with Base UI components"
 import { useForm } from '@tanstack/react-form';
 import { Field } from '@base-ui/react/field';
 
 const form = useForm(/* defaultValues, other parameters */)
 
 <form>
+  {/* @highlight-start */}
   <form.Field
     name="username"
     children={(field) => (
+    // @highlight-end
       <Field.Root
-        name={field.name}
-        invalid={!field.state.meta.isValid}
-        dirty={field.state.meta.isDirty}
-        touched={field.state.meta.isTouched}
+        {/* @highlight-start */}
+        name={field.name} {/* @highlight-text "field.name" */}
+        invalid={!field.state.meta.isValid} {/* @highlight-text "isValid" */}
+        dirty={field.state.meta.isDirty} {/* @highlight-text "isDirty" */}
+        touched={field.state.meta.isTouched} {/* @highlight-text "isTouched" */}
+        {/* @highlight-end */}
       >
         <Field.Label>Username</Field.Label>
         <Field.Control
-          value={field.state.value}
-          onValueChange={field.handleChange}
-          onBlur={field.handleBlur}
+          {/* @highlight-start */}
+          value={field.state.value} {/* @highlight-text "value" */}
+          onValueChange={field.handleChange} {/* @highlight-text "handleChange" */}
+          onBlur={field.handleBlur} {/* @highlight-text "handleBlur" */}
+          {/* @highlight-end */}
           placeholder="e.g. bob276"
         />
 
-        <Field.Error match={!field.state.meta.isValid}>
+        {/* @highlight-start */}
+        <Field.Error match={!field.state.meta.isValid}> {/* @highlight-text "isValid" */}
+        {/* @highlight-end */}
           {field.state.meta.errors.join(',')}
         </Field.Error>
       </Field.Root>
@@ -570,20 +614,24 @@ To configure a native `<form>`-like validation strategy:
 
 This validates all fields when the first submission is attempted, and revalidates any invalid fields when their values change again.
 
-```tsx {8, 13} title="Form-level validators" "revalidateLogic" "onDynamic"
-import { useForm, revalidateLogic } from '@tanstack/react-form';
+```tsx title="Form-level validators"
+import { useForm, revalidateLogic } from '@tanstack/react-form'; // @highlight-text "revalidateLogic"
 
 const form = useForm({
   defaultValues: {
     username: '',
     email: '',
   },
-  validationLogic: revalidateLogic({
+  {/* @highlight-start */}
+  validationLogic: revalidateLogic({ {/* @highlight-text "revalidateLogic" */}
+  {/* @highlight-end */}
     mode: 'submit',
     modeAfterSubmission: 'change',
   }),
   validators: {
-    onDynamic: ({ value: formValues }) => {
+    // @highlight-start
+    onDynamic: ({ value: formValues }) => { // @highlight-text "onDynamic"
+    // @highlight-end
       const errors = {};
 
       if (!formValues.username) {
@@ -608,7 +656,7 @@ const form = useForm({
 
 You can pass additional validator functions to individual `<form.Field>` components to add validations on top of the form-level validators:
 
-```tsx {8-16} title="Field-level validators"
+```tsx title="Field-level validators"
 import { Field } from '@base-ui/react/field';
 import { useForm } from '@tanstack/react-form';
 
@@ -616,6 +664,7 @@ const form = useForm();
 
 <form.Field
   name="username"
+  {/* @highlight-start */}
   validators={{
     onChangeAsync: async ({ value: username }) => {
       const result = await fetch(
@@ -625,6 +674,7 @@ const form = useForm();
       return result.success ? undefined : `${username} is not available.`
     }
   }}
+  {/* @highlight-end */}
   children={(field) => (
     <Field.Root name={field.name} /* forward the field props */ />
   )}
@@ -638,24 +688,30 @@ To submit the form:
 1. Pass a submit handler function to the `onSubmit` parameter of `useForm`.
 2. Call `form.handleSubmit()` from an event handler such as form `onSubmit` or `onClick` on a button.
 
-```tsx {4-7, 13, 17} title="Form submission handler" "form.handleSubmit()"
+```tsx title="Form submission handler"
 import { useForm } from '@tanstack/react-form';
 
 const form = useForm({
+  // @highlight-start
   onSubmit: async ({ value: formValues }) => {
     /* prettier-ignore */
     await fetch(/* POST the `formValues` to an external API */);
   },
+  {/* @highlight-end */}
 });
 
 <form
   onSubmit={(event) => {
     event.preventDefault();
-    form.handleSubmit();
+    // @highlight-start
+    form.handleSubmit(); // @highlight-text "form.handleSubmit()"
+    // @highlight-end
   }}
 >
   {/* form fields */}
+  {/* @highlight-start */}
   <button type="submit">Submit</button>
+  {/* @highlight-end */}
 </form>;
 ```
 

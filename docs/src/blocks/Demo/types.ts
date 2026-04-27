@@ -12,10 +12,6 @@ export interface DemoFile {
    */
   content: string;
   /**
-   * Pretty content of the file as HTML with highlighted syntax.
-   */
-  prettyContent?: string;
-  /**
    * Type of the file.
    */
   type: string;

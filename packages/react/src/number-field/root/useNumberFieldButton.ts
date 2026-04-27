@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { usePressAndHold } from '../../utils/usePressAndHold';
+import { usePressAndHold } from '../../internals/usePressAndHold';
 import {
   DEFAULT_STEP,
   CHANGE_VALUE_TICK_DELAY,
@@ -11,15 +11,15 @@ import { parseNumber } from '../utils/parse';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
+} from '../../internals/createBaseUIEventDetails';
 import type {
   EventWithOptionalKeyState,
   Direction,
   IncrementValueParameters,
 } from '../utils/types';
 import type { NumberFieldRoot } from './NumberFieldRoot';
-import type { HTMLProps } from '../../utils/types';
-import { REASONS } from '../../utils/reasons';
+import type { HTMLProps } from '../../internals/types';
+import { REASONS } from '../../internals/reasons';
 
 // Treat pen as touch-like to avoid forcing the software keyboard on stylus taps.
 // Linux Chrome may emit "pen" historically for mouse usage due to a bug, but the touch path

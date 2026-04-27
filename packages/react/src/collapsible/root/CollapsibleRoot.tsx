@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useCollapsibleRoot, type UseCollapsibleRootReturnValue } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Groups all parts of the collapsible.
@@ -73,7 +73,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 
 export interface CollapsibleRootState extends Pick<
   UseCollapsibleRootReturnValue,
-  'open' | 'disabled'
+  'open' | 'disabled' | 'transitionStatus'
 > {}
 
 export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRootState> {

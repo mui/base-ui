@@ -3,8 +3,8 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useId } from '@base-ui/utils/useId';
 import { inertValue } from '@base-ui/utils/inertValue';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
@@ -74,7 +74,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   componentProps: NavigationMenuViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, id: idProp, style, ...elementProps } = componentProps;
+  const { render, className, style, children, id: idProp, ...elementProps } = componentProps;
 
   const id = useId(idProp);
 

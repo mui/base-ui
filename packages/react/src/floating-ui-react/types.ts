@@ -4,7 +4,7 @@ import type {
   VirtualElement,
 } from '@floating-ui/react-dom';
 import type * as React from 'react';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 
 import type { ExtendedUserProps } from './hooks/useInteractions';
 import type { FloatingTreeStore } from './components/FloatingTreeStore';
@@ -119,8 +119,6 @@ export interface FloatingEvents {
 export interface ContextData {
   openEvent?: Event | undefined;
   floatingContext?: FloatingContext | undefined;
-  /** @deprecated use `onTypingChange` prop in `useTypeahead` */
-  typing?: boolean | undefined;
   [key: string]: any;
 }
 
@@ -204,7 +202,7 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
    */
   nodeId?: string | undefined;
   /**
-   * External FlatingTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
 }

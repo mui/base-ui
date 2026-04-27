@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/react",
-  "version": "1.3.0",
+  "version": "1.4.1",
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
   "license": "MIT",
@@ -9,6 +9,7 @@
     "react-component",
     "mui",
     "unstyled",
+    "base-ui",
     "a11y"
   ],
   "repository": {
@@ -50,6 +51,7 @@
     "./meter": "./src/meter/index.ts",
     "./navigation-menu": "./src/navigation-menu/index.ts",
     "./number-field": "./src/number-field/index.ts",
+    "./otp-field": "./src/otp-field/index.ts",
     "./popover": "./src/popover/index.ts",
     "./preview-card": "./src/preview-card/index.ts",
     "./progress": "./src/progress/index.ts",
@@ -68,7 +70,42 @@
     "./tooltip": "./src/tooltip/index.ts",
     "./types": "./src/types/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
-    "./use-render": "./src/use-render/index.ts"
+    "./use-render": "./src/use-render/index.ts",
+    "./internals/areArraysEqual": "./src/internals/areArraysEqual.ts",
+    "./internals/clamp": "./src/internals/clamp.ts",
+    "./internals/composite": "./src/internals/composite/index.ts",
+    "./internals/constants": "./src/internals/constants.ts",
+    "./internals/createBaseUIEventDetails": "./src/internals/createBaseUIEventDetails.ts",
+    "./internals/csp-context": "./src/internals/csp-context/index.ts",
+    "./internals/direction-context": "./src/internals/direction-context/index.ts",
+    "./internals/field-constants": "./src/internals/field-constants/index.ts",
+    "./internals/field-register-control": "./src/internals/field-register-control/index.ts",
+    "./internals/field-root-context": "./src/internals/field-root-context/index.ts",
+    "./internals/filter": "./src/internals/filter.ts",
+    "./internals/itemEquality": "./src/internals/itemEquality.ts",
+    "./internals/form-context": "./src/internals/form-context/index.ts",
+    "./internals/getStateAttributesProps": "./src/internals/getStateAttributesProps.ts",
+    "./internals/labelable-provider": "./src/internals/labelable-provider/index.ts",
+    "./internals/noop": "./src/internals/noop.ts",
+    "./internals/reasons": "./src/internals/reasons.ts",
+    "./internals/resolveValueLabel": "./src/internals/resolveValueLabel.tsx",
+    "./internals/RequestQueue": "./src/internals/RequestQueue.ts",
+    "./internals/serializeValue": "./src/internals/serializeValue.ts",
+    "./internals/shadowDom": "./src/internals/shadowDom.ts",
+    "./internals/stateAttributesMapping": "./src/internals/stateAttributesMapping.ts",
+    "./internals/temporal": "./src/internals/temporal/index.ts",
+    "./internals/temporal-adapter-date-fns": "./src/internals/temporal-adapter-date-fns/index.ts",
+    "./internals/temporal-adapter-luxon": "./src/internals/temporal-adapter-luxon/index.ts",
+    "./internals/TimeoutManager": "./src/internals/TimeoutManager.ts",
+    "./internals/types": "./src/internals/types.ts",
+    "./internals/use-button": "./src/internals/use-button/index.ts",
+    "./internals/useBaseUiId": "./src/internals/useBaseUiId.ts",
+    "./internals/useAnimationsFinished": "./src/internals/useAnimationsFinished.ts",
+    "./internals/useOpenChangeComplete": "./src/internals/useOpenChangeComplete.tsx",
+    "./internals/usePressAndHold": "./src/internals/usePressAndHold.ts",
+    "./internals/useRenderElement": "./src/internals/useRenderElement.tsx",
+    "./internals/useValueChanged": "./src/internals/useValueChanged.ts",
+    "./internals/useTransitionStatus": "./src/internals/useTransitionStatus.ts"
   },
   "imports": {
     "#test-utils": "./test/index.ts",
@@ -101,11 +138,11 @@
     "clsx": "2.1.1",
     "date-fns": "4.1.0",
     "luxon": "3.7.2",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-router": "7.13.2",
-    "typescript": "5.9.3",
-    "vitest-browser-react": "2.1.0"
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "react-router": "7.14.2",
+    "typescript": "6.0.3",
+    "vitest-browser-react": "2.2.0"
   },
   "peerDependencies": {
     "@date-fns/tz": "^1.2.0",
@@ -115,7 +152,13 @@
     "react-dom": "^17 || ^18 || ^19"
   },
   "peerDependenciesMeta": {
+    "@date-fns/tz": {
+      "optional": true
+    },
     "@types/react": {
+      "optional": true
+    },
+    "date-fns": {
       "optional": true
     }
   },

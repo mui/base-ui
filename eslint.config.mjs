@@ -21,7 +21,7 @@ const OneLevelImportMessage = [
 
 const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
   {
-    group: ['@base-ui/react/*/*'],
+    regex: '@base-ui/react/(?:(?!internals/).+|internals/.+)/.+',
     message: OneLevelImportMessage,
   },
 ];
@@ -94,10 +94,14 @@ export default defineConfig(
       // This rule doesn't recognise <label> wrapped around custom controls
       'jsx-a11y/label-has-associated-control': 'off',
       // Turn off new eslint-plugin-react-hooks rules till we can fix all warnings
+      'react-hooks/error-boundaries': 'off',
       'react-hooks/globals': 'off',
       'react-hooks/immutability': 'off',
       'react-hooks/incompatible-library': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
       'react-hooks/refs': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/use-memo': 'off',
     },
   },
   {

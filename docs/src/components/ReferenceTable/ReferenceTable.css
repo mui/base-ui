@@ -1,12 +1,4 @@
 @layer components {
-  .ReferencePre {
-    margin: 0;
-    padding: 0;
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
-    letter-spacing: var(--text-xs--letter-spacing);
-  }
-
   .ReferenceHeaderRow {
     display: grid;
   }
@@ -31,27 +23,27 @@
   }
 
   .ReferenceNameCell {
-    padding-inline: 0.75rem;
+    padding-left: 0.75rem;
   }
 
   .ReferenceRequired {
     top: -0.3em;
-    font-size: var(--text-xs);
-    color: var(--color-red-800);
+    font-size: inherit;
+    color: var(--poppy-t1);
   }
 
   .ReferenceTypeCell {
     display: none;
     align-items: baseline;
-    padding-inline: 0.75rem;
-    font-size: var(--text-sm);
+    padding-left: 0.75rem;
+    font-size: var(--font-size-14);
     line-height: 1;
     white-space: nowrap;
   }
 
   .ReferenceDefaultCell {
     display: none;
-    padding-inline: 0.75rem;
+    padding-left: 0.75rem;
     white-space: nowrap;
   }
 
@@ -67,7 +59,7 @@
   .ReferenceContent {
     display: flex;
     flex-direction: column;
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
   }
 
   .ReferenceDescription [role='figure'] {
@@ -85,8 +77,8 @@
     flex-direction: column;
     gap: 0.75rem;
     padding: 1rem;
-    font-size: var(--text-md);
-    line-height: var(--text-md--line-height);
+    font-size: var(--font-size-15);
+    line-height: 1.375rem;
     text-wrap: pretty;
   }
 
@@ -281,14 +273,13 @@
   }
 
   .MethodParamSep {
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
   }
 
   .MethodParamDesc {
-    color: var(--color-gray-600);
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
+    color: var(--gray-t1);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
     margin-top: 0.25rem;
     margin-left: 0.125rem;
   }
@@ -312,11 +303,10 @@
   }
 
   .AdditionalTypeBackLink {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
-    font-weight: 400;
-    color: var(--color-gray-500);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
+    font-weight: var(--font-weight-400);
+    color: var(--gray-p1);
   }
 
   .AdditionalTypeBackLink[data-hidden='true'] {
@@ -324,24 +314,23 @@
   }
 
   .AdditionalTypeBackLink:hover {
-    color: var(--color-gray-800);
+    color: var(--gray-t2);
   }
 
   @media (prefers-color-scheme: dark) {
     .AdditionalTypeBackLink {
-      color: var(--color-gray-400);
+      color: var(--gray-p2);
     }
 
     .AdditionalTypeBackLink:hover {
-      color: var(--color-gray-200);
+      color: var(--gray-c2);
     }
   }
 
   .AdditionalTypeReExport {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
-    color: var(--color-gray-600);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
+    color: var(--gray-t1);
   }
 
   .AdditionalTypeCodeBlock {
@@ -361,11 +350,10 @@
   .ReferenceSectionHeading {
     margin-top: 1.25rem;
     margin-bottom: 0.75rem;
-    font-size: var(--text-base);
-    line-height: var(--text-base--line-height);
-    letter-spacing: var(--text-base--letter-spacing);
-    font-weight: 500;
-    color: var(--color-gray-900);
+    font-size: var(--font-size-16);
+    line-height: 1.5rem;
+    font-weight: var(--font-weight-700);
+    color: var(--gray-t2);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -376,15 +364,14 @@
 
   .ReferenceSectionSubtext {
     margin-bottom: 0.5rem;
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
-    color: var(--color-gray-600);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
+    color: var(--gray-t1);
   }
 
   @media (prefers-color-scheme: dark) {
     .ReferenceSectionSubtext {
-      color: var(--color-gray-400);
+      color: var(--gray-p2);
     }
   }
 

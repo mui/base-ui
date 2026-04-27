@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import type { UseFieldValidationReturnValue } from '../field/root/useFieldValidation';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
-import type { BaseUIEventReasons } from '../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../internals/reasons';
 
 export interface RadioGroupContext<Value> {
   disabled: boolean | undefined;

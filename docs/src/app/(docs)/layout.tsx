@@ -1,3 +1,7 @@
+// Keep CSS imports first to ensure CSS layer order is correct
+import 'docs/src/css/index.css';
+import './layout.css';
+
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
@@ -7,8 +11,6 @@ import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header, titleMap } from 'docs/src/components/Header';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { sitemap } from 'docs/src/app/sitemap';
-import 'docs/src/css/index.css';
-import './layout.css';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
@@ -130,6 +132,7 @@ export const metadata: Metadata = {
     canonical: './',
   },
   icons: {
+    // Based on https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs
     icon: [
       {
         rel: 'icon',

@@ -40,10 +40,12 @@ Label the group with `aria-labelledby` and a sibling label element:
 
 An enclosing `<label>` is the simplest labeling pattern for each checkbox:
 
-```tsx title="Using an enclosing label to label a checkbox" {1,4}
+```tsx title="Using an enclosing label to label a checkbox"
+// @highlight
 <label>
   <Checkbox.Root value="http" />
   HTTP
+  {/* @highlight */}
 </label>
 ```
 
@@ -51,11 +53,12 @@ An enclosing `<label>` is the simplest labeling pattern for each checkbox:
 
 By default, `<Checkbox.Root>` renders a `<span>` element to support enclosing labels. Prefer rendering each checkbox as a native button when using sibling labels (`htmlFor`/`id`).
 
-```tsx title="Sibling label pattern with a native button" "nativeButton" "render"
+```tsx title="Sibling label pattern with a native button"
 <div id="protocols-label">Allowed network protocols</div>
 <CheckboxGroup aria-labelledby="protocols-label">
   <div>
     <label htmlFor="protocol-http">HTTP</label>
+    {/* @highlight-text "nativeButton" "render={<button />}" */}
     <Checkbox.Root id="protocol-http" value="http" nativeButton render={<button />}>
       <Checkbox.Indicator />
     </Checkbox.Root>
@@ -65,18 +68,20 @@ By default, `<Checkbox.Root>` renders a `<span>` element to support enclosing la
 
 Native buttons with wrapping labels are supported by using the `render` callback to avoid invalid HTML, so the hidden input is placed outside the label:
 
-```tsx title="Render callback" {6-11}
+```tsx title="Render callback"
 <div id="protocols-label">Allowed network protocols</div>
 <CheckboxGroup aria-labelledby="protocols-label">
   <Checkbox.Root
     value="http"
     nativeButton
+    // @highlight-start
     render={(buttonProps) => (
       <label>
         <button {...buttonProps} />
         HTTP
       </label>
     )}
+    {/* @highlight-end */}
   />
 </CheckboxGroup>
 ```
@@ -85,8 +90,9 @@ Native buttons with wrapping labels are supported by using the `render` callback
 
 Use [Field](/react/components/field) and [Fieldset](/react/components/fieldset) for group labeling and form integration:
 
-```tsx title="Using Checkbox Group in a form" {2}
+```tsx title="Using Checkbox Group in a form"
 <Form>
+  {/* @highlight */}
   <Field.Root name="allowedNetworkProtocols">
     <Fieldset.Root render={<CheckboxGroup />}>
       <Fieldset.Legend>Allowed network protocols</Fieldset.Legend>

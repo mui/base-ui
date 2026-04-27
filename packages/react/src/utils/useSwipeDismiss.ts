@@ -4,7 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { contains, getTarget } from '../floating-ui-react/utils';
 import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
-import { clamp } from './clamp';
+import { clamp } from '../internals/clamp';
 import { getElementAtPoint } from './getElementAtPoint';
 
 export type SwipeDirection = 'up' | 'down' | 'left' | 'right';

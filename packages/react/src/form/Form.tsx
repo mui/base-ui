@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   createGenericEventDetails,
   type BaseUIGenericEventDetails,
-} from '../utils/createBaseUIEventDetails';
-import { REASONS } from '../utils/reasons';
-import type { BaseUIComponentProps } from '../utils/types';
-import { FormContext } from './FormContext';
-import { useRenderElement } from '../utils/useRenderElement';
-import { EMPTY_OBJECT } from '../utils/constants';
-import { useValueChanged } from '../utils/useValueChanged';
+} from '../internals/createBaseUIEventDetails';
+import { REASONS } from '../internals/reasons';
+import type { BaseUIComponentProps } from '../internals/types';
+import { FormContext } from '../internals/form-context/FormContext';
+import { useRenderElement } from '../internals/useRenderElement';
+import { useValueChanged } from '../internals/useValueChanged';
 
 /**
  * A native form element with consolidated error handling.

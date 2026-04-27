@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useButton } from '../../use-button';
+import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
-import { HTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../internals/types';
 import { MenuStore } from '../store/MenuStore';
 import { useMenuItemCommonProps } from './useMenuItemCommonProps';
 

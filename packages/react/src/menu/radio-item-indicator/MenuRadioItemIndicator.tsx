@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useMenuRadioItemContext } from '../radio-item/MenuRadioItemContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
-import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 
 /**
  * Indicates whether the radio item is selected.

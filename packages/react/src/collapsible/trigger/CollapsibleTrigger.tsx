@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { useButton } from '../../use-button';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useButton } from '../../internals/use-button';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import { type CollapsibleRootState } from '../root/CollapsibleRoot';
 

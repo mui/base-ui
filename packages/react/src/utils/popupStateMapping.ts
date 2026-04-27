@@ -1,5 +1,5 @@
-import type { StateAttributesMapping } from './getStateAttributesProps';
-import { TransitionStatusDataAttributes } from './stateAttributesMapping';
+import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
+import { TransitionStatusDataAttributes } from '../internals/stateAttributesMapping';
 
 export enum CommonPopupDataAttributes {
   /**

@@ -68,8 +68,8 @@
     height: 100dvh;
     overflow-y: auto;
 
-    font-size: var(--text-base);
-    line-height: var(--text-base--line-height);
+    font-size: var(--font-size-16);
+    line-height: 1.5rem;
 
     /* Native apps don't show scrollbars on sheets like this */
     scrollbar-width: none;
@@ -112,15 +112,15 @@
     position: relative;
     padding-block: 1rem;
 
-    border-top-left-radius: var(--radius-xl);
-    border-top-right-radius: var(--radius-xl);
+    border-top-left-radius: var(--radius-12);
+    border-top-right-radius: var(--radius-12);
 
     box-shadow:
       0 10px 64px -10px rgb(36 40 52 / 20%),
-      0 0.25px 0 1px var(--color-gray-200);
+      0 0.25px 0 1px var(--gray-c2);
 
     @media (prefers-color-scheme: dark) {
-      box-shadow: 0 0 0 1px var(--color-gray-200);
+      box-shadow: 0 0 0 1px var(--gray-c2);
     }
 
     /* Make bottom overscroll edges soft; visible during extreme rubber band overscroll at the bottom */
@@ -134,7 +134,7 @@
       max-width: 40rem;
       background-image: none;
       background-color: var(--color-popup);
-      border-radius: var(--radius-xl);
+      border-radius: var(--radius-12);
     }
   }
 
@@ -154,9 +154,9 @@
   }
 
   .MobileNavHeading {
-    font-size: var(--text-lg);
-    line-height: var(--text-lg--line-height);
-    font-weight: 700;
+    font-size: var(--font-size-18);
+    line-height: 1.75rem;
+    font-weight: var(--font-weight-700);
     padding-inline: var(--mobile-nav-item-padding-x);
 
     .MobileNavHeadingInner {
@@ -169,7 +169,7 @@
       content: '';
       display: block;
       margin-top: -1px;
-      border-bottom: 1px solid var(--color-gray-200);
+      border-bottom: 1px solid var(--gray-c2);
     }
   }
 
@@ -184,7 +184,7 @@
       content: '';
       display: block;
       margin-inline: var(--mobile-nav-item-padding-x);
-      border-bottom: 1px solid var(--color-gray-200);
+      border-bottom: 1px solid var(--gray-c2);
     }
   }
 
@@ -203,24 +203,24 @@
 
     @supports not (-webkit-tap-highlight-color: black) {
       &:active {
-        background-color: var(--color-gray-100);
+        background-color: var(--gray-c1);
       }
     }
 
     @supports (-webkit-tap-highlight-color: black) {
       /* Applying background-color on :active shows it when touching items while scrolling */
       /* This activates only on real link taps */
-      -webkit-tap-highlight-color: var(--color-gray-300);
+      -webkit-tap-highlight-color: var(--gray-c3);
     }
   }
 
   .MobileNavBadge {
-    color: var(--color-red);
+    color: var(--poppy-t1);
     line-height: inherit;
     user-select: none;
     text-transform: uppercase;
     font-size: 0.6875rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-700);
     letter-spacing: 0.035em;
     padding-inline: 2px;
     translate: 0 -3px;
@@ -244,14 +244,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
     outline: 0;
 
     /* Visible circle */
     width: 1.75rem;
     height: 1.75rem;
     border-radius: 100%;
-    background-color: var(--color-gray-200);
+    background-color: var(--gray-c2);
 
     /* Blur the dividers behind */
     backdrop-filter: blur(1rem);

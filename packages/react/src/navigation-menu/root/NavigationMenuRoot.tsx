@@ -12,19 +12,19 @@ import {
   type FloatingRootContext,
 } from '../../floating-ui-react';
 import { activeElement, contains } from '../../floating-ui-react/utils';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   type NavigationMenuPopupAutoSizeResetState,
   NavigationMenuRootContext,
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { getCssDimensions } from '../../utils/getCssDimensions';
-import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 

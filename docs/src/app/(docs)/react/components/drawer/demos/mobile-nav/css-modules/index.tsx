@@ -33,6 +33,7 @@ const LONG_LIST = [
   { href: '/react/components/meter', label: 'Meter' },
   { href: '/react/components/navigation-menu', label: 'Navigation Menu' },
   { href: '/react/components/number-field', label: 'Number Field' },
+  { href: '/react/components/otp-field', label: 'OTP Field' },
   { href: '/react/components/popover', label: 'Popover' },
   { href: '/react/components/preview-card', label: 'Preview Card' },
   { href: '/react/components/progress', label: 'Progress' },
@@ -69,7 +70,7 @@ export default function ExampleDrawerMobileNav() {
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                           <path
                             d="M0.75 0.75L6 6M11.25 11.25L6 6M6 6L0.75 11.25M6 6L11.25 0.75"
-                            stroke="currentcolor"
+                            stroke="currentColor"
                             strokeWidth="2"
                             strokeLinecap="round"
                             strokeLinejoin="round"

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
@@ -15,7 +15,7 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
   componentProps: NavigationMenuIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { value: itemValue } = useNavigationMenuItemContext();
   const { open, value } = useNavigationMenuRootContext();

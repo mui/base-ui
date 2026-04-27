@@ -130,20 +130,20 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute        | Type | Description                                                               |
-| :--------------- | :--- | :------------------------------------------------------------------------ |
-| data-popup-open  | -    | Present when the corresponding select is open.                            |
-| data-pressed     | -    | Present when the trigger is pressed.                                      |
-| data-disabled    | -    | Present when the select is disabled.                                      |
-| data-readonly    | -    | Present when the select is readonly.                                      |
-| data-required    | -    | Present when the select is required.                                      |
-| data-valid       | -    | Present when the select is in valid state (when wrapped in Field.Root).   |
-| data-invalid     | -    | Present when the select is in invalid state (when wrapped in Field.Root). |
-| data-dirty       | -    | Present when the select's value has changed (when wrapped in Field.Root). |
-| data-touched     | -    | Present when the select has been touched (when wrapped in Field.Root).    |
-| data-filled      | -    | Present when the select has a value (when wrapped in Field.Root).         |
-| data-focused     | -    | Present when the select trigger is focused (when wrapped in Field.Root).  |
-| data-placeholder | -    | Present when the select doesn't have a value.                             |
+| Attribute        | Type | Description                                                                  |
+| :--------------- | :--- | :--------------------------------------------------------------------------- |
+| data-popup-open  | -    | Present when the corresponding select is open.                               |
+| data-pressed     | -    | Present when the trigger is pressed.                                         |
+| data-disabled    | -    | Present when the select is disabled.                                         |
+| data-readonly    | -    | Present when the select is readonly.                                         |
+| data-required    | -    | Present when the select is required.                                         |
+| data-valid       | -    | Present when the select is in a valid state (when wrapped in Field.Root).    |
+| data-invalid     | -    | Present when the select is in an invalid state (when wrapped in Field.Root). |
+| data-dirty       | -    | Present when the select's value has changed (when wrapped in Field.Root).    |
+| data-touched     | -    | Present when the select has been touched (when wrapped in Field.Root).       |
+| data-filled      | -    | Present when the select has a value (when wrapped in Field.Root).            |
+| data-focused     | -    | Present when the select trigger is focused (when wrapped in Field.Root).     |
+| data-placeholder | -    | Present when the select doesn't have a value.                                |
 
 ### Trigger.Props
 

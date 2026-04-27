@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { fieldValidityMapping } from '../../field/utils/constants';
-import { useLabel } from '../../labelable-provider/useLabel';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { useLabel } from '../../internals/labelable-provider/useLabel';
 import { getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';

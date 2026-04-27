@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
+import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
@@ -42,7 +43,9 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
         // anchor hash for each property
         const id = `${partName}-${name}`;
 
-        const shortTypeText = prop.shortTypeText ?? 'type';
+        const shortTypeText = prop.shortType
+          ? stringOrHastToString(prop.shortType as string)
+          : 'type';
 
         // Build modifiers string
         const modifiers: string[] = [];
@@ -78,7 +81,9 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
                 </Accordion.Scrollable>
               )}
               <Accordion.Scrollable className="ReferenceDefaultCell">
-                <TableCode style={{ color: 'var(--syntax-nullish)' }}>{modifiersText}</TableCode>
+                <TableCode style={{ color: 'var(--color-docs-infra-syntax-nullish)' }}>
+                  {modifiersText}
+                </TableCode>
               </Accordion.Scrollable>
               <span className="ReferenceIconWrap">
                 <svg
@@ -87,9 +92,8 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
                   height="10"
                   viewBox="0 0 10 10"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </span>
             </Accordion.Trigger>

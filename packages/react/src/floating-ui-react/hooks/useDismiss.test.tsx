@@ -18,7 +18,7 @@ import {
   useInteractions,
   useClick,
 } from '../index';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import type { UseDismissProps } from './useDismiss';
 import { normalizeProp } from './useDismiss';
 

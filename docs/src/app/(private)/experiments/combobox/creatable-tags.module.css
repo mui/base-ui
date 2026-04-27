@@ -31,7 +31,7 @@
 }
 
 .Chips:focus-within {
-  outline: 2px solid var(--color-blue-800);
+  outline: 2px solid var(--color-blue);
   outline-offset: -1px;
 }
 
@@ -43,15 +43,15 @@
   border-radius: 0.375rem;
   background: var(--color-gray-100);
   padding: 0.2rem 0.375rem;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--color-gray-900);
   outline: none;
 }
 
 .Chip[data-highlighted],
 .Chip:focus-within {
-  background: var(--color-blue-800);
+  background: var(--color-blue);
   color: var(--color-gray-50);
 }
 
@@ -73,8 +73,8 @@
   border-radius: 0.375rem;
   background: transparent;
   padding-left: 0.5rem;
-  font-size: var(--text-base);
-  line-height: var(--text-base--line-height);
+  font-size: 1rem;
+  line-height: 1.5rem;
   color: var(--color-gray-900);
   outline: none;
 }
@@ -97,7 +97,9 @@
   padding: 0.5rem 0;
   color: var(--color-gray-900);
   outline: 1px solid var(--color-gray-200);
-  box-shadow: var(--shadow-lg);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -117,7 +119,7 @@
   gap: 0.5rem;
   cursor: default;
   padding: 0.5rem 2rem 0.5rem 1rem;
-  font-size: var(--text-base);
+  font-size: 1rem;
   line-height: 1rem;
   outline: none;
   user-select: none;

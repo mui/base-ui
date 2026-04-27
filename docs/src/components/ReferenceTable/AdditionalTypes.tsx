@@ -61,7 +61,7 @@ export function AdditionalTypes({
                 {additionalType.data.reExportOf.name}
               </Link>{' '}
               {additionalType.data.reExportOf.suffix} as{' '}
-              <Code data-table-code="" data-inline="">
+              <Code>
                 <span className="pl-en">{additionalType.name.replaceAll('.', '')}</span>
               </Code>
             </p>

@@ -1,4 +1,4 @@
-import { getNodeName, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
+import { getComputedStyle, getNodeName, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { activeElement, contains } from './element';
 import { isElementVisible } from './composite';
@@ -62,6 +62,7 @@ function isFocusableElement(element: Element | null): element is FocusableElemen
   }
 
   for (let current: Element | null = element; current; current = getParentElement(current)) {
+    const isAncestor = current !== element;
     const isSlot = getNodeName(current) === 'slot';
 
     if (current.hasAttribute('inert')) {
@@ -69,18 +70,28 @@ function isFocusableElement(element: Element | null): element is FocusableElemen
     }
 
     if (
-      (current !== element &&
+      (isAncestor &&
         getNodeName(current) === 'details' &&
         !(current as HTMLDetailsElement).open &&
         !isWithinOpenDetailsSummary(element, current)) ||
       current.hasAttribute('hidden') ||
-      (!isSlot && !isElementVisible(current))
+      (!isSlot && !isVisibleInTabbableTree(current, isAncestor))
     ) {
       return false;
     }
   }
 
   return true;
+}
+
+function isVisibleInTabbableTree(element: Element, isAncestor: boolean) {
+  const styles = getComputedStyle(element);
+
+  if (!isAncestor) {
+    return isElementVisible(element, styles);
+  }
+
+  return styles.display !== 'none';
 }
 
 function getTabIndex(element: FocusableElement) {

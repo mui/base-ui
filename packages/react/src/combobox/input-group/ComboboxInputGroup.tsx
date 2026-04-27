@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import {
   useComboboxDerivedItemsContext,
@@ -19,6 +19,8 @@ import { contains } from '../../floating-ui-react/utils/element';
 /**
  * A wrapper for the input and its associated controls.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
   componentProps: ComboboxInputGroup.Props,

@@ -1,13 +1,13 @@
 'use client';
 import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui/utils/useId';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { ReferenceType } from '../types';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { PopupTriggerMap } from '../../utils/popups';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingRootStore, type FloatingRootState } from '../components/FloatingRootStore';
-import { PopupTriggerMap } from '../../utils/popups';
+import type { ReferenceType } from '../types';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean | undefined;

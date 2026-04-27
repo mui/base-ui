@@ -13,18 +13,19 @@ import {
   type Side,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import { BaseUIComponentProps } from '../../utils/types';
-import { CompositeList } from '../../composite/list/CompositeList';
+import { BaseUIComponentProps } from '../../internals/types';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
-import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { usePositioner } from '../../utils/usePositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
 /**
  * Positions the menu popup against the trigger.
@@ -66,6 +67,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const modal = store.useState('modal');
+  const openMethod = store.useState('openMethod');
   const triggerElement = store.useState('activeTriggerElement');
   const transitionStatus = store.useState('transitionStatus');
   const positionerElement = store.useState('positionerElement');
@@ -257,6 +259,16 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     nested: parent.type === 'menu',
     instant: instantType,
   };
+
+  const menubarModal = parent.type === 'menubar' && parent.context.modal;
+  const popupModal = modal && lastOpenChangeReason !== REASONS.triggerHover;
+
+  useAnchoredPopupScrollLock(
+    open && (menubarModal || popupModal),
+    openMethod === 'touch',
+    positionerElement,
+    triggerElement,
+  );
 
   const element = usePositioner(componentProps, state, {
     styles: positioner.positionerStyles,

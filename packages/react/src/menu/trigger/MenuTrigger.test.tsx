@@ -4,7 +4,7 @@ import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-util
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer } from '#test-utils';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Trigger />', () => {
   const { render } = createRenderer();

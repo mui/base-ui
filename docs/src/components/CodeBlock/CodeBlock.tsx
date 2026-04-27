@@ -56,7 +56,8 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
       <GhostButton
         aria-label="Copy code"
         onClick={async () => {
-          const code = document.getElementById(codeId)?.textContent;
+          const codeRoot = document.getElementById(codeId);
+          const code = codeRoot?.querySelector('pre code')?.textContent ?? codeRoot?.textContent;
 
           if (code) {
             await copy(code);
@@ -86,14 +87,27 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
   );
 }
 
-export function PreInline(props: React.ComponentProps<'pre'>) {
+export function Content({
+  className,
+  children,
+  onKeyDown,
+  ...other
+}: React.ComponentPropsWithoutRef<typeof ScrollArea.Root>) {
   const { codeId } = React.useContext(CodeBlockContext);
+
   return (
     <ScrollArea.Root
-      // Select code block contents on Ctrl/Cmd + A
       tabIndex={-1}
-      className="CodeBlockPreContainer"
+      className={clsx('CodeBlockPreContainer', className)}
+      {...other}
+      id={codeId}
       onKeyDown={(event) => {
+        onKeyDown?.(event);
+
+        if (event.defaultPrevented) {
+          return;
+        }
+
         if (
           (event.ctrlKey || event.metaKey) &&
           String.fromCharCode(event.keyCode) === 'A' &&
@@ -105,14 +119,17 @@ export function PreInline(props: React.ComponentProps<'pre'>) {
         }
       }}
     >
-      <ScrollArea.Viewport
-        style={{ overflow: undefined }}
-        render={
-          <pre {...props} id={codeId} className={clsx('CodeBlockPreInline', props.className)} />
-        }
-      />
+      <ScrollArea.Viewport className="CodeBlockViewport">{children}</ScrollArea.Viewport>
       <ScrollArea.Scrollbar orientation="horizontal" />
     </ScrollArea.Root>
+  );
+}
+
+export function PreInline(props: React.ComponentProps<'pre'>) {
+  return (
+    <Content>
+      <pre {...props} className={clsx('CodeBlockPreInline', props.className)} />
+    </Content>
   );
 }
 

@@ -32,10 +32,12 @@ import { Switch } from '@base-ui/react/switch';
 
 An enclosing `<label>` is the simplest labeling pattern:
 
-```tsx title="Wrapping a label around a switch" {1,4}
+```tsx title="Wrapping a label around a switch"
+// @highlight
 <label>
   <Switch.Root />
   Notifications
+  {/* @highlight */}
 </label>
 ```
 
@@ -43,9 +45,10 @@ An enclosing `<label>` is the simplest labeling pattern:
 
 By default, `<Switch.Root>` renders a `<span>` element to support enclosing labels. Prefer rendering the switch as a native button when using sibling labels (`htmlFor`/`id`).
 
-```tsx title="Sibling label pattern with a native button" "nativeButton" "render"
+```tsx title="Sibling label pattern with a native button"
 <div>
   <label htmlFor="notifications-switch">Notifications</label>
+  {/* @highlight-text "nativeButton" "render={<button />}" */}
   <Switch.Root id="notifications-switch" nativeButton render={<button />}>
     <Switch.Thumb />
   </Switch.Root>
@@ -54,15 +57,17 @@ By default, `<Switch.Root>` renders a `<span>` element to support enclosing labe
 
 Native buttons with wrapping labels are supported by using the `render` callback to avoid invalid HTML, so the hidden input is placed outside the label:
 
-```tsx title="Render callback" {3-8}
+```tsx title="Render callback"
 <Switch.Root
   nativeButton
+  // @highlight-start
   render={(buttonProps) => (
     <label>
       <button {...buttonProps} />
       Notifications
     </label>
   )}
+  {/* @highlight-end */}
 />
 ```
 
@@ -70,8 +75,9 @@ Native buttons with wrapping labels are supported by using the `render` callback
 
 Use [Field](/react/components/field) to handle label associations and form integration:
 
-```tsx title="Using Switch in a form" {2}
+```tsx title="Using Switch in a form"
 <Form>
+  {/* @highlight */}
   <Field.Root name="notifications">
     <Field.Label>
       <Switch.Root />

@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useButton } from '../../use-button/useButton';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useButton } from '../../internals/use-button/useButton';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * Performs an action when clicked.

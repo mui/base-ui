@@ -7,20 +7,20 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
   IndexGuessBehavior,
-} from '../../composite/list/useCompositeListItem';
+} from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
   BaseUIEvent,
   HTMLProps,
   NonNativeButtonProps,
-} from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+} from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
-import { useButton } from '../../use-button';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { compareItemEquality, removeItem } from '../../utils/itemEquality';
+import { useButton } from '../../internals/use-button';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { compareItemEquality, removeItem } from '../../internals/itemEquality';
 
 /**
  * An individual option in the select popup.
@@ -36,11 +36,11 @@ export const SelectItem = React.memo(
     const {
       render,
       className,
+      style,
       value: itemValue = null,
       label,
       disabled = false,
       nativeButton = false,
-      style,
       ...elementProps
     } = componentProps;
 
@@ -51,8 +51,17 @@ export const SelectItem = React.memo(
       indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
-    const { store, getItemProps, setOpen, setValue, selectionRef, typingRef, valuesRef, multiple } =
-      useSelectRootContext();
+    const {
+      store,
+      getItemProps,
+      setOpen,
+      setValue,
+      selectionRef,
+      typingRef,
+      valuesRef,
+      multiple,
+      selectedItemTextRef,
+    } = useSelectRootContext();
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
@@ -80,7 +89,7 @@ export const SelectItem = React.memo(
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
-        return undefined;
+        return;
       }
 
       const selectedValue = store.state.value;
@@ -95,18 +104,13 @@ export const SelectItem = React.memo(
         compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
       ) {
         store.set('selectedIndex', index);
+        // Make sure SelectPopup can measure the selected item on first open.
+        // SelectItemText can still update this ref later when focus moves.
+        if (textRef.current) {
+          selectedItemTextRef.current = textRef.current;
+        }
       }
-      return undefined;
-    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue]);
-
-    const state: SelectItemState = {
-      disabled,
-      selected,
-      highlighted,
-    };
-
-    const rootProps = getItemProps({ active: highlighted, selected });
-    rootProps.id = undefined;
+    }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
 
     const lastKeyRef = React.useRef<string | null>(null);
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
@@ -118,6 +122,15 @@ export const SelectItem = React.memo(
       native: nativeButton,
       composite: true,
     });
+
+    const rootProps = getItemProps({ active: highlighted, selected });
+    rootProps.id = undefined;
+
+    const state: SelectItemState = {
+      disabled,
+      selected,
+      highlighted,
+    };
 
     function commitSelection(event: MouseEvent) {
       const selectedValue = store.state.value;

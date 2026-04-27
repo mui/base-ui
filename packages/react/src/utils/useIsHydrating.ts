@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
-import { NOOP } from './noop';
+import { NOOP } from '../internals/noop';
 
 function subscribe() {
   return NOOP;

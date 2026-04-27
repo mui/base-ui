@@ -681,6 +681,58 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('should handle browser autofill with object values when autofill uses the label', async () => {
+    // Browsers autofill with the displayed text (label), not the underlying value.
+    // For example, Chrome will autofill "United States" (the label), not "US" (the value).
+    const items = [
+      { country: 'United States', code: 'US' },
+      { country: 'Canada', code: 'CA' },
+    ];
+
+    const { user } = await render(
+      <Select.Root
+        name="country"
+        itemToStringLabel={(item: any) => item.country}
+        itemToStringValue={(item: any) => item.code}
+      >
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              {items.map((it) => (
+                <Select.Item key={it.code} value={it}>
+                  {it.country}
+                </Select.Item>
+              ))}
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    const selectInput = screen.getByRole('textbox', {
+      hidden: true,
+    });
+    expect(selectInput).toHaveAttribute('name', 'country');
+
+    // Simulate browser autofill with the LABEL (displayed text), not the value
+    fireEvent.change(selectInput, { target: { value: 'Canada' } }); // Browser sends "Canada" (label), not "CA" (value)
+    await flushMicrotasks();
+
+    await user.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Canada', hidden: false })).toHaveAttribute(
+        'data-selected',
+        '',
+      );
+    });
+  });
+
   describe('prop: modal', () => {
     it('should render an internal backdrop when `true`', async () => {
       const { user } = await render(
@@ -743,367 +795,438 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('interaction type tracking (openMethod)', () => {
-    it('keeps touch interaction type when reopening quickly after close', async ({
-      onTestFinished,
-    }) => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-      let nextFrameId = 0;
-      const frameCallbacks = new Map<number, FrameRequestCallback>();
+  describe.skipIf(isJSDOM)('scroll locking', () => {
+    describe('interaction type tracking (openMethod)', () => {
+      it('keeps touch interaction type when reopening quickly after close', async ({
+        onTestFinished,
+      }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        let nextFrameId = 0;
+        const frameCallbacks = new Map<number, FrameRequestCallback>();
 
-      const requestAnimationFrameSpy = vi
-        .spyOn(window, 'requestAnimationFrame')
-        .mockImplementation((callback: FrameRequestCallback) => {
-          nextFrameId += 1;
-          frameCallbacks.set(nextFrameId, callback);
-          return nextFrameId;
-        });
-      const cancelAnimationFrameSpy = vi
-        .spyOn(window, 'cancelAnimationFrame')
-        .mockImplementation((id: number) => {
-          frameCallbacks.delete(id);
-        });
-
-      onTestFinished(() => {
-        requestAnimationFrameSpy.mockRestore();
-        cancelAnimationFrameSpy.mockRestore();
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-      });
-
-      const style = `
-        @keyframes select-close-test {
-          to {
-            opacity: 0;
-          }
-        }
-
-        .animation-test-indicator[data-ending-style] {
-          animation: select-close-test 20ms linear;
-        }
-      `;
-
-      await render(
-        <div>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: style }} />
-          <Select.Root modal>
-            <Select.Trigger>Open</Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup className="animation-test-indicator">
-                  <Select.Item>Item</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-        </div>,
-      );
-
-      const trigger = screen.getByRole('combobox');
-
-      const isScrollLocked = () =>
-        trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
-        trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-        trigger.ownerDocument.body.style.overflow === 'hidden';
-
-      function fireTouchPress() {
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
-      }
-
-      function flushAnimationFrames() {
-        let iterations = 0;
-        while (frameCallbacks.size > 0) {
-          if (iterations > 20) {
-            throw new Error('Exceeded maximum animation frame flush iterations.');
-          }
-
-          const pending = Array.from(frameCallbacks.values());
-          frameCallbacks.clear();
-          pending.forEach((callback) => {
-            callback(0);
+        const requestAnimationFrameSpy = vi
+          .spyOn(window, 'requestAnimationFrame')
+          .mockImplementation((callback: FrameRequestCallback) => {
+            nextFrameId += 1;
+            frameCallbacks.set(nextFrameId, callback);
+            return nextFrameId;
           });
-          iterations += 1;
-        }
-      }
+        const cancelAnimationFrameSpy = vi
+          .spyOn(window, 'cancelAnimationFrame')
+          .mockImplementation((id: number) => {
+            frameCallbacks.delete(id);
+          });
 
-      fireTouchPress();
-      await act(async () => {
-        flushAnimationFrames();
-      });
+        onTestFinished(() => {
+          requestAnimationFrameSpy.mockRestore();
+          cancelAnimationFrameSpy.mockRestore();
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
 
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBe(null);
-      });
-
-      fireTouchPress();
-
-      await act(async () => {
-        flushAnimationFrames();
-      });
-
-      await waitFor(() => {
-        expect(trigger).toHaveAttribute('aria-expanded', 'false');
-      });
-
-      // Re-open while the previous close animation is still pending.
-      fireTouchPress();
-
-      await act(async () => {
-        flushAnimationFrames();
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBe(null);
-      });
-
-      await wait(30);
-
-      expect(isScrollLocked()).toBe(false);
-    });
-
-    it('keeps touch positioning during the close transition', async ({ onTestFinished }) => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      onTestFinished(() => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-      });
-
-      const style = `
-        @keyframes select-close-test {
-          to {
-            opacity: 0;
-          }
-        }
-
-        .animation-test-popup[data-ending-style] {
-          animation: select-close-test 100ms linear;
-        }
-      `;
-
-      await render(
-        <div style={{ paddingTop: 80 }}>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: style }} />
-          <Select.Root>
-            <Select.Trigger>Open</Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup className="animation-test-popup">
-                  <Select.Item>Item</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-        </div>,
-      );
-
-      const trigger = screen.getByRole('combobox');
-
-      function fireTouchPress() {
-        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-        fireEvent.mouseDown(trigger);
-      }
-
-      fireTouchPress();
-
-      const popup = await screen.findByRole('listbox');
-      const positioner = popup.parentElement as HTMLElement;
-
-      expect(getComputedStyle(positioner).position).toBe('absolute');
-
-      fireTouchPress();
-
-      await waitFor(() => {
-        expect(popup).toHaveAttribute('data-ending-style');
-      });
-
-      expect(getComputedStyle(positioner).position).toBe('absolute');
-    });
-
-    it('keeps the selected item highlighted when reopening after a touch-driven mouseleave', async () => {
-      await render(
-        <Select.Root>
-          <Select.Trigger>
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-                <Select.Item value="c">c</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
-
-      const trigger = screen.getByRole('combobox');
-
-      function fireTouchPress(element: HTMLElement) {
-        fireEvent.pointerDown(element, { pointerType: 'touch' });
-        fireEvent.mouseDown(element);
-      }
-
-      fireTouchPress(trigger);
-
-      await waitFor(() => {
-        expect(screen.getByRole('listbox')).toBeInTheDocument();
-      });
-
-      const optionB = screen.getByRole('option', { name: 'b' });
-      fireEvent.pointerDown(optionB, { pointerType: 'touch' });
-      fireEvent.click(optionB);
-      fireEvent.mouseLeave(optionB, { clientX: -1, clientY: -1 });
-
-      fireTouchPress(trigger);
-
-      await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted');
-      });
-    });
-
-    it('recomputes positioning before the popup becomes visible again after touch dismiss', async ({
-      onTestFinished,
-    }) => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-      onTestFinished(() => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-      });
-
-      const onOpenChangeComplete = vi.fn();
-      const items = Array.from({ length: 80 }, (_, index) => `Item ${index + 1}`);
-      const style = `
-        @keyframes select-reopen-test {
-          to {
-            opacity: 0;
-            transform: scale(0.9);
-          }
-        }
-
-        .reopen-test-popup {
-          width: 120px;
-          transition:
-            transform 150ms,
-            opacity 150ms;
-        }
-
-        .reopen-test-popup[data-starting-style],
-        .reopen-test-popup[data-ending-style] {
-          animation: select-reopen-test 20ms linear;
-        }
-
-        .reopen-test-list {
-          max-height: var(--available-height);
-          overflow-y: auto;
-        }
-      `;
-
-      function Test() {
-        const [open, setOpen] = React.useState(false);
-        const [paddingTop, setPaddingTop] = React.useState(0);
-        const triggerRef = React.useRef<HTMLButtonElement | null>(null);
-
-        React.useLayoutEffect(() => {
-          const trigger = triggerRef.current;
-          if (!trigger) {
-            return;
+        const style = `
+          @keyframes select-close-test {
+            to {
+              opacity: 0;
+            }
           }
 
-          const gap =
-            document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
-          if (Math.abs(gap - 100) <= 1) {
-            return;
+          .animation-test-indicator[data-ending-style] {
+            animation: select-close-test 20ms linear;
           }
+        `;
 
-          setPaddingTop((prev) => prev + gap - 100);
-        }, [paddingTop]);
-
-        return (
-          <div style={{ paddingTop }}>
+        await render(
+          <div>
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button data-testid="outside">Outside</button>
-            <Select.Root
-              open={open}
-              onOpenChange={setOpen}
-              onOpenChangeComplete={onOpenChangeComplete}
-            >
-              <Select.Trigger ref={triggerRef}>Open</Select.Trigger>
+            <Select.Root modal>
+              <Select.Trigger>Open</Select.Trigger>
               <Select.Portal>
-                <Select.Positioner data-testid="positioner" sideOffset={8}>
-                  <Select.Popup className="reopen-test-popup">
-                    <Select.ScrollUpArrow />
-                    <Select.Arrow />
-                    <Select.List className="reopen-test-list">
-                      <div aria-hidden style={{ height: 75 }}>
-                        Start
-                      </div>
-                      {items.map((item) => (
-                        <Select.Item key={item} value={item}>
-                          {item}
-                        </Select.Item>
-                      ))}
-                      <div aria-hidden style={{ height: 75 }}>
-                        End
-                      </div>
-                    </Select.List>
-                    <Select.ScrollDownArrow />
+                <Select.Positioner>
+                  <Select.Popup className="animation-test-indicator">
+                    <Select.Item>Item</Select.Item>
                   </Select.Popup>
                 </Select.Positioner>
               </Select.Portal>
             </Select.Root>
-          </div>
+          </div>,
         );
-      }
 
-      const { user } = await render(<Test />);
+        const trigger = screen.getByRole('combobox');
 
-      const trigger = screen.getByRole('combobox');
-      const outside = screen.getByTestId('outside');
+        const isScrollLocked = () =>
+          trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
+          trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          trigger.ownerDocument.body.style.overflow === 'hidden';
 
-      await waitFor(() => {
-        const gap = document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
-        expect(Math.abs(gap - 100)).toBeLessThanOrEqual(1);
+        function fireTouchPress() {
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+        }
+
+        function flushAnimationFrames() {
+          let iterations = 0;
+          while (frameCallbacks.size > 0) {
+            if (iterations > 20) {
+              throw new Error('Exceeded maximum animation frame flush iterations.');
+            }
+
+            const pending = Array.from(frameCallbacks.values());
+            frameCallbacks.clear();
+            pending.forEach((callback) => {
+              callback(0);
+            });
+            iterations += 1;
+          }
+        }
+
+        fireTouchPress();
+        await act(async () => {
+          flushAnimationFrames();
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).not.toBe(null);
+        });
+
+        fireTouchPress();
+
+        await act(async () => {
+          flushAnimationFrames();
+        });
+
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        });
+
+        // Re-open while the previous close animation is still pending.
+        fireTouchPress();
+
+        await act(async () => {
+          flushAnimationFrames();
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).not.toBe(null);
+        });
+
+        await wait(30);
+
+        expect(isScrollLocked()).toBe(false);
       });
 
-      function fireTouchPress() {
+      it('keeps touch positioning during the close transition', async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const style = `
+          @keyframes select-close-test {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: select-close-test 100ms linear;
+          }
+        `;
+
+        await render(
+          <div style={{ paddingTop: 80 }}>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Select.Root>
+              <Select.Trigger>Open</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup className="animation-test-popup">
+                    <Select.Item>Item</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>,
+        );
+
+        const trigger = screen.getByRole('combobox');
+
+        function fireTouchPress() {
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+        }
+
+        fireTouchPress();
+
+        const popup = await screen.findByRole('listbox');
+        const positioner = popup.parentElement as HTMLElement;
+
+        expect(getComputedStyle(positioner).position).toBe('absolute');
+
+        fireTouchPress();
+
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+
+        expect(getComputedStyle(positioner).position).toBe('absolute');
+      });
+
+      it('keeps the selected item highlighted when reopening after a touch-driven mouseleave', async () => {
+        await render(
+          <Select.Root>
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                  <Select.Item value="c">c</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
+
+        const trigger = screen.getByRole('combobox');
+
+        function fireTouchPress(element: HTMLElement) {
+          fireEvent.pointerDown(element, { pointerType: 'touch' });
+          fireEvent.mouseDown(element);
+        }
+
+        fireTouchPress(trigger);
+
+        await waitFor(() => {
+          expect(screen.getByRole('listbox')).toBeInTheDocument();
+        });
+
+        const optionB = screen.getByRole('option', { name: 'b' });
+        fireEvent.pointerDown(optionB, { pointerType: 'touch' });
+        fireEvent.click(optionB);
+        fireEvent.mouseLeave(optionB, { clientX: -1, clientY: -1 });
+
+        fireTouchPress(trigger);
+
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted');
+        });
+      });
+
+      it('recomputes positioning before the popup becomes visible again after touch dismiss', async ({
+        onTestFinished,
+      }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const onOpenChangeComplete = vi.fn();
+        const items = Array.from({ length: 80 }, (_, index) => `Item ${index + 1}`);
+        const style = `
+          @keyframes select-reopen-test {
+            to {
+              opacity: 0;
+              transform: scale(0.9);
+            }
+          }
+
+          .reopen-test-popup {
+            width: 120px;
+            transition:
+              transform 150ms,
+              opacity 150ms;
+          }
+
+          .reopen-test-popup[data-starting-style],
+          .reopen-test-popup[data-ending-style] {
+            animation: select-reopen-test 20ms linear;
+          }
+
+          .reopen-test-list {
+            max-height: var(--available-height);
+            overflow-y: auto;
+          }
+        `;
+
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+          const [paddingTop, setPaddingTop] = React.useState(0);
+          const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+
+          React.useLayoutEffect(() => {
+            const trigger = triggerRef.current;
+            if (!trigger) {
+              return;
+            }
+
+            const gap =
+              document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
+            if (Math.abs(gap - 100) <= 1) {
+              return;
+            }
+
+            setPaddingTop((prev) => prev + gap - 100);
+          }, [paddingTop]);
+
+          return (
+            <div style={{ paddingTop }}>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <button data-testid="outside">Outside</button>
+              <Select.Root
+                open={open}
+                onOpenChange={setOpen}
+                onOpenChangeComplete={onOpenChangeComplete}
+              >
+                <Select.Trigger ref={triggerRef}>Open</Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner data-testid="positioner" sideOffset={8}>
+                    <Select.Popup className="reopen-test-popup">
+                      <Select.ScrollUpArrow />
+                      <Select.Arrow />
+                      <Select.List className="reopen-test-list">
+                        <div aria-hidden style={{ height: 75 }}>
+                          Start
+                        </div>
+                        {items.map((item) => (
+                          <Select.Item key={item} value={item}>
+                            {item}
+                          </Select.Item>
+                        ))}
+                        <div aria-hidden style={{ height: 75 }}>
+                          End
+                        </div>
+                      </Select.List>
+                      <Select.ScrollDownArrow />
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const trigger = screen.getByRole('combobox');
+        const outside = screen.getByTestId('outside');
+
+        await waitFor(() => {
+          const gap =
+            document.documentElement.clientHeight - trigger.getBoundingClientRect().bottom;
+          expect(Math.abs(gap - 100)).toBeLessThanOrEqual(1);
+        });
+
+        function fireTouchPress() {
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+        }
+
+        fireTouchPress();
+
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).not.toBe(null);
+        });
+
+        const initialPositioner = screen.getByTestId('positioner');
+
+        expect(initialPositioner).toHaveAttribute('data-side', 'top');
+
+        fireEvent.pointerDown(outside, { pointerType: 'touch' });
+        fireEvent.mouseDown(outside);
+
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+          expect(onOpenChangeComplete.mock.calls.some(([value]) => value === false)).toBe(true);
+          expect(screen.getByTestId('positioner').style.opacity).toBe('0');
+        });
+
+        fireTouchPress();
+
+        await waitFor(() => {
+          expect(screen.getByTestId('positioner').style.opacity).not.toBe('0');
+        });
+
+        const reopenedPositioner = screen.getByTestId('positioner');
+        const reopenedList = screen.getByRole('listbox');
+        expect(reopenedPositioner).toHaveAttribute('data-side', 'top');
+        expect(reopenedList.getBoundingClientRect().height).toBeGreaterThan(200);
+
+        await user.click(outside);
+      });
+    });
+
+    describe('touch scroll lock', () => {
+      it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
+        await render(
+          <Select.Root modal>
+            <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner" style={{ width: 'calc(100vw - 10px)' }}>
+                <Select.Popup>
+                  <Select.Item>1</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
         fireEvent.pointerDown(trigger, { pointerType: 'touch' });
         fireEvent.mouseDown(trigger);
-      }
 
-      fireTouchPress();
+        await screen.findByRole('listbox');
 
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBe(null);
+        await waitFor(() => {
+          const isScrollLocked =
+            trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
+            trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            trigger.ownerDocument.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
       });
 
-      const initialPositioner = screen.getByTestId('positioner');
+      it('does not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
+        await render(
+          <Select.Root modal>
+            <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner" style={{ width: '240px' }}>
+                <Select.Popup>
+                  <Select.Item>1</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
 
-      expect(initialPositioner).toHaveAttribute('data-side', 'top');
+        const trigger = screen.getByTestId('trigger');
 
-      fireEvent.pointerDown(outside, { pointerType: 'touch' });
-      fireEvent.mouseDown(outside);
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
 
-      await waitFor(() => {
-        expect(trigger).toHaveAttribute('aria-expanded', 'false');
-        expect(onOpenChangeComplete.mock.calls.some(([value]) => value === false)).toBe(true);
-        expect(screen.getByTestId('positioner').style.opacity).toBe('0');
+        await screen.findByRole('listbox');
+
+        await act(async () => {
+          await new Promise<void>((resolve) => {
+            requestAnimationFrame(() => resolve());
+          });
+        });
+
+        const isScrollLocked =
+          trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
+          trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          trigger.ownerDocument.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).toBe(false);
       });
-
-      fireTouchPress();
-
-      await waitFor(() => {
-        expect(screen.getByTestId('positioner').style.opacity).not.toBe('0');
-      });
-
-      const reopenedPositioner = screen.getByTestId('positioner');
-      const reopenedList = screen.getByRole('listbox');
-      expect(reopenedPositioner).toHaveAttribute('data-side', 'top');
-      expect(reopenedList.getBoundingClientRect().height).toBeGreaterThan(200);
-
-      await user.click(outside);
     });
   });
 

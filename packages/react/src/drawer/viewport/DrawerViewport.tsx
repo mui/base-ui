@@ -12,7 +12,7 @@ import { mergeProps } from '../../merge-props';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import {
   useSwipeDismiss,
   type SwipeDirection,
@@ -22,16 +22,16 @@ import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
-import { REASONS } from '../../utils/reasons';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
-import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';
-import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
+import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../internals/constants';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { BaseUIComponentProps } from '../../internals/types';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 const MIN_SWIPE_THRESHOLD = 10;
 const FAST_SWIPE_VELOCITY = 0.5;
@@ -67,7 +67,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   props: DrawerViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, style, children, ...elementProps } = props;
+  const { render, className, style, children, ...elementProps } = props;
 
   const { store } = useDialogRootContext();
   const {
@@ -78,21 +78,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     snapToSequentialPoints,
   } = useDrawerRootContext();
   const providerContext = useDrawerProviderContext(true);
-  const visualStateStore = providerContext?.visualStateStore;
-
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const nested = store.useState('nested');
-  const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
-  const viewportElement = store.useState('viewportElement');
-  const popupElementState = store.useState('popupElement');
-
-  const nestedDrawerOpen = nestedOpenDialogCount > 0;
-  const scrollAxis =
-    swipeDirection === 'left' || swipeDirection === 'right' ? 'horizontal' : 'vertical';
-  const isVerticalScrollAxis = scrollAxis === 'vertical';
-  const crossScrollAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
-
   const {
     snapPoints,
     resolvedSnapPoints,
@@ -101,6 +86,20 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     setActiveSnapPoint,
     popupHeight,
   } = useDrawerSnapPoints();
+
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const nested = store.useState('nested');
+  const nestedOpenDrawerCount = store.useState('nestedOpenDrawerCount');
+  const viewportElement = store.useState('viewportElement');
+  const popupElementState = store.useState('popupElement');
+
+  const visualStateStore = providerContext?.visualStateStore;
+  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
+  const scrollAxis =
+    swipeDirection === 'left' || swipeDirection === 'right' ? 'horizontal' : 'vertical';
+  const isVerticalScrollAxis = scrollAxis === 'vertical';
+  const crossScrollAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
 
   const [swipeRelease, setSwipeRelease] = React.useState<number | null>(null);
   const pendingSwipeCloseSnapPointRef = React.useRef<typeof activeSnapPoint>(undefined);

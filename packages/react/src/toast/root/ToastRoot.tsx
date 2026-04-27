@@ -7,17 +7,20 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
-import { BASE_UI_SWIPE_IGNORE_SELECTOR, LEGACY_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
+import {
+  BASE_UI_SWIPE_IGNORE_SELECTOR,
+  LEGACY_SWIPE_IGNORE_SELECTOR,
+} from '../../internals/constants';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,

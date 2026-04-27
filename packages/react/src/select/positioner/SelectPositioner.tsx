@@ -2,12 +2,11 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
-import { CompositeList } from '../../composite/list/CompositeList';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
+import type { BaseUIComponentProps } from '../../internals/types';
 import {
   useAnchorPositioning,
   type Align,
@@ -16,13 +15,14 @@ import {
 } from '../../utils/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { findItemIndex, selectedValueIncludes } from '../../utils/itemEquality';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { findItemIndex, selectedValueIncludes } from '../../internals/itemEquality';
 import { usePositioner } from '../../utils/usePositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -104,8 +104,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
-  useScrollLock(
-    (alignItemWithTriggerActive || modal) && open && openMethod !== 'touch',
+  useAnchoredPopupScrollLock(
+    (alignItemWithTriggerActive || modal) && open,
+    openMethod === 'touch',
+    positionerElement,
     triggerElement,
   );
 

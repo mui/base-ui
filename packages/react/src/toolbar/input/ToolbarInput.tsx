@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
-import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../composite/composite';
+import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../internals/composite/composite';
 import type { ToolbarRootState } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
-import { CompositeItem } from '../../composite/item/CompositeItem';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 
 /**
  * A native input element that integrates with Toolbar keyboard navigation.

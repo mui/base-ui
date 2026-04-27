@@ -5,6 +5,10 @@ import * as fs from 'fs';
 import { withDeploymentConfig } from '@mui/internal-docs-infra/withDocsInfra';
 import transformMarkdownMetadata from '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata';
 import transformMarkdownRelativePaths from '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths';
+import transformMarkdownCode from '@mui/internal-docs-infra/pipeline/transformMarkdownCode';
+import transformHtmlCodeBlock from '@mui/internal-docs-infra/pipeline/transformHtmlCodeBlock';
+import transformHtmlCodeInline from '@mui/internal-docs-infra/pipeline/transformHtmlCodeInline';
+import enhanceCodeInline from '@mui/internal-docs-infra/pipeline/enhanceCodeInline';
 import nextMdx from '@next/mdx';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
 import remarkGfm from 'remark-gfm';
@@ -13,9 +17,9 @@ import { remarkQuickNavExcludeHeading } from 'docs/src/components/QuickNav/remar
 import { rehypeQuickNav } from 'docs/src/components/QuickNav/rehypeQuickNav.mjs';
 import { rehypeConcatHeadings } from 'docs/src/components/QuickNav/rehypeConcatHeadings.mjs';
 import { rehypeKbd } from 'docs/src/components/Kbd/rehypeKbd.mjs';
-import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting/index.mjs';
 import { rehypeSlug } from 'docs/src/components/QuickNav/rehypeSlug.mjs';
 import { rehypeSubtitle } from 'docs/src/components/Subtitle/rehypeSubtitle.mjs';
+import { rehypeEagerCodeBlocks } from 'docs/src/components/CodeBlock/rehypeEagerCodeBlocks.mjs';
 import { ordering } from 'docs/src/utils/typeOrder.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
@@ -45,11 +49,15 @@ const withMdx = nextMdx({
         },
       ],
       remarkTypography,
-      transformMarkdownRelativePaths,
       remarkQuickNavExcludeHeading,
+      transformMarkdownRelativePaths,
+      transformMarkdownCode,
     ],
     rehypePlugins: [
-      ...rehypeSyntaxHighlighting,
+      transformHtmlCodeBlock,
+      rehypeEagerCodeBlocks,
+      transformHtmlCodeInline,
+      enhanceCodeInline,
       rehypeSlug,
       rehypeConcatHeadings,
       rehypeExtractToc,

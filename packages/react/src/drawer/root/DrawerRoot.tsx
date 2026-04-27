@@ -14,11 +14,12 @@ import {
   type DrawerSnapPoint,
 } from './DrawerRootContext';
 import { Dialog } from '../../dialog';
+import { IsDrawerContext } from '../../dialog/root/DialogRoot';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import type { DialogHandle } from '../../dialog/store/DialogHandle';
@@ -233,20 +234,22 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
 
   return (
     <DrawerRootContext.Provider value={contextValue}>
-      <Dialog.Root
-        open={openProp}
-        defaultOpen={defaultOpen}
-        onOpenChange={handleOpenChange}
-        onOpenChangeComplete={onOpenChangeComplete}
-        disablePointerDismissal={disablePointerDismissal}
-        modal={modal}
-        actionsRef={actionsRef}
-        handle={handle}
-        triggerId={triggerIdProp}
-        defaultTriggerId={defaultTriggerIdProp}
-      >
-        {resolvedChildren}
-      </Dialog.Root>
+      <IsDrawerContext.Provider value>
+        <Dialog.Root
+          open={openProp}
+          defaultOpen={defaultOpen}
+          onOpenChange={handleOpenChange}
+          onOpenChangeComplete={onOpenChangeComplete}
+          disablePointerDismissal={disablePointerDismissal}
+          modal={modal}
+          actionsRef={actionsRef}
+          handle={handle}
+          triggerId={triggerIdProp}
+          defaultTriggerId={defaultTriggerIdProp}
+        >
+          {resolvedChildren}
+        </Dialog.Root>
+      </IsDrawerContext.Provider>
     </DrawerRootContext.Provider>
   );
 }
@@ -422,11 +425,11 @@ function DrawerProviderReporter() {
   const drawerId = useId();
 
   const providerContext = useDrawerProviderContext(true);
-  const dialogRootContext = useDialogRootContext(false);
+  const { store } = useDialogRootContext(false);
 
-  const open = dialogRootContext.store.useState('open');
-  const nestedOpenDialogCount = dialogRootContext.store.useState('nestedOpenDialogCount');
-  const popupElement = dialogRootContext.store.useState('popupElement');
+  const open = store.useState('open');
+  const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
+  const popupElement = store.useState('popupElement');
 
   const isTopmost = nestedOpenDialogCount === 0;
 
@@ -464,10 +467,10 @@ function DrawerProviderReporter() {
     }
 
     function handleCloseWatcher(event: Event) {
-      if (!dialogRootContext.store.select('open')) {
+      if (!store.select('open')) {
         return;
       }
-      dialogRootContext.store.setOpen(false, createChangeEventDetails(REASONS.closeWatcher, event));
+      store.setOpen(false, createChangeEventDetails(REASONS.closeWatcher, event));
     }
 
     const closeWatcher = new CloseWatcherCtor();
@@ -477,7 +480,7 @@ function DrawerProviderReporter() {
       unsubscribe();
       closeWatcher.destroy();
     };
-  }, [dialogRootContext.store, isTopmost, open, popupElement]);
+  }, [store, isTopmost, open, popupElement]);
 
   return null;
 }

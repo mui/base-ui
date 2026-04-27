@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useMeterRootContext } from '../root/MeterRootContext';
 import type { MeterRootState } from '../root/MeterRoot';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 
 /**

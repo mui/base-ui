@@ -2,23 +2,23 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useBaseUiId } from '../utils/useBaseUiId';
-import { useRenderElement } from '../utils/useRenderElement';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { useBaseUiId } from '../internals/useBaseUiId';
+import { useRenderElement } from '../internals/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRootState } from '../field/root/FieldRoot';
-import { useFieldRootContext } from '../field/root/FieldRootContext';
-import { useRegisterFieldControl } from '../field/root/useRegisterFieldControl';
-import { useLabelableContext } from '../labelable-provider/LabelableContext';
-import type { BaseUIComponentProps } from '../utils/types';
-import { fieldValidityMapping } from '../field/utils/constants';
+import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
+import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
+import type { BaseUIComponentProps } from '../internals/types';
+import { fieldValidityMapping } from '../internals/field-constants/constants';
 import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
-import { REASONS } from '../utils/reasons';
-import { useFormContext } from '../form/FormContext';
-import { useValueChanged } from '../utils/useValueChanged';
-import { areArraysEqual } from '../utils/areArraysEqual';
-import { EMPTY_ARRAY } from '../utils/constants';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { REASONS } from '../internals/reasons';
+import { useFormContext } from '../internals/form-context/FormContext';
+import { useValueChanged } from '../internals/useValueChanged';
+import { areArraysEqual } from '../internals/areArraysEqual';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -32,7 +32,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const {
     allValues,
     className,
-    defaultValue,
+    defaultValue: defaultValueProp,
     disabled: disabledProp = false,
     id: idProp,
     onValueChange,
@@ -57,7 +57,15 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const disabled = fieldDisabled || disabledProp;
 
-  const [value, setValueUnwrapped] = useControlled({
+  const defaultValue = React.useMemo<string[] | undefined>(() => {
+    if (externalValue === undefined) {
+      return defaultValueProp ?? [];
+    }
+
+    return undefined;
+  }, [externalValue, defaultValueProp]);
+
+  const [value, setValueUnwrapped] = useControlled<string[]>({
     controlled: externalValue,
     default: defaultValue,
     name: 'CheckboxGroup',
@@ -78,8 +86,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const parent = useCheckboxGroupParent({
     allValues,
-    value: externalValue,
-    onValueChange,
+    value,
+    onValueChange: setValue,
   });
 
   const id = useBaseUiId(idProp);

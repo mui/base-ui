@@ -15,9 +15,9 @@ import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { useStore } from '@base-ui/utils/store';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import { CompositeItem } from '../../composite/item/CompositeItem';
-import { REASONS } from '../../utils/reasons';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
+import { REASONS } from '../../internals/reasons';
 import { useComboboxRootContext } from './ComboboxRootContext';
 import { selectors } from '../store';
 
@@ -1583,6 +1583,67 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('should handle browser autofill with object values when autofill uses the label', async () => {
+    // Browsers autofill with the displayed text (label), not the underlying value.
+    // For example, Chrome will autofill "United States" (the label), not "US" (the value).
+    const items = [
+      { country: 'United States', code: 'US' },
+      { country: 'Canada', code: 'CA' },
+    ];
+
+    const onValueChange = vi.fn();
+
+    await render(
+      <Combobox.Root
+        name="country"
+        items={items}
+        itemToStringLabel={(item: (typeof items)[number]) => item.country}
+        itemToStringValue={(item: (typeof items)[number]) => item.code}
+        onValueChange={onValueChange}
+        defaultOpen
+      >
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(item: (typeof items)[1]) => (
+                  <Combobox.Item key={item.code} value={item}>
+                    {item.country}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+
+    // Simulate browser autofill with the LABEL (displayed text), not the value
+    fireEvent.change(
+      screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'country')!,
+      { target: { value: 'Canada' } }, // Browser sends "Canada" (label), not "CA" (value)
+    );
+    await flushMicrotasks();
+
+    // onValueChange should be called with the matching object
+    expect(onValueChange).toHaveBeenCalledWith(
+      { country: 'Canada', code: 'CA' },
+      expect.objectContaining({ reason: REASONS.none }),
+    );
+
+    fireEvent.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Canada' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+  });
+
   it('should pass autoComplete to the hidden input', async () => {
     await render(
       <Combobox.Root name="country" autoComplete="country">
@@ -1608,6 +1669,82 @@ describe('<Combobox.Root />', () => {
     expect(hiddenInput).toHaveAttribute('name', 'country');
     expect(hiddenInput).not.toHaveAttribute('id');
     expect(hiddenInput).toHaveAttribute('autocomplete', 'country');
+  });
+
+  describe.skipIf(isJSDOM)('scroll locking', () => {
+    describe('touch scroll lock', () => {
+      it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
+        await render(
+          <Combobox.Root modal items={['Apple']}>
+            <Combobox.Input />
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner data-testid="positioner" style={{ width: 'calc(100vw - 10px)' }}>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="Apple">Apple</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        await screen.findByRole('listbox');
+
+        await waitFor(() => {
+          const isScrollLocked =
+            trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
+            trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            trigger.ownerDocument.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
+      });
+
+      it('does not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
+        await render(
+          <Combobox.Root modal items={['Apple']}>
+            <Combobox.Input />
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner data-testid="positioner" style={{ width: '240px' }}>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="Apple">Apple</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        await screen.findByRole('listbox');
+
+        await act(async () => {
+          await new Promise<void>((resolve) => {
+            requestAnimationFrame(() => resolve());
+          });
+        });
+
+        const isScrollLocked =
+          trigger.ownerDocument.documentElement.style.overflow === 'hidden' ||
+          trigger.ownerDocument.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          trigger.ownerDocument.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).toBe(false);
+      });
+    });
   });
 
   it('does not open on programmatic input events', async () => {

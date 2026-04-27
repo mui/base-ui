@@ -102,6 +102,35 @@ import { DemoComboboxMultiple } from './demos/multiple';
 
 <DemoComboboxMultiple compact />
 
+Visible chips can be limited by slicing the selected values rendered in `<Combobox.Value>`:
+
+```tsx title="Limiting visible chips"
+const CHIP_LIMIT = 3;
+
+<Combobox.Value>
+  {(selectedValue: string[]) => {
+    // @highlight-start
+    const visibleValue = selectedValue.slice(0, CHIP_LIMIT);
+    const hiddenCount = selectedValue.length - visibleValue.length;
+    // @highlight-end
+    return (
+      <>
+        {visibleValue.map((item) => (
+          <Combobox.Chip key={item}>
+            {item}
+            <Combobox.ChipRemove aria-label={`Remove ${item}`} />
+          </Combobox.Chip>
+        ))}
+        {/* @highlight-start */}
+        {hiddenCount > 0 && <span>{`+${hiddenCount} more`}</span>}
+        {/* @highlight-end */}
+        <Combobox.Input />
+      </>
+    );
+  }}
+</Combobox.Value>;
+```
+
 ### Input inside popup
 
 `<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
@@ -112,8 +141,9 @@ import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
 
 Use `<Combobox.Label>` to provide a visible label for the combobox trigger in this pattern:
 
-```tsx title="Using Combobox.Label to label a combobox" {2}
+```tsx title="Using Combobox.Label to label a combobox"
 <Combobox.Root>
+  {/* @highlight */}
   <Combobox.Label>Favorite fruit</Combobox.Label>
   {/* ... */}
 </Combobox.Root>
@@ -127,19 +157,22 @@ Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to 
 
 Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
 
-```tsx title="Example" {3,9,13}
+```tsx title="Example"
 interface ProduceGroupItem {
   value: string;
+  // @highlight
   items: string[];
 }
 
 const groups: ProduceGroupItem[] = [
   {
     value: 'Fruits',
+    // @highlight
     items: ['Apple', 'Banana', 'Orange'],
   },
   {
     value: 'Vegetables',
+    // @highlight
     items: ['Carrot', 'Lettuce', 'Spinach'],
   },
 ];

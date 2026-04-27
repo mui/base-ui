@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   useComboboxDerivedItemsContext,
   useComboboxRootContext,
@@ -17,6 +17,8 @@ import { useInitialLiveRegionTextMutation } from '../utils/useInitialLiveRegionT
  * component itself with `display: none`, `hidden`, `aria-hidden`, or conditional
  * rendering. Prefer updating or conditionally rendering its children instead.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
   componentProps: ComboboxEmpty.Props,

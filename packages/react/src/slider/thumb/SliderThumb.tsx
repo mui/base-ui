@@ -4,12 +4,13 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../internals/types';
+import { clamp } from '../../internals/clamp';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useIsHydrating } from '../../utils/useIsHydrating';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import {
   ARROW_DOWN,
@@ -21,17 +22,17 @@ import {
   COMPOSITE_KEYS,
   PAGE_UP,
   PAGE_DOWN,
-} from '../../composite/composite';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { useDirection } from '../../direction-provider/DirectionContext';
-import { useCSPContext } from '../../csp-provider/CSPContext';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
+} from '../../internals/composite/composite';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
-import { type LabelableContext } from '../../labelable-provider/LabelableContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
-import { roundValueToStep } from '../utils/roundValueToStep';
+import { getDecimalPrecision, roundValueToStep } from '../utils/roundValueToStep';
 import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -72,12 +73,22 @@ function getDefaultAriaValueText(
 
 function getNewValue(
   thumbValue: number,
-  step: number,
+  increment: number,
   direction: 1 | -1,
   min: number,
   max: number,
 ): number {
-  return direction === 1 ? Math.min(thumbValue + step, max) : Math.max(thumbValue - step, min);
+  const value = direction === 1 ? thumbValue + increment : thumbValue - increment;
+  const roundedValue = Number(
+    value.toFixed(
+      Math.max(
+        getDecimalPrecision(thumbValue),
+        getDecimalPrecision(increment),
+        getDecimalPrecision(min),
+      ),
+    ),
+  );
+  return clamp(roundedValue, min, max);
 }
 
 /**
@@ -438,7 +449,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               preventScroll: true,
               // Show `:focus-visible` after keyboard interaction, even if the
               // thumb was previously focused by a pointer.
-              // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
               focusVisible: true,
             });
           }
@@ -473,7 +483,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         children: (
           <React.Fragment>
             {childrenProp}
-            <input ref={mergedInputRef} {...inputProps} />
+            <input ref={mergedInputRef} {...inputProps} suppressHydrationWarning />
             {inset &&
               isHydrating &&
               renderBeforeHydration &&

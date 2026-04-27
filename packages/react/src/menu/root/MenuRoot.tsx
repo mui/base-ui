@@ -5,7 +5,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
@@ -21,14 +20,14 @@ import {
 } from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
-import { TYPEAHEAD_RESET_MS } from '../../utils/constants';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   ContextMenuRootContext,
   useContextMenuRootContext,
@@ -126,9 +125,52 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
+  const rootId = useId();
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
+
+  const open = store.useState('open');
+  const activeTriggerElement = store.useState('activeTriggerElement');
+  const positionerElement = store.useState('positionerElement');
+  const hoverEnabled = store.useState('hoverEnabled');
+  const disabled = store.useState('disabled');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const parent = store.useState('parent');
+
+  const activeIndex = store.useState('activeIndex');
+  const payload = store.useState('payload') as Payload | undefined;
+  const floatingParentNodeId = store.useState('floatingParentNodeId');
+
+  const openEventRef = React.useRef<Event | null>(null);
+  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
+  const allowOutsidePressDismissalTimeout = useTimeout();
+  const allowTouchToCloseRef = React.useRef(true);
+  const allowTouchToCloseTimeout = useTimeout();
+
+  const nested = floatingParentNodeId != null;
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (parent.type !== undefined && modalProp !== undefined) {
+      console.warn(
+        'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
+      );
+    }
+  }
+
+  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
+
+  store.useSyncedValues({
+    disabled: disabledProp,
+    modal: parent.type === undefined ? modalProp : undefined,
+    openMethod,
+    rootId,
+  });
+
+  useImplicitActiveTrigger(store);
+  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
+    store.update({ allowMouseEnter: false, stickIfOpen: true });
+  });
 
   useIsoLayoutEffect(() => {
     if (contextMenuContext && !parentMenuRootContext) {
@@ -156,47 +198,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     store,
   ]);
 
-  const open = store.useState('open');
-  const activeTriggerElement = store.useState('activeTriggerElement');
-  const positionerElement = store.useState('positionerElement');
-  const hoverEnabled = store.useState('hoverEnabled');
-  const modal = store.useState('modal');
-  const disabled = store.useState('disabled');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const parent = store.useState('parent');
-
-  const activeIndex = store.useState('activeIndex');
-  const payload = store.useState('payload') as Payload | undefined;
-  const floatingParentNodeId = store.useState('floatingParentNodeId');
-
-  const openEventRef = React.useRef<Event | null>(null);
-
-  const nested = floatingParentNodeId != null;
-
-  if (process.env.NODE_ENV !== 'production') {
-    if (parent.type !== undefined && modalProp !== undefined) {
-      console.warn(
-        'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
-      );
-    }
-  }
-
-  store.useSyncedValues({
-    disabled: disabledProp,
-    modal: parent.type === undefined ? modalProp : undefined,
-    rootId: useId(),
-  });
-
-  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
-
-  useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.update({ allowMouseEnter: false, stickIfOpen: true });
-  });
-
-  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
-  const allowOutsidePressDismissalTimeout = useTimeout();
-
   React.useEffect(() => {
     if (!open) {
       openEventRef.current = null;
@@ -220,19 +221,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     });
   }, [allowOutsidePressDismissalTimeout, open, parent.type]);
 
-  useScrollLock(
-    open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
-    positionerElement,
-  );
-
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {
       store.set('hoverEnabled', true);
     }
   }, [open, hoverEnabled, store]);
-
-  const allowTouchToCloseRef = React.useRef(true);
-  const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useStableCallback(
     (
@@ -342,42 +335,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     },
   );
 
-  const createMenuEventDetails = React.useCallback(
-    (reason: MenuRoot.ChangeEventReason) => {
-      const details: MenuRoot.ChangeEventDetails =
-        createChangeEventDetails<MenuRoot.ChangeEventReason>(reason) as MenuRoot.ChangeEventDetails;
-      details.preventUnmountOnClose = () => {
-        store.set('preventUnmountingOnClose', true);
-      };
-
-      return details;
-    },
-    [store],
-  );
-
-  const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createMenuEventDetails(REASONS.imperativeAction));
-  }, [store, createMenuEventDetails]);
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
-  );
-
-  let ctx: ContextMenuRootContext | undefined;
-  if (parent.type === 'context-menu') {
-    ctx = parent.context;
-  }
-
-  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
-    ctx?.positionerRef,
-    () => positionerElement,
-    [positionerElement],
-  );
-
-  React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
-
   const floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,
     onOpenChange: setOpen,
@@ -400,6 +357,29 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       floatingEvents?.off('setOpen', handleSetOpenEvent);
     };
   }, [floatingEvents, setOpen]);
+
+  const handleImperativeClose = React.useCallback(() => {
+    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+  }, [store]);
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
+    [forceUnmount, handleImperativeClose],
+  );
+
+  let ctx: ContextMenuRootContext | undefined;
+  if (parent.type === 'context-menu') {
+    ctx = parent.context;
+  }
+
+  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
+    ctx?.positionerRef,
+    () => positionerElement,
+    [positionerElement],
+  );
+
+  React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
@@ -446,7 +426,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const onTypingChange = React.useCallback(
+  const onTyping = React.useCallback(
     (nextTyping: boolean) => {
       store.context.typingRef.current = nextTyping;
     },
@@ -463,7 +443,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         store.set('activeIndex', index);
       }
     },
-    onTypingChange,
+    onTyping,
   });
 
   const { getReferenceProps, getFloatingProps, getItemProps, getTriggerProps } = useInteractions([

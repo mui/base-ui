@@ -1,6 +1,7 @@
 @layer components {
   .Code {
     letter-spacing: normal;
+    color: var(--color-blue);
 
     p &[data-inline] {
       letter-spacing: -0.01em;

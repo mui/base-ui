@@ -144,22 +144,21 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute        | Type                                                                               | Description                                                                        |
-| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed     | -                                                                                  | Present when the trigger is pressed.                                               |
-| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
-| data-required    | -                                                                                  | Present when the component is required.                                            |
-| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
-| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused     | -                                                                                  | Present when the trigger is focused (when wrapped in Field.Root).                  |
-| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
+| Attribute       | Type                                                                               | Description                                                                        |
+| :-------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| data-popup-open | -                                                                                  | Present when the corresponding popup is open.                                      |
+| data-popup-side | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| data-list-empty | -                                                                                  | Present when the corresponding items list is empty.                                |
+| data-pressed    | -                                                                                  | Present when the trigger is pressed.                                               |
+| data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
+| data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
+| data-required   | -                                                                                  | Present when the component is required.                                            |
+| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
+| data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
+| data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
+| data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
+| data-focused    | -                                                                                  | Present when the trigger is focused (when wrapped in Field.Root).                  |
 
 ### Trigger.Props
 
@@ -177,8 +176,6 @@ type AutocompleteTriggerState = {
   popupSide: Side | null;
   /** Present when the corresponding items list is empty. */
   listEmpty: boolean;
-  /** Whether the combobox doesn't have a value. */
-  placeholder: boolean;
   /** Whether the field has been touched. */
   touched: boolean;
   /** Whether the field value has changed from its initial value. */
@@ -238,8 +235,8 @@ Renders an `<input>` element.
 | data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
 | data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
 | data-required   | -                                                                                  | Present when the component is required.                                            |
-| data-valid      | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid    | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
 | data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
 | data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
 | data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
@@ -315,6 +312,16 @@ Renders a `<button>` element.
 | keepMounted  | `boolean`                                                                                        | `false` | Whether the component should remain mounted in the DOM when not visible.                                                                                                                      |
 | render       | `ReactElement \| ((props: HTMLProps, state: Autocomplete.Clear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Clear Data Attributes:**
+
+| Attribute           | Type | Description                                   |
+| :------------------ | :--- | :-------------------------------------------- |
+| data-popup-open     | -    | Present when the corresponding popup is open. |
+| data-disabled       | -    | Present when the button is disabled.          |
+| data-visible        | -    | Present when the clear button is visible.     |
+| data-starting-style | -    | Present when the button is animating in.      |
+| data-ending-style   | -    | Present when the button is animating out.     |
+
 ### Clear.Props
 
 Re-export of [Clear](#clear) props.
@@ -327,6 +334,8 @@ type AutocompleteClearState = {
   open: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the clear button should be visible. */
+  visible: boolean;
   /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
@@ -637,7 +646,6 @@ Renders a `<div>` element.
 
 | Attribute        | Type | Description                           |
 | :--------------- | :--- | :------------------------------------ |
-| data-selected    | -    | Present when the item is selected.    |
 | data-highlighted | -    | Present when the item is highlighted. |
 | data-disabled    | -    | Present when the item is disabled.    |
 
@@ -651,8 +659,6 @@ Re-export of [Item](#item) props.
 type AutocompleteItemState = {
   /** Whether the item should ignore user interaction. */
   disabled: boolean;
-  /** Whether the item is selected. */
-  selected: boolean;
   /** Whether the item is highlighted. */
   highlighted: boolean;
 };
@@ -674,21 +680,20 @@ Renders a `<div>` element.
 
 **Group Data Attributes:**
 
-| Attribute        | Type                                                                               | Description                                                                        |
-| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
-| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
-| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused     | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
-| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
+| Attribute       | Type                                                                               | Description                                                                        |
+| :-------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| data-popup-open | -                                                                                  | Present when the corresponding popup is open.                                      |
+| data-popup-side | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| data-list-empty | -                                                                                  | Present when the corresponding items list is empty.                                |
+| data-pressed    | -                                                                                  | Present when the input group is pressed.                                           |
+| data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
+| data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
+| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
+| data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
+| data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
+| data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
+| data-focused    | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
 
 ### Group.Props
 
@@ -869,21 +874,20 @@ Renders a `<div>` element.
 
 **InputGroup Data Attributes:**
 
-| Attribute        | Type                                                                               | Description                                                                        |
-| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed     | -                                                                                  | Present when the input group is pressed.                                           |
-| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
-| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused     | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
-| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
+| Attribute       | Type                                                                               | Description                                                                        |
+| :-------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| data-popup-open | -                                                                                  | Present when the corresponding popup is open.                                      |
+| data-popup-side | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| data-list-empty | -                                                                                  | Present when the corresponding items list is empty.                                |
+| data-pressed    | -                                                                                  | Present when the input group is pressed.                                           |
+| data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
+| data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
+| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
+| data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
+| data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
+| data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
+| data-focused    | -                                                                                  | Present when the component is focused (when wrapped in Field.Root).                |
 
 ### InputGroup.Props
 
@@ -903,8 +907,6 @@ type AutocompleteInputGroupState = {
   popupSide: Side | null;
   /** Present when the corresponding items list is empty. */
   listEmpty: boolean;
-  /** Whether the combobox doesn't have a value. */
-  placeholder: boolean;
   /** Whether the field has been touched. */
   touched: boolean;
   /** Whether the field value has changed from its initial value. */
@@ -1033,7 +1035,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Autocomplete.Separator`: `Autocomplete.Separator`, `Autocomplete.Separator.Props`, `Autocomplete.Separator.State`
 - `Autocomplete.useFilter`
 - `Autocomplete.useFilteredItems`
-- `Default`: `AutocompleteTriggerProps`, `AutocompleteTriggerState`, `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompleteInputGroupProps`, `AutocompleteInputGroupState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteItemProps`, `AutocompleteItemState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteValueState`, `AutocompleteValueProps`
+- `Default`: `AutocompleteInputProps`, `AutocompleteInputState`, `AutocompleteIconProps`, `AutocompleteIconState`, `AutocompleteClearProps`, `AutocompleteClearState`, `AutocompletePopupProps`, `AutocompletePopupState`, `AutocompletePositionerProps`, `AutocompletePositionerState`, `AutocompleteListProps`, `AutocompleteListState`, `AutocompleteRowProps`, `AutocompleteRowState`, `AutocompleteArrowProps`, `AutocompleteArrowState`, `AutocompleteBackdropProps`, `AutocompleteBackdropState`, `AutocompletePortalProps`, `AutocompletePortalState`, `AutocompleteGroupProps`, `AutocompleteGroupState`, `AutocompleteGroupLabelProps`, `AutocompleteGroupLabelState`, `AutocompleteEmptyProps`, `AutocompleteEmptyState`, `AutocompleteStatusProps`, `AutocompleteStatusState`, `AutocompleteCollectionState`, `AutocompleteCollectionProps`, `AutocompleteFilter`, `AutocompleteFilterOptions`, `AutocompleteRootState`, `AutocompleteRootActions`, `AutocompleteRootChangeEventReason`, `AutocompleteRootChangeEventDetails`, `AutocompleteRootHighlightEventReason`, `AutocompleteRootHighlightEventDetails`, `AutocompleteRootProps`, `AutocompleteTriggerState`, `AutocompleteTriggerProps`, `AutocompleteInputGroupState`, `AutocompleteInputGroupProps`, `AutocompleteItemState`, `AutocompleteItemProps`, `AutocompleteValueState`, `AutocompleteValueProps`
 
 ## Canonical Types
 
@@ -1080,6 +1082,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Autocomplete.Item.Props`: `AutocompleteItemProps`
 - `Autocomplete.Row.State`: `AutocompleteRowState`
 - `Autocomplete.Row.Props`: `AutocompleteRowProps`
+- `Autocomplete.Collection.State`: `AutocompleteCollectionState`
 - `Autocomplete.Collection.Props`: `AutocompleteCollectionProps`
 - `Autocomplete.Empty.State`: `AutocompleteEmptyState`
 - `Autocomplete.Empty.Props`: `AutocompleteEmptyProps`

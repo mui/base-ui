@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { DRAWER_CONTENT_ATTRIBUTE } from './DrawerContentDataAttributes';
 
 /**

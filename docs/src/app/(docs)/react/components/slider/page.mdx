@@ -62,11 +62,12 @@ import { DemoSliderEdgeAlignment } from './demos/edge-alignment';
 
 A single-thumb slider without a visible label (such as a volume control) can be labeled using `aria-label` on `<Slider.Thumb>`:
 
-```tsx title="Slider with invisible label" {5}
+```tsx title="Slider with invisible label"
 <Slider.Root>
   <Slider.Control>
     <Slider.Track>
       <Slider.Indicator />
+      {/* @highlight */}
       <Slider.Thumb aria-label="Volume" />
     </Slider.Track>
   </Slider.Control>
@@ -75,8 +76,9 @@ A single-thumb slider without a visible label (such as a volume control) can be 
 
 A visible label can be created using `<Slider.Label>`:
 
-```tsx title="Slider with visible label" {2}
+```tsx title="Slider with visible label"
 <Slider.Root>
+  {/* @highlight */}
   <Slider.Label>Volume</Slider.Label>
   <Slider.Control>
     <Slider.Track>
@@ -89,14 +91,16 @@ A visible label can be created using `<Slider.Label>`:
 
 For a multi-thumb range slider with a visible label, add `aria-label` on each `<Slider.Thumb>` to distinguish them:
 
-```tsx title="Labeling multi-thumb range sliders" {6-7}
+```tsx title="Labeling multi-thumb range sliders"
 <Slider.Root defaultValue={[25, 75]}>
   <Slider.Label>Price range</Slider.Label>
   <Slider.Control>
     <Slider.Track>
       <Slider.Indicator />
+      {/* @highlight-start */}
       <Slider.Thumb index={0} aria-label="Minimum price" />
       <Slider.Thumb index={1} aria-label="Maximum price" />
+      {/* @highlight-end */}
     </Slider.Track>
   </Slider.Control>
 </Slider.Root>
@@ -114,8 +118,9 @@ import { DemoSliderVertical } from './demos/vertical';
 
 To use a slider in a form, pass the slider `name` to `<Slider.Root>`:
 
-```tsx title="Using Slider in a form" {2}
+```tsx title="Using Slider in a form"
 <Form>
+  {/* @highlight */}
   <Slider.Root name="volume">
     <Slider.Label>Volume</Slider.Label>
     <Slider.Control>
@@ -130,15 +135,19 @@ To use a slider in a form, pass the slider `name` to `<Slider.Root>`:
 
 For grouped multi-thumb range sliders in forms, [Fieldset](/react/components/fieldset) can provide the shared visible label while each thumb keeps its own `aria-label`:
 
-```tsx title="Using Fieldset with a multi-thumb slider" {2,3,7-8}
+```tsx title="Using Fieldset with a multi-thumb slider"
 <Field.Root>
+  {/* @highlight-start */}
   <Fieldset.Root render={<Slider.Root />}>
     <Fieldset.Legend>Price range</Fieldset.Legend>
+    {/* @highlight-end */}
     <Slider.Control>
       <Slider.Track>
         <Slider.Indicator />
+        {/* @highlight-start */}
         <Slider.Thumb index={0} aria-label="Minimum price" />
         <Slider.Thumb index={1} aria-label="Maximum price" />
+        {/* @highlight-end */}
       </Slider.Track>
     </Slider.Control>
   </Fieldset.Root>

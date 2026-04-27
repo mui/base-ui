@@ -33,15 +33,18 @@ import { Tabs } from '@base-ui/react/tabs';
 
 Use the `render` prop and set `nativeButton={false}` on `<Tabs.Tab>` to render tabs as anchor elements.
 
-```jsx title="Tabs as links" {6-8}
+```jsx title="Tabs as links"
 import { Tabs } from '@base-ui/react/tabs';
 import Link from 'next/link';
 
 <Tabs.Root>
   <Tabs.List>
+    {/* @highlight-start */}
+    {/* @highlight-text "nativeButton={false}" "render" */}
     <Tabs.Tab nativeButton={false} render={<Link href="/overview" />} value="overview">
       Overview
     </Tabs.Tab>
+    {/* @highlight-end */}
   </Tabs.List>
   {/* ... */}
 </Tabs.Root>;

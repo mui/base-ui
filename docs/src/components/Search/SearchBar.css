@@ -3,8 +3,8 @@
 @layer components {
   .SearchScrollbar {
     display: flex;
-    padding-top: calc(var(--spacing) * 2);
-    padding-bottom: calc(var(--spacing) * 2);
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
 
     /* Click target width */
     width: 1.5rem;
@@ -22,8 +22,8 @@
       height: 100%;
       /* Visible thumb width */
       width: 0.25rem;
-      border-radius: var(--radius-sm);
-      background-color: var(--color-gray-400);
+      border-radius: var(--radius-4);
+      background-color: var(--gray-p2);
     }
   }
 
@@ -32,23 +32,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: calc(var(--spacing) * 2);
-    height: calc(var(--spacing) * 8);
-    padding-inline: calc(var(--spacing) * 3.5);
+    gap: var(--space-8);
+    height: var(--space-32);
+    padding-inline: 0.875rem;
     margin: 0;
     border: none;
     border-radius: 9999px;
     background-color: hsl(0deg 0% 0% / 5%);
     font: inherit;
-    font-size: 1rem;
-    font-weight: 400;
+    font-size: var(--font-size-16);
+    font-weight: var(--font-weight-400);
     line-height: 1.5;
-    color: var(--color-gray-900);
+    color: var(--gray-t2);
     user-select: none;
     outline: none;
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-gray-200);
+      background-color: var(--gray-c2);
     }
   }
 
@@ -61,7 +61,7 @@
     z-index: 0;
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-gray-75);
+      background-color: var(--gray-c1);
     }
   }
 
@@ -84,7 +84,7 @@
     background-color: hsl(0deg 0% 0% / 15%);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-gray-300);
+      background-color: var(--gray-c3);
     }
   }
 
@@ -96,17 +96,17 @@
 
   .SearchTrigger:hover .SearchTriggerKbd {
     @media (prefers-color-scheme: dark) {
-      border-color: var(--color-gray-300);
+      border-color: var(--gray-c3);
     }
   }
 
   .SearchTrigger:focus-visible {
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid var(--color-blue);
     outline-offset: -1px;
   }
 
   .SearchTrigger[data-disabled] {
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
     cursor: default;
   }
 
@@ -117,7 +117,7 @@
   .SearchTriggerIcon {
     width: 1rem;
     height: 1rem;
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
   }
 
   .SearchTriggerKbd {
@@ -128,10 +128,10 @@
     gap: 0.25rem;
     padding-inline: 0.375rem;
     border-radius: 9999px;
-    border: 1px solid var(--color-gray-300);
-    background-color: var(--color-gray-50);
+    border: 1px solid var(--gray-c3);
+    background-color: var(--gray-s2);
     pointer-events: none;
-    color: var(--color-gray-600);
+    color: var(--gray-t2);
 
     @media (--lg) {
       display: inline-flex;
@@ -149,20 +149,20 @@
   }
 
   .SearchTriggerCmd {
-    font-size: var(--text-lg);
+    font-size: var(--font-size-18);
   }
 
   .SearchTriggerCtrl {
-    font-size: var(--text-xs);
+    font-size: var(--font-size-13);
   }
 
   .SearchTriggerPlus {
-    font-size: var(--text-xs);
-    color: var(--color-gray-400);
+    font-size: var(--font-size-13);
+    color: var(--gray-t1);
   }
 
   .SearchTriggerK {
-    font-size: var(--text-xs);
+    font-size: 0.8125rem;
   }
 
   .SearchBreadcrumbPart {
@@ -178,12 +178,12 @@
   }
 
   .SearchBreadcrumbSeparator {
-    color: var(--color-gray-300);
+    color: var(--gray-c3);
   }
 
   .SearchScore {
     margin-left: 0.375rem;
-    font-size: var(--text-xs);
+    font-size: var(--font-size-13);
     opacity: 0.7;
     white-space: nowrap;
   }
@@ -192,8 +192,8 @@
     padding: 1.5rem 0.75rem;
     text-align: center;
     font-size: 0.9375rem;
-    font-weight: 400;
-    color: var(--color-gray-600);
+    font-weight: var(--font-weight-400);
+    color: var(--gray-t1);
   }
 
   .SearchInputRoot {
@@ -201,7 +201,7 @@
     align-items: center;
     gap: 0.5rem;
     height: 2rem;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
     padding-inline: 0.75rem;
   }
 
@@ -209,21 +209,21 @@
     width: 1rem;
     height: 1rem;
     flex-shrink: 0;
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
   }
 
   .SearchInput {
     width: 100%;
     border: 0;
     background: transparent;
-    font-size: var(--text-base);
-    font-weight: 400;
-    color: var(--color-gray-900);
+    font-size: var(--font-size-16);
+    font-weight: var(--font-weight-400);
+    color: var(--gray-t2);
     outline: none;
   }
 
   .SearchInput::placeholder {
-    color: var(--color-gray-500);
+    color: var(--gray-p1);
   }
 
   .SearchGroup {
@@ -237,9 +237,9 @@
     height: 2rem;
     padding-left: 0.875rem;
     font-size: 0.9375rem;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     line-height: 1;
-    color: var(--color-gray-600);
+    color: var(--gray-t1);
     user-select: none;
   }
 
@@ -250,18 +250,18 @@
     height: 2rem;
     padding-left: 2.25rem;
     padding-right: 0.5rem;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
     font-size: 0.9375rem;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     line-height: 1;
-    color: var(--color-gray-900);
+    color: var(--gray-t2);
     cursor: default;
     user-select: none;
     outline: none;
   }
 
   .SearchOptionItem[data-highlighted] {
-    background: var(--color-gray-100);
+    background: var(--gray-c1);
   }
 
   .SearchBackdrop {
@@ -312,8 +312,8 @@
     flex-direction: column;
     min-height: 0;
     border-radius: 1rem;
-    background: var(--color-white);
-    color: var(--color-gray-900);
+    background: var(--gray-s1);
+    color: var(--gray-t2);
     outline: 1px solid hsl(0deg 0% 0% / 4%);
     box-shadow:
       0 0.5px 1px hsl(0deg 0% 0% / 12%),
@@ -357,12 +357,12 @@
 
   .SearchHeadContained {
     flex-shrink: 0;
-    border-bottom: 1px solid var(--color-gray-100);
+    border-bottom: 1px solid var(--gray-c1);
     padding: 0.5rem 0.5rem 0.375rem;
   }
 
   .SearchHeadDefault {
-    border-bottom: 1px solid var(--color-gray-100);
+    border-bottom: 1px solid var(--gray-c1);
     padding: 0.5rem 0.5rem 0.375rem;
   }
 
@@ -395,12 +395,12 @@
   }
 
   .SearchFooter {
-    border-top: 1px solid var(--color-gray-100);
+    border-top: 1px solid var(--gray-c1);
     padding: 0.5rem 0.5rem 0.5rem 0.75rem;
     display: flex;
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
-    color: var(--color-gray-500);
+    font-size: var(--font-size-13);
+    line-height: 1;
+    color: var(--gray-p1);
   }
 
   .SearchFooterHint {
@@ -415,11 +415,11 @@
     justify-content: center;
     width: 1.25rem;
     height: 1.25rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-gray-300);
-    background: var(--color-gray-50);
-    font-size: 10px;
-    color: var(--color-gray-600);
+    border-radius: var(--radius-4);
+    border: 1px solid var(--gray-c3);
+    background: var(--gray-s2);
+    font-size: 0.625rem;
+    color: var(--gray-t1);
   }
 
   .SearchClose {

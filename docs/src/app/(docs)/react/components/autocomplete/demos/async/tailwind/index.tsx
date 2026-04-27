@@ -105,10 +105,10 @@ export default function ExampleAsyncAutocomplete() {
                   className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
                   value={movie}
                 >
-                  <div className="flex w-full flex-col gap-1">
-                    <div className="font-bold leading-5">{movie.title}</div>
-                    <div className="text-sm leading-4 opacity-80">{movie.year}</div>
-                  </div>
+                  <span className="flex w-full flex-col gap-1">
+                    <span className="font-bold leading-5">{movie.title}</span>
+                    <span className="text-sm leading-4 opacity-80">{movie.year}</span>
+                  </span>
                 </Autocomplete.Item>
               )}
             </Autocomplete.List>

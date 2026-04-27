@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
+import { IsDrawerContext } from '../../dialog/root/DialogRoot';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { DialogStore } from '../../dialog/store/DialogStore';
 import { DialogHandle } from '../../dialog/store/DialogHandle';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
@@ -26,7 +27,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
-  const parentDialogRootContext = useDialogRootContext();
+  const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
 
   const store = DialogStore.useStore(handle?.store, {
@@ -52,6 +53,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     store,
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
+    isDrawer: false,
     onOpenChange,
     triggerIdProp,
   });
@@ -59,9 +61,11 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
 
   return (
-    <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-      {typeof children === 'function' ? children({ payload }) : children}
-    </DialogRootContext.Provider>
+    <IsDrawerContext.Provider value={false}>
+      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+        {typeof children === 'function' ? children({ payload }) : children}
+      </DialogRootContext.Provider>
+    </IsDrawerContext.Provider>
   );
 }
 

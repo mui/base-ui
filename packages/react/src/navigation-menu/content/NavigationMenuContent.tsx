@@ -3,21 +3,21 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { inertValue } from '@base-ui/utils/inertValue';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
-import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { EMPTY_OBJECT } from '../../utils/constants';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuContentState> = {
   ...popupStateMapping,
@@ -43,7 +43,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
   componentProps: NavigationMenuContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, style, ...elementProps } = componentProps;
+  const { render, className, style, keepMounted = false, ...elementProps } = componentProps;
 
   const {
     mounted: popupMounted,

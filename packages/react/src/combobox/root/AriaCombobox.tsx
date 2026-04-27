@@ -9,6 +9,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   ElementProps,
   useDismiss,
@@ -23,8 +24,8 @@ import {
   createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
@@ -32,32 +33,31 @@ import {
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useRegisterFieldControl } from '../../field/root/useRegisterFieldControl';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { HTMLProps } from '../../utils/types';
-import { useValueChanged } from '../../utils/useValueChanged';
-import { NOOP } from '../../utils/noop';
+import { HTMLProps } from '../../internals/types';
+import { useValueChanged } from '../../internals/useValueChanged';
+import { NOOP } from '../../internals/noop';
 import {
   stringifyAsLabel,
   stringifyAsValue,
   Group,
   isGroupedItems,
-} from '../../utils/resolveValueLabel';
+} from '../../internals/resolveValueLabel';
 import {
   compareItemEquality,
   defaultItemEquality,
   findItemIndex,
   removeItem,
   selectedValueIncludes,
-} from '../../utils/itemEquality';
+} from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
 /**
@@ -1243,8 +1243,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               }
 
               const matchingValue = valuesRef.current.find((v) => {
-                const candidate = stringifyAsValue(v, itemToStringValue);
-                if (candidate.toLowerCase() === nextValue.toLowerCase()) {
+                // Try matching by value first (e.g., "US" for country code)
+                const candidateValue = stringifyAsValue(v, itemToStringValue);
+                if (candidateValue.toLowerCase() === nextValue.toLowerCase()) {
+                  return true;
+                }
+                // Also try matching by label for browser autofill compatibility
+                // (browsers autofill with displayed text like "United States", not the underlying value)
+                const candidateLabel = stringifyAsLabel(v, itemToStringLabel);
+                if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
                   return true;
                 }
                 return false;
@@ -1280,6 +1287,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         style={hiddenInputName ? visuallyHiddenInput : visuallyHidden}
         tabIndex={-1}
         aria-hidden
+        suppressHydrationWarning
       />
       {hiddenInputs}
     </React.Fragment>

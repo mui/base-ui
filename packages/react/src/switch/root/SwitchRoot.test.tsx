@@ -233,6 +233,25 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).toHaveAttribute('aria-checked', 'false');
     });
+
+    it('should not change its state when its label is clicked', async () => {
+      await render(
+        <label data-testid="label">
+          <Switch.Root readOnly />
+        </label>,
+      );
+      const switchElement = screen.getByRole('switch');
+
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
+
+      const labelElement = screen.getByTestId('label');
+
+      await act(async () => {
+        labelElement.click();
+      });
+
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
+    });
   });
 
   describe('prop: required', () => {

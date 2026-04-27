@@ -3,12 +3,11 @@ import * as React from 'react';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { NOOP } from '@base-ui/utils/empty';
-import { useAnimationsFinished } from './useAnimationsFinished';
+import { NOOP, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from './useAnchorPositioning';
-import { EMPTY_OBJECT } from './constants';
 
 const DEFAULT_ENABLED = () => true;
 

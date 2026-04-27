@@ -10,18 +10,20 @@ import {
 import {
   useCompositeListItem,
   IndexGuessBehavior,
-} from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+} from '../../internals/composite/list/useCompositeListItem';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
-import { useButton } from '../../use-button';
+import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
 
 /**
  * An individual item in the list.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxItem = React.memo(
   React.forwardRef(function ComboboxItem(
@@ -31,11 +33,11 @@ export const ComboboxItem = React.memo(
     const {
       render,
       className,
+      style,
       value: itemValue = null,
       index: indexProp,
       disabled = false,
       nativeButton = false,
-      style,
       ...elementProps
     } = componentProps;
 
@@ -129,22 +131,22 @@ export const ComboboxItem = React.memo(
       }
     }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
 
-    const state: ComboboxItemState = {
-      disabled,
-      selected,
-      highlighted,
-    };
-
-    const rootProps = getItemProps({ active: highlighted, selected });
-    rootProps.id = undefined;
-    rootProps.onFocus = undefined;
-
     const { getButtonProps, buttonRef } = useButton({
       disabled,
       focusableWhenDisabled: true,
       native: nativeButton,
       composite: true,
     });
+
+    const rootProps = getItemProps({ active: highlighted, selected });
+    rootProps.id = undefined;
+    rootProps.onFocus = undefined;
+
+    const state: ComboboxItemState = {
+      disabled,
+      selected,
+      highlighted,
+    };
 
     function commitSelection(nativeEvent: MouseEvent) {
       function selectItem() {
@@ -169,6 +171,11 @@ export const ComboboxItem = React.memo(
       tabIndex: undefined,
       onPointerDownCapture(event) {
         didPointerDownRef.current = true;
+        event.preventDefault();
+      },
+      onMouseDown(event) {
+        // iOS Safari can emit a synthetic mousedown for touch taps without a preceding
+        // pointerdown. Prevent default here too so tapping an item does not blur the input.
         event.preventDefault();
       },
       onClick(event) {

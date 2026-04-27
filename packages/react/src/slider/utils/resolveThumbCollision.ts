@@ -1,4 +1,4 @@
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import { getPushedThumbValues } from './getPushedThumbValues';
 import { SliderRootContext } from '../root/SliderRootContext';
 

@@ -2,14 +2,14 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useRenderElement } from '../utils/useRenderElement';
-import type { BaseUIComponentProps, HTMLProps, Orientation } from '../utils/types';
-import { CompositeRoot } from '../composite/root/CompositeRoot';
+import { useRenderElement } from '../internals/useRenderElement';
+import type { BaseUIComponentProps, HTMLProps, Orientation } from '../internals/types';
+import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
-import { REASONS } from '../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { REASONS } from '../internals/reasons';
 
 const stateAttributesMapping = {
   multiple(value: boolean) {

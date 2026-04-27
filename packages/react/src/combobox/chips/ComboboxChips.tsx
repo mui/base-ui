@@ -1,18 +1,20 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { ComboboxChipsContext } from './ComboboxChipsContext';
-import { CompositeList } from '../../composite/list/CompositeList';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
-import { EMPTY_OBJECT } from '../../utils/constants';
 import { handleInputPress } from '../utils/handleInputPress';
 
 /**
  * A container for the chips in a multiselectable input.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxChips = React.forwardRef(function ComboboxChips(
   componentProps: ComboboxChips.Props,

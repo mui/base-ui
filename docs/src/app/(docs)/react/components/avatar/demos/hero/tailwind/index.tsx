@@ -10,7 +10,10 @@ export default function ExampleAvatar() {
           height="48"
           className="size-full object-cover"
         />
-        <Avatar.Fallback className="flex size-full items-center justify-center text-base">
+        <Avatar.Fallback
+          delay={600}
+          className="flex size-full items-center justify-center text-base"
+        >
           LT
         </Avatar.Fallback>
       </Avatar.Root>
