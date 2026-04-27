@@ -74,6 +74,9 @@
   --color-gray-900: oklch(21% 0.034 264.665deg);
   --color-gray-950: oklch(13% 0.028 261.692deg);
 
+  --color-blue-400: oklch(70.7% 0.165 254.624deg);
+  --color-blue-500: oklch(62.3% 0.214 259.815deg);
+  --color-blue-700: oklch(48.8% 0.243 264.376deg);
   --color-blue-800: oklch(42.4% 0.199 265.638deg);
 
   --color-red-400: oklch(70.4% 0.191 22.216deg);
