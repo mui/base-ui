@@ -50,7 +50,7 @@ export default function MultiSelectExample() {
             sideOffset={8}
             alignItemWithTrigger={false}
           >
-            <Select.Popup className="group max-h-[var(--available-height)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] bg-clip-padding overflow-y-auto border border-gray-950 bg-white py-1 text-gray-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0/12%)] transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] data-[side=none]:data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none dark:border-white dark:bg-gray-950 dark:text-white dark:shadow-none">
+            <Select.Popup className="group max-h-[var(--available-height)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] bg-clip-padding overflow-y-auto border border-gray-950 bg-white py-1 text-gray-950 outline-hidden shadow-[0.25rem_0.25rem_0_rgb(0_0_0/12%)] transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] data-[side=none]:data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none dark:border-white dark:bg-gray-950 dark:text-white dark:shadow-none">
               {values.map((value) => (
                 <Select.Item
                   key={value}
