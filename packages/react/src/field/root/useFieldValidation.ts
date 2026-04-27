@@ -51,7 +51,7 @@ export function useFieldValidation(
     state,
     name,
     shouldValidateOnChange,
-    registeredFieldIdRef,
+    getRegisteredFieldId,
   } = params;
 
   const { controlId, getDescriptionProps } = useLabelableContext();
@@ -69,7 +69,7 @@ export function useFieldValidation(
       nextValidityData: FieldValidityData,
       externalInvalid = invalid,
     ) {
-      const fieldId = registeredFieldIdRef.current ?? controlId;
+      const fieldId = getRegisteredFieldId() ?? controlId;
       if (fieldId == null) {
         return;
       }
@@ -110,6 +110,7 @@ export function useFieldValidation(
         };
         element.setCustomValidity('');
 
+        // The required value is now present; ignore stale external invalid state for this pass.
         updateRegisteredFieldValidity(nextValidityData, false);
         setValidityData(nextValidityData);
         return;
@@ -328,7 +329,7 @@ export interface UseFieldValidationParameters {
   state: FieldRootState;
   name: string | undefined;
   shouldValidateOnChange: () => boolean;
-  registeredFieldIdRef: React.RefObject<string | undefined>;
+  getRegisteredFieldId: () => string | undefined;
 }
 
 export interface UseFieldValidationReturnValue {

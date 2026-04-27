@@ -14,6 +14,10 @@ export interface FormContext {
       string,
       {
         name: string | undefined;
+        /**
+         * After this returns, the field registry entry reflects the latest synchronous
+         * validity verdict. Async validators do not block submit.
+         */
         validate: () => void;
         validityData: FieldValidityData;
         controlRef: React.RefObject<HTMLElement | null>;

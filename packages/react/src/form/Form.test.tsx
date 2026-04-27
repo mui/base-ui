@@ -32,7 +32,7 @@ describe('<Form />', () => {
 
     await user.click(submit);
 
-    expect(screen.getByTestId('error')).not.toBe(null);
+    expect(screen.getByTestId('error')).toBeInTheDocument();
     expect(onSubmit.mock.calls.length > 0).toBe(false);
   });
 
@@ -55,7 +55,41 @@ describe('<Form />', () => {
 
     expect(onSubmit).not.toHaveBeenCalled();
     expect(screen.getByRole('switch')).toHaveAttribute('aria-invalid', 'true');
-    expect(screen.getByTestId('error')).not.toBe(null);
+    expect(screen.getByTestId('error')).toBeInTheDocument();
+  });
+
+  it('clears invalid state for an unnamed registered field control on change', async () => {
+    const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+    });
+
+    const { user } = render(
+      <Form onSubmit={onSubmit}>
+        <Field.Root>
+          <Switch.Root required />
+          <Field.Error data-testid="error" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    const submit = screen.getByRole('button', { name: 'Submit' });
+    const switchControl = screen.getByRole('switch');
+
+    await user.click(submit);
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(switchControl).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByTestId('error')).toBeInTheDocument();
+
+    await user.click(switchControl);
+
+    expect(switchControl).not.toHaveAttribute('aria-invalid');
+    expect(screen.queryByTestId('error')).toBe(null);
+
+    await user.click(submit);
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 
   it('keeps same-name field validity scoped on submit', async () => {
@@ -66,11 +100,11 @@ describe('<Form />', () => {
     const { user } = render(
       <Form onSubmit={onSubmit}>
         <Field.Root name="shared">
-          <Field.Control required data-testid="first" />
+          <Switch.Root required data-testid="first" />
           <Field.Error data-testid="first-error" />
         </Field.Root>
         <Field.Root name="shared">
-          <Field.Control defaultValue="valid" data-testid="second" />
+          <Switch.Root required defaultChecked data-testid="second" />
           <Field.Error data-testid="second-error" />
         </Field.Root>
         <button type="submit">Submit</button>
@@ -81,9 +115,52 @@ describe('<Form />', () => {
 
     expect(onSubmit).not.toHaveBeenCalled();
     expect(screen.getByTestId('first')).toHaveAttribute('aria-invalid', 'true');
-    expect(screen.getByTestId('first-error')).not.toBe(null);
+    expect(screen.getByTestId('first-error')).toBeInTheDocument();
     expect(screen.getByTestId('second')).not.toHaveAttribute('aria-invalid');
     expect(screen.queryByTestId('second-error')).toBe(null);
+  });
+
+  it('updates the registered field id when a field control is replaced', async () => {
+    const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+    });
+
+    function App() {
+      const [showReplacement, setShowReplacement] = React.useState(false);
+
+      return (
+        <Form onSubmit={onSubmit}>
+          <Field.Root>
+            {showReplacement ? (
+              <Switch.Root key="replacement" required defaultChecked data-testid="replacement" />
+            ) : (
+              <Switch.Root key="initial" required data-testid="initial" />
+            )}
+            <Field.Error data-testid="error" />
+          </Field.Root>
+          <button type="button" onClick={() => setShowReplacement(true)}>
+            Replace
+          </button>
+          <button type="submit">Submit</button>
+        </Form>
+      );
+    }
+
+    const { user } = render(<App />);
+
+    const submit = screen.getByRole('button', { name: 'Submit' });
+
+    await user.click(submit);
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByTestId('initial')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByTestId('error')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Replace' }));
+    await user.click(submit);
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('replacement')).not.toHaveAttribute('aria-invalid');
   });
 
   it('unmounted fields should be removed from the form', async () => {
