@@ -88,91 +88,88 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     };
   }, [idProp, setTriggerId]);
 
-  const props = React.useMemo(
-    () => ({
-      'aria-controls': open ? panelId : undefined,
-      'aria-expanded': open,
-      id,
-      tabIndex: 0,
-      onClick: handleTrigger,
-      onKeyDown(event: React.KeyboardEvent) {
-        if (!SUPPORTED_KEYS.has(event.key)) {
-          return;
+  const props = {
+    'aria-controls': open ? panelId : undefined,
+    'aria-expanded': open,
+    id,
+    tabIndex: 0,
+    onClick: handleTrigger,
+    onKeyDown(event: React.KeyboardEvent) {
+      if (!SUPPORTED_KEYS.has(event.key)) {
+        return;
+      }
+
+      stopEvent(event);
+
+      const triggers = getActiveTriggers(accordionItemRefs);
+
+      const numOfEnabledTriggers = triggers.length;
+      const lastIndex = numOfEnabledTriggers - 1;
+
+      let nextIndex = -1;
+
+      const thisIndex = triggers.indexOf(event.currentTarget as HTMLButtonElement);
+
+      function toNext() {
+        if (loopFocus) {
+          nextIndex = thisIndex + 1 > lastIndex ? 0 : thisIndex + 1;
+        } else {
+          nextIndex = Math.min(thisIndex + 1, lastIndex);
         }
+      }
 
-        stopEvent(event);
+      function toPrev() {
+        if (loopFocus) {
+          nextIndex = thisIndex === 0 ? lastIndex : thisIndex - 1;
+        } else {
+          nextIndex = thisIndex - 1;
+        }
+      }
 
-        const triggers = getActiveTriggers(accordionItemRefs);
-
-        const numOfEnabledTriggers = triggers.length;
-        const lastIndex = numOfEnabledTriggers - 1;
-
-        let nextIndex = -1;
-
-        const thisIndex = triggers.indexOf(event.currentTarget as HTMLButtonElement);
-
-        function toNext() {
-          if (loopFocus) {
-            nextIndex = thisIndex + 1 > lastIndex ? 0 : thisIndex + 1;
-          } else {
-            nextIndex = Math.min(thisIndex + 1, lastIndex);
+      switch (event.key) {
+        case ARROW_DOWN:
+          if (!isHorizontal) {
+            toNext();
           }
-        }
-
-        function toPrev() {
-          if (loopFocus) {
-            nextIndex = thisIndex === 0 ? lastIndex : thisIndex - 1;
-          } else {
-            nextIndex = thisIndex - 1;
+          break;
+        case ARROW_UP:
+          if (!isHorizontal) {
+            toPrev();
           }
-        }
-
-        switch (event.key) {
-          case ARROW_DOWN:
-            if (!isHorizontal) {
+          break;
+        case ARROW_RIGHT:
+          if (isHorizontal) {
+            if (isRtl) {
+              toPrev();
+            } else {
               toNext();
             }
-            break;
-          case ARROW_UP:
-            if (!isHorizontal) {
+          }
+          break;
+        case ARROW_LEFT:
+          if (isHorizontal) {
+            if (isRtl) {
+              toNext();
+            } else {
               toPrev();
             }
-            break;
-          case ARROW_RIGHT:
-            if (isHorizontal) {
-              if (isRtl) {
-                toPrev();
-              } else {
-                toNext();
-              }
-            }
-            break;
-          case ARROW_LEFT:
-            if (isHorizontal) {
-              if (isRtl) {
-                toNext();
-              } else {
-                toPrev();
-              }
-            }
-            break;
-          case 'Home':
-            nextIndex = 0;
-            break;
-          case 'End':
-            nextIndex = lastIndex;
-            break;
-          default:
-            break;
-        }
+          }
+          break;
+        case 'Home':
+          nextIndex = 0;
+          break;
+        case 'End':
+          nextIndex = lastIndex;
+          break;
+        default:
+          break;
+      }
 
-        if (nextIndex > -1) {
-          triggers[nextIndex].focus();
-        }
-      },
-    }),
-    [accordionItemRefs, handleTrigger, id, isHorizontal, isRtl, loopFocus, open, panelId],
-  );
+      if (nextIndex > -1) {
+        triggers[nextIndex].focus();
+      }
+    },
+  };
 
   const element = useRenderElement('button', componentProps, {
     state,

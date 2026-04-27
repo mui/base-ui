@@ -24,24 +24,19 @@ export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   const percentageValue =
     Number.isFinite(value) && value !== null ? valueToPercent(value, min, max) : null;
 
-  const getStyles = React.useCallback(() => {
-    if (percentageValue == null) {
-      return {};
-    }
-
-    return {
-      insetInlineStart: 0,
-      height: 'inherit',
-      width: `${percentageValue}%`,
-    };
-  }, [percentageValue]);
-
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
       {
-        style: getStyles(),
+        style:
+          percentageValue == null
+            ? {}
+            : {
+                insetInlineStart: 0,
+                height: 'inherit',
+                width: `${percentageValue}%`,
+              },
       },
       elementProps,
     ],

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -74,14 +73,6 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     [disabled, highlighted, checked],
   );
 
-  const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = {
-      ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
-      preventUnmountOnClose: () => {},
-    };
-    setSelectedValue(value, details);
-  });
-
   const element = useRenderElement('div', componentProps, {
     state,
     stateAttributesMapping: itemMapping,
@@ -90,7 +81,13 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
       {
         role: 'menuitemradio',
         'aria-checked': checked,
-        onClick: handleClick,
+        onClick(event: React.MouseEvent) {
+          const details = {
+            ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
+            preventUnmountOnClose: () => {},
+          };
+          setSelectedValue(value, details);
+        },
       },
       elementProps,
       getItemProps,

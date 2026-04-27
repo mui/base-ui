@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -53,7 +52,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     indeterminate = false,
     inputRef: inputRefProp,
     name: nameProp,
-    onCheckedChange: onCheckedChangeProp,
+    onCheckedChange,
     parent = false,
     readOnly = false,
     render,
@@ -109,8 +108,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       groupProps = groupContext.parent.getChildProps(value);
     }
   }
-
-  const onCheckedChange = useStableCallback(onCheckedChangeProp);
 
   const {
     checked: groupChecked = checkedProp,
@@ -239,7 +236,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         groupOnChange?.(nextChecked, details);
-        onCheckedChange(nextChecked, details);
+        onCheckedChange?.(nextChecked, details);
 
         if (details.isCanceled) {
           return;

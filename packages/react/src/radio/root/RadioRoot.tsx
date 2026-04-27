@@ -84,7 +84,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const form = formGroup;
 
   const checked = groupContext ? checkedValue === value : value === '';
-  const serializedValue = React.useMemo(() => serializeValue(value), [value]);
 
   const radioRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -192,7 +191,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     tabIndex: -1,
     style: name ? visuallyHiddenInput : visuallyHidden,
     'aria-hidden': true,
-    ...(value !== undefined ? { value: serializedValue } : EMPTY_OBJECT),
+    ...(value !== undefined ? { value: serializeValue(value) } : EMPTY_OBJECT),
     disabled,
     checked,
     required,

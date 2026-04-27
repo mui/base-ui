@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { useRenderElement } from '../internals/useRenderElement';
 import type { BaseUIComponentProps, HTMLProps, Orientation } from '../internals/types';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
@@ -45,14 +46,6 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
 
   const toolbarContext = useToolbarRootContext(true);
 
-  const defaultValue = React.useMemo(() => {
-    if (valueProp === undefined) {
-      return defaultValueProp ?? [];
-    }
-
-    return undefined;
-  }, [valueProp, defaultValueProp]);
-
   const isValueInitialized = React.useMemo(
     () => valueProp !== undefined || defaultValueProp !== undefined,
     [valueProp, defaultValueProp],
@@ -62,7 +55,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
 
   const [groupValue, setValueState] = useControlled({
     controlled: valueProp,
-    default: defaultValue,
+    default: valueProp === undefined ? (defaultValueProp ?? EMPTY_ARRAY) : undefined,
     name: 'ToggleGroup',
     state: 'value',
   });

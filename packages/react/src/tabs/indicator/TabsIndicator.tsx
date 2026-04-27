@@ -94,44 +94,20 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     }
   }
 
-  const activeTabPosition = React.useMemo(
-    () =>
-      isTabSelected
-        ? {
-            left,
-            right,
-            top,
-            bottom,
-          }
-        : null,
-    [left, right, top, bottom, isTabSelected],
-  );
+  const activeTabPosition = isTabSelected ? { left, right, top, bottom } : null;
 
-  const activeTabSize = React.useMemo(
-    () =>
-      isTabSelected
-        ? {
-            width,
-            height,
-          }
-        : null,
-    [width, height, isTabSelected],
-  );
+  const activeTabSize = isTabSelected ? { width, height } : null;
 
-  const style = React.useMemo(() => {
-    if (!isTabSelected) {
-      return undefined;
-    }
-
-    return {
-      [TabsIndicatorCssVars.activeTabLeft]: `${left}px`,
-      [TabsIndicatorCssVars.activeTabRight]: `${right}px`,
-      [TabsIndicatorCssVars.activeTabTop]: `${top}px`,
-      [TabsIndicatorCssVars.activeTabBottom]: `${bottom}px`,
-      [TabsIndicatorCssVars.activeTabWidth]: `${width}px`,
-      [TabsIndicatorCssVars.activeTabHeight]: `${height}px`,
-    } as React.CSSProperties;
-  }, [left, right, top, bottom, width, height, isTabSelected]);
+  const style: React.CSSProperties | undefined = isTabSelected
+    ? ({
+        [TabsIndicatorCssVars.activeTabLeft]: `${left}px`,
+        [TabsIndicatorCssVars.activeTabRight]: `${right}px`,
+        [TabsIndicatorCssVars.activeTabTop]: `${top}px`,
+        [TabsIndicatorCssVars.activeTabBottom]: `${bottom}px`,
+        [TabsIndicatorCssVars.activeTabWidth]: `${width}px`,
+        [TabsIndicatorCssVars.activeTabHeight]: `${height}px`,
+      } as React.CSSProperties)
+    : undefined;
 
   const displayIndicator = isTabSelected && width > 0 && height > 0;
 

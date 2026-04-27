@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
@@ -45,7 +44,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     inputRef: externalInputRef,
     name: nameProp,
     nativeButton = false,
-    onCheckedChange: onCheckedChangeProp,
+    onCheckedChange,
     readOnly = false,
     required = false,
     disabled: disabledProp = false,
@@ -74,8 +73,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
-
-  const onCheckedChange = useStableCallback(onCheckedChangeProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
@@ -177,66 +174,49 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     },
   };
 
-  const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
-    () =>
-      mergeProps<'input'>(
-        {
-          checked,
-          disabled,
-          form,
-          id: hiddenInputId,
-          name,
-          required,
-          style: name ? visuallyHiddenInput : visuallyHidden,
-          tabIndex: -1,
-          type: 'checkbox',
-          'aria-hidden': true,
-          ref: handleInputRef,
-          onChange(event) {
-            // Workaround for https://github.com/facebook/react/issues/9023
-            if (event.nativeEvent.defaultPrevented) {
-              return;
-            }
-
-            if (readOnly) {
-              event.preventDefault();
-              return;
-            }
-
-            const nextChecked = event.currentTarget.checked;
-            const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
-
-            onCheckedChange?.(nextChecked, eventDetails);
-
-            if (eventDetails.isCanceled) {
-              return;
-            }
-
-            setCheckedState(nextChecked);
-          },
-          onFocus() {
-            switchRef.current?.focus();
-          },
-        },
-        validation.getInputValidationProps,
-        // React <19 sets an empty value if `undefined` is passed explicitly
-        // To avoid this, we only set the value if it's defined
-        value !== undefined ? { value } : EMPTY_OBJECT,
-      ),
-    [
+  const inputProps: React.ComponentPropsWithRef<'input'> = mergeProps<'input'>(
+    {
       checked,
       disabled,
       form,
-      handleInputRef,
-      hiddenInputId,
+      id: hiddenInputId,
       name,
-      onCheckedChange,
-      readOnly,
       required,
-      setCheckedState,
-      validation,
-      value,
-    ],
+      style: name ? visuallyHiddenInput : visuallyHidden,
+      tabIndex: -1,
+      type: 'checkbox',
+      'aria-hidden': true,
+      ref: handleInputRef,
+      onChange(event) {
+        // Workaround for https://github.com/facebook/react/issues/9023
+        if (event.nativeEvent.defaultPrevented) {
+          return;
+        }
+
+        if (readOnly) {
+          event.preventDefault();
+          return;
+        }
+
+        const nextChecked = event.currentTarget.checked;
+        const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
+
+        onCheckedChange?.(nextChecked, eventDetails);
+
+        if (eventDetails.isCanceled) {
+          return;
+        }
+
+        setCheckedState(nextChecked);
+      },
+      onFocus() {
+        switchRef.current?.focus();
+      },
+    },
+    validation.getInputValidationProps,
+    // React <19 sets an empty value if `undefined` is passed explicitly
+    // To avoid this, we only set the value if it's defined
+    value !== undefined ? { value } : EMPTY_OBJECT,
   );
 
   const state: SwitchRootState = React.useMemo(
