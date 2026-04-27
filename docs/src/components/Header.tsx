@@ -21,7 +21,7 @@ export function Header() {
     <header className="Header">
       <div className="HeaderInner">
         <SkipNav>Skip to contents</SkipNav>
-        <NextLink href="/" className="HeaderLogoLink" aria-label="Go to homepage">
+        <NextLink href="/" className="HeaderLogoLink" aria-label="Go to the homepage">
           <Logo aria-label="Base UI" />
         </NextLink>
         <div className="HeaderDesktopActions">
