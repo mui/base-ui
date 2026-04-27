@@ -48,6 +48,7 @@
 
 .Popup {
   box-sizing: border-box;
+  position: relative;
   outline: 0;
   padding-block: 0.25rem;
   border: 1px solid light-dark(var(--color-gray-950), white);
@@ -72,39 +73,45 @@
 }
 
 .Arrow {
-  display: flex;
+  display: block;
+  position: relative;
+  width: 12px;
+  height: 6px;
+  overflow: clip;
 
   &[data-side='top'] {
-    bottom: -8px;
+    bottom: -6px;
     rotate: 180deg;
   }
 
   &[data-side='bottom'] {
-    top: -8px;
+    top: -6px;
     rotate: 0deg;
   }
 
   &[data-side='left'] {
-    right: -13px;
+    right: -9px;
     rotate: 90deg;
   }
 
   &[data-side='right'] {
-    left: -13px;
+    left: -9px;
     rotate: -90deg;
   }
-}
 
-.ArrowFill {
-  fill: light-dark(white, var(--color-gray-950));
-}
-
-.ArrowOuterStroke {
-  fill: light-dark(var(--color-gray-950), white);
-}
-
-.ArrowInnerStroke {
-  fill: light-dark(white, var(--color-gray-950));
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    box-sizing: border-box;
+    width: calc(6px * sqrt(2));
+    height: calc(6px * sqrt(2));
+    background-color: light-dark(white, var(--color-gray-950));
+    border: 1px solid light-dark(var(--color-gray-950), white);
+    transform: translate(-50%, 50%) rotate(45deg);
+  }
 }
 
 .CheckboxItem,
