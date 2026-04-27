@@ -189,6 +189,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   });
 
   const initialValueRef = React.useRef(value);
+  const hasSelectedValue = multiple ? Array.isArray(value) && value.length > 0 : value != null;
+
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (value !== initialValueRef.current) {
@@ -197,12 +199,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [store, value]);
 
   useIsoLayoutEffect(() => {
-    setFilled(multiple ? Array.isArray(value) && value.length > 0 : value != null);
-  }, [multiple, value, setFilled]);
+    setFilled(hasSelectedValue);
+  }, [hasSelectedValue, setFilled]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
       if (open) {
+        if (!hasSelectedValue) {
+          selectedItemTextRef.current = null;
+        }
         return;
       }
 
@@ -223,13 +228,22 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         nextIndex = index === -1 ? null : index;
       }
 
-      store.set('selectedIndex', nextIndex);
-
       if (nextIndex === null) {
         selectedItemTextRef.current = null;
       }
+
+      store.set('selectedIndex', nextIndex);
     },
-    [multiple, open, value, valuesRef, isItemEqualToValue, store, selectedItemTextRef],
+    [
+      hasSelectedValue,
+      multiple,
+      open,
+      value,
+      valuesRef,
+      isItemEqualToValue,
+      store,
+      selectedItemTextRef,
+    ],
   );
 
   useValueChanged(value, () => {
