@@ -1,54 +1,27 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 
+const triggerClass =
+  'flex size-8 items-center justify-center border-0 bg-transparent text-gray-950 select-none data-popup-open:bg-gray-100 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 hover:bg-gray-50 active:bg-gray-100 dark:text-white dark:data-popup-open:bg-gray-800 dark:hover:bg-gray-900 dark:active:bg-gray-800';
+
+const popupClass =
+  'relative flex flex-col border border-gray-950 bg-white px-2 py-1 text-sm text-gray-950 origin-[var(--transform-origin)] [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[scale,opacity] duration-100 ease-out data-[ending-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[instant]:transition-none data-[starting-style]:opacity-0 data-[starting-style]:scale-[0.98] dark:border-white dark:bg-gray-950 dark:text-white dark:[filter:none]';
+
+const arrowClass =
+  "relative block w-3 h-1.5 overflow-clip data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-gray-950 before:border before:border-gray-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]";
+
 export default function ExampleTooltip() {
   return (
     <Tooltip.Provider>
-      <div className="flex border border-gray-200 rounded-md bg-gray-50 p-0.5">
+      <div className="flex border border-gray-950 bg-white dark:border-white dark:bg-gray-950">
         <Tooltip.Root>
-          <Tooltip.Trigger
-            className="
-              flex size-8 items-center justify-center
-              border-0 rounded-sm
-              bg-transparent
-              text-gray-900
-              select-none
-              data-popup-open:bg-gray-100
-              focus-visible:bg-none
-              focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800
-              hover:bg-gray-100
-              active:bg-gray-200
-              focus-visible:not-[&:hover]:bg-transparent"
-          >
+          <Tooltip.Trigger className={triggerClass}>
             <BoldIcon aria-label="Bold" className="size-4" />
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Positioner sideOffset={10}>
-              <Tooltip.Popup
-                className="
-                  flex flex-col
-                  px-2 py-1
-                  rounded-md
-                  bg-[canvas]
-                  text-sm
-                  origin-(--transform-origin)
-                  shadow-lg shadow-gray-200 outline-1 outline-gray-200
-                  transition-[transform,scale,opacity]
-                  data-ending-style:opacity-0 data-ending-style:scale-90
-                  data-instant:transition-none
-                  data-starting-style:opacity-0 data-starting-style:scale-90
-                  dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1"
-              >
-                <Tooltip.Arrow
-                  className="
-                    flex
-                    data-[side=bottom]:-top-2 data-[side=bottom]:rotate-0
-                    data-[side=left]:right-[-13px] data-[side=left]:rotate-90
-                    data-[side=right]:left-[-13px] data-[side=right]:-rotate-90
-                    data-[side=top]:-bottom-2 data-[side=top]:rotate-180"
-                >
-                  <ArrowSvg />
-                </Tooltip.Arrow>
+            <Tooltip.Positioner sideOffset={11}>
+              <Tooltip.Popup className={popupClass}>
+                <Tooltip.Arrow className={arrowClass} />
                 Bold
               </Tooltip.Popup>
             </Tooltip.Positioner>
@@ -56,49 +29,13 @@ export default function ExampleTooltip() {
         </Tooltip.Root>
 
         <Tooltip.Root>
-          <Tooltip.Trigger
-            className="
-              flex size-8 items-center justify-center
-              border-0 rounded-sm
-              bg-transparent
-              text-gray-900
-              select-none
-              data-popup-open:bg-gray-100
-              focus-visible:bg-none
-              focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800
-              hover:bg-gray-100
-              active:bg-gray-200
-              focus-visible:not-[&:hover]:bg-transparent"
-          >
+          <Tooltip.Trigger className={triggerClass}>
             <ItalicIcon aria-label="Italic" className="size-4" />
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Positioner sideOffset={10}>
-              <Tooltip.Popup
-                className="
-                  flex flex-col
-                  px-2 py-1
-                  rounded-md
-                  bg-[canvas]
-                  text-sm
-                  origin-(--transform-origin)
-                  shadow-lg shadow-gray-200 outline-1 outline-gray-200
-                  transition-[transform,scale,opacity]
-                  data-ending-style:opacity-0 data-ending-style:scale-90
-                  data-instant:transition-none
-                  data-starting-style:opacity-0 data-starting-style:scale-90
-                  dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1"
-              >
-                <Tooltip.Arrow
-                  className="
-                    flex
-                    data-[side=bottom]:-top-2 data-[side=bottom]:rotate-0
-                    data-[side=left]:right-[-13px] data-[side=left]:rotate-90
-                    data-[side=right]:left-[-13px] data-[side=right]:-rotate-90
-                    data-[side=top]:-bottom-2 data-[side=top]:rotate-180"
-                >
-                  <ArrowSvg />
-                </Tooltip.Arrow>
+            <Tooltip.Positioner sideOffset={11}>
+              <Tooltip.Popup className={popupClass}>
+                <Tooltip.Arrow className={arrowClass} />
                 Italic
               </Tooltip.Popup>
             </Tooltip.Positioner>
@@ -106,49 +43,13 @@ export default function ExampleTooltip() {
         </Tooltip.Root>
 
         <Tooltip.Root>
-          <Tooltip.Trigger
-            className="
-              flex size-8 items-center justify-center
-              border-0 rounded-sm
-              bg-transparent
-              text-gray-900
-              select-none
-              data-popup-open:bg-gray-100
-              focus-visible:bg-none
-              focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800
-              hover:bg-gray-100
-              active:bg-gray-200
-              focus-visible:not-[&:hover]:bg-transparent"
-          >
+          <Tooltip.Trigger className={triggerClass}>
             <UnderlineIcon aria-label="Underline" className="size-4" />
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Positioner sideOffset={10}>
-              <Tooltip.Popup
-                className="
-                  flex flex-col
-                  px-2 py-1
-                  rounded-md
-                  bg-[canvas]
-                  text-sm
-                  origin-(--transform-origin)
-                  shadow-lg shadow-gray-200 outline-1 outline-gray-200
-                  transition-[transform,scale,opacity]
-                  data-ending-style:opacity-0 data-ending-style:scale-90
-                  data-instant:transition-none
-                  data-starting-style:opacity-0 data-starting-style:scale-90
-                  dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1"
-              >
-                <Tooltip.Arrow
-                  className="
-                    flex
-                    data-[side=bottom]:-top-2 data-[side=bottom]:rotate-0
-                    data-[side=left]:right-[-13px] data-[side=left]:rotate-90
-                    data-[side=right]:left-[-13px] data-[side=right]:-rotate-90
-                    data-[side=top]:-bottom-2 data-[side=top]:rotate-180"
-                >
-                  <ArrowSvg />
-                </Tooltip.Arrow>
+            <Tooltip.Positioner sideOffset={11}>
+              <Tooltip.Popup className={popupClass}>
+                <Tooltip.Arrow className={arrowClass} />
                 Underline
               </Tooltip.Popup>
             </Tooltip.Positioner>
@@ -156,25 +57,6 @@ export default function ExampleTooltip() {
         </Tooltip.Root>
       </div>
     </Tooltip.Provider>
-  );
-}
-
-function ArrowSvg(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
-      <path
-        d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
-        className="fill-[canvas]"
-      />
-      <path
-        d="M8.99542 1.85876C9.75604 1.17425 10.9106 1.17422 11.6713 1.85878L16.5281 6.22989C17.0789 6.72568 17.7938 7.00001 18.5349 7.00001L15.89 7L11.0023 2.60207C10.622 2.2598 10.0447 2.2598 9.66436 2.60207L4.77734 7L2.13171 7.00001C2.87284 7.00001 3.58774 6.72568 4.13861 6.22989L8.99542 1.85876Z"
-        className="fill-gray-200 dark:fill-none"
-      />
-      <path
-        d="M10.3333 3.34539L5.47654 7.71648C4.55842 8.54279 3.36693 9 2.13172 9H0V8H2.13172C3.11989 8 4.07308 7.63423 4.80758 6.97318L9.66437 2.60207C10.0447 2.25979 10.622 2.2598 11.0023 2.60207L15.8591 6.97318C16.5936 7.63423 17.5468 8 18.5349 8H20V9H18.5349C17.2998 9 16.1083 8.54278 15.1901 7.71648L10.3333 3.34539Z"
-        className="dark:fill-gray-300"
-      />
-    </svg>
   );
 }
 
