@@ -2,6 +2,9 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 
+const itemClass =
+  "grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-white data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:bg-gray-950 data-[highlighted]:before:content-[''] data-[disabled]:text-gray-500 dark:data-[highlighted]:text-gray-950 dark:data-[highlighted]:before:bg-white dark:data-[disabled]:text-gray-400";
+
 export default function ExampleMenu() {
   const [value, setValue] = React.useState('date');
   const [showMinimap, setShowMinimap] = React.useState(true);
@@ -10,84 +13,75 @@ export default function ExampleMenu() {
 
   return (
     <Menu.Root>
-      <Menu.Trigger className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
+      <Menu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-gray-950 bg-white px-3 text-sm leading-5 font-normal text-gray-950 select-none hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900 dark:active:bg-gray-800 dark:data-[popup-open]:bg-gray-800">
         View <ChevronDownIcon className="-mr-1" />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner className="outline-hidden" sideOffset={8}>
-          <Menu.Popup className="origin-[var(--transform-origin)] rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+          <Menu.Popup className="origin-[var(--transform-origin)] border border-gray-950 bg-white py-1 text-gray-950 outline-hidden [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[scale,opacity] duration-100 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 dark:border-white dark:bg-gray-950 dark:text-white dark:[filter:none]">
             <Menu.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
               <ArrowSvg />
             </Menu.Arrow>
 
             <Menu.Group>
-              <Menu.GroupLabel className="cursor-default py-2 pr-8 pl-7.5 text-sm leading-4 text-gray-600 select-none">
+              <Menu.GroupLabel className="cursor-default py-2 pr-8 pl-7.5 text-xs font-bold tracking-wider text-gray-500 uppercase select-none dark:text-gray-400">
                 Sort
               </Menu.GroupLabel>
               <Menu.RadioGroup value={value} onValueChange={setValue}>
-                <Menu.RadioItem
-                  value="date"
-                  className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 data-[disabled]:text-gray-400 data-[disabled]:data-[highlighted]:before:bg-gray-300"
-                >
+                <Menu.RadioItem value="date" className={itemClass}>
                   <Menu.RadioItemIndicator className="col-start-1">
-                    <CheckIcon className="size-3" />
+                    <CheckboxCheckIcon className="size-3" />
                   </Menu.RadioItemIndicator>
                   <span className="col-start-2">Date</span>
                 </Menu.RadioItem>
-                <Menu.RadioItem
-                  value="name"
-                  className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 data-[disabled]:text-gray-400 data-[disabled]:data-[highlighted]:before:bg-gray-300"
-                >
+                <Menu.RadioItem value="name" className={itemClass}>
                   <Menu.RadioItemIndicator className="col-start-1">
-                    <CheckIcon className="size-3" />
+                    <CheckboxCheckIcon className="size-3" />
                   </Menu.RadioItemIndicator>
                   <span className="col-start-2">Name</span>
                 </Menu.RadioItem>
-                <Menu.RadioItem
-                  value="type"
-                  className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 data-[disabled]:text-gray-400 data-[disabled]:data-[highlighted]:before:bg-gray-300"
-                >
+                <Menu.RadioItem value="type" className={itemClass}>
                   <Menu.RadioItemIndicator className="col-start-1">
-                    <CheckIcon className="size-3" />
+                    <CheckboxCheckIcon className="size-3" />
                   </Menu.RadioItemIndicator>
                   <span className="col-start-2">Type</span>
                 </Menu.RadioItem>
               </Menu.RadioGroup>
             </Menu.Group>
 
-            <Menu.Separator className="my-1.5 mr-4 ml-7.5 h-px bg-gray-200" />
+            <Menu.Separator className="mx-1 my-1 h-px bg-gray-950 dark:bg-white" />
 
             <Menu.Group>
-              <Menu.GroupLabel className="cursor-default py-2 pr-8 pl-7.5 text-sm leading-4 text-gray-600 select-none">
+              <Menu.GroupLabel className="cursor-default py-2 pr-8 pl-7.5 text-xs font-bold tracking-wider text-gray-500 uppercase select-none dark:text-gray-400">
                 Workspace
               </Menu.GroupLabel>
               <Menu.CheckboxItem
                 checked={showMinimap}
                 onCheckedChange={setShowMinimap}
-                className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 data-[disabled]:text-gray-400 data-[disabled]:data-[highlighted]:before:bg-gray-300"
+                className={itemClass}
               >
                 <Menu.CheckboxItemIndicator className="col-start-1">
-                  <CheckIcon className="size-3" />
+                  <CheckboxCheckIcon className="size-3" />
                 </Menu.CheckboxItemIndicator>
                 <span className="col-start-2">Minimap</span>
               </Menu.CheckboxItem>
               <Menu.CheckboxItem
                 checked={showSearch}
                 onCheckedChange={setShowSearch}
-                className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 data-[disabled]:text-gray-400 data-[disabled]:data-[highlighted]:before:bg-gray-300"
+                className={itemClass}
               >
                 <Menu.CheckboxItemIndicator className="col-start-1">
-                  <CheckIcon className="size-3" />
+                  <CheckboxCheckIcon className="size-3" />
                 </Menu.CheckboxItemIndicator>
                 <span className="col-start-2">Search</span>
               </Menu.CheckboxItem>
               <Menu.CheckboxItem
                 checked={showSidebar}
                 onCheckedChange={setShowSidebar}
-                className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-2.5 text-sm leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 data-[disabled]:text-gray-400 data-[disabled]:data-[highlighted]:before:bg-gray-300"
+                className={itemClass}
               >
                 <Menu.CheckboxItemIndicator className="col-start-1">
-                  <CheckIcon className="size-3" />
+                  <CheckboxCheckIcon className="size-3" />
                 </Menu.CheckboxItemIndicator>
                 <span className="col-start-2">Sidebar</span>
               </Menu.CheckboxItem>
@@ -104,15 +98,15 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
       <path
         d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
-        className="fill-[canvas]"
+        className="fill-white dark:fill-gray-950"
       />
       <path
         d="M8.99542 1.85876C9.75604 1.17425 10.9106 1.17422 11.6713 1.85878L16.5281 6.22989C17.0789 6.72568 17.7938 7.00001 18.5349 7.00001L15.89 7L11.0023 2.60207C10.622 2.2598 10.0447 2.2598 9.66436 2.60207L4.77734 7L2.13171 7.00001C2.87284 7.00001 3.58774 6.72568 4.13861 6.22989L8.99542 1.85876Z"
-        className="fill-gray-200 dark:fill-none"
+        className="fill-gray-950 dark:fill-white"
       />
       <path
         d="M10.3333 3.34539L5.47654 7.71648C4.55842 8.54279 3.36693 9 2.13172 9H0V8H2.13172C3.11989 8 4.07308 7.63423 4.80758 6.97318L9.66437 2.60207C10.0447 2.25979 10.622 2.2598 11.0023 2.60207L15.8591 6.97318C16.5936 7.63423 17.5468 8 18.5349 8H20V9H18.5349C17.2998 9 16.1083 8.54278 15.1901 7.71648L10.3333 3.34539Z"
-        className="dark:fill-gray-300"
+        className="fill-white dark:fill-gray-950"
       />
     </svg>
   );
@@ -126,10 +120,20 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-function CheckIcon(props: React.ComponentProps<'svg'>) {
+function CheckboxCheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentColor" width="10" height="10" viewBox="0 0 10 10" {...props}>
-      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M20 6 9 17l-5-5" />
     </svg>
   );
 }
