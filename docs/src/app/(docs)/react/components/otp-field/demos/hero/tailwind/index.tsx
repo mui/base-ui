@@ -26,7 +26,7 @@ export default function ExampleOTPField() {
           />
         ))}
       </OTPField.Root>
-      <p id={descriptionId} className="m-0 text-sm leading-5 text-gray-600 dark:text-gray-400">
+      <p id={descriptionId} className="m-0 text-sm leading-5 text-gray-500 dark:text-gray-400">
         Enter the 6-character code we sent to your device.
       </p>
     </div>

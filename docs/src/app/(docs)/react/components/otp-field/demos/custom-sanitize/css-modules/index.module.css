@@ -68,7 +68,7 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-gray-600), var(--color-gray-400));
+  color: light-dark(var(--color-gray-500), var(--color-gray-400));
 }
 
 .Code {
