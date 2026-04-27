@@ -16,7 +16,7 @@ export default function ExampleUncontainedDialog() {
             >
               <XIcon className="h-6 w-6" />
             </Dialog.Close>
-            <div className="pointer-events-auto box-border h-full w-full max-w-[70rem] bg-white dark:bg-gray-950 p-4 text-gray-950 dark:text-white border border-gray-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[starting-style]/popup:scale-105" />
+            <div className="pointer-events-auto box-border h-full w-full max-w-[70rem] bg-white dark:bg-gray-950 p-4 text-gray-950 dark:text-white border border-gray-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-[scale] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[starting-style]/popup:scale-105" />
           </Dialog.Popup>
         </Dialog.Viewport>
       </Dialog.Portal>
