@@ -3179,13 +3179,13 @@ describe('<Select.Root />', () => {
         const positioner = screen.getByTestId('positioner');
         const firstOption = screen.getByRole('option', { name: 'b-0' });
 
-        await waitFor(() => {
-          expect(trigger).toHaveAttribute('aria-expanded', 'true');
-          expect(listbox.scrollTop).toBe(0);
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+        await waitFor(() => expect(listbox.scrollTop).toBe(0));
+        await waitFor(() =>
           expect(firstOption.getBoundingClientRect().top).toBeGreaterThanOrEqual(
             positioner.getBoundingClientRect().top,
-          );
-        });
+          ),
+        );
       },
     );
 
@@ -3247,13 +3247,13 @@ describe('<Select.Root />', () => {
         const positioner = screen.getByTestId('positioner');
         const firstOption = screen.getByRole('option', { name: 'b-0' });
 
-        await waitFor(() => {
-          expect(trigger).toHaveAttribute('aria-expanded', 'true');
-          expect(listbox.scrollTop).toBe(0);
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+        await waitFor(() => expect(listbox.scrollTop).toBe(0));
+        await waitFor(() =>
           expect(firstOption.getBoundingClientRect().top).toBeGreaterThanOrEqual(
             positioner.getBoundingClientRect().top,
-          );
-        });
+          ),
+        );
       },
     );
 
