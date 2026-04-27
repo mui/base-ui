@@ -1047,6 +1047,7 @@ describe('<Tabs.Root />', () => {
       const handleChange = vi.fn((_value: number, eventDetails: Tabs.Root.ChangeEventDetails) => {
         if (eventDetails.reason === 'disabled') {
           eventDetails.cancel();
+          expect(eventDetails.isCanceled).toBe(false);
         }
       });
 
