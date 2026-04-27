@@ -13,9 +13,10 @@
 
 .Popup {
   position: relative;
-  background-color: canvas;
-  color: var(--color-gray-900);
-  border-radius: 0.5rem;
+  border: 1px solid light-dark(var(--color-gray-950), white);
+  background-color: light-dark(white, var(--color-gray-950));
+  color: light-dark(var(--color-gray-950), white);
+  filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
   transform-origin: var(--transform-origin);
 
   /* These are required to make the size animations work */
@@ -30,59 +31,52 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transform: scale(0.9);
-  }
-
-  @media (prefers-color-scheme: light) {
-    outline: 1px solid var(--color-gray-200);
-    box-shadow:
-      0 10px 15px -3px var(--color-gray-200),
-      0 4px 6px -4px var(--color-gray-200);
+    transform: scale(0.98);
   }
 
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-gray-300);
-    outline-offset: -1px;
+    filter: none;
   }
 }
 
 .Arrow {
-  display: flex;
+  display: block;
+  position: relative;
+  width: 12px;
+  height: 6px;
+  overflow: clip;
 
   &[data-side='top'] {
-    bottom: -8px;
+    bottom: -6px;
     rotate: 180deg;
   }
 
   &[data-side='bottom'] {
-    top: -8px;
+    top: -6px;
     rotate: 0deg;
   }
 
   &[data-side='left'] {
-    right: -13px;
+    right: -9px;
     rotate: 90deg;
   }
 
   &[data-side='right'] {
-    left: -13px;
+    left: -9px;
     rotate: -90deg;
   }
-}
 
-.ArrowFill {
-  fill: canvas;
-}
-
-.ArrowOuterStroke {
-  @media (prefers-color-scheme: light) {
-    fill: var(--color-gray-200);
-  }
-}
-
-.ArrowInnerStroke {
-  @media (prefers-color-scheme: dark) {
-    fill: var(--color-gray-300);
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    box-sizing: border-box;
+    width: calc(6px * sqrt(2));
+    height: calc(6px * sqrt(2));
+    border: 1px solid light-dark(var(--color-gray-950), white);
+    background-color: light-dark(white, var(--color-gray-950));
+    transform: translate(-50%, 50%) rotate(45deg);
   }
 }
 
@@ -139,7 +133,6 @@
 
 .Image {
   display: block;
-  border-radius: 0.25rem;
   max-width: none;
 }
 
@@ -147,7 +140,7 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-gray-600), var(--color-gray-400));
   text-wrap: pretty;
 }
 
@@ -155,31 +148,35 @@
   margin: 0;
   font-size: 1rem;
   line-height: 1.5rem;
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-gray-950), white);
   text-wrap: balance;
 }
 
 .Link {
   outline: 0;
-  color: var(--color-blue);
+  color: light-dark(var(--color-blue-800), var(--color-blue-500));
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
-  text-decoration-color: color-mix(in oklab, var(--color-blue), transparent 40%);
+  text-decoration-color: color-mix(
+    in oklab,
+    light-dark(var(--color-blue-800), var(--color-blue-500)),
+    transparent 40%
+  );
   text-underline-offset: 2px;
 
   @media (hover: hover) {
     &:hover {
-      text-decoration-color: var(--color-blue);
+      text-decoration-color: light-dark(var(--color-blue-800), var(--color-blue-500));
     }
   }
 
   &[data-popup-open] {
-    text-decoration-color: var(--color-blue);
+    text-decoration-color: light-dark(var(--color-blue-800), var(--color-blue-500));
   }
 
   &:focus-visible {
-    border-radius: 0.125rem;
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
     text-decoration-line: none;
   }
 }
