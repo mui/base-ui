@@ -124,7 +124,9 @@
   background-color: light-dark(white, var(--color-gray-950));
   color: light-dark(var(--color-gray-950), white);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
-  transition: all 150ms;
+  transition:
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
   overflow: hidden;
   min-height: 0;
 

@@ -67,7 +67,9 @@
   background-color: light-dark(white, var(--color-gray-950));
   color: light-dark(var(--color-gray-950), white);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
-  transition: all 150ms;
+  transition:
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
 
   transform: translate(-50%, -50%) scale(calc(1 - 0.1 * var(--nested-dialogs)));
   translate: 0 calc(0px + 1.25rem * var(--nested-dialogs));
@@ -88,7 +90,7 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.9);
+    transform: translate(-50%, -50%) scale(0.98);
   }
 }
 
