@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
@@ -91,8 +90,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
-  const [hidePanelsWithoutMatchingTab, setHidePanelsWithoutMatchingTab] = React.useState(false);
-  const noRenderedTabsTimeout = useTimeout();
+  const [tabRegistrationSettled, setTabRegistrationSettled] = React.useState(false);
+
+  React.useEffect(() => {
+    setTabRegistrationSettled(true);
+  }, []);
 
   const derivedTabData = React.useMemo<DerivedTabData>(() => {
     // Derive all tab lookups from a single pass so selection, ids, and element
@@ -239,20 +241,13 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
   const getTabIdByPanelValue = React.useCallback(
     (tabPanelValue: TabsTab.Value) => {
+      if (!derivedTabData.tabIdByValue.has(tabPanelValue)) {
+        return null;
+      }
+
       return derivedTabData.tabIdByValue.get(tabPanelValue);
     },
     [derivedTabData],
-  );
-
-  const isPanelOpen = React.useCallback(
-    (panelValue: TabsTab.Value) => {
-      if (panelValue !== value) {
-        return false;
-      }
-
-      return !hidePanelsWithoutMatchingTab || derivedTabData.tabIdByValue.has(panelValue);
-    },
-    [derivedTabData, hidePanelsWithoutMatchingTab, value],
   );
 
   const tabsContextValue: TabsRootContext = React.useMemo(
@@ -260,26 +255,26 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
-      isPanelOpen,
       onValueChange,
       orientation,
       registerMountedTabPanel,
       setTabMap,
       unregisterMountedTabPanel,
       tabActivationDirection,
+      tabRegistrationSettled,
       value,
     }),
     [
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
-      isPanelOpen,
       onValueChange,
       orientation,
       registerMountedTabPanel,
       setTabMap,
       unregisterMountedTabPanel,
       tabActivationDirection,
+      tabRegistrationSettled,
       value,
     ],
   );
@@ -358,31 +353,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     tabMap,
     value,
   ]);
-
-  useIsoLayoutEffect(() => {
-    if (tabMap.size > 0 || mountedTabPanels.size === 0 || value === null) {
-      noRenderedTabsTimeout.clear();
-
-      if (hidePanelsWithoutMatchingTab) {
-        setHidePanelsWithoutMatchingTab(false);
-      }
-
-      return undefined;
-    }
-
-    // When panels exist without any rendered tabs, hide the selected panel on the
-    // client after registration settles. This preserves SSR-selected content while
-    // still cleaning up stale keepMounted panels in the "no tabs rendered" case.
-    noRenderedTabsTimeout.start(0, () => {
-      if (tabMap.size > 0 || mountedTabPanels.size === 0 || value === null) {
-        return;
-      }
-
-      setHidePanelsWithoutMatchingTab((prev) => prev || true);
-    });
-
-    return noRenderedTabsTimeout.clear;
-  }, [hidePanelsWithoutMatchingTab, mountedTabPanels, noRenderedTabsTimeout, tabMap, value]);
 
   const state: TabsRootState = {
     orientation,

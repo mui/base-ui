@@ -34,10 +34,11 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   const { className, value, render, keepMounted = false, style, ...elementProps } = componentProps;
 
   const {
+    value: selectedValue,
     getTabIdByPanelValue,
-    isPanelOpen,
     orientation,
     tabActivationDirection,
+    tabRegistrationSettled,
     registerMountedTabPanel,
     unregisterMountedTabPanel,
   } = useTabsRootContext();
@@ -57,7 +58,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   });
 
   const correspondingTabId = getTabIdByPanelValue(value);
-  const open = isPanelOpen(value);
+  const open = value === selectedValue && (!tabRegistrationSettled || correspondingTabId !== null);
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
   const hidden = !mounted;
 
@@ -75,7 +76,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     ref: [forwardedRef, listItemRef, panelRef],
     props: [
       {
-        'aria-labelledby': correspondingTabId,
+        'aria-labelledby': correspondingTabId ?? undefined,
         hidden,
         id,
         role: 'tabpanel',

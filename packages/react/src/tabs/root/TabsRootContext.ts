@@ -22,13 +22,10 @@ export interface TabsRootContext {
   getTabElementBySelectedValue: (selectedValue: TabsTab.Value | undefined) => HTMLElement | null;
   /**
    * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value.
+   * Returns `null` when no corresponding Tab has registered.
    * @param (any) panelValue Value to find the Tab for.
    */
-  getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined;
-  /**
-   * Whether the panel matching the given value should currently be open.
-   */
-  isPanelOpen: (panelValue: TabsTab.Value) => boolean;
+  getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined | null;
   /**
    * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value.
    * @param (any) tabValue Value to find the TabPanel for.
@@ -43,6 +40,10 @@ export interface TabsRootContext {
    * The position of the active tab relative to the previously active tab.
    */
   tabActivationDirection: TabsTab.ActivationDirection;
+  /**
+   * Whether the initial tab registration pass has completed.
+   */
+  tabRegistrationSettled: boolean;
 }
 
 /**

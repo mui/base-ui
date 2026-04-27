@@ -6,7 +6,7 @@ import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
 import { Tabs } from '@base-ui/react/tabs';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
 
 describe('<Tabs.Root />', () => {
   const { render } = createRenderer();
@@ -456,6 +456,41 @@ describe('<Tabs.Root />', () => {
         expect(panels[1]).toHaveAttribute('hidden');
         expect(panels[2]).toHaveAttribute('hidden');
       });
+    });
+
+    it('does not remount non-keepMounted panels when no tabs are rendered', async () => {
+      const mountSpy = vi.fn();
+      const unmountSpy = vi.fn();
+
+      function PanelContent() {
+        React.useEffect(() => {
+          mountSpy();
+          return unmountSpy;
+        }, []);
+
+        return 'Panel 0';
+      }
+
+      await render(
+        <Tabs.Root>
+          <Tabs.List />
+          <Tabs.Panel value={0}>
+            <PanelContent />
+          </Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      expect(screen.queryAllByRole('tab')).toHaveLength(0);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('tabpanel')).toBe(null);
+      });
+
+      await wait(50);
+
+      expect(screen.queryByRole('tabpanel')).toBe(null);
+      expect(mountSpy.mock.calls.length).toBeLessThanOrEqual(2);
+      expect(unmountSpy.mock.calls.length).toBeLessThanOrEqual(2);
     });
 
     it('preserves explicit defaultValue when tabs mount after an initial no-tab render', async () => {
