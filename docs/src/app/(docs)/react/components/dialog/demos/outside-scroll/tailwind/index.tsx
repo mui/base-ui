@@ -11,7 +11,7 @@ export default function OutsideScrollDialog() {
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-black/20 dark:bg-black/50 transition-[backdrop-filter,opacity] duration-[600ms] ease-[var(--ease-out-fast)] backdrop-blur-[1.5px] data-[starting-style]:backdrop-blur-0 data-[starting-style]:opacity-0 data-[ending-style]:backdrop-blur-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] supports-[-webkit-touch-callout:none]:absolute" />
+        <Dialog.Backdrop className="fixed inset-0 bg-black/20 dark:bg-black/50 transition-[backdrop-filter,opacity] duration-[350ms] ease-[var(--ease-out-fast)] backdrop-blur-[1.5px] data-[starting-style]:backdrop-blur-0 data-[starting-style]:opacity-0 data-[ending-style]:backdrop-blur-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[220ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="group/dialog fixed inset-0">
           <ScrollArea.Root
             style={{ position: undefined }}
@@ -22,7 +22,7 @@ export default function OutsideScrollDialog() {
                 <Dialog.Popup
                   ref={popupRef}
                   initialFocus={popupRef}
-                  className="outline-0 relative mx-auto my-16 w-[min(40rem,calc(100vw-2rem))] bg-white dark:bg-gray-950 p-4 text-gray-950 dark:text-white border border-gray-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[700ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-[max(100dvh,100%)] data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
+                  className="outline-0 relative mx-auto my-16 w-[min(40rem,calc(100vw-2rem))] bg-white dark:bg-gray-950 p-4 text-gray-950 dark:text-white border border-gray-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[350ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-[max(100dvh,100%)] data-[ending-style]:duration-[220ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
                 >
                   <div className="mb-1 flex items-start justify-between gap-3">
                     <Dialog.Title className="m-0 text-base font-bold leading-6">
