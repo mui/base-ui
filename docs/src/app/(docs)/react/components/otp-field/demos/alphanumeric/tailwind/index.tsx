@@ -27,7 +27,7 @@ export default function OTPFieldAlphanumericDemo() {
           />
         ))}
       </OTPField.Root>
-      <p id={descriptionId} className="m-0 text-sm leading-5 text-gray-600 dark:text-gray-400">
+      <p id={descriptionId} className="m-0 text-sm leading-5 text-gray-500 dark:text-gray-400">
         Accept letters and numbers for backup codes such as{' '}
         <code className="font-mono">A7C9XZ</code>.
       </p>
