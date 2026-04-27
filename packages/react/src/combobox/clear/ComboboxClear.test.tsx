@@ -112,7 +112,7 @@ describe('<Combobox.Clear />', () => {
       <Combobox.Root defaultValue="a">
         <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
         <Combobox.Portal>
-          <Combobox.Positioner>
+          <Combobox.Positioner data-testid="positioner">
             <Combobox.Popup>
               <Combobox.Input />
               <Combobox.Clear
@@ -133,6 +133,9 @@ describe('<Combobox.Clear />', () => {
 
     const clear = await screen.findByTestId('clear');
 
+    await waitFor(() => {
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-open', '');
+    });
     expect(clear).toHaveClass('visible');
     expect(clear).toHaveAttribute('data-visible', '');
 
