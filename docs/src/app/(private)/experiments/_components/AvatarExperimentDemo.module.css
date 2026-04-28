@@ -3,6 +3,13 @@
   gap: 12px;
 }
 
+.stackRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
 .avatarRoot {
   align-items: center;
   /* background: #f0f0f0; */
@@ -64,5 +71,5 @@
 }
 
 .pageRowOne > * > * {
-  background: #ff0000;
+  background: red;
 }
