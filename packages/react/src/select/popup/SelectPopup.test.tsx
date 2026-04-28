@@ -409,6 +409,95 @@ describe('<Select.Popup />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)('keeps the first item aligned with the trigger after reopening', async () => {
+    function getCenterY(rect: DOMRect) {
+      return rect.top + rect.height / 2;
+    }
+
+    const itemStyle: React.CSSProperties = {
+      display: 'grid',
+      gridTemplateColumns: '12px 1fr',
+      columnGap: 8,
+      padding: '8px 16px 8px 10px',
+      fontSize: 14,
+      lineHeight: '16px',
+    };
+
+    const { user } = await render(
+      <div style={{ marginLeft: 100, minHeight: 600, paddingTop: 96 }}>
+        <Select.Root>
+          <Select.Trigger
+            data-testid="trigger"
+            style={{
+              boxSizing: 'border-box',
+              width: 176,
+              height: 40,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              paddingInlineStart: 14,
+            }}
+          >
+            <Select.Value data-testid="value" placeholder="Select produce" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner data-testid="positioner">
+              <Select.Popup style={{ width: 220, maxHeight: 'none' }}>
+                <Select.List style={{ paddingBlock: 4, overflowY: 'auto' }}>
+                  <Select.Group>
+                    <Select.GroupLabel
+                      style={{
+                        padding: '8px 16px 4px 30px',
+                        fontSize: 11,
+                        lineHeight: '16px',
+                      }}
+                    >
+                      Fruits
+                    </Select.GroupLabel>
+                    <Select.Item value="apple" style={itemStyle}>
+                      <span />
+                      <Select.ItemText data-testid="first-item-text">Apple</Select.ItemText>
+                    </Select.Item>
+                    <Select.Item value="banana" style={itemStyle}>
+                      <span />
+                      <Select.ItemText>Banana</Select.ItemText>
+                    </Select.Item>
+                  </Select.Group>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      </div>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    async function expectFirstItemAligned() {
+      const value = screen.getByTestId('value');
+      const firstItemText = screen.getByTestId('first-item-text');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'none');
+        expect(
+          Math.abs(
+            getCenterY(value.getBoundingClientRect()) -
+              getCenterY(firstItemText.getBoundingClientRect()),
+          ),
+        ).toBeLessThan(1);
+      });
+    }
+
+    await user.click(trigger);
+    await expectFirstItemAligned();
+
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+
+    await user.click(trigger);
+    await expectFirstItemAligned();
+  });
+
   describe.skipIf(isJSDOM)('rtl alignment', () => {
     const RTL_FIXTURE_OPTIONS = [
       { value: 'first', label: 'الخيار الأول' },

@@ -117,7 +117,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
   const keyboardActiveRef = React.useRef(false);
-  const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
+  const firstItemTextRef = React.useRef<HTMLElement | null>(null);
+  const selectedItemTextRef = React.useRef<HTMLElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
@@ -471,6 +472,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       labelsRef,
       typingRef,
       selectionRef,
+      firstItemTextRef,
       selectedItemTextRef,
       validation,
       onOpenChangeComplete,
