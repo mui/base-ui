@@ -121,10 +121,12 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     setIntrinsicSettled(true);
   }, [mounted, intrinsicSettled, intrinsicDecodeFailed, componentProps.src]);
 
-  /** `<img hidden>` while decode/load hasn’t settled; stays mounted so events still fire. */
-  const intrinsicDecodePending =
-    !!componentProps.src &&
-    (!intrinsicSettled || Boolean(intrinsicDecodeFailed && mounted));
+  /**
+   * `<img hidden>` until status is `'loaded'`. Tying this to `mounted` previously let `hidden`
+   * clear briefly on error while `useTransitionStatus` unwound — the native broken-image glyph
+   * could flash for one frame before unmount.
+   */
+  const intrinsicDecodePending = imageLoadingStatus !== 'loaded';
 
   const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
@@ -177,7 +179,7 @@ export interface AvatarImageState extends AvatarRootState {
    */
   transitionStatus: TransitionStatus;
   /**
-   * While true, the `<img>` keeps the `hidden` attribute until load/error/decode settles (element stays mounted).
+   * True until `imageLoadingStatus === 'loaded'` (successful bitmap); keeps `<img hidden>` on loading and error.
    */
   intrinsicDecodePending: boolean;
 }
