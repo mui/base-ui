@@ -339,7 +339,7 @@ type PopoverPopupState = {
   /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether transitions should be skipped. */
-  instant: 'dismiss' | 'click' | undefined;
+  instant: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
 };
 ```
 
@@ -501,7 +501,7 @@ type PopoverViewportState = {
   /** Whether the viewport is currently transitioning between contents. */
   transitioning: boolean;
   /** Present if animations should be instant. */
-  instant: 'dismiss' | 'click' | undefined;
+  instant: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
 };
 ```
 
