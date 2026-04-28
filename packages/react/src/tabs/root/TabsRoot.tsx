@@ -343,16 +343,22 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     // (which would recompute activationDirection). Automatic selections are not
     // cancelable because a disabled or missing tab can't remain selected.
     notifyAutoSelection(nextValue, eventDetails);
-    setValue(nextValue);
-    setActivationDirectionState({
-      previousValue: nextValue,
-      tabActivationDirection: 'none',
-    });
+    if (value !== nextValue) {
+      setValue(nextValue);
+    }
+    if (previousValue !== nextValue || committedTabActivationDirection !== 'none') {
+      setActivationDirectionState({
+        previousValue: nextValue,
+        tabActivationDirection: 'none',
+      });
+    }
   }, [
+    committedTabActivationDirection,
     firstEnabledTabValue,
     hasExplicitDefaultValueProp,
     isControlled,
     notifyAutoSelection,
+    previousValue,
     resolvedDefaultValue,
     selectedTabMetadata,
     setValue,
@@ -481,11 +487,11 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * Callback invoked when new value is being set.
    *
    * The `eventDetails.reason` is `'none'` for user-initiated changes such as
-   * clicks or keyboard navigation, `'initial'` for automatic selection on mount
-   * when no `value` or `defaultValue` is provided, `'disabled'` when the selected
-   * tab became disabled, and `'missing'` when the current value no longer maps to
-   * any rendered tab. Automatic reasons are emitted only for uncontrolled roots;
-   * controlled roots keep selection owned by the `value` prop.
+   * clicks or keyboard navigation, `'initial'` for the first automatic selection
+   * when tabs register and no `value` or `defaultValue` is provided, `'disabled'`
+   * when the selected tab became disabled, and `'missing'` when the current value
+   * no longer maps to any rendered tab. Automatic reasons are emitted only for
+   * uncontrolled roots; controlled roots keep selection owned by the `value` prop.
    *
    * Calling `eventDetails.cancel()` prevents the value change for user-initiated
    * actions (`'none'`). For automatic selections (`'initial'`, `'disabled'`,
