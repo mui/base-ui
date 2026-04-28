@@ -507,11 +507,9 @@ export function useAnchorPositioning(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
-  /**
-   * Locks the flip (makes it "sticky") so it doesn't prefer a given placement
-   * and flips back lazily, not eagerly. Ideal for filtered lists that change
-   * the size of the popup dynamically to avoid unwanted flipping when typing.
-   */
+  // Locks the flip (makes it "sticky") so it doesn't prefer a given placement
+  // and flips back lazily, not eagerly. Ideal for filtered lists that change
+  // the size of the popup dynamically to avoid unwanted flipping when typing.
   useIsoLayoutEffect(() => {
     if (lazyFlip && mounted && isPositioned) {
       setMountSide(renderedSide);

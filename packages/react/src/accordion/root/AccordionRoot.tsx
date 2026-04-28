@@ -52,7 +52,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     useIsoLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
-          'The `keepMounted={false}` prop on a Accordion.Root will be ignored when using `hiddenUntilFound` since it requires Panels to remain mounted when closed.',
+          'The `keepMounted={false}` prop on `Accordion.Root` is ignored when `hiddenUntilFound` is enabled, since panels must remain mounted while closed.',
         );
       }
     }, [hiddenUntilFoundProp, keepMountedProp]);

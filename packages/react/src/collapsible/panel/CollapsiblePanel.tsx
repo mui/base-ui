@@ -37,7 +37,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     useIsoLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
-          'The `keepMounted={false}` prop on a Collapsible will be ignored when using `hiddenUntilFound` since it requires the Panel to remain mounted even when closed.',
+          'The `keepMounted={false}` prop on `Collapsible.Panel` is ignored when `hiddenUntilFound` is enabled, since the panel must remain mounted while closed.',
         );
       }
     }, [hiddenUntilFoundProp, keepMountedProp]);

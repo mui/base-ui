@@ -948,15 +948,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       swiping: swipe.swiping,
       getDragStyles: swipe.getDragStyles,
       swipeStrength: swipeRelease ?? null,
-      setSwipeDismissed(dismissed: boolean) {
-        setSwipeDismissedElements(
-          store.context.popupRef.current,
-          store.context.backdropRef.current,
-          dismissed,
-        );
-      },
+      setSwipeDismissed,
     }),
-    [store, swipe.getDragStyles, swipe.swiping, swipeRelease],
+    [setSwipeDismissed, swipe.getDragStyles, swipe.swiping, swipeRelease],
   );
 
   function resetTouchTrackingState() {

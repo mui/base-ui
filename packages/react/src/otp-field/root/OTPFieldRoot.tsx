@@ -160,11 +160,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     });
   }
 
-  useRegisterFieldControl(firstInputRef, {
-    id,
-    getValue: () => valueRef.current,
-    value,
-  });
+  useRegisterFieldControl(firstInputRef, id, value);
 
   const focusInput = useStableCallback((index: number) => {
     const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));

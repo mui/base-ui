@@ -149,11 +149,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     },
   });
 
-  /**
-   * Recalculates the natural height of the toast and updates it in the toast manager.
-   * @param flushSync Whether to flush the update synchronously. Use in observer
-   * callbacks to avoid visual flickers.
-   */
+  // Recalculates the natural height of the toast and updates it in the toast manager.
+  // `flushSync` avoids visual flickers when called from observer callbacks.
   const recalculateHeight = useStableCallback((flushSync: boolean = false) => {
     const element = rootRef.current;
     if (!element) {
@@ -598,7 +595,7 @@ export interface ToastRootState {
    */
   expanded: boolean;
   /**
-   * Whether the toast was removed due to exceeding the limit.
+   * Whether the toast was limited because the toast limit was exceeded.
    */
   limited: boolean;
   /**

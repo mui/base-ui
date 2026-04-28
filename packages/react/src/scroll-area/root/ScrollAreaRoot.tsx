@@ -49,6 +49,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const scrollYTimeout = useTimeout();
   const scrollXTimeout = useTimeout();
+
   const { nonce, disableStyleElements } = useCSPContext();
 
   const [hovering, setHovering] = React.useState(false);

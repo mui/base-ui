@@ -26,7 +26,7 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-export const TabsIndicator = React.forwardRef(function TabIndicator(
+export const TabsIndicator = React.forwardRef(function TabsIndicator(
   componentProps: TabsIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
