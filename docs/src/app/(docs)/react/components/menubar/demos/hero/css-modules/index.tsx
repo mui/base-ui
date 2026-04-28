@@ -28,7 +28,11 @@ export default function ExampleMenubar() {
                   <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
-                  <Menu.Positioner alignOffset={-4}>
+                  <Menu.Positioner
+                    className={styles.MenuPositioner}
+                    sideOffset={-4}
+                    alignOffset={-4}
+                  >
                     <Menu.Popup className={styles.MenuPopup}>
                       <Menu.Item className={styles.MenuItem} onClick={handleClick}>
                         PDF
@@ -90,7 +94,11 @@ export default function ExampleMenubar() {
                   <ChevronRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
-                  <Menu.Positioner alignOffset={-4}>
+                  <Menu.Positioner
+                    className={styles.MenuPositioner}
+                    sideOffset={-4}
+                    alignOffset={-4}
+                  >
                     <Menu.Popup className={styles.MenuPopup}>
                       <Menu.Item className={styles.MenuItem} onClick={handleClick}>
                         Single Page
