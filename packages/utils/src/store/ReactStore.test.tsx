@@ -39,6 +39,23 @@ describe('ReactStore', () => {
     expect(store.state.value).toBe(7);
   });
 
+  it('syncs internal state from controlled prop when the store changes', () => {
+    const firstStore = new ReactStore<TestState>({ value: 0, label: '' });
+    const secondStore = new ReactStore<TestState>({ value: 0, label: '' });
+
+    function Test({ store }: { store: ReactStore<TestState> }) {
+      store.useControlledProp('value', 1);
+      return null;
+    }
+
+    const { setProps } = render(<Test store={firstStore} />);
+    expect(firstStore.state.value).toBe(1);
+    expect(secondStore.state.value).toBe(0);
+
+    act(() => setProps({ store: secondStore }));
+    expect(secondStore.state.value).toBe(1);
+  });
+
   it('warns on switching from uncontrolled to controlled', () => {
     function Test({ controlled }: { controlled?: number }) {
       const store = useStableStore<TestState>({ value: 0, label: '' });

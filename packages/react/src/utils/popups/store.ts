@@ -32,6 +32,10 @@ export type PopupStoreState<Payload> = {
   floatingRootContext: FloatingRootContext;
   floatingId: string | undefined;
   /**
+   * Number of trigger elements currently registered for this popup.
+   */
+  triggerCount: number;
+  /**
    * Whether to prevent unmounting the popup when closed.
    * Useful for interactling with JS animation libraries that control unmounting themselves.
    */
@@ -85,6 +89,7 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     transitionStatus: undefined,
     floatingRootContext: getEmptyRootContext(),
     floatingId: undefined,
+    triggerCount: 0,
     preventUnmountingOnClose: false,
     payload: undefined,
     activeTriggerId: null,
@@ -163,11 +168,7 @@ function triggerOwnsOpenPopup(state: S, triggerId: string | undefined) {
   return openSelector(state) && activeTriggerId === triggerId;
 }
 
-function triggerOwnsOpenPopupOrIsOnlyTrigger(
-  state: S,
-  triggerId: string | undefined,
-  triggerCount: number,
-) {
+function triggerOwnsOpenPopupOrIsOnlyTrigger(state: S, triggerId: string | undefined) {
   if (triggerOwnsOpenPopup(state, triggerId)) {
     return true;
   }
@@ -176,7 +177,7 @@ function triggerOwnsOpenPopupOrIsOnlyTrigger(
     triggerId !== undefined &&
     openSelector(state) &&
     activeTriggerIdSelector(state) == null &&
-    triggerCount === 1
+    state.triggerCount === 1
   );
 }
 
@@ -185,6 +186,7 @@ export const popupStoreSelectors = {
   mounted: createSelector((state: S) => state.mounted),
   transitionStatus: createSelector((state: S) => state.transitionStatus),
   floatingRootContext: createSelector((state: S) => state.floatingRootContext),
+  triggerCount: createSelector((state: S) => state.triggerCount),
   preventUnmountingOnClose: createSelector((state: S) => state.preventUnmountingOnClose),
   payload: createSelector((state: S) => state.payload),
 
@@ -214,15 +216,14 @@ export const popupStoreSelectors = {
       triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.mounted,
   ),
   /**
-   * Popup id for the trigger that currently owns the open popup.
+   * Popup id for the trigger that currently owns the open popup, or for the only trigger
+   * when the popup is open and no active trigger is known yet.
    */
-  triggerPopupId: createSelector(
-    (state: S, triggerId: string | undefined, triggerCount: number) => {
-      return triggerOwnsOpenPopupOrIsOnlyTrigger(state, triggerId, triggerCount)
-        ? popupIdSelector(state)
-        : undefined;
-    },
-  ),
+  triggerPopupId: createSelector((state: S, triggerId: string | undefined) => {
+    return triggerOwnsOpenPopupOrIsOnlyTrigger(state, triggerId)
+      ? popupIdSelector(state)
+      : undefined;
+  }),
 
   triggerProps: createSelector((state: S, isActive: boolean) =>
     isActive ? state.activeTriggerProps : state.inactiveTriggerProps,

@@ -455,6 +455,41 @@ describe('<Dialog.Root />', () => {
       await openAndCloseDialog(user);
     });
 
+    it('keeps ARIA controls in sync when a detached handle is recreated while open', async () => {
+      function DetachedTriggerTest({ handle }: { handle: ReturnType<typeof Dialog.createHandle> }) {
+        return (
+          <React.Fragment>
+            <Dialog.Trigger id="trigger" handle={handle}>
+              Trigger
+            </Dialog.Trigger>
+            <Dialog.Root handle={handle} open triggerId="trigger" modal={false}>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="popup">Dialog Content</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<DetachedTriggerTest handle={Dialog.createHandle()} />);
+
+      let trigger = screen.getByRole('button', { name: 'Trigger' });
+      let popup = await screen.findByTestId('popup');
+
+      await waitFor(() => {
+        expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+      });
+
+      await setProps({ handle: Dialog.createHandle() });
+
+      trigger = screen.getByRole('button', { name: 'Trigger' });
+      popup = await screen.findByTestId('popup');
+
+      await waitFor(() => {
+        expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+      });
+    });
+
     it('keeps detached triggers clickable when reparented during Fast Refresh-like handle recreation', async () => {
       const handleA = Dialog.createHandle();
       const { user, setProps } = await render(
@@ -597,6 +632,34 @@ describe('<Dialog.Root />', () => {
       await user.click(updateButton);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('8');
+      });
+    });
+
+    it('closes a non-modal dialog with Escape from an inactive detached trigger', async () => {
+      const testDialog = Dialog.createHandle();
+      const { user } = await render(
+        <React.Fragment>
+          <Dialog.Trigger handle={testDialog}>Trigger 1</Dialog.Trigger>
+          <Dialog.Trigger handle={testDialog}>Trigger 2</Dialog.Trigger>
+          <Dialog.Root handle={testDialog} modal={false}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog Content</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+
+      const inactiveTrigger = screen.getByRole('button', { name: 'Trigger 2' });
+      await act(async () => inactiveTrigger.focus());
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).toBe(null);
       });
     });
   });

@@ -148,6 +148,27 @@ describe('<Popover.Root />', () => {
       expect(trigger2.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
     });
 
+    it('synchronizes ARIA attributes for a controlled open single trigger without triggerId', async () => {
+      await render(
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Popover Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const popup = await screen.findByRole('dialog');
+
+      await waitFor(() => {
+        expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+      });
+    });
+
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
       const { user } = await render(
         <Popover.Root>
