@@ -119,7 +119,6 @@
   width: min(40rem, calc(100vw - 2rem));
   max-height: 100%;
   max-width: 100%;
-  padding: 1rem;
   border: 1px solid light-dark(var(--color-gray-950), white);
   background-color: light-dark(white, var(--color-gray-950));
   color: light-dark(var(--color-gray-950), white);
@@ -142,22 +141,18 @@
 }
 
 .PopupHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.25rem;
+  padding: 1rem 1rem 0.75rem;
 }
 
 .Title {
-  margin: 0;
+  margin: 0 0 0.25rem;
   font-size: 1rem;
   line-height: 1.5rem;
   font-weight: 700;
 }
 
 .Description {
-  margin: 0 0 0.75rem;
+  margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: light-dark(var(--color-gray-600), var(--color-gray-400));
@@ -177,7 +172,6 @@
   flex: 1 1 auto;
   min-height: 0;
   overscroll-behavior: contain;
-  padding: 1rem 1rem 1rem 0;
 
   &:focus-visible {
     outline: 2px solid var(--color-blue-800);
@@ -188,7 +182,10 @@
 .BodyContent {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+}
+
+.Section {
+  padding: 1rem;
 }
 
 .SectionTitle {
@@ -209,5 +206,5 @@
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  margin-top: 1rem;
+  padding: 1rem;
 }

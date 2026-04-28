@@ -13,15 +13,15 @@ export default function InsideScrollDialog() {
           <Dialog.Popup className={styles.Popup}>
             <div className={styles.PopupHeader}>
               <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
+              <Dialog.Description className={styles.Description}>
+                This layout keeps the popup fully on screen while allowing its content to scroll.
+              </Dialog.Description>
             </div>
-            <Dialog.Description className={styles.Description}>
-              This layout keeps the popup fully on screen while allowing its content to scroll.
-            </Dialog.Description>
             <ScrollArea.Root className={styles.Body}>
               <ScrollArea.Viewport className={styles.BodyViewport}>
                 <ScrollArea.Content className={styles.BodyContent}>
                   {CONTENT_SECTIONS.map((item) => (
-                    <section key={item.title}>
+                    <section className={styles.Section} key={item.title}>
                       <h3 className={styles.SectionTitle}>{item.title}</h3>
                       <p className={styles.SectionBody}>{item.body}</p>
                     </section>
