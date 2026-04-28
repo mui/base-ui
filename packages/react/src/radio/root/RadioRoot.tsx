@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { ownerWindow } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -157,8 +158,15 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
       event.preventDefault();
 
-      inputRef.current?.dispatchEvent(
-        new PointerEvent('click', {
+      const input = inputRef.current;
+      if (!input) {
+        return;
+      }
+
+      const PointerEventCtor = ownerWindow(input).PointerEvent ?? ownerWindow(input).MouseEvent;
+
+      input.dispatchEvent(
+        new PointerEventCtor('click', {
           bubbles: true,
           shiftKey: event.shiftKey,
           ctrlKey: event.ctrlKey,

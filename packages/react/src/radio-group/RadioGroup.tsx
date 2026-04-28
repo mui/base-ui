@@ -77,11 +77,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   });
   const [touched, setTouched] = React.useState(false);
 
-  const onValueChange = useStableCallback(onValueChangeProp);
-
   const setCheckedValue = useStableCallback(
     (value: Value, eventDetails: RadioGroup.ChangeEventDetails) => {
-      onValueChange(value, eventDetails);
+      onValueChangeProp?.(value, eventDetails);
 
       if (eventDetails.isCanceled) {
         return;
@@ -185,7 +183,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       form,
       validation,
       name,
-      onValueChange,
       readOnly,
       registerControlRef,
       registerInputRef,
@@ -201,7 +198,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       validation,
       fieldState,
       name,
-      onValueChange,
       readOnly,
       registerControlRef,
       registerInputRef,

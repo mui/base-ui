@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { NOOP } from '../../internals/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -152,7 +153,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     registerControlId(controlSourceRef.current, inputId);
 
     return undefined;
-  }, [inputId, groupContext, registerControlId, parent, controlSourceRef]);
+  }, [inputId, registerControlId, controlSourceRef]);
 
   React.useEffect(() => {
     const controlSource = controlSourceRef.current;
@@ -331,8 +332,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
           event.preventDefault();
 
-          inputRef.current?.dispatchEvent(
-            new PointerEvent('click', {
+          const input = inputRef.current;
+          if (!input) {
+            return;
+          }
+
+          const PointerEventCtor = ownerWindow(input).PointerEvent ?? ownerWindow(input).MouseEvent;
+
+          input.dispatchEvent(
+            new PointerEventCtor('click', {
               bubbles: true,
               shiftKey: event.shiftKey,
               ctrlKey: event.ctrlKey,

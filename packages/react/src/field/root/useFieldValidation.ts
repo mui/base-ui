@@ -19,21 +19,7 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
     return false;
   }
 
-  let onlyValueMissing = false;
-
-  for (const key of validityKeys) {
-    if (key === 'valid') {
-      continue;
-    }
-    if (key === 'valueMissing') {
-      onlyValueMissing = state[key];
-    }
-    if (state[key]) {
-      onlyValueMissing = false;
-    }
-  }
-
-  return onlyValueMissing;
+  return validityKeys.every((key) => key === 'valid' || key === 'valueMissing' || !state[key]);
 }
 
 export function useFieldValidation(

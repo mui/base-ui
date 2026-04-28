@@ -84,15 +84,14 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
       } else {
         newGroupValue = nextPressed ? [newValue] : [];
       }
-      if (Array.isArray(newGroupValue)) {
-        onValueChange?.(newGroupValue, eventDetails);
 
-        if (eventDetails.isCanceled) {
-          return;
-        }
+      onValueChange?.(newGroupValue, eventDetails);
 
-        setValueState(newGroupValue);
+      if (eventDetails.isCanceled) {
+        return;
       }
+
+      setValueState(newGroupValue);
     },
   );
 
@@ -170,13 +169,13 @@ export interface ToggleGroupProps<Value extends string> extends BaseUIComponentP
   ToggleGroupState
 > {
   /**
-   * The open state of the toggle group represented by an array of
+   * The pressed state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the controlled counterpart of `defaultValue`.
    */
   value?: readonly Value[] | undefined;
   /**
-   * The open state of the toggle group represented by an array of
+   * The pressed state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the uncontrolled counterpart of `value`.
    */

@@ -437,6 +437,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
+
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
   useRegisterFieldControl(

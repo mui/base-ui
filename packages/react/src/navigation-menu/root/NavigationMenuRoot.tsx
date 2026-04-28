@@ -295,9 +295,7 @@ function TreeContext<Value>(props: {
   } = props.componentProps;
 
   const nodeId = useFloatingNodeId();
-  const { rootRef, nested } = useNavigationMenuRootContext();
-
-  const { open } = useNavigationMenuRootContext();
+  const { rootRef, nested, open } = useNavigationMenuRootContext();
 
   const state: NavigationMenuRootState = {
     open,

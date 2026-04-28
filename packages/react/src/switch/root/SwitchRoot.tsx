@@ -6,6 +6,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
@@ -162,8 +163,15 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
       event.preventDefault();
 
-      inputRef.current?.dispatchEvent(
-        new PointerEvent('click', {
+      const input = inputRef.current;
+      if (!input) {
+        return;
+      }
+
+      const PointerEventCtor = ownerWindow(input).PointerEvent ?? ownerWindow(input).MouseEvent;
+
+      input.dispatchEvent(
+        new PointerEventCtor('click', {
           bubbles: true,
           shiftKey: event.shiftKey,
           ctrlKey: event.ctrlKey,

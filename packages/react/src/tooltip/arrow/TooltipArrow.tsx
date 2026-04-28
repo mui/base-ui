@@ -20,11 +20,10 @@ export const TooltipArrow = React.forwardRef(function TooltipArrow(
   const { render, className, style, ...elementProps } = componentProps;
 
   const store = useTooltipRootContext();
+  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useTooltipPositionerContext();
 
   const open = store.useState('open');
   const instantType = store.useState('instantType');
-
-  const { arrowRef, side, align, arrowUncentered, arrowStyles } = useTooltipPositionerContext();
 
   const state: TooltipArrowState = {
     open,

@@ -67,14 +67,6 @@ export function AutocompleteRoot<ItemValue>(
     resolvedInputValue = internalValue;
   }
 
-  function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
-    setInlineInputValue('');
-    if (!isControlled) {
-      setInternalValue(nextValue);
-    }
-    onValueChange?.(nextValue, eventDetails);
-  }
-
   const collator = useCoreFilter();
 
   const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
@@ -98,6 +90,14 @@ export function AutocompleteRoot<ItemValue>(
       return baseFilter(item, resolvedQuery, toString);
     };
   }, [baseFilter, mode, resolvedQuery, staticItems]);
+
+  function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
+    setInlineInputValue('');
+    if (!isControlled) {
+      setInternalValue(nextValue);
+    }
+    onValueChange?.(nextValue, eventDetails);
+  }
 
   function handleItemHighlighted(
     highlightedValue: any,

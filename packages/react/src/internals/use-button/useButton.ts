@@ -68,7 +68,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
   // the `disabled` prop needs to pass through 2 `useButton`s then finally
   // delete the `disabled` attribute from DOM
-  const updateDisabled = React.useCallback(() => {
+  const updateDisabled = useStableCallback(() => {
     const element = elementRef.current;
 
     if (!isButtonElement(element)) {
@@ -83,9 +83,14 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
     ) {
       element.disabled = false;
     }
-  }, [disabled, focusableWhenDisabledProps.disabled, isCompositeItem]);
+  });
 
-  useIsoLayoutEffect(updateDisabled, [updateDisabled]);
+  useIsoLayoutEffect(updateDisabled, [
+    disabled,
+    focusableWhenDisabledProps.disabled,
+    isCompositeItem,
+    updateDisabled,
+  ]);
 
   const getButtonProps = React.useCallback(
     (externalProps: GenericButtonProps = {}) => {

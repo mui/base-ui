@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { BaseUIComponentProps } from '../../internals/types';
 import { clamp } from '../../internals/clamp';
 import { formatNumber } from '../../utils/formatNumber';
@@ -235,7 +236,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   }, [getInsetPosition, inset, thumbValuePercent]);
 
   useIsoLayoutEffect(() => {
-    if (!inset || typeof ResizeObserver !== 'function') {
+    if (!inset) {
       return undefined;
     }
 
@@ -246,7 +247,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       return undefined;
     }
 
-    const resizeObserver = new ResizeObserver(getInsetPosition);
+    const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
+    if (typeof ResizeObserverCtor !== 'function') {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserverCtor(getInsetPosition);
 
     resizeObserver.observe(control);
     resizeObserver.observe(thumb);

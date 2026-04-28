@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -123,9 +123,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const stylesRef = React.useRef<CSSStyleDeclaration>(null);
   const setStylesRef = useStableCallback((element: HTMLElement | null) => {
     if (element && stylesRef.current == null) {
-      if (stylesRef.current == null) {
-        stylesRef.current = getComputedStyle(element);
-      }
+      stylesRef.current = ownerWindow(element).getComputedStyle(element);
     }
   });
 

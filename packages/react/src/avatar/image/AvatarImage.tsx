@@ -60,11 +60,6 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     }
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
-  const state: AvatarImageState = {
-    imageLoadingStatus,
-    transitionStatus,
-  };
-
   useOpenChangeComplete({
     open: isVisible,
     ref: imageRef,
@@ -74,6 +69,11 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
       }
     },
   });
+
+  const state: AvatarImageState = {
+    imageLoadingStatus,
+    transitionStatus,
+  };
 
   const element = useRenderElement('img', componentProps, {
     state,
