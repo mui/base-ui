@@ -82,6 +82,9 @@
   --color-red-400: oklch(70.4% 0.191 22.216deg);
   --color-red-700: oklch(50.5% 0.213 27.518deg);
 
+  --color-green-400: oklch(79.2% 0.209 151.711deg);
+  --color-green-700: oklch(52.7% 0.154 150.069deg);
+
   /* Typography */
   --font-mono: 'Paper Mono', monospace;
   --font-sans: 'die grotesk a', system-ui, sans-serif;
