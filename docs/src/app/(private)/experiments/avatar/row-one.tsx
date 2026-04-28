@@ -15,15 +15,18 @@ const FAST_AVATAR_SRC =
 /** Same broken URL pattern as `row-two.tsx` — no asset; Fallback after `@error`. */
 const BROKEN_AVATAR_SRC = 'https://example.com/base-ui-avatar-experiment-broken-image.png';
 
+/** Show initials only if still loading after this long (`Avatar.Fallback delay`). */
+const SLOW_AVATAR_FALLBACK_DELAY_MS = 1000;
+
 export default function AvatarExperimentRowOne() {
   return (
     <AvatarExperimentDemo
       pageClassName={styles.pageRowOne}
       fallbackClassName={styles.avatarFallbackRowOne}
       avatars={[
-        { src: FAST_AVATAR_SRC },
-        { src: SLOW_AVATAR_SRC },
-        { src: BROKEN_AVATAR_SRC },
+        { src: FAST_AVATAR_SRC, fallbackDelay: SLOW_AVATAR_FALLBACK_DELAY_MS },
+        { src: SLOW_AVATAR_SRC, fallbackDelay: SLOW_AVATAR_FALLBACK_DELAY_MS },
+        { src: BROKEN_AVATAR_SRC, fallbackDelay: SLOW_AVATAR_FALLBACK_DELAY_MS },
       ]}
     />
   );

@@ -11,7 +11,7 @@ interface AvatarExperimentDemoProps {
   /** When unset, the default apple image URL is used. Ignored when `avatars` is set. */
   src?: string;
   /** When set, renders one avatar per entry (e.g. row demos); `src` is ignored. */
-  avatars?: ReadonlyArray<{ src: string }>;
+  avatars?: ReadonlyArray<{ src: string; fallbackDelay?: number }>;
   /** Extra class for the outer page wrapper (e.g. row-one background). */
   pageClassName?: string;
   /** Extra class for each `Avatar.Fallback` (e.g. row-one experiment styling). */
@@ -36,6 +36,7 @@ export function AvatarExperimentDemo({
             <Avatar.Image className={styles.avatarImage} src={item.src} />
             <Avatar.Fallback
               className={[styles.avatarFallback, fallbackClassName].filter(Boolean).join(' ')}
+              delay={item.fallbackDelay}
             >
               AV
             </Avatar.Fallback>

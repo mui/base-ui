@@ -218,7 +218,7 @@ describe('<Avatar.Image />', () => {
     });
   });
 
-  it('hides fallback until intrinsic onError reconciles decode failure', async () => {
+  it('shows fallback while loading then stays visible after intrinsic error', async () => {
     await render(
       <Avatar.Root>
         <Avatar.Image alt="" data-testid="assume-img" src="/missing-hash.png" />
@@ -226,7 +226,7 @@ describe('<Avatar.Image />', () => {
       </Avatar.Root>,
     );
 
-    expect(screen.queryByText('X')).toBe(null);
+    expect(screen.getByText('X')).toBeVisible();
 
     fireEvent.error(screen.getByTestId('assume-img'));
 
@@ -247,6 +247,11 @@ describe('<Avatar.Image />', () => {
       'src',
       'https://example.com/cached-avatar.png',
     );
-    expect(screen.queryByText('JD')).toBe(null);
+
+    fireEvent.load(screen.getByRole('img', { hidden: true }));
+
+    await waitFor(() => {
+      expect(screen.queryByText('JD')).toBe(null);
+    });
   });
 });

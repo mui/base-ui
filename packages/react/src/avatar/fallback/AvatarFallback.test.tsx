@@ -22,13 +22,15 @@ describe('<Avatar.Fallback />', () => {
       </Avatar.Root>,
     );
 
+    fireEvent.load(screen.getByRole('presentation', { hidden: true }));
+
     await waitFor(() => {
       expect(screen.queryByTestId('fallback')).toBe(null);
     });
   });
 
   it.skipIf(!isJSDOM)(
-    'should not render fallback synchronously when Image resolves loaded before Fallback in tree order',
+    'hides fallback after img load even when Fallback resolves later in tree order',
     async () => {
       await render(
         <Avatar.Root>
@@ -37,7 +39,13 @@ describe('<Avatar.Fallback />', () => {
         </Avatar.Root>,
       );
 
-      expect(screen.queryByTestId('fallback')).toBe(null);
+      expect(screen.queryByTestId('fallback')).not.toBe(null);
+
+      fireEvent.load(screen.getByRole('presentation', { hidden: true }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('fallback')).toBe(null);
+      });
     },
   );
 
@@ -78,7 +86,7 @@ describe('<Avatar.Fallback />', () => {
   });
 
   it.skipIf(!isJSDOM)(
-    'shows image and hides fallback after src is provided (optimistic loaded)',
+    'shows fallback while image loads then hides fallback after img load',
     async () => {
       function Test() {
         const [showImage, setShowImage] = React.useState(false);
@@ -107,6 +115,11 @@ describe('<Avatar.Fallback />', () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId('image')).not.toBe(null);
+      });
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
         expect(screen.queryByTestId('fallback')).toBe(null);
       });
     },
@@ -163,6 +176,11 @@ describe('<Avatar.Fallback />', () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId('image')).not.toBe(null);
+      });
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
         expect(screen.queryByTestId('fallback')).toBe(null);
       });
     });

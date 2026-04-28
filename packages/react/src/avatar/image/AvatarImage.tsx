@@ -18,6 +18,20 @@ function toBaseUiImgEvent(event: React.SyntheticEvent<HTMLImageElement>) {
   return makeEventPreventable(event as BaseUIEvent<React.SyntheticEvent<HTMLImageElement>>);
 }
 
+function resolveImageLoadingStatus(
+  src: string | undefined,
+  intrinsicDecodeFailed: boolean,
+  intrinsicSettled: boolean,
+): ImageLoadingStatus {
+  if (!src || intrinsicDecodeFailed) {
+    return 'error';
+  }
+  if (!intrinsicSettled) {
+    return 'loading';
+  }
+  return 'loaded';
+}
+
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   ...avatarStateAttributesMapping,
   ...transitionStatusMapping,
@@ -52,8 +66,6 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   void style;
 
   const context = useAvatarRootContext();
-  /** Optimistic hint only: real outcome comes from intrinsic `@load` / `@error` + decode settling. */
-  const optimisticFromSrc: ImageLoadingStatus = componentProps.src ? 'loaded' : 'error';
 
   const [intrinsicDecodeFailed, setIntrinsicDecodeFailed] = React.useState(false);
 
@@ -64,7 +76,15 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     setIntrinsicSettled(!componentProps.src);
   }, [componentProps.src]);
 
-  const imageLoadingStatus: ImageLoadingStatus = intrinsicDecodeFailed ? 'error' : optimisticFromSrc;
+  /**
+   * Mirrors intrinsic load/decode — not optimistic `loaded` on `src` alone — so `Avatar.Fallback`
+   * can show during slow networks (`loading`) like the preload-based implementation did.
+   */
+  const imageLoadingStatus = resolveImageLoadingStatus(
+    componentProps.src,
+    intrinsicDecodeFailed,
+    intrinsicSettled,
+  );
 
   context.transientImageLoadingStatusRef.current = imageLoadingStatus;
 
@@ -79,8 +99,9 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     setIntrinsicDecodeFailed(true);
   });
 
-  const isVisible = imageLoadingStatus === 'loaded';
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(isVisible);
+  /** Keep `<img>` mounted while `src` is present and we have not errored — independent of `'loaded'` vs `'loading'`. */
+  const slotActive = Boolean(componentProps.src) && imageLoadingStatus !== 'error';
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(slotActive);
 
   const imageRef = React.useRef<HTMLImageElement | null>(null);
 
@@ -115,10 +136,10 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
   useOpenChangeComplete({
-    open: isVisible,
+    open: slotActive,
     ref: imageRef,
     onComplete() {
-      if (!isVisible) {
+      if (!slotActive) {
         setMounted(false);
       }
     },
