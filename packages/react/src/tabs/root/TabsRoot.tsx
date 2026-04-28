@@ -506,8 +506,9 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * clicks or keyboard navigation, `'initial'` for the first automatic selection
    * when tabs register and no `value` or `defaultValue` is provided, `'disabled'`
    * when the selected tab became disabled, and `'missing'` when the current value
-   * no longer maps to any rendered tab. Automatic reasons are emitted only for
-   * uncontrolled roots; controlled roots keep selection owned by the `value` prop.
+   * does not map, or no longer maps, to any rendered tab. Automatic reasons are
+   * emitted only for uncontrolled roots; controlled roots keep selection owned by
+   * the `value` prop.
    *
    * Calling `eventDetails.cancel()` prevents the value change for user-initiated
    * actions (`'none'`). For automatic selections (`'initial'`, `'disabled'`,
