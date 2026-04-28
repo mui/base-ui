@@ -21,7 +21,7 @@ export default function ExampleDialog() {
                   <Dialog.Description className={styles.Description}>
                     Review your settings here.
                   </Dialog.Description>
-                  <div className={styles.Actions}>
+                  <div className={styles.EndActions}>
                     <Dialog.Close className={styles.Button}>Close</Dialog.Close>
                   </div>
                 </Dialog.Popup>
