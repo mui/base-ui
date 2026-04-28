@@ -4,7 +4,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { isTypeableElement } from '../../floating-ui-react/utils/element';
 import { findScrollableTouchTarget } from '../../utils/scrollable';

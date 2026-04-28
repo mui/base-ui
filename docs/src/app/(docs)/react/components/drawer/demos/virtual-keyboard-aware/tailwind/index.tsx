@@ -13,9 +13,9 @@ export default function ExampleDrawerVirtualKeyboardAware() {
       <Drawer.VirtualKeyboardProvider>
         <Drawer.Portal>
           <Drawer.Backdrop className="[--backdrop-opacity:0.2] dark:[--backdrop-opacity:0.7] fixed inset-0 min-h-dvh bg-black opacity-[calc(var(--backdrop-opacity)*(1-var(--drawer-swipe-progress)))] transition-opacity duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-[swiping]:duration-0 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)]" />
-          <Drawer.Viewport className="fixed inset-0 flex items-end justify-center touch-none supports-[-webkit-touch-callout:none]:after:pointer-events-none supports-[-webkit-touch-callout:none]:after:absolute supports-[-webkit-touch-callout:none]:after:inset-x-0 supports-[-webkit-touch-callout:none]:after:bottom-0 supports-[-webkit-touch-callout:none]:after:h-[var(--drawer-keyboard-inset,0px)] supports-[-webkit-touch-callout:none]:after:bg-white supports-[-webkit-touch-callout:none]:after:content-['']">
+          <Drawer.Viewport className="fixed inset-0 flex items-end justify-center touch-none supports-[-webkit-touch-callout:none]:after:pointer-events-none supports-[-webkit-touch-callout:none]:after:absolute supports-[-webkit-touch-callout:none]:after:inset-x-0 supports-[-webkit-touch-callout:none]:after:bottom-0 supports-[-webkit-touch-callout:none]:after:h-[var(--drawer-keyboard-inset,0px)] supports-[-webkit-touch-callout:none]:after:bg-gray-50 supports-[-webkit-touch-callout:none]:after:content-['']">
             <Drawer.Popup
-              className="relative flex w-full max-h-[calc(var(--available-height,100dvh)-var(--top-margin)+var(--bleed))] flex-col overflow-visible rounded-t-2xl bg-white text-gray-900 outline outline-1 outline-gray-200 touch-none shadow-[0_-16px_48px_rgb(0_0_0/0.12),0_6px_18px_rgb(0_0_0/0.06)] [--bleed:3rem] [margin-bottom:calc(-1*var(--bleed))] [translate:0_calc(0px-var(--drawer-keyboard-inset,0px))] [transform:translateY(var(--drawer-swipe-movement-y))] transition-[transform,box-shadow] duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform supports-[-webkit-touch-callout:none]:max-h-[calc(var(--available-height,100dvh)-var(--top-margin)+var(--bleed)+min(1.25rem,var(--bleed)))] data-[swiping]:select-none data-[ending-style]:[transform:translateY(calc(100%-var(--bleed)+2px))] data-[starting-style]:[transform:translateY(calc(100%-var(--bleed)+2px))] data-[starting-style]:shadow-[0_-16px_48px_rgb(0_0_0/0),0_6px_18px_rgb(0_0_0/0)] data-[ending-style]:shadow-[0_-16px_48px_rgb(0_0_0/0),0_6px_18px_rgb(0_0_0/0)] data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)]"
+              className="relative flex w-full max-h-[calc(var(--available-height,100dvh)-var(--top-margin)+var(--bleed))] flex-col overflow-visible rounded-t-2xl bg-gray-50 text-gray-900 outline outline-1 outline-gray-200 touch-none shadow-[0_-16px_48px_rgb(0_0_0/0.12),0_6px_18px_rgb(0_0_0/0.06)] [--bleed:3rem] [margin-bottom:calc(-1*var(--bleed))] [translate:0_calc(0px-var(--drawer-keyboard-inset,0px))] [transform:translateY(var(--drawer-swipe-movement-y))] transition-[transform,box-shadow] duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform supports-[-webkit-touch-callout:none]:max-h-[calc(var(--available-height,100dvh)-var(--top-margin)+var(--bleed)+min(1.25rem,var(--bleed)))] data-[swiping]:select-none data-[ending-style]:[transform:translateY(calc(100%-var(--bleed)+2px))] data-[starting-style]:[transform:translateY(calc(100%-var(--bleed)+2px))] data-[starting-style]:shadow-[0_-16px_48px_rgb(0_0_0/0),0_6px_18px_rgb(0_0_0/0)] data-[ending-style]:shadow-[0_-16px_48px_rgb(0_0_0/0),0_6px_18px_rgb(0_0_0/0)] data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)] dark:outline-gray-300"
               style={{ '--top-margin': `${TOP_MARGIN_REM}rem` } as React.CSSProperties}
             >
               <div className="shrink-0 border-b border-gray-200 px-6 pt-3.5 pb-3 touch-none select-none">
@@ -40,12 +40,12 @@ export default function ExampleDrawerVirtualKeyboardAware() {
                 </div>
               </Drawer.Content>
 
-              <div className="shrink-0 border-t border-gray-200 bg-white">
+              <div className="shrink-0 border-t border-gray-200 bg-gray-50">
                 <div className="mx-auto w-full max-w-[28rem] px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px)+var(--bleed))]">
                   <label className="flex flex-col gap-2">
                     <span className="text-sm leading-5 font-semibold">Driver message</span>
                     <input
-                      className="min-h-11 w-full rounded-[0.875rem] border border-gray-200 bg-white px-3.5 py-3 text-inherit outline-0 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                      className="min-h-11 w-full rounded-[0.875rem] border border-gray-200 bg-transparent px-3.5 py-3 text-inherit outline-0 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
                       placeholder="Leave gate code or drop-off instructions"
                       type="text"
                     />

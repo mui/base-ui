@@ -78,7 +78,7 @@
     inset-inline: 0;
     bottom: 0;
     height: var(--drawer-keyboard-inset, 0);
-    background-color: white;
+    background-color: var(--color-gray-50);
     pointer-events: none;
   }
 }
@@ -94,7 +94,7 @@
   margin-bottom: calc(-1 * var(--bleed));
   border-radius: 1rem 1rem 0 0;
   outline: 1px solid var(--color-gray-200);
-  background-color: white;
+  background-color: var(--color-gray-50);
   color: var(--color-gray-900);
   overflow: visible;
   touch-action: none;
@@ -122,6 +122,10 @@
 
   &[data-ending-style] {
     transition-duration: calc(var(--drawer-swipe-strength) * 400ms);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    outline-color: var(--color-gray-300);
   }
 }
 
@@ -197,7 +201,7 @@
 .Footer {
   flex-shrink: 0;
   border-top: 1px solid var(--color-gray-200);
-  background-color: white;
+  background-color: var(--color-gray-50);
 }
 
 .FooterInner {
@@ -224,7 +228,7 @@
   min-height: 2.75rem;
   border: 1px solid var(--color-gray-200);
   border-radius: 0.875rem;
-  background-color: white;
+  background-color: transparent;
   padding: 0.75rem 0.875rem;
   font: inherit;
   color: inherit;
