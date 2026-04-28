@@ -36,7 +36,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     hiddenUntilFound: hiddenUntilFoundProp,
     keepMounted: keepMountedProp,
     loopFocus = true,
-    onValueChange: onValueChangeProp,
+    onValueChange,
     multiple = false,
     orientation = 'vertical',
     value: valueProp,
@@ -68,8 +68,6 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     return undefined;
   }, [valueProp, defaultValueProp]);
 
-  const onValueChange = useStableCallback(onValueChangeProp);
-
   const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   const [value, setValue] = useControlled({
@@ -84,7 +82,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
       const details = createChangeEventDetails(REASONS.none);
       if (!multiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
-        onValueChange(nextValue, details);
+        onValueChange?.(nextValue, details);
         if (details.isCanceled) {
           return;
         }
@@ -92,14 +90,14 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
       } else if (nextOpen) {
         const nextOpenValues = value.slice();
         nextOpenValues.push(newValue);
-        onValueChange(nextOpenValues, details);
+        onValueChange?.(nextOpenValues, details);
         if (details.isCanceled) {
           return;
         }
         setValue(nextOpenValues);
       } else {
         const nextOpenValues = value.filter((v) => v !== newValue);
-        onValueChange(nextOpenValues, details);
+        onValueChange?.(nextOpenValues, details);
         if (details.isCanceled) {
           return;
         }

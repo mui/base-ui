@@ -96,13 +96,10 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const { state, triggerId } = useAccordionItemContext();
 
-  const panelState: AccordionPanelState = React.useMemo(
-    () => ({
-      ...state,
-      transitionStatus: panelTransitionStatus,
-    }),
-    [panelTransitionStatus, state],
-  );
+  const panelState: AccordionPanelState = {
+    ...state,
+    transitionStatus: panelTransitionStatus,
+  };
   const resolvedStyle = resolveStyle(style, panelState);
 
   const element = useRenderElement(

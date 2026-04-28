@@ -89,13 +89,10 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     transitionStatus,
   });
 
-  const panelState: CollapsiblePanelState = React.useMemo(
-    () => ({
-      ...state,
-      transitionStatus: panelTransitionStatus,
-    }),
-    [panelTransitionStatus, state],
-  );
+  const panelState: CollapsiblePanelState = {
+    ...state,
+    transitionStatus: panelTransitionStatus,
+  };
 
   const resolvedStyle = resolveStyle(style, panelState);
 
