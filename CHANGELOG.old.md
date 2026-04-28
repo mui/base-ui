@@ -49,7 +49,7 @@ A big thanks to the 7 contributors who made this release possible. Here are some
 - [docs] Fix outdated link to support page @oliviertassinari
 - [docs] Clarify contribution guide references @oliviertassinari
 
-### Core
+### Internal
 
 - [code-infra] Remove custom playwright installation steps (#646) @Janpot
 - [core] Fix 301 link to Next.js and git diff @oliviertassinari
@@ -121,7 +121,7 @@ A big thanks to the 10 contributors who made this release possible. Here are som
 - [docs] Update twitter.com to x.com @oliviertassinari
 - [docs][Tooltip] Use the correct version of ComponentLinkHeader (#425) @michaldudak
 
-### Core
+### Internal
 
 - [code-infra] Fix pnpm version in package.json engines (#409) @Janpot
 - [code-infra] Propagate API docs builder package interface changes (#478) @LukasTy
