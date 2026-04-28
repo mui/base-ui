@@ -204,13 +204,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
-      if (open) {
-        if (!hasSelectedValue) {
-          selectedItemTextRef.current = null;
-        }
-        return;
-      }
-
       const registry = valuesRef.current;
       let nextIndex: number | null;
 
@@ -230,6 +223,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
       if (nextIndex === null) {
         selectedItemTextRef.current = null;
+      }
+
+      if (open) {
+        return;
       }
 
       store.set('selectedIndex', nextIndex);
