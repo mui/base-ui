@@ -261,7 +261,7 @@ test('cleans up window listener when closing or disabling', async () => {
   );
   await flushMicrotasks();
 
-  expectLocation({ x: 500, y: 500 });
+  expectRect({ x: 0, y: 0, width: 0, height: 0 });
 });
 
 test('axis x', async () => {

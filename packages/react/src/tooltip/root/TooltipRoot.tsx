@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -284,23 +283,6 @@ function TooltipInteractions<Payload>({
     inactiveTriggerProps,
     popupProps,
   });
-
-  useIsoLayoutEffect(() => {
-    if (trackCursorAxis === 'none') {
-      floatingRootContext.set('positionReference', floatingRootContext.state.referenceElement);
-    }
-  }, [floatingRootContext, trackCursorAxis]);
-
-  useIsoLayoutEffect(() => {
-    return () => {
-      store.update({
-        activeTriggerProps: EMPTY_OBJECT,
-        inactiveTriggerProps: EMPTY_OBJECT,
-        popupProps: EMPTY_OBJECT,
-      });
-      floatingRootContext.set('positionReference', floatingRootContext.state.referenceElement);
-    };
-  }, [floatingRootContext, store]);
 
   return null;
 }
