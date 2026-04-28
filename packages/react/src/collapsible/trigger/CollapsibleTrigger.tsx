@@ -48,19 +48,18 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     native: nativeButton,
   });
 
-  const props = React.useMemo(
-    () => ({
-      'aria-controls': open ? panelId : undefined,
-      'aria-expanded': open,
-      onClick: handleTrigger,
-    }),
-    [panelId, open, handleTrigger],
-  );
-
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
-    props: [props, elementProps, getButtonProps],
+    props: [
+      {
+        'aria-controls': open ? panelId : undefined,
+        'aria-expanded': open,
+        onClick: handleTrigger,
+      },
+      elementProps,
+      getButtonProps,
+    ],
     stateAttributesMapping,
   });
 

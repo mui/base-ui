@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { BaseUIComponentProps } from '../../internals/types';
 import { clamp } from '../../internals/clamp';
 import { formatNumber } from '../../utils/formatNumber';
@@ -25,7 +26,7 @@ import {
 } from '../../internals/composite/composite';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { useCSPContext } from '../../csp-provider/CSPContext';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -235,7 +236,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   }, [getInsetPosition, inset, thumbValuePercent]);
 
   useIsoLayoutEffect(() => {
-    if (!inset || typeof ResizeObserver !== 'function') {
+    if (!inset) {
       return undefined;
     }
 
@@ -246,7 +247,12 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       return undefined;
     }
 
-    const resizeObserver = new ResizeObserver(getInsetPosition);
+    const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
+    if (typeof ResizeObserverCtor !== 'function') {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserverCtor(getInsetPosition);
 
     resizeObserver.observe(control);
     resizeObserver.observe(thumb);
@@ -256,36 +262,23 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     };
   }, [controlRef, getInsetPosition, inset]);
 
-  const getThumbStyle = React.useCallback(() => {
-    const startEdge = vertical ? 'bottom' : 'insetInlineStart';
-    const crossOffsetProperty = vertical ? 'left' : 'top';
+  const startEdge = vertical ? 'bottom' : 'insetInlineStart';
+  const crossOffsetProperty = vertical ? 'left' : 'top';
 
-    let zIndex: number | undefined;
-    if (range) {
-      if (activeIndex === index) {
-        zIndex = 2;
-      } else if (safeLastUsedThumbIndex === index) {
-        zIndex = 1;
-      }
-    } else if (activeIndex === index) {
+  let zIndex: number | undefined;
+  if (range) {
+    if (activeIndex === index) {
+      zIndex = 2;
+    } else if (safeLastUsedThumbIndex === index) {
       zIndex = 1;
     }
+  } else if (activeIndex === index) {
+    zIndex = 1;
+  }
 
-    if (!inset) {
-      if (!Number.isFinite(thumbValuePercent)) {
-        return visuallyHidden;
-      }
-
-      return {
-        position: 'absolute',
-        [startEdge]: `${thumbValuePercent}%`,
-        [crossOffsetProperty]: '50%',
-        translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
-        zIndex,
-      } satisfies React.CSSProperties;
-    }
-
-    return {
+  let thumbStyle: React.CSSProperties;
+  if (inset) {
+    thumbStyle = {
       ['--position' as string]: `${positionPercent ?? 0}%`,
       visibility:
         (renderBeforeHydration && isHydrating) || positionPercent === undefined
@@ -296,20 +289,18 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       [crossOffsetProperty]: '50%',
       translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
       zIndex,
-    } satisfies React.CSSProperties;
-  }, [
-    activeIndex,
-    index,
-    inset,
-    isHydrating,
-    positionPercent,
-    range,
-    renderBeforeHydration,
-    rtl,
-    safeLastUsedThumbIndex,
-    thumbValuePercent,
-    vertical,
-  ]);
+    };
+  } else {
+    thumbStyle = !Number.isFinite(thumbValuePercent)
+      ? visuallyHidden
+      : {
+          position: 'absolute',
+          [startEdge]: `${thumbValuePercent}%`,
+          [crossOffsetProperty]: '50%',
+          translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
+          zIndex,
+        };
+  }
 
   let cssWritingMode: React.CSSProperties['writingMode'];
   if (orientation === 'vertical') {
@@ -517,7 +508,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             pressedInputRef.current = inputRef.current;
           }
         },
-        style: getThumbStyle(),
+        style: thumbStyle,
         suppressHydrationWarning: renderBeforeHydration || undefined,
       },
       elementProps,

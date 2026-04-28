@@ -172,10 +172,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     unselectedDelayTimeout,
   ]);
 
-  const ariaControlsId = React.useMemo(() => {
-    return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
-  }, [listElement, positionerElement]);
-
   const props: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
@@ -183,7 +179,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       role: 'combobox',
       'aria-expanded': open ? 'true' : 'false',
       'aria-haspopup': 'listbox',
-      'aria-controls': open ? ariaControlsId : undefined,
+      'aria-controls': open
+        ? (listElement?.id ?? getFloatingFocusElement(positionerElement)?.id)
+        : undefined,
       'aria-labelledby': ariaLabelledBy,
       'aria-readonly': readOnly || undefined,
       'aria-required': required || undefined,
