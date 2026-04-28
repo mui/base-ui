@@ -71,6 +71,14 @@ function syncTriggerCount<State extends PopupStoreState<unknown>>(
   }
 }
 
+function syncTriggerCountIfOpen<State extends PopupStoreState<unknown>>(
+  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
+) {
+  if (store.select('open')) {
+    syncTriggerCount(store);
+  }
+}
+
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
  *
@@ -97,7 +105,7 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
 
         if (registeredElement && currentElement === registeredElement) {
           store.context.triggerElements.delete(registeredId);
-          syncTriggerCount(store);
+          syncTriggerCountIfOpen(store);
         }
 
         registeredElementIdRef.current = null;
@@ -108,7 +116,7 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
         registeredElementIdRef.current = id;
         registeredElementRef.current = element;
         store.context.triggerElements.add(id, element);
-        syncTriggerCount(store);
+        syncTriggerCountIfOpen(store);
       }
     },
     [store, id],
@@ -209,19 +217,31 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
 ) {
   const open = store.useState('open');
-  const triggerCount = store.useState('triggerCount');
+  const reactiveTriggerCount = store.useState('triggerCount');
+
   useIsoLayoutEffect(() => {
-    if (open && !store.select('activeTriggerId') && triggerCount === 1) {
+    if (!open) {
+      return;
+    }
+
+    const triggerCount = store.context.triggerElements.size;
+    const stateUpdates: Partial<PopupStoreState<unknown>> = {};
+
+    if (store.state.triggerCount !== triggerCount) {
+      stateUpdates.triggerCount = triggerCount;
+    }
+
+    if (!store.select('activeTriggerId') && triggerCount === 1) {
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
-        store.update({
-          activeTriggerId: implicitTriggerId,
-          activeTriggerElement: implicitTriggerElement,
-        } as Partial<State>);
+        stateUpdates.activeTriggerId = implicitTriggerId;
+        stateUpdates.activeTriggerElement = implicitTriggerElement;
       }
     }
-  }, [open, store, triggerCount]);
+
+    store.update(stateUpdates as Partial<State>);
+  }, [open, store, reactiveTriggerCount]);
 }
 
 /**
