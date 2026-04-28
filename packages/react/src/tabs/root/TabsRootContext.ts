@@ -34,6 +34,10 @@ export interface TabsRootContext {
    * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value.
    */
   getTabPanelIdByValue: (tabValue: TabsTab.Value) => string | undefined;
+  /**
+   * Enabled tabs rendered earlier in the current render pass.
+   */
+  renderedTabsRef: React.RefObject<TabsTab.Value[] | null>;
   registerMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
   setTabMap: (
     map: Map<Node, (TabsTab.Metadata & { index?: number | null | undefined }) | null>,

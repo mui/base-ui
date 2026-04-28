@@ -36,7 +36,12 @@ export const TabsTab = React.forwardRef(function TabsTab(
     ...elementProps
   } = componentProps;
 
-  const { value: activeTabValue, getTabPanelIdByValue, orientation } = useTabsRootContext();
+  const {
+    value: activeTabValue,
+    getTabPanelIdByValue,
+    orientation,
+    renderedTabsRef,
+  } = useTabsRootContext();
 
   const {
     activateOnFocus,
@@ -50,6 +55,17 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const id = useBaseUiId(idProp);
 
   const tabMetadata = React.useMemo(() => ({ disabled, id, value }), [disabled, id, value]);
+
+  // Panels usually render after their tabs, before CompositeList has published
+  // tabMap. This render-pass hint lets the selected panel mount immediately.
+  if (!disabled) {
+    const renderedTabs = renderedTabsRef.current;
+    if (renderedTabs == null) {
+      renderedTabsRef.current = [value];
+    } else {
+      renderedTabs.push(value);
+    }
+  }
 
   const {
     compositeProps,

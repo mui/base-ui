@@ -185,6 +185,30 @@ describe('<Tabs.Root />', () => {
         expect(tabs[1]).toHaveAttribute('aria-controls', secondTabPanel.id);
       });
     });
+
+    it('does not defer the selected uncontrolled panel when its tab renders in the same pass', async () => {
+      const panelRenderMock = vi.fn();
+
+      await render(
+        <Tabs.Root defaultValue="overview">
+          <Tabs.List>
+            <Tabs.Tab value="overview">Overview</Tabs.Tab>
+            <Tabs.Tab value="projects">Projects</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel
+            value="overview"
+            render={(props, state) => {
+              panelRenderMock(state);
+              return <div {...props}>Overview panel</div>;
+            }}
+          />
+          <Tabs.Panel value="projects">Projects panel</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      expect(panelRenderMock.mock.calls[0][0]).toEqual(expect.objectContaining({ hidden: false }));
+      expect(screen.getByRole('tabpanel')).toHaveTextContent('Overview panel');
+    });
   });
 
   describe('prop: value', () => {

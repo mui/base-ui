@@ -62,9 +62,15 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
+  const renderedTabsRef = React.useRef<TabsTab.Value[] | null>(null);
+  // Reset before children render; enabled Tabs append to this ref during the
+  // same render pass so Panels rendered later can see that a tab exists.
+  renderedTabsRef.current = null;
+
   const isHydrating = useIsHydrating();
-  // Panels may open from the selected value during SSR/hydration so the markup
-  // matches. Fresh client-only renders start settled so orphan panels do not mount.
+  // During hydration, panels may open from the selected value until layout
+  // effects settle. Fresh client-only renders start settled and use the
+  // current render's tab-value hint to avoid opening no-tab panels.
   const [tabRegistrationSettled, setTabRegistrationSettled] = React.useState(!isHydrating);
 
   useIsoLayoutEffect(() => {
@@ -197,6 +203,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         }
       }
 
+      if (renderedTabsRef.current?.includes(tabPanelValue)) {
+        return undefined;
+      }
+
       // `null` means no tab exists for this panel. `undefined` means a tab exists,
       // but React has not assigned its id yet.
       return null;
@@ -212,6 +222,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       isControlled,
       onValueChange,
       orientation,
+      renderedTabsRef,
       registerMountedTabPanel,
       setTabMap,
       unregisterMountedTabPanel,
