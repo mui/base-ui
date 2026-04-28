@@ -25,7 +25,7 @@ import {
 } from '../../internals/composite/composite';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { useCSPContext } from '../../csp-provider/CSPContext';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { CSPContext, type CSPContextValue } from './CSPContext';
+import { CSPContext, type CSPContextValue } from '../internals/csp-context/CSPContext';
 
 /**
  * Provides a default Content Security Policy (CSP) configuration for Base UI components that
