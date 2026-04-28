@@ -36,9 +36,8 @@
   inset: 0;
   background-color: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));
   transition-duration: 350ms;
-  transition-property: -webkit-backdrop-filter, backdrop-filter, opacity;
+  transition-property: opacity;
   transition-timing-function: var(--ease-out-fast);
-  backdrop-filter: blur(1.5px);
 
   /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
   @supports (-webkit-touch-callout: none) {
@@ -47,7 +46,6 @@
 
   &[data-starting-style],
   &[data-ending-style] {
-    backdrop-filter: blur(0);
     opacity: 0;
   }
 
