@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
@@ -186,7 +187,6 @@ export class PopoverStore<Payload> extends ReactStore<
         }),
     );
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useOnMount(internalStore.disposeEffect);
     return store;
   }

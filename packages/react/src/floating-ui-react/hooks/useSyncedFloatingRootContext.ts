@@ -9,8 +9,12 @@ import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../u
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
 
-export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreState<any>> {
-  popupStore: ReactStore<State, PopupStoreContext<any>, PopupStoreSelectors>;
+export interface UseSyncedFloatingRootContextOptions<
+  State extends PopupStoreState<unknown>,
+  ContextEventDetails extends BaseUIChangeEventDetails<string>,
+  OpenChangeEventDetails extends BaseUIChangeEventDetails<string>,
+> {
+  popupStore: ReactStore<State, PopupStoreContext<ContextEventDetails>, PopupStoreSelectors>;
   /**
    * Whether the Popup element is passed to Floating UI as the floating element instead of the default Positioner.
    */
@@ -18,15 +22,19 @@ export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreSta
   floatingRootContext?: FloatingRootStore | undefined;
   floatingId?: string | undefined;
   nested?: boolean | undefined;
-  onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+  onOpenChange(open: boolean, eventDetails: OpenChangeEventDetails): void;
 }
 
 /**
  * Initializes a FloatingRootStore that is kept in sync with the provided PopupStore.
  * The new instance is created only once and updated on every render.
  */
-export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>(
-  options: UseSyncedFloatingRootContextOptions<State>,
+export function useSyncedFloatingRootContext<
+  State extends PopupStoreState<unknown>,
+  ContextEventDetails extends BaseUIChangeEventDetails<string>,
+  OpenChangeEventDetails extends BaseUIChangeEventDetails<string>,
+>(
+  options: UseSyncedFloatingRootContextOptions<State, ContextEventDetails, OpenChangeEventDetails>,
 ): FloatingRootStore {
   const {
     popupStore,
@@ -49,6 +57,10 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
 
   const floatingId = floatingIdProp ?? generatedFloatingId;
   const nested = nestedProp ?? floatingParentNodeId != null;
+  const handleOpenChange = onOpenChange as (
+    open: boolean,
+    eventDetails: BaseUIChangeEventDetails<string>,
+  ) => void;
 
   const internalStore = useRefWithInit(
     () =>
@@ -58,7 +70,7 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
         referenceElement,
         floatingElement,
         triggerElements,
-        onOpenChange,
+        onOpenChange: handleOpenChange,
         floatingId,
         syncOnly: true,
         nested,
@@ -89,7 +101,7 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
   }, [open, floatingId, referenceElement, floatingElement, store]);
 
   // TODO: When `setOpen` is a part of the PopupStore API, we don't need to sync it.
-  store.context.onOpenChange = onOpenChange;
+  store.context.onOpenChange = handleOpenChange;
   store.context.nested = nested;
 
   return store;

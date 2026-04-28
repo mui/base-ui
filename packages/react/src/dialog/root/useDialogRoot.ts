@@ -150,7 +150,7 @@ export function DialogInteractions({
   }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
   const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
-  const inactiveTriggerProps = EMPTY_OBJECT;
+  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
   const popupProps = React.useMemo(
     () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
     [dismiss.floating],

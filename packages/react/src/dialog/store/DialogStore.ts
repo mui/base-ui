@@ -138,9 +138,7 @@ export class DialogStore<Payload> extends ReactStore<
       onOpenChange: store.setOpen,
     });
 
-    useFloatingRootContextSync(store, floatingRootContext, {
-      notifyOnChange: externalStore != null,
-    });
+    useFloatingRootContextSync(store, floatingRootContext);
     /* eslint-enable react-hooks/rules-of-hooks */
 
     return store;

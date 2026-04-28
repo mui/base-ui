@@ -114,7 +114,6 @@ describe('PopupTriggerMap', () => {
 describe('useTriggerRegistration', () => {
   it('registers and unregisters triggers through the context map', () => {
     const store = createStore();
-    const spy = vi.spyOn(store, 'set');
     const element = document.createElement('button');
 
     const { unmount } = render(
@@ -123,16 +122,16 @@ describe('useTriggerRegistration', () => {
 
     expect(store.context.triggerElements.getById('trigger')).toBe(element);
     expect(store.context.triggerElements.hasElement(element)).toBe(true);
-    expect(spy).not.toHaveBeenCalled();
+    expect(store.state.triggerCount).toBe(1);
 
     unmount();
     expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
+    expect(store.state.triggerCount).toBe(0);
   });
 
-  it('re-registers when the trigger id changes without notifying the store', () => {
+  it('re-registers when the trigger id changes and keeps triggerCount reactive', () => {
     const store = createStore();
-    const spy = vi.spyOn(store, 'set');
     const element = document.createElement('button');
 
     const { rerender, unmount } = render(
@@ -140,17 +139,18 @@ describe('useTriggerRegistration', () => {
     );
 
     expect(store.context.triggerElements.getById('first')).toBe(element);
-    expect(spy).not.toHaveBeenCalled();
+    expect(store.state.triggerCount).toBe(1);
 
     rerender(<TestTrigger id="second" store={store} element={element} />);
 
     expect(store.context.triggerElements.getById('first')).toBeUndefined();
     expect(store.context.triggerElements.getById('second')).toBe(element);
-    expect(spy).not.toHaveBeenCalled();
+    expect(store.state.triggerCount).toBe(1);
 
     unmount();
     expect(store.context.triggerElements.getById('second')).toBeUndefined();
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
+    expect(store.state.triggerCount).toBe(0);
   });
 });
 
@@ -185,9 +185,9 @@ describe('triggerPopupId selector', () => {
     });
 
     expect(store.select('isOpenedByTrigger', 'trigger')).toBe(true);
-    expect(store.select('triggerPopupId', 'trigger', 2)).toBe('popup-id');
+    expect(store.select('triggerPopupId', 'trigger')).toBe('popup-id');
     expect(store.select('isOpenedByTrigger', 'other-trigger')).toBe(false);
-    expect(store.select('triggerPopupId', 'other-trigger', 2)).toBeUndefined();
+    expect(store.select('triggerPopupId', 'other-trigger')).toBeUndefined();
   });
 
   it('lets a single trigger own a controlled open popup when the active trigger is unknown', () => {
@@ -197,11 +197,14 @@ describe('triggerPopupId selector', () => {
       openProp: true,
       activeTriggerId: null,
       floatingId: 'popup-id',
+      triggerCount: 1,
     });
 
     expect(store.select('isOpenedByTrigger', 'trigger')).toBe(false);
-    expect(store.select('triggerPopupId', 'trigger', 1)).toBe('popup-id');
-    expect(store.select('triggerPopupId', 'trigger', 2)).toBeUndefined();
+    expect(store.select('triggerPopupId', 'trigger')).toBe('popup-id');
+
+    store.set('triggerCount', 2);
+    expect(store.select('triggerPopupId', 'trigger')).toBeUndefined();
   });
 
   it('prefers an explicit popup element id over the generated floating id', () => {
@@ -216,6 +219,6 @@ describe('triggerPopupId selector', () => {
       popupElement,
     });
 
-    expect(store.select('triggerPopupId', 'trigger', 1)).toBe('explicit-popup-id');
+    expect(store.select('triggerPopupId', 'trigger')).toBe('explicit-popup-id');
   });
 });
