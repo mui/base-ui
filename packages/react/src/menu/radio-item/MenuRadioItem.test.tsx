@@ -253,6 +253,37 @@ describe('<Menu.RadioItem />', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(1);
     });
 
+    it('does not select when `onValueChange` cancels the event', async () => {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.RadioGroup
+                  defaultValue={0}
+                  onValueChange={(_, eventDetails) => {
+                    eventDetails.cancel();
+                  }}
+                >
+                  <Menu.RadioItem value={1}>Item</Menu.RadioItem>
+                </Menu.RadioGroup>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      const item = screen.getByRole('menuitemradio');
+      await user.click(item);
+
+      expect(item).toHaveAttribute('aria-checked', 'false');
+      expect(item).not.toHaveAttribute('data-checked');
+    });
+
     it('keeps the state when closed and reopened', async () => {
       const { user } = await render(
         <Menu.Root modal={false}>
