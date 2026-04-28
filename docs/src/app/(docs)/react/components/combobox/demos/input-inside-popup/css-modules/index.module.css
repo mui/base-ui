@@ -25,7 +25,6 @@
   color: var(--color-gray-900);
   cursor: default;
   background-color: canvas;
-  -webkit-user-select: none;
   user-select: none;
   min-width: 12rem;
 
