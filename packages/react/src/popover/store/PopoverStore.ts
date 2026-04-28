@@ -22,7 +22,7 @@ import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
-  instantType: 'dismiss' | 'click' | undefined;
+  instantType: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
   modal: boolean | 'trap-focus';
   focusManagerModal: boolean;
   openMethod: InteractionType | null;
@@ -187,7 +187,7 @@ export class PopoverStore<Payload> extends ReactStore<
         }),
     );
 
-    useOnMount(internalStore.disposeEffect);
+    useOnMount(() => internalStore?.disposeEffect());
     return store;
   }
 

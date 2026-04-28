@@ -3,7 +3,6 @@ import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
@@ -44,11 +43,12 @@ export function usePopupStore<
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
 
-  const internalStore = useRefWithInit(() => {
-    return createStore(floatingId, nested);
-  }).current;
+  const internalStoreRef = React.useRef<Store | null>(null);
+  if (externalStore === undefined && internalStoreRef.current === null) {
+    internalStoreRef.current = createStore(floatingId, nested);
+  }
 
-  const store = externalStore ?? internalStore;
+  const store = externalStore ?? internalStoreRef.current!;
 
   useSyncedFloatingRootContext({
     popupStore: store,
@@ -59,7 +59,7 @@ export function usePopupStore<
     onOpenChange: store.setOpen,
   });
 
-  return { store, internalStore };
+  return { store, internalStore: internalStoreRef.current };
 }
 
 function syncTriggerCount<State extends PopupStoreState<unknown>>(
@@ -98,6 +98,8 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
         return;
       }
 
+      let shouldSyncTriggerCount = false;
+
       if (registeredElementIdRef.current !== null) {
         const registeredId = registeredElementIdRef.current;
         const registeredElement = registeredElementRef.current;
@@ -105,7 +107,7 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
 
         if (registeredElement && currentElement === registeredElement) {
           store.context.triggerElements.delete(registeredId);
-          syncTriggerCountIfOpen(store);
+          shouldSyncTriggerCount = true;
         }
 
         registeredElementIdRef.current = null;
@@ -116,6 +118,10 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
         registeredElementIdRef.current = id;
         registeredElementRef.current = element;
         store.context.triggerElements.add(id, element);
+        shouldSyncTriggerCount = true;
+      }
+
+      if (shouldSyncTriggerCount) {
         syncTriggerCountIfOpen(store);
       }
     },
@@ -310,13 +316,4 @@ export function usePopupRootSync<
     },
     [store],
   );
-}
-
-export function useFloatingRootContextSync<State extends PopupStoreState<unknown>>(
-  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
-  floatingRootContext: State['floatingRootContext'],
-) {
-  useIsoLayoutEffect(() => {
-    store.set('floatingRootContext', floatingRootContext);
-  }, [floatingRootContext, store]);
 }

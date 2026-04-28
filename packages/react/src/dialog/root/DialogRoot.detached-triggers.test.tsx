@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import type { UserEvent } from '@testing-library/user-event';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
@@ -330,7 +331,7 @@ describe('<Dialog.Root />', () => {
       );
     }
 
-    async function openAndCloseDialog(user: any) {
+    async function openAndCloseDialog(user: UserEvent) {
       await user.click(screen.getByRole('button', { name: 'Trigger' }));
       await waitFor(() => {
         expect(screen.getByText('Dialog Content')).toBeVisible();

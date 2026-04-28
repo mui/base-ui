@@ -1,5 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import type { UserEvent } from '@testing-library/user-event';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
@@ -417,7 +418,7 @@ describe('<AlertDialog.Root />', () => {
       );
     }
 
-    async function openAndCloseDialog(user: any) {
+    async function openAndCloseDialog(user: UserEvent) {
       await user.click(screen.getByRole('button', { name: 'Trigger' }));
       await waitFor(() => {
         expect(screen.getByText('Alert dialog content')).toBeVisible();
