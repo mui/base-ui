@@ -163,10 +163,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
         return;
       }
 
-      const PointerEventCtor = ownerWindow(input).PointerEvent ?? ownerWindow(input).MouseEvent;
-
       input.dispatchEvent(
-        new PointerEventCtor('click', {
+        new (ownerWindow(input).PointerEvent)('click', {
           bubbles: true,
           shiftKey: event.shiftKey,
           ctrlKey: event.ctrlKey,

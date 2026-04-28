@@ -337,10 +337,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             return;
           }
 
-          const PointerEventCtor = ownerWindow(input).PointerEvent ?? ownerWindow(input).MouseEvent;
-
           input.dispatchEvent(
-            new PointerEventCtor('click', {
+            new (ownerWindow(input).PointerEvent)('click', {
               bubbles: true,
               shiftKey: event.shiftKey,
               ctrlKey: event.ctrlKey,
