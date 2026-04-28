@@ -8,6 +8,7 @@ import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../..
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
@@ -58,13 +59,16 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
-  // Panels may open from the selected value during the first client render so
-  // SSR content stays visible. After commit, panels require a matching tab.
-  const [tabRegistrationSettled, setTabRegistrationSettled] = React.useState(false);
+  const isHydrating = useIsHydrating();
+  // Panels may open from the selected value during SSR/hydration so the markup
+  // matches. Fresh client-only renders start settled so orphan panels do not mount.
+  const [tabRegistrationSettled, setTabRegistrationSettled] = React.useState(!isHydrating);
 
-  React.useEffect(() => {
-    setTabRegistrationSettled(true);
-  }, []);
+  useIsoLayoutEffect(() => {
+    if (!tabRegistrationSettled) {
+      setTabRegistrationSettled(true);
+    }
+  }, [tabRegistrationSettled]);
 
   // Used for activation direction detection via tab element positions.
   const getTabElementBySelectedValue = React.useCallback(

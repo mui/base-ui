@@ -475,7 +475,7 @@ describe('<Tabs.Root />', () => {
       expect(screen.getByRole('tabpanel')).not.toHaveAttribute('hidden');
     });
 
-    it('does not remount non-keepMounted panels when no tabs are rendered', async () => {
+    it('does not mount non-keepMounted panel content when no tabs are rendered', async () => {
       const mountSpy = vi.fn();
       const unmountSpy = vi.fn();
 
@@ -498,16 +498,15 @@ describe('<Tabs.Root />', () => {
       );
 
       expect(screen.queryAllByRole('tab')).toHaveLength(0);
+      expect(screen.queryByRole('tabpanel')).toBe(null);
 
-      await waitFor(() => {
-        expect(screen.queryByRole('tabpanel')).toBe(null);
+      await act(async () => {
+        await wait(50);
       });
 
-      await wait(50);
-
       expect(screen.queryByRole('tabpanel')).toBe(null);
-      expect(mountSpy.mock.calls.length).toBeLessThanOrEqual(2);
-      expect(unmountSpy.mock.calls.length).toBeLessThanOrEqual(2);
+      expect(mountSpy.mock.calls.length).toBe(0);
+      expect(unmountSpy.mock.calls.length).toBe(0);
     });
 
     it('falls back to null when the entire tab list unmounts', async () => {
