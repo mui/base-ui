@@ -36,6 +36,22 @@ describe('<Avatar.Fallback />', () => {
     });
   });
 
+  it.skipIf(!isJSDOM)(
+    'should not render fallback synchronously when Image resolves loaded before Fallback in tree order',
+    async () => {
+      (useImageLoadingStatus as Mock).mockReturnValue('loaded');
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image src="avatar.png" />
+          <Avatar.Fallback data-testid="fallback">AC</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      expect(screen.queryByTestId('fallback')).toBe(null);
+    },
+  );
+
   it.skipIf(!isJSDOM)('should render the fallback if the image fails to load', async () => {
     (useImageLoadingStatus as Mock).mockReturnValue('error');
 

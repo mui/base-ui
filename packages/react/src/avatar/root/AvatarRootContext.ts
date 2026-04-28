@@ -5,6 +5,11 @@ import type { ImageLoadingStatus } from './AvatarRoot';
 export interface AvatarRootContext {
   imageLoadingStatus: ImageLoadingStatus;
   setImageLoadingStatus: React.Dispatch<React.SetStateAction<ImageLoadingStatus>>;
+  /**
+   * Avatar.Image assigns this synchronously during render so Avatar.Fallback (when listed after Image) can observe
+   * `loaded` on the same commit before lifted state catches up (`idle`→`loaded` sync only happens in layout).
+   */
+  transientImageLoadingStatusRef: React.MutableRefObject<ImageLoadingStatus | undefined>;
 }
 
 export const AvatarRootContext = React.createContext<AvatarRootContext | undefined>(undefined);

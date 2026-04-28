@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 /**
@@ -10,8 +10,8 @@ import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
  * and `.naturalWidth > 0`, but the async `onload` callback has not yet fired
  * (it would be queued as a task in a real browser).
  *
- * This is the exact state the fix targets — without the `image.complete`
- * fast-path, the hook would be stuck at `'loading'` until `onload` fires.
+ * This is the exact state the fix targets — without the `image.complete`/`decode` path, the img can stay concealed
+ * until `load` fires while the hook already reports `'loaded'`.
  */
 function mockCachedImageLoading({ naturalWidth = 100 } = {}) {
   const OriginalImage = window.Image;
@@ -218,6 +218,23 @@ describe('<Avatar.Image />', () => {
     });
   });
 
+  it('hides fallback until intrinsic onError reconciles decode failure', async () => {
+    await render(
+      <Avatar.Root>
+        <Avatar.Image alt="" data-testid="assume-img" src="/missing-hash.png" />
+        <Avatar.Fallback>X</Avatar.Fallback>
+      </Avatar.Root>,
+    );
+
+    expect(screen.queryByText('X')).toBe(null);
+
+    fireEvent.error(screen.getByTestId('assume-img'));
+
+    await waitFor(() => {
+      expect(screen.getByText('X')).toBeVisible();
+    });
+  });
+
   it.skipIf(!isJSDOM)('shows the image immediately for a cached src', async () => {
     await render(
       <Avatar.Root>
@@ -226,7 +243,10 @@ describe('<Avatar.Image />', () => {
       </Avatar.Root>,
     );
 
-    expect(screen.getByRole('img')).toHaveAttribute('src', 'https://example.com/cached-avatar.png');
+    expect(screen.getByRole('img', { hidden: true })).toHaveAttribute(
+      'src',
+      'https://example.com/cached-avatar.png',
+    );
     expect(screen.queryByText('JD')).toBe(null);
   });
 });

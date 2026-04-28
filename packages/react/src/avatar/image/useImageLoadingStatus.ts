@@ -5,52 +5,23 @@ import { NOOP } from '../../internals/noop';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
-interface UseImageLoadingStatusOptions {
-  referrerPolicy?: React.HTMLAttributeReferrerPolicy | undefined;
-  crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'] | undefined;
-}
-
-export function useImageLoadingStatus(
-  src: string | undefined,
-  { referrerPolicy, crossOrigin }: UseImageLoadingStatusOptions,
-): ImageLoadingStatus {
-  const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
+/**
+ * Tracks loading status without a separate preload [`Image()`] probe — the intrinsic `<img>` in `Avatar.Image` owns the
+ * real load (`@load`, `@error`), while conceal/reveal hides decode flashes until the bitmap is settled.
+ */
+export function useImageLoadingStatus(src: string | undefined): ImageLoadingStatus {
+  const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>(() =>
+    src ? 'loaded' : 'idle',
+  );
 
   useIsoLayoutEffect(() => {
     if (!src) {
       setLoadingStatus('error');
       return NOOP;
     }
-
-    let isMounted = true;
-    const image = new window.Image();
-
-    const updateStatus = (status: ImageLoadingStatus) => () => {
-      if (!isMounted) {
-        return;
-      }
-
-      setLoadingStatus(status);
-    };
-
-    setLoadingStatus('loading');
-    image.onload = updateStatus('loaded');
-    image.onerror = updateStatus('error');
-    if (referrerPolicy) {
-      image.referrerPolicy = referrerPolicy;
-    }
-    image.crossOrigin = crossOrigin ?? null;
-    image.src = src;
-
-    // Fast path for cached/decoded images
-    if (image.complete) {
-      setLoadingStatus(image.naturalWidth > 0 ? 'loaded' : 'error');
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [src, crossOrigin, referrerPolicy]);
+    setLoadingStatus('loaded');
+    return NOOP;
+  }, [src]);
 
   return loadingStatus;
 }
