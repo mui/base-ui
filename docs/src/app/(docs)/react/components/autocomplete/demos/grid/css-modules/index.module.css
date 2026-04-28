@@ -77,7 +77,6 @@
   line-height: 1.5rem;
   color: var(--color-gray-900);
   cursor: default;
-  -webkit-user-select: none;
   user-select: none;
   min-width: 9rem;
   background-color: canvas;
