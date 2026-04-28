@@ -1,18 +1,11 @@
-import { Mock, vi, expect } from 'vitest';
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
-import { waitFor, screen } from '@mui/internal-test-utils';
+import { waitFor, screen, fireEvent } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
-import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
-
-vi.mock('../image/useImageLoadingStatus');
 
 describe('<Avatar.Fallback />', () => {
   const { render } = createRenderer();
-
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
 
   describeConformance(<Avatar.Fallback />, () => ({
     render: (node) => {
@@ -22,11 +15,9 @@ describe('<Avatar.Fallback />', () => {
   }));
 
   it.skipIf(!isJSDOM)('should not render the children if the image loaded', async () => {
-    (useImageLoadingStatus as Mock).mockReturnValue('loaded');
-
     await render(
       <Avatar.Root>
-        <Avatar.Image />
+        <Avatar.Image src="avatar.png" />
         <Avatar.Fallback data-testid="fallback" />
       </Avatar.Root>,
     );
@@ -39,8 +30,6 @@ describe('<Avatar.Fallback />', () => {
   it.skipIf(!isJSDOM)(
     'should not render fallback synchronously when Image resolves loaded before Fallback in tree order',
     async () => {
-      (useImageLoadingStatus as Mock).mockReturnValue('loaded');
-
       await render(
         <Avatar.Root>
           <Avatar.Image src="avatar.png" />
@@ -53,14 +42,14 @@ describe('<Avatar.Fallback />', () => {
   );
 
   it.skipIf(!isJSDOM)('should render the fallback if the image fails to load', async () => {
-    (useImageLoadingStatus as Mock).mockReturnValue('error');
-
     await render(
       <Avatar.Root>
-        <Avatar.Image />
+        <Avatar.Image src="/missing.png" data-testid="img" />
         <Avatar.Fallback>AC</Avatar.Fallback>
       </Avatar.Root>,
     );
+
+    fireEvent.error(screen.getByTestId('img'));
 
     await waitFor(() => {
       expect(screen.queryByText('AC')).not.toBe(null);
@@ -89,11 +78,8 @@ describe('<Avatar.Fallback />', () => {
   });
 
   it.skipIf(!isJSDOM)(
-    'keeps fallback mounted and image unmounted while the image is loading',
+    'shows image and hides fallback after src is provided (optimistic loaded)',
     async () => {
-      const useImageLoadingStatusMock = useImageLoadingStatus as Mock;
-      useImageLoadingStatusMock.mockImplementation((src) => (src ? 'loading' : 'error'));
-
       function Test() {
         const [showImage, setShowImage] = React.useState(false);
 
@@ -120,8 +106,8 @@ describe('<Avatar.Fallback />', () => {
       await user.click(screen.getByText('Show image'));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('image')).toBe(null);
-        expect(screen.getByTestId('fallback')).not.toBe(null);
+        expect(screen.queryByTestId('image')).not.toBe(null);
+        expect(screen.queryByTestId('fallback')).toBe(null);
       });
     },
   );
@@ -133,9 +119,6 @@ describe('<Avatar.Fallback />', () => {
 
     it('keeps only one of image or fallback mounted when switching to image', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const useImageLoadingStatusMock = useImageLoadingStatus as Mock;
-      useImageLoadingStatusMock.mockImplementation((src) => (src ? 'loaded' : 'error'));
 
       const style = `
         @keyframes test-exit {

@@ -8,12 +8,15 @@ import { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
-import type { AvatarRootState } from '../root/AvatarRoot';
+import type { AvatarRootState, ImageLoadingStatus } from '../root/AvatarRoot';
 import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
-import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
+
+function toBaseUiImgEvent(event: React.SyntheticEvent<HTMLImageElement>) {
+  return makeEventPreventable(event as BaseUIEvent<React.SyntheticEvent<HTMLImageElement>>);
+}
 
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   ...avatarStateAttributesMapping,
@@ -49,7 +52,8 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   void style;
 
   const context = useAvatarRootContext();
-  const hookLoadingStatus = useImageLoadingStatus(componentProps.src);
+  /** Optimistic hint only: real outcome comes from intrinsic `@load` / `@error` + decode settling. */
+  const optimisticFromSrc: ImageLoadingStatus = componentProps.src ? 'loaded' : 'error';
 
   const [intrinsicDecodeFailed, setIntrinsicDecodeFailed] = React.useState(false);
 
@@ -60,23 +64,17 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     setIntrinsicSettled(!componentProps.src);
   }, [componentProps.src]);
 
-  const imageLoadingStatus: ImageLoadingStatus = intrinsicDecodeFailed ? 'error' : hookLoadingStatus;
+  const imageLoadingStatus: ImageLoadingStatus = intrinsicDecodeFailed ? 'error' : optimisticFromSrc;
 
   context.transientImageLoadingStatusRef.current = imageLoadingStatus;
 
   const handleIntrinsicLoad = useStableCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
-    const baseUiEvent = makeEventPreventable(
-      event as BaseUIEvent<React.SyntheticEvent<HTMLImageElement>>,
-    );
-    onLoadProp?.(baseUiEvent);
+    onLoadProp?.(toBaseUiImgEvent(event));
     setIntrinsicSettled(true);
   });
 
   const handleIntrinsicError = useStableCallback((event: React.SyntheticEvent<HTMLImageElement>) => {
-    const baseUiEvent = makeEventPreventable(
-      event as BaseUIEvent<React.SyntheticEvent<HTMLImageElement>>,
-    );
-    onErrorProp?.(baseUiEvent);
+    onErrorProp?.(toBaseUiImgEvent(event));
     setIntrinsicSettled(true);
     setIntrinsicDecodeFailed(true);
   });
@@ -88,8 +86,8 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   /**
    * Disk/memory-cached imgs often expose `complete` + `naturalWidth` before `load` bubbles; unveil before paint.
-   * On rejection, `decode()` must NOT settle — a failing/decode-rejected bitmap must wait for `@error`
-   * before unveiling so the browser’s broken-image glyph never paints visibly for one frame.
+   * Must settle synchronously in this layout effect — `decode()` resolves in a microtask and runs **after**
+   * the first paint, which keeps `<img hidden>` for one visible frame.
    */
   useIsoLayoutEffect(() => {
     if (!mounted || intrinsicSettled || intrinsicDecodeFailed) {
@@ -99,22 +97,13 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     if (!(img?.complete && img.naturalWidth > 0)) {
       return;
     }
-    const finalize = () => {
-      setIntrinsicSettled(true);
-    };
-    if (typeof img.decode === 'function') {
-      void img.decode().then(finalize);
-      return;
-    }
-    finalize();
+    setIntrinsicSettled(true);
   }, [mounted, intrinsicSettled, intrinsicDecodeFailed, componentProps.src]);
 
-  const concealIntrinsically =
+  /** `<img hidden>` while decode/load hasn’t settled; stays mounted so events still fire. */
+  const intrinsicDecodePending =
     !!componentProps.src &&
     (!intrinsicSettled || Boolean(intrinsicDecodeFailed && mounted));
-
-  /** Hide with native `<img hidden>` until load/error/decode settles — keeps the element mounted without author CSS. */
-  const intrinsicDecodePending = concealIntrinsically;
 
   const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
@@ -122,9 +111,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   });
 
   useIsoLayoutEffect(() => {
-    if (imageLoadingStatus !== 'idle') {
-      handleLoadingStatusChange(imageLoadingStatus);
-    }
+    handleLoadingStatusChange(imageLoadingStatus);
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
   useOpenChangeComplete({
@@ -169,7 +156,7 @@ export interface AvatarImageState extends AvatarRootState {
    */
   transitionStatus: TransitionStatus;
   /**
-   * Mirrors pending intrinsic decode/load; while true the rendered `<img>` has the `hidden` attribute set.
+   * While true, the `<img>` keeps the `hidden` attribute until load/error/decode settles (element stays mounted).
    */
   intrinsicDecodePending: boolean;
 }

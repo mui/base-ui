@@ -62,3 +62,7 @@
 .page {
   padding: 24px;
 }
+
+.pageRowOne > * > * {
+  background: #ff0000;
+}

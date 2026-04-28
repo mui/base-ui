@@ -10,5 +10,11 @@ const SLOW_AVATAR_SRC = `/api/experiments/slow-avatar?ms=${SLOW_LOAD_MS}`;
 
 export default function AvatarExperimentRowOne() {
   /** Slow API URL — server delays before bytes; intrinsic `<img>` still loads after response. */
-  return <AvatarExperimentDemo src={SLOW_AVATAR_SRC} fallbackClassName={styles.avatarFallbackRowOne} />;
+  return (
+    <AvatarExperimentDemo
+      src={SLOW_AVATAR_SRC}
+      pageClassName={styles.pageRowOne}
+      fallbackClassName={styles.avatarFallbackRowOne}
+    />
+  );
 }

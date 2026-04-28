@@ -10,16 +10,19 @@ const DEFAULT_SRC =
 interface AvatarExperimentDemoProps {
   /** When unset, the default apple image URL is used. */
   src?: string;
+  /** Extra class for the outer page wrapper (e.g. row-one background). */
+  pageClassName?: string;
   /** Extra class for `Avatar.Fallback` (e.g. row-one experiment styling). */
   fallbackClassName?: string;
 }
 
 export function AvatarExperimentDemo({
   src = DEFAULT_SRC,
+  pageClassName,
   fallbackClassName,
 }: AvatarExperimentDemoProps = {}) {
   return (
-    <div className={styles.page}>
+    <div className={[styles.page, pageClassName].filter(Boolean).join(' ')}>
       <div className={styles.stack}>
         <Avatar.Root className={styles.avatarRoot}>
           <Avatar.Image className={styles.avatarImage} src={src} />
