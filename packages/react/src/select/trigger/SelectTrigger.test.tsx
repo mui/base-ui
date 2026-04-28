@@ -203,6 +203,36 @@ describe('<Select.Trigger />', () => {
       expect(trigger).not.toHaveAttribute('data-popup-side');
     });
 
+    it.skipIf(isJSDOM)(
+      'sets data-popup-side to the resolved side when alignItemWithTrigger is active',
+      async () => {
+        const { user } = await render(
+          <Select.Root defaultValue="apple">
+            <Select.Trigger data-testid="trigger" style={{ width: 120, height: 36 }}>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner">
+                <Select.Popup style={{ maxHeight: 'none' }}>
+                  <Select.Item value="apple">apple</Select.Item>
+                  <Select.Item value="orange">orange</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'none');
+        });
+        expect(trigger).toHaveAttribute('data-popup-side', 'bottom');
+      },
+    );
+
     it('should have the data-popup-open and data-pressed attributes when open', async () => {
       const { user } = await render(
         <Select.Root>
