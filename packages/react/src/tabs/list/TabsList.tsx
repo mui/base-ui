@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -31,6 +32,12 @@ export const TabsList = React.forwardRef(function TabsList(
 
   const { onValueChange, orientation, value, setTabMap, tabActivationDirection } =
     useTabsRootContext();
+
+  useIsoLayoutEffect(() => {
+    return () => {
+      setTabMap(new Map());
+    };
+  }, [setTabMap]);
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
   const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);

@@ -510,6 +510,37 @@ describe('<Tabs.Root />', () => {
       expect(unmountSpy.mock.calls.length).toBeLessThanOrEqual(2);
     });
 
+    it('falls back to null when the entire tab list unmounts', async () => {
+      const handleChange = vi.fn();
+
+      function TestComponent({ showList }: { showList: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            {showList && (
+              <Tabs.List>
+                <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+              </Tabs.List>
+            )}
+            <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent showList />);
+
+      expect(screen.getByRole('tabpanel')).toHaveTextContent('Panel 0');
+
+      await setProps({ showList: false });
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(handleChange.mock.calls.length).toBe(1);
+        expect(handleChange.mock.calls[0][0]).toBe(null);
+        expect(handleChange.mock.calls[0][1].reason).toBe('missing');
+        expect(screen.queryByRole('tabpanel')).toBe(null);
+      });
+    });
+
     it('preserves explicit defaultValue when tabs mount after an initial no-tab render', async () => {
       function TestComponent({ showTabs }: { showTabs: boolean }) {
         return (

@@ -484,12 +484,13 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * clicks or keyboard navigation, `'initial'` for automatic selection on mount
    * when no `value` or `defaultValue` is provided, `'disabled'` when the selected
    * tab became disabled, and `'missing'` when the current value no longer maps to
-   * any rendered tab.
+   * any rendered tab. Automatic reasons are emitted only for uncontrolled roots;
+   * controlled roots keep selection owned by the `value` prop.
    *
    * Calling `eventDetails.cancel()` prevents the value change for user-initiated
-   * actions (`'none'`). It is a no-op for automatic selections (`'initial'`,
-   * `'disabled'`, `'missing'`), as the component must move away from a
-   * disabled or missing selection.
+   * actions (`'none'`). For automatic selections (`'initial'`, `'disabled'`,
+   * `'missing'`), `cancel()` and `allowPropagation()` are no-ops, and
+   * `isCanceled` and `isPropagationAllowed` remain `false`.
    */
   onValueChange?:
     | ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void)
