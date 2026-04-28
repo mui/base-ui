@@ -18,6 +18,9 @@ import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStat
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   ...avatarStateAttributesMapping,
   ...transitionStatusMapping,
+  intrinsicDecodePending() {
+    return null;
+  },
 };
 
 /**
@@ -35,6 +38,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     render,
     onLoadingStatusChange: onLoadingStatusChangeProp,
     style,
+    hidden: hiddenProp,
     onLoad: onLoadProp,
     onError: onErrorProp,
     ...elementProps
@@ -42,6 +46,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   void className;
   void render;
+  void style;
 
   const context = useAvatarRootContext();
   const hookLoadingStatus = useImageLoadingStatus(componentProps.src);
@@ -108,31 +113,8 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     !!componentProps.src &&
     (!intrinsicSettled || Boolean(intrinsicDecodeFailed && mounted));
 
-  let mergedStyle: React.CSSProperties | undefined;
-  if (componentProps.src) {
-    const lockBase: React.CSSProperties = { transition: 'none' };
-    if (concealIntrinsically) {
-      mergedStyle =
-        style && typeof style === 'object' && !Array.isArray(style)
-          ? {
-              ...lockBase,
-              ...(style as React.CSSProperties),
-              opacity: 0,
-              visibility: 'hidden',
-            }
-          : { ...lockBase, opacity: 0, visibility: 'hidden' };
-    } else {
-      mergedStyle =
-        style && typeof style === 'object' && !Array.isArray(style)
-          ? {
-              ...lockBase,
-              ...(style as React.CSSProperties),
-            }
-          : lockBase;
-    }
-  } else {
-    mergedStyle = style as React.CSSProperties | undefined;
-  }
+  /** Hide with native `<img hidden>` until load/error/decode settles — keeps the element mounted without author CSS. */
+  const intrinsicDecodePending = concealIntrinsically;
 
   const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
@@ -158,6 +140,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   const state: AvatarImageState = {
     imageLoadingStatus,
     transitionStatus,
+    intrinsicDecodePending,
   };
 
   const element = useRenderElement('img', componentProps, {
@@ -165,7 +148,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     ref: [forwardedRef, imageRef],
     props: {
       ...elementProps,
-      style: mergedStyle,
+      hidden: intrinsicDecodePending ? true : hiddenProp,
       onLoad: handleIntrinsicLoad,
       onError: handleIntrinsicError,
     },
@@ -185,6 +168,10 @@ export interface AvatarImageState extends AvatarRootState {
    * The transition status of the component (`[data-starting-style]` / `[data-ending-style]`).
    */
   transitionStatus: TransitionStatus;
+  /**
+   * Mirrors pending intrinsic decode/load; while true the rendered `<img>` has the `hidden` attribute set.
+   */
+  intrinsicDecodePending: boolean;
 }
 
 export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarImageState> {
