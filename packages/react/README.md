@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD041 -->
+<!-- lint disable mui-first-block-heading -->
 
 <a href="https://base-ui.com" rel="noopener" target="_blank"><img width="150" height="133" src="https://base-ui.com/static/logo.svg" alt="Base UI logo"></a>
 
