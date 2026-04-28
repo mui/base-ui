@@ -11,7 +11,6 @@
   background-color: light-dark(white, var(--color-gray-950));
   font-weight: 400;
   color: light-dark(var(--color-gray-950), white);
-  -webkit-user-select: none;
   user-select: none;
 
   &:focus-visible {
