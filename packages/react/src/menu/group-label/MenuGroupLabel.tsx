@@ -12,7 +12,7 @@ import { useMenuGroupRootContext } from '../group/MenuGroupContext';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
+export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(
   componentProps: MenuGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {

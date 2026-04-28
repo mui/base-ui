@@ -116,7 +116,8 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     [collapsible.mounted, disabled, index, isOpen, rootState],
   );
 
-  const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
+  const defaultTriggerId = useBaseUiId();
+  const [triggerId, setTriggerId] = React.useState<string | undefined>(defaultTriggerId);
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({

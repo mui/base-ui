@@ -48,14 +48,11 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const baseStateAttributesMapping = useStateAttributesMapping(rootState);
 
-  const stateAttributesMapping: StateAttributesMapping<CheckboxIndicatorState> = React.useMemo(
-    () => ({
-      ...baseStateAttributesMapping,
-      ...transitionStatusMapping,
-      ...fieldValidityMapping,
-    }),
-    [baseStateAttributesMapping],
-  );
+  const stateAttributesMapping: StateAttributesMapping<CheckboxIndicatorState> = {
+    ...baseStateAttributesMapping,
+    ...transitionStatusMapping,
+    ...fieldValidityMapping,
+  };
 
   const shouldRender = keepMounted || mounted;
 

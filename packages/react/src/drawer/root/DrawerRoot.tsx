@@ -49,10 +49,8 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
     snapPoints,
     snapPoint: snapPointProp,
     defaultSnapPoint,
-    onSnapPointChange: onSnapPointChangeProp,
+    onSnapPointChange,
   } = props;
-
-  const onSnapPointChange = useStableCallback(onSnapPointChangeProp);
 
   const parentDrawerRootContext = useDrawerRootContext(true);
 

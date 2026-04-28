@@ -120,13 +120,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
-  const state: PopoverPositionerState = {
-    open,
-    side: positioning.side,
-    align: positioning.align,
-    anchorHidden: positioning.anchorHidden,
-    instant: instantType,
-  };
 
   useAnchoredPopupScrollLock(
     open && modal === true && openReason !== REASONS.triggerHover,
@@ -141,6 +134,14 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     },
     [store],
   );
+
+  const state: PopoverPositionerState = {
+    open,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+    instant: instantType,
+  };
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,

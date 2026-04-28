@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
-import { FieldValidityData } from '../root/FieldRoot';
+import type { FieldValidityData } from '../root/FieldRoot';
 import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
 
 /**
@@ -13,6 +13,7 @@ import { type TransitionStatus, useTransitionStatus } from '../../internals/useT
  */
 export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidity(props) {
   const { children } = props;
+
   const { validityData, invalid } = useFieldRootContext(false);
 
   const combinedFieldValidityData = React.useMemo(

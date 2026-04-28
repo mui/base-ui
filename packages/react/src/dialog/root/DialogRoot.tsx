@@ -145,7 +145,7 @@ export interface DialogRootProps<Payload = unknown> {
   /**
    * ID of the trigger that the dialog is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled dialog.
-   * There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).
+   * There's no need to specify this prop when the dialog is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: string | null | undefined;
   /**

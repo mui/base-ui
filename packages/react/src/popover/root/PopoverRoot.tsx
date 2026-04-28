@@ -189,7 +189,7 @@ export interface PopoverRootProps<Payload = unknown> {
    * - `unmount`: When specified, the popover will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the popover manually.
    * Useful when the popover's animation is controlled by an external library.
-   * - `close`: Closes the dialog imperatively when called.
+   * - `close`: Closes the popover imperatively when called.
    */
   actionsRef?: React.RefObject<PopoverRoot.Actions | null> | undefined;
   /**

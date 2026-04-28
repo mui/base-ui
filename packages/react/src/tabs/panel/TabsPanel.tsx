@@ -27,7 +27,7 @@ const stateAttributesMapping: StateAttributesMapping<TabsPanelState> = {
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-export const TabsPanel = React.forwardRef(function TabPanel(
+export const TabsPanel = React.forwardRef(function TabsPanel(
   componentProps: TabsPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {

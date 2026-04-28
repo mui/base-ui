@@ -454,7 +454,7 @@ describe('<ToggleGroup />', () => {
     });
 
     ['Enter', 'Space'].forEach((key) => {
-      it(`fires when when the ${key} is pressed`, async ({ skip }) => {
+      it(`fires when the ${key} is pressed`, async ({ skip }) => {
         if (isJSDOM) {
           skip();
         }

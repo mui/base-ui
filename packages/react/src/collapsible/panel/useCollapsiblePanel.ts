@@ -7,6 +7,7 @@ import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -403,7 +404,7 @@ function getAnimationType(
   element: HTMLElement,
   hasSuppressedMountAnimation: boolean = false,
 ): AnimationType {
-  const panelStyles = getComputedStyle(element);
+  const panelStyles = ownerWindow(element).getComputedStyle(element);
   const hasAnimation =
     (panelStyles.animationName
       .split(',')
