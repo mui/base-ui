@@ -7,7 +7,7 @@ export default function ExampleUncontainedDialog() {
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black/20 dark:bg-black/50 backdrop-blur-[1px] transition-[opacity,backdrop-filter] duration-150 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 supports-[-webkit-touch-callout:none]:absolute" />
+        <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black/20 dark:bg-black/50 transition-opacity duration-150 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 grid place-items-center px-4 py-12 xl:py-6">
           <Dialog.Popup className="group/popup relative flex h-full w-full max-w-[70rem] xl:max-w-none justify-center pointer-events-none transition-opacity duration-150 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0">
             <Dialog.Close

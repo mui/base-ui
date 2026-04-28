@@ -36,10 +36,7 @@
   min-height: 100dvh;
   inset: 0;
   background-color: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));
-  backdrop-filter: blur(1px);
-  transition:
-    opacity 150ms,
-    backdrop-filter 150ms;
+  transition: opacity 150ms;
 
   /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
   @supports (-webkit-touch-callout: none) {

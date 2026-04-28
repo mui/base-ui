@@ -11,7 +11,7 @@ export default function OutsideScrollDialog() {
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-black/20 dark:bg-black/50 transition-[backdrop-filter,opacity] duration-[350ms] ease-[var(--ease-out-fast)] backdrop-blur-[1.5px] data-[starting-style]:backdrop-blur-0 data-[starting-style]:opacity-0 data-[ending-style]:backdrop-blur-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[220ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] supports-[-webkit-touch-callout:none]:absolute" />
+        <Dialog.Backdrop className="fixed inset-0 bg-black/20 dark:bg-black/50 transition-opacity duration-[350ms] ease-[var(--ease-out-fast)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[220ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="group/dialog fixed inset-0">
           <ScrollArea.Root
             style={{ position: undefined }}
