@@ -1,7 +1,7 @@
 'use client';
+import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { ReactStore } from '@base-ui/utils/store';
 import { isElement } from '@floating-ui/utils/dom';
 import { BaseUIChangeEventDetails } from '../../types';
@@ -62,22 +62,22 @@ export function useSyncedFloatingRootContext<
     eventDetails: BaseUIChangeEventDetails<string>,
   ) => void;
 
-  const internalStore = useRefWithInit(
-    () =>
-      new FloatingRootStore({
-        open,
-        transitionStatus: undefined,
-        referenceElement,
-        floatingElement,
-        triggerElements,
-        onOpenChange: handleOpenChange,
-        floatingId,
-        syncOnly: true,
-        nested,
-      }),
-  ).current;
+  const internalStoreRef = React.useRef<FloatingRootStore | null>(null);
+  if (floatingRootContextProp === undefined && internalStoreRef.current === null) {
+    internalStoreRef.current = new FloatingRootStore({
+      open,
+      transitionStatus: undefined,
+      referenceElement,
+      floatingElement,
+      triggerElements,
+      onOpenChange: handleOpenChange,
+      floatingId,
+      syncOnly: true,
+      nested,
+    });
+  }
 
-  const store = floatingRootContextProp ?? internalStore;
+  const store = floatingRootContextProp ?? internalStoreRef.current!;
 
   popupStore.useSyncedValue('floatingId', floatingId as State['floatingId']);
 

@@ -167,7 +167,7 @@ export interface PopoverPopupState {
   /**
    * Whether transitions should be skipped.
    */
-  instant: 'dismiss' | 'click' | undefined;
+  instant: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
 }
 
 export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPopupState> {

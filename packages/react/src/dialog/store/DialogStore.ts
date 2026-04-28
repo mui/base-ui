@@ -14,7 +14,6 @@ import {
   PopupStoreState,
   PopupTriggerMap,
   setOpenTriggerState,
-  useFloatingRootContextSync,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -129,7 +128,7 @@ export class DialogStore<Payload> extends ReactStore<
 
     const store = externalStore ?? internalStore;
 
-    const floatingRootContext = useSyncedFloatingRootContext({
+    useSyncedFloatingRootContext({
       popupStore: store,
       treatPopupAsFloatingElement: true,
       floatingRootContext: store.state.floatingRootContext,
@@ -137,8 +136,6 @@ export class DialogStore<Payload> extends ReactStore<
       nested,
       onOpenChange: store.setOpen,
     });
-
-    useFloatingRootContextSync(store, floatingRootContext);
     /* eslint-enable react-hooks/rules-of-hooks */
 
     return store;
