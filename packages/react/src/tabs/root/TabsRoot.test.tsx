@@ -1,7 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import * as ReactDOM from 'react-dom/server';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
@@ -9,7 +8,7 @@ import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
 
 describe('<Tabs.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   beforeEach(function beforeHook({ skip }) {
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -135,8 +134,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('includes the selected panel in server-rendered markup before hydration', async () => {
-      const container = document.createElement('div');
-      container.innerHTML = ReactDOM.renderToString(
+      renderToString(
         <Tabs.Root defaultValue={0}>
           <Tabs.List>
             <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
@@ -151,7 +149,7 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      const panels = container.querySelectorAll('[role="tabpanel"]');
+      const panels = screen.getAllByRole('tabpanel', { hidden: true });
       expect(panels).toHaveLength(2);
       expect(panels[0]).not.toHaveAttribute('hidden');
       expect(panels[0]).toHaveTextContent('Panel 0');
