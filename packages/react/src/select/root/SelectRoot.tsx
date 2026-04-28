@@ -189,6 +189,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   });
 
   const initialValueRef = React.useRef(value);
+  const hasSelectedValue = multiple ? Array.isArray(value) && value.length > 0 : value != null;
+
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (value !== initialValueRef.current) {
@@ -197,34 +199,48 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [store, value]);
 
   useIsoLayoutEffect(() => {
-    setFilled(multiple ? Array.isArray(value) && value.length > 0 : value != null);
-  }, [multiple, value, setFilled]);
+    setFilled(hasSelectedValue);
+  }, [hasSelectedValue, setFilled]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
-      if (open) {
-        return;
-      }
-
       const registry = valuesRef.current;
+      let nextIndex: number | null;
 
       if (multiple) {
         const currentValue = Array.isArray(value) ? value : [];
         if (currentValue.length === 0) {
-          store.set('selectedIndex', null);
-          return;
+          nextIndex = null;
+        } else {
+          const lastValue = currentValue[currentValue.length - 1];
+          const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
+          nextIndex = lastIndex === -1 ? null : lastIndex;
         }
+      } else {
+        const index = findItemIndex(registry, value as Value, isItemEqualToValue);
+        nextIndex = index === -1 ? null : index;
+      }
 
-        const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-        store.set('selectedIndex', lastIndex === -1 ? null : lastIndex);
+      if (nextIndex === null) {
+        selectedItemTextRef.current = null;
+      }
+
+      if (open) {
         return;
       }
 
-      const index = findItemIndex(registry, value as Value, isItemEqualToValue);
-      store.set('selectedIndex', index === -1 ? null : index);
+      store.set('selectedIndex', nextIndex);
     },
-    [multiple, open, value, valuesRef, isItemEqualToValue, store],
+    [
+      hasSelectedValue,
+      multiple,
+      open,
+      value,
+      valuesRef,
+      isItemEqualToValue,
+      store,
+      selectedItemTextRef,
+    ],
   );
 
   useValueChanged(value, () => {
