@@ -202,6 +202,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
+      isControlled,
       onValueChange,
       orientation,
       registerMountedTabPanel,
@@ -215,6 +216,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
+      isControlled,
       onValueChange,
       orientation,
       registerMountedTabPanel,
@@ -478,11 +480,11 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
   /**
    * Callback invoked when new value is being set.
    *
-   * The `eventDetails.reason` indicates why the value changed:
-   * - `'none'`: User-initiated change (click, keyboard navigation).
-   * - `'initial'`: Automatic selection on mount when no `value`/`defaultValue` is provided.
-   * - `'disabled'`: The selected tab became disabled.
-   * - `'missing'`: The current value no longer maps to any rendered tab.
+   * The `eventDetails.reason` is `'none'` for user-initiated changes such as
+   * clicks or keyboard navigation, `'initial'` for automatic selection on mount
+   * when no `value` or `defaultValue` is provided, `'disabled'` when the selected
+   * tab became disabled, and `'missing'` when the current value no longer maps to
+   * any rendered tab.
    *
    * Calling `eventDetails.cancel()` prevents the value change for user-initiated
    * actions (`'none'`). It is a no-op for automatic selections (`'initial'`,

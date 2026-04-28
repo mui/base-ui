@@ -36,6 +36,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   const {
     value: selectedValue,
     getTabIdByPanelValue,
+    isControlled,
     orientation,
     tabActivationDirection,
     tabRegistrationSettled,
@@ -59,11 +60,14 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 
   const correspondingTabId = getTabIdByPanelValue(value);
   // Until the initial registration pass settles, allow opening based on `value`
-  // alone so SSR-rendered content paints without a flash. Afterwards, the panel
-  // must have a corresponding tab — opening one without a matching tab forces the
-  // auto-select effect to swap selection again, causing a remount loop.
+  // alone so SSR-rendered content paints without a flash. Afterwards, uncontrolled
+  // panels must have a corresponding tab — opening one without a matching tab
+  // forces the auto-select effect to swap selection again, causing a remount loop.
+  // Controlled roots keep visibility owned by the `value` prop.
   // `undefined` is still allowed because the tab may exist before its id does.
-  const open = value === selectedValue && (!tabRegistrationSettled || correspondingTabId !== null);
+  const open =
+    value === selectedValue &&
+    (isControlled || !tabRegistrationSettled || correspondingTabId !== null);
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
   const hidden = !mounted;
 

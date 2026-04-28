@@ -458,6 +458,23 @@ describe('<Tabs.Root />', () => {
       });
     });
 
+    it('keeps the selected controlled panel visible when no tabs are rendered', async () => {
+      await render(
+        <Tabs.Root value={0}>
+          <Tabs.List />
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      await act(async () => {
+        await wait(50);
+      });
+
+      expect(screen.queryAllByRole('tab')).toHaveLength(0);
+      expect(screen.getByRole('tabpanel')).toHaveTextContent('Panel 0');
+      expect(screen.getByRole('tabpanel')).not.toHaveAttribute('hidden');
+    });
+
     it('does not remount non-keepMounted panels when no tabs are rendered', async () => {
       const mountSpy = vi.fn();
       const unmountSpy = vi.fn();

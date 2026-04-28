@@ -9,6 +9,10 @@ export interface TabsRootContext {
    */
   value: TabsTab.Value;
   /**
+   * Whether the selected value is controlled by the `value` prop.
+   */
+  isControlled: boolean;
+  /**
    * Callback for setting new value.
    */
   onValueChange: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
