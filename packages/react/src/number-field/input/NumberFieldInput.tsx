@@ -398,7 +398,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Prevent `onChange` from being called.
       event.preventDefault();
 
-      const pastedData = event.clipboardData.getData('text/plain');
+      const clipboardData = event.clipboardData || window.Clipboard;
+      const pastedData = clipboardData.getData('text/plain');
       const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
 
       if (parsedValue !== null) {

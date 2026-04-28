@@ -20,7 +20,7 @@ export function isOutsideMenuEvent({ currentTarget, relatedTarget }: Targets, pa
     ? getNodeChildren(tree.nodesRef.current, nodeId).some((node) =>
         contains(node.context?.elements.floating, relatedTarget),
       )
-    : false;
+    : [];
 
   // For nested scenarios without popupElement, we need to be more lenient
   // and only close if we're definitely outside the root

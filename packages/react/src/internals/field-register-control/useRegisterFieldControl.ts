@@ -9,6 +9,7 @@ export function useRegisterFieldControl(
   id: FieldControlRegistration['id'],
   value: FieldControlRegistration['value'],
   getFormValueOverride?: FieldControlRegistration['getValue'],
+  enabled = true,
 ) {
   const { registerFieldControl } = useFieldRootContext();
   const sourceRef = React.useRef<symbol | null>(null);
@@ -20,7 +21,7 @@ export function useRegisterFieldControl(
   useIsoLayoutEffect(() => {
     const source = sourceRef.current;
 
-    if (!source || !id) {
+    if (!source || !enabled) {
       return undefined;
     }
 
@@ -36,5 +37,5 @@ export function useRegisterFieldControl(
     return () => {
       registerFieldControl(source, undefined);
     };
-  }, [controlRef, getFormValueOverride, id, registerFieldControl, value]);
+  }, [controlRef, enabled, getFormValueOverride, id, registerFieldControl, value]);
 }
