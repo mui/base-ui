@@ -54,6 +54,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const {
     render,
     className,
+    style,
     disabled: disabledProp = false,
     nativeButton = true,
     id: idProp,
@@ -62,7 +63,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     closeDelay = 0,
     handle,
     payload,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -213,12 +213,15 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const localInteractionProps = useInteractions([click, focus]);
 
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+
+  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
+    useTriggerFocusGuards(store, triggerElementRef);
+
   const state: MenuTriggerState = {
     disabled,
     open: isOpenedByThisTrigger,
   };
-
-  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
@@ -247,9 +250,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     elementProps,
     getButtonProps,
   ];
-
-  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
-    useTriggerFocusGuards(store, triggerElementRef);
 
   const element = useRenderElement('button', componentProps, {
     enabled: !isInMenubar,

@@ -132,20 +132,34 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
     }
 
     const date = new Date(value);
+
+    // Date-only strings (e.g. "2026-04-06") are parsed as UTC midnight by the JS spec,
+    // so we must use UTC getters to extract the intended face-value components.
+    // Datetime strings (e.g. "2026-04-06T14:30") are parsed as local time,
+    // so local getters correctly return the face-value components.
+    const isDateOnly = typeof value === 'string' && !value.includes('T');
+
     if (timezone === 'system' || timezone === 'default') {
+      if (isDateOnly) {
+        return new Date(
+          date.getUTCFullYear(),
+          date.getUTCMonth(),
+          date.getUTCDate(),
+        ) as unknown as R;
+      }
       return date as unknown as R;
     }
 
     // `new TZDate(value, timezone)` returns a date with the same timestamp `new Date(value)` would return,
-    // whereas we want to create that represents the string in the given timezone.
+    // whereas we want to create a date that represents the string in the given timezone.
     return new TZDate(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-      date.getHours(),
-      date.getMinutes(),
-      date.getSeconds(),
-      date.getMilliseconds(),
+      isDateOnly ? date.getUTCFullYear() : date.getFullYear(),
+      isDateOnly ? date.getUTCMonth() : date.getMonth(),
+      isDateOnly ? date.getUTCDate() : date.getDate(),
+      isDateOnly ? date.getUTCHours() : date.getHours(),
+      isDateOnly ? date.getUTCMinutes() : date.getMinutes(),
+      isDateOnly ? date.getUTCSeconds() : date.getSeconds(),
+      isDateOnly ? date.getUTCMilliseconds() : date.getMilliseconds(),
       timezone,
     ) as unknown as R;
   };

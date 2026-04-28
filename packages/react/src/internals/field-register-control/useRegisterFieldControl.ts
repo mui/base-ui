@@ -4,16 +4,13 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useFieldRootContext } from '../field-root-context/FieldRootContext';
 import type { FieldControlRegistration } from './useFieldControlRegistration';
 
-export interface UseRegisterFieldControlParameters extends FieldControlRegistration {
-  enabled?: boolean | undefined;
-}
-
 export function useRegisterFieldControl(
   controlRef: FieldControlRegistration['controlRef'],
-  params: Omit<UseRegisterFieldControlParameters, 'controlRef'>,
+  id: FieldControlRegistration['id'],
+  value: FieldControlRegistration['value'],
+  getFormValueOverride?: FieldControlRegistration['getValue'],
+  enabled = true,
 ) {
-  const { enabled = true, getValue, id, value } = params;
-
   const { registerFieldControl } = useFieldRootContext();
   const sourceRef = React.useRef<symbol | null>(null);
 
@@ -28,15 +25,17 @@ export function useRegisterFieldControl(
       return undefined;
     }
 
-    registerFieldControl(source, {
+    const registration: FieldControlRegistration = {
       controlRef,
-      getValue,
+      getValue: getFormValueOverride,
       id,
       value,
-    });
+    };
+
+    registerFieldControl(source, registration);
 
     return () => {
       registerFieldControl(source, undefined);
     };
-  }, [controlRef, enabled, getValue, id, registerFieldControl, value]);
+  }, [controlRef, enabled, getFormValueOverride, id, registerFieldControl, value]);
 }

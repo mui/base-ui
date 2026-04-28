@@ -32,12 +32,8 @@ export const FieldItem = React.forwardRef(function FieldItem(
   const disabled = rootDisabled || disabledProp;
 
   const checkboxGroupContext = useCheckboxGroupContext();
-  // checkboxGroupContext.parent is truthy even if no parent checkbox is involved
-  const parentId = checkboxGroupContext?.parent.id;
-  // this a more reliable check
   const hasParentCheckbox = checkboxGroupContext?.allValues !== undefined;
-
-  const controlId = hasParentCheckbox ? parentId : undefined;
+  const controlId = hasParentCheckbox ? checkboxGroupContext?.parent.id : undefined;
 
   const fieldItemContext: FieldItemContext = React.useMemo(() => ({ disabled }), [disabled]);
 

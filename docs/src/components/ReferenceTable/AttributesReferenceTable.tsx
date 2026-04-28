@@ -43,9 +43,8 @@ export function AttributesReferenceTable({
                   height="10"
                   viewBox="0 0 10 10"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </Accordion.Trigger>
               <Accordion.Panel>

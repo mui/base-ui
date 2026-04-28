@@ -21,6 +21,7 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
 
   const store = usePreviewCardRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
+
   const open = store.useState('open');
 
   const state: PreviewCardArrowState = {

@@ -153,8 +153,8 @@ Renders a `<button>` element.
 | data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
 | data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
 | data-required   | -                                                                                  | Present when the component is required.                                            |
-| data-valid      | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid    | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
 | data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
 | data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
 | data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
@@ -235,8 +235,8 @@ Renders an `<input>` element.
 | data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
 | data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
 | data-required   | -                                                                                  | Present when the component is required.                                            |
-| data-valid      | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid    | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
 | data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
 | data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
 | data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
@@ -318,6 +318,7 @@ Renders a `<button>` element.
 | :------------------ | :--- | :-------------------------------------------- |
 | data-popup-open     | -    | Present when the corresponding popup is open. |
 | data-disabled       | -    | Present when the button is disabled.          |
+| data-visible        | -    | Present when the clear button is visible.     |
 | data-starting-style | -    | Present when the button is animating in.      |
 | data-ending-style   | -    | Present when the button is animating out.     |
 
@@ -333,6 +334,8 @@ type AutocompleteClearState = {
   open: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the clear button should be visible. */
+  visible: boolean;
   /** The transition status of the component. */
   transitionStatus: TransitionStatus;
 };
@@ -685,8 +688,8 @@ Renders a `<div>` element.
 | data-pressed    | -                                                                                  | Present when the input group is pressed.                                           |
 | data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
 | data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid      | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid    | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
 | data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
 | data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
 | data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
@@ -879,8 +882,8 @@ Renders a `<div>` element.
 | data-pressed    | -                                                                                  | Present when the input group is pressed.                                           |
 | data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
 | data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
-| data-valid      | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid    | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-valid      | -                                                                                  | Present when the component is in a valid state (when wrapped in Field.Root).       |
+| data-invalid    | -                                                                                  | Present when the component is in an invalid state (when wrapped in Field.Root).    |
 | data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
 | data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
 | data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |

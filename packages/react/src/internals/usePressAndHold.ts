@@ -109,7 +109,7 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
     movesAfterTouchRef.current = 0;
   });
 
-  const startAutoChange = useStableCallback((triggerNativeEvent?: Event) => {
+  function startAutoChange(triggerNativeEvent?: Event) {
     stopAutoChange();
 
     const element = elementRef.current;
@@ -154,7 +154,7 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
         }
       });
     });
-  });
+  }
 
   React.useEffect(() => () => stopAutoChange(), [stopAutoChange]);
 

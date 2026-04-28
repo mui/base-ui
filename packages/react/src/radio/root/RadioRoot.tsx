@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { ownerWindow } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -84,7 +85,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const form = formGroup;
 
   const checked = groupContext ? checkedValue === value : value === '';
-  const serializedValue = React.useMemo(() => serializeValue(value), [value]);
 
   const radioRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -157,8 +157,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
       event.preventDefault();
 
-      inputRef.current?.dispatchEvent(
-        new PointerEvent('click', {
+      const input = inputRef.current;
+      if (!input) {
+        return;
+      }
+
+      input.dispatchEvent(
+        new (ownerWindow(input).PointerEvent)('click', {
           bubbles: true,
           shiftKey: event.shiftKey,
           ctrlKey: event.ctrlKey,
@@ -192,7 +197,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     tabIndex: -1,
     style: name ? visuallyHiddenInput : visuallyHidden,
     'aria-hidden': true,
-    ...(value !== undefined ? { value: serializedValue } : EMPTY_OBJECT),
+    ...(value !== undefined ? { value: serializeValue(value) } : EMPTY_OBJECT),
     disabled,
     checked,
     required,

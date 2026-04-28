@@ -364,8 +364,8 @@ type TooltipArrowState = {
 ### Viewport
 
 A viewport for displaying content transitions.
-This component is only required if one popup can be opened by multiple triggers, its content change based on the trigger
-and switching between them is animated.
+This component is only required if one popup can be opened by multiple triggers, its content
+changes based on the trigger, and switching between them is animated.
 Renders a `<div>` element.
 
 **Viewport Props:**
@@ -379,13 +379,13 @@ Renders a `<div>` element.
 
 **Viewport Data Attributes:**
 
-| Attribute                 | Type                                             | Description                                                                                                                                                                                                                        |
-| :------------------------ | :----------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-activation-direction | `` `${'left' \| 'right'} {'top' \| 'bottom'}` `` | Indicates the direction from which the popup was activated.&#xA;This can be used to create directional animations based on how the popup was triggered.&#xA;Contains space-separated values for both horizontal and vertical axes. |
-| data-current              | -                                                | Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.                                                                                                                 |
-| data-instant              | `'delay' \| 'dismiss' \| 'focus'`                | Present if animations should be instant.                                                                                                                                                                                           |
-| data-previous             | -                                                | Applied to the direct child of the viewport that contains the exiting content when transitions are present.                                                                                                                        |
-| data-transitioning        | -                                                | Indicates that the viewport is currently transitioning between old and new content.                                                                                                                                                |
+| Attribute                 | Type                                              | Description                                                                                                                                                                                                                        |
+| :------------------------ | :------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data-activation-direction | `` `${'left' \| 'right'} ${'top' \| 'bottom'}` `` | Indicates the direction from which the popup was activated.&#xA;This can be used to create directional animations based on how the popup was triggered.&#xA;Contains space-separated values for both horizontal and vertical axes. |
+| data-current              | -                                                 | Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.                                                                                                                 |
+| data-instant              | `'delay' \| 'dismiss' \| 'focus'`                 | Present if animations should be instant.                                                                                                                                                                                           |
+| data-previous             | -                                                 | Applied to the direct child of the viewport that contains the exiting content when transitions are present.                                                                                                                        |
+| data-transitioning        | -                                                 | Indicates that the viewport is currently transitioning between old and new content.                                                                                                                                                |
 
 **Viewport CSS Variables:**
 

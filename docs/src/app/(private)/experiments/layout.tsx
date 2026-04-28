@@ -1,6 +1,5 @@
-import * as React from 'react';
-import './layout.css';
+import './_css/index.css';
 
-export default function ExperimentsLayout({ children }: React.PropsWithChildren) {
-  return <div className="experiments-layout-root">{children}</div>;
+export default function Layout({ children }: React.PropsWithChildren) {
+  return children;
 }

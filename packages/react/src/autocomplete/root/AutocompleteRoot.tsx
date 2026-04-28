@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../internals/resolveValueLabel';
@@ -68,16 +67,6 @@ export function AutocompleteRoot<ItemValue>(
     resolvedInputValue = internalValue;
   }
 
-  const handleValueChange = useStableCallback(
-    (nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) => {
-      setInlineInputValue('');
-      if (!isControlled) {
-        setInternalValue(nextValue);
-      }
-      onValueChange?.(nextValue, eventDetails);
-    },
-  );
-
   const collator = useCoreFilter();
 
   const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
@@ -102,25 +91,34 @@ export function AutocompleteRoot<ItemValue>(
     };
   }, [baseFilter, mode, resolvedQuery, staticItems]);
 
-  const handleItemHighlighted = useStableCallback(
-    (highlightedValue: any, eventDetails: AriaCombobox.HighlightEventDetails) => {
-      props.onItemHighlighted?.(highlightedValue, eventDetails);
+  function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
+    setInlineInputValue('');
+    if (!isControlled) {
+      setInternalValue(nextValue);
+    }
+    onValueChange?.(nextValue, eventDetails);
+  }
 
-      if (eventDetails.reason === REASONS.pointer) {
-        return;
-      }
+  function handleItemHighlighted(
+    highlightedValue: any,
+    eventDetails: AriaCombobox.HighlightEventDetails,
+  ) {
+    props.onItemHighlighted?.(highlightedValue, eventDetails);
 
-      if (enableInline) {
-        if (highlightedValue == null) {
-          setInlineInputValue('');
-        } else {
-          setInlineInputValue(stringifyAsLabel(highlightedValue, itemToStringValue));
-        }
-      } else {
+    if (eventDetails.reason === REASONS.pointer) {
+      return;
+    }
+
+    if (enableInline) {
+      if (highlightedValue == null) {
         setInlineInputValue('');
+      } else {
+        setInlineInputValue(stringifyAsLabel(highlightedValue, itemToStringValue));
       }
-    },
-  );
+    } else {
+      setInlineInputValue('');
+    }
+  }
 
   return (
     <AriaCombobox

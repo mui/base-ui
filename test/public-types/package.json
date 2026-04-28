@@ -2,7 +2,7 @@
   "private": true,
   "dependencies": {
     "@base-ui/react": "workspace:*",
-    "react": "19.2.4"
+    "react": "19.2.5"
   },
   "scripts": {
     "release:test": "tsc --noEmit"

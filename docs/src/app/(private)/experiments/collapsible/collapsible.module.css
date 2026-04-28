@@ -1,7 +1,9 @@
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 5rem;
+  gap: 5rem;
+  min-height: 150vh;
+  align-content: start;
 }
 
 .wrapper {
@@ -14,56 +16,6 @@
   align-self: flex-start;
 }
 
-.Root {
-  --width: 320px;
-  --duration: 1000ms;
-
-  width: var(--width);
-
-  & + .Root {
-    margin-top: 2rem;
-  }
-}
-
-.Trigger {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  background-color: var(--color-gray-200);
-  color: var(--color-gray-900);
-
-  &[data-panel-open] .Icon {
-    transform: rotate(90deg);
-  }
-}
-
-.Icon {
-  width: 0.75rem;
-  height: 0.75rem;
-}
-
-.Panel {
-  overflow: hidden;
-  box-sizing: border-box;
-  width: 100%;
-  height: auto;
-  /*  height: var(--collapsible-panel-height); */
-}
-
-.Content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  background-color: var(--color-gray-200);
-  cursor: text;
-
-  & p {
-    overflow-wrap: break-word;
-  }
+.nativeButton {
+  all: revert;
 }

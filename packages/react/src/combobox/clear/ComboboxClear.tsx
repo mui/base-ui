@@ -72,6 +72,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const state: ComboboxClearState = {
     disabled,
+    visible,
     open,
     transitionStatus,
   };
@@ -152,6 +153,10 @@ export interface ComboboxClearState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the clear button should be visible.
+   */
+  visible: boolean;
   /**
    * The transition status of the component.
    */

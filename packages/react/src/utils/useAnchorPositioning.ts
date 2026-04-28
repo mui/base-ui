@@ -343,10 +343,10 @@ export function useAnchorPositioning(
       },
     }),
     arrow(
-      () => ({
+      (state) => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
-        element: arrowRef.current || ownerDocument(arrowRef.current).createElement('div'),
+        element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
         padding: arrowPadding,
         offsetParent: 'floating',
       }),
@@ -507,11 +507,9 @@ export function useAnchorPositioning(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
-  /**
-   * Locks the flip (makes it "sticky") so it doesn't prefer a given placement
-   * and flips back lazily, not eagerly. Ideal for filtered lists that change
-   * the size of the popup dynamically to avoid unwanted flipping when typing.
-   */
+  // Locks the flip (makes it "sticky") so it doesn't prefer a given placement
+  // and flips back lazily, not eagerly. Ideal for filtered lists that change
+  // the size of the popup dynamically to avoid unwanted flipping when typing.
   useIsoLayoutEffect(() => {
     if (lazyFlip && mounted && isPositioned) {
       setMountSide(renderedSide);

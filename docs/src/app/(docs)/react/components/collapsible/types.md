@@ -33,6 +33,7 @@ type CollapsibleRootState = {
   open: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  transitionStatus: TransitionStatus;
 };
 ```
 
@@ -94,6 +95,7 @@ type CollapsibleTriggerState = {
   open: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  transitionStatus: TransitionStatus;
 };
 ```
 

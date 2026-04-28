@@ -309,6 +309,77 @@ describe('<Dialog.Popup />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('display: contents ancestors', () => {
+    it('keeps initial focus working when the popup is wrapped by a display: contents ancestor', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="outside-before">Outside before</button>
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <form style={{ display: 'contents' }}>
+                <Dialog.Popup data-testid="dialog-popup">
+                  <input data-testid="dialog-input" />
+                  <button type="button">Close</button>
+                </Dialog.Popup>
+              </form>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <button data-testid="outside-after">Outside after</button>
+        </div>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog-input')).toHaveFocus();
+      });
+    });
+
+    it('keeps trap-focus tab cycling inside the popup when wrapped by a display: contents ancestor', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="outside-before">Outside before</button>
+          <Dialog.Root defaultOpen modal="trap-focus">
+            <Dialog.Portal>
+              <form style={{ display: 'contents' }}>
+                <Dialog.Popup data-testid="dialog-popup">
+                  <input data-testid="first-input" />
+                  <button type="button" data-testid="second-button">
+                    Second
+                  </button>
+                </Dialog.Popup>
+              </form>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <button data-testid="outside-after">Outside after</button>
+        </div>,
+      );
+
+      const popup = screen.getByTestId('dialog-popup');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('first-input')).toHaveFocus();
+      });
+
+      await user.keyboard('[Tab]');
+      expect(screen.getByTestId('second-button')).toHaveFocus();
+
+      await user.keyboard('[Tab]');
+      await waitFor(() => {
+        expect(screen.getByTestId('first-input')).toHaveFocus();
+      });
+      expect(screen.getByTestId('outside-before')).not.toHaveFocus();
+      expect(screen.getByTestId('outside-after')).not.toHaveFocus();
+
+      await user.keyboard('[ShiftLeft>][Tab][/ShiftLeft]');
+      await waitFor(() => {
+        expect(screen.getByTestId('second-button')).toHaveFocus();
+      });
+      expect(popup.contains(document.activeElement)).toBe(true);
+    });
+  });
+
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
       const { user } = await render(
