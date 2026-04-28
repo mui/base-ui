@@ -13,7 +13,10 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  type BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -330,18 +333,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       reason = REASONS.disabled;
     }
 
-    // Keep automatic details intentionally non-cancelable. They preserve the
-    // public event shape without creating the generic cancellable state.
-    const eventDetails = {
-      reason,
-      event: new Event('base-ui'),
-      cancel: NOOP,
-      allowPropagation: NOOP,
-      isCanceled: false,
-      isPropagationAllowed: false,
-      trigger: undefined,
-      activationDirection: 'none',
-    } as TabsRoot.ChangeEventDetails;
+    const eventDetails = createChangeEventDetails(reason, undefined, undefined, {
+      activationDirection: 'none' as const,
+    });
+    eventDetails.cancel = NOOP;
+    eventDetails.allowPropagation = NOOP;
 
     // Notify the user's callback directly, bypassing the standard onValueChange
     // (which would recompute activationDirection). Automatic selections are not
