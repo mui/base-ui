@@ -1157,7 +1157,7 @@ describe('<Tabs.Root />', () => {
       expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
     });
 
-    it('calls onValueChange with "missing" reason when tabs are reordered and selection becomes invalid', async () => {
+    it('calls onValueChange with "missing" reason when the selected tab is removed from a mapped list', async () => {
       const handleChange = vi.fn();
 
       function TestComponent({ includeFirstTab }: { includeFirstTab: boolean }) {
