@@ -27,7 +27,7 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
+export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {

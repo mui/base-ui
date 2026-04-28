@@ -71,7 +71,7 @@ export interface ToastObject<Data extends object> {
    */
   updateKey?: number | undefined;
   /**
-   * Determines if the toast was closed due to the limit being reached.
+   * Determines if the toast was limited because the toast limit was exceeded.
    */
   limited?: boolean | undefined;
   /**

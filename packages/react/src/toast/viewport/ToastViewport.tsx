@@ -43,6 +43,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     () => toasts.some((toast) => toast.transitionStatus === 'ending'),
     [toasts],
   );
+  const highPriorityToasts = React.useMemo(
+    () => toasts.filter((toast) => toast.priority === 'high'),
+    [toasts],
+  );
 
   // Listen globally for F6 so we can force-focus the viewport.
   React.useEffect(() => {
@@ -286,11 +290,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       },
     ],
   });
-
-  const highPriorityToasts = React.useMemo(
-    () => toasts.filter((toast) => toast.priority === 'high'),
-    [toasts],
-  );
 
   return (
     <React.Fragment>

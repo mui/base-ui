@@ -44,7 +44,7 @@ describe('<Menu.Root />', () => {
   });
 
   // All these tests run for contained and detached triggers.
-  // The rendered menubar has the same structure in most cases.
+  // The rendered menu has the same structure in most cases.
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerMenu },
     { name: 'detached triggers', Component: DetachedTriggerMenu },

@@ -4,6 +4,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { Separator, type SeparatorState } from '../../separator';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
+
 /**
  * A separator element accessible to screen readers.
  * Renders a `<div>` element.

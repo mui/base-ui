@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
@@ -75,11 +74,10 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     [disabled, highlighted, checked],
   );
 
-  const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = {
-      ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
-      preventUnmountOnClose: () => {},
-    };
+  function handleClick(event: React.MouseEvent) {
+    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
+      preventUnmountOnClose() {},
+    });
 
     onCheckedChange?.(!checked, details);
 
@@ -88,7 +86,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     }
 
     setChecked((currentlyChecked) => !currentlyChecked);
-  });
+  }
 
   const element = useRenderElement('div', componentProps, {
     state,

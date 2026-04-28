@@ -9,8 +9,8 @@ import type { FieldValidityData } from '../../field/root/FieldRoot';
 
 export interface FieldControlRegistration {
   controlRef: React.RefObject<any>;
-  getValue?: (() => unknown) | undefined;
   id: string | undefined;
+  getValue?: (() => unknown) | undefined;
   value: unknown;
 }
 
@@ -23,7 +23,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   const registrationRef = React.useRef<FieldControlRegistration | null>(null);
   const fallbackControlRef = React.useRef<any>(null);
 
-  const getValue = useStableCallback(() => {
+  const getValueForForm = useStableCallback(() => {
     const registration = registrationRef.current;
     if (!registration) {
       return undefined;
@@ -44,7 +44,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 
     let nextValue = registration.value;
     if (nextValue === undefined) {
-      nextValue = getValue();
+      nextValue = getValueForForm();
     }
 
     markedDirtyRef.current = true;
@@ -64,7 +64,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     }
 
     formRef.current.fields.set(registration.id, {
-      getValue,
+      getValue: getValueForForm,
       name,
       controlRef: registration.controlRef ?? fallbackControlRef,
       validityData: getCombinedFieldValidityData(validityData, invalid),
@@ -86,7 +86,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 
     let initialValue = registration.value;
     if (initialValue === undefined) {
-      initialValue = getValue();
+      initialValue = getValueForForm();
     }
 
     if (validityData.initialValue === null && initialValue !== null) {
@@ -101,13 +101,13 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     }
 
     formRef.current.fields.set(registration.id, {
-      getValue,
+      getValue: getValueForForm,
       name,
       controlRef: registration.controlRef ?? fallbackControlRef,
       validityData: getCombinedFieldValidityData(validityData, invalid),
       validate,
     });
-  }, [formRef, getValue, invalid, name, validate, validityData]);
+  }, [formRef, getValueForForm, invalid, name, validate, validityData]);
 
   useIsoLayoutEffect(() => {
     const fields = formRef.current.fields;
