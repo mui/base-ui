@@ -351,6 +351,32 @@ describe('<Tabs.Root />', () => {
       expect(tabs[2]).toHaveAttribute('aria-selected', 'false');
     });
 
+    it('does not defer the selected panel when an explicit defaultValue points to a disabled tab', async () => {
+      const panelRenderMock = vi.fn();
+
+      await render(
+        <Tabs.Root defaultValue={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel
+            value={0}
+            render={(props, state) => {
+              panelRenderMock(state);
+              return <div {...props}>Panel 0</div>;
+            }}
+          />
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      expect(panelRenderMock.mock.calls[0][0]).toEqual(expect.objectContaining({ hidden: false }));
+      expect(screen.getByRole('tabpanel')).toHaveTextContent('Panel 0');
+    });
+
     it('should still honor explicit value prop even if it points to a disabled tab', async () => {
       await render(
         <Tabs.Root value={0}>
@@ -560,6 +586,38 @@ describe('<Tabs.Root />', () => {
         expect(handleChange.mock.calls[0][1].reason).toBe('missing');
         expect(screen.queryByRole('tabpanel')).toBe(null);
       });
+    });
+
+    it('does not clear selection while the tab list is being re-keyed', async () => {
+      const handleChange = vi.fn();
+
+      function TestComponent({ listKey }: { listKey: string }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List key={listKey}>
+              <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+            <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent listKey="a" />);
+
+      expect(screen.getByRole('tabpanel')).toHaveTextContent('Panel 0');
+
+      handleChange.mockClear();
+      await setProps({ listKey: 'b' });
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        const tabs = screen.getAllByRole('tab');
+        expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+        expect(screen.getByRole('tabpanel')).toHaveTextContent('Panel 0');
+      });
+      expect(handleChange.mock.calls.length).toBe(0);
     });
 
     it('preserves explicit defaultValue when tabs mount after an initial no-tab render', async () => {

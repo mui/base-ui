@@ -35,7 +35,7 @@ export interface TabsRootContext {
    */
   getTabPanelIdByValue: (tabValue: TabsTab.Value) => string | undefined;
   /**
-   * Enabled tabs rendered earlier in the current render pass.
+   * Tabs rendered earlier in the current render pass.
    */
   renderedTabsRef: React.RefObject<TabsTab.Value[] | null>;
   registerMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;

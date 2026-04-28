@@ -63,8 +63,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   const renderedTabsRef = React.useRef<TabsTab.Value[] | null>(null);
-  // Reset before children render; enabled Tabs append to this ref during the
-  // same render pass so Panels rendered later can see that a tab exists.
+  // Reset before children render; Tabs append to this ref during the same render
+  // pass so Panels and fallback effects can see that a tab exists before tabMap
+  // has been published.
   renderedTabsRef.current = null;
 
   const isHydrating = useIsHydrating();
@@ -285,9 +286,13 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       hasRegisteredTabRef.current = true;
     }
 
-    // If no tabs have ever registered, defer automatic fallback. This preserves
-    // explicit selections while tabs are conditionally rendered later.
-    if (isControlled || (tabMap.size === 0 && !hasRegisteredTabRef.current)) {
+    // If no tabs have ever registered, defer automatic fallback. If tabs rendered
+    // in this pass but tabMap is empty, a list remount or initial registration is
+    // still settling, so wait for the real map before deciding what's missing.
+    if (
+      isControlled ||
+      (tabMap.size === 0 && (!hasRegisteredTabRef.current || renderedTabsRef.current != null))
+    ) {
       return;
     }
 

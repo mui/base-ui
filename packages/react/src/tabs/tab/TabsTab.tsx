@@ -58,13 +58,11 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
   // Panels usually render after their tabs, before CompositeList has published
   // tabMap. This render-pass hint lets the selected panel mount immediately.
-  if (!disabled) {
-    const renderedTabs = renderedTabsRef.current;
-    if (renderedTabs == null) {
-      renderedTabsRef.current = [value];
-    } else {
-      renderedTabs.push(value);
-    }
+  const renderedTabs = renderedTabsRef.current;
+  if (renderedTabs == null) {
+    renderedTabsRef.current = [value];
+  } else {
+    renderedTabs.push(value);
   }
 
   const {

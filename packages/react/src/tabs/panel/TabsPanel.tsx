@@ -60,10 +60,10 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
 
   const correspondingTabId = getTabIdByPanelValue(value);
   // Before tabMap is available, getTabIdByPanelValue returns `undefined` for
-  // enabled tabs rendered earlier in the same pass. That keeps normal
-  // client-only mounts open. Once registration has settled, uncontrolled panels
-  // must still have a corresponding tab — opening one without a matching tab can
-  // otherwise cause a remount loop.
+  // tabs rendered earlier in the same pass. That keeps normal client-only mounts
+  // open. Once registration has settled, uncontrolled panels must still have a
+  // corresponding tab — opening one without a matching tab can otherwise cause a
+  // remount loop.
   // Controlled roots keep visibility owned by the `value` prop.
   // `undefined` is still allowed because the tab may exist before its id does.
   const open =
