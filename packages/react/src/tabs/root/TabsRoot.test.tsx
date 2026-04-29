@@ -567,6 +567,32 @@ describe('<Tabs.Root />', () => {
       expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
     });
 
+    it('calls onValueChange with null when all tabs are initially disabled', async () => {
+      const handleChange = vi.fn();
+
+      await render(
+        <Tabs.Root onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} disabled>
+              Tab 1
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(handleChange.mock.calls[0][0]).toBe(null);
+      expect(handleChange.mock.calls[0][1].reason).toBe('initial');
+      expect(handleChange.mock.calls[0][1].activationDirection).toBe('none');
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
+    });
+
     it('does not call onValueChange on initial render when defaultValue is provided', async () => {
       const handleChange = vi.fn();
 
@@ -1611,6 +1637,32 @@ describe('<Tabs.Root />', () => {
         expect.objectContaining({ value: 0, tabActivationDirection: 'up' }),
       );
       expect(root).toHaveAttribute('data-activation-direction', 'up');
+    });
+
+    it('keeps activation direction none after automatic disabled fallback', async () => {
+      function TestComponent({ disableFirst }: { disableFirst: boolean }) {
+        return (
+          <Tabs.Root data-testid="root" defaultValue={0}>
+            <Tabs.List>
+              <Tabs.Tab value={0} disabled={disableFirst}>
+                Tab 0
+              </Tabs.Tab>
+              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+            <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent disableFirst={false} />);
+
+      await setProps({ disableFirst: true });
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('tab')[1]).toHaveAttribute('aria-selected', 'true');
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-activation-direction', 'none');
     });
 
     it('should update `data-activation-direction` on programmatic change after a canceled click', async () => {

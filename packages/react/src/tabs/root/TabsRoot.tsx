@@ -289,16 +289,18 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
     if (!shouldNotifyInitialValueChange) {
       notifyValueChange(fallbackValue, selectionIsDisabled ? REASONS.disabled : REASONS.missing);
+    } else if (firstEnabledTabValue === undefined) {
+      notifyValueChange(fallbackValue, REASONS.initial);
     }
 
     setValue(fallbackValue);
     setActivationDirectionState((prev) => {
-      if (prev.tabActivationDirection === 'none') {
+      if (prev.previousValue === fallbackValue && prev.tabActivationDirection === 'none') {
         return prev;
       }
 
       return {
-        ...prev,
+        previousValue: fallbackValue,
         tabActivationDirection: 'none',
       };
     });
