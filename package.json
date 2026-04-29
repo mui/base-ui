@@ -27,7 +27,9 @@
     "eslint": "pnpm -r lint && eslint . --cache --report-unused-disable-directives --max-warnings 0",
     "eslint:ci": "pnpm -r lint && eslint . --report-unused-disable-directives --max-warnings 0",
     "stylelint": "stylelint --reportInvalidScopeDisables --reportNeedlessDisables \"docs/**/*.{js,ts,tsx}\" \"**/*.css\" --ignore-path .lintignore",
-    "valelint": "pnpm dlx --package @vvago/vale vale sync && git ls-files | grep -E \"\\.(md|mdx)$\" | xargs pnpm dlx --package @vvago/vale vale --filter='.Level==\"error\"'",
+    "markdownlint": "markdownlint-cli2 \"**/*.{md,mdx}\"",
+    "vale:fix": "pnpm valelint --auto-fix all",
+    "valelint": "pnpm code-infra vale sync --vale-version $npm_package_config_valeVersion && git ls-files | grep -E \"\\.(md|mdx)$\" | xargs pnpm code-infra vale --vale-version $npm_package_config_valeVersion --filter='.Level==\"error\"'",
     "prettier": "pretty-quick --ignore-path .lintignore --branch master",
     "prettier:all": "prettier --write . --ignore-path .lintignore",
     "size:snapshot": "pnpm -F ./test/bundle-size check",
@@ -64,7 +66,7 @@
     "@arethetypeswrong/cli": "0.18.2",
     "@babel/plugin-transform-react-constant-elements": "7.27.1",
     "@base-ui/monorepo-tests": "workspace:*",
-    "@mui/internal-code-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@4483933",
+    "@mui/internal-code-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@c254e57",
     "@mui/internal-netlify-cache": "0.0.3-canary.5",
     "@mui/internal-test-utils": "2.0.18-canary.20",
     "@next/eslint-plugin-next": "16.1.6",
@@ -104,6 +106,9 @@
     "typescript": "6.0.3",
     "vite": "8.0.10",
     "vitest": "4.1.5"
+  },
+  "config": {
+    "valeVersion": "3.14.1"
   },
   "packageManager": "pnpm@10.33.2",
   "engines": {
