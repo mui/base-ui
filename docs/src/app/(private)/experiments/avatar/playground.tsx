@@ -433,9 +433,9 @@ function ExpectedSequences({
   return (
     <div className={styles.expected}>
       <span className={styles.expectedLabel}>Expected</span>
-      <ExpectedList label="first mount" sequence={first} />
+      <ExpectedList label="cache cold" sequence={first} />
       {subsequent !== undefined && (
-        <ExpectedList label="after Remount" sequence={subsequent} />
+        <ExpectedList label="cache warm" sequence={subsequent} />
       )}
     </div>
   );

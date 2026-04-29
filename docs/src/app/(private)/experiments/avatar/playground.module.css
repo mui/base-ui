@@ -174,18 +174,19 @@
   width: 100%;
   transition:
     opacity 220ms ease,
-    filter 220ms ease,
-    transform 220ms ease;
+    filter 220ms ease;
+  filter: blur(0px);
+  opacity: 1;
 }
 
 .avatarImage[data-error] {
   filter: blur(10px);
   opacity: 0;
-  transform: scale(0.96);
+
   /* Hide the broken-image glyph and unstyled bitmap. `visibility: hidden` keeps the element in
      the layout tree (so `loading="lazy"`'s IntersectionObserver still works) and visibility flips
      are binary, so no transition mid-state can briefly reveal the glyph. */
-  visibility: hidden;
+  /* visibility: hidden; */
 }
 
 .avatarFallback {
