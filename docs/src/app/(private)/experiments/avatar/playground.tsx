@@ -585,6 +585,14 @@ function StatusReadout({
   currentSrc?: string;
 }) {
   const latest = entries[entries.length - 1];
+  const startedAt = entries[0]?.at;
+  const getDelta = (entry: StatusEntry) => {
+    if (startedAt == null) {
+      return 0;
+    }
+    return entry.at - startedAt;
+  };
+
   return (
     <div className={styles.readout}>
       <div className={styles.readoutCurrent}>
@@ -599,6 +607,7 @@ function StatusReadout({
             <li key={`${entry.at}-${index}`} className={styles.logEntry}>
               <span className={styles.logIndex}>{index + 1}.</span>
               <StatusBadge status={entry.status} small />
+              <span className={styles.logTimestamp}>+{getDelta(entry)}ms</span>
             </li>
           ))
         )}

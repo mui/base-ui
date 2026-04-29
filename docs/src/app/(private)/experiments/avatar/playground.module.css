@@ -346,6 +346,13 @@
   min-width: 18px;
 }
 
+.logTimestamp {
+  color: var(--color-gray-600);
+  font-feature-settings: 'tnum';
+  font-size: 11px;
+  margin-left: auto;
+}
+
 .expected {
   background: var(--color-gray-50);
   border: 1px dashed var(--color-gray-300);
