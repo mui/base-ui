@@ -83,7 +83,9 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps
-      - code-infra/run-linters
+      - code-infra/eslint
+      - code-infra/stylelint
+      - code-infra/valelint
   test_static:
     <<: *default-job
     steps:
