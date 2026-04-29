@@ -877,6 +877,36 @@ describe('<Tabs.Root />', () => {
       expect(tabs[0]).toHaveTextContent('Tab 1');
     });
 
+    it('calls onValueChange with null when the selected tab is removed and no tabs remain', async () => {
+      const handleChange = vi.fn();
+
+      function TestComponent({ showTab }: { showTab: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List>{showTab && <Tabs.Tab value={0}>Tab 0</Tabs.Tab>}</Tabs.List>
+            <Tabs.Panel value={0} keepMounted>
+              Panel 0
+            </Tabs.Panel>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent showTab />);
+
+      expect(screen.getByRole('tabpanel')).not.toHaveAttribute('hidden');
+
+      await setProps({ showTab: false });
+
+      await waitFor(() => {
+        expect(handleChange.mock.calls.length).toBe(1);
+        expect(handleChange.mock.calls[0][0]).toBe(null);
+        expect(handleChange.mock.calls[0][1].reason).toBe('missing');
+      });
+
+      expect(screen.queryAllByRole('tab').length).toBe(0);
+      expect(screen.getByRole('tabpanel', { hidden: true })).toHaveAttribute('hidden');
+    });
+
     it('calls onValueChange when an explicit defaultValue points at a tab that is never present', async () => {
       const handleChange = vi.fn();
 

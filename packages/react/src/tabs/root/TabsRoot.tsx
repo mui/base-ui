@@ -246,13 +246,49 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // An explicit defaultValue can intentionally point at a disabled tab on mount.
   // Once that selection becomes valid, later disabled states should fall back.
   const shouldHonorDisabledDefaultValueRef = React.useRef(hasExplicitDefaultValueProp);
+  const didRegisterTabsRef = React.useRef(false);
 
   // Uncontrolled roots own automatic fallback. Controlled roots keep the exact
   // value supplied by the parent, even when that tab is disabled or missing.
   useIsoLayoutEffect(() => {
-    if (isControlled || tabMap.size === 0) {
+    if (isControlled) {
       return;
     }
+
+    function commitAutomaticValueChange(
+      fallbackValue: TabsTab.Value,
+      fallbackReason: TabsRoot.ChangeEventReason,
+    ) {
+      setValue(fallbackValue);
+      // Automatic fallbacks are not directional transitions; reset the direction
+      // alongside the value so the batched commit keeps both in sync.
+      setActivationDirectionState((prev) => {
+        if (prev.previousValue === fallbackValue && prev.tabActivationDirection === 'none') {
+          return prev;
+        }
+
+        return {
+          previousValue: fallbackValue,
+          tabActivationDirection: 'none',
+        };
+      });
+      notifyAutomaticValueChange(fallbackValue, fallbackReason);
+      // Mark the initial notification as delivered only after the consumer
+      // callback returns. The fallback value is queued first so automatic
+      // consistency updates are not cancelable through a throwing handler.
+      shouldNotifyInitialValueChangeRef.current = false;
+    }
+
+    if (tabMap.size === 0) {
+      if (!didRegisterTabsRef.current || value === null) {
+        return;
+      }
+
+      commitAutomaticValueChange(null, REASONS.missing);
+      return;
+    }
+
+    didRegisterTabsRef.current = true;
 
     const selectionIsDisabled = selectedTabMetadata?.disabled;
     const selectionIsMissing = selectedTabMetadata == null && value !== null;
@@ -289,23 +325,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         fallbackReason = REASONS.disabled;
       }
 
-      setValue(fallbackValue);
-      // Automatic fallbacks are not directional transitions; reset the direction
-      // alongside the value so the batched commit keeps both in sync.
-      setActivationDirectionState((prev) => {
-        if (prev.previousValue === fallbackValue && prev.tabActivationDirection === 'none') {
-          return prev;
-        }
-
-        return {
-          previousValue: fallbackValue,
-          tabActivationDirection: 'none',
-        };
-      });
-      notifyAutomaticValueChange(fallbackValue, fallbackReason);
-      // Flip after the consumer call so a throwing handler retries on the next
-      // render rather than silently swallowing the missed notification.
-      shouldNotifyInitialValueChangeRef.current = false;
+      commitAutomaticValueChange(fallbackValue, fallbackReason);
       return;
     }
 
@@ -445,14 +465,17 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * Callback invoked when new value is being set.
    *
    * The event `reason` is `'none'` for user-initiated changes, such as a click
-   * or keyboard navigation; `'initial'` for the implicit automatic selection or
-   * initial fallback in uncontrolled roots when `defaultValue` is omitted or
-   * `undefined` (the selected value can be `null` if every tab is disabled at
-   * mount or the implicit default never matches a mounted tab);
-   * `'disabled'` for automatic fallback when the selected tab becomes disabled
-   * in uncontrolled roots; or `'missing'` for automatic fallback when the
-   * selected tab is removed, or when an explicit `defaultValue` never matches a
-   * mounted tab in uncontrolled roots.
+   * or keyboard navigation; `'initial'` for the first automatic selection or
+   * fallback in uncontrolled roots when `defaultValue` is omitted or
+   * `undefined`, including when the implicit initial value is disabled or
+   * missing; `'disabled'` for automatic fallback when the selected tab becomes
+   * disabled in uncontrolled roots; or `'missing'` for automatic fallback when
+   * the selected tab is removed, or when an explicit `defaultValue` never
+   * matches a mounted tab in uncontrolled roots.
+   *
+   * For automatic changes, the selected value can be `null` when no enabled Tab
+   * is available as a fallback.
+   *
    * Automatic changes cannot be canceled; calling `eventDetails.cancel()` for
    * `'initial'`, `'disabled'`, or `'missing'` has no effect.
    */
