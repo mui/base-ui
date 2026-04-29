@@ -2678,41 +2678,69 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveValue('');
     });
 
-    it('does not close popup when filtering with input inside popup in multiple mode', async () => {
-      const items = ['apple', 'apricot', 'banana'];
-      const { user } = await render(
-        <Combobox.Root multiple items={items}>
-          <Combobox.Trigger data-testid="trigger">
-            <Combobox.Value />
-          </Combobox.Trigger>
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.Input data-testid="input" />
-                <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item key={item} value={item}>
-                      {item}
-                    </Combobox.Item>
-                  )}
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
+    describe('prop: keepFilterText', () => {
+      it('keeps the popup open and preserves the query in multiple mode when the input is outside the popup', async () => {
+        const { user } = await render(
+          <Combobox.Root defaultOpen multiple keepFilterText>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="apple">apple</Combobox.Item>
+                    <Combobox.Item value="banana">banana</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
 
-      const trigger = screen.getByTestId('trigger');
-      await user.click(trigger);
+        const input = screen.getByTestId('input');
 
-      const input = await screen.findByTestId('input');
-      await user.type(input, 'app');
-      await user.click(screen.getByRole('option', { name: 'apple' }));
+        await user.type(input, 'app');
+        await flushMicrotasks();
+        await user.click(screen.getByRole('option', { name: 'apple' }));
+        await flushMicrotasks();
 
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBe(null);
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).not.toBe(null);
+        });
+
+        expect(input).toHaveValue('app');
       });
-      expect(input).toHaveValue('');
+
+      it('keeps the popup open and preserves the query in multiple mode when the input is inside the popup', async () => {
+        const { user } = await render(
+          <Combobox.Root defaultOpen multiple keepFilterText>
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input data-testid="input" />
+                  <Combobox.List>
+                    <Combobox.Item value="apple">apple</Combobox.Item>
+                    <Combobox.Item value="banana">banana</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        await user.type(input, 'app');
+        await flushMicrotasks();
+        await user.click(screen.getByRole('option', { name: 'apple' }));
+        await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).not.toBe(null);
+        });
+
+        expect(input).toHaveValue('app');
+      });
     });
 
     it('"multiple" clears typed input on close when no selection made', async () => {
