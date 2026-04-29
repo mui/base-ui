@@ -208,6 +208,18 @@ describe('<ToggleGroup />', () => {
       const group = screen.queryByRole('group');
       expect(group).toHaveAttribute('data-orientation', 'vertical');
     });
+
+    it('does not render aria-orientation on role="group"', async () => {
+      await render(
+        <ToggleGroup orientation="horizontal">
+          <Toggle value="one" />
+          <Toggle value="two" />
+        </ToggleGroup>,
+      );
+
+      const group = screen.queryByRole('group');
+      expect(group).not.toHaveAttribute('aria-orientation');
+    });
   });
 
   describe('prop: multiple', () => {
