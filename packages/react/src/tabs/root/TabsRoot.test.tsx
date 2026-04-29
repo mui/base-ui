@@ -536,6 +536,7 @@ describe('<Tabs.Root />', () => {
 
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.calls[0][0]).toBe(0);
+      expect(handleChange.mock.calls[0][1].reason).toBe('initial');
       expect(handleChange.mock.calls[0][1].activationDirection).toBe('none');
 
       const tabs = screen.getAllByRole('tab');
@@ -559,6 +560,7 @@ describe('<Tabs.Root />', () => {
 
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.calls[0][0]).toBe(1);
+      expect(handleChange.mock.calls[0][1].reason).toBe('initial');
       expect(handleChange.mock.calls[0][1].activationDirection).toBe('none');
 
       const tabs = screen.getAllByRole('tab');
@@ -601,6 +603,7 @@ describe('<Tabs.Root />', () => {
 
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.calls[0][0]).toBe(1);
+      expect(handleChange.mock.calls[0][1].reason).toBe('initial');
       expect(handleChange.mock.calls[0][1].activationDirection).toBe('none');
 
       const tabs = screen.getAllByRole('tab');
@@ -632,6 +635,7 @@ describe('<Tabs.Root />', () => {
       await waitFor(() => {
         expect(handleChange.mock.calls.length).toBe(1);
         expect(handleChange.mock.calls[0][0]).toBe(1);
+        expect(handleChange.mock.calls[0][1].reason).toBe('disabled');
         expect(handleChange.mock.calls[0][1].activationDirection).toBe('none');
       });
 
@@ -662,6 +666,7 @@ describe('<Tabs.Root />', () => {
       await waitFor(() => {
         expect(handleChange.mock.calls.length).toBe(1);
         expect(handleChange.mock.calls[0][0]).toBe(1);
+        expect(handleChange.mock.calls[0][1].reason).toBe('missing');
       });
 
       const tabs = screen.getAllByRole('tab');
