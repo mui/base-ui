@@ -131,6 +131,10 @@ describe('<Avatar.Fallback />', () => {
     const DATA_URI =
       'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
+    // 1x1 transparent GIF — distinct cacheable src for the "switch between cached images" test.
+    const DATA_URI_GIF =
+      'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
     afterEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
     });
@@ -182,6 +186,65 @@ describe('<Avatar.Fallback />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('fallback')).toBe(null);
       });
+    });
+
+    // Regression: when `src` switches between two browser-cached images, the cache fast-path
+    // settles the new bitmap to `'loaded'` synchronously inside a layout effect. If the lifted
+    // status in `Avatar.Root` is gated behind the same dedupe/suppression as the public
+    // `onLoadingStatusChange` callback, the lifted status never updates (last fired status was
+    // `'loaded'` from the previous src, so the new `'loaded'` is short-circuited) — and
+    // `Avatar.Fallback` keeps the stale `enabled=true` from the brief `'loading'` frame that
+    // happened during the parent's re-render. The fallback then sits on top of the freshly
+    // loaded image until something else forces a re-render.
+    it('hides fallback after switching between two browser-cached images', async () => {
+      await Promise.all(
+        [DATA_URI, DATA_URI_GIF].map(
+          (src) =>
+            new Promise<void>((resolve, reject) => {
+              const img = new window.Image();
+              img.onload = () => resolve();
+              img.onerror = () => reject(new Error(`Failed to preload ${src}`));
+              img.src = src;
+            }),
+        ),
+      );
+
+      function Test() {
+        const [which, setWhich] = React.useState<'a' | 'b'>('a');
+
+        return (
+          <div>
+            <button onClick={() => setWhich((prev) => (prev === 'a' ? 'b' : 'a'))}>
+              Switch
+            </button>
+            <Avatar.Root>
+              <Avatar.Image
+                data-testid="image"
+                src={which === 'a' ? DATA_URI : DATA_URI_GIF}
+              />
+              <Avatar.Fallback data-testid="fallback">AC</Avatar.Fallback>
+            </Avatar.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('fallback')).toBe(null);
+        expect(screen.getByTestId('image')).toBeVisible();
+      });
+
+      await user.click(screen.getByText('Switch'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).toHaveAttribute('src', DATA_URI_GIF);
+      });
+
+      // The cache fast-path runs in a layout effect, so the fallback should be unmounted by
+      // the time the new src is committed — not stuck visible until something forces another
+      // render.
+      expect(screen.queryByTestId('fallback')).toBe(null);
     });
   });
 });

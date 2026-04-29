@@ -175,9 +175,24 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
    */
   const intrinsicDecodePending = !isVisible && transitionStatus !== 'ending';
 
+  const setLiftedImageLoadingStatus = context.setImageLoadingStatus;
+
+  /**
+   * Always mirror the local status into `Avatar.Root`'s lifted state so `Avatar.Fallback`
+   * re-renders whenever the bitmap state changes — including the transient `'loading'` frame
+   * for cached `src` swaps. The transient ref short-circuits Fallback's render decision to
+   * the up-to-date status, but Fallback only consults it when it actually re-renders, and a
+   * re-render only happens when the context value (i.e. lifted state) flips. Coupling this
+   * to the consumer callback's dedupe/suppression caused stuck-fallback bugs on cached →
+   * cached swaps where the lifted status was already `'loaded'` (last fired value).
+   * `setState` to the same value is a cheap no-op, so unconditional sync is safe.
+   */
+  useIsoLayoutEffect(() => {
+    setLiftedImageLoadingStatus(imageLoadingStatus);
+  }, [imageLoadingStatus, setLiftedImageLoadingStatus]);
+
   const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
-    context.setImageLoadingStatus(status);
   });
 
   /**
