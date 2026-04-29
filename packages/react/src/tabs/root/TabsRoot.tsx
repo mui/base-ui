@@ -445,12 +445,14 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * Callback invoked when new value is being set.
    *
    * The event `reason` is `'none'` for user-initiated changes, such as a click
-   * or keyboard navigation; `'initial'` for the implicit automatic selection in
-   * uncontrolled roots when `defaultValue` is omitted or `undefined` (the
-   * selected value can be `null` if every tab is disabled at mount);
+   * or keyboard navigation; `'initial'` for the implicit automatic selection or
+   * initial fallback in uncontrolled roots when `defaultValue` is omitted or
+   * `undefined` (the selected value can be `null` if every tab is disabled at
+   * mount or the implicit default never matches a mounted tab);
    * `'disabled'` for automatic fallback when the selected tab becomes disabled
    * in uncontrolled roots; or `'missing'` for automatic fallback when the
-   * selected tab is removed or never present in uncontrolled roots.
+   * selected tab is removed, or when an explicit `defaultValue` never matches a
+   * mounted tab in uncontrolled roots.
    * Automatic changes cannot be canceled; calling `eventDetails.cancel()` for
    * `'initial'`, `'disabled'`, or `'missing'` has no effect.
    */
