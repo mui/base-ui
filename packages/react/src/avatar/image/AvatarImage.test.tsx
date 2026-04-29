@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
-import { screen, fireEvent, waitFor } from '@mui/internal-test-utils';
+import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 /**
@@ -41,6 +41,10 @@ function mockCachedImageLoading({ naturalWidth = 100 } = {}) {
     window.Image = OriginalImage;
   };
 }
+
+// 1x1 transparent PNG — usable as an `<img src>` that actually loads in real browsers.
+const DATA_URI =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
 describe('<Avatar.Image />', () => {
   const { render, renderToString } = createRenderer();
@@ -103,7 +107,7 @@ describe('<Avatar.Image />', () => {
                 className="animation-test-image"
                 data-testid="image"
                 onTransitionEnd={notifyTransitionFinished}
-                src={showImage ? 'avatar.png' : undefined}
+                src={showImage ? DATA_URI : undefined}
               />
             </Avatar.Root>
           </div>
@@ -153,7 +157,7 @@ describe('<Avatar.Image />', () => {
               <Avatar.Image
                 className="animation-test-image"
                 data-testid="image"
-                src={showImage ? 'avatar.png' : undefined}
+                src={showImage ? DATA_URI : undefined}
               />
             </Avatar.Root>
           </div>
@@ -161,7 +165,11 @@ describe('<Avatar.Image />', () => {
       }
 
       const { user } = await render(<Test />);
-      expect(screen.getByTestId('image')).not.toBe(null);
+
+      // Wait for the data URI to actually load so the img is mounted (not still hidden in `loading`).
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).not.toHaveAttribute('hidden');
+      });
 
       await user.click(screen.getByText('Hide image'));
 
@@ -178,10 +186,6 @@ describe('<Avatar.Image />', () => {
   });
 
   describe.skipIf(isJSDOM)('cached images', () => {
-    // 1x1 transparent PNG
-    const DATA_URI =
-      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-
     it('does not flash fallback for a cached image during SSR hydration', async () => {
       // Restore real Image so this test exercises actual browser caching
       restoreImage();
@@ -215,6 +219,60 @@ describe('<Avatar.Image />', () => {
 
       expect(screen.getByRole('img')).toHaveAttribute('src', DATA_URI);
       expect(screen.queryByText('JD')).toBe(null);
+    });
+
+    it('does not apply [data-starting-style] for a cached image', async () => {
+      // Restore real Image so this test exercises actual browser caching
+      restoreImage();
+
+      // Pre-load so `img.complete` is true synchronously when AvatarImage mounts —
+      // exercises the cache fast-path that should suppress the entry transition.
+      await new Promise<void>((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Failed to preload test image'));
+        img.src = DATA_URI;
+      });
+
+      let transitionFired = false;
+      function notifyTransitionFired() {
+        transitionFired = true;
+      }
+
+      const style = `
+        .cached-no-anim {
+          transition: opacity 1ms;
+        }
+        .cached-no-anim[data-starting-style],
+        .cached-no-anim[data-ending-style] {
+          opacity: 0;
+        }
+      `;
+
+      await render(
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Avatar.Root>
+            <Avatar.Image
+              className="cached-no-anim"
+              data-testid="image"
+              onTransitionEnd={notifyTransitionFired}
+              src={DATA_URI}
+            />
+          </Avatar.Root>
+        </div>,
+      );
+
+      // Give any in-flight transition more than enough time to land — wrap in `act` so
+      // `useTransitionStatus`'s internal rAF flip ('starting' → undefined) is processed inside
+      // a React-wrapped scope and doesn't trip the no-act-warning console assertion.
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 50));
+      });
+
+      expect(screen.getByTestId('image')).not.toHaveAttribute('data-starting-style');
+      expect(transitionFired).toBe(false);
     });
   });
 

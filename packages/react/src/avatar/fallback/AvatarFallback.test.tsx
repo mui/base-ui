@@ -126,6 +126,11 @@ describe('<Avatar.Fallback />', () => {
   );
 
   describe.skipIf(isJSDOM)('regression', () => {
+    // 1x1 transparent PNG — loads in real browsers so the rendered <img> stays mounted
+    // (unlike a missing path, which would 404 and unmount before the assertion runs).
+    const DATA_URI =
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
     afterEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
     });
@@ -158,7 +163,7 @@ describe('<Avatar.Fallback />', () => {
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={handleShowImage}>Show image</button>
             <Avatar.Root>
-              <Avatar.Image data-testid="image" src={showImage ? 'avatar.png' : undefined} />
+              <Avatar.Image data-testid="image" src={showImage ? DATA_URI : undefined} />
               <Avatar.Fallback className="animation-test-fallback" data-testid="fallback">
                 AC
               </Avatar.Fallback>
@@ -173,12 +178,6 @@ describe('<Avatar.Fallback />', () => {
       expect(screen.getByTestId('fallback')).not.toBe(null);
 
       await user.click(screen.getByText('Show image'));
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('image')).not.toBe(null);
-      });
-
-      fireEvent.load(screen.getByTestId('image'));
 
       await waitFor(() => {
         expect(screen.queryByTestId('fallback')).toBe(null);
