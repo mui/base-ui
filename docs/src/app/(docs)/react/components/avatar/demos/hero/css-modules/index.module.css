@@ -13,12 +13,26 @@
   overflow: hidden;
   height: 3rem;
   width: 3rem;
+  position: relative;
 }
+
+/* Avatar.Image and Avatar.Fallback both stay mounted across the avatar lifecycle. Each carries
+   a `[data-loading]` / `[data-loaded]` / `[data-error]` attribute reflecting the current state,
+   so consumers swap visibility entirely in CSS — no mount/unmount needed. */
 
 .Image {
   object-fit: cover;
   height: 100%;
   width: 100%;
+  position: absolute;
+  inset: 0;
+}
+
+/* Hide the `<img>` until it has a decoded bitmap so the browser's broken-image glyph never
+   paints in the loading or error state. */
+.Image[data-loading],
+.Image[data-error] {
+  visibility: hidden;
 }
 
 .Fallback {
@@ -28,4 +42,12 @@
   height: 100%;
   width: 100%;
   font-size: 1rem;
+  position: absolute;
+  inset: 0;
+}
+
+/* Hide the fallback once the image is on screen. `[data-loaded]` is also set during the
+   `delay` window before the fallback first appears, so a single rule handles both cases. */
+.Fallback[data-loaded] {
+  visibility: hidden;
 }

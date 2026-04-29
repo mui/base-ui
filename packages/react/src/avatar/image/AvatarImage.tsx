@@ -39,6 +39,14 @@ const ERROR_HOOK = { [AvatarImageDataAttributes.error]: '' };
  * would be misleading here — `[data-loading]` / `[data-loaded]` / `[data-error]` describe the
  * image's actual lifecycle and are stable across the entire phase, so consumers can hold a CSS
  * "from" state for the whole loading window and animate when it flips to `[data-loaded]`.
+ *
+ * Hiding the `<img>` while loading or errored is the consumer's responsibility — the simplest
+ * recipe is `[data-loading], [data-error] { visibility: hidden }` (or `opacity: 0`), which
+ * prevents the browser's broken-image glyph and the unstyled bitmap from painting. We
+ * deliberately don't apply this as an inline style: it would force consumers into specificity
+ * wars when they want different hiding behaviour, and Base UI is unstyled by design. Note: avoid
+ * the `hidden` attribute (`display: none`) because `loading="lazy"` requires the element to be
+ * in the layout tree for the IntersectionObserver to track it.
  */
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   imageLoadingStatus(value): Record<string, string> | null {
@@ -54,8 +62,6 @@ const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
     return null;
   },
 };
-
-const HIDDEN_IMAGE_STYLE: React.CSSProperties = { visibility: 'hidden' };
 
 /**
  * The image to be displayed in the avatar.
@@ -149,19 +155,14 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     setIntrinsicDecodeFailed(true);
   });
 
-  /**
-   * `isVisible` is true only while a successfully-decoded bitmap is on screen. It drives the
-   * inline `visibility: hidden` we apply while the bitmap isn't ready.
-   */
-  const isVisible = imageLoadingStatus === 'loaded';
-
   const imageRef = React.useRef<HTMLImageElement | null>(null);
 
   /**
-   * Disk/memory-cached imgs often expose `complete` + `naturalWidth` before `load` bubbles; unveil
-   * before paint. Must settle synchronously in this layout effect — `decode()` resolves in a
-   * microtask and runs **after** the first paint, which would keep `visibility: hidden` for one
-   * visible frame.
+   * Disk/memory-cached imgs often expose `complete` + `naturalWidth` before `load` bubbles; flip
+   * status to `'loaded'` before paint. Must settle synchronously in this layout effect —
+   * `decode()` resolves in a microtask and runs **after** the first paint, which would emit a
+   * stale `[data-loading]` for one visible frame and force consumers' loading-state CSS (e.g.
+   * `visibility: hidden`) to apply on what should be an instant render.
    */
   useIsoLayoutEffect(() => {
     if (intrinsicSettled || intrinsicDecodeFailed) {
@@ -174,22 +175,6 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     cachedAtMountRef.current = true;
     setIntrinsicSettled(true);
   }, [intrinsicSettled, intrinsicDecodeFailed, componentProps.src]);
-
-  /**
-   * Hide the `<img>` whenever the bitmap isn't successfully decoded — covers initial loading,
-   * decode errors, and `src` removal — so the broken-image glyph and unstyled bitmap never paint.
-   * We use `visibility: hidden` rather than the `hidden` attribute (which is `display: none`)
-   * because `display: none` removes the element from the layout tree, and the browser's native
-   * lazy-loading IntersectionObserver cannot observe out-of-layout elements: `<img hidden
-   * loading="lazy">` would never enter the viewport from the observer's point of view, so the
-   * request would be deferred forever and `onLoad` would never fire. Keeping the element in
-   * layout via `visibility: hidden` lets `loading="lazy"` work as expected while still suppressing
-   * the visual flash. An unloaded `<img>` without explicit `width`/`height` has natural dimensions
-   * of 0×0, so this only affects flow when the consumer explicitly sizes the image; the
-   * recommended Avatar layout (absolute-positioned image + fallback stacked in a sized root)
-   * sidesteps that entirely.
-   */
-  const isBitmapHidden = !isVisible;
 
   const setLiftedImageLoadingStatus = context.setImageLoadingStatus;
 
@@ -247,7 +232,6 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     props: {
       ...elementProps,
       hidden: hiddenProp,
-      style: isBitmapHidden ? HIDDEN_IMAGE_STYLE : undefined,
       onLoad: handleIntrinsicLoad,
       onError: handleIntrinsicError,
     },

@@ -187,6 +187,10 @@
   filter: blur(10px);
   opacity: 0;
   transform: scale(0.96);
+  /* Hide the broken-image glyph and unstyled bitmap. `visibility: hidden` keeps the element in
+     the layout tree (so `loading="lazy"`'s IntersectionObserver still works) and visibility flips
+     are binary, so no transition mid-state can briefly reveal the glyph. */
+  visibility: hidden;
 }
 
 .avatarFallback {
@@ -202,10 +206,12 @@
     filter 180ms ease;
 }
 
-.avatarFallback[data-starting-style],
-.avatarFallback[data-ending-style] {
+.avatarFallback[data-loaded] {
   filter: blur(6px);
   opacity: 0;
+  /* Stop the fallback from intercepting clicks while the image is on screen. The element stays
+     in the DOM (so consumer transitions run both directions) but should be visually inert. */
+  pointer-events: none;
 }
 
 .readout {

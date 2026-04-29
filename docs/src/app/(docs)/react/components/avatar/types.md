@@ -70,6 +70,12 @@ type AvatarImageState = {
 Rendered when the image fails to load or when no image is provided.
 Renders a `<span>` element.
 
+The `<span>` stays mounted across the entire avatar lifecycle — consumers hide it via CSS
+targeting `[data-loaded]` (image is on screen / delay pending) and show it via `[data-loading]`
+or `[data-error]`. Keeping it mounted lets consumers run CSS transitions both directions
+without relying on mount/unmount hooks, and avoids tearing down (and re-creating) custom
+children on every src swap.
+
 **Fallback Props:**
 
 | Prop      | Type                                                                                          | Default | Description                                                                                                                                                                                   |
@@ -78,6 +84,14 @@ Renders a `<span>` element.
 | className | `string \| ((state: Avatar.Fallback.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `React.CSSProperties \| ((state: Avatar.Fallback.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Avatar.Fallback.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Fallback Data Attributes:**
+
+| Attribute    | Type | Description                                                                                                                                                                                                                                                   |
+| :----------- | :--- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| data-error   | -    | Present once the image fails to decode (or no `src` was provided) and the fallback is the&#xA;active visual. Lets consumers swap fallback content (e.g. an error icon vs. initials)&#xA;without observing `Avatar.Image`'s state directly.                    |
+| data-loaded  | -    | Present whenever the fallback is _not_ the active visual — either the image bitmap is on&#xA;screen, or the `delay` window has not yet elapsed. The fallback element stays mounted in&#xA;both cases; consumers should hide it via CSS using this attribute.  |
+| data-loading | -    | Present while the image is loading and the fallback is the active visual (i.e. the&#xA;`delay` window has elapsed). Targets the `loading` slot for consumers who want to render or&#xA;style the fallback differently while the image is still being fetched. |
 
 ### Fallback.Props
 

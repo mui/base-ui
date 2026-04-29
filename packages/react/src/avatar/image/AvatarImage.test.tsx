@@ -120,9 +120,11 @@ describe('<Avatar.Image />', () => {
 
       const { user } = await render(<Test />);
 
-      // The `<img>` is always rendered (visibility-hidden until a `src` is provided and the
-      // bitmap decodes) so `loading="lazy"` and other intrinsic `<img>` features can take effect.
-      expect(screen.getByTestId('image').style.visibility).toBe('hidden');
+      // The `<img>` is always rendered. It carries `[data-error]` while there's no `src` so that
+      // `loading="lazy"` and other intrinsic `<img>` features can take effect, and consumers can
+      // hide it via CSS targeting that attribute.
+      expect(screen.getByTestId('image')).toHaveAttribute('data-error');
+      expect(screen.getByTestId('image')).not.toHaveAttribute('data-loaded');
 
       await user.click(screen.getByText('Show image'));
 
@@ -130,14 +132,16 @@ describe('<Avatar.Image />', () => {
         expect(transitionFinished).toBe(true);
       });
 
-      expect(screen.getByTestId('image').style.visibility).not.toBe('hidden');
+      expect(screen.getByTestId('image')).toHaveAttribute('data-loaded');
+      expect(screen.getByTestId('image')).not.toHaveAttribute('data-error');
     });
 
-    it('hides the image immediately when src is removed (no broken-image flash)', async () => {
-      // Regression coverage: when `src` is removed the browser drops the bitmap immediately,
-      // so a previously-decoded `<img>` would briefly paint the broken-image glyph if it stayed
-      // visible. The `<img>` stays mounted across the lifecycle and hides synchronously the
-      // moment the status leaves `'loaded'` (driven by the inline `visibility: hidden` style).
+    it('flips to [data-error] synchronously when src is removed (no broken-image flash)', async () => {
+      // Regression coverage: when `src` is removed the browser drops the bitmap immediately, so a
+      // previously-decoded `<img>` would briefly paint the broken-image glyph if it stayed
+      // visible. The `<img>` stays mounted across the lifecycle but the lifecycle attribute flips
+      // synchronously the moment the status leaves `'loaded'`, giving consumers a stable hook to
+      // hide the element (e.g. `[data-error] { visibility: hidden }`) without flashes.
       function Test() {
         const [showImage, setShowImage] = React.useState(true);
 
@@ -157,15 +161,15 @@ describe('<Avatar.Image />', () => {
       const { user } = await render(<Test />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('image').style.visibility).not.toBe('hidden');
+        expect(screen.getByTestId('image')).toHaveAttribute('data-loaded');
       });
 
       await user.click(screen.getByText('Hide image'));
 
-      // The element stays mounted but is hidden synchronously on the same commit `src` cleared.
       const image = screen.getByTestId('image');
       expect(image).not.toBe(null);
-      expect(image.style.visibility).toBe('hidden');
+      expect(image).toHaveAttribute('data-error');
+      expect(image).not.toHaveAttribute('data-loaded');
     });
   });
 
@@ -182,16 +186,21 @@ describe('<Avatar.Image />', () => {
         img.src = DATA_URI;
       });
 
-      // Server render: layout effects don't run, so fallback is in the HTML
+      // Server render: the always-mounted `<img>` and `<span>` fallback are both in the HTML.
+      // The image carries `[data-loading]` (the cache fast-path can't run yet — layout effects
+      // don't fire on the server), and the fallback mirrors that with `[data-loading]` so
+      // consumer CSS keys both the broken-image-glyph hide and the fallback show off the same
+      // attribute, leaving only the fallback content visually present.
       const { hydrate } = renderToString(
         <Avatar.Root>
           <Avatar.Image src={DATA_URI} alt="Jane Doe" />
-          <Avatar.Fallback>JD</Avatar.Fallback>
+          <Avatar.Fallback data-testid="fallback">JD</Avatar.Fallback>
         </Avatar.Root>,
       );
 
       expect(screen.getByText('JD')).toBeVisible();
-      expect(screen.queryByRole('img')).toBe(null);
+      expect(screen.getByRole('img')).toHaveAttribute('data-loading');
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-loading');
 
       // After hydration, the layout effect fires synchronously before paint.
       // For cached images, image.complete is true so status resolves to 'loaded'
@@ -201,8 +210,12 @@ describe('<Avatar.Image />', () => {
       // the first post-hydration render, not after a delayed onload callback.
       hydrate();
 
+      expect(screen.getByRole('img')).toHaveAttribute('data-loaded');
       expect(screen.getByRole('img')).toHaveAttribute('src', DATA_URI);
-      expect(screen.queryByText('JD')).toBe(null);
+      // The fallback element stays mounted but flips to `[data-loaded]` so consumer CSS hides
+      // it without a remount. The text node is still in the DOM (consumers may animate it out).
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
+      expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-loading');
     });
 
     it('reaches the [data-loaded] steady state without firing an entry transition for a cached image', async () => {
@@ -504,19 +517,19 @@ describe('<Avatar.Image />', () => {
     await render(
       <Avatar.Root>
         <Avatar.Image src="https://example.com/cached-avatar.png" alt="Jane Doe" />
-        <Avatar.Fallback>JD</Avatar.Fallback>
+        <Avatar.Fallback data-testid="fallback">JD</Avatar.Fallback>
       </Avatar.Root>,
     );
 
-    expect(screen.getByRole('img', { hidden: true })).toHaveAttribute(
+    expect(screen.getByRole('img')).toHaveAttribute(
       'src',
       'https://example.com/cached-avatar.png',
     );
 
-    fireEvent.load(screen.getByRole('img', { hidden: true }));
+    fireEvent.load(screen.getByRole('img'));
 
     await waitFor(() => {
-      expect(screen.queryByText('JD')).toBe(null);
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
     });
   });
 

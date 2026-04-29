@@ -14,7 +14,7 @@ describe('<Avatar.Fallback />', () => {
     refInstanceof: window.HTMLSpanElement,
   }));
 
-  it.skipIf(!isJSDOM)('should not render the children if the image loaded', async () => {
+  it.skipIf(!isJSDOM)('exposes [data-loaded] once the image has loaded', async () => {
     await render(
       <Avatar.Root>
         <Avatar.Image src="avatar.png" />
@@ -25,12 +25,14 @@ describe('<Avatar.Fallback />', () => {
     fireEvent.load(screen.getByRole('presentation', { hidden: true }));
 
     await waitFor(() => {
-      expect(screen.queryByTestId('fallback')).toBe(null);
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
     });
+    expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-loading');
+    expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-error');
   });
 
   it.skipIf(!isJSDOM)(
-    'hides fallback after img load even when Fallback resolves later in tree order',
+    'flips fallback to [data-loaded] after img load even when Fallback resolves later in tree order',
     async () => {
       await render(
         <Avatar.Root>
@@ -39,29 +41,31 @@ describe('<Avatar.Fallback />', () => {
         </Avatar.Root>,
       );
 
-      expect(screen.queryByTestId('fallback')).not.toBe(null);
+      // Initial render: no `Avatar.Image` has reported `'loaded'` yet, so Fallback signals loading.
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-loading');
 
       fireEvent.load(screen.getByRole('presentation', { hidden: true }));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('fallback')).toBe(null);
+        expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
       });
     },
   );
 
-  it.skipIf(!isJSDOM)('should render the fallback if the image fails to load', async () => {
+  it.skipIf(!isJSDOM)('exposes [data-error] when the image fails to load', async () => {
     await render(
       <Avatar.Root>
         <Avatar.Image src="/missing.png" data-testid="img" />
-        <Avatar.Fallback>AC</Avatar.Fallback>
+        <Avatar.Fallback data-testid="fallback">AC</Avatar.Fallback>
       </Avatar.Root>,
     );
 
     fireEvent.error(screen.getByTestId('img'));
 
     await waitFor(() => {
-      expect(screen.queryByText('AC')).not.toBe(null);
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-error');
     });
+    expect(screen.getByTestId('fallback')).toHaveTextContent('AC');
   });
 
   describe.skipIf(!isJSDOM)('prop: delay', () => {
@@ -69,19 +73,27 @@ describe('<Avatar.Fallback />', () => {
 
     clock.withFakeTimers();
 
-    it('shows the fallback when the delay has elapsed', async () => {
+    it('keeps the fallback in [data-loaded] until the delay has elapsed', async () => {
       await renderFakeTimers(
         <Avatar.Root>
           <Avatar.Image />
-          <Avatar.Fallback delay={100}>AC</Avatar.Fallback>
+          <Avatar.Fallback delay={100} data-testid="fallback">
+            AC
+          </Avatar.Fallback>
         </Avatar.Root>,
       );
 
-      expect(screen.queryByText('AC')).toBe(null);
+      // The fallback element is mounted from the start (so consumers can run CSS transitions),
+      // but it carries `[data-loaded]` while the delay window is pending so consumer styles
+      // keep it hidden.
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
 
       clock.tick(100);
 
-      expect(screen.queryByText('AC')).not.toBe(null);
+      // After the delay elapses Fallback adopts the underlying image status — no `src` was
+      // provided so the image is in `'error'`, which propagates here.
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-error');
+      expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-loaded');
     });
   });
 
@@ -108,20 +120,21 @@ describe('<Avatar.Fallback />', () => {
 
       const { user } = await render(<Test />);
 
-      // The `<img>` is always rendered (visibility-hidden until the bitmap decodes); only the
-      // fallback is visually present in the loading/error state.
-      expect(screen.getByTestId('image').style.visibility).toBe('hidden');
-      expect(screen.getByTestId('fallback')).not.toBe(null);
+      // The `<img>` and the `<span>` fallback are both always rendered. While there's no `src`,
+      // both carry `[data-error]`: consumers hide the `<img>` (broken-image glyph) and show the
+      // fallback via that hook.
+      expect(screen.getByTestId('image')).toHaveAttribute('data-error');
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-error');
 
       await user.click(screen.getByText('Show image'));
 
       fireEvent.load(screen.getByTestId('image'));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('fallback')).toBe(null);
+        expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
       });
 
-      expect(screen.getByTestId('image').style.visibility).not.toBe('hidden');
+      expect(screen.getByTestId('image')).toHaveAttribute('data-loaded');
     },
   );
 
@@ -139,21 +152,7 @@ describe('<Avatar.Fallback />', () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
     });
 
-    it('keeps only one of image or fallback mounted when switching to image', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const style = `
-        @keyframes test-exit {
-          to {
-            opacity: 0;
-          }
-        }
-
-        .animation-test-fallback[data-ending-style] {
-          animation: test-exit 2s;
-        }
-      `;
-
+    it('flips fallback data attributes in lockstep with image state across src changes', async () => {
       function Test() {
         const [showImage, setShowImage] = React.useState(false);
 
@@ -163,14 +162,10 @@ describe('<Avatar.Fallback />', () => {
 
         return (
           <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={handleShowImage}>Show image</button>
             <Avatar.Root>
               <Avatar.Image data-testid="image" src={showImage ? DATA_URI : undefined} />
-              <Avatar.Fallback className="animation-test-fallback" data-testid="fallback">
-                AC
-              </Avatar.Fallback>
+              <Avatar.Fallback data-testid="fallback">AC</Avatar.Fallback>
             </Avatar.Root>
           </div>
         );
@@ -178,24 +173,24 @@ describe('<Avatar.Fallback />', () => {
 
       const { user } = await render(<Test />);
 
-      // The `<img>` is always rendered (visibility-hidden until the bitmap decodes); only the
-      // fallback is visually present in the loading/error state.
-      expect(screen.getByTestId('image').style.visibility).toBe('hidden');
-      expect(screen.getByTestId('fallback')).not.toBe(null);
+      // Both primitives are always mounted; data attributes describe the current state.
+      expect(screen.getByTestId('image')).toHaveAttribute('data-error');
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-error');
 
       await user.click(screen.getByText('Show image'));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('fallback')).toBe(null);
+        expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
       });
-
-      expect(screen.getByTestId('image').style.visibility).not.toBe('hidden');
+      expect(screen.getByTestId('image')).toHaveAttribute('data-loaded');
+      expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-error');
     });
 
     // Regression: src → src swaps used to force `imageLoadingStatus` back through `'loading'`,
-    // which mounted `Avatar.Fallback` on top of the old bitmap that the browser was still
-    // painting on the `<img>` while the new src decoded. Status now stays `'loaded'` through
-    // the swap (relying on the browser's stale-image behaviour), so the fallback never appears.
+    // which made `Avatar.Fallback` advertise `[data-loading]` on top of the old bitmap that the
+    // browser was still painting on the `<img>` while the new src decoded. Status now stays
+    // `'loaded'` through the swap (relying on the browser's stale-image behaviour), so the
+    // fallback's `[data-loaded]` hook never flips off and consumer CSS keeps it hidden.
     it('does not flash the fallback when switching between two browser-cached images', async () => {
       await Promise.all(
         [DATA_URI, DATA_URI_GIF].map(
@@ -231,7 +226,7 @@ describe('<Avatar.Fallback />', () => {
       const { user } = await render(<Test />);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('fallback')).toBe(null);
+        expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
         expect(screen.getByTestId('image')).toBeVisible();
       });
 
@@ -241,8 +236,9 @@ describe('<Avatar.Fallback />', () => {
         expect(screen.getByTestId('image')).toHaveAttribute('src', DATA_URI_GIF);
       });
 
-      // Fallback should never appear during a smooth src swap.
-      expect(screen.queryByTestId('fallback')).toBe(null);
+      // Fallback should never advertise itself as visible during a smooth src swap.
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
+      expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-loading');
     });
   });
 });
