@@ -17,7 +17,7 @@ export default function DialogDetachedTriggersControlledDemo() {
     <React.Fragment>
       <div className="flex flex-wrap gap-2 justify-center">
         <Dialog.Trigger
-          className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           handle={demoDialog}
           id="trigger-1"
           payload={1}
@@ -26,7 +26,7 @@ export default function DialogDetachedTriggersControlledDemo() {
         </Dialog.Trigger>
 
         <Dialog.Trigger
-          className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           handle={demoDialog}
           id="trigger-2"
           payload={2}
@@ -35,7 +35,7 @@ export default function DialogDetachedTriggersControlledDemo() {
         </Dialog.Trigger>
 
         <Dialog.Trigger
-          className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           handle={demoDialog}
           id="trigger-3"
           payload={3}
@@ -45,7 +45,7 @@ export default function DialogDetachedTriggersControlledDemo() {
 
         <button
           type="button"
-          className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 disabled:border-gray-500 disabled:text-gray-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           onClick={() => {
             setTriggerId('trigger-2');
             setOpen(true);
@@ -70,7 +70,7 @@ export default function DialogDetachedTriggersControlledDemo() {
               )}
 
               <div className="flex justify-end gap-3 mt-4">
-                <Dialog.Close className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+                <Dialog.Close className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
                   Close
                 </Dialog.Close>
               </div>

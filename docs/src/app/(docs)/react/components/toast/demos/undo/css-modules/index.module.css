@@ -155,13 +155,18 @@
   line-height: 1.25rem;
 
   @media (hover: hover) {
-    &:hover {
-      background-color: light-dark(var(--color-gray-50), var(--color-gray-900));
+    &:hover:not([data-disabled]) {
+      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
     }
   }
 
-  &:active {
-    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+  &:active:not([data-disabled]) {
+    background-color: light-dark(var(--color-gray-200), var(--color-gray-700));
+  }
+
+  &[data-disabled] {
+    color: light-dark(var(--color-gray-500), var(--color-gray-400));
+    border-color: light-dark(var(--color-gray-500), var(--color-gray-400));
   }
 
   &:focus-visible {
@@ -190,12 +195,12 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-gray-50), var(--color-gray-900));
+      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
     }
   }
 
   &:active {
-    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+    background-color: light-dark(var(--color-gray-200), var(--color-gray-700));
   }
 
   &:focus-visible {

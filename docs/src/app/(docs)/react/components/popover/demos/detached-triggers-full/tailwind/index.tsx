@@ -10,7 +10,7 @@ export default function PopoverDetachedTriggersFullDemo() {
   return (
     <div className="flex gap-2">
       <Popover.Trigger
-        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         handle={demoPopover}
         payload={NotificationsPanel}
       >
@@ -18,7 +18,7 @@ export default function PopoverDetachedTriggersFullDemo() {
       </Popover.Trigger>
 
       <Popover.Trigger
-        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         handle={demoPopover}
         payload={ActivityPanel}
       >
@@ -26,7 +26,7 @@ export default function PopoverDetachedTriggersFullDemo() {
       </Popover.Trigger>
 
       <Popover.Trigger
-        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         handle={demoPopover}
         payload={ProfilePanel}
       >
@@ -40,13 +40,13 @@ export default function PopoverDetachedTriggersFullDemo() {
               sideOffset={8}
               className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[instant]:transition-none"
             >
-              <Popover.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] max-w-[500px] origin-[var(--transform-origin)] bg-white dark:bg-gray-950 text-gray-950 dark:text-white border border-gray-950 dark:border-white [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] dark:[filter:none] transition-[width,height,opacity,scale] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[instant]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+              <Popover.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] max-w-[31.25rem] origin-[var(--transform-origin)] bg-white dark:bg-gray-950 text-gray-950 dark:text-white border border-gray-950 dark:border-white [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] dark:[filter:none] transition-[width,height,opacity,scale] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[instant]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
                 <Popover.Arrow className="relative block w-3 h-1.5 overflow-clip transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-gray-950 before:border before:border-gray-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]" />
 
                 <Popover.Viewport
                   className={`
-                    relative h-full w-full overflow-clip p-[0.75rem_1rem]
-                    [&_[data-current]]:w-[calc(var(--popup-width)-2rem)]
+                    relative h-full w-full overflow-clip p-2
+                    [&_[data-current]]:w-[calc(var(--popup-width)-1rem)]
                     [&_[data-current]]:translate-x-0
                     [&_[data-current]]:opacity-100
                     [&_[data-current]]:transition-[translate,opacity]
@@ -56,7 +56,7 @@ export default function PopoverDetachedTriggersFullDemo() {
                     data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0
                     data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-1/2
                     data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0
-                    [&_[data-previous]]:w-[calc(var(--popup-width)-2rem)]
+                    [&_[data-previous]]:w-[calc(var(--popup-width)-1rem)]
                     [&_[data-previous]]:translate-x-0
                     [&_[data-previous]]:opacity-100
                     [&_[data-previous]]:transition-[translate,opacity]
@@ -91,7 +91,7 @@ function NotificationsPanel() {
 
 function ProfilePanel() {
   return (
-    <div className="grid grid-cols-[auto_auto] gap-x-4">
+    <div className="grid w-max grid-cols-[auto_auto] gap-x-2">
       <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 m-0 text-sm font-bold leading-5">
         Jason Eventon
       </Popover.Title>
@@ -106,7 +106,7 @@ function ProfilePanel() {
       <span className="col-start-2 col-end-3 row-start-2 row-end-3 text-sm leading-5 text-gray-600 dark:text-gray-400">
         Pro plan
       </span>
-      <div className="col-start-1 col-end-3 row-start-3 row-end-4 mt-2 flex flex-col gap-2 border-t border-gray-950 dark:border-white pt-2 text-sm leading-5">
+      <div className="col-start-1 col-end-3 row-start-3 row-end-4 flex flex-col gap-2 pt-2 text-sm leading-5">
         <a
           href="#"
           className="text-gray-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"

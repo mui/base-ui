@@ -2,7 +2,7 @@ import * as React from 'react';
 import { NumberField } from '@base-ui/react/number-field';
 
 const stepperClasses =
-  'flex h-full w-8 items-center justify-center border border-gray-950 rounded-none bg-white bg-clip-padding text-gray-950 outline-0 select-none hover:not-data-disabled:bg-gray-50 active:not-data-disabled:bg-gray-100 data-disabled:text-gray-500 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:not-data-disabled:bg-gray-900 dark:active:not-data-disabled:bg-gray-800 dark:data-disabled:text-gray-400';
+  'flex h-full w-8 items-center justify-center border border-gray-950 rounded-none bg-white bg-clip-padding text-gray-950 outline-0 select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800';
 
 export default function ExampleNumberField() {
   const id = React.useId();

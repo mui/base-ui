@@ -31,25 +31,26 @@
   font-weight: 400;
   line-height: 1.25rem;
 
-  &:focus-visible {
-    background-color: transparent;
-    outline: 2px solid var(--color-blue-800);
-    outline-offset: -2px;
-  }
-
   @media (hover: hover) {
-    &:hover {
-      background-color: light-dark(var(--color-gray-50), var(--color-gray-900));
+    &:hover:not([data-disabled]) {
+      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
     }
   }
 
-  &:active {
-    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+  &:active:not([data-disabled], [data-pressed]) {
+    background-color: light-dark(var(--color-gray-200), var(--color-gray-700));
   }
 
   &[data-pressed] {
     background-color: light-dark(var(--color-gray-950), white);
     color: light-dark(white, var(--color-gray-950));
+  }
+
+  @media (hover: hover) {
+    &[data-pressed]:hover:not([data-disabled]) {
+      background-color: light-dark(var(--color-gray-950), white);
+      color: light-dark(white, var(--color-gray-950));
+    }
   }
 
   &[data-popup-open] {
@@ -64,6 +65,12 @@
     min-width: 8rem;
     justify-content: space-between;
     padding: 0 0.75rem;
+  }
+
+  &:focus-visible {
+    background-color: transparent;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
@@ -84,15 +91,15 @@
   flex: 0 0 auto;
   margin-inline: auto 0.875rem;
 
-  &:focus-visible {
-    outline: 2px solid var(--color-blue-800);
-    outline-offset: -2px;
-  }
-
   @media (hover: hover) {
     &:hover {
       color: light-dark(var(--color-blue-700), var(--color-blue-500));
     }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 

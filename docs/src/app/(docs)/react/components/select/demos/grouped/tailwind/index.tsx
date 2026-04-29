@@ -13,7 +13,7 @@ export default function ExampleSelectGrouped() {
         Produce
       </Field.Label>
       <Select.Root items={groupedProduce}>
-        <Select.Trigger className="flex h-8 min-w-44 items-center justify-between gap-3 pl-3 pr-2 text-sm leading-5 border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 font-normal">
+        <Select.Trigger className="flex h-8 min-w-44 items-center justify-between gap-3 pl-3 pr-2 text-sm leading-5 border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 font-normal focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           <Select.Value
             className="data-[placeholder]:text-gray-600 dark:data-[placeholder]:text-gray-400"
             placeholder="Select produce"

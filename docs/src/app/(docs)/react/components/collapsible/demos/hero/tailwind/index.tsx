@@ -4,7 +4,7 @@ import { Collapsible } from '@base-ui/react/collapsible';
 export default function ExampleCollapsible() {
   return (
     <Collapsible.Root className="flex min-h-36 w-56 flex-col justify-center text-gray-950 dark:text-white">
-      <Collapsible.Trigger className="group flex h-8 items-center justify-between gap-2 rounded-none border border-gray-950 dark:border-white bg-white dark:bg-gray-950 pl-3 pr-2 text-sm leading-5 font-normal text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+      <Collapsible.Trigger className="group flex h-8 items-center justify-between gap-2 rounded-none border border-gray-950 dark:border-white bg-white dark:bg-gray-950 pl-3 pr-2 text-sm leading-5 font-normal text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400">
         Recovery keys
         <ChevronIcon className="size-3 transition-transform duration-100 ease-out group-data-panel-open:rotate-90" />
       </Collapsible.Trigger>

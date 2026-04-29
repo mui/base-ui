@@ -16,18 +16,23 @@
   user-select: none;
 
   @media (hover: hover) {
-    &:hover {
-      background-color: light-dark(var(--color-gray-50), var(--color-gray-900));
+    &:hover:not([data-disabled]) {
+      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
     }
   }
 
-  &:active {
-    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+  &:active:not([data-disabled]) {
+    background-color: light-dark(var(--color-gray-200), var(--color-gray-700));
   }
 
   &:focus-visible {
     outline: 2px solid var(--color-blue-800);
     outline-offset: -2px;
+  }
+
+  &[data-disabled] {
+    color: light-dark(var(--color-gray-500), var(--color-gray-400));
+    border-color: light-dark(var(--color-gray-500), var(--color-gray-400));
   }
 }
 

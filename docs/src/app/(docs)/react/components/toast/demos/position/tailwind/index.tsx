@@ -30,7 +30,7 @@ function ToastButton() {
   return (
     <button
       type="button"
-      className="flex h-8 items-center justify-center rounded-none border border-gray-950 bg-white px-3 py-0 font-[inherit] text-sm font-normal text-gray-950 select-none hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 active:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900 dark:active:bg-gray-800"
+      className="flex h-8 items-center justify-center rounded-none border border-gray-950 bg-white px-3 py-0 font-[inherit] text-sm font-normal text-gray-950 select-none hover:bg-gray-100 active:bg-gray-200 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-800 dark:active:bg-gray-700 disabled:border-gray-500 disabled:text-gray-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
       onClick={createToast}
     >
       Create toast
@@ -52,7 +52,7 @@ function ToastList() {
           <Toast.Title className="text-sm font-bold" />
           <Toast.Description className="text-sm" />
         </div>
-        <Toast.Close className="flex h-8 shrink-0 items-center justify-center rounded-none border border-gray-950 bg-white px-3 py-0 font-[inherit] text-sm font-normal text-gray-950 hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 active:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900 dark:active:bg-gray-800">
+        <Toast.Close className="flex h-8 shrink-0 items-center justify-center rounded-none border border-gray-950 bg-white px-3 py-0 font-[inherit] text-sm font-normal text-gray-950 hover:not-data-disabled:bg-gray-100 active:not-data-disabled:bg-gray-200 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:not-data-disabled:bg-gray-800 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           Dismiss
         </Toast.Close>
       </Toast.Content>

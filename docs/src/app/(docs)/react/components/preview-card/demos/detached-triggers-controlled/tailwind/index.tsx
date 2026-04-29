@@ -67,7 +67,7 @@ export default function PreviewCardDetachedTriggersControlledDemo() {
         <p className="m-0 text-base leading-6 text-gray-950 text-balance dark:text-white">
           Discover{' '}
           <PreviewCard.Trigger
-            className="text-blue-800 underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:decoration-blue-800 data-[popup-open]:decoration-blue-800 focus-visible:no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-blue-500 dark:decoration-blue-500/60 dark:hover:decoration-blue-500 dark:data-[popup-open]:decoration-blue-500"
+            className="text-blue-800 underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:decoration-blue-800 data-[popup-open]:decoration-blue-800 dark:text-blue-500 dark:decoration-blue-500/60 dark:hover:decoration-blue-500 dark:data-[popup-open]:decoration-blue-500 focus-visible:no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
             handle={demoPreviewCard}
             href="https://en.wikipedia.org/wiki/Typography"
             id="trigger-1"
@@ -77,7 +77,7 @@ export default function PreviewCardDetachedTriggersControlledDemo() {
           </PreviewCard.Trigger>
           ,{' '}
           <PreviewCard.Trigger
-            className="text-blue-800 underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:decoration-blue-800 data-[popup-open]:decoration-blue-800 focus-visible:no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-blue-500 dark:decoration-blue-500/60 dark:hover:decoration-blue-500 dark:data-[popup-open]:decoration-blue-500"
+            className="text-blue-800 underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:decoration-blue-800 data-[popup-open]:decoration-blue-800 dark:text-blue-500 dark:decoration-blue-500/60 dark:hover:decoration-blue-500 dark:data-[popup-open]:decoration-blue-500 focus-visible:no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
             handle={demoPreviewCard}
             href="https://en.wikipedia.org/wiki/Industrial_design"
             id="trigger-2"
@@ -87,7 +87,7 @@ export default function PreviewCardDetachedTriggersControlledDemo() {
           </PreviewCard.Trigger>
           , or{' '}
           <PreviewCard.Trigger
-            className="text-blue-800 underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:decoration-blue-800 data-[popup-open]:decoration-blue-800 focus-visible:no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-blue-500 dark:decoration-blue-500/60 dark:hover:decoration-blue-500 dark:data-[popup-open]:decoration-blue-500"
+            className="text-blue-800 underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:decoration-blue-800 data-[popup-open]:decoration-blue-800 dark:text-blue-500 dark:decoration-blue-500/60 dark:hover:decoration-blue-500 dark:data-[popup-open]:decoration-blue-500 focus-visible:no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
             handle={demoPreviewCard}
             href="https://en.wikipedia.org/wiki/Art"
             id="trigger-3"
@@ -99,7 +99,7 @@ export default function PreviewCardDetachedTriggersControlledDemo() {
         </p>
         <button
           type="button"
-          className="box-border flex h-10 items-center justify-center border border-gray-950 bg-white px-3.5 font-[inherit] text-base leading-6 font-normal text-gray-950 select-none hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 active:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900 dark:active:bg-gray-800"
+          className="box-border flex h-10 items-center justify-center border border-gray-950 bg-white px-3.5 font-[inherit] text-base leading-6 font-normal text-gray-950 select-none hover:bg-gray-100 active:bg-gray-200 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-800 dark:active:bg-gray-700 disabled:border-gray-500 disabled:text-gray-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           onClick={() => {
             setTriggerId('trigger-2');
             setOpen(true);
