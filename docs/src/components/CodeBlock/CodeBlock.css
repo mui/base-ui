@@ -41,7 +41,6 @@
 
     /* Scroll */
     overflow: auto hidden;
-    overscroll-behavior-x: contain;
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
