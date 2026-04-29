@@ -6,24 +6,24 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .Input {
   box-sizing: border-box;
   padding-inline: 0.5rem;
   margin: 0;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   width: 10rem;
   height: 2rem;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   background-color: transparent;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
 
   &::placeholder {
-    color: light-dark(var(--color-gray-500), var(--color-gray-400));
+    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   }
 
   &:focus {

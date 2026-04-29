@@ -1,6 +1,6 @@
 .Root {
   box-sizing: border-box;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
   min-width: max-content;
 }
 
@@ -29,7 +29,7 @@
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.25rem;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
   user-select: none;
   text-decoration: none;
 
@@ -39,12 +39,12 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &[data-popup-open] {
-    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 
   &:focus-visible {
@@ -115,9 +115,9 @@
   overflow: visible;
   box-sizing: border-box;
   outline: 0;
-  border: 1px solid light-dark(var(--color-gray-950), white);
-  background-color: light-dark(white, var(--color-gray-950));
-  color: light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
   filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
   transform-origin: var(--transform-origin);
   transition-property: opacity, transform, width, height;
@@ -223,12 +223,12 @@
   background-color: transparent;
 
   &[data-popup-open] {
-    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
@@ -249,7 +249,7 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-gray-500), var(--color-gray-400));
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
 }
 
 .Arrow {
@@ -291,8 +291,8 @@
     box-sizing: border-box;
     width: calc(6px * sqrt(2));
     height: calc(6px * sqrt(2));
-    border: 1px solid light-dark(var(--color-gray-950), white);
-    background-color: light-dark(white, var(--color-gray-950));
+    border: 1px solid light-dark(var(--color-neutral-950), white);
+    background-color: light-dark(white, var(--color-neutral-950));
     transform: translate(-50%, 50%) rotate(45deg);
   }
 }

@@ -13,9 +13,9 @@
 
 .Popup {
   position: relative;
-  border: 1px solid light-dark(var(--color-gray-950), white);
-  background-color: light-dark(white, var(--color-gray-950));
-  color: light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
   filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
   transform-origin: var(--transform-origin);
 
@@ -74,8 +74,8 @@
     box-sizing: border-box;
     width: calc(6px * sqrt(2));
     height: calc(6px * sqrt(2));
-    border: 1px solid light-dark(var(--color-gray-950), white);
-    background-color: light-dark(white, var(--color-gray-950));
+    border: 1px solid light-dark(var(--color-neutral-950), white);
+    background-color: light-dark(white, var(--color-neutral-950));
     transform: translate(-50%, 50%) rotate(45deg);
   }
 }
@@ -140,7 +140,7 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-gray-600), var(--color-gray-400));
+  color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
   text-wrap: pretty;
 }
 
@@ -148,7 +148,7 @@
   margin: 0;
   font-size: 1rem;
   line-height: 1.5rem;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
   text-wrap: balance;
 }
 

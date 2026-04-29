@@ -111,15 +111,15 @@ export default function ExampleAsyncSingleCombobox() {
         });
       }}
     >
-      <div className="relative flex flex-col gap-1 text-sm font-bold leading-5 text-gray-900">
+      <div className="relative flex flex-col gap-1 text-sm font-bold leading-5 text-neutral-900">
         <label htmlFor={id}>Assign reviewer</label>
-        <Combobox.InputGroup className="relative box-content h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem] [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
+        <Combobox.InputGroup className="relative box-content h-10 w-[16rem] rounded-md border border-neutral-200 bg-[canvas] focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem] [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
           <Combobox.Input
             id={id}
             placeholder="e.g. Michael"
-            className="box-border h-full w-full border-0 bg-transparent pl-3.5 text-base font-normal text-gray-900 outline-none"
+            className="box-border h-full w-full border-0 bg-transparent pl-3.5 text-base font-normal text-neutral-900 outline-none"
           />
-          <div className="absolute bottom-0 right-2 flex h-10 items-center justify-center text-gray-600">
+          <div className="absolute bottom-0 right-2 flex h-10 items-center justify-center text-neutral-600">
             <Combobox.Clear
               className="combobox-clear flex h-10 w-6 items-center justify-center rounded border-0 bg-transparent p-0"
               aria-label="Clear selection"
@@ -139,19 +139,19 @@ export default function ExampleAsyncSingleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
           <Combobox.Popup
-            className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-[0_10px_15px_-3px_var(--color-gray-200),0_4px_6px_-4px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:transition-none data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-gray-300"
+            className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-neutral-900 shadow-[0_10px_15px_-3px_var(--color-neutral-200),0_4px_6px_-4px_var(--color-neutral-200)] outline outline-1 outline-neutral-200 transition-[transform,scale,opacity] data-[ending-style]:transition-none data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-neutral-300"
             aria-busy={isPending || undefined}
           >
             <Combobox.Status>
               {status ? (
-                <div className="flex items-center gap-2 py-1 pl-4 pr-5 text-sm text-gray-600">
+                <div className="flex items-center gap-2 py-1 pl-4 pr-5 text-sm text-neutral-600">
                   {status}
                 </div>
               ) : null}
             </Combobox.Status>
             <Combobox.Empty>
               {emptyMessage ? (
-                <div className="px-4 py-2 text-[0.875rem] leading-4 text-gray-600">
+                <div className="px-4 py-2 text-[0.875rem] leading-4 text-neutral-600">
                   {emptyMessage}
                 </div>
               ) : null}
@@ -161,14 +161,14 @@ export default function ExampleAsyncSingleCombobox() {
                 <Combobox.Item
                   key={user.id}
                   value={user}
-                  className="grid cursor-default select-none grid-cols-[0.75rem_1fr] items-start gap-2 py-2 pl-4 pr-5 text-base leading-[1.2rem] outline-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-900 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded [@media(hover:hover)]:[&[data-highlighted]]:before:bg-gray-100 [@media(hover:hover)]:[&[data-highlighted]]:before:content-['']"
+                  className="grid cursor-default select-none grid-cols-[0.75rem_1fr] items-start gap-2 py-2 pl-4 pr-5 text-base leading-[1.2rem] outline-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-neutral-900 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded [@media(hover:hover)]:[&[data-highlighted]]:before:bg-neutral-100 [@media(hover:hover)]:[&[data-highlighted]]:before:content-['']"
                 >
                   <Combobox.ItemIndicator className="col-start-1 mt-1">
                     <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>
                   <span className="col-start-2 flex flex-col gap-1">
                     <span className="text-[0.95rem] font-bold">{user.name}</span>
-                    <span className="flex flex-wrap gap-3 text-[0.8125rem] text-gray-600">
+                    <span className="flex flex-wrap gap-3 text-[0.8125rem] text-neutral-600">
                       <span className="opacity-80">@{user.username}</span>
                       <span>{user.title}</span>
                     </span>

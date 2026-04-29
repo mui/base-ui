@@ -15,12 +15,12 @@ export default function ExampleProgress() {
 
   return (
     <Progress.Root className="grid max-w-full w-60 grid-cols-2 gap-y-2" value={value}>
-      <Progress.Label className="text-sm leading-5 font-normal text-gray-950 dark:text-white">
+      <Progress.Label className="text-sm leading-5 font-normal text-neutral-950 dark:text-white">
         Export data
       </Progress.Label>
-      <Progress.Value className="text-right text-sm leading-5 text-gray-950 dark:text-white" />
-      <Progress.Track className="col-span-2 h-1 overflow-hidden bg-gray-200 dark:bg-gray-800">
-        <Progress.Indicator className="bg-gray-950 transition-[width] duration-500 dark:bg-white" />
+      <Progress.Value className="text-right text-sm leading-5 text-neutral-950 dark:text-white" />
+      <Progress.Track className="col-span-2 h-1 overflow-hidden bg-neutral-200 dark:bg-neutral-800">
+        <Progress.Indicator className="bg-neutral-950 transition-[width] duration-500 dark:bg-white" />
       </Progress.Track>
     </Progress.Root>
   );

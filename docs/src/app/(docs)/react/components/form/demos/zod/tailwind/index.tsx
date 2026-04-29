@@ -37,24 +37,28 @@ export default function Page() {
       }}
     >
       <Field.Root name="name" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-bold text-gray-950 dark:text-white">Name</Field.Label>
+        <Field.Label className="text-sm font-bold text-neutral-950 dark:text-white">
+          Name
+        </Field.Label>
         <Field.Control
           placeholder="Enter name"
-          className="h-8 w-full border border-gray-950 bg-transparent px-2 text-sm font-normal text-gray-950 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-gray-400"
+          className="h-8 w-full border border-neutral-950 bg-transparent px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
         />
         <Field.Error className="text-sm text-red-700 dark:text-red-400" />
       </Field.Root>
       <Field.Root name="age" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-bold text-gray-950 dark:text-white">Age</Field.Label>
+        <Field.Label className="text-sm font-bold text-neutral-950 dark:text-white">
+          Age
+        </Field.Label>
         <Field.Control
           placeholder="Enter age"
-          className="h-8 w-full border border-gray-950 bg-transparent px-2 text-sm font-normal text-gray-950 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-gray-400"
+          className="h-8 w-full border border-neutral-950 bg-transparent px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
         />
         <Field.Error className="text-sm text-red-700 dark:text-red-400" />
       </Field.Root>
       <Button
         type="submit"
-        className="flex h-8 items-center justify-center rounded-none border border-gray-950 bg-white px-3 text-sm leading-5 font-normal text-gray-950 select-none hover:not-data-disabled:bg-gray-50 active:not-data-disabled:bg-gray-100 data-disabled:text-gray-500 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:not-data-disabled:bg-gray-900 dark:active:not-data-disabled:bg-gray-800 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="flex h-8 items-center justify-center rounded-none border border-neutral-950 bg-white px-3 text-sm leading-5 font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-50 active:not-data-disabled:bg-neutral-100 data-disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-900 dark:active:not-data-disabled:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
       >
         Submit
       </Button>

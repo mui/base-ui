@@ -9,25 +9,25 @@
   padding-right: 0.75rem;
   margin: 0;
   outline: 0;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-neutral-200);
   border-radius: 0.375rem;
   background-color: canvas;
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5rem;
-  color: var(--color-gray-900);
+  color: var(--color-neutral-900);
   -webkit-user-select: none;
   user-select: none;
   min-width: 9rem;
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-100);
+      background-color: var(--color-neutral-100);
     }
   }
 
   &[data-popup-open] {
-    background-color: var(--color-gray-100);
+    background-color: var(--color-neutral-100);
   }
 
   &:focus-visible {
@@ -52,7 +52,7 @@
   border-radius: 0.375rem;
   background-color: canvas;
   background-clip: padding-box;
-  color: var(--color-gray-900);
+  color: var(--color-neutral-900);
   min-width: var(--anchor-width);
   transform-origin: var(--transform-origin);
 
@@ -61,14 +61,14 @@
   }
 
   @media (prefers-color-scheme: light) {
-    outline: 1px solid var(--color-gray-200);
+    outline: 1px solid var(--color-neutral-200);
     box-shadow:
-      0 10px 15px -3px var(--color-gray-200),
-      0 4px 6px -4px var(--color-gray-200);
+      0 10px 15px -3px var(--color-neutral-200),
+      0 4px 6px -4px var(--color-neutral-200);
   }
 
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-gray-300);
+    outline: 1px solid var(--color-neutral-300);
   }
 }
 
@@ -111,13 +111,13 @@
 
 .ArrowOuterStroke {
   @media (prefers-color-scheme: light) {
-    fill: var(--color-gray-200);
+    fill: var(--color-neutral-200);
   }
 }
 
 .ArrowInnerStroke {
   @media (prefers-color-scheme: dark) {
-    fill: var(--color-gray-300);
+    fill: var(--color-neutral-300);
   }
 }
 
@@ -150,7 +150,7 @@
   &[data-highlighted] {
     z-index: 0;
     position: relative;
-    color: var(--color-gray-50);
+    color: var(--color-neutral-50);
   }
 
   &[data-highlighted]::before {
@@ -160,7 +160,7 @@
     inset-block: 0;
     inset-inline: 0.25rem;
     border-radius: 0.25rem;
-    background-color: var(--color-gray-900);
+    background-color: var(--color-neutral-900);
   }
 }
 

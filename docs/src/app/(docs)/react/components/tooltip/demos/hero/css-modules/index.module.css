@@ -1,7 +1,7 @@
 .Panel {
   display: flex;
-  border: 1px solid light-dark(var(--color-gray-950), white);
-  background-color: light-dark(white, var(--color-gray-950));
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
 }
 
 .Button {
@@ -15,21 +15,21 @@
   margin: 0;
   border: 0;
   background-color: transparent;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 
   &[data-popup-open] {
-    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: light-dark(var(--color-gray-200), var(--color-gray-700));
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
   }
 
   &:focus-visible {
@@ -52,9 +52,9 @@
   flex-direction: column;
   padding: 0.25rem 0.5rem;
   position: relative;
-  border: 1px solid light-dark(var(--color-gray-950), white);
-  background-color: light-dark(white, var(--color-gray-950));
-  color: light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
   filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
   transform-origin: var(--transform-origin);
   transition:
@@ -112,8 +112,8 @@
     box-sizing: border-box;
     width: calc(6px * sqrt(2));
     height: calc(6px * sqrt(2));
-    background-color: light-dark(white, var(--color-gray-950));
-    border: 1px solid light-dark(var(--color-gray-950), white);
+    background-color: light-dark(white, var(--color-neutral-950));
+    border: 1px solid light-dark(var(--color-neutral-950), white);
     transform: translate(-50%, 50%) rotate(45deg);
   }
 }

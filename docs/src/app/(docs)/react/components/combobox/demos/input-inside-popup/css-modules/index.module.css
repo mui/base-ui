@@ -16,13 +16,13 @@
   padding-right: 0.75rem;
   margin: 0;
   outline: 0;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-neutral-200);
   border-radius: 0.375rem;
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5rem;
   font-weight: 400;
-  color: var(--color-gray-900);
+  color: var(--color-neutral-900);
   cursor: default;
   background-color: canvas;
   user-select: none;
@@ -30,12 +30,12 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-100);
+      background-color: var(--color-neutral-100);
     }
   }
 
   &[data-popup-open] {
-    background-color: var(--color-gray-100);
+    background-color: var(--color-neutral-100);
   }
 
   &:focus-visible {
@@ -64,7 +64,7 @@
   box-sizing: border-box;
   padding-left: 0.875rem;
   margin: 0;
-  border: 1px solid var(--color-gray-300);
+  border: 1px solid var(--color-neutral-300);
   min-width: 18rem;
   width: 100%;
   height: 2.5rem;
@@ -73,7 +73,7 @@
   font-size: 1rem;
   font-weight: 400;
   background-color: canvas;
-  color: var(--color-gray-900);
+  color: var(--color-neutral-900);
   outline: none;
 
   &:focus {
@@ -86,7 +86,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: var(--color-gray-900);
+  color: var(--color-neutral-900);
   cursor: default;
 }
 
@@ -99,7 +99,7 @@
   box-sizing: border-box;
   border-radius: 0.5rem;
   background-color: canvas;
-  color: var(--color-gray-900);
+  color: var(--color-neutral-900);
   transform-origin: var(--transform-origin);
   transition:
     transform 150ms,
@@ -114,14 +114,14 @@
   }
 
   @media (prefers-color-scheme: light) {
-    outline: 1px solid var(--color-gray-200);
+    outline: 1px solid var(--color-neutral-200);
     box-shadow:
-      0 10px 15px -3px var(--color-gray-200),
-      0 4px 6px -4px var(--color-gray-200);
+      0 10px 15px -3px var(--color-neutral-200),
+      0 4px 6px -4px var(--color-neutral-200);
   }
 
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-gray-300);
+    outline: 1px solid var(--color-neutral-300);
     outline-offset: -1px;
   }
 }
@@ -161,7 +161,7 @@
   &[data-highlighted] {
     z-index: 0;
     position: relative;
-    color: var(--color-gray-50);
+    color: var(--color-neutral-50);
   }
 
   &[data-highlighted]::before {
@@ -171,7 +171,7 @@
     inset-block: 0;
     inset-inline: 0.5rem;
     border-radius: 0.25rem;
-    background-color: var(--color-gray-900);
+    background-color: var(--color-neutral-900);
   }
 }
 
@@ -192,13 +192,13 @@
 .Separator {
   margin: 0.375rem 1rem;
   height: 1px;
-  background-color: var(--color-gray-200);
+  background-color: var(--color-neutral-200);
 }
 
 .Empty {
   box-sizing: border-box;
   font-size: 0.925rem;
   line-height: 1rem;
-  color: var(--color-gray-600);
+  color: var(--color-neutral-600);
   padding: 1rem;
 }

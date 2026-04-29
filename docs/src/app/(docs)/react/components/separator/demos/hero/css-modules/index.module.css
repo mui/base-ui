@@ -6,14 +6,14 @@
 
 .Separator {
   width: 1px;
-  background-color: light-dark(var(--color-gray-300), var(--color-gray-700));
+  background-color: light-dark(var(--color-neutral-300), var(--color-neutral-700));
 }
 
 .Link {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-gray-950), white);
-  text-decoration-color: light-dark(var(--color-gray-300), var(--color-gray-700));
+  color: light-dark(var(--color-neutral-950), white);
+  text-decoration-color: light-dark(var(--color-neutral-300), var(--color-neutral-700));
   text-decoration-thickness: 1px;
   text-decoration-line: none;
   text-underline-offset: 2px;

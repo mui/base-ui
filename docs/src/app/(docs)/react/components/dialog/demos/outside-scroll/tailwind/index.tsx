@@ -7,7 +7,7 @@ export default function OutsideScrollDialog() {
   const popupRef = React.useRef<HTMLDivElement>(null);
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+      <Dialog.Trigger className="flex h-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -22,7 +22,7 @@ export default function OutsideScrollDialog() {
                 <Dialog.Popup
                   ref={popupRef}
                   initialFocus={popupRef}
-                  className="outline-0 relative mx-auto my-16 w-[min(40rem,calc(100vw-2rem))] bg-white dark:bg-gray-950 p-4 text-gray-950 dark:text-white border border-gray-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[350ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-[max(100dvh,100%)] data-[ending-style]:duration-[220ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
+                  className="outline-0 relative mx-auto my-16 w-[min(40rem,calc(100vw-2rem))] bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[350ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-[max(100dvh,100%)] data-[ending-style]:duration-[220ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
                 >
                   <div className="mb-1 flex items-start justify-between gap-3">
                     <Dialog.Title className="m-0 text-base font-bold leading-6">
@@ -30,13 +30,13 @@ export default function OutsideScrollDialog() {
                     </Dialog.Title>
                     <Dialog.Close
                       aria-label="Close"
-                      className="relative top-[-0.25rem] right-[-0.25rem] inline-flex items-center justify-center w-8 h-8 bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-gray-950 dark:hover:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+                      className="relative top-[-0.25rem] right-[-0.25rem] inline-flex items-center justify-center w-8 h-8 bg-transparent text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
                     >
                       <XIcon className="h-4 w-4" />
                     </Dialog.Close>
                   </div>
 
-                  <Dialog.Description className="m-0 mb-4 text-sm leading-5 text-gray-600 dark:text-gray-400">
+                  <Dialog.Description className="m-0 mb-4 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
                     This layout keeps an outer container scrollable while the dialog can extend past
                     the bottom edge.
                   </Dialog.Description>
@@ -45,20 +45,20 @@ export default function OutsideScrollDialog() {
                     {CONTENT_SECTIONS.map((item) => (
                       <section key={item.title}>
                         <h3 className="m-0 mb-1 text-sm font-bold leading-5">{item.title}</h3>
-                        <p className="m-0 text-sm leading-5 text-gray-700 dark:text-gray-300">
+                        <p className="m-0 text-sm leading-5 text-neutral-700 dark:text-neutral-300">
                           {item.body}
                         </p>
                       </section>
                     ))}
                   </div>
 
-                  <p className="m-0 text-sm leading-5 text-gray-600 dark:text-gray-400">
+                  <p className="m-0 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
                     Related docs:{' '}
                     {RELATED_LINKS.map((item, index) => (
                       <React.Fragment key={item.href}>
                         {index > 0 ? ', ' : null}
                         <a
-                          className="text-gray-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:outline-offset-2"
+                          className="text-neutral-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:outline-offset-2"
                           href={item.href}
                         >
                           {item.label}
@@ -71,7 +71,7 @@ export default function OutsideScrollDialog() {
               </ScrollArea.Content>
             </ScrollArea.Viewport>
             <ScrollArea.Scrollbar className="pointer-events-none flex w-3 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-[250ms] data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-[75ms] data-[scrolling]:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-[75ms] hover:delay-[0ms] group-data-[ending-style]/dialog:opacity-0 group-data-[ending-style]/dialog:duration-[250ms]">
-              <ScrollArea.Thumb className="w-full bg-gray-950 dark:bg-white" />
+              <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
             </ScrollArea.Scrollbar>
           </ScrollArea.Root>
         </Dialog.Viewport>

@@ -11,7 +11,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .Root {
@@ -23,7 +23,7 @@
 .Input {
   box-sizing: border-box;
   margin: 0;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0;
@@ -32,7 +32,7 @@
   font-weight: 400;
   text-align: center;
   background-color: transparent;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
 
   &:focus {
     outline: 2px solid var(--color-blue-800);
@@ -44,7 +44,7 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-gray-500), var(--color-gray-400));
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
 }
 
 .Code {

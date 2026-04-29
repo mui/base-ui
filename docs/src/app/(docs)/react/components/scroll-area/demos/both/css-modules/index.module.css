@@ -8,7 +8,7 @@
 .Viewport {
   box-sizing: border-box;
   height: 100%;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
 
   &:focus-visible {
     outline: 2px solid var(--color-blue-800);
@@ -31,13 +31,13 @@
 }
 
 .Item {
-  background-color: light-dark(var(--color-gray-200), var(--color-gray-800));
+  background-color: light-dark(var(--color-neutral-200), var(--color-neutral-800));
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.875rem;
   font-weight: 700;
-  color: light-dark(var(--color-gray-600), var(--color-gray-400));
+  color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
 }
 
 .Scrollbar {
@@ -90,5 +90,5 @@
 
 .Thumb {
   width: 100%;
-  background-color: light-dark(var(--color-gray-950), white);
+  background-color: light-dark(var(--color-neutral-950), white);
 }

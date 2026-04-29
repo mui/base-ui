@@ -122,10 +122,10 @@ export default function ExampleCreatableCombobox() {
         }}
       >
         <div className="max-w-112 flex flex-col gap-1">
-          <label className="text-sm leading-5 font-bold text-gray-900" htmlFor={id}>
+          <label className="text-sm leading-5 font-bold text-neutral-900" htmlFor={id}>
             Labels
           </label>
-          <Combobox.InputGroup className="w-64 cursor-text rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]">
+          <Combobox.InputGroup className="w-64 cursor-text rounded-md border border-neutral-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]">
             <Combobox.Chips className="flex w-full flex-wrap items-center gap-0.5">
               <Combobox.Value>
                 {(value: LabelItem[]) => (
@@ -133,12 +133,12 @@ export default function ExampleCreatableCombobox() {
                     {value.map((label) => (
                       <Combobox.Chip
                         key={label.id}
-                        className="flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-[0.2rem] text-sm text-gray-900 outline-none cursor-default [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 focus-within:bg-blue-800 focus-within:text-gray-50"
+                        className="flex items-center gap-1 rounded-md bg-neutral-100 px-1.5 py-[0.2rem] text-sm text-neutral-900 outline-none cursor-default [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-neutral-50 focus-within:bg-blue-800 focus-within:text-neutral-50"
                         aria-label={label.value}
                       >
                         {label.value}
                         <Combobox.ChipRemove
-                          className="rounded-md p-1 text-inherit hover:bg-gray-200"
+                          className="rounded-md p-1 text-inherit hover:bg-neutral-200"
                           aria-label={`Remove ${label.value}`}
                         >
                           <XIcon />
@@ -149,7 +149,7 @@ export default function ExampleCreatableCombobox() {
                       ref={comboboxInputRef}
                       id={id}
                       placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                      className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base font-normal text-gray-900 outline-none"
+                      className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base font-normal text-neutral-900 outline-none"
                       onKeyDown={handleInputKeyDown}
                     />
                   </React.Fragment>
@@ -161,9 +161,9 @@ export default function ExampleCreatableCombobox() {
 
         <Combobox.Portal>
           <Combobox.Positioner className="z-50 outline-none" sideOffset={4}>
-            <Combobox.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),24rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-lg bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+            <Combobox.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),24rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-lg bg-[canvas] py-2 text-neutral-900 shadow-lg shadow-neutral-200 outline-1 outline-neutral-200 dark:shadow-none dark:-outline-offset-1 dark:outline-neutral-300">
               <Combobox.Empty>
-                <div className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600">
+                <div className="px-4 py-2 text-[0.925rem] leading-4 text-neutral-600">
                   No labels found.
                 </div>
               </Combobox.Empty>
@@ -172,7 +172,7 @@ export default function ExampleCreatableCombobox() {
                   item.creatable ? (
                     <Combobox.Item
                       key={item.id}
-                      className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded-sm [@media(hover:hover)]:[&[data-highlighted]]:before:bg-gray-900"
+                      className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-neutral-50 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded-sm [@media(hover:hover)]:[&[data-highlighted]]:before:bg-neutral-900"
                       value={item}
                     >
                       <span className="col-start-1">
@@ -183,7 +183,7 @@ export default function ExampleCreatableCombobox() {
                   ) : (
                     <Combobox.Item
                       key={item.id}
-                      className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded-sm [@media(hover:hover)]:[&[data-highlighted]]:before:bg-gray-900"
+                      className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-neutral-50 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded-sm [@media(hover:hover)]:[&[data-highlighted]]:before:bg-neutral-900"
                       value={item}
                     >
                       <Combobox.ItemIndicator className="col-start-1">
@@ -203,29 +203,29 @@ export default function ExampleCreatableCombobox() {
         <Dialog.Portal>
           <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-20 transition-opacity dark:opacity-70 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 supports-[-webkit-touch-callout:none]:absolute" />
           <Dialog.Popup
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-2rem] w-[24rem] max-w-[calc(100vw-3rem)] rounded-lg bg-[canvas] p-6 text-gray-900 outline-1 outline-gray-200 transition-all data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:scale-90 dark:-outline-offset-1 dark:outline-gray-300"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-2rem] w-[24rem] max-w-[calc(100vw-3rem)] rounded-lg bg-[canvas] p-6 text-neutral-900 outline-1 outline-neutral-200 transition-all data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:scale-90 dark:-outline-offset-1 dark:outline-neutral-300"
             initialFocus={createInputRef}
           >
             <Dialog.Title className="-mt-1.5 mb-1 text-lg leading-7 tracking-[-0.0025em] font-bold">
               Create new label
             </Dialog.Title>
-            <Dialog.Description className="mb-4 text-base leading-6 text-gray-600">
+            <Dialog.Description className="mb-4 text-base leading-6 text-neutral-600">
               Add a new label to select.
             </Dialog.Description>
             <form onSubmit={handleCreateSubmit}>
               <input
                 ref={createInputRef}
-                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 font-normal"
+                className="w-full h-10 rounded-md border border-neutral-200 bg-[canvas] text-neutral-900 px-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 font-normal"
                 placeholder="Label name"
                 defaultValue={pendingQueryRef.current}
               />
               <div className="mt-4 flex justify-end gap-4">
-                <Dialog.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 font-normal">
+                <Dialog.Close className="flex h-10 items-center justify-center rounded-md border border-neutral-200 bg-neutral-50 px-3.5 text-base text-neutral-900 select-none hover:bg-neutral-100 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-neutral-100 font-normal">
                   Cancel
                 </Dialog.Close>
                 <button
                   type="submit"
-                  className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
+                  className="flex h-10 items-center justify-center rounded-md border border-neutral-200 bg-neutral-50 px-3.5 text-base font-normal text-neutral-900 select-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-neutral-100"
                 >
                   Create
                 </button>

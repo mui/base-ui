@@ -20,7 +20,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .Group {
@@ -32,7 +32,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0 0.75rem;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   border-right: 0;
   border-left: 0;
   border-radius: 0;
@@ -42,7 +42,7 @@
   font-size: 0.875rem;
   font-weight: 400;
   background-color: transparent;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
 
   text-align: left;
   font-variant-numeric: tabular-nums;
@@ -65,26 +65,26 @@
   margin: 0;
   outline: 0;
   padding: 0;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 0;
-  background-color: light-dark(white, var(--color-gray-950));
+  background-color: light-dark(white, var(--color-neutral-950));
   background-clip: padding-box;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: light-dark(var(--color-gray-200), var(--color-gray-700));
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
   }
 
   &[data-disabled] {
-    color: light-dark(var(--color-gray-500), var(--color-gray-400));
-    border-color: light-dark(var(--color-gray-500), var(--color-gray-400));
+    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+    border-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   }
 
   &:focus-visible {
@@ -95,9 +95,9 @@
 }
 
 .Decrement {
-  border-right: 1px solid light-dark(var(--color-gray-950), white);
+  border-right: 1px solid light-dark(var(--color-neutral-950), white);
 }
 
 .Increment {
-  border-left: 1px solid light-dark(var(--color-gray-950), white);
+  border-left: 1px solid light-dark(var(--color-neutral-950), white);
 }

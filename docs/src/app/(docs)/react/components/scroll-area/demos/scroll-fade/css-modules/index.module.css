@@ -3,13 +3,13 @@
   width: 24rem;
   height: 12rem;
   max-width: calc(100vw - 8rem);
-  background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+  background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
 }
 
 .Viewport {
   --fade-size: 40px;
   height: 100%;
-  background: light-dark(var(--color-gray-100), var(--color-gray-800));
+  background: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
@@ -38,7 +38,7 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.375rem;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .Scrollbar {
@@ -71,5 +71,5 @@
 
 .Thumb {
   width: 100%;
-  background-color: light-dark(var(--color-gray-950), white);
+  background-color: light-dark(var(--color-neutral-950), white);
 }

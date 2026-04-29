@@ -2,7 +2,7 @@
   box-sizing: border-box;
   padding-left: 0.875rem;
   margin: 0;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-neutral-200);
   width: 16rem;
   height: 2.5rem;
   border-radius: 0.375rem;
@@ -10,7 +10,7 @@
   font-size: 1rem;
   font-weight: 400;
   background-color: canvas;
-  color: var(--color-gray-900);
+  color: var(--color-neutral-900);
   outline: none;
 
   &:focus {
@@ -26,7 +26,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: var(--color-gray-900);
+  color: var(--color-neutral-900);
 }
 
 .Positioner {
@@ -37,20 +37,20 @@
   box-sizing: border-box;
   border-radius: 0.375rem;
   background-color: canvas;
-  color: var(--color-gray-900);
+  color: var(--color-neutral-900);
   width: var(--anchor-width);
   max-height: min(22rem, var(--available-height));
   max-width: var(--available-width);
 
   @media (prefers-color-scheme: light) {
-    outline: 1px solid var(--color-gray-200);
+    outline: 1px solid var(--color-neutral-200);
     box-shadow:
-      0 10px 15px -3px var(--color-gray-200),
-      0 4px 6px -4px var(--color-gray-200);
+      0 10px 15px -3px var(--color-neutral-200),
+      0 4px 6px -4px var(--color-neutral-200);
   }
 
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-gray-300);
+    outline: 1px solid var(--color-neutral-300);
     outline-offset: -1px;
   }
 }
@@ -92,7 +92,7 @@
   &[data-highlighted] {
     z-index: 0;
     position: relative;
-    color: var(--color-gray-50);
+    color: var(--color-neutral-50);
   }
 
   &[data-highlighted]::before {
@@ -102,7 +102,7 @@
     inset-block: 0;
     inset-inline: 0.5rem;
     border-radius: 0.25rem;
-    background-color: var(--color-gray-900);
+    background-color: var(--color-neutral-900);
   }
 }
 
@@ -124,6 +124,6 @@
   box-sizing: border-box;
   font-size: 0.925rem;
   line-height: 1rem;
-  color: var(--color-gray-600);
+  color: var(--color-neutral-600);
   padding: 1rem;
 }

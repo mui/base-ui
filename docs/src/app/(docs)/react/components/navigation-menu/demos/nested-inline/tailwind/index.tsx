@@ -8,7 +8,7 @@ export default function ExampleNavigationMenu() {
   const isDesktop = useMediaQuery('(min-width: 700px)', { defaultMatches: true });
 
   return (
-    <NavigationMenu.Root className="min-w-max text-gray-950 dark:text-white">
+    <NavigationMenu.Root className="min-w-max text-neutral-950 dark:text-white">
       <NavigationMenu.List className="relative flex gap-px">
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={triggerClassName}>
@@ -20,26 +20,26 @@ export default function ExampleNavigationMenu() {
 
           <NavigationMenu.Content className={productContentClassName}>
             <NavigationMenu.Root
-              className="overflow-hidden overflow-clip text-gray-950 dark:text-white"
+              className="overflow-hidden overflow-clip text-neutral-950 dark:text-white"
               orientation={isDesktop ? 'vertical' : 'horizontal'}
               defaultValue="developers"
             >
               <div className="grid grid-cols-1 overflow-hidden overflow-clip min-[700px]:grid-cols-[13rem_minmax(0,1fr)]">
-                <NavigationMenu.List className="m-0 box-border flex list-none flex-row gap-1 overflow-x-auto p-2 min-[700px]:h-[var(--popup-height)] min-[700px]:flex-col min-[700px]:gap-0 min-[700px]:overflow-x-visible min-[700px]:overflow-y-clip min-[700px]:border-r min-[700px]:border-r-gray-950 min-[700px]:transition-[height] min-[700px]:duration-[var(--duration)] min-[700px]:ease-[var(--easing)] dark:min-[700px]:border-r-white">
+                <NavigationMenu.List className="m-0 box-border flex list-none flex-row gap-1 overflow-x-auto p-2 min-[700px]:h-[var(--popup-height)] min-[700px]:flex-col min-[700px]:gap-0 min-[700px]:overflow-x-visible min-[700px]:overflow-y-clip min-[700px]:border-r min-[700px]:border-r-neutral-950 min-[700px]:transition-[height] min-[700px]:duration-[var(--duration)] min-[700px]:ease-[var(--easing)] dark:min-[700px]:border-r-white">
                   {audienceMenus.map((menu) => (
                     <NavigationMenu.Item key={menu.value} value={menu.value}>
                       <NavigationMenu.Trigger className={submenuTriggerClassName}>
-                        <span className="text-sm leading-4 font-normal text-gray-950 dark:text-white">
+                        <span className="text-sm leading-4 font-normal text-neutral-950 dark:text-white">
                           {menu.label}
                         </span>
-                        <span className="text-sm leading-5 text-gray-500 dark:text-gray-400">
+                        <span className="text-sm leading-5 text-neutral-500 dark:text-neutral-400">
                           {menu.hint}
                         </span>
                       </NavigationMenu.Trigger>
                       <NavigationMenu.Content className={submenuContentClassName}>
                         <div>
                           <h4 className="m-0 text-base leading-5 font-normal">{menu.title}</h4>
-                          <p className="m-0 mt-1 text-sm leading-5 text-gray-500 dark:text-gray-400">
+                          <p className="m-0 mt-1 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
                             {menu.description}
                           </p>
                         </div>
@@ -48,7 +48,7 @@ export default function ExampleNavigationMenu() {
                             <li key={link.href}>
                               <Link className={linkCardClassName} href={link.href}>
                                 <h5 className="m-0 text-sm leading-4 font-normal">{link.title}</h5>
-                                <p className="m-0 text-sm leading-5 text-gray-500 dark:text-gray-400">
+                                <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
                                   {link.description}
                                 </p>
                               </Link>
@@ -59,7 +59,7 @@ export default function ExampleNavigationMenu() {
                     </NavigationMenu.Item>
                   ))}
                 </NavigationMenu.List>
-                <NavigationMenu.Viewport className="relative min-h-[16.5rem] overflow-hidden border-t border-gray-950 min-[700px]:border-t-0 dark:border-white" />
+                <NavigationMenu.Viewport className="relative min-h-[16.5rem] overflow-hidden border-t border-neutral-950 min-[700px]:border-t-0 dark:border-white" />
               </div>
             </NavigationMenu.Root>
           </NavigationMenu.Content>
@@ -74,10 +74,10 @@ export default function ExampleNavigationMenu() {
           </NavigationMenu.Trigger>
 
           <NavigationMenu.Content className={guidesContentClassName}>
-            <div className="flex flex-col gap-4 p-4 text-gray-950 dark:text-white">
+            <div className="flex flex-col gap-4 p-4 text-neutral-950 dark:text-white">
               <div>
                 <h4 className="m-0 text-base leading-5 font-normal">{guidesPanel.title}</h4>
-                <p className="m-0 mt-1 text-sm leading-5 text-gray-500 dark:text-gray-400">
+                <p className="m-0 mt-1 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
                   {guidesPanel.description}
                 </p>
               </div>
@@ -86,7 +86,7 @@ export default function ExampleNavigationMenu() {
                   <li key={link.href}>
                     <Link className={linkCardClassName} href={link.href}>
                       <h5 className="m-0 text-sm leading-4 font-normal">{link.title}</h5>
-                      <p className="m-0 text-sm leading-5 text-gray-500 dark:text-gray-400">
+                      <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
                         {link.description}
                       </p>
                     </Link>
@@ -121,8 +121,8 @@ export default function ExampleNavigationMenu() {
             ['--easing' as string]: 'ease-out',
           }}
         >
-          <NavigationMenu.Popup className="relative h-[var(--popup-height)] w-[var(--popup-width)] origin-[var(--transform-origin)] border border-gray-950 bg-white text-gray-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[opacity,transform,width,height,scale] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[ending-style]:ease-[ease] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 dark:border-white dark:bg-gray-950 dark:text-white dark:[filter:none]">
-            <NavigationMenu.Arrow className="relative block h-1.5 w-3 overflow-clip transition-[left,right] duration-[var(--duration)] ease-[var(--easing)] before:absolute before:bottom-0 before:left-1/2 before:block before:h-[calc(6px*sqrt(2))] before:w-[calc(6px*sqrt(2))] before:-translate-x-1/2 before:translate-y-1/2 before:rotate-45 before:border before:border-gray-950 before:bg-white before:content-[''] data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 dark:before:border-white dark:before:bg-gray-950" />
+          <NavigationMenu.Popup className="relative h-[var(--popup-height)] w-[var(--popup-width)] origin-[var(--transform-origin)] border border-neutral-950 bg-white text-neutral-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[opacity,transform,width,height,scale] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[ending-style]:ease-[ease] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:[filter:none]">
+            <NavigationMenu.Arrow className="relative block h-1.5 w-3 overflow-clip transition-[left,right] duration-[var(--duration)] ease-[var(--easing)] before:absolute before:bottom-0 before:left-1/2 before:block before:h-[calc(6px*sqrt(2))] before:w-[calc(6px*sqrt(2))] before:-translate-x-1/2 before:translate-y-1/2 before:rotate-45 before:border before:border-neutral-950 before:bg-white before:content-[''] data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 dark:before:border-white dark:before:bg-neutral-950" />
             <NavigationMenu.Viewport className="relative h-full w-full overflow-hidden" />
           </NavigationMenu.Popup>
         </NavigationMenu.Positioner>
@@ -154,7 +154,7 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 }
 
 const triggerClassName =
-  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm leading-5 font-normal text-gray-950 no-underline select-none min-[501px]:px-3 hover:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-gray-800 dark:data-[popup-open]:bg-gray-800';
+  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm leading-5 font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
 
 const sharedContentClassName =
   'h-full w-[calc(100vw_-_40px)] ' +
@@ -171,7 +171,7 @@ const productContentClassName = `${sharedContentClassName} p-0 min-[700px]:[widt
 const guidesContentClassName = `${sharedContentClassName} p-0 min-[700px]:[width:min(500px,calc(100vw-40px))]`;
 
 const submenuTriggerClassName =
-  'm-0 flex w-full min-w-[10rem] flex-col items-start gap-1 border-0 bg-transparent p-2 text-left text-inherit hover:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:hover:bg-gray-800 dark:data-[popup-open]:bg-gray-800';
+  'm-0 flex w-full min-w-[10rem] flex-col items-start gap-1 border-0 bg-transparent p-2 text-left text-inherit hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
 
 const submenuContentClassName =
   'flex h-full translate-x-0 flex-col gap-4 p-4 transition-[opacity,translate,filter] duration-[var(--duration)] ease-[var(--easing)] min-[700px]:duration-[calc(var(--duration)*1.35)] min-[700px]:ease-[cubic-bezier(0.16,1,0.3,1)] ' +
@@ -181,4 +181,4 @@ const submenuContentClassName =
   'min-[700px]:data-[ending-style]:data-[activation-direction=up]:translate-y-[72px] min-[700px]:data-[ending-style]:data-[activation-direction=down]:translate-y-[-72px]';
 
 const linkCardClassName =
-  'relative block h-full w-full border-0 bg-transparent p-2 text-left text-inherit no-underline hover:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:hover:bg-gray-800 dark:data-[popup-open]:bg-gray-800';
+  'relative block h-full w-full border-0 bg-transparent p-2 text-left text-inherit no-underline hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
