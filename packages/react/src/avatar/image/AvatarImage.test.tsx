@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
-import { Avatar } from '@base-ui/react/avatar';
+import { Avatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
 import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
@@ -268,11 +268,50 @@ describe('<Avatar.Image />', () => {
       // `useTransitionStatus`'s internal rAF flip ('starting' → undefined) is processed inside
       // a React-wrapped scope and doesn't trip the no-act-warning console assertion.
       await act(async () => {
-        await new Promise((r) => setTimeout(r, 50));
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 50);
+        });
       });
 
       expect(screen.getByTestId('image')).not.toHaveAttribute('data-starting-style');
       expect(transitionFired).toBe(false);
+    });
+
+    it('fires onLoadingStatusChange exactly once with "loaded" for a cached image', async () => {
+      restoreImage();
+
+      // Pre-load so the cache fast-path will resolve synchronously on first commit.
+      await new Promise<void>((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Failed to preload test image'));
+        img.src = DATA_URI;
+      });
+
+      const calls: ImageLoadingStatus[] = [];
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            onLoadingStatusChange={(status) => calls.push(status)}
+            src={DATA_URI}
+          />
+        </Avatar.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).toBeVisible();
+      });
+
+      // Allow any pending `'loading'` to fire if the suppression were broken.
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 50);
+        });
+      });
+
+      expect(calls).toEqual(['loaded']);
     });
   });
 

@@ -86,8 +86,8 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   }, [componentProps.src]);
 
   /**
-   * Mirrors intrinsic load/decode — not optimistic `loaded` on `src` alone — so `Avatar.Fallback`
-   * can show during slow networks (`loading`) like the preload-based implementation did.
+   * Status reflects the rendered `<img>`'s actual load/decode lifecycle — not an optimistic
+   * `'loaded'` on `src` alone — so `Avatar.Fallback` shows during slow networks (`'loading'`).
    */
   const imageLoadingStatus = resolveImageLoadingStatus(
     componentProps.src,
@@ -168,6 +168,15 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   });
 
   useIsoLayoutEffect(() => {
+    // Suppress the transient `'loading'` fire when the cache fast-path is about to flip
+    // straight to `'loaded'` on the next render. Layout effects run in declaration order, so
+    // by the time this effect runs, the cache fast-path effect above has already populated
+    // `cachedAtMountRef.current` for this commit — when it's true we know the image was
+    // resolved synchronously from the browser cache and never went through a real loading
+    // phase, so consumers shouldn't observe a `'loading'` status at all.
+    if (cachedAtMountRef.current && imageLoadingStatus === 'loading') {
+      return;
+    }
     handleLoadingStatusChange(imageLoadingStatus);
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
