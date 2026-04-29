@@ -10,7 +10,7 @@ export function Label({ className, ...props }: Field.Label.Props) {
   return (
     <Field.Label
       className={clsx(
-        'text-sm font-bold text-gray-900 has-[[role="checkbox"]]:flex has-[[role="checkbox"]]:items-center has-[[role="checkbox"]]:gap-2 has-[[role="checkbox"]]:font-normal has-[[role="radio"]]:flex has-[[role="radio"]]:items-center has-[[role="radio"]]:gap-2 has-[[role="radio"]]:font-normal has-[[role="switch"]]:flex has-[[role="switch"]]:items-center',
+        'text-sm font-bold text-neutral-900 has-[[role="checkbox"]]:flex has-[[role="checkbox"]]:items-center has-[[role="checkbox"]]:gap-2 has-[[role="checkbox"]]:font-normal has-[[role="radio"]]:flex has-[[role="radio"]]:items-center has-[[role="radio"]]:gap-2 has-[[role="radio"]]:font-normal has-[[role="switch"]]:flex has-[[role="switch"]]:items-center',
         className,
       )}
       {...props}
@@ -19,7 +19,7 @@ export function Label({ className, ...props }: Field.Label.Props) {
 }
 
 export function Description({ className, ...props }: Field.Description.Props) {
-  return <Field.Description className={clsx('text-sm text-gray-600', className)} {...props} />;
+  return <Field.Description className={clsx('text-sm text-neutral-600', className)} {...props} />;
 }
 
 export const Control = React.forwardRef<HTMLInputElement, Field.Control.Props>(
@@ -31,7 +31,7 @@ export const Control = React.forwardRef<HTMLInputElement, Field.Control.Props>(
       <Field.Control
         ref={forwardedRef}
         className={clsx(
-          'h-10 w-full max-w-xs rounded-md bg-[canvas] border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+          'h-10 w-full max-w-xs rounded-md bg-[canvas] border border-neutral-200 pl-3.5 text-base text-neutral-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
           className,
         )}
         {...props}

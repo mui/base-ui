@@ -6,10 +6,10 @@ export default function ExamplePopoverCombobox() {
   return (
     <div className="flex flex-col gap-1">
       <Combobox.Root items={countries}>
-        <Combobox.Label className="cursor-default text-sm leading-5 font-bold text-gray-900">
+        <Combobox.Label className="cursor-default text-sm leading-5 font-bold text-neutral-900">
           Country
         </Combobox.Label>
-        <Combobox.Trigger className="flex bg-[canvas] h-10 min-w-[12rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default font-normal">
+        <Combobox.Trigger className="flex bg-[canvas] h-10 min-w-[12rem] items-center justify-between gap-3 rounded-md border border-neutral-200 pr-3 pl-3.5 text-base text-neutral-900 select-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-neutral-100 cursor-default font-normal">
           <Combobox.Value placeholder={<span className="opacity-60">Select country</span>} />
           <Combobox.Icon className="flex">
             <ChevronUpDownIcon />
@@ -18,17 +18,17 @@ export default function ExamplePopoverCombobox() {
         <Combobox.Portal>
           <Combobox.Positioner align="start" sideOffset={4}>
             <Combobox.Popup
-              className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[var(--available-width)] max-h-[24rem] rounded-lg bg-[canvas] shadow-lg shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+              className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[var(--available-width)] max-h-[24rem] rounded-lg bg-[canvas] shadow-lg shadow-neutral-200 text-neutral-900 outline-1 outline-neutral-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-neutral-300"
               aria-label="Select country"
             >
               <div className="w-80 h-[var(--input-container-height)] text-center p-2">
                 <Combobox.Input
                   placeholder="e.g. United Kingdom"
-                  className="h-10 w-full font-normal rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                  className="h-10 w-full font-normal rounded-md border border-neutral-200 pl-3.5 text-base font-normal text-neutral-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
                 />
               </div>
               <Combobox.Empty>
-                <div className="p-4 text-[0.925rem] leading-4 text-gray-600">
+                <div className="p-4 text-[0.925rem] leading-4 text-neutral-600">
                   No countries found.
                 </div>
               </Combobox.Empty>
@@ -37,7 +37,7 @@ export default function ExamplePopoverCombobox() {
                   <Combobox.Item
                     key={country.code}
                     value={country}
-                    className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
+                    className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-neutral-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-neutral-900"
                   >
                     <Combobox.ItemIndicator className="col-start-1">
                       <CheckIcon className="size-3" />

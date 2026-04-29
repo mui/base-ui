@@ -37,12 +37,12 @@ const demoMenu = Menu.createHandle<MenuKey>();
 
 const triggerClass = `
   flex h-8 items-center justify-center
-  rounded-none border border-gray-950 bg-white
-  px-3 text-sm leading-5 font-normal text-gray-950
+  rounded-none border border-neutral-950 bg-white
+  px-3 text-sm leading-5 font-normal text-neutral-950
   select-none
-  hover:bg-gray-50 active:bg-gray-100 data-[popup-open]:bg-gray-100
-  dark:border-white dark:bg-gray-950 dark:text-white
-  dark:hover:bg-gray-900 dark:active:bg-gray-800 dark:data-[popup-open]:bg-gray-800
+  hover:bg-neutral-50 active:bg-neutral-100 data-[popup-open]:bg-neutral-100
+  dark:border-white dark:bg-neutral-950 dark:text-white
+  dark:hover:bg-neutral-900 dark:active:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800
   focus-visible:outline focus-visible:outline-2
   focus-visible:-outline-offset-2 focus-visible:outline-blue-800
 `;
@@ -53,8 +53,8 @@ const itemClass = `
   data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-white
   data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1
   data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1]
-  data-[highlighted]:before:bg-gray-950 data-[highlighted]:before:content-['']
-  dark:data-[highlighted]:text-gray-950 dark:data-[highlighted]:before:bg-white
+  data-[highlighted]:before:bg-neutral-950 data-[highlighted]:before:content-['']
+  dark:data-[highlighted]:text-neutral-950 dark:data-[highlighted]:before:bg-white
 `;
 
 export default function MenuDetachedTriggersFullDemo() {
@@ -86,14 +86,14 @@ export default function MenuDetachedTriggersFullDemo() {
               <Menu.Popup
                 className={`
                   relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] py-1
-                  origin-[var(--transform-origin)] border border-gray-950
-                  bg-white text-gray-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))]
+                  origin-[var(--transform-origin)] border border-neutral-950
+                  bg-white text-neutral-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))]
                   transition-[width,height,opacity,scale]
                   duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]
                   data-[starting-style]:scale-90 data-[starting-style]:opacity-0
                   data-[ending-style]:scale-90 data-[ending-style]:opacity-0
                   data-instant:transition-none
-                  dark:border-white dark:bg-gray-950 dark:text-white dark:[filter:none]
+                  dark:border-white dark:bg-neutral-950 dark:text-white dark:[filter:none]
                 `}
               >
                 <Menu.Arrow
@@ -107,7 +107,7 @@ export default function MenuDetachedTriggersFullDemo() {
                     data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180
                     before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border
                     before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))]
-                    before:bg-white dark:before:bg-gray-950 before:border before:border-gray-950 dark:before:border-white
+                    before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white
                     before:[transform:translate(-50%,50%)_rotate(45deg)]
                   `}
                 />
@@ -141,7 +141,7 @@ export default function MenuDetachedTriggersFullDemo() {
                       <React.Fragment key={groupIndex}>
                         <Menu.Group>
                           {groupIndex === 0 && (
-                            <Menu.GroupLabel className="px-4 py-2 text-xs tracking-[0.05em] text-gray-600 uppercase dark:text-gray-400">
+                            <Menu.GroupLabel className="px-4 py-2 text-xs tracking-[0.05em] text-neutral-600 uppercase dark:text-neutral-400">
                               {MENUS[payload].heading}
                             </Menu.GroupLabel>
                           )}
@@ -152,7 +152,7 @@ export default function MenuDetachedTriggersFullDemo() {
                           ))}
                         </Menu.Group>
                         {groupIndex < MENUS[payload].groups.length - 1 && (
-                          <Menu.Separator className="mx-1 my-1 h-px bg-gray-950 dark:bg-white" />
+                          <Menu.Separator className="mx-1 my-1 h-px bg-neutral-950 dark:bg-white" />
                         )}
                       </React.Fragment>
                     ))}

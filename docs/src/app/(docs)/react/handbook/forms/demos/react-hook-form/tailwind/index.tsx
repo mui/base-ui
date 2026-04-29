@@ -95,10 +95,10 @@ function ReactHookForm() {
         }) => (
           <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
             <Combobox.Root items={REGIONS} value={value} onValueChange={onChange}>
-              <div className="relative flex flex-col gap-1 text-sm leading-5 text-gray-900">
+              <div className="relative flex flex-col gap-1 text-sm leading-5 text-neutral-900">
                 <Field.Label>Region</Field.Label>
                 <Combobox.Input placeholder="e.g. eu-central-1" ref={ref} onBlur={onBlur} />
-                <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
+                <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-neutral-600">
                   <Combobox.Clear />
                   <Combobox.Trigger>
                     <ChevronDown className="size-4" />

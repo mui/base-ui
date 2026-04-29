@@ -11,12 +11,12 @@
 .Track {
   width: 100%;
   height: 0.25rem;
-  background-color: light-dark(var(--color-gray-200), var(--color-gray-800));
+  background-color: light-dark(var(--color-neutral-200), var(--color-neutral-800));
   user-select: none;
 }
 
 .Indicator {
-  background-color: light-dark(var(--color-gray-950), white);
+  background-color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 }
 
@@ -24,8 +24,8 @@
   box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  border: 1px solid light-dark(var(--color-gray-950), white);
-  background-color: light-dark(white, var(--color-gray-950));
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
   user-select: none;
 
   &:has(:focus-visible) {

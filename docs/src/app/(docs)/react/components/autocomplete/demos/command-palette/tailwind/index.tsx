@@ -13,14 +13,14 @@ export default function ExampleAutocompleteCommandPalette() {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger className="flex h-10 cursor-default items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+      <Dialog.Trigger className="flex h-10 cursor-default items-center justify-center rounded-md border border-neutral-200 bg-neutral-50 px-3.5 text-base font-normal text-neutral-900 select-none hover:bg-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-neutral-100">
         Open command palette
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-150 ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 flex items-start justify-center overflow-hidden px-2 pt-18 pb-2">
           <Dialog.Popup
-            className="relative flex max-h-[min(36rem,calc(100dvh-5rem))] w-[calc(100vw-1rem)] max-w-[28rem] flex-col overflow-hidden rounded-2xl bg-white text-gray-900 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)] transition-[opacity,transform,scale,translate] duration-150 data-ending-style:-translate-y-4 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:-translate-y-4 data-starting-style:scale-95 data-starting-style:opacity-0 dark:bg-[oklch(20%_0.5%_264deg)] dark:outline-white/25"
+            className="relative flex max-h-[min(36rem,calc(100dvh-5rem))] w-[calc(100vw-1rem)] max-w-[28rem] flex-col overflow-hidden rounded-2xl bg-white text-neutral-900 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)] transition-[opacity,transform,scale,translate] duration-150 data-ending-style:-translate-y-4 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:-translate-y-4 data-starting-style:scale-95 data-starting-style:opacity-0 dark:bg-[oklch(20%_0.5%_264deg)] dark:outline-white/25"
             aria-label="Command palette"
           >
             <Autocomplete.Root
@@ -31,7 +31,7 @@ export default function ExampleAutocompleteCommandPalette() {
               keepHighlight
             >
               <Autocomplete.Input
-                className="w-full border-0 border-b border-gray-100 bg-transparent p-4 text-base font-normal tracking-[0.016em] text-gray-900 placeholder:text-gray-500 outline-none"
+                className="w-full border-0 border-b border-neutral-100 bg-transparent p-4 text-base font-normal tracking-[0.016em] text-neutral-900 placeholder:text-neutral-500 outline-none"
                 placeholder="Search for apps and commands…"
               />
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
@@ -40,7 +40,7 @@ export default function ExampleAutocompleteCommandPalette() {
                 <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain [scroll-padding-block:0.25rem] focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                   <ScrollArea.Content style={{ minWidth: '100%' }}>
                     <Autocomplete.Empty>
-                      <div className="flex min-h-32 items-center justify-center p-4 text-[0.925rem] leading-4 text-gray-600">
+                      <div className="flex min-h-32 items-center justify-center p-4 text-[0.925rem] leading-4 text-neutral-600">
                         No results found.
                       </div>
                     </Autocomplete.Empty>
@@ -52,7 +52,7 @@ export default function ExampleAutocompleteCommandPalette() {
                           items={group.items}
                           className="not-last:mb-1"
                         >
-                          <Autocomplete.GroupLabel className="m-0 flex h-8 items-center px-3.5 text-[0.9375rem] tracking-[0.00625em] font-normal leading-none text-gray-600 select-none outline-none">
+                          <Autocomplete.GroupLabel className="m-0 flex h-8 items-center px-3.5 text-[0.9375rem] tracking-[0.00625em] font-normal leading-none text-neutral-600 select-none outline-none">
                             {group.value}
                           </Autocomplete.GroupLabel>
                           <Autocomplete.Collection>
@@ -61,10 +61,10 @@ export default function ExampleAutocompleteCommandPalette() {
                                 key={item.value}
                                 value={item}
                                 onClick={handleItemClick}
-                                className="grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-md pl-9 pr-3 text-[0.9375rem] tracking-[0.016em] font-normal leading-[1.25] select-none outline-none [scroll-margin-block:0.25rem] data-[highlighted]:bg-gray-100"
+                                className="grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-md pl-9 pr-3 text-[0.9375rem] tracking-[0.016em] font-normal leading-[1.25] select-none outline-none [scroll-margin-block:0.25rem] data-[highlighted]:bg-neutral-100"
                               >
                                 <span className="truncate font-normal">{item.label}</span>
-                                <span className="shrink-0 whitespace-nowrap text-[0.875rem] tracking-[0.00625em] text-gray-500 data-[highlighted]:text-gray-700">
+                                <span className="shrink-0 whitespace-nowrap text-[0.875rem] tracking-[0.00625em] text-neutral-500 data-[highlighted]:text-neutral-700">
                                   {group.value === 'Suggestions' ? 'Application' : 'Command'}
                                 </span>
                               </Autocomplete.Item>
@@ -76,23 +76,23 @@ export default function ExampleAutocompleteCommandPalette() {
                   </ScrollArea.Content>
                 </ScrollArea.Viewport>
                 <ScrollArea.Scrollbar className="-mr-1 flex w-6 justify-center py-2">
-                  <ScrollArea.Thumb className="flex w-full justify-center before:block before:h-full before:w-1 before:rounded-sm before:bg-gray-400 before:content-['']" />
+                  <ScrollArea.Thumb className="flex w-full justify-center before:block before:h-full before:w-1 before:rounded-sm before:bg-neutral-400 before:content-['']" />
                 </ScrollArea.Scrollbar>
               </ScrollArea.Root>
 
-              <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-600">
+              <div className="flex items-center justify-between border-t border-neutral-200 bg-neutral-50 px-3 py-2.5 text-xs text-neutral-600">
                 <div className="flex items-center gap-2">
                   <span>Activate</span>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-normal text-gray-700">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-neutral-300 bg-neutral-100 px-1 text-[0.625rem] font-normal text-neutral-700">
                     Enter
                   </kbd>
                 </div>
                 <div className="flex items-center gap-2">
                   <span>Actions</span>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-normal text-gray-700">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-neutral-300 bg-neutral-100 px-1 text-[0.625rem] font-normal text-neutral-700">
                     Cmd
                   </kbd>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-normal text-gray-700">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-neutral-300 bg-neutral-100 px-1 text-[0.625rem] font-normal text-neutral-700">
                     K
                   </kbd>
                 </div>

@@ -5,7 +5,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .Checkbox {
@@ -16,17 +16,17 @@
   height: 1rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 0;
-  background-color: light-dark(white, var(--color-gray-950));
-  color: light-dark(white, var(--color-gray-950));
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(white, var(--color-neutral-950));
   padding: 0;
   margin: 0;
 
   &[data-checked],
   &[data-indeterminate] {
-    background-color: light-dark(var(--color-gray-950), white);
-    color: light-dark(white, var(--color-gray-950));
+    background-color: light-dark(var(--color-neutral-950), white);
+    color: light-dark(white, var(--color-neutral-950));
   }
 
   &:focus-visible {

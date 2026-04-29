@@ -2,7 +2,7 @@
   display: flex;
   gap: 1px;
   padding: 1px;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
 }
 
 .Button {
@@ -17,28 +17,28 @@
   border: none;
   border-radius: 0;
   background-color: transparent;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &:active:not([data-disabled], [data-pressed]) {
-    background-color: light-dark(var(--color-gray-200), var(--color-gray-700));
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
   }
 
   &[data-pressed] {
-    background-color: light-dark(var(--color-gray-950), white);
-    color: light-dark(white, var(--color-gray-950));
+    background-color: light-dark(var(--color-neutral-950), white);
+    color: light-dark(white, var(--color-neutral-950));
   }
 
   @media (hover: hover) {
     &[data-pressed]:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-gray-950), white);
-      color: light-dark(white, var(--color-gray-950));
+      background-color: light-dark(var(--color-neutral-950), white);
+      color: light-dark(white, var(--color-neutral-950));
     }
   }
 

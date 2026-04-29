@@ -3,11 +3,11 @@ import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 
 const itemClass =
-  "flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-white data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:bg-gray-950 data-[highlighted]:before:content-[''] data-[disabled]:text-gray-500 dark:data-[highlighted]:text-gray-950 dark:data-[highlighted]:before:bg-white dark:data-[disabled]:text-gray-400";
+  "flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-white data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:bg-neutral-950 data-[highlighted]:before:content-[''] data-[disabled]:text-neutral-500 dark:data-[highlighted]:text-neutral-950 dark:data-[highlighted]:before:bg-white dark:data-[disabled]:text-neutral-400";
 const triggerClass =
-  'flex h-8 items-center justify-center rounded-none border border-gray-950 bg-white px-3 text-sm leading-5 font-normal text-gray-950 select-none hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900 dark:active:bg-gray-800 dark:data-[popup-open]:bg-gray-800';
+  'flex h-8 items-center justify-center rounded-none border border-neutral-950 bg-white px-3 text-sm leading-5 font-normal text-neutral-950 select-none hover:bg-neutral-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 active:bg-neutral-100 data-[popup-open]:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-900 dark:active:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
 const popupClass =
-  'relative origin-[var(--transform-origin)] border border-gray-950 bg-white py-1 text-gray-950 outline-hidden [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[scale,opacity] duration-100 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 dark:border-white dark:bg-gray-950 dark:text-white dark:[filter:none]';
+  'relative origin-[var(--transform-origin)] border border-neutral-950 bg-white py-1 text-neutral-950 outline-hidden [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[scale,opacity] duration-100 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:[filter:none]';
 
 interface MenuItemDefinition {
   label: string;
@@ -96,7 +96,7 @@ export default function MenuDetachedTriggersControlledDemo() {
           <Menu.Portal>
             <Menu.Positioner sideOffset={8} className="outline-hidden">
               <Menu.Popup className={popupClass}>
-                <Menu.Arrow className="relative block w-3 h-1.5 overflow-clip data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-gray-950 before:border before:border-gray-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]" />
+                <Menu.Arrow className="relative block w-3 h-1.5 overflow-clip data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]" />
 
                 {payload &&
                   MENUS[payload].map((item, index) => (

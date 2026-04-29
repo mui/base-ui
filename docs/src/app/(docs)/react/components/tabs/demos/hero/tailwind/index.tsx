@@ -6,42 +6,42 @@ export default function ExampleTabs() {
     <Tabs.Root defaultValue="overview">
       <Tabs.List className="relative z-1 -mb-px flex gap-1">
         <Tabs.Tab
-          className="flex h-[calc(2rem+1px)] items-center justify-center border-0 px-2 text-sm font-normal break-keep whitespace-nowrap text-gray-600 outline-0 select-none hover:text-gray-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-active:text-gray-950 dark:text-gray-300 dark:hover:text-white dark:data-active:text-white"
+          className="flex h-[calc(2rem+1px)] items-center justify-center border-0 px-2 text-sm font-normal break-keep whitespace-nowrap text-neutral-600 outline-0 select-none hover:text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white"
           value="overview"
         >
           Overview
         </Tabs.Tab>
         <Tabs.Tab
-          className="flex h-[calc(2rem+1px)] items-center justify-center border-0 px-2 text-sm font-normal break-keep whitespace-nowrap text-gray-600 outline-0 select-none hover:text-gray-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-active:text-gray-950 dark:text-gray-300 dark:hover:text-white dark:data-active:text-white"
+          className="flex h-[calc(2rem+1px)] items-center justify-center border-0 px-2 text-sm font-normal break-keep whitespace-nowrap text-neutral-600 outline-0 select-none hover:text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white"
           value="projects"
         >
           Projects
         </Tabs.Tab>
         <Tabs.Tab
-          className="flex h-[calc(2rem+1px)] items-center justify-center border-0 px-2 text-sm font-normal break-keep whitespace-nowrap text-gray-600 outline-0 select-none hover:text-gray-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-active:text-gray-950 dark:text-gray-300 dark:hover:text-white dark:data-active:text-white"
+          className="flex h-[calc(2rem+1px)] items-center justify-center border-0 px-2 text-sm font-normal break-keep whitespace-nowrap text-neutral-600 outline-0 select-none hover:text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-active:text-neutral-950 dark:text-neutral-300 dark:hover:text-white dark:data-active:text-white"
           value="account"
         >
           Account
         </Tabs.Tab>
-        <Tabs.Indicator className="absolute top-0 left-0 -z-1 h-full w-(--active-tab-width) translate-x-(--active-tab-left) border-x border-t border-gray-950 bg-white transition-[translate,width] duration-150 ease-in-out dark:border-white dark:bg-gray-950" />
+        <Tabs.Indicator className="absolute top-0 left-0 -z-1 h-full w-(--active-tab-width) translate-x-(--active-tab-left) border-x border-t border-neutral-950 bg-white transition-[translate,width] duration-150 ease-in-out dark:border-white dark:bg-neutral-950" />
       </Tabs.List>
       <Tabs.Panel
-        className="relative flex h-32 items-center justify-center border border-gray-950 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-950 [&[hidden]]:hidden"
+        className="relative flex h-32 items-center justify-center border border-neutral-950 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-neutral-950 [&[hidden]]:hidden"
         value="overview"
       >
-        <OverviewIcon className="size-10 text-gray-400 dark:text-gray-500" />
+        <OverviewIcon className="size-10 text-neutral-400 dark:text-neutral-500" />
       </Tabs.Panel>
       <Tabs.Panel
-        className="relative flex h-32 items-center justify-center border border-gray-950 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-950 [&[hidden]]:hidden"
+        className="relative flex h-32 items-center justify-center border border-neutral-950 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-neutral-950 [&[hidden]]:hidden"
         value="projects"
       >
-        <ProjectIcon className="size-10 text-gray-400 dark:text-gray-500" />
+        <ProjectIcon className="size-10 text-neutral-400 dark:text-neutral-500" />
       </Tabs.Panel>
       <Tabs.Panel
-        className="relative flex h-32 items-center justify-center border border-gray-950 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-950 [&[hidden]]:hidden"
+        className="relative flex h-32 items-center justify-center border border-neutral-950 bg-white outline-0 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-neutral-950 [&[hidden]]:hidden"
         value="account"
       >
-        <PersonIcon className="size-10 text-gray-400 dark:text-gray-500" />
+        <PersonIcon className="size-10 text-neutral-400 dark:text-neutral-500" />
       </Tabs.Panel>
     </Tabs.Root>
   );

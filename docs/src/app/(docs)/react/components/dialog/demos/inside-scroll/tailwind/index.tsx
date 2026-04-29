@@ -5,26 +5,26 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 export default function InsideScrollDialog() {
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+      <Dialog.Trigger className="flex h-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-150 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 dark:opacity-50 supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 flex items-center justify-center overflow-hidden py-6 [@media(min-height:600px)]:pb-12 [@media(min-height:600px)]:pt-8">
-          <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden bg-white dark:bg-gray-950 text-gray-950 dark:text-white border border-gray-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0">
+          <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0">
             <div className="px-4 pt-4 pb-3">
               <Dialog.Title className="m-0 mb-1 text-base font-bold leading-6">Dialog</Dialog.Title>
-              <Dialog.Description className="m-0 text-sm leading-5 text-gray-600 dark:text-gray-400">
+              <Dialog.Description className="m-0 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
                 This layout keeps the popup fully on screen while allowing its content to scroll.
               </Dialog.Description>
             </div>
-            <ScrollArea.Root className="relative flex min-h-0 flex-auto overflow-hidden border-y border-gray-950 dark:border-white">
+            <ScrollArea.Root className="relative flex min-h-0 flex-auto overflow-hidden border-y border-neutral-950 dark:border-white">
               <ScrollArea.Viewport className="flex-auto min-h-0 overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
                 <ScrollArea.Content className="flex flex-col">
                   {CONTENT_SECTIONS.map((item) => (
                     <section className="p-4" key={item.title}>
                       <h3 className="mb-1 text-sm font-bold leading-5">{item.title}</h3>
-                      <p className="m-0 text-sm leading-5 text-gray-700 dark:text-gray-300">
+                      <p className="m-0 text-sm leading-5 text-neutral-700 dark:text-neutral-300">
                         {item.body}
                       </p>
                     </section>
@@ -32,11 +32,11 @@ export default function InsideScrollDialog() {
                 </ScrollArea.Content>
               </ScrollArea.Viewport>
               <ScrollArea.Scrollbar className="pointer-events-none flex w-3 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-150 before:absolute before:h-full before:w-4 before:content-[''] data-[hovering]:pointer-events-auto data-[hovering]:opacity-100 data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-0">
-                <ScrollArea.Thumb className="w-full bg-gray-950 dark:bg-white" />
+                <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
             <div className="flex justify-end gap-3 p-4">
-              <Dialog.Close className="flex h-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 px-3 text-sm font-normal text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+              <Dialog.Close className="flex h-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
                 Close
               </Dialog.Close>
             </div>

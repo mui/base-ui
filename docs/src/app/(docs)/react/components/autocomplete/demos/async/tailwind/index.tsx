@@ -18,7 +18,7 @@ export default function ExampleAsyncAutocomplete() {
       return (
         <React.Fragment>
           <div
-            className="size-4 rounded-full border-2 border-gray-200 border-t-gray-600 animate-spin"
+            className="size-4 rounded-full border-2 border-neutral-200 border-t-neutral-600 animate-spin"
             aria-hidden
           />
           Searching…
@@ -77,23 +77,23 @@ export default function ExampleAsyncAutocomplete() {
       itemToStringValue={(item) => item.title}
       filter={null}
     >
-      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
+      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-neutral-900">
         Search movies by name or year
         <Autocomplete.Input
           placeholder="e.g. Pulp Fiction or 1994"
-          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-neutral-200 pl-3.5 text-base font-normal text-neutral-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
       </label>
 
       <Autocomplete.Portal hidden={!status}>
         <Autocomplete.Positioner className="outline-hidden" sideOffset={4} align="start">
           <Autocomplete.Popup
-            className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+            className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-neutral-900 shadow-lg shadow-neutral-200 outline-1 outline-neutral-200 dark:shadow-none dark:-outline-offset-1 dark:outline-neutral-300"
             aria-busy={isPending || undefined}
           >
             <Autocomplete.Status>
               {status && (
-                <div className="flex items-center gap-2 py-1 pl-4 pr-8 text-sm text-gray-600">
+                <div className="flex items-center gap-2 py-1 pl-4 pr-8 text-sm text-neutral-600">
                   {status}
                 </div>
               )}
@@ -102,7 +102,7 @@ export default function ExampleAsyncAutocomplete() {
               {(movie: Movie) => (
                 <Autocomplete.Item
                   key={movie.id}
-                  className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
+                  className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-neutral-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-neutral-900"
                   value={movie}
                 >
                   <span className="flex w-full flex-col gap-1">

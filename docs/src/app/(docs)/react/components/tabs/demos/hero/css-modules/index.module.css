@@ -15,7 +15,7 @@
   margin: 0;
   outline: 0;
   background: none;
-  color: light-dark(var(--color-gray-600), var(--color-gray-300));
+  color: light-dark(var(--color-neutral-600), var(--color-neutral-300));
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -29,12 +29,12 @@
 
   @media (hover: hover) {
     &:hover {
-      color: light-dark(var(--color-gray-950), white);
+      color: light-dark(var(--color-neutral-950), white);
     }
   }
 
   &[data-active] {
-    color: light-dark(var(--color-gray-950), white);
+    color: light-dark(var(--color-neutral-950), white);
   }
 
   &:focus-visible {
@@ -55,9 +55,9 @@
   transition-property: translate, width;
   transition-duration: 150ms;
   transition-timing-function: ease-in-out;
-  border-top: 1px solid light-dark(var(--color-gray-950), white);
-  border-inline: 1px solid light-dark(var(--color-gray-950), white);
-  background-color: light-dark(white, var(--color-gray-950));
+  border-top: 1px solid light-dark(var(--color-neutral-950), white);
+  border-inline: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
 }
 
 .Panel {
@@ -68,9 +68,9 @@
   justify-content: center;
   height: 8rem;
   outline: 0;
-  border-inline: 1px solid light-dark(var(--color-gray-950), white);
-  border-block: 1px solid light-dark(var(--color-gray-950), white);
-  background-color: light-dark(white, var(--color-gray-950));
+  border-inline: 1px solid light-dark(var(--color-neutral-950), white);
+  border-block: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
 
   &:focus-visible {
     outline: 2px solid var(--color-blue-800);
@@ -86,5 +86,5 @@
 .Icon {
   width: 2.5rem;
   height: 2.5rem;
-  color: light-dark(var(--color-gray-400), var(--color-gray-500));
+  color: light-dark(var(--color-neutral-400), var(--color-neutral-500));
 }

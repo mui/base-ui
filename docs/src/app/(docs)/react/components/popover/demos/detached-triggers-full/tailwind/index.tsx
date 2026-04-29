@@ -10,7 +10,7 @@ export default function PopoverDetachedTriggersFullDemo() {
   return (
     <div className="flex gap-2">
       <Popover.Trigger
-        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="flex size-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white text-sm font-normal select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-[popup-open]:bg-neutral-100 dark:data-[popup-open]:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         handle={demoPopover}
         payload={NotificationsPanel}
       >
@@ -18,7 +18,7 @@ export default function PopoverDetachedTriggersFullDemo() {
       </Popover.Trigger>
 
       <Popover.Trigger
-        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="flex size-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white text-sm font-normal select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-[popup-open]:bg-neutral-100 dark:data-[popup-open]:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         handle={demoPopover}
         payload={ActivityPanel}
       >
@@ -26,7 +26,7 @@ export default function PopoverDetachedTriggersFullDemo() {
       </Popover.Trigger>
 
       <Popover.Trigger
-        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="flex size-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white text-sm font-normal select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-[popup-open]:bg-neutral-100 dark:data-[popup-open]:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         handle={demoPopover}
         payload={ProfilePanel}
       >
@@ -40,8 +40,8 @@ export default function PopoverDetachedTriggersFullDemo() {
               sideOffset={8}
               className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[instant]:transition-none"
             >
-              <Popover.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] max-w-[31.25rem] origin-[var(--transform-origin)] bg-white dark:bg-gray-950 text-gray-950 dark:text-white border border-gray-950 dark:border-white [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] dark:[filter:none] transition-[width,height,opacity,scale] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[instant]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
-                <Popover.Arrow className="relative block w-3 h-1.5 overflow-clip transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-gray-950 before:border before:border-gray-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]" />
+              <Popover.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] max-w-[31.25rem] origin-[var(--transform-origin)] bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] dark:[filter:none] transition-[width,height,opacity,scale] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[instant]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0">
+                <Popover.Arrow className="relative block w-3 h-1.5 overflow-clip transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]" />
 
                 <Popover.Viewport
                   className={`
@@ -82,7 +82,7 @@ function NotificationsPanel() {
   return (
     <React.Fragment>
       <Popover.Title className="m-0 text-sm font-bold leading-5">Notifications</Popover.Title>
-      <Popover.Description className="m-0 text-sm leading-5 text-gray-600 dark:text-gray-400">
+      <Popover.Description className="m-0 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
         You are all caught up. Good job!
       </Popover.Description>
     </React.Fragment>
@@ -95,7 +95,7 @@ function ProfilePanel() {
       <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 m-0 text-sm font-bold leading-5">
         Jason Eventon
       </Popover.Title>
-      <Avatar.Root className="col-start-1 col-end-2 row-start-1 row-end-3 inline-flex h-12 w-12 items-center justify-center overflow-hidden bg-gray-200 dark:bg-gray-800 align-middle text-sm leading-none font-bold text-gray-950 dark:text-white select-none">
+      <Avatar.Root className="col-start-1 col-end-2 row-start-1 row-end-3 inline-flex h-12 w-12 items-center justify-center overflow-hidden bg-neutral-200 dark:bg-neutral-800 align-middle text-sm leading-none font-bold text-neutral-950 dark:text-white select-none">
         <Avatar.Image
           src="https://images.unsplash.com/photo-1543610892-0b1f7e6d8ac1?w=128&h=128&dpr=2&q=80"
           width="48"
@@ -103,19 +103,19 @@ function ProfilePanel() {
           className="h-full w-full object-cover"
         />
       </Avatar.Root>
-      <span className="col-start-2 col-end-3 row-start-2 row-end-3 text-sm leading-5 text-gray-600 dark:text-gray-400">
+      <span className="col-start-2 col-end-3 row-start-2 row-end-3 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
         Pro plan
       </span>
       <div className="col-start-1 col-end-3 row-start-3 row-end-4 flex flex-col gap-2 pt-2 text-sm leading-5">
         <a
           href="#"
-          className="text-gray-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
+          className="text-neutral-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
         >
           Profile settings
         </a>
         <a
           href="#"
-          className="text-gray-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
+          className="text-neutral-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
         >
           Log out
         </a>
@@ -128,7 +128,7 @@ function ActivityPanel() {
   return (
     <React.Fragment>
       <Popover.Title className="m-0 text-sm font-bold leading-5">Activity</Popover.Title>
-      <Popover.Description className="m-0 text-sm leading-5 text-gray-600 dark:text-gray-400">
+      <Popover.Description className="m-0 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
         Nothing interesting happened recently.
       </Popover.Description>
     </React.Fragment>

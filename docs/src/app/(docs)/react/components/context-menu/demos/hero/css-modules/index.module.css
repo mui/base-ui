@@ -6,11 +6,11 @@
   width: 15rem;
   height: 12rem;
   outline: 0;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 0;
-  background-color: light-dark(white, var(--color-gray-950));
+  background-color: light-dark(white, var(--color-neutral-950));
   font-weight: 400;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 
   &:focus-visible {
@@ -27,10 +27,10 @@
   box-sizing: border-box;
   outline: 0;
   padding-block: 0.25rem;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 0;
-  background-color: light-dark(white, var(--color-gray-950));
-  color: light-dark(var(--color-gray-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
   filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
   transform-origin: var(--transform-origin);
   transition:
@@ -62,7 +62,7 @@
   &[data-highlighted] {
     z-index: 0;
     position: relative;
-    color: light-dark(white, var(--color-gray-950));
+    color: light-dark(white, var(--color-neutral-950));
   }
 
   &[data-highlighted]::before {
@@ -71,16 +71,16 @@
     position: absolute;
     inset-block: 0;
     inset-inline: 0.25rem;
-    background-color: light-dark(var(--color-gray-950), white);
+    background-color: light-dark(var(--color-neutral-950), white);
   }
 
   &[data-disabled] {
-    color: light-dark(var(--color-gray-500), var(--color-gray-400));
+    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   }
 }
 
 .Separator {
   margin: 0.25rem;
   height: 1px;
-  background-color: light-dark(var(--color-gray-950), white);
+  background-color: light-dark(var(--color-neutral-950), white);
 }

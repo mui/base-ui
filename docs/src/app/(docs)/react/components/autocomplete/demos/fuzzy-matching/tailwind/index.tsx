@@ -10,19 +10,19 @@ export default function ExampleFuzzyMatchingAutocomplete() {
       filter={fuzzyFilter}
       itemToStringValue={(item) => item.title}
     >
-      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
+      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-neutral-900">
         Fuzzy search documentation
         <Autocomplete.Input
           placeholder="e.g. React"
-          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-neutral-200 pl-3.5 text-base font-normal text-neutral-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
       </label>
 
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-hidden" sideOffset={4}>
-          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),28rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),28rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-neutral-900 shadow-lg shadow-neutral-200 outline-1 outline-neutral-200 dark:shadow-none dark:-outline-offset-1 dark:outline-neutral-300">
             <Autocomplete.Empty>
-              <div className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600">
+              <div className="px-4 py-2 text-[0.925rem] leading-4 text-neutral-600">
                 No results found for "{<Autocomplete.Value />}"
               </div>
             </Autocomplete.Empty>
@@ -32,7 +32,7 @@ export default function ExampleFuzzyMatchingAutocomplete() {
                 <Autocomplete.Item
                   key={item.title}
                   value={item}
-                  className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-200"
+                  className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-neutral-200"
                 >
                   <Autocomplete.Value>
                     {(value) => (
@@ -42,7 +42,7 @@ export default function ExampleFuzzyMatchingAutocomplete() {
                             {highlightText(item.title, value)}
                           </span>
                         </span>
-                        <span className="text-sm leading-5 text-gray-600">
+                        <span className="text-sm leading-5 text-neutral-600">
                           {highlightText(item.description, value)}
                         </span>
                       </span>

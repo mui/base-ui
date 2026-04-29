@@ -3,7 +3,7 @@ import { NavigationMenu } from '@base-ui/react/navigation-menu';
 
 export default function ExampleNavigationMenu() {
   return (
-    <NavigationMenu.Root className="min-w-max text-gray-950 dark:text-white">
+    <NavigationMenu.Root className="min-w-max text-neutral-950 dark:text-white">
       <NavigationMenu.List className="relative flex gap-px">
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={triggerClassName}>
@@ -19,7 +19,7 @@ export default function ExampleNavigationMenu() {
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
                     <h3 className="m-0 mb-1 text-sm leading-4 font-normal">{item.title}</h3>
-                    <p className="m-0 text-sm leading-5 text-gray-500 dark:text-gray-400">
+                    <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
                       {item.description}
                     </p>
                   </Link>
@@ -43,7 +43,7 @@ export default function ExampleNavigationMenu() {
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
                     <h3 className="m-0 mb-1 text-sm leading-4 font-normal">{item.title}</h3>
-                    <p className="m-0 text-sm leading-5 text-gray-500 dark:text-gray-400">
+                    <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
                       {item.description}
                     </p>
                   </Link>
@@ -71,8 +71,8 @@ export default function ExampleNavigationMenu() {
             ['--easing' as string]: 'ease-out',
           }}
         >
-          <NavigationMenu.Popup className="relative h-[var(--popup-height)] w-[var(--popup-width)] origin-[var(--transform-origin)] border border-gray-950 bg-white text-gray-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[opacity,transform,width,height,scale] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[ending-style]:ease-[ease] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 dark:border-white dark:bg-gray-950 dark:text-white dark:[filter:none]">
-            <NavigationMenu.Arrow className="relative block h-1.5 w-3 overflow-clip transition-[left,right] duration-[var(--duration)] ease-[var(--easing)] before:absolute before:bottom-0 before:left-1/2 before:block before:h-[calc(6px*sqrt(2))] before:w-[calc(6px*sqrt(2))] before:-translate-x-1/2 before:translate-y-1/2 before:rotate-45 before:border before:border-gray-950 before:bg-white before:content-[''] data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 dark:before:border-white dark:before:bg-gray-950" />
+          <NavigationMenu.Popup className="relative h-[var(--popup-height)] w-[var(--popup-width)] origin-[var(--transform-origin)] border border-neutral-950 bg-white text-neutral-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[opacity,transform,width,height,scale] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[ending-style]:ease-[ease] data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:[filter:none]">
+            <NavigationMenu.Arrow className="relative block h-1.5 w-3 overflow-clip transition-[left,right] duration-[var(--duration)] ease-[var(--easing)] before:absolute before:bottom-0 before:left-1/2 before:block before:h-[calc(6px*sqrt(2))] before:w-[calc(6px*sqrt(2))] before:-translate-x-1/2 before:translate-y-1/2 before:rotate-45 before:border before:border-neutral-950 before:bg-white before:content-[''] data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 dark:before:border-white dark:before:bg-neutral-950" />
             <NavigationMenu.Viewport className="relative h-full w-full overflow-hidden" />
           </NavigationMenu.Popup>
         </NavigationMenu.Positioner>
@@ -104,7 +104,7 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 }
 
 const triggerClassName =
-  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm leading-5 font-normal text-gray-950 no-underline select-none min-[501px]:px-3 hover:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-gray-800 dark:data-[popup-open]:bg-gray-800';
+  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm leading-5 font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
 
 const contentClassName =
   'h-full p-2 min-[500px]:w-max min-[500px]:max-w-[400px] ' +
@@ -116,7 +116,7 @@ const contentClassName =
   'data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%]';
 
 const linkCardClassName =
-  'relative block h-full w-full border-0 bg-transparent p-2 text-left text-inherit no-underline hover:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:hover:bg-gray-800 dark:data-[popup-open]:bg-gray-800';
+  'relative block h-full w-full border-0 bg-transparent p-2 text-left text-inherit no-underline hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
 
 const overviewLinks = [
   {

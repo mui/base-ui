@@ -30,9 +30,9 @@
   margin: 0 auto;
   box-sizing: border-box;
   width: 100%;
-  border: 1px solid light-dark(var(--color-gray-950), white);
-  background-color: light-dark(white, var(--color-gray-950));
-  color: light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
   padding: 0.75rem;
   filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
   transform-origin: bottom center;
@@ -142,10 +142,10 @@
   justify-content: center;
   height: 2rem;
   padding: 0 0.75rem;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 0;
-  background-color: light-dark(white, var(--color-gray-950));
-  color: light-dark(var(--color-gray-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
@@ -153,17 +153,17 @@
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: light-dark(var(--color-gray-200), var(--color-gray-700));
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
   }
 
   &[data-disabled] {
-    color: light-dark(var(--color-gray-500), var(--color-gray-400));
-    border-color: light-dark(var(--color-gray-500), var(--color-gray-400));
+    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+    border-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   }
 
   &:focus-visible {
@@ -180,24 +180,24 @@
   height: 2rem;
   padding: 0 0.75rem;
   margin: 0;
-  border: 1px solid light-dark(var(--color-gray-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 0;
-  background-color: light-dark(white, var(--color-gray-950));
+  background-color: light-dark(white, var(--color-neutral-950));
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.25rem;
-  color: light-dark(var(--color-gray-950), white);
+  color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &:active {
-    background-color: light-dark(var(--color-gray-200), var(--color-gray-700));
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
   }
 
   &:focus-visible {

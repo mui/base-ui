@@ -6,10 +6,10 @@ import { InfoIcon, HelpIcon, AlertIcon } from '../../icons-tw';
 const demoTooltip = Tooltip.createHandle<React.ComponentType>();
 
 const triggerClass =
-  'box-border flex size-8 items-center justify-center border border-gray-950 bg-white text-sm font-normal text-gray-950 select-none data-popup-open:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 hover:bg-gray-50 active:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:data-popup-open:bg-gray-800 dark:hover:bg-gray-900 dark:active:bg-gray-800';
+  'box-border flex size-8 items-center justify-center border border-neutral-950 bg-white text-sm font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 hover:bg-neutral-50 active:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-popup-open:bg-neutral-800 dark:hover:bg-neutral-900 dark:active:bg-neutral-800';
 
 const arrowClass =
-  "relative block w-3 h-1.5 overflow-clip transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[instant]:transition-none data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-gray-950 before:border before:border-gray-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]";
+  "relative block w-3 h-1.5 overflow-clip transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[instant]:transition-none data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]";
 
 export default function TooltipDetachedTriggersFullDemo() {
   return (
@@ -54,9 +54,9 @@ export default function TooltipDetachedTriggersFullDemo() {
                   relative
                   h-[var(--popup-height,auto)] w-[var(--popup-width,auto)]
                   max-w-[500px]
-                  border border-gray-950 dark:border-white
-                  bg-white dark:bg-gray-950
-                  text-sm text-gray-950 dark:text-white
+                  border border-neutral-950 dark:border-white
+                  bg-white dark:bg-neutral-950
+                  text-sm text-neutral-950 dark:text-white
                   origin-[var(--transform-origin)]
                   [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] dark:[filter:none]
                   transition-[width,height,opacity,scale]
