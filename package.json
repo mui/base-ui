@@ -28,7 +28,7 @@
     "eslint:ci": "pnpm -r lint && eslint . --report-unused-disable-directives --max-warnings 0",
     "stylelint": "stylelint --reportInvalidScopeDisables --reportNeedlessDisables \"docs/**/*.{js,ts,tsx}\" \"**/*.css\" --ignore-path .lintignore",
     "markdownlint": "markdownlint-cli2 \"**/*.{md,mdx}\"",
-    "vale:fix": "pnpm code-infra vale sync --vale-version $npm_package_config_valeVersion && git ls-files | grep -E \"\\.(md|mdx)$\" | xargs pnpm code-infra vale --vale-version $npm_package_config_valeVersion --filter='.Level==\"error\"' --auto-fix all",
+    "vale:fix": "pnpm valelint --auto-fix all",
     "valelint": "pnpm code-infra vale sync --vale-version $npm_package_config_valeVersion && git ls-files | grep -E \"\\.(md|mdx)$\" | xargs pnpm code-infra vale --vale-version $npm_package_config_valeVersion --filter='.Level==\"error\"'",
     "prettier": "pretty-quick --ignore-path .lintignore --branch master",
     "prettier:all": "prettier --write . --ignore-path .lintignore",
