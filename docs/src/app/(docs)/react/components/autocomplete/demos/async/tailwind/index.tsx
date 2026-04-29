@@ -77,7 +77,7 @@ export default function ExampleAsyncAutocomplete() {
       itemToStringValue={(item) => item.title}
       filter={null}
     >
-      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-neutral-900">
+      <label className="flex flex-col gap-1 text-sm font-bold text-neutral-900">
         Search movies by name or year
         <Autocomplete.Input
           placeholder="e.g. Pulp Fiction or 1994"

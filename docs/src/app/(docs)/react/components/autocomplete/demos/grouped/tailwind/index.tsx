@@ -4,7 +4,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 export default function ExampleGroupAutocomplete() {
   return (
     <Autocomplete.Root items={groupedTags}>
-      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-neutral-900">
+      <label className="flex flex-col gap-1 text-sm font-bold text-neutral-900">
         Select a tag
         <Autocomplete.Input
           placeholder="e.g. feature"

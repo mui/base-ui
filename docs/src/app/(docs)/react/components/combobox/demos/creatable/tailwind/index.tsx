@@ -122,7 +122,7 @@ export default function ExampleCreatableCombobox() {
         }}
       >
         <div className="max-w-112 flex flex-col gap-1">
-          <label className="text-sm leading-5 font-bold text-neutral-900" htmlFor={id}>
+          <label className="text-sm font-bold text-neutral-900" htmlFor={id}>
             Labels
           </label>
           <Combobox.InputGroup className="w-64 cursor-text rounded-md border border-neutral-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]">
@@ -206,10 +206,10 @@ export default function ExampleCreatableCombobox() {
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-2rem] w-[24rem] max-w-[calc(100vw-3rem)] rounded-lg bg-[canvas] p-6 text-neutral-900 outline-1 outline-neutral-200 transition-all data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:scale-90 dark:-outline-offset-1 dark:outline-neutral-300"
             initialFocus={createInputRef}
           >
-            <Dialog.Title className="-mt-1.5 mb-1 text-lg leading-7 tracking-[-0.0025em] font-bold">
+            <Dialog.Title className="-mt-1.5 mb-1 text-lg tracking-[-0.0025em] font-bold">
               Create new label
             </Dialog.Title>
-            <Dialog.Description className="mb-4 text-base leading-6 text-neutral-600">
+            <Dialog.Description className="mb-4 text-base text-neutral-600">
               Add a new label to select.
             </Dialog.Description>
             <form onSubmit={handleCreateSubmit}>

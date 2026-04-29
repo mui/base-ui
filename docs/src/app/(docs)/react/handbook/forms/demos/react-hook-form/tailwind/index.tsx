@@ -95,7 +95,7 @@ function ReactHookForm() {
         }) => (
           <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
             <Combobox.Root items={REGIONS} value={value} onValueChange={onChange}>
-              <div className="relative flex flex-col gap-1 text-sm leading-5 text-neutral-900">
+              <div className="relative flex flex-col gap-1 text-sm text-neutral-900">
                 <Field.Label>Region</Field.Label>
                 <Combobox.Input placeholder="e.g. eu-central-1" ref={ref} onBlur={onBlur} />
                 <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-neutral-600">
@@ -162,8 +162,8 @@ function ReactHookForm() {
                       {(image: Image) => {
                         return (
                           <Autocomplete.Item key={image.url} value={image}>
-                            <span className="text-base leading-6">{image.name}</span>
-                            <span className="font-mono whitespace-nowrap text-xs leading-4 opacity-80">
+                            <span className="text-base">{image.name}</span>
+                            <span className="font-mono whitespace-nowrap text-xs opacity-80">
                               {image.url}
                             </span>
                           </Autocomplete.Item>

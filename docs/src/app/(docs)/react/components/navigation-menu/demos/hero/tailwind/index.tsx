@@ -19,7 +19,7 @@ export default function ExampleNavigationMenu() {
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
                     <h3 className="m-0 mb-1 text-sm leading-4 font-normal">{item.title}</h3>
-                    <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                    <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
                       {item.description}
                     </p>
                   </Link>
@@ -43,7 +43,7 @@ export default function ExampleNavigationMenu() {
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
                     <h3 className="m-0 mb-1 text-sm leading-4 font-normal">{item.title}</h3>
-                    <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                    <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
                       {item.description}
                     </p>
                   </Link>
@@ -104,7 +104,7 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 }
 
 const triggerClassName =
-  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm leading-5 font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
+  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
 
 const contentClassName =
   'h-full p-2 min-[500px]:w-max min-[500px]:max-w-[400px] ' +

@@ -9,7 +9,7 @@ const iconButtonClass =
   'flex size-8 items-center justify-center border border-neutral-950 bg-white text-neutral-950 select-none data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 hover:bg-neutral-50 active:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-popup-open:bg-neutral-800 dark:hover:bg-neutral-900 dark:active:bg-neutral-800';
 
 const buttonClass =
-  'flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-5 font-normal text-neutral-950 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 hover:bg-neutral-50 active:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-900 dark:active:bg-neutral-800';
+  'flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm font-normal text-neutral-950 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 hover:bg-neutral-50 active:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-900 dark:active:bg-neutral-800';
 
 const popupClass =
   'relative border border-neutral-950 bg-white px-2 py-1 text-sm text-neutral-950 origin-[var(--transform-origin)] [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[scale,opacity] duration-100 ease-out data-[ending-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[instant]:transition-none data-[starting-style]:opacity-0 data-[starting-style]:scale-[0.98] dark:border-white dark:bg-neutral-950 dark:text-white dark:[filter:none]';

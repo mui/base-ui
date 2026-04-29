@@ -4,7 +4,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 export default function ExampleAutocompleteInline() {
   return (
     <Autocomplete.Root items={tags} mode="both">
-      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-neutral-900">
+      <label className="flex flex-col gap-1 text-sm font-bold text-neutral-900">
         Search tags
         <Autocomplete.Input
           placeholder="e.g. feature"

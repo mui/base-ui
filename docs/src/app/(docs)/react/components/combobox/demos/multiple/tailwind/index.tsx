@@ -8,7 +8,7 @@ export default function ExampleMultipleCombobox() {
   return (
     <Combobox.Root items={langs} multiple>
       <div className="max-w-[28rem] flex flex-col gap-1">
-        <label className="text-sm leading-5 font-bold text-neutral-900" htmlFor={id}>
+        <label className="text-sm font-bold text-neutral-900" htmlFor={id}>
           Programming languages
         </label>
         <Combobox.InputGroup className="w-64 cursor-text rounded-md border border-neutral-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]">

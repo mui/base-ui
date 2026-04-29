@@ -25,9 +25,7 @@ export default function OutsideScrollDialog() {
                   className="outline-0 relative mx-auto my-16 w-[min(40rem,calc(100vw-2rem))] bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[350ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-[max(100dvh,100%)] data-[ending-style]:duration-[220ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
                 >
                   <div className="mb-1 flex items-start justify-between gap-3">
-                    <Dialog.Title className="m-0 text-base font-bold leading-6">
-                      Dialog
-                    </Dialog.Title>
+                    <Dialog.Title className="m-0 text-base font-bold">Dialog</Dialog.Title>
                     <Dialog.Close
                       aria-label="Close"
                       className="relative top-[-0.25rem] right-[-0.25rem] inline-flex items-center justify-center w-8 h-8 bg-transparent text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
@@ -36,7 +34,7 @@ export default function OutsideScrollDialog() {
                     </Dialog.Close>
                   </div>
 
-                  <Dialog.Description className="m-0 mb-4 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
+                  <Dialog.Description className="m-0 mb-4 text-sm text-neutral-600 dark:text-neutral-400">
                     This layout keeps an outer container scrollable while the dialog can extend past
                     the bottom edge.
                   </Dialog.Description>
@@ -44,15 +42,15 @@ export default function OutsideScrollDialog() {
                   <div className="mb-4 flex flex-col gap-4">
                     {CONTENT_SECTIONS.map((item) => (
                       <section key={item.title}>
-                        <h3 className="m-0 mb-1 text-sm font-bold leading-5">{item.title}</h3>
-                        <p className="m-0 text-sm leading-5 text-neutral-700 dark:text-neutral-300">
+                        <h3 className="m-0 mb-1 text-sm font-bold">{item.title}</h3>
+                        <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
                           {item.body}
                         </p>
                       </section>
                     ))}
                   </div>
 
-                  <p className="m-0 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
+                  <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
                     Related docs:{' '}
                     {RELATED_LINKS.map((item, index) => (
                       <React.Fragment key={item.href}>
