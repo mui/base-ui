@@ -3,16 +3,21 @@ import * as React from 'react';
 import { Avatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
 import styles from './playground.module.css';
 
-const FAST_AVATAR_SRC =
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Malus_domestica_a1.jpg/500px-Malus_domestica_a1.jpg';
+// Cache-busted at module load (i.e. once per page load) so the first mount of the cached-image
+// demo always goes through a real `loading → loaded` cycle even when the user has visited the page
+// before. Subsequent Remounts within the same session reuse this URL, hitting the browser cache
+// and resolving synchronously through `Avatar.Image`'s cache fast-path — no `loading` callback
+// fired, no entry animation, exactly the "instant" path the demo is meant to demonstrate.
+const FAST_AVATAR_SRC = `https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Malus_domestica_a1.jpg/500px-Malus_domestica_a1.jpg?_v=${Date.now()}`;
 
-const ALT_AVATAR_SRC =
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/500px-The_Earth_seen_from_Apollo_17.jpg';
+const ALT_AVATAR_SRC = `https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/500px-The_Earth_seen_from_Apollo_17.jpg?_v=${Date.now()}`;
 
 const SLOW_AVATAR_SRC = (ms: number) => `/api/experiments/slow-avatar?ms=${ms}`;
 
-const BROKEN_AVATAR_SRC =
-  'https://example.com/base-ui-avatar-experiment-this-image-does-not-exist.png';
+// Malformed `data:` URI: the browser decodes it synchronously, fails immediately, and fires
+// `error` within milliseconds. Avoids the flakiness of remote 404s (which can hang on slow servers)
+// and Next.js dev's slow not-found compilation step.
+const BROKEN_AVATAR_SRC = 'data:image/png;base64,not-a-valid-png';
 
 /**
  * Always-fresh source for the lazy-loading demo. Routes through our slow-avatar API
@@ -76,8 +81,8 @@ export default function AvatarPlayground() {
         </Scenario>
 
         <Scenario
-          title="Broken image (error → fallback)"
-          description="404 src. Status flips loading → error and the fallback stays visible. The img element should be unmounted."
+          title="Broken src (loading → error)"
+          description="Src is a 404. The browser still has to round-trip before deciding the response isn't a valid image, so status starts at 'loading' (initial render with src defined but no decoded bitmap), then flips to 'error' once `<img>` fires its error event. The `<img>` stays mounted with `visibility: hidden` so the broken-image glyph never paints; the fallback takes over."
           expected={['loading', 'error']}
         >
           {(props) => (

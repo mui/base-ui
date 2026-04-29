@@ -9,10 +9,7 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRootState, ImageLoadingStatus } from '../root/AvatarRoot';
-import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
-import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { AvatarImageDataAttributes } from './AvatarImageDataAttributes';
 
 function toBaseUiImgEvent(event: React.SyntheticEvent<HTMLImageElement>) {
   return makeEventPreventable(event as BaseUIEvent<React.SyntheticEvent<HTMLImageElement>>);
@@ -32,10 +29,28 @@ function resolveImageLoadingStatus(
   return 'loaded';
 }
 
+const LOADING_HOOK = { [AvatarImageDataAttributes.loading]: '' };
+const LOADED_HOOK = { [AvatarImageDataAttributes.loaded]: '' };
+const ERROR_HOOK = { [AvatarImageDataAttributes.error]: '' };
+
+/**
+ * Emit one boolean data attribute per discrete bitmap state. The image is always mounted, so the
+ * usual `[data-starting-style]` / `[data-ending-style]` (which signal mount/unmount transitions)
+ * would be misleading here — `[data-loading]` / `[data-loaded]` / `[data-error]` describe the
+ * image's actual lifecycle and are stable across the entire phase, so consumers can hold a CSS
+ * "from" state for the whole loading window and animate when it flips to `[data-loaded]`.
+ */
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
-  ...avatarStateAttributesMapping,
-  ...transitionStatusMapping,
-  intrinsicDecodePending() {
+  imageLoadingStatus(value): Record<string, string> | null {
+    if (value === 'loading') {
+      return LOADING_HOOK;
+    }
+    if (value === 'loaded') {
+      return LOADED_HOOK;
+    }
+    if (value === 'error') {
+      return ERROR_HOOK;
+    }
     return null;
   },
 };
@@ -72,8 +87,9 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   /**
    * Set when the cache fast-path settles the image synchronously (i.e. the bitmap was already
    * in the browser cache and `img.complete` was true on the first commit). Used to suppress
-   * the entry transition — there was no real "loading" frame, so animating from
-   * `opacity:0/blur` would be visible flicker on what should look like an instant paint.
+   * the transient `'loading'` fire to consumer's `onLoadingStatusChange` — for cached images
+   * the bitmap goes from initial render → resolved within a single layout-effect cycle, so
+   * there's no real "loading" phase consumers should observe.
    */
   const cachedAtMountRef = React.useRef(false);
 
@@ -134,34 +150,21 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   });
 
   /**
-   * Two independent gates:
-   * - `slotActive`: the `<img>` should be in the DOM so the browser can fetch and fire `onLoad`/`onError`.
-   *   True while `src` is present and we have not errored — covers `'loading'` and `'loaded'`.
-   * - `isVisible`: the bitmap is actually on screen. Drives `useTransitionStatus`, so
-   *   `[data-starting-style]` lands on the same commit `hidden` is removed, and `[data-ending-style]`
-   *   plays on the previously-visible bitmap before unmount.
+   * `isVisible` is true only while a successfully-decoded bitmap is on screen. It drives the
+   * inline `visibility: hidden` we apply while the bitmap isn't ready.
    */
-  const slotActive = Boolean(componentProps.src) && imageLoadingStatus !== 'error';
   const isVisible = imageLoadingStatus === 'loaded';
-
-  const {
-    mounted: visibilityMounted,
-    transitionStatus: rawTransitionStatus,
-    setMounted: setVisibilityMounted,
-  } = useTransitionStatus(isVisible);
 
   const imageRef = React.useRef<HTMLImageElement | null>(null);
 
-  // Render `<img>` whenever a load is being attempted, OR while the exit transition is still running.
-  const mounted = slotActive || visibilityMounted;
-
   /**
-   * Disk/memory-cached imgs often expose `complete` + `naturalWidth` before `load` bubbles; unveil before paint.
-   * Must settle synchronously in this layout effect — `decode()` resolves in a microtask and runs **after**
-   * the first paint, which keeps `<img hidden>` for one visible frame.
+   * Disk/memory-cached imgs often expose `complete` + `naturalWidth` before `load` bubbles; unveil
+   * before paint. Must settle synchronously in this layout effect — `decode()` resolves in a
+   * microtask and runs **after** the first paint, which would keep `visibility: hidden` for one
+   * visible frame.
    */
   useIsoLayoutEffect(() => {
-    if (!mounted || intrinsicSettled || intrinsicDecodeFailed) {
+    if (intrinsicSettled || intrinsicDecodeFailed) {
       return;
     }
     const img = imageRef.current;
@@ -170,34 +173,23 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     }
     cachedAtMountRef.current = true;
     setIntrinsicSettled(true);
-  }, [mounted, intrinsicSettled, intrinsicDecodeFailed, componentProps.src]);
+  }, [intrinsicSettled, intrinsicDecodeFailed, componentProps.src]);
 
   /**
-   * Suppress `[data-starting-style]` for cache-resolved paints — `useTransitionStatus` still cycles
-   * through `'starting'` internally for one frame, but we never expose it to CSS, so there's no
-   * FROM keyframe for the entry transition to animate from. Cached images appear instantly,
-   * uncached images still fade in once `onLoad` fires (cache ref stays false).
+   * Hide the `<img>` whenever the bitmap isn't successfully decoded — covers initial loading,
+   * decode errors, and `src` removal — so the broken-image glyph and unstyled bitmap never paint.
+   * We use `visibility: hidden` rather than the `hidden` attribute (which is `display: none`)
+   * because `display: none` removes the element from the layout tree, and the browser's native
+   * lazy-loading IntersectionObserver cannot observe out-of-layout elements: `<img hidden
+   * loading="lazy">` would never enter the viewport from the observer's point of view, so the
+   * request would be deferred forever and `onLoad` would never fire. Keeping the element in
+   * layout via `visibility: hidden` lets `loading="lazy"` work as expected while still suppressing
+   * the visual flash. An unloaded `<img>` without explicit `width`/`height` has natural dimensions
+   * of 0×0, so this only affects flow when the consumer explicitly sizes the image; the
+   * recommended Avatar layout (absolute-positioned image + fallback stacked in a sized root)
+   * sidesteps that entirely.
    */
-  const transitionStatus =
-    rawTransitionStatus === 'starting' && cachedAtMountRef.current ? undefined : rawTransitionStatus;
-
-  /**
-   * Hide the `<img>` until the bitmap is decoded so the broken-image glyph and unstyled bitmap
-   * never paint. We use `visibility: hidden` rather than the `hidden` attribute (which is
-   * `display: none`) because `display: none` removes the element from the layout tree, and the
-   * browser's native lazy-loading IntersectionObserver cannot observe out-of-layout elements —
-   * `<img hidden loading="lazy">` would never enter the viewport from the observer's point of
-   * view, so the request would be deferred forever and `onLoad` would never fire. Keeping the
-   * element in layout via `visibility: hidden` lets `loading="lazy"` work as expected while still
-   * suppressing the visual flash. An unloaded `<img>` without explicit `width`/`height` has
-   * natural dimensions of 0×0, so this only affects flow when the consumer explicitly sizes the
-   * image; the recommended Avatar layout (absolute-positioned image + fallback stacked in a sized
-   * root) sidesteps that entirely.
-   *
-   * Must be cleared during the exit transition so `[data-ending-style]` runs on the still-visible
-   * bitmap.
-   */
-  const intrinsicDecodePending = !isVisible && transitionStatus !== 'ending';
+  const isBitmapHidden = !isVisible;
 
   const setLiftedImageLoadingStatus = context.setImageLoadingStatus;
 
@@ -245,53 +237,25 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     handleLoadingStatusChange(imageLoadingStatus);
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
-  useOpenChangeComplete({
-    open: isVisible,
-    ref: imageRef,
-    onComplete() {
-      if (!isVisible) {
-        setVisibilityMounted(false);
-      }
-    },
-  });
-
   const state: AvatarImageState = {
     imageLoadingStatus,
-    transitionStatus,
-    intrinsicDecodePending,
   };
 
-  const element = useRenderElement('img', componentProps, {
+  return useRenderElement('img', componentProps, {
     state,
     ref: [forwardedRef, imageRef],
     props: {
       ...elementProps,
       hidden: hiddenProp,
-      style: intrinsicDecodePending ? HIDDEN_IMAGE_STYLE : undefined,
+      style: isBitmapHidden ? HIDDEN_IMAGE_STYLE : undefined,
       onLoad: handleIntrinsicLoad,
       onError: handleIntrinsicError,
     },
     stateAttributesMapping,
-    enabled: mounted,
   });
-
-  if (!mounted) {
-    return null;
-  }
-
-  return element;
 });
 
-export interface AvatarImageState extends AvatarRootState {
-  /**
-   * The transition status of the component (`[data-starting-style]` / `[data-ending-style]`).
-   */
-  transitionStatus: TransitionStatus;
-  /**
-   * True until `imageLoadingStatus === 'loaded'` (successful bitmap); keeps `<img hidden>` on loading and error.
-   */
-  intrinsicDecodePending: boolean;
-}
+export interface AvatarImageState extends AvatarRootState {}
 
 export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarImageState> {
   /**

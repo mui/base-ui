@@ -108,20 +108,20 @@ describe('<Avatar.Fallback />', () => {
 
       const { user } = await render(<Test />);
 
-      expect(screen.queryByTestId('image')).toBe(null);
+      // The `<img>` is always rendered (visibility-hidden until the bitmap decodes); only the
+      // fallback is visually present in the loading/error state.
+      expect(screen.getByTestId('image').style.visibility).toBe('hidden');
       expect(screen.getByTestId('fallback')).not.toBe(null);
 
       await user.click(screen.getByText('Show image'));
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('image')).not.toBe(null);
-      });
 
       fireEvent.load(screen.getByTestId('image'));
 
       await waitFor(() => {
         expect(screen.queryByTestId('fallback')).toBe(null);
       });
+
+      expect(screen.getByTestId('image').style.visibility).not.toBe('hidden');
     },
   );
 
@@ -178,7 +178,9 @@ describe('<Avatar.Fallback />', () => {
 
       const { user } = await render(<Test />);
 
-      expect(screen.queryByTestId('image')).toBe(null);
+      // The `<img>` is always rendered (visibility-hidden until the bitmap decodes); only the
+      // fallback is visually present in the loading/error state.
+      expect(screen.getByTestId('image').style.visibility).toBe('hidden');
       expect(screen.getByTestId('fallback')).not.toBe(null);
 
       await user.click(screen.getByText('Show image'));
@@ -186,6 +188,8 @@ describe('<Avatar.Fallback />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('fallback')).toBe(null);
       });
+
+      expect(screen.getByTestId('image').style.visibility).not.toBe('hidden');
     });
 
     // Regression: src → src swaps used to force `imageLoadingStatus` back through `'loading'`,

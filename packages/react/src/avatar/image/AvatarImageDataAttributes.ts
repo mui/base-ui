@@ -1,12 +1,14 @@
-import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
-
 export enum AvatarImageDataAttributes {
   /**
-   * Present when the image is animating in.
+   * Present while the image is loading (no decoded bitmap yet).
    */
-  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  loading = 'data-loading',
   /**
-   * Present when the image is animating out.
+   * Present once the image bitmap has decoded and is on screen.
    */
-  endingStyle = TransitionStatusDataAttributes.endingStyle,
+  loaded = 'data-loaded',
+  /**
+   * Present when no `src` was provided or the bitmap failed to decode.
+   */
+  error = 'data-error',
 }

@@ -75,7 +75,7 @@ describe('<Avatar.Image />', () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
     });
 
-    it('triggers enter animation via data-starting-style when mounting', async () => {
+    it('triggers enter animation when image flips from loading to loaded', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let transitionFinished = false;
@@ -88,8 +88,8 @@ describe('<Avatar.Image />', () => {
           transition: opacity 1ms;
         }
 
-        .animation-test-image[data-starting-style],
-        .animation-test-image[data-ending-style] {
+        .animation-test-image[data-loading],
+        .animation-test-image[data-error] {
           opacity: 0;
         }
       `;
@@ -119,7 +119,10 @@ describe('<Avatar.Image />', () => {
       }
 
       const { user } = await render(<Test />);
-      expect(screen.queryByTestId('image')).toBe(null);
+
+      // The `<img>` is always rendered (visibility-hidden until a `src` is provided and the
+      // bitmap decodes) so `loading="lazy"` and other intrinsic `<img>` features can take effect.
+      expect(screen.getByTestId('image').style.visibility).toBe('hidden');
 
       await user.click(screen.getByText('Show image'));
 
@@ -127,39 +130,22 @@ describe('<Avatar.Image />', () => {
         expect(transitionFinished).toBe(true);
       });
 
-      expect(screen.getByTestId('image')).not.toBe(null);
+      expect(screen.getByTestId('image').style.visibility).not.toBe('hidden');
     });
 
-    it('applies data-ending-style before unmount', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const style = `
-        @keyframes test-anim {
-          to {
-            opacity: 0;
-          }
-        }
-
-        .animation-test-image[data-ending-style] {
-          animation: test-anim 1ms;
-        }
-      `;
-
+    it('hides the image immediately when src is removed (no broken-image flash)', async () => {
+      // Regression coverage: when `src` is removed the browser drops the bitmap immediately,
+      // so a previously-decoded `<img>` would briefly paint the broken-image glyph if it stayed
+      // visible. The `<img>` stays mounted across the lifecycle and hides synchronously the
+      // moment the status leaves `'loaded'` (driven by the inline `visibility: hidden` style).
       function Test() {
         const [showImage, setShowImage] = React.useState(true);
 
-        function handleHideImage() {
-          setShowImage(false);
-        }
-
         return (
           <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={handleHideImage}>Hide image</button>
+            <button onClick={() => setShowImage(false)}>Hide image</button>
             <Avatar.Root>
               <Avatar.Image
-                className="animation-test-image"
                 data-testid="image"
                 src={showImage ? DATA_URI : undefined}
               />
@@ -170,22 +156,16 @@ describe('<Avatar.Image />', () => {
 
       const { user } = await render(<Test />);
 
-      // Wait for the data URI to actually load so the img is no longer hidden via visibility.
       await waitFor(() => {
         expect(screen.getByTestId('image').style.visibility).not.toBe('hidden');
       });
 
       await user.click(screen.getByText('Hide image'));
 
-      await waitFor(() => {
-        const image = screen.queryByTestId('image');
-        expect(image).not.toBe(null);
-        expect(image).toHaveAttribute('data-ending-style');
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('image')).toBe(null);
-      });
+      // The element stays mounted but is hidden synchronously on the same commit `src` cleared.
+      const image = screen.getByTestId('image');
+      expect(image).not.toBe(null);
+      expect(image.style.visibility).toBe('hidden');
     });
   });
 
@@ -225,12 +205,12 @@ describe('<Avatar.Image />', () => {
       expect(screen.queryByText('JD')).toBe(null);
     });
 
-    it('does not apply [data-starting-style] for a cached image', async () => {
+    it('reaches the [data-loaded] steady state without firing an entry transition for a cached image', async () => {
       // Restore real Image so this test exercises actual browser caching
       restoreImage();
 
       // Pre-load so `img.complete` is true synchronously when AvatarImage mounts —
-      // exercises the cache fast-path that should suppress the entry transition.
+      // exercises the cache fast-path that resolves the bitmap before the first paint.
       await new Promise<void>((resolve, reject) => {
         const img = new window.Image();
         img.onload = () => resolve();
@@ -247,8 +227,8 @@ describe('<Avatar.Image />', () => {
         .cached-no-anim {
           transition: opacity 1ms;
         }
-        .cached-no-anim[data-starting-style],
-        .cached-no-anim[data-ending-style] {
+        .cached-no-anim[data-loading],
+        .cached-no-anim[data-error] {
           opacity: 0;
         }
       `;
@@ -268,16 +248,16 @@ describe('<Avatar.Image />', () => {
         </div>,
       );
 
-      // Give any in-flight transition more than enough time to land — wrap in `act` so
-      // `useTransitionStatus`'s internal rAF flip ('starting' → undefined) is processed inside
-      // a React-wrapped scope and doesn't trip the no-act-warning console assertion.
+      // Give any in-flight transition more than enough time to land.
       await act(async () => {
         await new Promise<void>((resolve) => {
           setTimeout(resolve, 50);
         });
       });
 
-      expect(screen.getByTestId('image')).not.toHaveAttribute('data-starting-style');
+      const image = screen.getByTestId('image');
+      expect(image).toHaveAttribute('data-loaded');
+      expect(image).not.toHaveAttribute('data-loading');
       expect(transitionFired).toBe(false);
     });
 

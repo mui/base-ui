@@ -46,10 +46,11 @@ Renders an `<img>` element.
 
 **Image Data Attributes:**
 
-| Attribute           | Type | Description                              |
-| :------------------ | :--- | :--------------------------------------- |
-| data-starting-style | -    | Present when the image is animating in.  |
-| data-ending-style   | -    | Present when the image is animating out. |
+| Attribute    | Type | Description                                                        |
+| :----------- | :--- | :----------------------------------------------------------------- |
+| data-error   | -    | Present when no `src` was provided or the bitmap failed to decode. |
+| data-loaded  | -    | Present once the image bitmap has decoded and is on screen.        |
+| data-loading | -    | Present while the image is loading (no decoded bitmap yet).        |
 
 ### Image.Props
 
@@ -59,8 +60,6 @@ Re-export of [Image](#image) props.
 
 ```typescript
 type AvatarImageState = {
-  /** The transition status of the component. */
-  transitionStatus: TransitionStatus;
   /** The image loading status. */
   imageLoadingStatus: ImageLoadingStatus;
 };
