@@ -1,7 +1,16 @@
 'use client';
 import * as React from 'react';
-import { Avatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
+import { Avatar as CurrentAvatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
+import { AvatarRoot as MasterAvatarRoot } from '../../../../../../packages/react/src/avatar-master/root/AvatarRoot';
+import { AvatarImage as MasterAvatarImage } from '../../../../../../packages/react/src/avatar-master/image/AvatarImage';
+import { AvatarFallback as MasterAvatarFallback } from '../../../../../../packages/react/src/avatar-master/fallback/AvatarFallback';
 import styles from './playground.module.css';
+
+const MasterAvatar = {
+  Root: MasterAvatarRoot,
+  Image: MasterAvatarImage,
+  Fallback: MasterAvatarFallback,
+};
 
 // Stable URLs across the session so the browser cache actually kicks in: navigating away and
 // back, or clicking Remount, hits the cache and resolves synchronously through `Avatar.Image`'s
@@ -73,28 +82,43 @@ export default function AvatarPlayground() {
           description="On first load, watch the image fade in. Hit Remount — the second time it should appear instantly with no animation and no fallback flash, because it's now in the browser cache."
           expected={['loading', 'loaded']}
           expectedAfterRemount={['loaded']}
+          renderCurrent={(props) => (
+            <CurrentAvatar.Image className={styles.avatarImage} src={FAST_AVATAR_SRC} {...props} />
+          )}
+          renderMaster={(props) => (
+            <MasterAvatar.Image className={styles.avatarImageMaster} src={FAST_AVATAR_SRC} {...props} />
+          )}
         >
-          {(props) => <Avatar.Image className={styles.avatarImage} src={FAST_AVATAR_SRC} {...props} />}
         </Scenario>
 
         <Scenario
           title="Slow image (entry animation)"
           description="Server delays the response by 2s. The fallback shows for 2s (300ms delay before it appears), then the image fades + un-blurs in."
           expected={['loading', 'loaded']}
-        >
-          {(props) => (
-            <Avatar.Image className={styles.avatarImage} src={SLOW_AVATAR_SRC(2000)} {...props} />
+          renderCurrent={(props) => (
+            <CurrentAvatar.Image className={styles.avatarImage} src={SLOW_AVATAR_SRC(2000)} {...props} />
           )}
+          renderMaster={(props) => (
+            <MasterAvatar.Image
+              className={styles.avatarImageMaster}
+              src={SLOW_AVATAR_SRC(2000)}
+              {...props}
+            />
+          )}
+        >
         </Scenario>
 
         <Scenario
           title="Broken src (loading → error)"
           description="Src is a 404. The browser still has to round-trip before deciding the response isn't a valid image, so status starts at 'loading' (initial render with src defined but no decoded bitmap), then flips to 'error' once `<img>` fires its error event. The `<img>` stays mounted with `visibility: hidden` so the broken-image glyph never paints; the fallback takes over."
           expected={['loading', 'error']}
-        >
-          {(props) => (
-            <Avatar.Image className={styles.avatarImage} src={BROKEN_AVATAR_SRC} {...props} />
+          renderCurrent={(props) => (
+            <CurrentAvatar.Image className={styles.avatarImage} src={BROKEN_AVATAR_SRC} {...props} />
           )}
+          renderMaster={(props) => (
+            <MasterAvatar.Image className={styles.avatarImageMaster} src={BROKEN_AVATAR_SRC} {...props} />
+          )}
+        >
         </Scenario>
 
         <ToggleScenario
@@ -130,12 +154,21 @@ interface ScenarioProps {
   description: string;
   expected: ImageLoadingStatus[];
   expectedAfterRemount?: ImageLoadingStatus[];
-  children: (props: ImageProps) => React.ReactNode;
+  renderCurrent: (props: ImageProps) => React.ReactNode;
+  renderMaster: (props: ImageProps) => React.ReactNode;
 }
 
-function Scenario({ title, description, expected, expectedAfterRemount, children }: ScenarioProps) {
+function Scenario({
+  title,
+  description,
+  expected,
+  expectedAfterRemount,
+  renderCurrent,
+  renderMaster,
+}: ScenarioProps) {
   const [remountKey, setRemountKey] = React.useState(0);
-  const log = useStatusLog();
+  const currentLog = useStatusLog();
+  const masterLog = useStatusLog();
 
   return (
     <section className={styles.card}>
@@ -145,15 +178,32 @@ function Scenario({ title, description, expected, expectedAfterRemount, children
       </header>
 
       <div className={styles.avatarHost}>
-        <Avatar.Root key={remountKey} className={styles.avatarRoot}>
-          {children({ onLoadingStatusChange: log.push })}
-          <Avatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
-            AV
-          </Avatar.Fallback>
-        </Avatar.Root>
+        <div className={styles.avatarCompareGrid}>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Current</span>
+            <CurrentAvatar.Root key={`current-${remountKey}`} className={styles.avatarRoot}>
+              {renderCurrent({ onLoadingStatusChange: currentLog.push })}
+              <CurrentAvatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
+                AV
+              </CurrentAvatar.Fallback>
+            </CurrentAvatar.Root>
+          </div>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Master</span>
+            <MasterAvatar.Root key={`master-${remountKey}`} className={styles.avatarRoot}>
+              {renderMaster({ onLoadingStatusChange: masterLog.push })}
+              <MasterAvatar.Fallback className={styles.avatarFallbackMaster} delay={FALLBACK_DELAY_MS}>
+                AV
+              </MasterAvatar.Fallback>
+            </MasterAvatar.Root>
+          </div>
+        </div>
       </div>
 
-      <StatusReadout entries={log.entries} />
+      <div className={styles.compareReadoutGrid}>
+        <StatusReadout title="Current" entries={currentLog.entries} />
+        <StatusReadout title="Master" entries={masterLog.entries} />
+      </div>
       <ExpectedSequences first={expected} subsequent={expectedAfterRemount} />
 
       <footer className={styles.cardFooter}>
@@ -161,7 +211,8 @@ function Scenario({ title, description, expected, expectedAfterRemount, children
           type="button"
           className={styles.button}
           onClick={() => {
-            log.clear();
+            currentLog.clear();
+            masterLog.clear();
             setRemountKey((k) => k + 1);
           }}
         >
@@ -179,7 +230,8 @@ interface ToggleScenarioProps {
 
 function ToggleScenario({ title, description }: ToggleScenarioProps) {
   const [mounted, setMounted] = React.useState(true);
-  const log = useStatusLog();
+  const currentLog = useStatusLog();
+  const masterLog = useStatusLog();
 
   return (
     <section className={styles.card}>
@@ -189,19 +241,43 @@ function ToggleScenario({ title, description }: ToggleScenarioProps) {
       </header>
 
       <div className={styles.avatarHost}>
-        <Avatar.Root className={styles.avatarRoot}>
-          <Avatar.Image
-            className={styles.avatarImage}
-            src={mounted ? FAST_AVATAR_SRC : undefined}
-            onLoadingStatusChange={log.push}
-          />
-          <Avatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
-            AV
-          </Avatar.Fallback>
-        </Avatar.Root>
+        <div className={styles.avatarCompareGrid}>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Current</span>
+            <CurrentAvatar.Root className={styles.avatarRoot}>
+              <CurrentAvatar.Image
+                className={styles.avatarImage}
+                src={mounted ? FAST_AVATAR_SRC : undefined}
+                onLoadingStatusChange={currentLog.push}
+              />
+              <CurrentAvatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
+                AV
+              </CurrentAvatar.Fallback>
+            </CurrentAvatar.Root>
+          </div>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Master</span>
+            <MasterAvatar.Root className={styles.avatarRoot}>
+              <MasterAvatar.Image
+                className={styles.avatarImageMaster}
+                src={mounted ? FAST_AVATAR_SRC : undefined}
+                onLoadingStatusChange={masterLog.push}
+              />
+              <MasterAvatar.Fallback
+                className={styles.avatarFallbackMaster}
+                delay={FALLBACK_DELAY_MS}
+              >
+                AV
+              </MasterAvatar.Fallback>
+            </MasterAvatar.Root>
+          </div>
+        </div>
       </div>
 
-      <StatusReadout entries={log.entries} />
+      <div className={styles.compareReadoutGrid}>
+        <StatusReadout title="Current" entries={currentLog.entries} />
+        <StatusReadout title="Master" entries={masterLog.entries} />
+      </div>
 
       <footer className={styles.cardFooter}>
         <button
@@ -213,7 +289,14 @@ function ToggleScenario({ title, description }: ToggleScenarioProps) {
         >
           {mounted ? 'Unmount' : 'Mount'}
         </button>
-        <button type="button" className={styles.buttonGhost} onClick={log.clear}>
+        <button
+          type="button"
+          className={styles.buttonGhost}
+          onClick={() => {
+            currentLog.clear();
+            masterLog.clear();
+          }}
+        >
           Clear log
         </button>
       </footer>
@@ -228,7 +311,8 @@ interface SwitchScenarioProps {
 
 function SwitchScenario({ title, description }: SwitchScenarioProps) {
   const [whichSrc, setWhichSrc] = React.useState<'a' | 'b'>('a');
-  const log = useStatusLog();
+  const currentLog = useStatusLog();
+  const masterLog = useStatusLog();
 
   const src = whichSrc === 'a' ? FAST_AVATAR_SRC : ALT_AVATAR_SRC;
 
@@ -240,19 +324,43 @@ function SwitchScenario({ title, description }: SwitchScenarioProps) {
       </header>
 
       <div className={styles.avatarHost}>
-        <Avatar.Root className={styles.avatarRoot}>
-          <Avatar.Image
-            className={styles.avatarImage}
-            src={src}
-            onLoadingStatusChange={log.push}
-          />
-          <Avatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
-            AV
-          </Avatar.Fallback>
-        </Avatar.Root>
+        <div className={styles.avatarCompareGrid}>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Current</span>
+            <CurrentAvatar.Root className={styles.avatarRoot}>
+              <CurrentAvatar.Image
+                className={styles.avatarImage}
+                src={src}
+                onLoadingStatusChange={currentLog.push}
+              />
+              <CurrentAvatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
+                AV
+              </CurrentAvatar.Fallback>
+            </CurrentAvatar.Root>
+          </div>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Master</span>
+            <MasterAvatar.Root className={styles.avatarRoot}>
+              <MasterAvatar.Image
+                className={styles.avatarImageMaster}
+                src={src}
+                onLoadingStatusChange={masterLog.push}
+              />
+              <MasterAvatar.Fallback
+                className={styles.avatarFallbackMaster}
+                delay={FALLBACK_DELAY_MS}
+              >
+                AV
+              </MasterAvatar.Fallback>
+            </MasterAvatar.Root>
+          </div>
+        </div>
       </div>
 
-      <StatusReadout entries={log.entries} currentSrc={src} />
+      <div className={styles.compareReadoutGrid}>
+        <StatusReadout title="Current" entries={currentLog.entries} currentSrc={src} />
+        <StatusReadout title="Master" entries={masterLog.entries} currentSrc={src} />
+      </div>
 
       <footer className={styles.cardFooter}>
         <button
@@ -264,7 +372,14 @@ function SwitchScenario({ title, description }: SwitchScenarioProps) {
         >
           Switch (currently src={whichSrc})
         </button>
-        <button type="button" className={styles.buttonGhost} onClick={log.clear}>
+        <button
+          type="button"
+          className={styles.buttonGhost}
+          onClick={() => {
+            currentLog.clear();
+            masterLog.clear();
+          }}
+        >
           Clear log
         </button>
       </footer>
@@ -279,7 +394,8 @@ interface NoSrcScenarioProps {
 
 function NoSrcScenario({ title, description }: NoSrcScenarioProps) {
   const [src, setSrc] = React.useState<string | undefined>(undefined);
-  const log = useStatusLog();
+  const currentLog = useStatusLog();
+  const masterLog = useStatusLog();
 
   return (
     <section className={styles.card}>
@@ -289,19 +405,43 @@ function NoSrcScenario({ title, description }: NoSrcScenarioProps) {
       </header>
 
       <div className={styles.avatarHost}>
-        <Avatar.Root className={styles.avatarRoot}>
-          <Avatar.Image
-            className={styles.avatarImage}
-            src={src}
-            onLoadingStatusChange={log.push}
-          />
-          <Avatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
-            AV
-          </Avatar.Fallback>
-        </Avatar.Root>
+        <div className={styles.avatarCompareGrid}>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Current</span>
+            <CurrentAvatar.Root className={styles.avatarRoot}>
+              <CurrentAvatar.Image
+                className={styles.avatarImage}
+                src={src}
+                onLoadingStatusChange={currentLog.push}
+              />
+              <CurrentAvatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
+                AV
+              </CurrentAvatar.Fallback>
+            </CurrentAvatar.Root>
+          </div>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Master</span>
+            <MasterAvatar.Root className={styles.avatarRoot}>
+              <MasterAvatar.Image
+                className={styles.avatarImageMaster}
+                src={src}
+                onLoadingStatusChange={masterLog.push}
+              />
+              <MasterAvatar.Fallback
+                className={styles.avatarFallbackMaster}
+                delay={FALLBACK_DELAY_MS}
+              >
+                AV
+              </MasterAvatar.Fallback>
+            </MasterAvatar.Root>
+          </div>
+        </div>
       </div>
 
-      <StatusReadout entries={log.entries} />
+      <div className={styles.compareReadoutGrid}>
+        <StatusReadout title="Current" entries={currentLog.entries} />
+        <StatusReadout title="Master" entries={masterLog.entries} />
+      </div>
 
       <footer className={styles.cardFooter}>
         <button
@@ -311,7 +451,14 @@ function NoSrcScenario({ title, description }: NoSrcScenarioProps) {
         >
           {src ? 'Clear src' : 'Set src'}
         </button>
-        <button type="button" className={styles.buttonGhost} onClick={log.clear}>
+        <button
+          type="button"
+          className={styles.buttonGhost}
+          onClick={() => {
+            currentLog.clear();
+            masterLog.clear();
+          }}
+        >
           Clear log
         </button>
       </footer>
@@ -325,7 +472,8 @@ interface LazyLoadingScenarioProps {
 }
 
 function LazyLoadingScenario({ title, description }: LazyLoadingScenarioProps) {
-  const log = useStatusLog();
+  const currentLog = useStatusLog();
+  const masterLog = useStatusLog();
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
@@ -341,23 +489,49 @@ function LazyLoadingScenario({ title, description }: LazyLoadingScenarioProps) {
           <span className={styles.lazyHint}>The avatar is at the bottom — far below the lazy-load margin</span>
           <span className={styles.lazyHint}>Status below stays at "loading" until the request fires</span>
           <div className={styles.lazyAvatarHost}>
-            <Avatar.Root className={styles.avatarRoot}>
-              <Avatar.Image
-                className={styles.avatarImage}
-                src={LAZY_AVATAR_SRC}
-                loading="lazy"
-                decoding="async"
-                onLoadingStatusChange={log.push}
-              />
-              <Avatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
-                AV
-              </Avatar.Fallback>
-            </Avatar.Root>
+            <div className={styles.avatarCompareGrid}>
+              <div className={styles.avatarCompareCell}>
+                <span className={styles.avatarCompareLabel}>Current</span>
+                <CurrentAvatar.Root className={styles.avatarRoot}>
+                  <CurrentAvatar.Image
+                    className={styles.avatarImage}
+                    src={LAZY_AVATAR_SRC}
+                    loading="lazy"
+                    decoding="async"
+                    onLoadingStatusChange={currentLog.push}
+                  />
+                  <CurrentAvatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
+                    AV
+                  </CurrentAvatar.Fallback>
+                </CurrentAvatar.Root>
+              </div>
+              <div className={styles.avatarCompareCell}>
+                <span className={styles.avatarCompareLabel}>Master</span>
+                <MasterAvatar.Root className={styles.avatarRoot}>
+                  <MasterAvatar.Image
+                    className={styles.avatarImageMaster}
+                    src={LAZY_AVATAR_SRC}
+                    loading="lazy"
+                    decoding="async"
+                    onLoadingStatusChange={masterLog.push}
+                  />
+                  <MasterAvatar.Fallback
+                    className={styles.avatarFallbackMaster}
+                    delay={FALLBACK_DELAY_MS}
+                  >
+                    AV
+                  </MasterAvatar.Fallback>
+                </MasterAvatar.Root>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <StatusReadout entries={log.entries} />
+      <div className={styles.compareReadoutGrid}>
+        <StatusReadout title="Current" entries={currentLog.entries} />
+        <StatusReadout title="Master" entries={masterLog.entries} />
+      </div>
 
       <footer className={styles.cardFooter}>
         <button
@@ -372,7 +546,14 @@ function LazyLoadingScenario({ title, description }: LazyLoadingScenarioProps) {
         >
           Jump to avatar ↓
         </button>
-        <button type="button" className={styles.buttonGhost} onClick={log.clear}>
+        <button
+          type="button"
+          className={styles.buttonGhost}
+          onClick={() => {
+            currentLog.clear();
+            masterLog.clear();
+          }}
+        >
           Clear log
         </button>
       </footer>
@@ -394,12 +575,20 @@ function useStatusLog() {
   return { entries, push, clear };
 }
 
-function StatusReadout({ entries, currentSrc }: { entries: StatusEntry[]; currentSrc?: string }) {
+function StatusReadout({
+  title,
+  entries,
+  currentSrc,
+}: {
+  title?: string;
+  entries: StatusEntry[];
+  currentSrc?: string;
+}) {
   const latest = entries[entries.length - 1];
   return (
     <div className={styles.readout}>
       <div className={styles.readoutCurrent}>
-        <span className={styles.readoutLabel}>Status</span>
+        <span className={styles.readoutLabel}>{title ? `${title} status` : 'Status'}</span>
         <StatusBadge status={latest?.status} />
       </div>
       <ol className={styles.log}>

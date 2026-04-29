@@ -22,7 +22,7 @@ describe('<Avatar.Fallback />', () => {
       </Avatar.Root>,
     );
 
-    fireEvent.load(screen.getByRole('presentation', { hidden: true }));
+    fireEvent.load(screen.getByRole('img', { hidden: true }));
 
     await waitFor(() => {
       expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
@@ -44,7 +44,7 @@ describe('<Avatar.Fallback />', () => {
       // Initial render: no `Avatar.Image` has reported `'loaded'` yet, so Fallback signals loading.
       expect(screen.getByTestId('fallback')).toHaveAttribute('data-loading');
 
-      fireEvent.load(screen.getByRole('presentation', { hidden: true }));
+      fireEvent.load(screen.getByRole('img', { hidden: true }));
 
       await waitFor(() => {
         expect(screen.getByTestId('fallback')).toHaveAttribute('data-loaded');
