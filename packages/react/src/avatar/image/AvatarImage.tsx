@@ -7,6 +7,7 @@ import type { BaseUIEvent } from '../../types';
 import { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRootState, ImageLoadingStatus } from '../root/AvatarRoot';
 import { AvatarImageDataAttributes } from './AvatarImageDataAttributes';
@@ -88,14 +89,59 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   const [intrinsicDecodeFailed, setIntrinsicDecodeFailed] = React.useState(false);
 
-  const [intrinsicSettled, setIntrinsicSettled] = React.useState(() => !componentProps.src);
+  /**
+   * `true` while React is rendering server markup or running the very first client render that
+   * hydrates that markup. Goes to `false` on every subsequent client render (SPA navigations,
+   * Remounts, prop changes that re-mount the subtree). We use it to gate the in-render cache
+   * probe below: server can't know browser-cache state, so the probe must stay off during
+   * hydration to avoid mismatching the server's `[data-loading]` HTML.
+   */
+  const isHydrating = useIsHydrating();
 
   /**
-   * Set when the cache fast-path settles the image synchronously (i.e. the bitmap was already
-   * in the browser cache and `img.complete` was true on the first commit). Used to suppress
-   * the transient `'loading'` fire to consumer's `onLoadingStatusChange` — for cached images
-   * the bitmap goes from initial render → resolved within a single layout-effect cycle, so
-   * there's no real "loading" phase consumers should observe.
+   * Initialise `intrinsicSettled` from a synchronous in-render cache probe so cached URLs commit
+   * straight to `[data-loaded]` on the very first paint. Without this, the component would render
+   * once with `[data-loading]`, then a layout effect would detect the cache and re-render with
+   * `[data-loaded]` — both before paint (so consumers never see a fallback flash), but the
+   * browser's CSS engine still observes the attribute flip on an existing element and fires any
+   * `transition` declared on the loading-state styles, producing a stray fade-in for images that
+   * were supposed to appear instantly. This is the entry-animation regression users hit when they
+   * return to a page in an SPA (the `<img>` URL is in cache, no real load happens, but the
+   * browser still animates between the two computed styles).
+   *
+   * Why a phantom `<img>` is safe and narrow:
+   * - It only runs once per mount (the lazy initializer), so there's no per-render overhead.
+   * - For cached URLs the browser short-circuits to the in-memory bitmap synchronously, so
+   *   `complete && naturalWidth > 0` is reliable here. Same check we run later against the real
+   *   `<img>` for the layout-effect fast-path, just hoisted up to render time so the first
+   *   commit can already be `[data-loaded]`.
+   * - For uncached URLs the browser deduplicates the probe against the real `<img>`'s subsequent
+   *   request (same URL within the same task), so there's no extra network round-trip in
+   *   practice — it just falls through to the normal `loading → loaded` path.
+   * - During SSR (or React hydrating server-rendered HTML on the client), `isHydrating` is
+   *   `true` and we skip the probe entirely. Any `data-loaded` we returned here would either
+   *   need to be reconciled against the server's `data-loading` (mismatch + attribute flip on
+   *   an existing element → transition fires), or land in HTML the server can't actually
+   *   guarantee. Layout-effect cache fast-path below catches the cached case post-hydration —
+   *   identical behavior to before this fix on the SSR path, fixed on every other path.
+   */
+  const [intrinsicSettled, setIntrinsicSettled] = React.useState(() => {
+    if (!componentProps.src) {
+      return true;
+    }
+    if (typeof window === 'undefined' || isHydrating) {
+      return false;
+    }
+    const probe = new window.Image();
+    probe.src = componentProps.src;
+    return probe.complete && probe.naturalWidth > 0;
+  });
+
+  /**
+   * Set when the image was already in the browser cache at mount and we resolved it synchronously
+   * (either via the `useState` cache probe above or via the `useIsoLayoutEffect` fast-path
+   * below). Used to suppress the transient `'loading'` fire to consumer's `onLoadingStatusChange`
+   * — for cached images there's no real "loading" phase consumers should observe.
    */
   const cachedAtMountRef = React.useRef(false);
 
@@ -158,22 +204,42 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   const imageRef = React.useRef<HTMLImageElement | null>(null);
 
   /**
-   * Disk/memory-cached imgs often expose `complete` + `naturalWidth` before `load` bubbles; flip
-   * status to `'loaded'` before paint. Must settle synchronously in this layout effect —
-   * `decode()` resolves in a microtask and runs **after** the first paint, which would emit a
-   * stale `[data-loading]` for one visible frame and force consumers' loading-state CSS (e.g.
-   * `visibility: hidden`) to apply on what should be an instant render.
+   * Reconcile state with the real `<img>`'s already-settled load result on first commit (and after
+   * any `src` swap that re-enters the loading phase). `img.complete` flips to `true` for both
+   * outcomes — successful decode (`naturalWidth > 0`) and decode failure (`naturalWidth === 0`,
+   * e.g. 404, non-image response, blocked request). We have to handle both branches here because:
+   *
+   * 1. **Cached success.** Disk/memory-cached imgs expose `complete + naturalWidth > 0` before
+   *    `load` bubbles, so flipping straight to `'loaded'` here keeps cached renders glitch-free.
+   *    `decode()` resolves in a microtask and runs **after** the first paint, which would emit a
+   *    stale `[data-loading]` for one visible frame and force consumers' loading-state CSS (e.g.
+   *    `visibility: hidden`) to apply on what should be an instant render.
+   *
+   * 2. **Pre-hydration error.** During SSR the server emits `<img src=...>` into HTML; the browser
+   *    starts the fetch immediately and may dispatch `error` *before* React hydrates and attaches
+   *    `onError`, so the handler never runs. After hydration the `<img>` reports
+   *    `complete: true, naturalWidth: 0`, but without this branch we'd stay at `'loading'`
+   *    indefinitely — the user-reported "broken src stuck at loading" regression on hard refresh.
+   *    Mirror the failure into both `intrinsicSettled` and `intrinsicDecodeFailed` so status
+   *    flows through to `'error'` exactly like a normal `onError` would.
+   *
+   * Must settle synchronously in this layout effect — both branches drive the very next paint.
    */
   useIsoLayoutEffect(() => {
     if (intrinsicSettled || intrinsicDecodeFailed) {
       return;
     }
     const img = imageRef.current;
-    if (!(img?.complete && img.naturalWidth > 0)) {
+    if (!img?.complete) {
       return;
     }
-    cachedAtMountRef.current = true;
+    if (img.naturalWidth > 0) {
+      cachedAtMountRef.current = true;
+      setIntrinsicSettled(true);
+      return;
+    }
     setIntrinsicSettled(true);
+    setIntrinsicDecodeFailed(true);
   }, [intrinsicSettled, intrinsicDecodeFailed, componentProps.src]);
 
   const setLiftedImageLoadingStatus = context.setImageLoadingStatus;

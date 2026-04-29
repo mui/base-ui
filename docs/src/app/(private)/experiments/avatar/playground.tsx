@@ -3,14 +3,20 @@ import * as React from 'react';
 import { Avatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
 import styles from './playground.module.css';
 
-// Cache-busted at module load (i.e. once per page load) so the first mount of the cached-image
-// demo always goes through a real `loading → loaded` cycle even when the user has visited the page
-// before. Subsequent Remounts within the same session reuse this URL, hitting the browser cache
-// and resolving synchronously through `Avatar.Image`'s cache fast-path — no `loading` callback
-// fired, no entry animation, exactly the "instant" path the demo is meant to demonstrate.
-const FAST_AVATAR_SRC = `https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Malus_domestica_a1.jpg/500px-Malus_domestica_a1.jpg?_v=${Date.now()}`;
+// Stable URLs across the session so the browser cache actually kicks in: navigating away and
+// back, or clicking Remount, hits the cache and resolves synchronously through `Avatar.Image`'s
+// cache fast-path — no `loading` callback, no entry animation, exactly the "instant" behaviour
+// the demos exercise. To re-trigger the `loading → loaded` cycle on demand (e.g. when verifying
+// the entry animation) open DevTools → Network → "Disable cache" or hard-reload with cache
+// bypass (Cmd+Shift+R / Ctrl+Shift+R). We deliberately don't `?_v=${Date.now()}` cache-bust
+// here: the experiments page is loaded via a dynamic `import()` from a Server Component, which
+// in dev re-evaluates this module on every navigation and would invalidate the cache on the
+// "instant" demos every time the user comes back to the page.
+const FAST_AVATAR_SRC =
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Malus_domestica_a1.jpg/500px-Malus_domestica_a1.jpg';
 
-const ALT_AVATAR_SRC = `https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/500px-The_Earth_seen_from_Apollo_17.jpg?_v=${Date.now()}`;
+const ALT_AVATAR_SRC =
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/The_Earth_seen_from_Apollo_17.jpg/500px-The_Earth_seen_from_Apollo_17.jpg';
 
 const SLOW_AVATAR_SRC = (ms: number) => `/api/experiments/slow-avatar?ms=${ms}`;
 

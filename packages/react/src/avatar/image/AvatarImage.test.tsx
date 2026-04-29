@@ -218,6 +218,51 @@ describe('<Avatar.Image />', () => {
       expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-loading');
     });
 
+    it('flips to "error" after hydration when the bitmap failed to decode before React attached handlers', async () => {
+      // Regression: when SSR'd HTML contains an `<img src=...>` whose URL fails (404, non-image
+      // content, blocked) the browser starts the fetch immediately and may dispatch the `error`
+      // event *before* React hydrates and attaches `onError`. Without compensating in the layout
+      // effect we'd stay stuck on `'loading'` indefinitely on hard refresh — this test pins the
+      // post-hydration `'error'` state so the regression can't return.
+      restoreImage();
+
+      // Pre-fail the URL synchronously so by the time we render-to-string + hydrate, the browser
+      // already has `complete: true, naturalWidth: 0` cached for it. Same shape as a real
+      // pre-hydration error: the `<img>` arrives at React with the failure already settled.
+      const BROKEN_URI = 'data:image/png;base64,not-a-valid-image';
+      await new Promise<void>((resolve) => {
+        const img = new window.Image();
+        img.onerror = () => resolve();
+        img.onload = () => resolve();
+        img.src = BROKEN_URI;
+      });
+
+      const { hydrate } = renderToString(
+        <Avatar.Root>
+          <Avatar.Image src={BROKEN_URI} alt="Jane Doe" />
+          <Avatar.Fallback data-testid="fallback">JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      expect(screen.getByRole('img')).toHaveAttribute('data-loading');
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-loading');
+
+      hydrate();
+
+      // Browsers can settle decode failures synchronously *or* on a microtask depending on the
+      // pipeline (cached failures vs. fresh data-URI evaluations vs. real network 404s). Either
+      // path lands at the same observable state: the layout-effect's `complete + !naturalWidth`
+      // branch handles the synchronous case directly, and the post-hydration `onError` handles
+      // the microtask case once it fires. We wait so the test covers both, since the playground
+      // bug surfaces specifically when neither path resolves.
+      await waitFor(() => {
+        expect(screen.getByRole('img')).toHaveAttribute('data-error');
+      });
+      expect(screen.getByRole('img')).not.toHaveAttribute('data-loading');
+      expect(screen.getByTestId('fallback')).toHaveAttribute('data-error');
+      expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-loading');
+    });
+
     it('reaches the [data-loaded] steady state without firing an entry transition for a cached image', async () => {
       // Restore real Image so this test exercises actual browser caching
       restoreImage();
