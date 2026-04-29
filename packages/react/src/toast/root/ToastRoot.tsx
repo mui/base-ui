@@ -179,6 +179,19 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   useIsoLayoutEffect(recalculateHeight, [recalculateHeight]);
 
+  React.useEffect(() => {
+    if (!toast.focus || !rootRef.current) {
+      return;
+    }
+
+    const doc = ownerDocument(rootRef.current);
+    store.setPrevFocusElement(activeElement(doc) as HTMLElement | null);
+    rootRef.current.focus({ preventScroll: true });
+    store.pauseTimers();
+    store.setFocused(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
     let newDeltaX = deltaX;
     let newDeltaY = deltaY;

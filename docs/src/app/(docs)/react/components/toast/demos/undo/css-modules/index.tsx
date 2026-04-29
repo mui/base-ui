@@ -24,6 +24,7 @@ function Form() {
       title: 'Action performed',
       description: 'You can undo this action.',
       type: 'success',
+      focus: true,
       actionProps: {
         children: 'Undo',
         onClick() {

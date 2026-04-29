@@ -746,4 +746,76 @@ describe('<Toast.Root />', () => {
       });
     });
   });
+
+  describe('focus option', () => {
+    it('moves focus to the toast when focus is true', async () => {
+      function AddButton() {
+        const { add } = Toast.useToastManager();
+        return (
+          <button
+            type="button"
+            data-testid="trigger"
+            onClick={() => {
+              add({
+                title: 'Focused toast',
+                focus: true,
+              });
+            }}
+          >
+            add
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <AddButton />
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        const toastRoot = screen.getByTestId('root');
+        expect(toastRoot).toHaveFocus();
+      });
+    });
+
+    it('does not move focus when focus is not set', async () => {
+      function AddButton() {
+        const { add } = Toast.useToastManager();
+        return (
+          <button
+            type="button"
+            data-testid="trigger"
+            onClick={() => {
+              add({ title: 'Normal toast' });
+            }}
+          >
+            add
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider>
+          <AddButton />
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('root')).not.toHaveFocus();
+      });
+    });
+  });
 });

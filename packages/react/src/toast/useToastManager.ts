@@ -87,6 +87,13 @@ export interface ToastObject<Data extends object> {
    */
   onRemove?: (() => void) | undefined;
   /**
+   * Whether to move focus to the toast when it opens.
+   * When `true`, the previously focused element is saved and restored when the toast closes.
+   * Timers are paused while the toast has focus.
+   * @default false
+   */
+  focus?: boolean | undefined;
+  /**
    * The props for the action button.
    */
   actionProps?: React.ComponentPropsWithoutRef<'button'> | undefined;
