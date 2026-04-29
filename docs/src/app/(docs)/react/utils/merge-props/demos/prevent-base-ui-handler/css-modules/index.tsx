@@ -19,26 +19,24 @@ export default function ExamplePreventBaseUIHandler() {
   return (
     <div className={styles.Container}>
       <div className={styles.ToggleRow}>
-        <div className={styles.Panel}>
-          <Toggle
-            aria-label="Favorite"
-            pressed={pressed}
-            onPressedChange={setPressed}
-            className={styles.Button}
-            render={(props, state) => (
-              <button type="button" {...getToggleProps(props)}>
-                {state.pressed ? (
-                  <HeartFilledIcon className={styles.Icon} />
-                ) : (
-                  <HeartOutlineIcon className={styles.Icon} />
-                )}
-              </button>
-            )}
-          />
-        </div>
+        <Toggle
+          aria-label="Favorite"
+          pressed={pressed}
+          onPressedChange={setPressed}
+          className={styles.Toggle}
+          render={(props, state) => (
+            <button type="button" {...getToggleProps(props)}>
+              {state.pressed ? (
+                <HeartFilledIcon className={styles.Icon} />
+              ) : (
+                <HeartOutlineIcon className={styles.Icon} />
+              )}
+            </button>
+          )}
+        />
         <span className={styles.Label}>Favorite {locked ? '(locked)' : '(unlocked)'}</span>
       </div>
-      <button type="button" className={styles.LockButton} onClick={() => setLocked((l) => !l)}>
+      <button type="button" className={styles.Button} onClick={() => setLocked((l) => !l)}>
         {locked ? 'Unlock' : 'Lock'}
       </button>
     </div>

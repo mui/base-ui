@@ -37,24 +37,28 @@ export default function Page() {
       }}
     >
       <Field.Root name="name" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-bold text-gray-900">Name</Field.Label>
+        <Field.Label className="text-sm font-bold text-neutral-950 dark:text-white">
+          Name
+        </Field.Label>
         <Field.Control
           placeholder="Enter name"
-          className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 font-normal"
+          className="h-8 w-full border border-neutral-950 bg-transparent px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
         />
-        <Field.Error className="text-sm text-red-800" />
+        <Field.Error className="text-sm text-red-700 dark:text-red-400" />
       </Field.Root>
       <Field.Root name="age" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-bold text-gray-900">Age</Field.Label>
+        <Field.Label className="text-sm font-bold text-neutral-950 dark:text-white">
+          Age
+        </Field.Label>
         <Field.Control
           placeholder="Enter age"
-          className="h-10 w-full rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 font-normal"
+          className="h-8 w-full border border-neutral-950 bg-transparent px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
         />
-        <Field.Error className="text-sm text-red-800" />
+        <Field.Error className="text-sm text-red-700 dark:text-red-400" />
       </Field.Root>
       <Button
         type="submit"
-        className="flex items-center justify-center h-10 px-3.5 m-0 outline-0 border border-gray-200 rounded-md bg-gray-50 font-inherit text-base font-normal leading-6 text-gray-900 select-none hover:data-[disabled]:bg-gray-50 hover:bg-gray-100 active:data-[disabled]:bg-gray-50 active:bg-gray-200 active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] active:border-t-gray-300 active:data-[disabled]:shadow-none active:data-[disabled]:border-t-gray-200 focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 data-[disabled]:text-gray-500"
+        className="flex h-8 items-center justify-center rounded-none border border-neutral-950 bg-white px-3 text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-50 active:not-data-disabled:bg-neutral-100 data-disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-900 dark:active:not-data-disabled:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
       >
         Submit
       </Button>

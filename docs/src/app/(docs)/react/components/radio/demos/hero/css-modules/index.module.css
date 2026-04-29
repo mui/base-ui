@@ -3,10 +3,12 @@
   flex-direction: column;
   align-items: start;
   gap: 0.25rem;
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .Caption {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 700;
 }
 
@@ -14,33 +16,33 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 400;
 }
 
 .Radio {
   box-sizing: border-box;
   display: flex;
-  width: 1.25rem;
-  height: 1.25rem;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
   align-items: center;
   justify-content: center;
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 100%;
-  outline: 0;
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(white, var(--color-neutral-950));
   padding: 0;
   margin: 0;
-  border: none;
-
-  &[data-unchecked] {
-    border: 1px solid var(--color-gray-300);
-    background-color: transparent;
-  }
 
   &[data-checked] {
-    background-color: var(--color-gray-900);
+    background-color: light-dark(var(--color-neutral-950), white);
+    color: light-dark(white, var(--color-neutral-950));
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid var(--color-blue-800);
     outline-offset: 2px;
   }
 }
@@ -59,6 +61,6 @@
     border-radius: 100%;
     width: 0.5rem;
     height: 0.5rem;
-    background-color: var(--color-gray-50);
+    background-color: currentcolor;
   }
 }

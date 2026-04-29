@@ -25,12 +25,6 @@
 /* `source(none)` disables automatic detection of sources to generate Tailwind classes. Use the safelist below instead. */
 @import 'tailwindcss/utilities' layer(utilities) source(none);
 
-/* ═══ Demo-specific theme ═══ */
-/* We defined grays, red, and blue in the theme used for demos. */
-/* Uses gray scale that is roughly compatible with Tailwind's grays. */
-/* This is injected in demos when opening in a sandbox like StackBlitz. */
-@import '../demo-data/theme/css-modules/theme.css' layer(theme);
-
 /* ═══ Docs-only imports ═══ */
 
 @import './fonts/index.css';
@@ -50,7 +44,8 @@
 
 /* ═══ Safelist to generate Tailwind classes ═══ */
 
-@source '../app/(docs)/react/**/demos/**/*.{ts,tsx}';
+/* TODO: Remove the .css extension once all CSS module demos are migrated to the new look */
+@source '../app/(docs)/react/**/demos/**/*.{ts,tsx,css}';
 
 /* Temporary sources until Tailwind CSS vars are no longer used in them */
 @source './mdx-components.css';
@@ -67,70 +62,33 @@
   --color-white: white;
   --color-black: black;
 
-  /* Gray, red and blue colors defined in file://../demo-data/theme/css-modules/theme.css */
-  --color-gray-50: inherit;
-  --color-gray-100: inherit;
-  --color-gray-200: inherit;
-  --color-gray-300: inherit;
-  --color-gray-400: inherit;
-  --color-gray-500: inherit;
-  --color-gray-600: inherit;
-  --color-gray-700: inherit;
-  --color-gray-800: inherit;
-  --color-gray-900: inherit;
-  --color-gray-950: inherit;
+  --color-neutral-50: oklch(98.5% 0 0deg);
+  --color-neutral-100: oklch(97% 0 0deg);
+  --color-neutral-200: oklch(92.2% 0 0deg);
+  --color-neutral-300: oklch(87% 0 0deg);
+  --color-neutral-400: oklch(70.8% 0 0deg);
+  --color-neutral-500: oklch(55.6% 0 0deg);
+  --color-neutral-600: oklch(43.9% 0 0deg);
+  --color-neutral-700: oklch(37.1% 0 0deg);
+  --color-neutral-800: oklch(26.9% 0 0deg);
+  --color-neutral-900: oklch(20.5% 0 0deg);
+  --color-neutral-950: oklch(14.5% 0 0deg);
 
-  --color-blue: inherit;
-  --color-red: inherit;
+  --color-blue-400: oklch(70.7% 0.165 254.624deg);
+  --color-blue-500: oklch(62.3% 0.214 259.815deg);
+  --color-blue-700: oklch(48.8% 0.243 264.376deg);
+  --color-blue-800: oklch(42.4% 0.199 265.638deg);
 
-  --color-blue-800: var(--color-blue);
-  --color-red-800: var(--color-red);
+  --color-red-400: oklch(70.4% 0.191 22.216deg);
+  --color-red-700: oklch(50.5% 0.213 27.518deg);
+
+  --color-green-400: oklch(79.2% 0.209 151.711deg);
+  --color-green-700: oklch(52.7% 0.154 150.069deg);
 
   /* Typography */
   --font-mono: 'Paper Mono', monospace;
   --font-sans: 'die grotesk a', system-ui, sans-serif;
-  --font-sans-b: 'die grotesk b', system-ui, sans-serif;
   --font-serif: Georgia, 'Times New Roman', Times, 'Noto Serif', 'DejaVu Serif', serif;
-
-  --text-xs: 0.8125rem;
-  --text-xs--line-height: 1.25rem;
-  --text-xs--letter-spacing: 0.001em;
-
-  --text-sm: 0.875rem;
-  --text-sm--line-height: 1.25rem;
-  --text-sm--letter-spacing: 0.016em;
-
-  --text-base: 1rem;
-  --text-base--line-height: 1.5rem;
-  --text-base--letter-spacing: 0em;
-
-  --text-lg: 1.125rem;
-  --text-lg--line-height: 1.75rem;
-  --text-lg--letter-spacing: -0.0025em;
-
-  --text-xl: 1.3125rem;
-  --text-xl--line-height: 1.625rem;
-  --text-xl--letter-spacing: -0.005em;
-
-  --text-2xl: 1.5rem;
-  --text-2xl--line-height: 1.25;
-  --text-2xl--letter-spacing: -0.0125em;
-
-  --text-3xl: 1.875rem;
-  --text-3xl--line-height: 1.2;
-  --text-3xl--letter-spacing: -0.015em;
-
-  --text-4xl: 2.25rem;
-  --text-4xl--line-height: 2.5rem;
-  --text-4xl--letter-spacing: -0.015em;
-
-  --text-5xl: 3rem;
-  --text-5xl--line-height: 1;
-  --text-5xl--letter-spacing: -0.015em;
-
-  --text-6xl: 3.75rem;
-  --text-6xl--line-height: 0.95;
-  --text-6xl--letter-spacing: -0.015em;
 }
 
 /* ═══ Demo isolation ═══ */
@@ -145,11 +103,6 @@
 
   [data-demo]:not([data-demo='tailwind']) * {
     all: revert-layer;
-  }
-
-  [data-demo='tailwind'] {
-    --text-sm--letter-spacing: 0em;
-    --text-md--letter-spacing: 0em;
   }
 }
 
@@ -193,6 +146,10 @@
     --grape-t1: hsl(276deg 66% 54%);
     --lime-t1: hsl(91deg 64% 38.75%);
 
+    /* Legacy colors */
+    --color-blue: oklch(45% 50% 264deg);
+    --color-red: oklch(50% 55% 31deg);
+
     /* Functional colors */
     --color-content: white;
     --color-background: var(--gray-s2);
@@ -209,6 +166,9 @@
     --color-navy: oklch(31% 25% 264deg);
     --color-green: oklch(46% 30% 150deg);
     --color-violet: oklch(40% 60% 300deg);
+
+    /* Font family */
+    --font-sans-b: 'die grotesk b', system-ui, sans-serif;
 
     /* Font size */
     --font-size-13: 0.8125rem; /* 13px */
@@ -309,6 +269,9 @@
       --pink-t1: hsl(316deg 86% 68%);
       --grape-t1: hsl(276deg 86% 70%);
       --lime-t1: hsl(91deg 72% 56%);
+
+      --color-blue: oklch(69% 50% 264deg);
+      --color-red: oklch(80% 55% 31deg);
 
       /* Functional colors */
       --color-content: black;

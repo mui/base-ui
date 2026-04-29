@@ -1,34 +1,45 @@
 .Menubar {
   display: flex;
-  background-color: var(--color-gray-50);
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.375rem;
-  padding: 0.125rem;
+  align-items: center;
 }
 
 .MenuTrigger {
   box-sizing: border-box;
-  background: none;
+  height: 2rem;
   padding: 0 0.75rem;
   margin: 0;
-  outline: 0;
   border: 0;
-  color: var(--color-gray-600);
-  border-radius: 0.25rem;
-  user-select: none;
-  height: 2rem;
+  background-color: transparent;
+  color: light-dark(var(--color-neutral-950), white);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
+  line-height: 1.25rem;
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+    }
+  }
+
+  &:active:not([data-disabled]) {
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+  }
 
   &[data-pressed],
-  &:focus-visible {
-    background-color: var(--color-gray-100);
-    outline: none;
+  &[data-popup-open] {
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 
   &[data-disabled] {
-    opacity: 0.5;
+    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  }
+
+  &:focus-visible {
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
@@ -38,31 +49,29 @@
 
 .MenuPopup {
   box-sizing: border-box;
+  outline: 0;
   padding-block: 0.25rem;
-  border-radius: 0.375rem;
-  background-color: canvas;
-  color: var(--color-gray-900);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
+  filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
   transform-origin: var(--transform-origin);
+  transition:
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
 
+  &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transition: opacity 150ms;
+    transform: scale(0.98);
   }
 
   &[data-instant] {
     transition: none;
   }
 
-  @media (prefers-color-scheme: light) {
-    outline: 1px solid var(--color-gray-200);
-    box-shadow:
-      0 10px 15px -3px var(--color-gray-200),
-      0 4px 6px -4px var(--color-gray-200);
-  }
-
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-gray-300);
-    outline-offset: -1px;
+    filter: none;
   }
 }
 
@@ -70,7 +79,9 @@
   outline: 0;
   cursor: default;
   user-select: none;
-  padding: 0.5rem 1rem;
+  padding-block: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
   display: flex;
   font-size: 0.875rem;
   line-height: 1rem;
@@ -84,35 +95,36 @@
     position: relative;
   }
 
-  &[data-popup-open]::before {
-    content: '';
-    z-index: -1;
-    position: absolute;
-    inset-block: 0;
-    inset-inline: 0.25rem;
-    border-radius: 0.25rem;
-    background-color: var(--color-gray-100);
-  }
-
   &[data-highlighted] {
     z-index: 0;
     position: relative;
-    color: var(--color-gray-50);
+    color: light-dark(white, var(--color-neutral-950));
   }
 
+  &[data-popup-open]::before,
   &[data-highlighted]::before {
     content: '';
     z-index: -1;
     position: absolute;
     inset-block: 0;
     inset-inline: 0.25rem;
-    border-radius: 0.25rem;
-    background-color: var(--color-gray-900);
+  }
+
+  &[data-popup-open]::before {
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+  }
+
+  &[data-highlighted]::before {
+    background-color: light-dark(var(--color-neutral-950), white);
+  }
+
+  &[data-highlighted][data-popup-open]::before {
+    background-color: light-dark(var(--color-neutral-950), white);
   }
 }
 
 .MenuSeparator {
-  margin: 0.375rem 1rem;
+  margin: 0.25rem;
   height: 1px;
-  background-color: var(--color-gray-200);
+  background-color: light-dark(var(--color-neutral-950), white);
 }

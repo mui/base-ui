@@ -7,11 +7,11 @@ export default function OutsideScrollDialog() {
   const popupRef = React.useRef<HTMLDivElement>(null);
   return (
     <Dialog.Root>
-      <Dialog.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+      <Dialog.Trigger className="flex h-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/5%)_0,rgb(0_0_0/10%)_50%)] opacity-100 transition-[backdrop-filter,opacity] duration-[600ms] ease-[var(--ease-out-fast)] backdrop-blur-[1.5px] data-[starting-style]:backdrop-blur-0 data-[starting-style]:opacity-0 data-[ending-style]:backdrop-blur-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
+        <Dialog.Backdrop className="fixed inset-0 bg-black/20 dark:bg-black/50 transition-opacity duration-[350ms] ease-[var(--ease-out-fast)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[220ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="group/dialog fixed inset-0">
           <ScrollArea.Root
             style={{ position: undefined }}
@@ -22,45 +22,41 @@ export default function OutsideScrollDialog() {
                 <Dialog.Popup
                   ref={popupRef}
                   initialFocus={popupRef}
-                  className="outline-0 relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] rounded-lg bg-gray-50 p-8 text-gray-900 shadow-[0_10px_64px_-10px_rgb(36_40_52/20%),0_0.25px_0_1px_oklch(12%_9%_264deg/7%)] transition-transform duration-[700ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-[max(100dvh,100%)] data-[ending-style]:duration-[350ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] dark:shadow-[0_0_0_1px_oklch(29%_0.75%_264deg/80%)] dark:outline-1 dark:outline-gray-300 motion-reduce:transition-none"
+                  className="outline-0 relative mx-auto my-16 w-[min(40rem,calc(100vw-2rem))] bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[4px_4px_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[350ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-[starting-style]:translate-y-[100dvh] data-[ending-style]:translate-y-[max(100dvh,100%)] data-[ending-style]:duration-[220ms] data-[ending-style]:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
                 >
-                  <div className="mb-4 flex items-start justify-between gap-3">
-                    <Dialog.Title className="m-0 text-xl font-bold leading-[1.875rem]">
-                      Dialog
-                    </Dialog.Title>
+                  <div className="mb-1 flex items-start justify-between gap-3">
+                    <Dialog.Title className="m-0 text-base font-bold">Dialog</Dialog.Title>
                     <Dialog.Close
                       aria-label="Close"
-                      className="relative top-[-0.5rem] right-[-0.5rem] flex items-center justify-center rounded-md border border-gray-200 bg-gray-50 w-[2.25rem] h-[2.25rem] text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
+                      className="relative top-[-0.25rem] right-[-0.25rem] inline-flex items-center justify-center w-8 h-8 bg-transparent text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
                     >
-                      <XIcon className="h-[1.1rem] w-[1.1rem]" />
+                      <XIcon className="h-4 w-4" />
                     </Dialog.Close>
                   </div>
 
-                  <Dialog.Description className="m-0 mb-6 text-base leading-[1.6rem] text-gray-600">
+                  <Dialog.Description className="m-0 mb-4 text-sm text-neutral-600 dark:text-neutral-400">
                     This layout keeps an outer container scrollable while the dialog can extend past
                     the bottom edge.
                   </Dialog.Description>
 
-                  <div className="mb-[1.75rem] flex flex-col gap-6">
+                  <div className="mb-4 flex flex-col gap-4">
                     {CONTENT_SECTIONS.map((item) => (
                       <section key={item.title}>
-                        <h3 className="m-0 mb-[0.4rem] text-base font-bold leading-6">
-                          {item.title}
-                        </h3>
-                        <p className="m-0 text-[0.95rem] leading-[1.55rem] text-gray-700">
+                        <h3 className="m-0 mb-1 text-sm font-bold">{item.title}</h3>
+                        <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
                           {item.body}
                         </p>
                       </section>
                     ))}
                   </div>
 
-                  <p className="m-0 mb-6 text-[0.95rem] leading-6 text-gray-600">
+                  <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
                     Related docs:{' '}
                     {RELATED_LINKS.map((item, index) => (
                       <React.Fragment key={item.href}>
                         {index > 0 ? ', ' : null}
                         <a
-                          className="text-gray-900 underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:rounded-[0.125rem] focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:outline-offset-2"
+                          className="text-neutral-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:outline-offset-2"
                           href={item.href}
                         >
                           {item.label}
@@ -72,8 +68,8 @@ export default function OutsideScrollDialog() {
                 </Dialog.Popup>
               </ScrollArea.Content>
             </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar className="pointer-events-none absolute m-[0.4rem] flex w-[0.25rem] justify-center rounded-[1rem] opacity-0 transition-opacity duration-[250ms] data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-[75ms] data-[scrolling]:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-[75ms] hover:delay-[0ms] md:w-[0.4375rem] group-data-[ending-style]/dialog:opacity-0 group-data-[ending-style]/dialog:duration-300">
-              <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:content-[''] before:top-1/2 before:left-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2" />
+            <ScrollArea.Scrollbar className="pointer-events-none flex w-3 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-[250ms] data-[scrolling]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling]:duration-[75ms] data-[scrolling]:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-[75ms] hover:delay-[0ms] group-data-[ending-style]/dialog:opacity-0 group-data-[ending-style]/dialog:duration-[250ms]">
+              <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
             </ScrollArea.Scrollbar>
           </ScrollArea.Root>
         </Dialog.Viewport>
@@ -90,7 +86,7 @@ function XIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       {...props}

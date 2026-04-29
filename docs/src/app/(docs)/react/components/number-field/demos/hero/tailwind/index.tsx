@@ -1,12 +1,18 @@
 import * as React from 'react';
 import { NumberField } from '@base-ui/react/number-field';
 
+const stepperClasses =
+  'flex h-full w-8 items-center justify-center border border-neutral-950 rounded-none bg-white bg-clip-padding text-neutral-950 outline-0 select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:z-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800';
+
 export default function ExampleNumberField() {
   const id = React.useId();
   return (
     <NumberField.Root id={id} defaultValue={100} className="flex flex-col items-start gap-1">
-      <NumberField.ScrubArea className="cursor-ew-resize">
-        <label htmlFor={id} className="cursor-ew-resize text-sm font-bold text-gray-900">
+      <NumberField.ScrubArea className="cursor-ew-resize font-bold select-none">
+        <label
+          htmlFor={id}
+          className="cursor-ew-resize text-sm font-bold text-neutral-950 dark:text-white"
+        >
           Amount
         </label>
         <NumberField.ScrubAreaCursor className="drop-shadow-[0_1px_1px_#0008] filter">
@@ -14,12 +20,12 @@ export default function ExampleNumberField() {
         </NumberField.ScrubAreaCursor>
       </NumberField.ScrubArea>
 
-      <NumberField.Group className="flex">
-        <NumberField.Decrement className="flex size-10 items-center justify-center rounded-tl-md rounded-bl-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100">
+      <NumberField.Group className="flex h-8">
+        <NumberField.Decrement className={stepperClasses}>
           <MinusIcon />
         </NumberField.Decrement>
-        <NumberField.Input className="h-10 w-24 border-t border-b border-gray-200 text-center text-base text-gray-900 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 font-normal" />
-        <NumberField.Increment className="flex size-10 items-center justify-center rounded-tr-md rounded-br-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100">
+        <NumberField.Input className="h-full w-[7ch] border-y border-neutral-950 rounded-none bg-transparent px-3 text-left text-sm font-normal text-neutral-950 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white" />
+        <NumberField.Increment className={stepperClasses}>
           <PlusIcon />
         </NumberField.Increment>
       </NumberField.Group>
@@ -43,10 +49,11 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 10 10"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1"
       {...props}
     >
-      <path d="M0 5H5M10 5H5M5 5V0M5 5V10" />
+      <path d="M5 0.5V9.5" />
+      <path d="M0.5 5H9.5" />
     </svg>
   );
 }
@@ -59,10 +66,10 @@ function MinusIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 10 10"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1"
       {...props}
     >
-      <path d="M0 5H10" />
+      <path d="M0.5 5H9.5" />
     </svg>
   );
 }

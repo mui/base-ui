@@ -6,10 +6,10 @@ export default function ExampleDirectionProvider() {
     <div dir="rtl">
       <DirectionProvider direction="rtl">
         <Slider.Root defaultValue={25}>
-          <Slider.Control className="flex w-56 items-center py-3">
-            <Slider.Track className="relative h-1 w-full rounded-sm bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200">
-              <Slider.Indicator className="rounded-sm bg-gray-700" />
-              <Slider.Thumb className="size-4 rounded-full bg-white outline-1 outline-gray-300 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-blue-800" />
+          <Slider.Control className="flex w-56 touch-none items-center py-3 select-none">
+            <Slider.Track className="h-1 w-full bg-neutral-200 select-none dark:bg-neutral-800">
+              <Slider.Indicator className="bg-neutral-950 select-none dark:bg-white" />
+              <Slider.Thumb className="box-border size-4 border border-neutral-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-800 dark:border-white dark:bg-neutral-950" />
             </Slider.Track>
           </Slider.Control>
         </Slider.Root>

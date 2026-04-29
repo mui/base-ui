@@ -9,38 +9,38 @@ export default function ExampleRadioGroup() {
     <RadioGroup
       aria-labelledby={id}
       defaultValue="fuji-apple"
-      className="flex flex-col items-start gap-1 text-gray-900"
+      className="flex flex-col items-start gap-1 text-neutral-950 dark:text-white"
     >
-      <div className="font-bold" id={id}>
+      <div className="text-sm font-bold" id={id}>
         Best apple
       </div>
 
-      <label className="flex items-center gap-2 font-normal">
+      <label className="flex items-center gap-2 text-sm font-normal text-neutral-950 dark:text-white">
         <Radio.Root
           value="fuji-apple"
-          className="flex size-5 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-4 shrink-0 items-center justify-center border rounded-full p-0 border-neutral-950 bg-white text-white dark:border-white dark:bg-neutral-950 dark:text-neutral-950 data-checked:bg-neutral-950 data-checked:text-white dark:data-checked:bg-white dark:data-checked:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
         >
-          <Radio.Indicator className="flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden" />
+          <Radio.Indicator className="flex items-center justify-center data-unchecked:hidden before:size-2 before:rounded-full before:bg-current" />
         </Radio.Root>
         Fuji
       </label>
 
-      <label className="flex items-center gap-2 font-normal">
+      <label className="flex items-center gap-2 text-sm font-normal text-neutral-950 dark:text-white">
         <Radio.Root
           value="gala-apple"
-          className="flex size-5 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-4 shrink-0 items-center justify-center border rounded-full p-0 border-neutral-950 bg-white text-white dark:border-white dark:bg-neutral-950 dark:text-neutral-950 data-checked:bg-neutral-950 data-checked:text-white dark:data-checked:bg-white dark:data-checked:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
         >
-          <Radio.Indicator className="flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden" />
+          <Radio.Indicator className="flex items-center justify-center data-unchecked:hidden before:size-2 before:rounded-full before:bg-current" />
         </Radio.Root>
         Gala
       </label>
 
-      <label className="flex items-center gap-2 font-normal">
+      <label className="flex items-center gap-2 text-sm font-normal text-neutral-950 dark:text-white">
         <Radio.Root
           value="granny-smith-apple"
-          className="flex size-5 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800 data-[checked]:bg-gray-900 data-[unchecked]:border data-[unchecked]:border-gray-300"
+          className="flex size-4 shrink-0 items-center justify-center border rounded-full p-0 border-neutral-950 bg-white text-white dark:border-white dark:bg-neutral-950 dark:text-neutral-950 data-checked:bg-neutral-950 data-checked:text-white dark:data-checked:bg-white dark:data-checked:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
         >
-          <Radio.Indicator className="flex before:size-2 before:rounded-full before:bg-gray-50 data-[unchecked]:hidden" />
+          <Radio.Indicator className="flex items-center justify-center data-unchecked:hidden before:size-2 before:rounded-full before:bg-current" />
         </Radio.Root>
         Granny Smith
       </label>

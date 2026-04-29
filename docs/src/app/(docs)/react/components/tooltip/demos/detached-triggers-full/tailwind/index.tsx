@@ -1,42 +1,26 @@
 'use client';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { ArrowSvg, InfoIcon, HelpIcon, AlertIcon } from '../../icons-tw';
+import { InfoIcon, HelpIcon, AlertIcon } from '../../icons-tw';
 
 const demoTooltip = Tooltip.createHandle<React.ComponentType>();
+
+const triggerClass =
+  'box-border flex size-8 items-center justify-center border border-neutral-950 bg-white text-sm font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 hover:bg-neutral-50 active:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-popup-open:bg-neutral-800 dark:hover:bg-neutral-900 dark:active:bg-neutral-800';
+
+const arrowClass =
+  "relative block w-3 h-1.5 overflow-clip transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[instant]:transition-none data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]";
 
 export default function TooltipDetachedTriggersFullDemo() {
   return (
     <Tooltip.Provider>
       <div className="flex">
-        <Tooltip.Trigger
-          className="
-            box-border flex size-10 items-center justify-center
-            border border-gray-200 rounded-l-md
-            bg-gray-50
-            text-base text-gray-900
-            select-none
-            data-popup-open:bg-gray-100
-            focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
-            hover:bg-gray-100
-            active:bg-gray-100"
-          handle={demoTooltip}
-          payload={InfoContent}
-        >
+        <Tooltip.Trigger className={triggerClass} handle={demoTooltip} payload={InfoContent}>
           <InfoIcon aria-label="This is information about the feature" className="size-5" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
-          className="
-            box-border flex size-10 items-center justify-center
-            border-y border-r border-gray-200
-            bg-gray-50
-            text-base text-gray-900
-            select-none
-            data-popup-open:bg-gray-100
-            focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
-            hover:bg-gray-100
-            active:bg-gray-100"
+          className={`${triggerClass} border-l-0`}
           handle={demoTooltip}
           payload={HelpContent}
         >
@@ -44,16 +28,7 @@ export default function TooltipDetachedTriggersFullDemo() {
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
-          className="
-            box-border flex size-10 items-center justify-center
-            border-y border-r border-gray-200 rounded-r-md
-            bg-gray-50
-            text-base text-gray-900
-            select-none
-            data-popup-open:bg-gray-100
-            focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
-            hover:bg-gray-100
-            active:bg-gray-100"
+          className={`${triggerClass} border-l-0`}
           handle={demoTooltip}
           payload={AlertContent}
         >
@@ -65,47 +40,33 @@ export default function TooltipDetachedTriggersFullDemo() {
         {({ payload: Payload }) => (
           <Tooltip.Portal>
             <Tooltip.Positioner
-              sideOffset={10}
+              sideOffset={11}
               className="
-                h-(--positioner-height) w-(--positioner-width)
-                max-w-(--available-width)
+                h-[var(--positioner-height)] w-[var(--positioner-width)]
+                max-w-[var(--available-width)]
                 transition-[top,left,right,bottom,transform]
                 duration-[0.35s]
                 ease-[cubic-bezier(0.22,1,0.36,1)]
-                data-instant:transition-none"
+                data-[instant]:transition-none"
             >
               <Tooltip.Popup
                 className="
                   relative
-                  h-(--popup-height,auto) w-(--popup-width,auto)
+                  h-[var(--popup-height,auto)] w-[var(--popup-width,auto)]
                   max-w-[500px]
-                  rounded-md
-                  bg-[canvas]
-                  text-sm
-                  origin-(--transform-origin)
-                  shadow-lg shadow-gray-200 outline-1 outline-gray-200
+                  border border-neutral-950 dark:border-white
+                  bg-white dark:bg-neutral-950
+                  text-sm text-neutral-950 dark:text-white
+                  origin-[var(--transform-origin)]
+                  [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] dark:[filter:none]
                   transition-[width,height,opacity,scale]
                   duration-[0.35s]
                   ease-[cubic-bezier(0.22,1,0.36,1)]
-                  data-ending-style:opacity-0 data-ending-style:scale-90
-                  data-instant:transition-none
-                  data-starting-style:opacity-0 data-starting-style:scale-90
-                  dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1"
+                  data-[ending-style]:opacity-0 data-[ending-style]:scale-90
+                  data-[instant]:transition-none
+                  data-[starting-style]:opacity-0 data-[starting-style]:scale-90"
               >
-                <Tooltip.Arrow
-                  className="
-                    flex
-                    transition-[left]
-                    duration-[0.35s]
-                    ease-[cubic-bezier(0.22,1,0.36,1)]
-                    data-instant:transition-none
-                    data-[side=bottom]:-top-2 data-[side=bottom]:rotate-0
-                    data-[side=left]:right-[-13px] data-[side=left]:rotate-90
-                    data-[side=right]:left-[-13px] data-[side=right]:-rotate-90
-                    data-[side=top]:-bottom-2 data-[side=top]:rotate-180"
-                >
-                  <ArrowSvg />
-                </Tooltip.Arrow>
+                <Tooltip.Arrow className={arrowClass} />
 
                 <Tooltip.Viewport
                   className="

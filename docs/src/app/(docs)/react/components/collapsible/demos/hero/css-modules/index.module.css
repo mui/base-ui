@@ -4,47 +4,56 @@
   min-height: 9rem;
   flex-direction: column;
   justify-content: center;
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .Icon {
   width: 0.75rem;
   height: 0.75rem;
-  transition: transform 150ms ease-out;
+  transition: transform 100ms ease-out;
 }
 
 .Trigger {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
+  height: 2rem;
+  padding: 0 0.5rem 0 0.75rem;
   margin: 0;
-  border: 0;
-  outline: 0;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  background-color: var(--color-gray-100);
-  color: var(--color-gray-900);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  border-radius: 0;
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
   font-family: inherit;
   font-size: 0.875rem;
-  line-height: 1.25rem;
   font-weight: 400;
+  line-height: 1.25rem;
+  user-select: none;
 
   @media (hover: hover) {
-    &:hover {
-      background-color: var(--color-gray-200);
+    &:hover:not([data-disabled]) {
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
-  &:active {
-    background-color: var(--color-gray-200);
+  &:active:not([data-disabled]) {
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 
   &[data-panel-open] .Icon {
     transform: rotate(90deg);
+  }
+
+  &[data-disabled] {
+    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+    border-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   }
 }
 
@@ -56,7 +65,7 @@
   overflow: hidden;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  transition: all 150ms ease-out;
+  transition: height 150ms ease-out;
 
   &[hidden]:not([hidden='until-found']) {
     display: none;
@@ -72,9 +81,5 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-top: 0.25rem;
-  padding: 0.5rem 0 0.5rem 1.75rem;
-  border-radius: 0.25rem;
-  background-color: var(--color-gray-100);
-  cursor: text;
+  padding: 0.5rem 0.875rem;
 }

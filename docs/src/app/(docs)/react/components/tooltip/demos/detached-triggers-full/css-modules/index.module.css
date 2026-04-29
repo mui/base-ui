@@ -11,49 +11,41 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
   margin: 0;
-  outline: 0;
-  border: 1px solid var(--color-gray-200);
-  background-color: var(--color-gray-50);
-  color: var(--color-gray-900);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 
   &[data-popup-open] {
-    background-color: var(--color-gray-100);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 
   @media (hover: hover) {
-    &:hover {
-      background-color: var(--color-gray-100);
+    &:hover:not([data-disabled]) {
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
-  &:active {
-    background-color: var(--color-gray-100);
-  }
-
-  &:only-child {
-    border-radius: 0.375rem;
-  }
-
-  &:first-child:not(:only-child) {
-    border-radius: 0.375rem 0 0 0.375rem;
-  }
-
-  &:last-child:not(:only-child) {
-    border-radius: 0 0.375rem 0.375rem 0;
+  &:active:not([data-disabled]) {
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
   }
 
   &:not(:first-child) {
     border-left: none;
+  }
+
+  &[data-disabled] {
+    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+    border-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
@@ -84,8 +76,10 @@
   width: var(--popup-width, auto);
   max-width: 500px;
   transform-origin: var(--transform-origin);
-  border-radius: 0.375rem;
-  background-color: canvas;
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
+  filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
 
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -105,21 +99,17 @@
     transition: none;
   }
 
-  @media (prefers-color-scheme: light) {
-    outline: 1px solid var(--color-gray-200);
-    box-shadow:
-      0 10px 15px -3px var(--color-gray-200),
-      0 4px 6px -4px var(--color-gray-200);
-  }
-
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-gray-300);
-    outline-offset: -1px;
+    filter: none;
   }
 }
 
 .Arrow {
-  display: flex;
+  display: block;
+  position: relative;
+  width: 12px;
+  height: 6px;
+  overflow: clip;
   transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 
   &[data-instant] {
@@ -127,39 +117,37 @@
   }
 
   &[data-side='top'] {
-    bottom: -8px;
+    bottom: -6px;
     rotate: 180deg;
   }
 
   &[data-side='bottom'] {
-    top: -8px;
+    top: -6px;
     rotate: 0deg;
   }
 
   &[data-side='left'] {
-    right: -13px;
+    right: -9px;
     rotate: 90deg;
   }
 
   &[data-side='right'] {
-    left: -13px;
+    left: -9px;
     rotate: -90deg;
   }
-}
 
-.ArrowFill {
-  fill: canvas;
-}
-
-.ArrowOuterStroke {
-  @media (prefers-color-scheme: light) {
-    fill: var(--color-gray-200);
-  }
-}
-
-.ArrowInnerStroke {
-  @media (prefers-color-scheme: dark) {
-    fill: var(--color-gray-300);
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    box-sizing: border-box;
+    width: calc(6px * sqrt(2));
+    height: calc(6px * sqrt(2));
+    background-color: light-dark(white, var(--color-neutral-950));
+    border: 1px solid light-dark(var(--color-neutral-950), white);
+    transform: translate(-50%, 50%) rotate(45deg);
   }
 }
 

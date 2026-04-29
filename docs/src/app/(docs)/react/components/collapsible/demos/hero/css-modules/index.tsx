@@ -6,8 +6,8 @@ export default function ExampleCollapsible() {
   return (
     <Collapsible.Root className={styles.Collapsible}>
       <Collapsible.Trigger className={styles.Trigger}>
-        <ChevronIcon className={styles.Icon} />
         Recovery keys
+        <ChevronIcon className={styles.Icon} />
       </Collapsible.Trigger>
       <Collapsible.Panel className={styles.Panel}>
         <div className={styles.Content}>

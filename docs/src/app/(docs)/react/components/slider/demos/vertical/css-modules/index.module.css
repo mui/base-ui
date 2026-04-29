@@ -11,9 +11,7 @@
 }
 
 .Track {
-  background-color: var(--color-gray-200);
-  box-shadow: inset 0 0 0 1px var(--color-gray-200);
-  border-radius: 0.25rem;
+  background-color: light-dark(var(--color-neutral-200), var(--color-neutral-800));
   user-select: none;
 
   &[data-orientation='vertical'] {
@@ -23,20 +21,20 @@
 }
 
 .Indicator {
-  border-radius: 0.25rem;
-  background-color: var(--color-gray-700);
+  background-color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 }
 
 .Thumb {
+  box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  border-radius: 100%;
-  background-color: white;
-  outline: 1px solid var(--color-gray-300);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
   user-select: none;
 
   &:has(:focus-visible) {
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: 2px;
   }
 }

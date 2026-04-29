@@ -5,12 +5,18 @@
   justify-content: center;
   width: 15rem;
   height: 12rem;
-  border: 1px solid var(--color-gray-300);
-  color: var(--color-gray-900);
-  border-radius: 0.375rem;
+  outline: 0;
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  border-radius: 0;
+  background-color: light-dark(white, var(--color-neutral-950));
   font-weight: 400;
-  -webkit-user-select: none;
+  color: light-dark(var(--color-neutral-950), white);
   user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
+  }
 }
 
 .Positioner {
@@ -19,29 +25,26 @@
 
 .Popup {
   box-sizing: border-box;
+  outline: 0;
   padding-block: 0.25rem;
-  border-radius: 0.375rem;
-  background-color: canvas;
-  color: var(--color-gray-900);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  border-radius: 0;
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
+  filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
   transform-origin: var(--transform-origin);
   transition:
-    transform 150ms,
-    opacity 150ms;
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
 
+  &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-  }
-
-  @media (prefers-color-scheme: light) {
-    outline: 1px solid var(--color-gray-200);
-    box-shadow:
-      0 10px 15px -3px var(--color-gray-200),
-      0 4px 6px -4px var(--color-gray-200);
+    transform: scale(0.98);
   }
 
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-gray-300);
-    outline-offset: -1px;
+    filter: none;
   }
 }
 
@@ -59,7 +62,7 @@
   &[data-highlighted] {
     z-index: 0;
     position: relative;
-    color: var(--color-gray-50);
+    color: light-dark(white, var(--color-neutral-950));
   }
 
   &[data-highlighted]::before {
@@ -68,13 +71,16 @@
     position: absolute;
     inset-block: 0;
     inset-inline: 0.25rem;
-    border-radius: 0.25rem;
-    background-color: var(--color-gray-900);
+    background-color: light-dark(var(--color-neutral-950), white);
+  }
+
+  &[data-disabled] {
+    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   }
 }
 
 .Separator {
-  margin: 0.375rem 1rem;
+  margin: 0.25rem;
   height: 1px;
-  background-color: var(--color-gray-200);
+  background-color: light-dark(var(--color-neutral-950), white);
 }

@@ -1,14 +1,13 @@
 .Root {
-  background-color: var(--color-gray-50);
-  border-radius: 0.5rem;
-  padding: 0.25rem;
-  color: var(--color-gray-900);
+  box-sizing: border-box;
+  color: light-dark(var(--color-neutral-950), white);
   min-width: max-content;
 }
 
 .List {
   display: flex;
   position: relative;
+  gap: 1px;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -20,45 +19,42 @@
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  height: 2.5rem;
-  padding: 0 0.875rem;
+  height: 2rem;
+  padding: 0 0.75rem;
   margin: 0;
   outline: 0;
-  border: none;
-  border-radius: 0.375rem;
-  background-color: var(--color-gray-50);
+  border: 0;
+  background-color: transparent;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.5rem;
-  color: var(--color-gray-900);
+  line-height: 1.25rem;
+  color: light-dark(var(--color-neutral-950), white);
   user-select: none;
   text-decoration: none;
 
-  @media (max-width: 640px) {
-    font-size: 0.925rem;
+  @media (max-width: 500px) {
     padding: 0 0.5rem;
   }
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-100);
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &[data-popup-open] {
-    background-color: var(--color-gray-100);
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 
   &:focus-visible {
-    position: relative;
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
 .Icon {
-  transition: transform 0.2s ease;
+  transition: transform 150ms ease;
 
   &[data-popup-open] {
     transform: rotate(180deg);
@@ -66,8 +62,8 @@
 }
 
 .Positioner {
-  --easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration: 0.35s;
+  --easing: ease-out;
+  --duration: 160ms;
   box-sizing: border-box;
   transition-property: top, left, right, bottom;
   transition-duration: var(--duration);
@@ -118,9 +114,11 @@
   position: relative;
   overflow: visible;
   box-sizing: border-box;
-  border-radius: 0.5rem;
-  background-color: canvas;
-  color: var(--color-gray-900);
+  outline: 0;
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
+  filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
   transform-origin: var(--transform-origin);
   transition-property: opacity, transform, width, height;
   transition-duration: var(--duration);
@@ -131,29 +129,15 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.98);
   }
 
   &[data-ending-style] {
-    transition-property: opacity, transform;
     transition-timing-function: ease;
     transition-duration: 0.15s;
   }
-}
-
-@media (prefers-color-scheme: light) {
-  .Popup {
-    outline: 1px solid var(--color-gray-200);
-    box-shadow:
-      0 10px 15px -3px var(--color-gray-200),
-      0 4px 6px -4px var(--color-gray-200);
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .Popup {
-    outline: 1px solid var(--color-gray-300);
-    outline-offset: -1px;
+  @media (prefers-color-scheme: dark) {
+    filter: none;
   }
 }
 
@@ -162,7 +146,7 @@
   transition:
     opacity calc(var(--duration) * 0.5) ease,
     transform var(--duration) cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 1.25rem;
+  padding: 0.5rem;
   width: calc(100vw - 40px);
   height: 100%;
 
@@ -217,7 +201,7 @@
 }
 
 .SubmenuRoot {
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-neutral-950), white);
   overflow: hidden;
   overflow: clip;
 }
@@ -225,7 +209,6 @@
 .SubmenuLayout {
   display: grid;
   grid-template-columns: 1fr;
-  border-radius: 0.5rem;
   overflow: hidden;
   overflow: clip;
 }
@@ -237,38 +220,25 @@
 }
 
 .SubmenuList {
+  box-sizing: border-box;
   list-style: none;
   margin: 0;
-  padding: 1rem;
+  padding: 0.5rem;
   display: flex;
   flex-direction: row;
   gap: 0.25rem;
   overflow-x: auto;
-  background-color: var(--color-gray-100);
-}
-
-@media (prefers-color-scheme: dark) {
-  .SubmenuList {
-    background-color: rgb(0 0 0 / 20%);
-  }
 }
 
 @media (min-width: 700px) {
   .SubmenuList {
-    box-sizing: border-box;
     flex-direction: column;
     gap: 0;
     overflow-x: visible;
-    overflow-y: auto;
-    border-right: 1px solid var(--color-gray-200);
+    overflow-y: clip;
+    border-right: 1px solid light-dark(var(--color-neutral-950), white);
     height: var(--popup-height);
     transition: height var(--duration) var(--easing);
-  }
-}
-
-@media (min-width: 700px) and (prefers-color-scheme: dark) {
-  .SubmenuList {
-    border-right-color: var(--color-gray-300);
   }
 }
 
@@ -281,9 +251,8 @@
   width: 100%;
   min-width: 10rem;
   margin: 0;
-  padding: 0.625rem 0.75rem;
+  padding: 0.5rem;
   border: 0;
-  border-radius: 0.5rem;
   background-color: transparent;
   color: inherit;
   font-family: inherit;
@@ -291,53 +260,38 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-100);
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &[data-popup-open] {
-    background-color: canvas;
-    box-shadow:
-      0 1px 2px rgb(0 0 0 / 8%),
-      0 1px 1px rgb(0 0 0 / 4%);
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .SubmenuTrigger[data-popup-open] {
-    background-color: var(--color-gray-100);
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
 .SubmenuLabel {
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.2;
-  color: var(--color-gray-900);
+  line-height: 1rem;
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .SubmenuHint {
   font-size: 0.875rem;
-  line-height: 1.35;
-  color: var(--color-gray-500);
+  line-height: 1.25rem;
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
 }
 
 .SubmenuViewport {
   position: relative;
   overflow: hidden;
   min-height: 16.5rem;
-  border-top: 1px solid var(--color-gray-200);
-}
-
-@media (prefers-color-scheme: dark) {
-  .SubmenuViewport {
-    border-top-color: var(--color-gray-300);
-  }
+  border-top: 1px solid light-dark(var(--color-neutral-950), white);
 }
 
 @media (min-width: 700px) {
@@ -347,8 +301,11 @@
 }
 
 .SubmenuContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   height: 100%;
-  padding: 1.75rem;
+  padding: 1rem;
   transform: translateX(0);
   transition:
     opacity var(--duration) var(--easing),
@@ -381,9 +338,7 @@
   }
 
   @media (min-width: 700px) {
-    padding: 2rem;
     transform: translateY(0);
-    filter: blur(0);
     transition-duration: calc(var(--duration) * 1.35);
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -406,120 +361,127 @@
         transform: translateY(-72px);
       }
     }
-
-    &[data-starting-style],
-    &[data-ending-style] {
-      filter: blur(2px);
-    }
   }
 }
 
 .SubmenuTitle {
   margin: 0;
-  font-size: 1.125rem;
-  line-height: 1.3;
+  font-size: 1rem;
+  line-height: 1.25rem;
   font-weight: 400;
 }
 
 .SubmenuDescription {
-  margin: 0.625rem 0 0;
-  color: var(--color-gray-500);
-  font-size: 1rem;
-  line-height: 1.5;
+  margin: 0.25rem 0 0;
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .LinkList {
   list-style: none;
-  margin: 1rem -0.5rem 0;
+  margin: 0 -0.5rem;
   padding: 0;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0;
 }
 
 .LinkCard {
   box-sizing: border-box;
+  position: relative;
   display: block;
-  padding: 0.75rem 0.5rem;
-  border-radius: 0.5rem;
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem;
   text-decoration: none;
   color: inherit;
+  text-align: left;
+  border: 0;
   background-color: transparent;
+
+  &[data-popup-open] {
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+  }
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-100);
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
 .LinkTitle {
-  margin: 0;
-  font-size: 1rem;
+  margin: 0 0 4px;
+  font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.25;
+  line-height: 1rem;
 }
 
 .LinkDescription {
-  margin: 0.35rem 0 0;
-  color: var(--color-gray-500);
-  font-size: 0.95rem;
-  line-height: 1.45;
+  margin: 0;
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .GuidesPanel {
-  padding: 1.75rem;
-
-  @media (min-width: 700px) {
-    padding: 2rem;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
 }
 
 .Arrow {
-  display: flex;
-  transition: left calc(var(--duration)) var(--easing);
+  display: block;
+  position: relative;
+  width: 12px;
+  height: 6px;
+  overflow: clip;
+  transition:
+    left var(--duration) var(--easing),
+    right var(--duration) var(--easing);
 
   @media (max-width: 699px) {
     display: none;
   }
 
   &[data-side='top'] {
-    bottom: -8px;
+    bottom: -6px;
     rotate: 180deg;
   }
 
   &[data-side='bottom'] {
-    top: -8px;
+    top: -6px;
     rotate: 0deg;
   }
 
   &[data-side='left'] {
-    right: -13px;
+    right: -9px;
     rotate: 90deg;
   }
 
   &[data-side='right'] {
-    left: -13px;
+    left: -9px;
     rotate: -90deg;
   }
-}
 
-.ArrowFill {
-  fill: canvas;
-}
-
-.ArrowOuterStroke {
-  @media (prefers-color-scheme: light) {
-    fill: var(--color-gray-200);
-  }
-}
-
-.ArrowInnerStroke {
-  @media (prefers-color-scheme: dark) {
-    fill: var(--color-gray-300);
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    box-sizing: border-box;
+    width: calc(6px * sqrt(2));
+    height: calc(6px * sqrt(2));
+    border: 1px solid light-dark(var(--color-neutral-950), white);
+    background-color: light-dark(white, var(--color-neutral-950));
+    transform: translate(-50%, 50%) rotate(45deg);
   }
 }

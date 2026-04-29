@@ -1,9 +1,21 @@
 'use client';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { ArrowSvg, InfoIcon } from '../../icons-tw';
+import { InfoIcon } from '../../icons-tw';
 
 const demoTooltip = Tooltip.createHandle();
+
+const iconButtonClass =
+  'flex size-8 items-center justify-center border border-neutral-950 bg-white text-neutral-950 select-none data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 hover:bg-neutral-50 active:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-popup-open:bg-neutral-800 dark:hover:bg-neutral-900 dark:active:bg-neutral-800';
+
+const buttonClass =
+  'flex h-8 items-center justify-center border border-neutral-950 bg-white px-3 text-sm font-normal text-neutral-950 select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 hover:bg-neutral-50 active:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-900 dark:active:bg-neutral-800';
+
+const popupClass =
+  'relative border border-neutral-950 bg-white px-2 py-1 text-sm text-neutral-950 origin-[var(--transform-origin)] [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[scale,opacity] duration-100 ease-out data-[ending-style]:opacity-0 data-[ending-style]:scale-[0.98] data-[instant]:transition-none data-[starting-style]:opacity-0 data-[starting-style]:scale-[0.98] dark:border-white dark:bg-neutral-950 dark:text-white dark:[filter:none]';
+
+const arrowClass =
+  "relative block w-3 h-1.5 overflow-clip data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]";
 
 export default function TooltipDetachedTriggersControlledDemo() {
   const [open, setOpen] = React.useState(false);
@@ -18,34 +30,12 @@ export default function TooltipDetachedTriggersControlledDemo() {
     <Tooltip.Provider>
       <div className="flex gap-2 flex-wrap justify-center">
         <div className="flex">
-          <Tooltip.Trigger
-            className="
-              flex size-10 items-center justify-center
-              border border-gray-200 rounded-l-md
-              bg-gray-50
-              text-gray-900
-              select-none
-              data-popup-open:bg-gray-100
-              focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800
-              hover:bg-gray-100
-              active:bg-gray-100"
-            handle={demoTooltip}
-            id="trigger-1"
-          >
+          <Tooltip.Trigger className={iconButtonClass} handle={demoTooltip} id="trigger-1">
             <InfoIcon aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger
-            className="
-              flex size-10 items-center justify-center
-              border-y border-r border-gray-200
-              bg-gray-50
-              text-gray-900
-              select-none
-              data-popup-open:bg-gray-100
-              focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800
-              hover:bg-gray-100
-              active:bg-gray-100"
+            className={`${iconButtonClass} border-l-0`}
             handle={demoTooltip}
             id="trigger-2"
           >
@@ -53,16 +43,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
           </Tooltip.Trigger>
 
           <Tooltip.Trigger
-            className="
-              flex size-10 items-center justify-center
-              border-y border-r border-gray-200 rounded-r-md
-              bg-gray-50
-              text-gray-900
-              select-none
-              data-popup-open:bg-gray-100
-              focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800
-              hover:bg-gray-100
-              active:bg-gray-100"
+            className={`${iconButtonClass} border-l-0`}
             handle={demoTooltip}
             id="trigger-3"
           >
@@ -72,16 +53,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
 
         <button
           type="button"
-          className="
-            flex h-10 items-center justify-center
-            border border-gray-200 rounded-md
-            bg-gray-50
-            px-3.5
-            text-base font-normal text-gray-900
-            select-none
-            focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800
-            hover:bg-gray-100
-            active:bg-gray-100"
+          className={buttonClass}
           onClick={() => {
             setTriggerId('trigger-2');
             setOpen(true);
@@ -100,36 +72,14 @@ export default function TooltipDetachedTriggersControlledDemo() {
         <Tooltip.Portal>
           <Tooltip.Positioner
             className="
-              h-(--positioner-height)
-              w-(--positioner-width)
-              max-w-(--available-width)
+              h-[var(--positioner-height)]
+              w-[var(--positioner-width)]
+              max-w-[var(--available-width)]
             "
-            sideOffset={10}
+            sideOffset={11}
           >
-            <Tooltip.Popup
-              className="
-                px-2 py-1
-                rounded-md
-                bg-[canvas]
-                text-sm
-                origin-(--transform-origin)
-                shadow-lg shadow-gray-200 outline-1 outline-gray-200
-                transition-[transform,scale,opacity]
-                data-ending-style:opacity-0 data-ending-style:scale-90
-                data-instant:transition-none
-                data-starting-style:opacity-0 data-starting-style:scale-90
-                dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1"
-            >
-              <Tooltip.Arrow
-                className="
-                  flex
-                  data-[side=bottom]:-top-2 data-[side=bottom]:rotate-0
-                  data-[side=left]:right-[-13px] data-[side=left]:rotate-90
-                  data-[side=right]:left-[-13px] data-[side=right]:-rotate-90
-                  data-[side=top]:-bottom-2 data-[side=top]:rotate-180"
-              >
-                <ArrowSvg />
-              </Tooltip.Arrow>
+            <Tooltip.Popup className={popupClass}>
+              <Tooltip.Arrow className={arrowClass} />
               Controlled tooltip
             </Tooltip.Popup>
           </Tooltip.Positioner>

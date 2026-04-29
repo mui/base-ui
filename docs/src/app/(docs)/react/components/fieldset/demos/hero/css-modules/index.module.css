@@ -10,13 +10,11 @@
 }
 
 .Legend {
-  border-bottom: 1px solid var(--color-gray-200);
-  padding-bottom: 0.75rem;
+  border-bottom: 1px solid light-dark(var(--color-neutral-950), var(--color-white));
   font-weight: 700;
-  font-size: 1.125rem;
-  line-height: 1.75rem;
-  letter-spacing: -0.0025em;
-  color: var(--color-gray-900);
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .Field {
@@ -30,38 +28,41 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .Input {
   box-sizing: border-box;
-  padding-left: 0.875rem;
+  padding-inline: 0.5rem;
   margin: 0;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   width: 100%;
-  height: 2.5rem;
-  border-radius: 0.375rem;
+  height: 2rem;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 400;
   background-color: transparent;
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-neutral-950), white);
+
+  &::placeholder {
+    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  }
 
   &:focus {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
 .Error {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--color-red-800);
+  color: light-dark(var(--color-red-700), var(--color-red-400));
 }
 
 .Description {
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--color-gray-600);
+  color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
 }

@@ -9,7 +9,7 @@ export default function ExampleOTPField() {
 
   return (
     <div className="flex w-full max-w-80 flex-col items-start gap-1">
-      <label htmlFor={id} className="text-sm font-bold text-gray-900">
+      <label htmlFor={id} className="text-sm font-bold text-neutral-950 dark:text-white">
         Verification code
       </label>
       <OTPField.Root
@@ -21,12 +21,12 @@ export default function ExampleOTPField() {
         {Array.from({ length: OTP_LENGTH }, (_, index) => (
           <OTPField.Input
             key={index}
-            className="box-border m-0 h-11 w-10 rounded-lg border border-gray-300 bg-transparent text-center font-inherit text-lg font-medium text-gray-900 outline-none focus:outline-solid focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+            className="box-border m-0 h-10 w-10 rounded-none border border-neutral-950 bg-transparent text-center font-inherit text-base font-normal text-neutral-950 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white"
             aria-label={`Character ${index + 1} of ${OTP_LENGTH}`}
           />
         ))}
       </OTPField.Root>
-      <p id={descriptionId} className="m-0 text-sm text-gray-600">
+      <p id={descriptionId} className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
         Enter the 6-character code we sent to your device.
       </p>
     </div>

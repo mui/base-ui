@@ -1,38 +1,33 @@
 .Progress {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 0.25rem;
-  grid-row-gap: 0.5rem;
-  width: 12rem;
+  row-gap: 0.5rem;
+  width: 15rem;
+  max-width: 100%;
 }
 
 .Label {
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-neutral-950), white);
 }
 
 .Value {
-  grid-column-start: 2;
-  margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--color-gray-900);
+  color: light-dark(var(--color-neutral-950), white);
   text-align: right;
 }
 
 .Track {
   grid-column: 1 / 3;
   overflow: hidden;
-  background-color: var(--color-gray-200);
-  box-shadow: inset 0 0 0 1px var(--color-gray-200);
   height: 0.25rem;
-  border-radius: 0.25rem;
+  background-color: light-dark(var(--color-neutral-200), var(--color-neutral-800));
 }
 
 .Indicator {
-  display: block;
-  background-color: var(--color-gray-500);
+  background-color: light-dark(var(--color-neutral-950), white);
   transition: width 500ms;
 }
