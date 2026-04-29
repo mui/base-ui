@@ -179,9 +179,15 @@
   opacity: 1;
 }
 
-.avatarImage[data-error] {
+.avatarImage[data-hydrated][data-loading],
+.avatarImage[data-hydrated][data-error] {
   filter: blur(10px);
   opacity: 0;
+}
+
+.avatarImage[data-hydrated][data-loaded] {
+  filter: blur(0px);
+  opacity: 1;
 
   /* Hide the broken-image glyph and unstyled bitmap. `visibility: hidden` keeps the element in
      the layout tree (so `loading="lazy"`'s IntersectionObserver still works) and visibility flips

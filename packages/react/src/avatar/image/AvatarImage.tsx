@@ -35,6 +35,7 @@ function resolveInitialStatus(src: string | undefined, isHydrating: boolean): Im
 const LOADING_HOOK = { [AvatarImageDataAttributes.loading]: '' };
 const LOADED_HOOK = { [AvatarImageDataAttributes.loaded]: '' };
 const ERROR_HOOK = { [AvatarImageDataAttributes.error]: '' };
+const HYDRATED_HOOK = { [AvatarImageDataAttributes.hydrated]: '' };
 
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   imageLoadingStatus(value): Record<string, string> | null {
@@ -48,6 +49,9 @@ const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
       return ERROR_HOOK;
     }
     return null;
+  },
+  hydrated(value): Record<string, string> | null {
+    return value ? HYDRATED_HOOK : null;
   },
 };
 
@@ -74,6 +78,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   const { setImageLoadingStatus: setLiftedImageLoadingStatus } = useAvatarRootContext();
   const isHydrating = useIsHydrating();
+  const hydrated = !isHydrating;
 
   const [imageLoadingStatus, setImageLoadingStatus] = React.useState<ImageLoadingStatus>(() =>
     resolveInitialStatus(componentProps.src, isHydrating),
@@ -150,6 +155,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   const state: AvatarImageState = {
     imageLoadingStatus,
+    hydrated,
   };
 
   return useRenderElement('img', componentProps, {
@@ -165,7 +171,12 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   });
 });
 
-export interface AvatarImageState extends AvatarRootState {}
+export interface AvatarImageState extends AvatarRootState {
+  /**
+   * Whether the component has hydrated on the client.
+   */
+  hydrated: boolean;
+}
 
 export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarImageState> {
   /**

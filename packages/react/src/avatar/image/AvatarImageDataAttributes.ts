@@ -11,4 +11,8 @@ export enum AvatarImageDataAttributes {
    * Present when no `src` was provided or the bitmap failed to decode.
    */
   error = 'data-error',
+  /**
+   * Present after the component has hydrated on the client.
+   */
+  hydrated = 'data-hydrated',
 }
