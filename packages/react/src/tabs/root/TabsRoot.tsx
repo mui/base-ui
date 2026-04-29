@@ -271,14 +271,13 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
     const shouldNotifyInitialValueChange = shouldNotifyInitialValueChangeRef.current;
 
-    if (shouldNotifyInitialValueChange) {
-      shouldNotifyInitialValueChangeRef.current = false;
-    }
-
     if (selectionIsDisabled || selectionIsMissing) {
       const fallbackValue = firstEnabledTabValue ?? null;
 
       if (value === fallbackValue) {
+        // Already at the fallback value; no commit or notification needed,
+        // but record that the implicit-initial transition has resolved.
+        shouldNotifyInitialValueChangeRef.current = false;
         return;
       }
 
@@ -291,8 +290,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       }
 
       setValue(fallbackValue);
-      // Automatic fallbacks are not directional transitions. Commit this before
-      // notifying so a throwing consumer handler does not leave stale direction state.
+      // Automatic fallbacks are not directional transitions; reset the direction
+      // alongside the value so the batched commit keeps both in sync.
       setActivationDirectionState((prev) => {
         if (prev.previousValue === fallbackValue && prev.tabActivationDirection === 'none') {
           return prev;
@@ -304,11 +303,15 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         };
       });
       notifyAutomaticValueChange(fallbackValue, fallbackReason);
+      // Flip after the consumer call so a throwing handler retries on the next
+      // render rather than silently swallowing the missed notification.
+      shouldNotifyInitialValueChangeRef.current = false;
       return;
     }
 
     if (shouldNotifyInitialValueChange && selectedTabMetadata != null) {
       notifyAutomaticValueChange(value, REASONS.initial);
+      shouldNotifyInitialValueChangeRef.current = false;
     }
   }, [
     defaultValueProp,
@@ -443,10 +446,11 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    *
    * The event `reason` is `'none'` for user-initiated changes, such as a click
    * or keyboard navigation; `'initial'` for the implicit automatic selection in
-   * uncontrolled roots without an explicit `defaultValue`; `'disabled'` for
-   * automatic fallback when the selected tab becomes disabled in uncontrolled
-   * roots; or `'missing'` for automatic fallback when the selected tab is
-   * removed or never present in uncontrolled roots.
+   * uncontrolled roots when `defaultValue` is omitted or `undefined` (the
+   * selected value can be `null` if every tab is disabled at mount);
+   * `'disabled'` for automatic fallback when the selected tab becomes disabled
+   * in uncontrolled roots; or `'missing'` for automatic fallback when the
+   * selected tab is removed or never present in uncontrolled roots.
    * Automatic changes cannot be canceled; calling `eventDetails.cancel()` for
    * `'initial'`, `'disabled'`, or `'missing'` has no effect.
    */
