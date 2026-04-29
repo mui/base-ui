@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Form } from '@base-ui/react/form';
 import { Field } from '@base-ui/react/field';
 import { NumberField } from '@base-ui/react/number-field';
+import { Switch } from '@base-ui/react/switch';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
@@ -31,8 +32,118 @@ describe('<Form />', () => {
 
     await user.click(submit);
 
-    expect(screen.getByTestId('error')).not.toBe(null);
+    expect(screen.getByTestId('error')).toBeInTheDocument();
     expect(onSubmit.mock.calls.length > 0).toBe(false);
+  });
+
+  it('does not submit if an unnamed registered field control is invalid', async () => {
+    const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+    });
+
+    const { user } = render(
+      <Form onSubmit={onSubmit}>
+        <Field.Root>
+          <Switch.Root required />
+          <Field.Error data-testid="error" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByRole('switch')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByTestId('error')).toBeInTheDocument();
+  });
+
+  it('clears invalid state for an unnamed registered field control on change', async () => {
+    const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+    });
+
+    const { user } = render(
+      <Form onSubmit={onSubmit}>
+        <Field.Root>
+          <Switch.Root required />
+          <Field.Error data-testid="error" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    const submit = screen.getByRole('button', { name: 'Submit' });
+    const switchControl = screen.getByRole('switch');
+
+    await user.click(submit);
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(switchControl).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByTestId('error')).toBeInTheDocument();
+
+    await user.click(switchControl);
+
+    expect(switchControl).not.toHaveAttribute('aria-invalid');
+    expect(screen.queryByTestId('error')).toBe(null);
+
+    await user.click(submit);
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps same-name field validity scoped on submit', async () => {
+    const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+    });
+
+    const { user } = render(
+      <Form onSubmit={onSubmit}>
+        <Field.Root name="shared">
+          <Switch.Root required data-testid="first" />
+          <Field.Error data-testid="first-error" />
+        </Field.Root>
+        <Field.Root name="shared">
+          <Switch.Root required defaultChecked data-testid="second" />
+          <Field.Error data-testid="second-error" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(screen.getByTestId('first')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByTestId('first-error')).toBeInTheDocument();
+    expect(screen.getByTestId('second')).not.toHaveAttribute('aria-invalid');
+    expect(screen.queryByTestId('second-error')).toBe(null);
+  });
+
+  it('removes the previous registered field id when another control takes over', async () => {
+    const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+    });
+
+    const { user } = render(
+      <Form onSubmit={onSubmit}>
+        <Field.Root>
+          <Switch.Root required data-testid="first" />
+          <Switch.Root required defaultChecked data-testid="second" />
+          <Field.Error data-testid="error" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    const submit = screen.getByRole('button', { name: 'Submit' });
+
+    await user.click(submit);
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId('error')).toBe(null);
+    expect(screen.getByTestId('first')).not.toHaveAttribute('aria-invalid');
+    expect(screen.getByTestId('second')).not.toHaveAttribute('aria-invalid');
   });
 
   it('unmounted fields should be removed from the form', async () => {

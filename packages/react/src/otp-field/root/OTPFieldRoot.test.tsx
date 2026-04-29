@@ -3,6 +3,7 @@ import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { OTPFieldPreview as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
@@ -881,6 +882,18 @@ describe('<OTPFieldPreview />', () => {
     });
 
     describe('prop: autoSubmit', () => {
+      const flushSyncLifecycleError = 'flushSync was called from inside a lifecycle method';
+
+      function spyOnFlushSyncLifecycleError() {
+        return vi.spyOn(console, 'error').mockImplementation((...args) => {
+          if (args.some((arg) => String(arg).includes(flushSyncLifecycleError))) {
+            return;
+          }
+
+          throw new Error(`Unexpected console.error: ${args.map(String).join(' ')}`);
+        });
+      }
+
       it('does not auto-submit the owning form when the OTP becomes complete by default', async () => {
         const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
@@ -921,6 +934,62 @@ describe('<OTPFieldPreview />', () => {
 
         expect(getValues()).toBe('123456');
         expect(handleSubmit).toHaveBeenCalledTimes(1);
+      });
+
+      it('does not call flushSync inside a layout effect when auto-submitting a Base UI Form', async () => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+        const consoleErrorSpy = spyOnFlushSyncLifecycleError();
+
+        try {
+          await render(
+            <Form onSubmit={handleSubmit}>
+              <Field.Root name="otp">
+                <OTPField autoSubmit />
+              </Field.Root>
+            </Form>,
+          );
+
+          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          fireEvent.change(firstInput, { target: { value: '123456' } });
+
+          expect(getValues()).toBe('123456');
+          expect(handleSubmit).toHaveBeenCalledTimes(1);
+          expect(consoleErrorSpy).not.toHaveBeenCalled();
+        } finally {
+          consoleErrorSpy.mockRestore();
+        }
+      });
+
+      it('blocks invalid Base UI Form auto-submit without calling flushSync inside a layout effect', async () => {
+        const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+        });
+        const consoleErrorSpy = spyOnFlushSyncLifecycleError();
+
+        try {
+          await render(
+            <Form onSubmit={handleSubmit}>
+              <Field.Root name="otp" validate={() => 'Invalid OTP'}>
+                <OTPField autoSubmit />
+                <Field.Error data-testid="error" />
+              </Field.Root>
+            </Form>,
+          );
+
+          const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+          fireEvent.change(firstInput, { target: { value: '123456' } });
+
+          expect(getValues()).toBe('123456');
+          expect(handleSubmit).not.toHaveBeenCalled();
+          expect(screen.getByTestId('error')).toHaveTextContent('Invalid OTP');
+          expect(consoleErrorSpy).not.toHaveBeenCalled();
+        } finally {
+          consoleErrorSpy.mockRestore();
+        }
       });
 
       it('does not submit the owning form before the OTP becomes complete when enabled', async () => {
