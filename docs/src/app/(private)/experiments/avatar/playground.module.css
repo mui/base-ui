@@ -90,8 +90,8 @@
 
 .avatarHost {
   align-items: center;
-  background:
-    repeating-conic-gradient(var(--color-gray-200) 0% 25%, transparent 0% 50%) 0 0 / 12px 12px;
+  background: repeating-conic-gradient(var(--color-gray-200) 0% 25%, transparent 0% 50%) 0 0 / 12px
+    12px;
   border: 1px solid var(--color-gray-200);
   border-radius: 8px;
   display: flex;
@@ -121,11 +121,7 @@
    * request only fires when the user actually scrolls down to it.
    */
   align-items: center;
-  background: linear-gradient(
-    180deg,
-    var(--color-gray-100) 0%,
-    var(--color-gray-200) 100%
-  );
+  background: linear-gradient(180deg, var(--color-gray-100) 0%, var(--color-gray-200) 100%);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -145,8 +141,8 @@
 
 .lazyAvatarHost {
   align-items: center;
-  background:
-    repeating-conic-gradient(var(--color-gray-200) 0% 25%, transparent 0% 50%) 0 0 / 12px 12px;
+  background: repeating-conic-gradient(var(--color-gray-200) 0% 25%, transparent 0% 50%) 0 0 / 12px
+    12px;
   border: 1px solid var(--color-gray-200);
   border-radius: 8px;
   display: flex;
@@ -182,7 +178,6 @@
     transform 220ms ease;
 }
 
-.avatarImage[data-loading],
 .avatarImage[data-error] {
   filter: blur(10px);
   opacity: 0;
