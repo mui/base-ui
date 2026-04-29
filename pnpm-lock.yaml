@@ -2206,21 +2206,21 @@ packages:
       react: '>=16'
 
   '@mui/internal-babel-plugin-display-name@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@c254e577bbb58a0fea6d3916c114136cb127050b':
-    resolution: {integrity: sha512-P/U4y+5nq1d0TmEh9PXxuT1t2+R+cfqzU2gjnVqu8AgpiMg2uo+hMdDcMrrVBvSI6FdUPnWJ+2u3Py5foLe/5w==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@c254e577bbb58a0fea6d3916c114136cb127050b}
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@c254e577bbb58a0fea6d3916c114136cb127050b}
     version: 1.0.2
     peerDependencies:
       '@babel/core': '7'
       '@babel/preset-react': '7'
 
   '@mui/internal-babel-plugin-minify-errors@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@c254e577bbb58a0fea6d3916c114136cb127050b':
-    resolution: {integrity: sha512-MziMY0dxtc5zleUHhd16joo3JaVNmqG4qVCFsce1WFXWWllXnxKhHrDaQ3/VxgpYPdCJTb7BRausox1GwHB3qw==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@c254e577bbb58a0fea6d3916c114136cb127050b}
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@c254e577bbb58a0fea6d3916c114136cb127050b}
     version: 2.0.6
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@babel/core': '7'
 
   '@mui/internal-babel-plugin-resolve-imports@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@c254e577bbb58a0fea6d3916c114136cb127050b':
-    resolution: {integrity: sha512-FVaRfVYRJAmU3ThP1VVZDhLhgGOu2LXZy+UYZjTNGdyuQVItMvQuc3ZahYN67VmyAPhDlUwt6HlyqAboztDr7A==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@c254e577bbb58a0fea6d3916c114136cb127050b}
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@c254e577bbb58a0fea6d3916c114136cb127050b}
     version: 2.0.5
     peerDependencies:
       '@babel/core': '7'
@@ -2238,7 +2238,7 @@ packages:
     hasBin: true
 
   '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@c254e57':
-    resolution: {integrity: sha512-ZB5vn/Lg6bzKp1nQcZYenlc/pH8m4+8AgVx8uBc0+cPoCbH+803PBphBSdzoHX0kHOAPeXd/d2EmZAK1VXs7Nw==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@c254e57}
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@c254e57}
     version: 0.0.3
     hasBin: true
     peerDependencies:
