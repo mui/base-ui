@@ -203,6 +203,37 @@ describe('<Select.Item />', () => {
     expect(handleClick).toHaveBeenCalledOnce();
   });
 
+  it('should select an unhighlighted item with the mouse', async () => {
+    await render(
+      <Select.Root defaultOpen highlightItemOnHover={false}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value data-testid="value" />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="one">one</Select.Item>
+              <Select.Item value="two">two</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const option = screen.getByRole('option', { name: 'two' });
+
+    expect(option).not.toHaveAttribute('data-highlighted');
+
+    fireEvent.pointerDown(option, { pointerType: 'mouse' });
+    fireEvent.mouseDown(option);
+    fireEvent.mouseUp(option);
+    fireEvent.click(option, { detail: 1 });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('value').textContent).toBe('two');
+    });
+  });
+
   it('should focus the selected item upon opening the popup', async () => {
     const { user } = await render(
       <Select.Root>
@@ -370,6 +401,73 @@ describe('<Select.Item />', () => {
 
       await waitFor(() => expect(screen.getByTestId('value').textContent).toBe('one'));
       expect(handleClick).toHaveBeenCalledOnce();
+    });
+
+    it('should select via drag-to-select when hover highlighting is disabled', async () => {
+      ignoreActWarnings();
+
+      await renderFakeTimers(
+        <Select.Root highlightItemOnHover={false}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" placeholder="Select font" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one">one</Select.Item>
+                <Select.Item value="two">two</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.mouseDown(trigger);
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+
+      const option = screen.getByRole('option', { name: 'two' });
+      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+      fireEvent.pointerMove(option, { pointerType: 'mouse' });
+
+      expect(option).not.toHaveAttribute('data-highlighted');
+
+      await act(async () => {
+        await clock.tickAsync(500);
+      });
+      fireEvent.mouseUp(option);
+
+      await waitFor(() => expect(screen.getByTestId('value').textContent).toBe('two'));
+    });
+
+    it('should ignore an opening click that did not start on the item', async () => {
+      ignoreActWarnings();
+
+      await renderFakeTimers(
+        <Select.Root highlightItemOnHover={false}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" placeholder="Select font" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="one">one</Select.Item>
+                <Select.Item value="two">two</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseDown(trigger);
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+
+      const option = screen.getByRole('option', { name: 'one' });
+      fireEvent.click(option, { detail: 1 });
+
+      expect(screen.getByTestId('value').textContent).toBe('Select font');
     });
 
     it('should not select item when onClick calls preventBaseUIHandler during drag-to-select', async () => {

@@ -114,7 +114,7 @@ export const SelectItem = React.memo(
 
     const lastKeyRef = React.useRef<string | null>(null);
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
-    const didPointerDownRef = React.useRef(false);
+    const allowMouseSelectionRef = React.useRef(false);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
@@ -151,6 +151,7 @@ export const SelectItem = React.memo(
       'aria-selected': selected,
       tabIndex: highlighted ? 0 : -1,
       onTouchStart() {
+        allowMouseSelectionRef.current = false;
         selectionRef.current = {
           allowSelectedMouseUp: false,
           allowUnselectedMouseUp: false,
@@ -165,7 +166,14 @@ export const SelectItem = React.memo(
         }
       },
       onClick(event) {
-        didPointerDownRef.current = false;
+        const isMouseClick = event.type === 'click' && pointerTypeRef.current !== 'touch';
+        const isVirtualClick = isMouseClick && event.nativeEvent.detail === 0;
+        // With alignItemWithTrigger, opening can place an item under the cursor. Real mouse
+        // clicks must start on the item, while virtual clicks keep the highlighted-item guard.
+        const isInvalidMouseClick =
+          isMouseClick && !allowMouseSelectionRef.current && (isVirtualClick ? !highlighted : true);
+
+        allowMouseSelectionRef.current = false;
 
         // Prevent double commit on {Enter}
         if (event.type === 'keydown' && lastKeyRef.current === null) {
@@ -175,7 +183,7 @@ export const SelectItem = React.memo(
         if (
           disabled ||
           (event.type === 'keydown' && lastKeyRef.current === ' ' && typingRef.current) ||
-          (pointerTypeRef.current !== 'touch' && !highlighted)
+          isInvalidMouseClick
         ) {
           return;
         }
@@ -188,31 +196,28 @@ export const SelectItem = React.memo(
       },
       onPointerDown(event) {
         pointerTypeRef.current = event.pointerType;
-        didPointerDownRef.current = true;
+        allowMouseSelectionRef.current = true;
       },
       onMouseUp() {
         if (disabled) {
           return;
         }
 
-        // Regular click (pointerdown on this element) if didPointerDownRef is set, otherwise drag-to-select
-        if (didPointerDownRef.current) {
-          didPointerDownRef.current = false;
+        // Regular clicks are committed by the click event.
+        if (allowMouseSelectionRef.current) {
           return;
         }
 
         const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
         const disallowUnselectedMouseUp = !selectionRef.current.allowUnselectedMouseUp && !selected;
 
-        if (
-          disallowSelectedMouseUp ||
-          disallowUnselectedMouseUp ||
-          (pointerTypeRef.current !== 'touch' && !highlighted)
-        ) {
+        if (disallowSelectedMouseUp || disallowUnselectedMouseUp) {
           return;
         }
 
+        allowMouseSelectionRef.current = true;
         itemRef.current?.click();
+        allowMouseSelectionRef.current = false;
       },
     };
 
