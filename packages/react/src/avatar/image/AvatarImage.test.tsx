@@ -313,6 +313,63 @@ describe('<Avatar.Image />', () => {
 
       expect(calls).toEqual(['loaded']);
     });
+
+    it('does not fire stale status on src change from undefined to a cached image', async () => {
+      restoreImage();
+
+      await new Promise<void>((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Failed to preload test image'));
+        img.src = DATA_URI;
+      });
+
+      const calls: ImageLoadingStatus[] = [];
+      const onLoadingStatusChange = (status: ImageLoadingStatus) => calls.push(status);
+
+      const { setPropsAsync } = await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            onLoadingStatusChange={onLoadingStatusChange}
+          />
+        </Avatar.Root>,
+      );
+
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 50);
+        });
+      });
+
+      const initialCallsLength = calls.length;
+
+      await setPropsAsync({
+        children: (
+          <Avatar.Image
+            data-testid="image"
+            onLoadingStatusChange={onLoadingStatusChange}
+            src={DATA_URI}
+          />
+        ),
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).toBeVisible();
+      });
+
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 50);
+        });
+      });
+
+      // Slice off the initial-mount calls so this test doesn't depend on whether the test runs
+      // under StrictMode (which double-invokes the initial mount's effects). What matters is
+      // that the src change produces exactly one final `'loaded'` — not a stale `'loaded'` from
+      // a prior `src` followed by another real `'loaded'`.
+      expect(calls.slice(initialCallsLength)).toEqual(['loaded']);
+    });
   });
 
   it('shows fallback while loading then stays visible after intrinsic error', async () => {

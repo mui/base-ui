@@ -79,11 +79,24 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
    */
   const cachedAtMountRef = React.useRef(false);
 
-  useIsoLayoutEffect(() => {
-    cachedAtMountRef.current = false;
-    setIntrinsicDecodeFailed(false);
+  /**
+   * Reset intrinsic load state synchronously during render when `src` changes. Doing this in a
+   * layout effect would let one commit slip through with stale state — `intrinsicSettled` from a
+   * prior `src` would make `imageLoadingStatus` resolve to `'loaded'` for a single render before
+   * the effect could correct it, and the status-change effect would fire that stale value to
+   * consumers. The conditional setState here is React's recommended pattern for resetting state
+   * on prop change — React discards the in-flight render output and re-renders with the new
+   * state before any commit, so no DOM/effect ever observes the stale value. Strictly cheaper
+   * than the effect-based alternative (one commit instead of two).
+   * https://react.dev/reference/react/useState#storing-information-from-previous-renders
+   */
+  const [previousSrc, setPreviousSrc] = React.useState(componentProps.src);
+  if (previousSrc !== componentProps.src) {
+    setPreviousSrc(componentProps.src);
     setIntrinsicSettled(!componentProps.src);
-  }, [componentProps.src]);
+    setIntrinsicDecodeFailed(false);
+    cachedAtMountRef.current = false;
+  }
 
   /**
    * Status reflects the rendered `<img>`'s actual load/decode lifecycle — not an optimistic
