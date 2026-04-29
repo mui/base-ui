@@ -24,6 +24,19 @@ export class Timeout {
     }, delay) as unknown as number; /* Node.js types are enabled in development */
   }
 
+  /**
+   * Executes `fn` after `delay` but only if no other timeout is ongoing.
+   */
+  startIfEmpty(delay: number, fn: Function) {
+    if (this.currentId !== EMPTY) {
+      return;
+    }
+    this.currentId = setTimeout(() => {
+      this.currentId = EMPTY;
+      fn();
+    }, delay) as unknown as number; /* Node.js types are enabled in development */
+  }
+
   isStarted() {
     return this.currentId !== EMPTY;
   }
