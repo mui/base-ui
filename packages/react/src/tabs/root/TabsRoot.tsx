@@ -273,42 +273,43 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
     if (shouldNotifyInitialValueChange) {
       shouldNotifyInitialValueChangeRef.current = false;
-
-      if (firstEnabledTabValue !== undefined) {
-        notifyAutomaticValueChange(firstEnabledTabValue, REASONS.initial);
-      }
     }
 
-    if (!selectionIsDisabled && !selectionIsMissing) {
+    if (selectionIsDisabled || selectionIsMissing) {
+      const fallbackValue = firstEnabledTabValue ?? null;
+
+      if (value === fallbackValue) {
+        return;
+      }
+
+      let fallbackReason: TabsRoot.ChangeEventReason = REASONS.missing;
+
+      if (shouldNotifyInitialValueChange) {
+        fallbackReason = REASONS.initial;
+      } else if (selectionIsDisabled) {
+        fallbackReason = REASONS.disabled;
+      }
+
+      setValue(fallbackValue);
+      // Automatic fallbacks are not directional transitions. Commit this before
+      // notifying so a throwing consumer handler does not leave stale direction state.
+      setActivationDirectionState((prev) => {
+        if (prev.previousValue === fallbackValue && prev.tabActivationDirection === 'none') {
+          return prev;
+        }
+
+        return {
+          previousValue: fallbackValue,
+          tabActivationDirection: 'none',
+        };
+      });
+      notifyAutomaticValueChange(fallbackValue, fallbackReason);
       return;
     }
 
-    const fallbackValue = firstEnabledTabValue ?? null;
-
-    if (value === fallbackValue) {
-      return;
+    if (shouldNotifyInitialValueChange && firstEnabledTabValue !== undefined) {
+      notifyAutomaticValueChange(firstEnabledTabValue, REASONS.initial);
     }
-
-    if (!shouldNotifyInitialValueChange) {
-      notifyAutomaticValueChange(
-        fallbackValue,
-        selectionIsDisabled ? REASONS.disabled : REASONS.missing,
-      );
-    } else if (firstEnabledTabValue === undefined) {
-      notifyAutomaticValueChange(fallbackValue, REASONS.initial);
-    }
-
-    setValue(fallbackValue);
-    setActivationDirectionState((prev) => {
-      if (prev.previousValue === fallbackValue && prev.tabActivationDirection === 'none') {
-        return prev;
-      }
-
-      return {
-        previousValue: fallbackValue,
-        tabActivationDirection: 'none',
-      };
-    });
   }, [
     defaultValueProp,
     firstEnabledTabValue,
@@ -445,7 +446,7 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * uncontrolled roots without an explicit `defaultValue`; `'disabled'` for
    * automatic fallback when the selected tab becomes disabled in uncontrolled
    * roots; or `'missing'` for automatic fallback when the selected tab is
-   * removed in uncontrolled roots.
+   * removed or never present in uncontrolled roots.
    * Automatic changes cannot be canceled; calling `eventDetails.cancel()` for
    * `'initial'`, `'disabled'`, or `'missing'` has no effect.
    */
