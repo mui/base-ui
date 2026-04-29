@@ -1,15 +1,18 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { useId } from '@base-ui/utils/useId';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import {
+  createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
 } from '../../utils/popups';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react';
+import { useFloatingParentNodeId, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY } from '../utils/constants';
@@ -34,14 +37,24 @@ export class PreviewCardStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  constructor(initialState?: Partial<State<Payload>>) {
+  constructor(
+    initialState?: Partial<State<Payload>>,
+    floatingRootContextOptions?: PopupFloatingRootContextOptions,
+  ) {
+    const triggerElements = new PopupTriggerMap();
+    const state = { ...createInitialState<Payload>(), ...initialState };
+    state.floatingRootContext = createPopupFloatingRootContext(
+      triggerElements,
+      floatingRootContextOptions,
+    );
+
     super(
-      { ...createInitialState(), ...initialState },
+      state,
       {
         popupRef: React.createRef<HTMLElement | null>(),
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
-        triggerElements: new PopupTriggerMap(),
+        triggerElements,
         closeDelayRef: { current: CLOSE_DELAY },
       },
       selectors,
@@ -106,31 +119,32 @@ export class PreviewCardStore<Payload> extends ReactStore<
     externalStore: PreviewCardStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    /* eslint-disable react-hooks/rules-of-hooks */
+    const floatingId = useId();
+    const nested = useFloatingParentNodeId() != null;
+
     const internalStore = useRefWithInit(() => {
-      return new PreviewCardStore<Payload>(initialState);
+      return new PreviewCardStore<Payload>(initialState, { floatingId, nested });
     }).current;
 
     const store = externalStore ?? internalStore;
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const floatingRootContext = useSyncedFloatingRootContext({
+    useSyncedFloatingRootContext({
       popupStore: store,
+      floatingRootContext: store.state.floatingRootContext,
+      floatingId,
+      nested,
       onOpenChange: store.setOpen,
     });
+    /* eslint-enable react-hooks/rules-of-hooks */
 
-    // It's safe to set this here because when this code runs for the first time,
-    // nothing has had a chance to subscribe to the `store` yet.
-    // For subsequent renders, the `floatingRootContext` reference remains the same,
-    // so it's basically a no-op.
-    (store.state as State<Payload>).floatingRootContext = floatingRootContext;
     return store;
   }
 }
 
 function createInitialState<Payload>(): State<Payload> {
   return {
-    ...createInitialPopupStoreState(),
+    ...createInitialPopupStoreState<Payload>(),
     instantType: undefined,
     hasViewport: false,
   };

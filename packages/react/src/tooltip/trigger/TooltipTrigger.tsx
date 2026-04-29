@@ -125,6 +125,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const shouldApplyRootTriggerProps = isMountedByThisTrigger || trackCursorAxis !== 'none';
 
   const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
@@ -134,10 +135,15 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     props: [
       hoverProps,
       focusProps,
-      rootTriggerProps,
+      shouldApplyRootTriggerProps ? rootTriggerProps : undefined,
       {
         onPointerDown() {
           store.set('closeOnClick', closeOnClick);
+        },
+        onClick(event) {
+          if (closeOnClick && !store.select('open')) {
+            store.cancelPendingOpen(event.nativeEvent);
+          }
         },
         id: thisTriggerId,
         [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,

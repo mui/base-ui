@@ -1,14 +1,19 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { useId } from '@base-ui/utils/useId';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useFloatingParentNodeId, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { type DialogRoot } from '../root/DialogRoot';
 import {
+  createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  setOpenTriggerState,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -52,15 +57,25 @@ export class DialogStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  constructor(initialState?: Partial<State<Payload>>) {
+  constructor(
+    initialState?: Partial<State<Payload>>,
+    floatingRootContextOptions?: PopupFloatingRootContextOptions,
+  ) {
+    const triggerElements = new PopupTriggerMap();
+    const state = createInitialState<Payload>(initialState);
+    state.floatingRootContext = createPopupFloatingRootContext(
+      triggerElements,
+      floatingRootContextOptions,
+    );
+
     super(
-      createInitialState<Payload>(initialState),
+      state,
       {
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
         outsidePressEnabledRef: { current: true },
-        triggerElements: new PopupTriggerMap(),
+        triggerElements,
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
       },
@@ -94,13 +109,7 @@ export class DialogStore<Payload> extends ReactStore<
       open: nextOpen,
     };
 
-    // If a popup is closing, the `trigger` may be null.
-    // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-    const newTriggerId = eventDetails.trigger?.id ?? null;
-    if (newTriggerId || nextOpen) {
-      updatedState.activeTriggerId = newTriggerId;
-      updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-    }
+    setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
 
     this.update(updatedState);
   };
@@ -109,12 +118,27 @@ export class DialogStore<Payload> extends ReactStore<
     externalStore: DialogStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    /* eslint-disable react-hooks/rules-of-hooks */
+    const floatingId = useId();
+    const nested = useFloatingParentNodeId() != null;
+
     const internalStore = useRefWithInit(() => {
-      return new DialogStore<Payload>(initialState);
+      return new DialogStore<Payload>(initialState, { floatingId, nested });
     }).current;
 
-    return externalStore ?? internalStore;
+    const store = externalStore ?? internalStore;
+
+    useSyncedFloatingRootContext({
+      popupStore: store,
+      treatPopupAsFloatingElement: true,
+      floatingRootContext: store.state.floatingRootContext,
+      floatingId,
+      nested,
+      onOpenChange: store.setOpen,
+    });
+    /* eslint-enable react-hooks/rules-of-hooks */
+
+    return store;
   }
 }
 

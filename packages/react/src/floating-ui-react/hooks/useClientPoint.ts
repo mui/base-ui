@@ -126,6 +126,10 @@ export function useClientPoint(
   const [pointerType, setPointerType] = React.useState<string | undefined>();
   const [reactive, setReactive] = React.useState([]);
 
+  const resetReference = useStableCallback(() => {
+    store.set('positionReference', domReference);
+  });
+
   const setReference = useStableCallback(
     (newX: number | null, newY: number | null, referenceElement?: Element | null) => {
       if (initialRef.current) {
@@ -171,7 +175,12 @@ export function useClientPoint(
   const openCheck = isMouseLikePointerType(pointerType) ? floating : open;
 
   React.useEffect(() => {
-    if (!openCheck || !enabled) {
+    if (!enabled) {
+      resetReference();
+      return undefined;
+    }
+
+    if (!openCheck) {
       return undefined;
     }
 
@@ -199,7 +208,19 @@ export function useClientPoint(
     }
 
     return cleanupListener;
-  }, [openCheck, enabled, floating, dataRef, domReference, store, setReference, reactive]);
+  }, [
+    openCheck,
+    enabled,
+    floating,
+    dataRef,
+    domReference,
+    store,
+    setReference,
+    resetReference,
+    reactive,
+  ]);
+
+  React.useEffect(() => resetReference, [resetReference]);
 
   React.useEffect(() => {
     if (enabled && !floating) {

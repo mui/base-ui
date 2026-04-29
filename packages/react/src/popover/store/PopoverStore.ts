@@ -1,24 +1,28 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
 import {
+  createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  setOpenTriggerState,
+  usePopupStore,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
-  instantType: 'dismiss' | 'click' | undefined;
+  instantType: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
   modal: boolean | 'trap-focus';
   focusManagerModal: boolean;
   openMethod: InteractionType | null;
@@ -81,12 +85,21 @@ export class PopoverStore<Payload> extends ReactStore<
   Context,
   Selectors
 > {
-  constructor(initialState?: Partial<State<Payload>>) {
+  constructor(
+    initialState?: Partial<State<Payload>>,
+    floatingRootContextOptions?: PopupFloatingRootContextOptions,
+  ) {
     const initial = { ...createInitialState<Payload>(), ...initialState };
+    const triggerElements = new PopupTriggerMap();
 
     if (initial.open && initialState?.mounted === undefined) {
       initial.mounted = true;
     }
+
+    initial.floatingRootContext = createPopupFloatingRootContext(
+      triggerElements,
+      floatingRootContextOptions,
+    );
 
     super(
       initial,
@@ -99,7 +112,7 @@ export class PopoverStore<Payload> extends ReactStore<
         triggerFocusTargetRef: React.createRef<HTMLElement>(),
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         stickIfOpenTimeout: new Timeout(),
-        triggerElements: new PopupTriggerMap(),
+        triggerElements,
       },
       selectors,
     );
@@ -134,13 +147,7 @@ export class PopoverStore<Payload> extends ReactStore<
         openChangeReason: eventDetails.reason,
       };
 
-      // If a popup is closing, the `trigger` may be null.
-      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-      const newTriggerId = eventDetails.trigger?.id ?? null;
-      if (newTriggerId || nextOpen) {
-        updatedState.activeTriggerId = newTriggerId;
-        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-      }
+      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
 
       this.update(updatedState);
     };
@@ -171,15 +178,16 @@ export class PopoverStore<Payload> extends ReactStore<
     externalStore: PopoverStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const internalStore = useRefWithInit(() => {
-      return new PopoverStore<Payload>(initialState);
-    }).current;
+    const { store, internalStore } = usePopupStore(
+      externalStore,
+      (floatingId, nested) =>
+        new PopoverStore<Payload>(initialState, {
+          floatingId,
+          nested,
+        }),
+    );
 
-    const store = externalStore ?? internalStore;
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useOnMount(internalStore.disposeEffect);
+    useOnMount(() => internalStore?.disposeEffect());
     return store;
   }
 
