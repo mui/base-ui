@@ -17,10 +17,6 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
 ) {
   const { className, render, style, ...elementProps } = componentProps;
 
-  const transientImageLoadingStatusRef = React.useRef<ImageLoadingStatus | undefined>(undefined);
-  // Reset each render before children render so Fallback does not reuse a stale ref from a prior commit.
-  transientImageLoadingStatusRef.current = undefined;
-
   const [imageLoadingStatus, setImageLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
   const state: AvatarRootState = {
@@ -31,7 +27,6 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
     () => ({
       imageLoadingStatus,
       setImageLoadingStatus,
-      transientImageLoadingStatusRef,
     }),
     [imageLoadingStatus],
   );

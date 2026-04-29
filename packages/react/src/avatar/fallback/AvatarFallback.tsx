@@ -53,7 +53,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
 ) {
   const { className, render, delay, style, ...elementProps } = componentProps;
 
-  const { imageLoadingStatus, transientImageLoadingStatusRef } = useAvatarRootContext();
+  const { imageLoadingStatus } = useAvatarRootContext();
   const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
   const timeout = useTimeout();
 
@@ -65,25 +65,13 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   }, [timeout, delay]);
 
   /**
-   * Prefer the transient ref set by `Avatar.Image` during the current render over the lifted
-   * status in context: the lifted state can be one commit behind during fast `src` swaps, and
-   * Fallback consulting it would briefly flash visible on top of the previously-decoded bitmap
-   * the browser is still painting on the `<img>`. The Root resets the ref to `undefined` at the
-   * top of every render, so a missing entry means no Image has reported a status yet this cycle.
-   */
-  const resolvedImageLoadingStatus =
-    transientImageLoadingStatusRef.current !== undefined
-      ? transientImageLoadingStatusRef.current
-      : imageLoadingStatus;
-
-  /**
    * While the initial `delay` is pending, surface `'loaded'` so the fallback's data attribute
    * resolves to `[data-loaded]` and consumer CSS keeps it hidden — even if the underlying image
    * is still in `'loading'`. This matches the previous mount-gating behaviour (`enabled:
    * status !== 'loaded' && delayPassed`) without forcing consumers to combine multiple data
    * attributes to handle the delay window.
    */
-  const displayedStatus: ImageLoadingStatus = delayPassed ? resolvedImageLoadingStatus : 'loaded';
+  const displayedStatus: ImageLoadingStatus = delayPassed ? imageLoadingStatus : 'loaded';
 
   const state: AvatarFallbackState = {
     imageLoadingStatus: displayedStatus,
