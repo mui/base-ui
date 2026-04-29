@@ -170,9 +170,9 @@ describe('<Avatar.Image />', () => {
 
       const { user } = await render(<Test />);
 
-      // Wait for the data URI to actually load so the img is mounted (not still hidden in `loading`).
+      // Wait for the data URI to actually load so the img is no longer hidden via visibility.
       await waitFor(() => {
-        expect(screen.getByTestId('image')).not.toHaveAttribute('hidden');
+        expect(screen.getByTestId('image').style.visibility).not.toBe('hidden');
       });
 
       await user.click(screen.getByText('Hide image'));
@@ -537,6 +537,66 @@ describe('<Avatar.Image />', () => {
 
     await waitFor(() => {
       expect(screen.queryByText('JD')).toBe(null);
+    });
+  });
+
+  // Regression coverage for https://github.com/mui/base-ui/issues/2597. Master fetched the
+  // image via `new window.Image()` — an off-DOM element — so `loading="lazy"` (and other
+  // intrinsic `<img>` attributes) had nowhere to apply. The refactor renders an actual
+  // `<img>` and forwards intrinsic attributes through, which is what makes lazy loading
+  // (and `srcset` / `decoding` / `fetchpriority`) reachable for consumers in the first place.
+  describe('intrinsic <img> attributes', () => {
+    it('renders an actual <img> element while loading', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" src="https://example.com/uncached.png" />
+        </Avatar.Root>,
+      );
+
+      const img = screen.getByTestId('image');
+      expect(img).toBeInstanceOf(window.HTMLImageElement);
+      expect(img).toHaveAttribute('src', 'https://example.com/uncached.png');
+    });
+
+    it('forwards loading="lazy" to the rendered <img>', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" src={DATA_URI} loading="lazy" />
+        </Avatar.Root>,
+      );
+
+      expect(screen.getByTestId('image')).toHaveAttribute('loading', 'lazy');
+    });
+
+    it('forwards loading="eager" to the rendered <img>', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" src={DATA_URI} loading="eager" />
+        </Avatar.Root>,
+      );
+
+      expect(screen.getByTestId('image')).toHaveAttribute('loading', 'eager');
+    });
+
+    it('forwards decoding, fetchPriority, srcSet and sizes to the rendered <img>', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            src={DATA_URI}
+            decoding="async"
+            fetchPriority="high"
+            srcSet={`${DATA_URI} 1x, ${DATA_URI} 2x`}
+            sizes="(max-width: 600px) 32px, 64px"
+          />
+        </Avatar.Root>,
+      );
+
+      const img = screen.getByTestId('image');
+      expect(img).toHaveAttribute('decoding', 'async');
+      expect(img).toHaveAttribute('fetchpriority', 'high');
+      expect(img).toHaveAttribute('srcset', `${DATA_URI} 1x, ${DATA_URI} 2x`);
+      expect(img).toHaveAttribute('sizes', '(max-width: 600px) 32px, 64px');
     });
   });
 });

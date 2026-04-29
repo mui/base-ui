@@ -99,6 +99,63 @@
   padding: 28px 16px;
 }
 
+.lazyScroller {
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  height: 240px;
+  overflow-y: auto;
+  /*
+   * `position: relative` so the inner content's top is anchored to the scroller,
+   * which keeps the avatar's clipped intersection rect deterministic for
+   * IntersectionObserver — i.e. lazy-load defers based on the scroll container,
+   * not the document viewport.
+   */
+  position: relative;
+}
+
+.lazyContent {
+  /*
+   * 4000px of content inside a 240px-tall scroller puts the avatar far enough
+   * below the visible area to defeat any lazy-load distance heuristic, so the
+   * request only fires when the user actually scrolls down to it.
+   */
+  align-items: center;
+  background: linear-gradient(
+    180deg,
+    var(--color-gray-100) 0%,
+    var(--color-gray-200) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 4000px;
+  padding: 24px 16px 48px;
+}
+
+.lazyHint {
+  background: var(--color-gray-50);
+  border: 1px dashed var(--color-gray-300);
+  border-radius: 999px;
+  color: var(--color-gray-600);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  padding: 4px 12px;
+}
+
+.lazyAvatarHost {
+  align-items: center;
+  background:
+    repeating-conic-gradient(var(--color-gray-200) 0% 25%, transparent 0% 50%) 0 0 / 12px 12px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding: 28px 16px;
+  width: 100%;
+}
+
 .avatarRoot {
   align-items: center;
   background: var(--color-gray-300);

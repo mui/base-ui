@@ -40,6 +40,8 @@ const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   },
 };
 
+const HIDDEN_IMAGE_STYLE: React.CSSProperties = { visibility: 'hidden' };
+
 /**
  * The image to be displayed in the avatar.
  * Renders an `<img>` element.
@@ -53,17 +55,13 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   const {
     className,
     render,
-    onLoadingStatusChange: onLoadingStatusChangeProp,
     style,
+    onLoadingStatusChange: onLoadingStatusChangeProp,
     hidden: hiddenProp,
     onLoad: onLoadProp,
     onError: onErrorProp,
     ...elementProps
   } = componentProps;
-
-  void className;
-  void render;
-  void style;
 
   const context = useAvatarRootContext();
 
@@ -184,8 +182,20 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     rawTransitionStatus === 'starting' && cachedAtMountRef.current ? undefined : rawTransitionStatus;
 
   /**
-   * `<img hidden>` while not yet visible so the broken-image glyph and unstyled bitmap never paint.
-   * Must be cleared during the exit transition so `[data-ending-style]` runs on the still-visible bitmap.
+   * Hide the `<img>` until the bitmap is decoded so the broken-image glyph and unstyled bitmap
+   * never paint. We use `visibility: hidden` rather than the `hidden` attribute (which is
+   * `display: none`) because `display: none` removes the element from the layout tree, and the
+   * browser's native lazy-loading IntersectionObserver cannot observe out-of-layout elements —
+   * `<img hidden loading="lazy">` would never enter the viewport from the observer's point of
+   * view, so the request would be deferred forever and `onLoad` would never fire. Keeping the
+   * element in layout via `visibility: hidden` lets `loading="lazy"` work as expected while still
+   * suppressing the visual flash. An unloaded `<img>` without explicit `width`/`height` has
+   * natural dimensions of 0×0, so this only affects flow when the consumer explicitly sizes the
+   * image; the recommended Avatar layout (absolute-positioned image + fallback stacked in a sized
+   * root) sidesteps that entirely.
+   *
+   * Must be cleared during the exit transition so `[data-ending-style]` runs on the still-visible
+   * bitmap.
    */
   const intrinsicDecodePending = !isVisible && transitionStatus !== 'ending';
 
@@ -256,7 +266,8 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     ref: [forwardedRef, imageRef],
     props: {
       ...elementProps,
-      hidden: intrinsicDecodePending ? true : hiddenProp,
+      hidden: hiddenProp,
+      style: intrinsicDecodePending ? HIDDEN_IMAGE_STYLE : undefined,
       onLoad: handleIntrinsicLoad,
       onError: handleIntrinsicError,
     },

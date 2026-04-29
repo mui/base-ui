@@ -14,6 +14,15 @@ const SLOW_AVATAR_SRC = (ms: number) => `/api/experiments/slow-avatar?ms=${ms}`;
 const BROKEN_AVATAR_SRC =
   'https://example.com/base-ui-avatar-experiment-this-image-does-not-exist.png';
 
+/**
+ * Always-fresh source for the lazy-loading demo. Routes through our slow-avatar API
+ * which sets `Cache-Control: no-store`, so every page load triggers a real network
+ * request (no surprise cache hits from sibling cards). The 300ms server delay makes
+ * the deferral visible — status sits on 'loading' until the user scrolls, then
+ * spends another ~300ms genuinely loading before flipping to 'loaded'.
+ */
+const LAZY_AVATAR_SRC = SLOW_AVATAR_SRC(300);
+
 const FALLBACK_DELAY_MS = 300;
 
 export default function AvatarPlayground() {
@@ -89,6 +98,11 @@ export default function AvatarPlayground() {
         <NoSrcScenario
           title="Add src after mount (no-src → cached)"
           description="Mounts with no src (status: error). Click Set src — status should go straight from error → loaded, without a stale 'loaded' for the unloaded src. (This is the regression fixed by the during-render reset.)"
+        />
+
+        <LazyLoadingScenario
+          title="Lazy loading (loading='lazy')"
+          description="Open DevTools → Network → Img. The avatar lives at the bottom of an internal scroll container with ~4000px of content above it — far past Chromium's lazy-load distance margin. The image request should NOT fire on mount; it should only fire once you scroll the inner box down to the avatar. The src points at our no-store /api/experiments/slow-avatar?ms=300 endpoint so re-tests always hit the network. With master, this was impossible because Avatar.Image used new Image() — which has no DOM presence — so loading='lazy' had no effect even though the prop was settable."
         />
       </main>
     </div>
@@ -284,6 +298,67 @@ function NoSrcScenario({ title, description }: NoSrcScenarioProps) {
           onClick={() => setSrc((current) => (current ? undefined : FAST_AVATAR_SRC))}
         >
           {src ? 'Clear src' : 'Set src'}
+        </button>
+        <button type="button" className={styles.buttonGhost} onClick={log.clear}>
+          Clear log
+        </button>
+      </footer>
+    </section>
+  );
+}
+
+interface LazyLoadingScenarioProps {
+  title: string;
+  description: string;
+}
+
+function LazyLoadingScenario({ title, description }: LazyLoadingScenarioProps) {
+  const log = useStatusLog();
+  const scrollerRef = React.useRef<HTMLDivElement | null>(null);
+
+  return (
+    <section className={styles.card}>
+      <header className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>{title}</h2>
+        <p className={styles.cardDescription}>{description}</p>
+      </header>
+
+      <div ref={scrollerRef} className={styles.lazyScroller}>
+        <div className={styles.lazyContent}>
+          <span className={styles.lazyHint}>↓ Scroll inside this box ↓</span>
+          <span className={styles.lazyHint}>The avatar is at the bottom — far below the lazy-load margin</span>
+          <span className={styles.lazyHint}>Status below stays at "loading" until the request fires</span>
+          <div className={styles.lazyAvatarHost}>
+            <Avatar.Root className={styles.avatarRoot}>
+              <Avatar.Image
+                className={styles.avatarImage}
+                src={LAZY_AVATAR_SRC}
+                loading="lazy"
+                decoding="async"
+                onLoadingStatusChange={log.push}
+              />
+              <Avatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
+                AV
+              </Avatar.Fallback>
+            </Avatar.Root>
+          </div>
+        </div>
+      </div>
+
+      <StatusReadout entries={log.entries} />
+
+      <footer className={styles.cardFooter}>
+        <button
+          type="button"
+          className={styles.button}
+          onClick={() => {
+            const scroller = scrollerRef.current;
+            if (scroller) {
+              scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
+            }
+          }}
+        >
+          Jump to avatar ↓
         </button>
         <button type="button" className={styles.buttonGhost} onClick={log.clear}>
           Clear log
