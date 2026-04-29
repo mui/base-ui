@@ -52,7 +52,7 @@ export function Item(props: ItemProps) {
   const { children, className, href, external, ...other } = props;
   const ref = React.useRef<HTMLLIElement>(null);
   const pathname = usePathname();
-  const active = pathname === href;
+  const active = pathname === href || pathname.startsWith(`${href}/`);
   const rem = React.useRef(16);
 
   React.useEffect(() => {
