@@ -82,8 +82,8 @@ export default function AvatarPlayground() {
         />
 
         <SwitchScenario
-          title="Switch src (no stale status)"
-          description="Click Switch to swap between two cached images. Status should not report a stale 'loaded' before the new image actually loads. After the first round-trip both are cached, so subsequent switches should be instant."
+          title="Switch src (smooth swap, no fallback flash)"
+          description="Click Switch to swap between two images. Status stays at 'loaded' through the swap — the browser keeps painting the previously-decoded bitmap on the <img> until the new src finishes decoding, so Avatar.Fallback never pops on top of the still-visible old bitmap. If the new src errors, status flips to 'error' and the fallback takes over."
         />
 
         <NoSrcScenario

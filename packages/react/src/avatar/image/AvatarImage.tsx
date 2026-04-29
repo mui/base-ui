@@ -81,21 +81,35 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   /**
    * Reset intrinsic load state synchronously during render when `src` changes. Doing this in a
-   * layout effect would let one commit slip through with stale state — `intrinsicSettled` from a
-   * prior `src` would make `imageLoadingStatus` resolve to `'loaded'` for a single render before
-   * the effect could correct it, and the status-change effect would fire that stale value to
-   * consumers. The conditional setState here is React's recommended pattern for resetting state
-   * on prop change — React discards the in-flight render output and re-renders with the new
-   * state before any commit, so no DOM/effect ever observes the stale value. Strictly cheaper
-   * than the effect-based alternative (one commit instead of two).
+   * layout effect would let one commit slip through with stale state — a stale `intrinsicSettled`
+   * from a prior `src` would make `imageLoadingStatus` flip to the wrong value for a single
+   * render before the effect could correct it. The conditional setState here is React's
+   * recommended pattern for resetting state on prop change — React discards the in-flight
+   * render output and re-renders with the new state before any commit, so no DOM/effect ever
+   * observes the stale value. Strictly cheaper than the effect-based alternative (one commit
+   * instead of two).
    * https://react.dev/reference/react/useState#storing-information-from-previous-renders
+   *
+   * For src → src swaps where the previous bitmap had loaded successfully we deliberately
+   * preserve `intrinsicSettled = true`. Browsers keep painting the previously-decoded bitmap on
+   * the `<img>` until the new src finishes decoding (the "stale-image" behaviour), and forcing
+   * status back through `'loading'` would pop the fallback on top of that still-visible old
+   * bitmap for a frame — exactly the flash users are reporting. By keeping status at `'loaded'`
+   * the swap is invisible to `Avatar.Fallback`; if the new src eventually errors, the `<img>`'s
+   * `onError` flips `intrinsicDecodeFailed` and we fall through to `'error'` then.
    */
   const [previousSrc, setPreviousSrc] = React.useState(componentProps.src);
   if (previousSrc !== componentProps.src) {
     setPreviousSrc(componentProps.src);
-    setIntrinsicSettled(!componentProps.src);
     setIntrinsicDecodeFailed(false);
     cachedAtMountRef.current = false;
+
+    const hasSettledBitmap = intrinsicSettled && !intrinsicDecodeFailed;
+    const isSrcSwap = Boolean(previousSrc) && Boolean(componentProps.src);
+    if (!hasSettledBitmap || !isSrcSwap) {
+      // Initial load (was empty), error recovery, or clearing src — start fresh.
+      setIntrinsicSettled(!componentProps.src);
+    }
   }
 
   /**

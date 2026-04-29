@@ -188,15 +188,11 @@ describe('<Avatar.Fallback />', () => {
       });
     });
 
-    // Regression: when `src` switches between two browser-cached images, the cache fast-path
-    // settles the new bitmap to `'loaded'` synchronously inside a layout effect. If the lifted
-    // status in `Avatar.Root` is gated behind the same dedupe/suppression as the public
-    // `onLoadingStatusChange` callback, the lifted status never updates (last fired status was
-    // `'loaded'` from the previous src, so the new `'loaded'` is short-circuited) — and
-    // `Avatar.Fallback` keeps the stale `enabled=true` from the brief `'loading'` frame that
-    // happened during the parent's re-render. The fallback then sits on top of the freshly
-    // loaded image until something else forces a re-render.
-    it('hides fallback after switching between two browser-cached images', async () => {
+    // Regression: src → src swaps used to force `imageLoadingStatus` back through `'loading'`,
+    // which mounted `Avatar.Fallback` on top of the old bitmap that the browser was still
+    // painting on the `<img>` while the new src decoded. Status now stays `'loaded'` through
+    // the swap (relying on the browser's stale-image behaviour), so the fallback never appears.
+    it('does not flash the fallback when switching between two browser-cached images', async () => {
       await Promise.all(
         [DATA_URI, DATA_URI_GIF].map(
           (src) =>
@@ -241,9 +237,7 @@ describe('<Avatar.Fallback />', () => {
         expect(screen.getByTestId('image')).toHaveAttribute('src', DATA_URI_GIF);
       });
 
-      // The cache fast-path runs in a layout effect, so the fallback should be unmounted by
-      // the time the new src is committed — not stuck visible until something forces another
-      // render.
+      // Fallback should never appear during a smooth src swap.
       expect(screen.queryByTestId('fallback')).toBe(null);
     });
   });

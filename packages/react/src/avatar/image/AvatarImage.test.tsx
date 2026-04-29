@@ -46,6 +46,10 @@ function mockCachedImageLoading({ naturalWidth = 100 } = {}) {
 const DATA_URI =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
+// 1x1 transparent GIF — distinct cacheable src for src → src swap tests.
+const DATA_URI_GIF =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 describe('<Avatar.Image />', () => {
   const { render, renderToString } = createRenderer();
 
@@ -367,6 +371,111 @@ describe('<Avatar.Image />', () => {
       // once. A failure mode would be either a stale `'loaded'` slipping out before the real
       // `'loaded'`, or `'error'` firing twice on the StrictMode double-mount.
       expect(calls).toEqual(['error', 'loaded']);
+    });
+
+    it('keeps status at "loaded" through a src → src swap', async () => {
+      restoreImage();
+
+      await Promise.all(
+        [DATA_URI, DATA_URI_GIF].map(
+          (src) =>
+            new Promise<void>((resolve, reject) => {
+              const img = new window.Image();
+              img.onload = () => resolve();
+              img.onerror = () => reject(new Error(`Failed to preload ${src}`));
+              img.src = src;
+            }),
+        ),
+      );
+
+      const calls: ImageLoadingStatus[] = [];
+      const onLoadingStatusChange = (status: ImageLoadingStatus) => calls.push(status);
+
+      const { setPropsAsync } = await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            onLoadingStatusChange={onLoadingStatusChange}
+            src={DATA_URI}
+          />
+        </Avatar.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).toBeVisible();
+      });
+
+      expect(calls).toEqual(['loaded']);
+
+      await setPropsAsync({
+        children: (
+          <Avatar.Image
+            data-testid="image"
+            onLoadingStatusChange={onLoadingStatusChange}
+            src={DATA_URI_GIF}
+          />
+        ),
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).toHaveAttribute('src', DATA_URI_GIF);
+      });
+
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 50);
+        });
+      });
+
+      // Browsers keep painting the previously-decoded bitmap on `<img>` while a new src
+      // decodes, so a swap between two valid images is a smooth visual transition. Forcing
+      // status back through `'loading'` would pop the fallback on top of that still-visible
+      // bitmap for a frame — instead status stays at `'loaded'` and the consumer sees no
+      // additional fire.
+      expect(calls).toEqual(['loaded']);
+    });
+
+    it('flips to "error" on a src → broken-src swap', async () => {
+      restoreImage();
+
+      await new Promise<void>((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Failed to preload test image'));
+        img.src = DATA_URI;
+      });
+
+      const calls: ImageLoadingStatus[] = [];
+      const onLoadingStatusChange = (status: ImageLoadingStatus) => calls.push(status);
+
+      const { setPropsAsync } = await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            onLoadingStatusChange={onLoadingStatusChange}
+            src={DATA_URI}
+          />
+        </Avatar.Root>,
+      );
+
+      await waitFor(() => {
+        expect(calls).toEqual(['loaded']);
+      });
+
+      // Use an invalid data URI so `onError` fires deterministically without a network round trip.
+      await setPropsAsync({
+        children: (
+          <Avatar.Image
+            data-testid="image"
+            onLoadingStatusChange={onLoadingStatusChange}
+            src="data:image/png;base64,not-a-valid-image"
+          />
+        ),
+      });
+
+      await waitFor(() => {
+        expect(calls).toEqual(['loaded', 'error']);
+      });
     });
 
     it('does not double-fire the same status when effects re-run (e.g. StrictMode)', async () => {
