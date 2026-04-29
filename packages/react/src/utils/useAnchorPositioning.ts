@@ -10,7 +10,7 @@ import {
   flip,
   limitShift,
   offset,
-  shift,
+  shift as floatingShift,
   useFloating,
   size,
   type UseFloatingOptions,
@@ -139,7 +139,7 @@ export function useAnchorPositioning(
     floatingRootContext,
     mounted,
     collisionAvoidance,
-    shiftCrossAxis = false,
+    shift: shiftFlags = 0,
     nodeId,
     adaptiveOrigin,
     lazyFlip = false,
@@ -155,6 +155,8 @@ export function useAnchorPositioning(
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
+  const shiftCrossAxis = shiftFlags === 1 || shiftFlags === 3;
+  const shiftLayout = shiftFlags >= 2;
 
   const anchorFn = typeof anchor === 'function' ? anchor : undefined;
   const anchorFnCallback = useStableCallback(anchorFn);
@@ -275,14 +277,18 @@ export function useAnchorPositioning(
         });
   const shiftMiddleware = shiftDisabled
     ? null
-    : shift(
+    : floatingShift(
         (data) => {
+          const win = ownerWindow(data.elements.floating);
           const html = ownerDocument(data.elements.floating).documentElement;
+          const useLayoutViewport =
+            shiftCrossAxis || (shiftLayout && (win.visualViewport?.scale ?? 1) !== 1);
           return {
             ...commonCollisionProps,
-            // Use the Layout Viewport to avoid shifting around when pinch-zooming
-            // for context menus.
-            rootBoundary: shiftCrossAxis
+            // Use the Layout Viewport to avoid shifting around when pinch-zooming.
+            // TODO: Floating UI should ideally have a `layoutViewport` string option
+            // (not just `viewport`) that accounts for `scrollbar-gutter`.
+            rootBoundary: useLayoutViewport
               ? { x: 0, y: 0, width: html.clientWidth, height: html.clientHeight }
               : undefined,
             mainAxis: collisionAvoidanceAlign !== 'none',
@@ -307,7 +313,14 @@ export function useAnchorPositioning(
                   }),
           };
         },
-        [commonCollisionProps, sticky, shiftCrossAxis, collisionPadding, collisionAvoidanceAlign],
+        [
+          commonCollisionProps,
+          sticky,
+          shiftCrossAxis,
+          shiftLayout,
+          collisionPadding,
+          collisionAvoidanceAlign,
+        ],
       );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
@@ -722,7 +735,7 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
-  shiftCrossAxis?: boolean | undefined;
+  shift?: 0 | 1 | 2 | 3 | undefined;
   lazyFlip?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
 }
