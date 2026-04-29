@@ -154,9 +154,8 @@
 
 .avatarRoot {
   align-items: center;
-  background: var(--color-gray-300);
   border-radius: 999px;
-  color: var(--color-gray-700);
+
   display: inline-flex;
   font-weight: 600;
   height: var(--avatar-size);
@@ -164,6 +163,8 @@
   overflow: hidden;
   position: relative;
   width: var(--avatar-size);
+
+  background: var(--color-gray-300);
 }
 
 .avatarImage {
@@ -177,6 +178,7 @@
     filter 220ms ease;
   filter: blur(0px);
   opacity: 1;
+  color: transparent;
 }
 
 .avatarImage[data-hydrated][data-loading],
@@ -198,7 +200,7 @@
 .avatarFallback {
   align-items: center;
   display: inline-flex;
-  font-size: 14px;
+  font-size: 32px;
   inset: 0;
   justify-content: center;
   letter-spacing: 0.02em;
@@ -206,6 +208,8 @@
   transition:
     opacity 180ms ease,
     filter 180ms ease;
+
+  color: var(--color-gray-700);
 }
 
 .avatarFallback[data-loaded] {
