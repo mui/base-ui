@@ -6,7 +6,7 @@ export default function ExamplePopover() {
     <Popover.Root>
       <Popover.Trigger
         openOnHover
-        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="flex size-8 items-center justify-center border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white text-sm font-normal select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
       >
         <BellIcon aria-label="Notifications" />
       </Popover.Trigger>

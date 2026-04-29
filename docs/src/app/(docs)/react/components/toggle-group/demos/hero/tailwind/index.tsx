@@ -11,21 +11,21 @@ export default function ExampleToggleGroup() {
       <Toggle
         aria-label="Align left"
         value="left"
-        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-50 dark:hover:not-data-disabled:bg-gray-900 active:not-data-disabled:bg-gray-100 dark:active:not-data-disabled:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-pressed:bg-gray-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-950"
+        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:not-data-pressed:bg-gray-200 dark:active:not-data-disabled:not-data-pressed:bg-gray-700 data-pressed:bg-gray-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-950 data-pressed:hover:not-data-disabled:bg-gray-950 data-pressed:hover:not-data-disabled:text-white dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-gray-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
       >
         <AlignLeftIcon className="size-4" />
       </Toggle>
       <Toggle
         aria-label="Align center"
         value="center"
-        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-50 dark:hover:not-data-disabled:bg-gray-900 active:not-data-disabled:bg-gray-100 dark:active:not-data-disabled:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-pressed:bg-gray-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-950"
+        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:not-data-pressed:bg-gray-200 dark:active:not-data-disabled:not-data-pressed:bg-gray-700 data-pressed:bg-gray-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-950 data-pressed:hover:not-data-disabled:bg-gray-950 data-pressed:hover:not-data-disabled:text-white dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-gray-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
       >
         <AlignCenterIcon className="size-4" />
       </Toggle>
       <Toggle
         aria-label="Align right"
         value="right"
-        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-50 dark:hover:not-data-disabled:bg-gray-900 active:not-data-disabled:bg-gray-100 dark:active:not-data-disabled:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-pressed:bg-gray-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-950"
+        className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:not-data-pressed:bg-gray-200 dark:active:not-data-disabled:not-data-pressed:bg-gray-700 data-pressed:bg-gray-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-gray-950 data-pressed:hover:not-data-disabled:bg-gray-950 data-pressed:hover:not-data-disabled:text-white dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-gray-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
       >
         <AlignRightIcon className="size-4" />
       </Toggle>

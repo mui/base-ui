@@ -14,7 +14,7 @@ export default function MenuDetachedTriggersSimpleDemo() {
       <Menu.Trigger
         handle={demoMenu}
         aria-label="Project actions"
-        className="flex size-8 items-center justify-center rounded-none border border-gray-950 bg-white text-gray-950 select-none hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900 dark:active:bg-gray-800 dark:data-[popup-open]:bg-gray-800"
+        className="flex size-8 items-center justify-center rounded-none border border-gray-950 bg-white text-gray-950 select-none hover:not-data-disabled:bg-gray-100 active:not-data-disabled:bg-gray-200 data-[popup-open]:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:not-data-disabled:bg-gray-800 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 dark:data-[popup-open]:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
       >
         <DotsIcon />
       </Menu.Trigger>

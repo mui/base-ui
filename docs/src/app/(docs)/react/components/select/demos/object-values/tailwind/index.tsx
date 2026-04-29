@@ -9,7 +9,7 @@ export default function ObjectValueSelect() {
         <Select.Label className="cursor-default text-sm leading-5 font-bold text-gray-950 dark:text-white">
           Shipping method
         </Select.Label>
-        <Select.Trigger className="flex min-h-8 min-w-[16rem] items-start justify-between gap-3 pl-3 pr-2 py-1.5 text-sm leading-5 border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white select-none hover:bg-gray-50 dark:hover:bg-gray-900 active:bg-gray-100 dark:active:bg-gray-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 font-normal">
+        <Select.Trigger className="flex min-h-8 min-w-[16rem] items-start justify-between gap-3 pl-3 pr-2 py-1.5 text-sm leading-5 border border-gray-950 dark:border-white bg-white dark:bg-gray-950 text-gray-950 dark:text-white select-none hover:not-data-disabled:bg-gray-100 dark:hover:not-data-disabled:bg-gray-800 active:not-data-disabled:bg-gray-200 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 data-[popup-open]:bg-gray-100 dark:data-[popup-open]:bg-gray-800 font-normal focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           <Select.Value>
             {(method: ShippingMethod) => (
               <span className="flex flex-col items-start gap-0.5">

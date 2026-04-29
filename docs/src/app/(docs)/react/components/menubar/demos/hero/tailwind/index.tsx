@@ -7,7 +7,7 @@ export default function ExampleMenubar() {
   return (
     <Menubar className="flex items-center border border-gray-950 bg-white p-px dark:border-white dark:bg-gray-950">
       <Menu.Root>
-        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-gray-950 select-none focus-visible:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-popup-open:bg-gray-100 data-pressed:bg-gray-100 data-disabled:text-gray-500 dark:text-white dark:focus-visible:bg-gray-800 dark:data-popup-open:bg-gray-800 dark:data-pressed:bg-gray-800 dark:data-disabled:text-gray-400">
+        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-gray-950 select-none data-popup-open:bg-gray-100 data-pressed:bg-gray-100 data-disabled:text-gray-500 dark:text-white dark:focus-visible:bg-gray-800 dark:data-popup-open:bg-gray-800 dark:data-pressed:bg-gray-800 dark:data-disabled:text-gray-400 focus-visible:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           File
         </Menu.Trigger>
         <Menu.Portal>
@@ -76,7 +76,7 @@ export default function ExampleMenubar() {
       </Menu.Root>
 
       <Menu.Root>
-        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-gray-950 select-none focus-visible:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-popup-open:bg-gray-100 data-pressed:bg-gray-100 data-disabled:text-gray-500 dark:text-white dark:focus-visible:bg-gray-800 dark:data-popup-open:bg-gray-800 dark:data-pressed:bg-gray-800 dark:data-disabled:text-gray-400">
+        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-gray-950 select-none data-popup-open:bg-gray-100 data-pressed:bg-gray-100 data-disabled:text-gray-500 dark:text-white dark:focus-visible:bg-gray-800 dark:data-popup-open:bg-gray-800 dark:data-pressed:bg-gray-800 dark:data-disabled:text-gray-400 focus-visible:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           Edit
         </Menu.Trigger>
         <Menu.Portal>
@@ -106,7 +106,7 @@ export default function ExampleMenubar() {
       </Menu.Root>
 
       <Menu.Root>
-        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-gray-950 select-none focus-visible:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-popup-open:bg-gray-100 data-pressed:bg-gray-100 data-disabled:text-gray-500 dark:text-white dark:focus-visible:bg-gray-800 dark:data-popup-open:bg-gray-800 dark:data-pressed:bg-gray-800 dark:data-disabled:text-gray-400">
+        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-gray-950 select-none data-popup-open:bg-gray-100 data-pressed:bg-gray-100 data-disabled:text-gray-500 dark:text-white dark:focus-visible:bg-gray-800 dark:data-popup-open:bg-gray-800 dark:data-pressed:bg-gray-800 dark:data-disabled:text-gray-400 focus-visible:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           View
         </Menu.Trigger>
         <Menu.Portal>
@@ -169,7 +169,7 @@ export default function ExampleMenubar() {
       </Menu.Root>
 
       <Menu.Root disabled>
-        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-gray-950 select-none focus-visible:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 data-popup-open:bg-gray-100 data-pressed:bg-gray-100 data-disabled:text-gray-500 dark:text-white dark:focus-visible:bg-gray-800 dark:data-popup-open:bg-gray-800 dark:data-pressed:bg-gray-800 dark:data-disabled:text-gray-400">
+        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-gray-950 select-none data-popup-open:bg-gray-100 data-pressed:bg-gray-100 data-disabled:text-gray-500 dark:text-white dark:focus-visible:bg-gray-800 dark:data-popup-open:bg-gray-800 dark:data-pressed:bg-gray-800 dark:data-disabled:text-gray-400 focus-visible:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           Help
         </Menu.Trigger>
       </Menu.Root>

@@ -35,7 +35,7 @@ function StackedToastButton() {
   return (
     <button
       type="button"
-      className="flex h-8 items-center justify-center rounded-none border border-gray-950 bg-white px-3 py-0 font-[inherit] text-sm font-normal text-gray-950 select-none hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 active:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900 dark:active:bg-gray-800"
+      className="flex h-8 items-center justify-center rounded-none border border-gray-950 bg-white px-3 py-0 font-[inherit] text-sm font-normal text-gray-950 select-none hover:bg-gray-100 active:bg-gray-200 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-800 dark:active:bg-gray-700 disabled:border-gray-500 disabled:text-gray-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
       onClick={createToast}
     >
       Stacked toast
@@ -68,7 +68,7 @@ function CopyButton() {
       <Tooltip.Trigger
         ref={buttonRef}
         closeOnClick={false}
-        className="flex h-8 w-8 items-center justify-center rounded-none border border-gray-950 bg-white text-gray-950 select-none hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 active:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900 dark:active:bg-gray-800"
+        className="flex h-8 w-8 items-center justify-center rounded-none border border-gray-950 bg-white text-gray-950 select-none hover:not-data-disabled:bg-gray-100 active:not-data-disabled:bg-gray-200 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:not-data-disabled:bg-gray-800 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         onClick={handleCopy}
         aria-label="Copy to clipboard"
         render={<Button disabled={copied} focusableWhenDisabled />}
@@ -100,7 +100,7 @@ function AnchoredToasts() {
           >
             <Toast.Root
               toast={toast}
-              className="flex w-max origin-[var(--transform-origin)] flex-col border border-gray-950 bg-white px-2 py-1 text-sm text-gray-950 [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[transform,opacity] duration-100 ease-out data-ending-style:[transform:scale(0.98)] data-ending-style:opacity-0 data-starting-style:[transform:scale(0.98)] data-starting-style:opacity-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-gray-950 dark:text-white dark:[filter:none]"
+              className="flex w-max origin-[var(--transform-origin)] flex-col border border-gray-950 bg-white px-2 py-1 text-sm text-gray-950 [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[transform,opacity] duration-100 ease-out data-ending-style:[transform:scale(0.98)] data-ending-style:opacity-0 data-starting-style:[transform:scale(0.98)] data-starting-style:opacity-0 dark:border-white dark:bg-gray-950 dark:text-white dark:[filter:none] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
             >
               <Toast.Arrow className="relative block h-1.5 w-3 overflow-clip data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:absolute before:bottom-0 before:left-1/2 before:h-[calc(6px*sqrt(2))] before:w-[calc(6px*sqrt(2))] before:border before:border-gray-950 before:bg-white before:content-[''] before:[transform:translate(-50%,50%)_rotate(45deg)] dark:before:border-white dark:before:bg-gray-950" />
               <Toast.Content>
@@ -130,7 +130,7 @@ function StackedToasts() {
                 <Toast.Title className="text-sm font-bold" />
                 <Toast.Description className="text-sm" />
               </div>
-              <Toast.Close className="flex h-8 shrink-0 items-center justify-center rounded-none border border-gray-950 bg-white px-3 py-0 font-[inherit] text-sm font-normal text-gray-950 hover:bg-gray-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 active:bg-gray-100 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:bg-gray-900 dark:active:bg-gray-800">
+              <Toast.Close className="flex h-8 shrink-0 items-center justify-center rounded-none border border-gray-950 bg-white px-3 py-0 font-[inherit] text-sm font-normal text-gray-950 hover:not-data-disabled:bg-gray-100 active:not-data-disabled:bg-gray-200 dark:border-white dark:bg-gray-950 dark:text-white dark:hover:not-data-disabled:bg-gray-800 dark:active:not-data-disabled:bg-gray-700 data-disabled:border-gray-500 data-disabled:text-gray-500 disabled:border-gray-500 disabled:text-gray-500 dark:data-disabled:border-gray-400 dark:data-disabled:text-gray-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
                 Dismiss
               </Toast.Close>
             </Toast.Content>

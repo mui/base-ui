@@ -17,17 +17,22 @@
   user-select: none;
 
   @media (hover: hover) {
-    &:hover {
-      background-color: light-dark(var(--color-gray-50), var(--color-gray-900));
+    &:hover:not([data-disabled]) {
+      background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
     }
   }
 
-  &:active {
-    background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+  &:active:not([data-disabled]) {
+    background-color: light-dark(var(--color-gray-200), var(--color-gray-700));
   }
 
   &[data-popup-open] {
     background-color: light-dark(var(--color-gray-100), var(--color-gray-800));
+  }
+
+  &[data-disabled] {
+    color: light-dark(var(--color-gray-500), var(--color-gray-400));
+    border-color: light-dark(var(--color-gray-500), var(--color-gray-400));
   }
 
   &:focus-visible {
@@ -71,7 +76,7 @@
   width: var(--popup-width, auto);
   height: var(--popup-height, auto);
 
-  max-width: 500px;
+  max-width: 31.25rem;
 
   /* width and height are essential for the resize animation; opacity and transform handle the enter/exit animation */
   transition-property: width, height, opacity, transform;
@@ -94,14 +99,14 @@
 }
 
 .Viewport {
-  --viewport-inline-padding: 1rem;
+  --viewport-inline-padding: 0.5rem;
   box-sizing: border-box;
   /* Required to clip the overflowing content during the slide in/out animations */
   position: relative;
   overflow: clip;
   width: 100%;
   height: 100%;
-  padding: 0.75rem var(--viewport-inline-padding);
+  padding: 0.5rem var(--viewport-inline-padding);
 
   [data-previous],
   [data-current] {
@@ -198,13 +203,14 @@
 
 .Container {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .ProfilePanel {
   display: grid;
   grid-template-columns: auto auto;
-  column-gap: 16px;
+  width: max-content;
+  column-gap: 0.5rem;
 
   .Title {
     grid-column: 2;
@@ -214,7 +220,6 @@
   .Plan {
     grid-column: 2;
     grid-row: 2;
-
     font-size: 0.875rem;
     line-height: 1.25rem;
     color: light-dark(var(--color-gray-600), var(--color-gray-400));
@@ -251,9 +256,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    margin-top: 0.5rem;
     padding-top: 0.5rem;
-    border-top: 1px solid light-dark(var(--color-gray-950), white);
     font-size: 0.875rem;
     line-height: 1.25rem;
 
