@@ -9,6 +9,10 @@ export interface TabsRootContext {
    */
   value: TabsTab.Value;
   /**
+   * Whether the selected value is controlled by the `value` prop.
+   */
+  isControlled: boolean;
+  /**
    * Callback for setting new value.
    */
   onValueChange: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
@@ -22,12 +26,18 @@ export interface TabsRootContext {
   getTabElementBySelectedValue: (selectedValue: TabsTab.Value | undefined) => HTMLElement | null;
   /**
    * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value.
+   * Returns `null` when no corresponding Tab has registered and `undefined` when
+   * the registered Tab has no id assigned yet.
    */
-  getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined;
+  getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined | null;
   /**
    * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value.
    */
   getTabPanelIdByValue: (tabValue: TabsTab.Value) => string | undefined;
+  /**
+   * Tabs rendered earlier in the current render pass.
+   */
+  renderedTabsRef: React.RefObject<TabsTab.Value[] | null>;
   registerMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
   setTabMap: (
     map: Map<Node, (TabsTab.Metadata & { index?: number | null | undefined }) | null>,
@@ -37,6 +47,10 @@ export interface TabsRootContext {
    * The position of the active tab relative to the previously active tab.
    */
   tabActivationDirection: TabsTab.ActivationDirection;
+  /**
+   * Whether the initial tab registration pass has completed.
+   */
+  tabRegistrationSettled: boolean;
 }
 
 /**

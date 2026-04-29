@@ -36,8 +36,10 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
   const {
     value: selectedValue,
     getTabIdByPanelValue,
+    isControlled,
     orientation,
     tabActivationDirection,
+    tabRegistrationSettled,
     registerMountedTabPanel,
     unregisterMountedTabPanel,
   } = useTabsRootContext();
@@ -56,11 +58,19 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
     metadata,
   });
 
-  const open = value === selectedValue;
+  const correspondingTabId = getTabIdByPanelValue(value);
+  // Before tabMap is available, getTabIdByPanelValue returns `undefined` for
+  // tabs rendered earlier in the same pass. That keeps normal client-only mounts
+  // open. Once registration has settled, uncontrolled panels must still have a
+  // corresponding tab — opening one without a matching tab can otherwise cause a
+  // remount loop.
+  // Controlled roots keep visibility owned by the `value` prop.
+  // `undefined` is still allowed because the tab may exist before its id does.
+  const open =
+    value === selectedValue &&
+    (isControlled || !tabRegistrationSettled || correspondingTabId !== null);
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
   const hidden = !mounted;
-
-  const correspondingTabId = getTabIdByPanelValue(value);
 
   const state: TabsPanelState = {
     hidden,
@@ -76,7 +86,7 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
     ref: [forwardedRef, listItemRef, panelRef],
     props: [
       {
-        'aria-labelledby': correspondingTabId,
+        'aria-labelledby': correspondingTabId ?? undefined,
         hidden,
         id,
         role: 'tabpanel',
