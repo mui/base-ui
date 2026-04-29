@@ -69,6 +69,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     className,
     render,
     style,
+    alt: altProp,
     onLoadingStatusChange: onLoadingStatusChangeProp,
     hidden: hiddenProp,
     onLoad: onLoadProp,
@@ -163,6 +164,8 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     ref: [forwardedRef, imageRef],
     props: {
       ...elementProps,
+      // To remove the browser styling (border) on an image with empty src, the alt can never be empty.
+      alt: altProp ?? ' ',
       hidden: hiddenProp,
       onLoad: handleIntrinsicLoad,
       onError: handleIntrinsicError,
