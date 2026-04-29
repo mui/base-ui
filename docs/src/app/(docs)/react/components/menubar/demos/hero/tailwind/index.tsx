@@ -5,13 +5,13 @@ import { Menu } from '@base-ui/react/menu';
 
 export default function ExampleMenubar() {
   return (
-    <Menubar className="flex items-center border border-gray-950 bg-white p-px dark:border-white dark:bg-gray-950">
+    <Menubar className="flex items-center">
       <Menu.Root>
         <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-gray-950 select-none data-popup-open:bg-gray-100 data-pressed:bg-gray-100 data-disabled:text-gray-500 dark:text-white dark:focus-visible:bg-gray-800 dark:data-popup-open:bg-gray-800 dark:data-pressed:bg-gray-800 dark:data-disabled:text-gray-400 focus-visible:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           File
         </Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className="outline-none" sideOffset={6} alignOffset={-2}>
+          <Menu.Positioner className="outline-none" sideOffset={4}>
             <Menu.Popup className="origin-[var(--transform-origin)] border border-gray-950 bg-white py-1 text-gray-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[scale,opacity] duration-100 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[instant]:transition-none data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 dark:border-white dark:bg-gray-950 dark:text-white dark:[filter:none]">
               <Menu.Item
                 onClick={handleClick}

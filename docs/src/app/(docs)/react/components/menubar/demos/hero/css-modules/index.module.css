@@ -1,10 +1,6 @@
 .Menubar {
-  box-sizing: border-box;
   display: flex;
   align-items: center;
-  border: 1px solid light-dark(var(--color-gray-950), white);
-  background-color: light-dark(white, var(--color-gray-950));
-  padding: 1px;
 }
 
 .MenuTrigger {
