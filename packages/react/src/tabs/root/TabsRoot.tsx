@@ -435,6 +435,14 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
   orientation?: TabsRoot.Orientation | undefined;
   /**
    * Callback invoked when new value is being set.
+   *
+   * The event `reason` is `'none'` for user-initiated changes, such as a click
+   * or keyboard navigation; `'initial'` for automatic selection when tabs first
+   * register in uncontrolled roots; `'disabled'` for automatic fallback when
+   * the selected tab becomes disabled in uncontrolled roots; or `'missing'` for
+   * automatic fallback when the selected tab is removed in uncontrolled roots.
+   * Automatic changes cannot be canceled; calling `eventDetails.cancel()` for
+   * `'initial'`, `'disabled'`, or `'missing'` has no effect.
    */
   onValueChange?:
     | ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void)
