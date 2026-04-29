@@ -3,7 +3,7 @@ import styles from '../../index.module.css';
 
 export default function ExamplePreviewCard() {
   return (
-    <PreviewCard.Root open>
+    <PreviewCard.Root>
       <p className={styles.Paragraph}>
         The principles of good{' '}
         <PreviewCard.Trigger
