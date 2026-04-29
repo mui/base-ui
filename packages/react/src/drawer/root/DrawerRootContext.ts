@@ -14,7 +14,7 @@ export interface DrawerNestedSwipeProgressStore {
 export interface DrawerRootContext {
   swipeDirection: DrawerSwipeDirection;
   /**
-   * Whether to disable velocity-based snap skipping.
+   * Whether snap points can be skipped based on swipe velocity.
    */
   snapToSequentialPoints: boolean;
   /**

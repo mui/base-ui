@@ -293,15 +293,17 @@ Renders a `<div>` element.
 
 **Popup CSS Variables:**
 
-| Variable                     | Type     | Description                                                                  |
-| :--------------------------- | :------- | :--------------------------------------------------------------------------- |
-| `--drawer-frontmost-height`  | `CSS`    | The height of the frontmost open drawer in the current nested drawer stack.  |
-| `--drawer-height`            | `CSS`    | The height of the drawer popup.                                              |
-| `--drawer-snap-point-offset` | `CSS`    | The snap point offset used for translating the drawer.                       |
-| `--drawer-swipe-movement-x`  | `CSS`    | The swipe movement on the X axis.                                            |
-| `--drawer-swipe-movement-y`  | `CSS`    | The swipe movement on the Y axis.                                            |
-| `--drawer-swipe-strength`    | `number` | A scalar (0.1-1) used to scale the swipe release transition duration in CSS. |
-| `--nested-drawers`           | `number` | The number of nested drawers that are currently open.                        |
+| Variable                     | Type     | Description                                                                                                                |
+| :--------------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------- |
+| `--available-height`         | `CSS`    | The available visible viewport height for the drawer popup&#xA;(when wrapped in `Drawer.VirtualKeyboardProvider`).         |
+| `--drawer-frontmost-height`  | `CSS`    | The height of the frontmost open drawer in the current nested drawer stack.                                                |
+| `--drawer-height`            | `CSS`    | The height of the drawer popup.                                                                                            |
+| `--drawer-keyboard-inset`    | `CSS`    | The distance needed to lift the drawer above the software keyboard&#xA;(when wrapped in `Drawer.VirtualKeyboardProvider`). |
+| `--drawer-snap-point-offset` | `CSS`    | The snap point offset used for translating the drawer.                                                                     |
+| `--drawer-swipe-movement-x`  | `CSS`    | The swipe movement on the X axis.                                                                                          |
+| `--drawer-swipe-movement-y`  | `CSS`    | The swipe movement on the Y axis.                                                                                          |
+| `--drawer-swipe-strength`    | `number` | A scalar (0.1-1) used to scale the swipe release transition duration in CSS.                                               |
+| `--nested-drawers`           | `number` | The number of nested drawers that are currently open.                                                                      |
 
 ### Popup.Props
 
@@ -615,6 +617,27 @@ type DrawerSwipeAreaState = {
 };
 ```
 
+### VirtualKeyboardProvider
+
+Enables visible viewport sizing and keyboard-aware focus behavior for software keyboards.
+Doesn't render its own HTML element.
+
+**VirtualKeyboardProvider Props:**
+
+| Prop     | Type              | Default | Description |
+| :------- | :---------------- | :------ | :---------- |
+| children | `React.ReactNode` | -       | -           |
+
+### VirtualKeyboardProvider.Props
+
+Re-export of [VirtualKeyboardProvider](#virtualkeyboardprovider) props.
+
+### VirtualKeyboardProvider.State
+
+```typescript
+type DrawerVirtualKeyboardProviderState = {};
+```
+
 ## External Types
 
 ### InteractionType
@@ -668,10 +691,11 @@ type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 - `Drawer.SwipeArea`: `Drawer.SwipeArea`, `Drawer.SwipeArea.Props`, `Drawer.SwipeArea.State`
 - `Drawer.Title`: `Drawer.Title`, `Drawer.Title.Props`, `Drawer.Title.State`
 - `Drawer.Trigger`: `Drawer.Trigger`, `Drawer.Trigger.Props`, `Drawer.Trigger.State`
+- `Drawer.VirtualKeyboardProvider`: `Drawer.VirtualKeyboardProvider`, `Drawer.VirtualKeyboardProvider.State`, `Drawer.VirtualKeyboardProvider.Props`
 - `Drawer.Viewport`: `Drawer.Viewport`, `Drawer.Viewport.Props`, `Drawer.Viewport.State`
 - `Drawer.createHandle`
 - `Drawer.Handle`
-- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`
+- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
 
 ## Canonical Types
 
@@ -708,5 +732,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Drawer.Title.State`: `DrawerTitleState`
 - `Drawer.Trigger.Props`: `DrawerTriggerProps`
 - `Drawer.Trigger.State`: `DrawerTriggerState`
+- `Drawer.VirtualKeyboardProvider.State`: `DrawerVirtualKeyboardProviderState`
+- `Drawer.VirtualKeyboardProvider.Props`: `DrawerVirtualKeyboardProviderProps`
 - `Drawer.Viewport.Props`: `DrawerViewportProps`
 - `Drawer.Viewport.State`: `DrawerViewportState`
