@@ -81,8 +81,8 @@ export default function PopoverDetachedTriggersFullDemo() {
 function NotificationsPanel() {
   return (
     <React.Fragment>
-      <Popover.Title className="m-0 text-sm font-bold leading-5">Notifications</Popover.Title>
-      <Popover.Description className="m-0 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
+      <Popover.Title className="m-0 text-sm font-bold">Notifications</Popover.Title>
+      <Popover.Description className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
         You are all caught up. Good job!
       </Popover.Description>
     </React.Fragment>
@@ -92,7 +92,7 @@ function NotificationsPanel() {
 function ProfilePanel() {
   return (
     <div className="grid w-max grid-cols-[auto_auto] gap-x-2">
-      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 m-0 text-sm font-bold leading-5">
+      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 m-0 text-sm font-bold">
         Jason Eventon
       </Popover.Title>
       <Avatar.Root className="col-start-1 col-end-2 row-start-1 row-end-3 inline-flex h-12 w-12 items-center justify-center overflow-hidden bg-neutral-200 dark:bg-neutral-800 align-middle text-sm leading-none font-bold text-neutral-950 dark:text-white select-none">
@@ -103,10 +103,10 @@ function ProfilePanel() {
           className="h-full w-full object-cover"
         />
       </Avatar.Root>
-      <span className="col-start-2 col-end-3 row-start-2 row-end-3 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
+      <span className="col-start-2 col-end-3 row-start-2 row-end-3 text-sm text-neutral-600 dark:text-neutral-400">
         Pro plan
       </span>
-      <div className="col-start-1 col-end-3 row-start-3 row-end-4 flex flex-col gap-2 pt-2 text-sm leading-5">
+      <div className="col-start-1 col-end-3 row-start-3 row-end-4 flex flex-col gap-2 pt-2 text-sm">
         <a
           href="#"
           className="text-neutral-950 dark:text-white underline underline-offset-[0.16em] decoration-[1px] hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
@@ -127,8 +127,8 @@ function ProfilePanel() {
 function ActivityPanel() {
   return (
     <React.Fragment>
-      <Popover.Title className="m-0 text-sm font-bold leading-5">Activity</Popover.Title>
-      <Popover.Description className="m-0 text-sm leading-5 text-neutral-600 dark:text-neutral-400">
+      <Popover.Title className="m-0 text-sm font-bold">Activity</Popover.Title>
+      <Popover.Description className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
         Nothing interesting happened recently.
       </Popover.Description>
     </React.Fragment>

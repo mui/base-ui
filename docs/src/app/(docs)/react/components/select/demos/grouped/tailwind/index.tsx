@@ -6,14 +6,14 @@ export default function ExampleSelectGrouped() {
   return (
     <Field.Root className="flex flex-col items-start gap-1">
       <Field.Label
-        className="cursor-default text-sm leading-5 font-bold text-neutral-950 dark:text-white"
+        className="cursor-default text-sm font-bold text-neutral-950 dark:text-white"
         nativeLabel={false}
         render={<div />}
       >
         Produce
       </Field.Label>
       <Select.Root items={groupedProduce}>
-        <Select.Trigger className="flex h-8 min-w-44 items-center justify-between gap-3 pl-3 pr-2 text-sm leading-5 border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-[popup-open]:bg-neutral-100 dark:data-[popup-open]:bg-neutral-800 font-normal focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+        <Select.Trigger className="flex h-8 min-w-44 items-center justify-between gap-3 pl-3 pr-2 text-sm border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-[popup-open]:bg-neutral-100 dark:data-[popup-open]:bg-neutral-800 font-normal focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           <Select.Value
             className="data-[placeholder]:text-neutral-600 dark:data-[placeholder]:text-neutral-400"
             placeholder="Select produce"
@@ -39,7 +39,7 @@ export default function ExampleSelectGrouped() {
                         <Select.Item
                           key={item.value}
                           value={item.value}
-                          className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-1.5 pr-4 pl-2.5 text-sm leading-5 outline-hidden select-none group-data-[side=none]:pr-12 data-[highlighted]:bg-neutral-950 data-[highlighted]:text-white dark:data-[highlighted]:bg-white dark:data-[highlighted]:text-neutral-950"
+                          className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-1.5 pr-4 pl-2.5 text-sm outline-hidden select-none group-data-[side=none]:pr-12 data-[highlighted]:bg-neutral-950 data-[highlighted]:text-white dark:data-[highlighted]:bg-white dark:data-[highlighted]:text-neutral-950"
                         >
                           <Select.ItemIndicator className="col-start-1">
                             <CheckIcon className="size-3" />

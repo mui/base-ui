@@ -32,14 +32,14 @@ export default function ExampleNavigationMenu() {
                         <span className="text-sm leading-4 font-normal text-neutral-950 dark:text-white">
                           {menu.label}
                         </span>
-                        <span className="text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                        <span className="text-sm text-neutral-500 dark:text-neutral-400">
                           {menu.hint}
                         </span>
                       </NavigationMenu.Trigger>
                       <NavigationMenu.Content className={submenuContentClassName}>
                         <div>
                           <h4 className="m-0 text-base leading-5 font-normal">{menu.title}</h4>
-                          <p className="m-0 mt-1 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                          <p className="m-0 mt-1 text-sm text-neutral-500 dark:text-neutral-400">
                             {menu.description}
                           </p>
                         </div>
@@ -48,7 +48,7 @@ export default function ExampleNavigationMenu() {
                             <li key={link.href}>
                               <Link className={linkCardClassName} href={link.href}>
                                 <h5 className="m-0 text-sm leading-4 font-normal">{link.title}</h5>
-                                <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                                <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
                                   {link.description}
                                 </p>
                               </Link>
@@ -77,7 +77,7 @@ export default function ExampleNavigationMenu() {
             <div className="flex flex-col gap-4 p-4 text-neutral-950 dark:text-white">
               <div>
                 <h4 className="m-0 text-base leading-5 font-normal">{guidesPanel.title}</h4>
-                <p className="m-0 mt-1 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                <p className="m-0 mt-1 text-sm text-neutral-500 dark:text-neutral-400">
                   {guidesPanel.description}
                 </p>
               </div>
@@ -86,7 +86,7 @@ export default function ExampleNavigationMenu() {
                   <li key={link.href}>
                     <Link className={linkCardClassName} href={link.href}>
                       <h5 className="m-0 text-sm leading-4 font-normal">{link.title}</h5>
-                      <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                      <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
                         {link.description}
                       </p>
                     </Link>
@@ -154,7 +154,7 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 }
 
 const triggerClassName =
-  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm leading-5 font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
+  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
 
 const sharedContentClassName =
   'h-full w-[calc(100vw_-_40px)] ' +

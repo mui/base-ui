@@ -12,7 +12,7 @@ export default function ExampleToolbar() {
           render={<Toggle />}
           aria-label="Align left"
           value="align-left"
-          className="flex h-8 min-w-8 items-center justify-center border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white data-[popup-open]:bg-neutral-100 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 dark:data-[popup-open]:bg-neutral-800 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 min-w-8 items-center justify-center border-0 bg-transparent px-3 font-[inherit] text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white data-[popup-open]:bg-neutral-100 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 dark:data-[popup-open]:bg-neutral-800 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         >
           Align Left
         </Toolbar.Button>
@@ -20,7 +20,7 @@ export default function ExampleToolbar() {
           render={<Toggle />}
           aria-label="Align right"
           value="align-right"
-          className="flex h-8 min-w-8 items-center justify-center border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white data-[popup-open]:bg-neutral-100 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 dark:data-[popup-open]:bg-neutral-800 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 min-w-8 items-center justify-center border-0 bg-transparent px-3 font-[inherit] text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white data-[popup-open]:bg-neutral-100 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 dark:data-[popup-open]:bg-neutral-800 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         >
           Align Right
         </Toolbar.Button>
@@ -28,13 +28,13 @@ export default function ExampleToolbar() {
       <Toolbar.Separator className="m-1 h-4 w-px bg-neutral-950 dark:bg-white" />
       <Toolbar.Group className="flex" aria-label="Numerical format">
         <Toolbar.Button
-          className="flex h-8 min-w-8 items-center justify-center border-0 bg-transparent font-[inherit] text-sm leading-5 font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white data-[popup-open]:bg-neutral-100 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 dark:data-[popup-open]:bg-neutral-800 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 min-w-8 items-center justify-center border-0 bg-transparent font-[inherit] text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white data-[popup-open]:bg-neutral-100 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 dark:data-[popup-open]:bg-neutral-800 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           aria-label="Format as currency"
         >
           $
         </Toolbar.Button>
         <Toolbar.Button
-          className="flex h-8 min-w-8 items-center justify-center border-0 bg-transparent font-[inherit] text-sm leading-5 font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white data-[popup-open]:bg-neutral-100 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 dark:data-[popup-open]:bg-neutral-800 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 min-w-8 items-center justify-center border-0 bg-transparent font-[inherit] text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white data-[popup-open]:bg-neutral-100 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 dark:data-[popup-open]:bg-neutral-800 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           aria-label="Format as percent"
         >
           %
@@ -44,7 +44,7 @@ export default function ExampleToolbar() {
       <Select.Root defaultValue="Helvetica">
         <Toolbar.Button
           render={<Select.Trigger />}
-          className="flex h-8 min-w-32 cursor-default items-center justify-between border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white data-[popup-open]:bg-neutral-100 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 dark:data-[popup-open]:bg-neutral-800 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 min-w-32 cursor-default items-center justify-between border-0 bg-transparent px-3 font-[inherit] text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:not-data-pressed:bg-neutral-200 data-pressed:bg-neutral-950 data-pressed:text-white data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white data-[popup-open]:bg-neutral-100 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 dark:data-[popup-open]:bg-neutral-800 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         >
           <Select.Value />
           <Select.Icon className="flex">
@@ -56,7 +56,7 @@ export default function ExampleToolbar() {
             <Select.Popup className="group max-h-[var(--available-height)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] overflow-y-auto border border-neutral-950 bg-white bg-clip-padding text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0/12%)] outline-none transition-[scale,opacity] duration-100 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] data-[side=none]:translate-y-px data-[side=none]:scale-100 data-[side=none]:opacity-100 data-[side=none]:transition-none data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
               <Select.Item
                 value="Helvetica"
-                className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-1.5 pr-4 pl-2.5 text-sm leading-5 outline-none select-none group-data-[side=none]:pr-12 data-[highlighted]:bg-neutral-950 data-[highlighted]:text-white pointer-coarse:py-2.5 dark:data-[highlighted]:bg-white dark:data-[highlighted]:text-neutral-950"
+                className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-1.5 pr-4 pl-2.5 text-sm outline-none select-none group-data-[side=none]:pr-12 data-[highlighted]:bg-neutral-950 data-[highlighted]:text-white pointer-coarse:py-2.5 dark:data-[highlighted]:bg-white dark:data-[highlighted]:text-neutral-950"
               >
                 <Select.ItemIndicator className="col-start-1">
                   <CheckIcon className="block size-3" />
@@ -65,7 +65,7 @@ export default function ExampleToolbar() {
               </Select.Item>
               <Select.Item
                 value="Arial"
-                className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-1.5 pr-4 pl-2.5 text-sm leading-5 outline-none select-none group-data-[side=none]:pr-12 data-[highlighted]:bg-neutral-950 data-[highlighted]:text-white pointer-coarse:py-2.5 dark:data-[highlighted]:bg-white dark:data-[highlighted]:text-neutral-950"
+                className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-1.5 pr-4 pl-2.5 text-sm outline-none select-none group-data-[side=none]:pr-12 data-[highlighted]:bg-neutral-950 data-[highlighted]:text-white pointer-coarse:py-2.5 dark:data-[highlighted]:bg-white dark:data-[highlighted]:text-neutral-950"
               >
                 <Select.ItemIndicator className="col-start-1">
                   <CheckIcon className="block size-3" />
@@ -78,7 +78,7 @@ export default function ExampleToolbar() {
       </Select.Root>
       <Toolbar.Separator className="m-1 h-4 w-px bg-neutral-950 dark:bg-white" />
       <Toolbar.Link
-        className="mr-[0.875rem] ml-auto flex-none self-center font-[inherit] text-sm leading-5 text-neutral-500 no-underline hover:text-blue-700 dark:text-neutral-400 dark:hover:text-blue-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="mr-[0.875rem] ml-auto flex-none self-center font-[inherit] text-sm text-neutral-500 no-underline hover:text-blue-700 dark:text-neutral-400 dark:hover:text-blue-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
         href="#"
       >
         Edited 51m ago

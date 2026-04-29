@@ -8,7 +8,7 @@ export default function OTPFieldGroupedDemo() {
 
   return (
     <div className="flex w-full max-w-80 flex-col items-start gap-1">
-      <label htmlFor={id} className="text-sm leading-5 font-bold text-neutral-950 dark:text-white">
+      <label htmlFor={id} className="text-sm font-bold text-neutral-950 dark:text-white">
         Verification code
       </label>
       <OTPField.Root id={id} length={OTP_LENGTH} className="flex w-full items-center gap-2">

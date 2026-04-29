@@ -9,7 +9,7 @@ export default function OTPFieldFocusedPlaceholderDemo() {
 
   return (
     <div className="flex w-full max-w-80 flex-col items-start gap-1">
-      <label htmlFor={id} className="text-sm leading-5 font-bold text-neutral-950 dark:text-white">
+      <label htmlFor={id} className="text-sm font-bold text-neutral-950 dark:text-white">
         Verification code
       </label>
       <OTPField.Root
@@ -27,10 +27,7 @@ export default function OTPFieldFocusedPlaceholderDemo() {
           />
         ))}
       </OTPField.Root>
-      <p
-        id={descriptionId}
-        className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400"
-      >
+      <p id={descriptionId} className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
         Placeholder hints can stay visible until the active slot is focused.
       </p>
     </div>

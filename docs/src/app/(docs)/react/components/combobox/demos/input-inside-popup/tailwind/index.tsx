@@ -6,7 +6,7 @@ export default function ExamplePopoverCombobox() {
   return (
     <div className="flex flex-col gap-1">
       <Combobox.Root items={countries}>
-        <Combobox.Label className="cursor-default text-sm leading-5 font-bold text-neutral-900">
+        <Combobox.Label className="cursor-default text-sm font-bold text-neutral-900">
           Country
         </Combobox.Label>
         <Combobox.Trigger className="flex bg-[canvas] h-10 min-w-[12rem] items-center justify-between gap-3 rounded-md border border-neutral-200 pr-3 pl-3.5 text-base text-neutral-900 select-none hover:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-neutral-100 cursor-default font-normal">

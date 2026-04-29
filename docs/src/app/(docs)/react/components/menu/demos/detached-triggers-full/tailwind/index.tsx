@@ -38,7 +38,7 @@ const demoMenu = Menu.createHandle<MenuKey>();
 const triggerClass = `
   flex h-8 items-center justify-center
   rounded-none border border-neutral-950 bg-white
-  px-3 text-sm leading-5 font-normal text-neutral-950
+  px-3 text-sm font-normal text-neutral-950
   select-none
   hover:bg-neutral-50 active:bg-neutral-100 data-[popup-open]:bg-neutral-100
   dark:border-white dark:bg-neutral-950 dark:text-white

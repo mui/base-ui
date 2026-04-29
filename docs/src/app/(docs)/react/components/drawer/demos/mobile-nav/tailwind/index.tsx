@@ -53,7 +53,7 @@ const LONG_LIST = [
 export default function ExampleDrawerMobileNav() {
   return (
     <Drawer.Root>
-      <Drawer.Trigger className="box-border flex h-10 items-center justify-center rounded-md border border-neutral-200 bg-neutral-50 px-3.5 m-0 outline-none text-base font-normal leading-6 text-neutral-900 select-none hover:bg-neutral-100 active:bg-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1">
+      <Drawer.Trigger className="box-border flex h-10 items-center justify-center rounded-md border border-neutral-200 bg-neutral-50 px-3.5 m-0 outline-none text-base font-normal text-neutral-900 select-none hover:bg-neutral-100 active:bg-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1">
         Open mobile menu
       </Drawer.Trigger>
       <Drawer.Portal>
@@ -90,10 +90,10 @@ export default function ExampleDrawerMobileNav() {
                     </div>
 
                     <Drawer.Content className="w-full">
-                      <Drawer.Title className="m-0 mb-1 text-lg font-bold leading-7 tracking-[-0.0025em]">
+                      <Drawer.Title className="m-0 mb-1 text-lg font-bold tracking-[-0.0025em]">
                         Menu
                       </Drawer.Title>
-                      <Drawer.Description className="m-0 mb-5 text-base leading-6 text-neutral-600">
+                      <Drawer.Description className="m-0 mb-5 text-base text-neutral-600">
                         Scroll the long list. Flick down from the top to dismiss.
                       </Drawer.Description>
 

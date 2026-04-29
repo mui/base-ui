@@ -19,7 +19,7 @@ export default function ExampleNavigationMenu() {
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
                     <h3 className="m-0 mb-1 text-sm leading-4 font-normal">{item.title}</h3>
-                    <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                    <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
                       {item.description}
                     </p>
                   </Link>
@@ -30,7 +30,7 @@ export default function ExampleNavigationMenu() {
                   <NavigationMenu.Item>
                     <NavigationMenu.Trigger className={linkCardClassName}>
                       <span className="m-0 mb-1 text-sm leading-4 font-normal">Handbook</span>
-                      <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                      <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
                         How to use Base UI effectively.
                       </p>
                       <NavigationMenu.Icon className="absolute top-1/2 right-2.5 flex h-2.5 w-2.5 -translate-y-1/2 items-center justify-center transition-transform duration-200 ease-in-out data-[popup-open]:rotate-180">
@@ -45,7 +45,7 @@ export default function ExampleNavigationMenu() {
                               <h3 className="m-0 mb-1 text-sm leading-4 font-normal">
                                 {item.title}
                               </h3>
-                              <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                              <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
                                 {item.description}
                               </p>
                             </Link>
@@ -130,7 +130,7 @@ function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
 }
 
 const triggerClassName =
-  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm leading-5 font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
+  'flex h-8 items-center justify-center gap-1.5 bg-transparent px-2 text-sm font-normal text-neutral-950 no-underline select-none min-[501px]:px-3 hover:bg-neutral-100 data-[popup-open]:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800';
 
 const contentTransitionClassName =
   'transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] ' +

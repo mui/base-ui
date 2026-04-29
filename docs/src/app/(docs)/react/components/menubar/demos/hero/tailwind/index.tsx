@@ -7,7 +7,7 @@ export default function ExampleMenubar() {
   return (
     <Menubar className="flex items-center">
       <Menu.Root>
-        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 data-pressed:bg-neutral-100 data-disabled:text-neutral-500 dark:text-white dark:focus-visible:bg-neutral-800 dark:data-popup-open:bg-neutral-800 dark:data-pressed:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 data-pressed:bg-neutral-100 data-disabled:text-neutral-500 dark:text-white dark:focus-visible:bg-neutral-800 dark:data-popup-open:bg-neutral-800 dark:data-pressed:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           File
         </Menu.Trigger>
         <Menu.Portal>
@@ -76,7 +76,7 @@ export default function ExampleMenubar() {
       </Menu.Root>
 
       <Menu.Root>
-        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 data-pressed:bg-neutral-100 data-disabled:text-neutral-500 dark:text-white dark:focus-visible:bg-neutral-800 dark:data-popup-open:bg-neutral-800 dark:data-pressed:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 data-pressed:bg-neutral-100 data-disabled:text-neutral-500 dark:text-white dark:focus-visible:bg-neutral-800 dark:data-popup-open:bg-neutral-800 dark:data-pressed:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           Edit
         </Menu.Trigger>
         <Menu.Portal>
@@ -106,7 +106,7 @@ export default function ExampleMenubar() {
       </Menu.Root>
 
       <Menu.Root>
-        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 data-pressed:bg-neutral-100 data-disabled:text-neutral-500 dark:text-white dark:focus-visible:bg-neutral-800 dark:data-popup-open:bg-neutral-800 dark:data-pressed:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 data-pressed:bg-neutral-100 data-disabled:text-neutral-500 dark:text-white dark:focus-visible:bg-neutral-800 dark:data-popup-open:bg-neutral-800 dark:data-pressed:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           View
         </Menu.Trigger>
         <Menu.Portal>
@@ -169,7 +169,7 @@ export default function ExampleMenubar() {
       </Menu.Root>
 
       <Menu.Root disabled>
-        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm leading-5 font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 data-pressed:bg-neutral-100 data-disabled:text-neutral-500 dark:text-white dark:focus-visible:bg-neutral-800 dark:data-popup-open:bg-neutral-800 dark:data-pressed:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+        <Menu.Trigger className="h-8 border-0 bg-transparent px-3 font-[inherit] text-sm font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 data-pressed:bg-neutral-100 data-disabled:text-neutral-500 dark:text-white dark:focus-visible:bg-neutral-800 dark:data-popup-open:bg-neutral-800 dark:data-pressed:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
           Help
         </Menu.Trigger>
       </Menu.Root>

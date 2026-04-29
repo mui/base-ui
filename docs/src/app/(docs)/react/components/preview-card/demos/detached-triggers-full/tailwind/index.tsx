@@ -14,7 +14,7 @@ const cardContents = {
         src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
         alt="Station Hofplein signage in Rotterdam, Netherlands"
       />
-      <p className="m-0 text-sm leading-5 text-neutral-600 text-pretty dark:text-neutral-400">
+      <p className="m-0 text-sm text-neutral-600 text-pretty dark:text-neutral-400">
         <strong>Typography</strong> is the art and science of arranging type.
       </p>
     </div>
@@ -28,7 +28,7 @@ const cardContents = {
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Braun_ABW30_%28schwarz%29.jpg/250px-Braun_ABW30_%28schwarz%29.jpg"
         alt="Braun ABW30"
       />
-      <p className="m-0 text-sm leading-5 text-neutral-600 text-pretty dark:text-neutral-400">
+      <p className="m-0 text-sm text-neutral-600 text-pretty dark:text-neutral-400">
         A <strong>design</strong> is the concept or proposal for an object, process, or system.
       </p>
     </div>
@@ -42,7 +42,7 @@ const cardContents = {
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/MonaLisa_sfumato.jpeg/250px-MonaLisa_sfumato.jpeg"
         alt="Mona Lisa"
       />
-      <p className="m-0 text-sm leading-5 text-neutral-600 text-pretty dark:text-neutral-400">
+      <p className="m-0 text-sm text-neutral-600 text-pretty dark:text-neutral-400">
         <strong>Art</strong> is a diverse range of cultural activity centered around works utilizing
         creative or imaginative talents, which are expected to evoke a worthwhile experience,
         generally through an expression of emotional power, conceptual ideas, technical proficiency,
@@ -55,7 +55,7 @@ const cardContents = {
 export default function PreviewCardDetachedTriggersFullDemo() {
   return (
     <div>
-      <p className="m-0 text-base leading-6 text-neutral-950 text-balance dark:text-white">
+      <p className="m-0 text-base text-neutral-950 text-balance dark:text-white">
         Discover{' '}
         <PreviewCard.Trigger
           className="text-blue-800 underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:decoration-blue-800 data-[popup-open]:decoration-blue-800 focus-visible:no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-blue-500 dark:decoration-blue-500/60 dark:hover:decoration-blue-500 dark:data-[popup-open]:decoration-blue-500"

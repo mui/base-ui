@@ -6,7 +6,7 @@ export default function ExampleCombobox() {
   const id = React.useId();
   return (
     <Combobox.Root items={fruits}>
-      <div className="relative flex flex-col gap-1 text-sm leading-5 font-bold text-neutral-900">
+      <div className="relative flex flex-col gap-1 text-sm font-bold text-neutral-900">
         <label htmlFor={id}>Choose a fruit</label>
         <Combobox.InputGroup className="relative box-content h-10 w-64 rounded-md border border-neutral-200 bg-[canvas] focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
           <Combobox.Input

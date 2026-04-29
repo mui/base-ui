@@ -11,7 +11,7 @@ export default function ExampleNumberField() {
       <NumberField.ScrubArea className="cursor-ew-resize font-bold select-none">
         <label
           htmlFor={id}
-          className="cursor-ew-resize text-sm leading-5 font-bold text-neutral-950 dark:text-white"
+          className="cursor-ew-resize text-sm font-bold text-neutral-950 dark:text-white"
         >
           Amount
         </label>

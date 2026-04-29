@@ -9,7 +9,7 @@ export default function OTPFieldAlphanumericDemo() {
 
   return (
     <div className="flex w-full max-w-80 flex-col items-start gap-1">
-      <label htmlFor={id} className="text-sm leading-5 font-bold text-neutral-950 dark:text-white">
+      <label htmlFor={id} className="text-sm font-bold text-neutral-950 dark:text-white">
         Recovery code
       </label>
       <OTPField.Root
@@ -27,10 +27,7 @@ export default function OTPFieldAlphanumericDemo() {
           />
         ))}
       </OTPField.Root>
-      <p
-        id={descriptionId}
-        className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400"
-      >
+      <p id={descriptionId} className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
         Accept letters and numbers for backup codes such as{' '}
         <code className="font-mono">A7C9XZ</code>.
       </p>

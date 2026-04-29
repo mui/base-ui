@@ -11,11 +11,11 @@ export default function ExampleRadioGroup() {
       defaultValue="fuji-apple"
       className="flex flex-col items-start gap-1 text-neutral-950 dark:text-white"
     >
-      <div className="text-sm leading-5 font-bold" id={id}>
+      <div className="text-sm font-bold" id={id}>
         Best apple
       </div>
 
-      <label className="flex items-center gap-2 text-sm leading-5 font-normal text-neutral-950 dark:text-white">
+      <label className="flex items-center gap-2 text-sm font-normal text-neutral-950 dark:text-white">
         <Radio.Root
           value="fuji-apple"
           className="flex size-4 shrink-0 items-center justify-center border rounded-full p-0 border-neutral-950 bg-white text-white dark:border-white dark:bg-neutral-950 dark:text-neutral-950 data-checked:bg-neutral-950 data-checked:text-white dark:data-checked:bg-white dark:data-checked:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
@@ -25,7 +25,7 @@ export default function ExampleRadioGroup() {
         Fuji
       </label>
 
-      <label className="flex items-center gap-2 text-sm leading-5 font-normal text-neutral-950 dark:text-white">
+      <label className="flex items-center gap-2 text-sm font-normal text-neutral-950 dark:text-white">
         <Radio.Root
           value="gala-apple"
           className="flex size-4 shrink-0 items-center justify-center border rounded-full p-0 border-neutral-950 bg-white text-white dark:border-white dark:bg-neutral-950 dark:text-neutral-950 data-checked:bg-neutral-950 data-checked:text-white dark:data-checked:bg-white dark:data-checked:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
@@ -35,7 +35,7 @@ export default function ExampleRadioGroup() {
         Gala
       </label>
 
-      <label className="flex items-center gap-2 text-sm leading-5 font-normal text-neutral-950 dark:text-white">
+      <label className="flex items-center gap-2 text-sm font-normal text-neutral-950 dark:text-white">
         <Radio.Root
           value="granny-smith-apple"
           className="flex size-4 shrink-0 items-center justify-center border rounded-full p-0 border-neutral-950 bg-white text-white dark:border-white dark:bg-neutral-950 dark:text-neutral-950 data-checked:bg-neutral-950 data-checked:text-white dark:data-checked:bg-white dark:data-checked:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
