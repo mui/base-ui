@@ -62,11 +62,11 @@ describe('<Progress.Root />', () => {
         currency: 'USD',
       };
       function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, format).format(v);
+        return new Intl.NumberFormat('en-US', format).format(v);
       }
 
       await render(
-        <Progress.Root value={30} format={format}>
+        <Progress.Root value={30} format={format} locale="en-US">
           <Progress.Value data-testid="value" />
           <Progress.Track>
             <Progress.Indicator />
