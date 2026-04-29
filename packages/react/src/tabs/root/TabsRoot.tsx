@@ -11,7 +11,10 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -35,9 +38,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     ...elementProps
   } = componentProps;
 
-  // Track whether the user explicitly provided a `defaultValue` prop.
+  // Track whether the user explicitly provided a defined `defaultValue` prop.
   // Used to determine if we should honor a disabled tab selection.
-  const hasExplicitDefaultValueProp = Object.hasOwn(componentProps, 'defaultValue');
+  const hasExplicitDefaultValueProp = componentProps.defaultValue !== undefined;
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
   const [mountedTabPanels, setMountedTabPanels] = React.useState(
@@ -226,6 +229,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     return undefined;
   }, [tabMap]);
 
+  const shouldNotifyInitialValueChangeRef = React.useRef(
+    !isControlled && !hasExplicitDefaultValueProp,
+  );
+  const shouldHonorDisabledDefaultValueRef = React.useRef(hasExplicitDefaultValueProp);
+
   // Automatically switch to the first enabled tab when:
   // - The current selection is disabled (and wasn't explicitly set via defaultValue)
   // - The current selection is missing (tab was removed from DOM)
@@ -238,11 +246,35 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     const selectionIsDisabled = selectedTabMetadata?.disabled;
     const selectionIsMissing = selectedTabMetadata == null && value !== null;
 
-    const shouldHonorExplicitDefaultSelection =
-      hasExplicitDefaultValueProp && selectionIsDisabled && value === defaultValueProp;
+    if (!selectionIsDisabled && value === defaultValueProp) {
+      shouldHonorDisabledDefaultValueRef.current = false;
+    }
 
-    if (shouldHonorExplicitDefaultSelection) {
+    if (
+      shouldHonorDisabledDefaultValueRef.current &&
+      selectionIsDisabled &&
+      value === defaultValueProp
+    ) {
       return;
+    }
+
+    const shouldNotifyInitialValueChange = shouldNotifyInitialValueChangeRef.current;
+
+    const notifyValueChange = (nextValue: TabsTab.Value, reason: TabsRoot.ChangeEventReason) => {
+      onValueChangeProp?.(
+        nextValue,
+        createChangeEventDetails(reason, undefined, undefined, {
+          activationDirection: 'none',
+        }),
+      );
+    };
+
+    if (shouldNotifyInitialValueChange) {
+      shouldNotifyInitialValueChangeRef.current = false;
+
+      if (firstEnabledTabValue !== undefined) {
+        notifyValueChange(firstEnabledTabValue, REASONS.initial);
+      }
     }
 
     if (!selectionIsDisabled && !selectionIsMissing) {
@@ -253,6 +285,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
     if (value === fallbackValue) {
       return;
+    }
+
+    if (!shouldNotifyInitialValueChange) {
+      notifyValueChange(fallbackValue, selectionIsDisabled ? REASONS.disabled : REASONS.missing);
     }
 
     setValue(fallbackValue);
@@ -271,6 +307,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     firstEnabledTabValue,
     hasExplicitDefaultValueProp,
     isControlled,
+    onValueChangeProp,
     selectedTabMetadata,
     setValue,
     tabMap,
@@ -402,7 +439,11 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
     | undefined;
 }
 
-export type TabsRootChangeEventReason = typeof REASONS.none;
+export type TabsRootChangeEventReason =
+  | typeof REASONS.none
+  | typeof REASONS.disabled
+  | typeof REASONS.missing
+  | typeof REASONS.initial;
 export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
   TabsRoot.ChangeEventReason,
   { activationDirection: TabsTab.ActivationDirection }
