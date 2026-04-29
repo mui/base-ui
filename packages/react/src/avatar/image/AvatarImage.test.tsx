@@ -342,8 +342,6 @@ describe('<Avatar.Image />', () => {
         });
       });
 
-      const initialCallsLength = calls.length;
-
       await setPropsAsync({
         children: (
           <Avatar.Image
@@ -364,11 +362,35 @@ describe('<Avatar.Image />', () => {
         });
       });
 
-      // Slice off the initial-mount calls so this test doesn't depend on whether the test runs
-      // under StrictMode (which double-invokes the initial mount's effects). What matters is
-      // that the src change produces exactly one final `'loaded'` — not a stale `'loaded'` from
-      // a prior `src` followed by another real `'loaded'`.
-      expect(calls.slice(initialCallsLength)).toEqual(['loaded']);
+      // Initial commit fires `'error'` (no src), then the src change resolves cached so the
+      // cache fast-path suppresses the transient `'loading'` and the consumer sees `'loaded'`
+      // once. A failure mode would be either a stale `'loaded'` slipping out before the real
+      // `'loaded'`, or `'error'` firing twice on the StrictMode double-mount.
+      expect(calls).toEqual(['error', 'loaded']);
+    });
+
+    it('does not double-fire the same status when effects re-run (e.g. StrictMode)', async () => {
+      // StrictMode double-invokes layout effects on mount in dev, which would otherwise cause
+      // the initial `'loading'` / `'error'` fire to be observed by the consumer twice. The
+      // dedupe guard inside the status-change effect short-circuits the second invocation.
+      const calls: ImageLoadingStatus[] = [];
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            onLoadingStatusChange={(status) => calls.push(status)}
+          />
+        </Avatar.Root>,
+      );
+
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 50);
+        });
+      });
+
+      expect(calls).toEqual(['error']);
     });
   });
 

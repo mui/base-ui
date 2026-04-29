@@ -180,6 +180,15 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     context.setImageLoadingStatus(status);
   });
 
+  /**
+   * Tracks the last status we surfaced to consumers. Refs survive StrictMode's simulated
+   * unmount/remount, so this dedupes the duplicate `'loading'` fire that would otherwise
+   * happen when React intentionally double-invokes effects on mount in dev — the second
+   * invocation observes the same `imageLoadingStatus` and is short-circuited here. Real
+   * status transitions ('loading' -> 'loaded' / 'error') still fire exactly once.
+   */
+  const lastFiredStatusRef = React.useRef<ImageLoadingStatus | undefined>(undefined);
+
   useIsoLayoutEffect(() => {
     // Suppress the transient `'loading'` fire when the cache fast-path is about to flip
     // straight to `'loaded'` on the next render. Layout effects run in declaration order, so
@@ -190,6 +199,10 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     if (cachedAtMountRef.current && imageLoadingStatus === 'loading') {
       return;
     }
+    if (lastFiredStatusRef.current === imageLoadingStatus) {
+      return;
+    }
+    lastFiredStatusRef.current = imageLoadingStatus;
     handleLoadingStatusChange(imageLoadingStatus);
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
