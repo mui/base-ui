@@ -14,10 +14,11 @@ const ALT_AVATAR_SRC = `https://upload.wikimedia.org/wikipedia/commons/thumb/9/9
 
 const SLOW_AVATAR_SRC = (ms: number) => `/api/experiments/slow-avatar?ms=${ms}`;
 
-// Malformed `data:` URI: the browser decodes it synchronously, fails immediately, and fires
-// `error` within milliseconds. Avoids the flakiness of remote 404s (which can hang on slow servers)
-// and Next.js dev's slow not-found compilation step.
-const BROKEN_AVATAR_SRC = 'data:image/png;base64,not-a-valid-png';
+// Local route handler that always returns 404 with a non-image body, so `<img>` fires `error`
+// once it discovers the response isn't decodable. A real network round-trip (just like a real
+// broken `src` would do) but deterministic: avoids the flakiness of remote 404s (which can hang on
+// slow servers) and Next.js dev's slow global-not-found compilation on the first request.
+const BROKEN_AVATAR_SRC = '/api/experiments/broken-avatar';
 
 /**
  * Always-fresh source for the lazy-loading demo. Routes through our slow-avatar API
