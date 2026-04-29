@@ -46,15 +46,18 @@ type TabsRootState = {
 ### Root.ChangeEventReason
 
 ```typescript
-type TabsRootChangeEventReason = 'none';
+type TabsRootChangeEventReason = 'none' | 'disabled' | 'missing' | 'initial';
 ```
 
 ### Root.ChangeEventDetails
 
 ```typescript
-type TabsRootChangeEventDetails = {
-  /** The reason for the event. */
-  reason: 'none';
+type TabsRootChangeEventDetails = (
+  | { reason: 'none' }
+  | { reason: 'disabled' }
+  | { reason: 'missing' }
+  | { reason: 'initial' }
+) & {
   /** The native event associated with the custom event. */
   event: Event;
   /** Cancels Base UI from handling the event. */
