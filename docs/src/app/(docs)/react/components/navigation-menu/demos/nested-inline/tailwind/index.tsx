@@ -8,7 +8,7 @@ export default function ExampleNavigationMenu() {
   const isDesktop = useMediaQuery('(min-width: 700px)', { defaultMatches: true });
 
   return (
-    <NavigationMenu.Root className="min-w-max border border-gray-950 bg-white p-px text-gray-950 dark:border-white dark:bg-gray-950 dark:text-white">
+    <NavigationMenu.Root className="min-w-max text-gray-950 dark:text-white">
       <NavigationMenu.List className="relative flex gap-px">
         <NavigationMenu.Item>
           <NavigationMenu.Trigger className={triggerClassName}>
