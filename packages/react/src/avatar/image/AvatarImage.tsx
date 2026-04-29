@@ -71,7 +71,16 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   const [intrinsicSettled, setIntrinsicSettled] = React.useState(() => !componentProps.src);
 
+  /**
+   * Set when the cache fast-path settles the image synchronously (i.e. the bitmap was already
+   * in the browser cache and `img.complete` was true on the first commit). Used to suppress
+   * the entry transition — there was no real "loading" frame, so animating from
+   * `opacity:0/blur` would be visible flicker on what should look like an instant paint.
+   */
+  const cachedAtMountRef = React.useRef(false);
+
   useIsoLayoutEffect(() => {
+    cachedAtMountRef.current = false;
     setIntrinsicDecodeFailed(false);
     setIntrinsicSettled(!componentProps.src);
   }, [componentProps.src]);
@@ -99,11 +108,27 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     setIntrinsicDecodeFailed(true);
   });
 
-  /** Keep `<img>` mounted while `src` is present and we have not errored — independent of `'loaded'` vs `'loading'`. */
+  /**
+   * Two independent gates:
+   * - `slotActive`: the `<img>` should be in the DOM so the browser can fetch and fire `onLoad`/`onError`.
+   *   True while `src` is present and we have not errored — covers `'loading'` and `'loaded'`.
+   * - `isVisible`: the bitmap is actually on screen. Drives `useTransitionStatus`, so
+   *   `[data-starting-style]` lands on the same commit `hidden` is removed, and `[data-ending-style]`
+   *   plays on the previously-visible bitmap before unmount.
+   */
   const slotActive = Boolean(componentProps.src) && imageLoadingStatus !== 'error';
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(slotActive);
+  const isVisible = imageLoadingStatus === 'loaded';
+
+  const {
+    mounted: visibilityMounted,
+    transitionStatus: rawTransitionStatus,
+    setMounted: setVisibilityMounted,
+  } = useTransitionStatus(isVisible);
 
   const imageRef = React.useRef<HTMLImageElement | null>(null);
+
+  // Render `<img>` whenever a load is being attempted, OR while the exit transition is still running.
+  const mounted = slotActive || visibilityMounted;
 
   /**
    * Disk/memory-cached imgs often expose `complete` + `naturalWidth` before `load` bubbles; unveil before paint.
@@ -118,15 +143,24 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     if (!(img?.complete && img.naturalWidth > 0)) {
       return;
     }
+    cachedAtMountRef.current = true;
     setIntrinsicSettled(true);
   }, [mounted, intrinsicSettled, intrinsicDecodeFailed, componentProps.src]);
 
   /**
-   * `<img hidden>` until status is `'loaded'`. Tying this to `mounted` previously let `hidden`
-   * clear briefly on error while `useTransitionStatus` unwound — the native broken-image glyph
-   * could flash for one frame before unmount.
+   * Suppress `[data-starting-style]` for cache-resolved paints — `useTransitionStatus` still cycles
+   * through `'starting'` internally for one frame, but we never expose it to CSS, so there's no
+   * FROM keyframe for the entry transition to animate from. Cached images appear instantly,
+   * uncached images still fade in once `onLoad` fires (cache ref stays false).
    */
-  const intrinsicDecodePending = imageLoadingStatus !== 'loaded';
+  const transitionStatus =
+    rawTransitionStatus === 'starting' && cachedAtMountRef.current ? undefined : rawTransitionStatus;
+
+  /**
+   * `<img hidden>` while not yet visible so the broken-image glyph and unstyled bitmap never paint.
+   * Must be cleared during the exit transition so `[data-ending-style]` runs on the still-visible bitmap.
+   */
+  const intrinsicDecodePending = !isVisible && transitionStatus !== 'ending';
 
   const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
@@ -138,11 +172,11 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
   useOpenChangeComplete({
-    open: slotActive,
+    open: isVisible,
     ref: imageRef,
     onComplete() {
-      if (!slotActive) {
-        setMounted(false);
+      if (!isVisible) {
+        setVisibilityMounted(false);
       }
     },
   });
