@@ -9,6 +9,10 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 describe('<OTPField.Input />', () => {
   const { render } = createRenderer();
   const OTP_LENGTH = 6;
+  const modifierKeys = [
+    ['Ctrl', { ctrlKey: true }],
+    ['Cmd', { metaKey: true }],
+  ] as const;
 
   describeConformance(<OTPField.Input />, () => ({
     refInstanceof: window.HTMLInputElement,
@@ -220,6 +224,25 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[3]);
   });
 
+  it.each(modifierKeys)(
+    'moves focus to the field boundaries with %s + arrow keys',
+    async (_, modifierKey) => {
+      await render(<OTPFieldTest defaultValue="1234" />);
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        inputs[2].focus();
+      });
+
+      fireEvent.keyDown(inputs[2], { key: 'ArrowLeft', ...modifierKey });
+      expect(document.activeElement).toBe(inputs[0]);
+
+      fireEvent.keyDown(inputs[0], { key: 'ArrowRight', ...modifierKey });
+      expect(document.activeElement).toBe(inputs[3]);
+    },
+  );
+
   it('keeps arrow and home/end navigation working in readonly mode', async () => {
     await render(<OTPFieldTest defaultValue="1234" readOnly />);
 
@@ -348,6 +371,21 @@ describe('<OTPField.Input />', () => {
 
     expect(inputs.map((input) => input.value)).toEqual(['1', '', '', '', '', '']);
     expect(document.activeElement).toBe(inputs[1]);
+  });
+
+  it.each(modifierKeys)('clears all slots with %s + Backspace', async (_, modifierKey) => {
+    await render(<OTPFieldTest defaultValue="1234" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[2].focus();
+    });
+
+    fireEvent.keyDown(inputs[2], { key: 'Backspace', ...modifierKey });
+
+    expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
+    expect(document.activeElement).toBe(inputs[0]);
   });
 
   it('keeps focus in place when backspace is canceled', async () => {

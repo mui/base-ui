@@ -195,27 +195,31 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
+      const firstIndex = 0;
+      const lastFilledIndex = Math.max(value.length - 1, 0);
+      const hasBoundaryModifier = (event.ctrlKey || event.metaKey) && !event.altKey;
+
       if (event.key === 'ArrowLeft') {
         stopEvent(event);
-        focusInput(Math.max(0, index - 1));
+        focusInput(hasBoundaryModifier ? firstIndex : Math.max(firstIndex, index - 1));
         return;
       }
 
       if (event.key === 'ArrowRight') {
         stopEvent(event);
-        focusInput(Math.min(length - 1, index + 1));
+        focusInput(hasBoundaryModifier ? lastFilledIndex : Math.min(length - 1, index + 1));
         return;
       }
 
       if (event.key === 'Home') {
         stopEvent(event);
-        focusInput(0);
+        focusInput(firstIndex);
         return;
       }
 
       if (event.key === 'End') {
         stopEvent(event);
-        focusInput(Math.max(value.length - 1, 0));
+        focusInput(lastFilledIndex);
         return;
       }
 
@@ -223,17 +227,26 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
-      if (event.key === 'Delete') {
-        stopEvent(event);
+      function setKeyboardValue(nextValue: string, targetIndex: number) {
         const committedValue = setValue(
-          removeOTPCharacter(value, index),
+          nextValue,
           createChangeEventDetails(REASONS.keyboard, event.nativeEvent),
         );
 
         if (committedValue != null) {
-          queueFocusInput(index, committedValue);
+          queueFocusInput(targetIndex, committedValue);
         }
+      }
 
+      if (event.key === 'Backspace' && hasBoundaryModifier) {
+        stopEvent(event);
+        setKeyboardValue('', firstIndex);
+        return;
+      }
+
+      if (event.key === 'Delete') {
+        stopEvent(event);
+        setKeyboardValue(removeOTPCharacter(value, index), index);
         return;
       }
 
@@ -250,15 +263,9 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       if (event.key === 'Backspace') {
         stopEvent(event);
-        const deleteIndex = slotValue === '' ? Math.max(0, index - 1) : index;
-        const targetIndex = Math.max(0, index - 1);
-        const committedValue = setValue(
-          removeOTPCharacter(value, deleteIndex),
-          createChangeEventDetails(REASONS.keyboard, event.nativeEvent),
-        );
-        if (committedValue != null) {
-          queueFocusInput(targetIndex, committedValue);
-        }
+        const targetIndex = Math.max(firstIndex, index - 1);
+        const deleteIndex = slotValue === '' ? targetIndex : index;
+        setKeyboardValue(removeOTPCharacter(value, deleteIndex), targetIndex);
       }
     },
     onPaste(event) {
