@@ -307,8 +307,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       return;
     }
 
-    if (shouldNotifyInitialValueChange && firstEnabledTabValue !== undefined) {
-      notifyAutomaticValueChange(firstEnabledTabValue, REASONS.initial);
+    if (shouldNotifyInitialValueChange && selectedTabMetadata != null) {
+      notifyAutomaticValueChange(value, REASONS.initial);
     }
   }, [
     defaultValueProp,

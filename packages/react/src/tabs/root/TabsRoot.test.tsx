@@ -543,6 +543,28 @@ describe('<Tabs.Root />', () => {
       expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
     });
 
+    it('calls onValueChange with the selected value when the implicit default matches a later tab', async () => {
+      const handleChange = vi.fn();
+
+      await render(
+        <Tabs.Root onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(handleChange.mock.calls[0][0]).toBe(0);
+      expect(handleChange.mock.calls[0][1].reason).toBe('initial');
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
+    });
+
     it('calls onValueChange when the implicit first tab is disabled', async () => {
       const handleChange = vi.fn();
 
