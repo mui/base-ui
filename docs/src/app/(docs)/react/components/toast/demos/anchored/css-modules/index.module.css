@@ -75,7 +75,7 @@
   background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
   padding: 0.75rem;
-  filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transform-origin: bottom center;
   bottom: 0;
   left: auto;
@@ -98,7 +98,7 @@
     scale(var(--scale));
 
   @media (prefers-color-scheme: dark) {
-    filter: none;
+    box-shadow: none;
   }
 
   &[data-expanded] {
