@@ -31,11 +31,11 @@ export default function ExampleEmojiPicker() {
 
   return (
     <div className="mx-auto w-[16rem]">
-      <div className="grid grid-cols-[1fr_auto] items-center">
+      <div className="grid grid-cols-[1fr_auto] items-center has-[input:focus]:outline-2 has-[input:focus]:-outline-offset-2 has-[input:focus]:outline-blue-800">
         <input
           ref={textInputRef}
           type="text"
-          className="col-span-full row-start-1 h-8 border border-neutral-950 bg-transparent px-2 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white"
+          className="col-span-full row-start-1 h-8 border border-neutral-950 bg-transparent px-2 text-sm font-normal text-neutral-950 outline-none dark:border-white dark:text-white"
           placeholder="iMessage"
           value={textValue}
           onChange={(event) => setTextValue(event.target.value)}
@@ -55,7 +55,7 @@ export default function ExampleEmojiPicker() {
           }}
         >
           <Autocomplete.Trigger
-            className="col-start-2 row-start-1 mr-px flex size-[calc(2rem-2px)] items-center justify-center border-0 bg-transparent text-[1.25rem] text-neutral-950 outline-hidden hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-popup-open:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800"
+            className="col-start-2 row-start-1 mr-px flex size-[calc(2rem-2px)] items-center justify-center border-0 bg-transparent text-xl leading-none text-neutral-950 outline-hidden hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-popup-open:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800"
             aria-label="Choose emoji"
           >
             😀
