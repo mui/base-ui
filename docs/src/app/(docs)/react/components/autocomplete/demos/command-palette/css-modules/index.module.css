@@ -7,30 +7,29 @@
   padding: 0 0.875rem;
   margin: 0;
   outline: 0;
-  border: 1px solid var(--color-neutral-200);
-  border-radius: 0.375rem;
-  background-color: var(--color-neutral-50);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  background-color: light-dark(white, var(--color-neutral-950));
   font-family: inherit;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5rem;
-  color: var(--color-neutral-900);
+  color: light-dark(var(--color-neutral-950), white);
   user-select: none;
   cursor: default;
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-neutral-100);
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &:active {
-    background-color: var(--color-neutral-100);
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
@@ -66,9 +65,8 @@
   position: relative;
   width: calc(100vw - 1rem);
   max-width: 28rem;
-  border-radius: 1rem;
-  background-color: white;
-  color: var(--color-neutral-900);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
   transition:
     transform 150ms,
     opacity 150ms;
@@ -83,41 +81,33 @@
     transform: translateY(-1rem) scale(0.95);
   }
 
-  outline: 1px solid rgb(0 0 0 / 0.04);
-  box-shadow:
-    0 0.5px 1px rgb(0 0 0 / 0.12),
-    0 1px 3px -1px rgb(0 0 0 / 0.04),
-    0 2px 4px -1px rgb(0 0 0 / 0.04),
-    0 4px 8px -2px rgb(0 0 0 / 0.04),
-    0 12px 14px -4px rgb(0 0 0 / 0.04),
-    0 24px 64px -8px rgb(0 0 0 / 0.04),
-    0 40px 48px -32px rgb(0 0 0 / 0.04);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
 
   @media (prefers-color-scheme: dark) {
-    background-color: oklch(20% 0.5% 264deg);
-    outline: 1px solid rgb(255 255 255 / 0.25);
+    box-shadow: none;
   }
 }
 
 .Input {
   box-sizing: border-box;
-  padding: 1rem;
+  padding-inline: 0.5rem;
   margin: 0;
   border: none;
-  border-bottom: 1px solid var(--color-neutral-100);
+  border-bottom: 1px solid light-dark(var(--color-neutral-950), white);
   width: 100%;
-  height: auto;
+  height: 2rem;
   border-radius: 0;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.875rem;
   background-color: transparent;
-  color: var(--color-neutral-900);
+  color: light-dark(var(--color-neutral-950), white);
   letter-spacing: 0.016em;
   outline: none;
 
   &::placeholder {
     font-weight: 400;
-    color: var(--color-neutral-500);
+    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   }
 
   &:focus {
@@ -143,8 +133,8 @@
   scroll-padding-block: 0.25rem;
 
   &:focus-visible {
-    outline: 1px solid var(--color-blue);
-    outline-offset: -1px;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
@@ -172,12 +162,12 @@
   display: flex;
   align-items: center;
   min-height: 2rem;
-  padding: 0 0.875rem;
+  padding: 0 0.5rem;
   font-size: 0.9375rem;
   letter-spacing: 0.00625em;
   line-height: 1;
   font-weight: 400;
-  color: var(--color-neutral-600);
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
 }
 
 .Item {
@@ -187,19 +177,18 @@
   user-select: none;
   scroll-margin-block: 0.25rem;
   min-height: 2rem;
-  padding: 0 0.75rem 0 2.25rem;
-  border-radius: 0.375rem;
+  padding: 0 0.75rem 0 0.5rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.5rem;
   align-items: center;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   letter-spacing: 0.016em;
   line-height: 1.25;
   font-weight: 400;
 
   &[data-highlighted] {
-    background-color: var(--color-neutral-100);
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 }
 
@@ -213,12 +202,12 @@
 
 .ItemType {
   font-size: 0.875rem;
-  color: var(--color-neutral-500);
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   letter-spacing: 0.00625em;
   white-space: nowrap;
 
   [data-highlighted] & {
-    color: var(--color-neutral-700);
+    color: light-dark(var(--color-neutral-700), var(--color-neutral-300));
   }
 }
 
@@ -226,11 +215,11 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  font-size: 0.925rem;
+  justify-content: flex-start;
+  padding: 1rem 1rem 1rem 0.5rem;
+  font-size: 0.875rem;
   line-height: 1rem;
-  color: var(--color-neutral-600);
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   min-height: 8rem;
 }
 
@@ -253,8 +242,7 @@
     display: block;
     height: 100%;
     width: 0.25rem;
-    border-radius: 0.25rem;
-    background-color: var(--color-neutral-400);
+    background-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   }
 }
 
@@ -263,11 +251,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.625rem 0.75rem;
-  border-top: 1px solid var(--color-neutral-200);
+  border-top: 1px solid light-dark(var(--color-neutral-950), white);
   font-size: 0.75rem;
-  color: var(--color-neutral-600);
-  background-color: var(--color-neutral-50);
-  border-radius: 0 0 1rem 1rem;
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  background-color: light-dark(white, var(--color-neutral-950));
 }
 
 .FooterLeft,
@@ -289,10 +276,9 @@
     ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
   font-weight: 400;
   line-height: 1;
-  color: var(--color-neutral-700);
-  background-color: var(--color-neutral-100);
-  border: 1px solid var(--color-neutral-300);
-  border-radius: 0.25rem;
+  color: light-dark(var(--color-neutral-700), var(--color-neutral-300));
+  background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+  border: 1px solid light-dark(var(--color-neutral-950), white);
 }
 
 .VisuallyHiddenClose {

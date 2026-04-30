@@ -4,58 +4,64 @@
 }
 
 .InputGroup {
-  display: flex;
-  gap: 0.5rem;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
 }
 
 .TextInput {
   box-sizing: border-box;
-  padding-left: 0.875rem;
+  grid-column: 1/-1;
+  grid-row: 1;
+  padding-inline: 0.5rem;
   margin: 0;
-  border: 1px solid var(--color-neutral-200);
-  flex: 1;
-  height: 2.5rem;
-  border-radius: 0.375rem;
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  height: 2rem;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 400;
-  background-color: canvas;
-  color: var(--color-neutral-900);
+  background-color: transparent;
+  color: light-dark(var(--color-neutral-950), white);
   outline: none;
 
   &:focus {
-    border-color: var(--color-blue);
-    outline: 1px solid var(--color-blue);
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
 .EmojiButton {
   box-sizing: border-box;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid var(--color-neutral-200);
-  border-radius: 0.375rem;
-  background-color: canvas;
+  grid-column: 2;
+  grid-row: 1;
+  width: calc(2rem - 2px);
+  height: calc(2rem - 2px);
+  border: 0;
+  margin-right: 1px;
+  background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
-  color: var(--color-neutral-900);
+  color: light-dark(var(--color-neutral-950), white);
   outline: none;
 
   &:hover {
-    background-color: var(--color-neutral-100);
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 
-  &:focus-visible {
-    border-color: var(--color-blue);
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+  &:active {
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
   }
 
   &[data-popup-open] {
-    background-color: var(--color-neutral-100);
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -1px;
   }
 }
 
@@ -70,30 +76,29 @@
   padding-right: 0.75rem;
   margin: 0;
   outline: 0;
-  border: 1px solid var(--color-neutral-200);
-  border-radius: 0.375rem;
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5rem;
-  color: var(--color-neutral-900);
+  color: light-dark(var(--color-neutral-950), white);
   cursor: default;
   user-select: none;
   min-width: 9rem;
-  background-color: canvas;
+  background-color: light-dark(white, var(--color-neutral-950));
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-neutral-100);
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &[data-popup-open] {
-    background-color: var(--color-neutral-100);
+    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -2px;
   }
 }
 
@@ -103,33 +108,29 @@
 
 .InputContainer {
   box-sizing: border-box;
+  position: relative;
+  z-index: 2;
   width: 16rem;
-  height: calc(var(--input-container-height));
-  text-align: center;
-  background: canvas;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 0.25rem;
+  height: var(--input-container-height);
+  background: light-dark(white, var(--color-neutral-950));
 }
 
 .Input {
   box-sizing: border-box;
-  padding-left: 0.875rem;
+  padding-inline: 0.5rem;
   margin: 0;
-  border: 1px solid var(--color-neutral-300);
+  /* border: 1px solid light-dark(var(--color-neutral-950), white); */
   width: 100%;
-  height: 2.5rem;
-  border-radius: 0.375rem;
+  height: 2rem;
   font-family: inherit;
-  font-size: 1rem;
-  background-color: canvas;
-  color: var(--color-neutral-900);
+  font-size: 0.875rem;
+  background-color: transparent;
+  color: light-dark(var(--color-neutral-950), white);
   outline: none;
 
   &:focus {
-    border-color: var(--color-blue);
-    outline: 1px solid var(--color-blue);
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -1px;
   }
 }
 
@@ -138,11 +139,10 @@
 }
 
 .Popup {
-  --input-container-height: 3rem;
+  --input-container-height: 2rem;
   box-sizing: border-box;
-  border-radius: 0.5rem;
-  background-color: canvas;
-  color: var(--color-neutral-900);
+  background-color: light-dark(white, var(--color-neutral-950));
+  color: light-dark(var(--color-neutral-950), white);
   transform-origin: var(--transform-origin);
   transition:
     transform 150ms,
@@ -156,15 +156,11 @@
     transform: scale(0.9);
   }
 
-  @media (prefers-color-scheme: light) {
-    outline: 1px solid var(--color-neutral-200);
-    box-shadow:
-      0 10px 15px -3px var(--color-neutral-200),
-      0 4px 6px -4px var(--color-neutral-200);
-  }
+  border: 1px solid light-dark(var(--color-neutral-950), white);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
 
   @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-neutral-300);
+    box-shadow: none;
   }
 }
 
@@ -174,8 +170,8 @@
   scroll-padding-bottom: 0.35rem;
   overscroll-behavior: contain;
   max-height: min(
-    calc(20.5rem - var(--input-container-height)),
-    calc(var(--available-height) - var(--input-container-height))
+    calc(20.5rem - var(--input-container-height) - 2px),
+    calc(var(--available-height) - var(--input-container-height) - 2px)
   );
 
   &:empty {
@@ -189,27 +185,26 @@
 
 .GroupLabel {
   box-sizing: border-box;
-  padding: 0.5rem 1rem 0.25rem;
+  padding: 0.5rem;
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-neutral-600);
+  line-height: 1rem;
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   text-transform: uppercase;
-  letter-spacing: 0.025em;
-  background-color: canvas;
-  border-bottom: 1px solid var(--color-neutral-100);
+  letter-spacing: 0.05em;
+  background-color: light-dark(white, var(--color-neutral-950));
   position: sticky;
   z-index: 1;
   top: 0;
-  margin: 0;
-  width: 100%;
 }
 
 .Group {
   display: block;
+  padding-bottom: 0.5rem;
 }
 
 .Grid {
-  padding: 0.25rem;
+  padding: 0 0.5rem 0.25rem;
 }
 
 .Row {
@@ -229,21 +224,19 @@
   min-width: var(--anchor-width);
   height: 2.5rem;
   padding: 0.5rem 0.125rem;
-  border-radius: 0.375rem;
   background: transparent;
 
   &[data-highlighted] {
     z-index: 0;
     position: relative;
-    color: var(--color-neutral-50);
+    color: light-dark(white, var(--color-neutral-950));
 
     &::before {
       content: '';
       z-index: -1;
       position: absolute;
       inset: 0;
-      border-radius: 0.375rem;
-      background-color: var(--color-neutral-200);
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 }
@@ -251,7 +244,6 @@
 .Emoji {
   font-size: 1.5rem;
   line-height: 1;
-  margin-bottom: 0.25rem;
 }
 
 .Name {
@@ -272,8 +264,8 @@
 
 .Empty {
   box-sizing: border-box;
-  padding: 0.5rem 1rem 1rem;
-  font-size: 0.925rem;
+  padding: 0.75rem 0.5rem;
+  font-size: 0.875rem;
   line-height: 1rem;
-  color: var(--color-neutral-600);
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
 }

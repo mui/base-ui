@@ -4,22 +4,22 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 export default function ExampleAutocompleteInline() {
   return (
     <Autocomplete.Root items={tags} mode="both">
-      <label className="flex flex-col gap-1 text-sm font-bold text-neutral-900">
+      <label className="flex flex-col gap-1 text-sm font-bold text-neutral-950 dark:text-white">
         Search tags
         <Autocomplete.Input
           placeholder="e.g. feature"
-          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-neutral-200 pl-3.5 text-base font-normal text-neutral-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="h-8 w-[16rem] border border-neutral-950 bg-transparent px-2 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white"
         />
       </label>
 
       <Autocomplete.Portal>
-        <Autocomplete.Positioner className="outline-hidden data-[empty]:hidden" sideOffset={4}>
-          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] rounded-md bg-[canvas] text-neutral-900 shadow-lg shadow-neutral-200 outline-1 outline-neutral-200 dark:shadow-none dark:-outline-offset-1 dark:outline-neutral-300">
-            <Autocomplete.List className="outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-[empty]:p-0">
+        <Autocomplete.Positioner className="outline-hidden data-empty:hidden" sideOffset={4}>
+          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
+            <Autocomplete.List className="outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-empty:p-0">
               {(tag: Tag) => (
                 <Autocomplete.Item
                   key={tag.id}
-                  className="flex cursor-default items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-neutral-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-neutral-900"
+                  className="flex cursor-default items-center gap-2 py-2 pr-8 pl-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
                   value={tag}
                 >
                   {tag.value}
