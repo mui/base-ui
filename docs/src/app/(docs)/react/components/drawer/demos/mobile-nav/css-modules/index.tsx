@@ -67,14 +67,16 @@ export default function ExampleDrawerMobileNav() {
                       <div aria-hidden className={styles.HeaderSpacer} />
                       <div className={styles.Handle} />
                       <Drawer.Close aria-label="Close menu" className={styles.CloseButton}>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                          <path
-                            d="M0.75 0.75L6 6M11.25 11.25L6 6M6 6L0.75 11.25M6 6L11.25 0.75"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1"
+                        >
+                          <path d="M6 0.5V11.5" transform="rotate(45 6 6)" />
+                          <path d="M0.5 6H11.5" transform="rotate(45 6 6)" />
                         </svg>
                       </Drawer.Close>
                     </div>
