@@ -73,7 +73,7 @@ function CopyButton() {
         {copied ? <CheckIcon className={styles.Icon} /> : <ClipboardIcon className={styles.Icon} />}
       </Tooltip.Trigger>
       <Tooltip.Portal>
-        <Tooltip.Positioner sideOffset={8}>
+        <Tooltip.Positioner sideOffset={10}>
           <Tooltip.Popup className={styles.Tooltip}>
             <Tooltip.Arrow className={styles.Arrow} />
             Copy
