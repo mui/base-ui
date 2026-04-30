@@ -31,6 +31,16 @@ describe('<Avatar.Fallback />', () => {
     expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-error');
   });
 
+  it('exposes [data-hydrated] on the fallback after client mount', async () => {
+    await render(
+      <Avatar.Root>
+        <Avatar.Fallback data-testid="fallback">AC</Avatar.Fallback>
+      </Avatar.Root>,
+    );
+
+    expect(screen.getByTestId('fallback')).toHaveAttribute('data-hydrated');
+  });
+
   it.skipIf(!isJSDOM)(
     'flips fallback to [data-loaded] after img load even when Fallback resolves later in tree order',
     async () => {

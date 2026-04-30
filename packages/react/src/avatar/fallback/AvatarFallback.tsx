@@ -4,6 +4,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRootState, ImageLoadingStatus } from '../root/AvatarRoot';
 import { AvatarFallbackDataAttributes } from './AvatarFallbackDataAttributes';
@@ -11,6 +12,7 @@ import { AvatarFallbackDataAttributes } from './AvatarFallbackDataAttributes';
 const LOADING_HOOK = { [AvatarFallbackDataAttributes.loading]: '' };
 const LOADED_HOOK = { [AvatarFallbackDataAttributes.loaded]: '' };
 const ERROR_HOOK = { [AvatarFallbackDataAttributes.error]: '' };
+const HYDRATED_HOOK = { [AvatarFallbackDataAttributes.hydrated]: '' };
 
 /**
  * Emit one boolean data attribute per discrete fallback state. The fallback is always mounted
@@ -33,6 +35,9 @@ const fallbackStateAttributesMapping: StateAttributesMapping<AvatarFallbackState
     }
     return null;
   },
+  hydrated(value): Record<string, string> | null {
+    return value ? HYDRATED_HOOK : null;
+  },
 };
 
 /**
@@ -54,6 +59,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   const { className, render, delay, style, ...elementProps } = componentProps;
 
   const { imageLoadingStatus } = useAvatarRootContext();
+  const hydrated = !useIsHydrating();
   const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
   const timeout = useTimeout();
 
@@ -75,6 +81,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
 
   const state: AvatarFallbackState = {
     imageLoadingStatus: displayedStatus,
+    hydrated,
   };
 
   return useRenderElement('span', componentProps, {
@@ -85,7 +92,12 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   });
 });
 
-export interface AvatarFallbackState extends AvatarRootState {}
+export interface AvatarFallbackState extends AvatarRootState {
+  /**
+   * Whether the component has hydrated on the client.
+   */
+  hydrated: boolean;
+}
 
 export interface AvatarFallbackProps extends BaseUIComponentProps<'span', AvatarFallbackState> {
   /**

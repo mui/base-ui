@@ -17,4 +17,8 @@ export enum AvatarFallbackDataAttributes {
    * without observing `Avatar.Image`'s state directly.
    */
   error = 'data-error',
+  /**
+   * Present after the component has hydrated on the client.
+   */
+  hydrated = 'data-hydrated',
 }
