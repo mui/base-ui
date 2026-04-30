@@ -16,7 +16,7 @@ export default function ExampleDrawerUncontained() {
         <Drawer.Backdrop className="[--backdrop-opacity:0.4] fixed inset-0 min-h-dvh bg-black opacity-[calc(var(--backdrop-opacity)*(1-var(--drawer-swipe-progress)))] transition-opacity duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-swiping:duration-0 data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] supports-[-webkit-touch-callout:none]:absolute dark:[--backdrop-opacity:0.7]" />
         <Drawer.Viewport className="fixed inset-0 flex items-end justify-center">
           <Drawer.Popup className="pointer-events-none flex w-full max-w-[20rem] flex-col gap-3 px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] outline-none focus-visible:outline-none [transform:translateY(var(--drawer-swipe-movement-y))] transition-transform duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-swiping:select-none data-starting-style:[transform:translateY(calc(100%+1rem+2px))] data-ending-style:[transform:translateY(calc(100%+1rem+2px))] data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)]">
-            <Drawer.Content className="pointer-events-auto overflow-hidden border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
+            <Drawer.Content className="pointer-events-auto overflow-hidden border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
               <Drawer.Title className="sr-only">Profile actions</Drawer.Title>
               <Drawer.Description className="sr-only">
                 Choose an action for this user.
@@ -42,7 +42,7 @@ export default function ExampleDrawerUncontained() {
                 ))}
               </ul>
             </Drawer.Content>
-            <div className="pointer-events-auto overflow-hidden border border-neutral-950 bg-white shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:shadow-none">
+            <div className="pointer-events-auto overflow-hidden border border-neutral-950 bg-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:shadow-none">
               <button
                 type="button"
                 className="h-10 w-full border-0 bg-transparent px-5 text-center text-sm text-red-700 select-none dark:text-red-400 hover:bg-neutral-100 active:bg-neutral-200 focus-visible:bg-neutral-100 focus-visible:outline-none dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:focus-visible:bg-neutral-800"

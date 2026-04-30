@@ -62,7 +62,7 @@ export default function ExampleEmojiPicker() {
           </Autocomplete.Trigger>
           <Autocomplete.Portal>
             <Autocomplete.Positioner className="outline-hidden" sideOffset={4} align="end">
-              <Autocomplete.Popup className="[--input-container-height:2rem] max-h-[20.5rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-[transform,scale,opacity] data-ending-style:scale-90 data-ending-style:opacity-0 data-starting-style:scale-90 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
+              <Autocomplete.Popup className="[--input-container-height:2rem] max-h-[20.5rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[transform,scale,opacity] data-ending-style:scale-90 data-ending-style:opacity-0 data-starting-style:scale-90 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
                 <div className="relative z-[2] h-[var(--input-container-height)] w-64 bg-white dark:bg-neutral-950">
                   <Autocomplete.Input
                     placeholder="Search emojis…"

@@ -20,7 +20,7 @@ export default function ExampleAutocompleteCommandPalette() {
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-150 ease-[cubic-bezier(0.45,1.005,0,1.005)] data-ending-style:opacity-0 data-starting-style:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 flex items-start justify-center overflow-hidden px-2 pt-18 pb-2">
           <Dialog.Popup
-            className="relative flex max-h-[min(36rem,calc(100dvh-5rem))] w-[calc(100vw-1rem)] max-w-[28rem] flex-col overflow-hidden border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-[opacity,transform,scale,translate] duration-150 data-ending-style:-translate-y-4 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:-translate-y-4 data-starting-style:scale-95 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
+            className="relative flex max-h-[min(36rem,calc(100dvh-5rem))] w-[calc(100vw-1rem)] max-w-[28rem] flex-col overflow-hidden border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[opacity,transform,scale,translate] duration-150 data-ending-style:-translate-y-4 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:-translate-y-4 data-starting-style:scale-95 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
             aria-label="Command palette"
           >
             <Autocomplete.Root
