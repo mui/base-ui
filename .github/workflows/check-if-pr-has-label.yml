@@ -17,10 +17,4 @@ jobs:
         with:
           mode: minimum
           count: 1
-          labels: |
-            bug
-            feature
-            documentation
-            maintenance
-            question
-            ready for review
+          labels: ''
