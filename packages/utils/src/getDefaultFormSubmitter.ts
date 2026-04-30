@@ -1,14 +1,15 @@
 export type DefaultFormSubmitter = HTMLButtonElement | HTMLInputElement;
 
 /**
- * Returns the submit button a browser uses for implicit form submission.
+ * Returns the default button a browser uses for implicit form submission.
  *
  * This is useful for custom form controls that need to mirror native Enter key behavior.
  * Clicking the returned submitter preserves browser semantics such as the submitter's click
  * event, `SubmitEvent.submitter`, and submitter-specific attributes.
  *
  * The function follows the controls exposed by `form.elements`, which includes controls associated
- * through the `form` attribute in supported browsers.
+ * through the `form` attribute. Disabled submitters can be returned because the default button is
+ * determined before disabled state is considered; clicking a disabled submitter is a no-op.
  */
 export function getDefaultFormSubmitter(form: HTMLFormElement | null): DefaultFormSubmitter | null {
   if (!form) {
@@ -16,10 +17,6 @@ export function getDefaultFormSubmitter(form: HTMLFormElement | null): DefaultFo
   }
 
   for (const candidate of form.elements) {
-    if (candidate.matches(':disabled')) {
-      continue;
-    }
-
     const tagName = candidate.tagName;
 
     if (tagName === 'BUTTON') {
@@ -33,7 +30,7 @@ export function getDefaultFormSubmitter(form: HTMLFormElement | null): DefaultFo
     if (tagName === 'INPUT') {
       const input = candidate as HTMLInputElement;
 
-      if (input.type === 'submit' || input.type === 'image') {
+      if (input.type === 'submit') {
         return input;
       }
     }

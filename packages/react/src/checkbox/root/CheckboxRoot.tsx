@@ -332,6 +332,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             return;
           }
 
+          // Let consumer `preventDefault()` handlers opt out while defensively stopping
+          // any remaining Base UI Enter handling from treating the checkbox as a button.
           event.preventBaseUIHandler();
 
           if (event.defaultPrevented) {

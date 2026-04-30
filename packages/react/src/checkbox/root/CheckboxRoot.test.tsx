@@ -496,6 +496,99 @@ describe('<Checkbox.Root />', () => {
     });
 
     it.skipIf(isJSDOM)(
+      'does not submit the form with Enter when the consumer prevents default',
+      async () => {
+        const submitSpy = vi.fn((event) => {
+          event.preventDefault();
+        });
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-checkbox">
+              <Checkbox.Root onKeyDown={(event) => event.preventDefault()} />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+
+        await user.keyboard('[Tab]');
+        expect(checkbox).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+
+        expect(submitSpy.mock.calls.length).toBe(0);
+        expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      },
+    );
+
+    it.skipIf(isJSDOM)('submits the form with Enter when readOnly', async () => {
+      const submitSpy = vi.fn((event) => {
+        event.preventDefault();
+        return (event.nativeEvent as SubmitEvent).submitter;
+      });
+
+      const { user } = await render(
+        <Form onSubmit={submitSpy}>
+          <Field.Root name="test-checkbox">
+            <Checkbox.Root readOnly />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+
+      await user.keyboard('[Tab]');
+      expect(checkbox).toHaveFocus();
+
+      await user.keyboard('[Enter]');
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe(
+        screen.getByRole('button', { name: 'Submit' }),
+      );
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it.skipIf(isJSDOM)(
+      'submits the form once with Enter when rendered as a native button',
+      async () => {
+        const submitSpy = vi.fn((event) => {
+          event.preventDefault();
+          return (event.nativeEvent as SubmitEvent).submitter;
+        });
+        const submitClickSpy = vi.fn();
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-checkbox">
+              <Checkbox.Root render={<button />} nativeButton />
+            </Field.Root>
+            <button type="submit" onClick={submitClickSpy}>
+              Submit
+            </button>
+          </Form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+
+        await user.keyboard('[Tab]');
+        expect(checkbox).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+
+        expect(submitSpy.mock.calls.length).toBe(1);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe(
+          screen.getByRole('button', { name: 'Submit' }),
+        );
+        expect(submitClickSpy.mock.calls.length).toBe(1);
+        expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
       'does not submit the form with Enter when there is no submit button',
       async () => {
         const submitSpy = vi.fn((event) => {
@@ -523,11 +616,10 @@ describe('<Checkbox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)(
-      'submits the form with Enter using the next enabled submit button',
+      'does not submit the form with Enter when the default button is disabled',
       async () => {
         const submitSpy = vi.fn((event) => {
           event.preventDefault();
-          return (event.nativeEvent as SubmitEvent).submitter;
         });
 
         const { user } = await render(
@@ -549,10 +641,7 @@ describe('<Checkbox.Root />', () => {
 
         await user.keyboard('[Enter]');
 
-        expect(submitSpy.mock.calls.length).toBe(1);
-        expect(submitSpy.mock.results.at(-1)?.value).toBe(
-          screen.getByRole('button', { name: 'Enabled' }),
-        );
+        expect(submitSpy.mock.calls.length).toBe(0);
         expect(checkbox).toHaveAttribute('aria-checked', 'false');
       },
     );

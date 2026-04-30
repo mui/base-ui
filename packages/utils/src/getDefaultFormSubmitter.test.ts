@@ -2,7 +2,7 @@ import { expect } from 'vitest';
 import { getDefaultFormSubmitter } from './getDefaultFormSubmitter';
 
 describe('getDefaultFormSubmitter', () => {
-  it('returns the first enabled submit button associated with the form', () => {
+  it('returns the first submit button associated with the form', () => {
     document.body.innerHTML = [
       '<button id="external-before" form="test-form" type="submit">External before</button>',
       '<form id="test-form">',
@@ -16,7 +16,7 @@ describe('getDefaultFormSubmitter', () => {
     expect(getDefaultFormSubmitter(form)).toBe(document.querySelector('#external-before'));
   });
 
-  it('skips disabled submit buttons', () => {
+  it('returns a disabled submit button when it is first in form.elements', () => {
     document.body.innerHTML = [
       '<form id="test-form">',
       '  <button id="disabled" type="submit" disabled>Disabled</button>',
@@ -26,7 +26,20 @@ describe('getDefaultFormSubmitter', () => {
 
     const form = document.querySelector<HTMLFormElement>('#test-form');
 
-    expect(getDefaultFormSubmitter(form)).toBe(document.querySelector('#enabled'));
+    expect(getDefaultFormSubmitter(form)).toBe(document.querySelector('#disabled'));
+  });
+
+  it('supports buttons with the default submit type', () => {
+    document.body.innerHTML = [
+      '<form id="test-form">',
+      '  <button id="default">Default</button>',
+      '  <button id="explicit" type="submit">Explicit</button>',
+      '</form>',
+    ].join('');
+
+    const form = document.querySelector<HTMLFormElement>('#test-form');
+
+    expect(getDefaultFormSubmitter(form)).toBe(document.querySelector('#default'));
   });
 
   it('supports input submitters from form.elements and ignores non-submit controls', () => {
@@ -34,7 +47,6 @@ describe('getDefaultFormSubmitter', () => {
       '<form id="test-form">',
       '  <button id="button" type="button">Button</button>',
       '  <input id="reset" type="reset" />',
-      '  <input id="image" type="image" />',
       '  <input id="submit" type="submit" />',
       '</form>',
     ].join('');
