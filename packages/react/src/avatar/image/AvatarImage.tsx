@@ -36,7 +36,6 @@ const LOADING_HOOK = { [AvatarImageDataAttributes.loading]: '' };
 const LOADED_HOOK = { [AvatarImageDataAttributes.loaded]: '' };
 const ERROR_HOOK = { [AvatarImageDataAttributes.error]: '' };
 const HYDRATED_HOOK = { [AvatarImageDataAttributes.hydrated]: '' };
-const HIDDEN_IMAGE_STYLE = { visibility: 'hidden' } as const;
 
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   imageLoadingStatus(value): Record<string, string> | null {
@@ -164,11 +163,6 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     imageLoadingStatus,
     hydrated,
   };
-  const shouldRenderBackgroundProxy =
-    imageLoadingStatus === 'loading' &&
-    Boolean(componentProps.src) &&
-    componentProps.loading !== 'lazy';
-  const hideIntrinsicImage = imageLoadingStatus === 'error' || shouldRenderBackgroundProxy;
 
   const imageElement = useRenderElement('img', componentProps, {
     state,
@@ -180,7 +174,6 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
       hidden: hiddenProp,
       onLoad: handleIntrinsicLoad,
       onError: handleIntrinsicError,
-      style: hideIntrinsicImage ? HIDDEN_IMAGE_STYLE : undefined,
     },
     stateAttributesMapping,
   });
