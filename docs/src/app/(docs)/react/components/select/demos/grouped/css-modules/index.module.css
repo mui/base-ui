@@ -14,7 +14,7 @@
 }
 
 .Value[data-placeholder] {
-  color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
 }
 
 .Select {
