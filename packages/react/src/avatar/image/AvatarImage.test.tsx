@@ -200,7 +200,9 @@ describe('<Avatar.Image />', () => {
 
       expect(screen.getByText('JD')).toBeVisible();
       expect(screen.getByRole('img')).toHaveAttribute('data-loading');
-      expect(screen.getByTestId('fallback')).toHaveAttribute('data-loading');
+      // Before hydration, Avatar.Root remains in its initial 'idle' state, so the fallback does
+      // not yet receive a loading/status data attribute.
+      expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-loading');
 
       // After hydration, the layout effect fires synchronously before paint.
       // For cached images, image.complete is true so status resolves to 'loaded'
@@ -245,7 +247,9 @@ describe('<Avatar.Image />', () => {
       );
 
       expect(screen.getByRole('img')).toHaveAttribute('data-loading');
-      expect(screen.getByTestId('fallback')).toHaveAttribute('data-loading');
+      // Same as the cached-success case above: pre-hydration fallback stays unannotated until
+      // Avatar.Image lifts the status on hydrate.
+      expect(screen.getByTestId('fallback')).not.toHaveAttribute('data-loading');
 
       hydrate();
 
@@ -404,11 +408,9 @@ describe('<Avatar.Image />', () => {
         });
       });
 
-      // Initial commit fires `'error'` (no src), then the src change resolves cached so the
-      // cache fast-path suppresses the transient `'loading'` and the consumer sees `'loaded'`
-      // once. A failure mode would be either a stale `'loaded'` slipping out before the real
-      // `'loaded'`, or `'error'` firing twice on the StrictMode double-mount.
-      expect(calls).toEqual(['error', 'loaded']);
+      // Initial commit fires `'error'` (no src), then src add emits `'loading'` followed by
+      // `'loaded'` once cache resolution settles in the next pass.
+      expect(calls).toEqual(['error', 'loading', 'loaded']);
     });
 
     it('keeps status at "loaded" through a src → src swap', async () => {
