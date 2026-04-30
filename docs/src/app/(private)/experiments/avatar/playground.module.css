@@ -191,6 +191,7 @@
   width: var(--avatar-size);
 
   background: var(--color-gray-300);
+  contain: paint;
 }
 
 .avatarImage {
@@ -221,6 +222,13 @@
      the layout tree (so `loading="lazy"`'s IntersectionObserver still works) and visibility flips
      are binary, so no transition mid-state can briefly reveal the glyph. */
   /* visibility: hidden; */
+}
+
+.avatarProxy {
+  height: 100%;
+  inset: 0;
+  position: absolute;
+  width: 100%;
 }
 
 .avatarImageMaster {

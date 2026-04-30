@@ -83,6 +83,7 @@ export default function AvatarPlayground() {
           description="On first load, watch the image fade in. Hit Remount — the second time it should appear instantly with no animation and no fallback flash, because it's now in the browser cache."
           expected={['loading', 'loaded']}
           expectedAfterRemount={['loaded']}
+          currentProxySrc={FAST_AVATAR_SRC}
           renderCurrent={(props) => (
             <CurrentAvatar.Image className={styles.avatarImage} src={FAST_AVATAR_SRC} {...props} />
           )}
@@ -99,6 +100,7 @@ export default function AvatarPlayground() {
           title="Slow image (entry animation)"
           description="Server delays the response by 2s. The fallback shows for 2s (300ms delay before it appears), then the image fades + un-blurs in."
           expected={['loading', 'loaded']}
+          currentProxySrc={SLOW_AVATAR_SRC(2000)}
           renderCurrent={(props) => (
             <CurrentAvatar.Image className={styles.avatarImage} src={SLOW_AVATAR_SRC(2000)} {...props} />
           )}
@@ -119,6 +121,7 @@ export default function AvatarPlayground() {
           title="Broken src (loading → error)"
           description="Src is a 404. The browser still has to round-trip before deciding the response isn't a valid image, so status starts at 'loading' (initial render with src defined but no decoded bitmap), then flips to 'error' once `<img>` fires its error event. The `<img>` stays mounted with `visibility: hidden` so the broken-image glyph never paints; the fallback takes over."
           expected={['loading', 'error']}
+          currentProxySrc={BROKEN_AVATAR_SRC}
           renderCurrent={(props) => (
             <CurrentAvatar.Image className={styles.avatarImage} src={BROKEN_AVATAR_SRC} {...props} />
           )}
@@ -164,6 +167,8 @@ interface ScenarioProps {
   description: string;
   expected: ImageLoadingStatus[];
   expectedAfterRemount?: ImageLoadingStatus[];
+  currentProxySrc: string;
+  currentProxyLoading?: React.ImgHTMLAttributes<HTMLImageElement>['loading'];
   renderCurrent: (props: ImageProps) => React.ReactNode;
   renderMaster: (props: ImageProps) => React.ReactNode;
   renderRadix: (props: ImageProps) => React.ReactNode;
@@ -174,6 +179,8 @@ function Scenario({
   description,
   expected,
   expectedAfterRemount,
+  currentProxySrc,
+  currentProxyLoading,
   renderCurrent,
   renderMaster,
   renderRadix,
@@ -196,6 +203,11 @@ function Scenario({
             <span className={styles.avatarCompareLabel}>Current</span>
             <CurrentAvatar.Root key={`current-${remountKey}`} className={styles.avatarRoot}>
               {renderCurrent({ onLoadingStatusChange: currentLog.push })}
+              <CurrentAvatar.ImageLoadFallback
+                className={styles.avatarProxy}
+                src={currentProxySrc}
+                loading={currentProxyLoading}
+              />
               <CurrentAvatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
                 AV
               </CurrentAvatar.Fallback>
@@ -274,6 +286,10 @@ function ToggleScenario({ title, description }: ToggleScenarioProps) {
                 className={styles.avatarImage}
                 src={mounted ? FAST_AVATAR_SRC : undefined}
                 onLoadingStatusChange={currentLog.push}
+              />
+              <CurrentAvatar.ImageLoadFallback
+                className={styles.avatarProxy}
+                src={mounted ? FAST_AVATAR_SRC : undefined}
               />
               <CurrentAvatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
                 AV
@@ -374,6 +390,7 @@ function SwitchScenario({ title, description }: SwitchScenarioProps) {
                 src={src}
                 onLoadingStatusChange={currentLog.push}
               />
+              <CurrentAvatar.ImageLoadFallback className={styles.avatarProxy} src={src} />
               <CurrentAvatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
                 AV
               </CurrentAvatar.Fallback>
@@ -471,6 +488,7 @@ function NoSrcScenario({ title, description }: NoSrcScenarioProps) {
                 src={src}
                 onLoadingStatusChange={currentLog.push}
               />
+              <CurrentAvatar.ImageLoadFallback className={styles.avatarProxy} src={src} />
               <CurrentAvatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
                 AV
               </CurrentAvatar.Fallback>
@@ -572,6 +590,11 @@ function LazyLoadingScenario({ title, description }: LazyLoadingScenarioProps) {
                     loading="lazy"
                     decoding="async"
                     onLoadingStatusChange={currentLog.push}
+                  />
+                  <CurrentAvatar.ImageLoadFallback
+                    className={styles.avatarProxy}
+                    src={LAZY_AVATAR_SRC}
+                    loading="lazy"
                   />
                   <CurrentAvatar.Fallback className={styles.avatarFallback} delay={FALLBACK_DELAY_MS}>
                     AV
