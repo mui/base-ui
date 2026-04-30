@@ -71,7 +71,7 @@ export class DialogHandle<Payload> {
    * Indicates whether the dialog is currently open.
    */
   get isOpen() {
-    return this.store.state.open;
+    return this.store.select('open');
   }
 }
 

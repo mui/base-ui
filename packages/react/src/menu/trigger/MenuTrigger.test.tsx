@@ -165,13 +165,16 @@ describe('<Menu.Trigger />', () => {
       expect(trigger).toHaveAttribute('data-pressed');
     });
 
-    it('keeps the data-popup-open attribute when a controlled close is vetoed', async () => {
+    it('keeps the data-popup-open attribute and handle.isOpen when a controlled close is vetoed', async () => {
+      const handle = Menu.createHandle();
+
       function TestCase() {
         const [open, setOpen] = React.useState(false);
 
         return (
           <React.Fragment>
             <Menu.Root
+              handle={handle}
               open={open}
               onOpenChange={(nextOpen) => {
                 if (nextOpen) {
@@ -200,11 +203,13 @@ describe('<Menu.Trigger />', () => {
 
       await screen.findByRole('menu');
       expect(trigger).toHaveAttribute('data-popup-open');
+      expect(handle.isOpen).toBe(true);
 
       await user.click(screen.getByRole('button', { name: 'Outside' }));
 
       expect(screen.getByRole('menu')).toHaveAttribute('data-open');
       expect(trigger).toHaveAttribute('data-popup-open');
+      expect(handle.isOpen).toBe(true);
     });
   });
 
