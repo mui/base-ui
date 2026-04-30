@@ -58,7 +58,7 @@ export default function TooltipDetachedTriggersFullDemo() {
                   bg-white dark:bg-neutral-950
                   text-sm text-neutral-950 dark:text-white
                   origin-[var(--transform-origin)]
-                  [filter:drop-shadow(0.25rem_0.25rem_0_rgb(0_0_0/12%))] dark:[filter:none]
+                  [filter:drop-shadow(0.25rem_0.25rem_0_rgb(0_0_0/12%))] dark:filter-none
                   transition-[width,height,opacity,scale]
                   duration-[0.35s]
                   ease-[cubic-bezier(0.22,1,0.36,1)]

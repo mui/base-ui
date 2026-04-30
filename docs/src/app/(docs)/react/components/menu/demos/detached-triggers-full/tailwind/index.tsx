@@ -93,7 +93,7 @@ export default function MenuDetachedTriggersFullDemo() {
                   data-[starting-style]:scale-90 data-[starting-style]:opacity-0
                   data-[ending-style]:scale-90 data-[ending-style]:opacity-0
                   data-instant:transition-none
-                  dark:border-white dark:bg-neutral-950 dark:text-white dark:[filter:none]
+                  dark:border-white dark:bg-neutral-950 dark:text-white dark:filter-none
                 `}
               >
                 <Menu.Arrow
