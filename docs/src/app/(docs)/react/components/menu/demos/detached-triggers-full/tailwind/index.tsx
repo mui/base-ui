@@ -87,7 +87,7 @@ export default function MenuDetachedTriggersFullDemo() {
                 className={`
                   relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] py-1
                   origin-[var(--transform-origin)] border border-neutral-950
-                  bg-white text-neutral-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))]
+                  bg-white text-neutral-950 outline-none [filter:drop-shadow(0.25rem_0.25rem_0_rgb(0_0_0/12%))]
                   transition-[width,height,opacity,scale]
                   duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]
                   data-[starting-style]:scale-90 data-[starting-style]:opacity-0

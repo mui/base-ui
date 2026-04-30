@@ -173,7 +173,7 @@ export default function ExampleAsyncMultipleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
           <Combobox.Popup
-            className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-neutral-900 shadow-[0_10px_15px_-3px_var(--color-neutral-200),0_4px_6px_-4px_var(--color-neutral-200)] outline outline-1 outline-neutral-200 transition-[opacity,transform,scale] duration-100 data-[ending-style]:transition-none data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-neutral-300"
+            className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-neutral-900 shadow-[0_0.625rem_0.9375rem_-0.1875rem_var(--color-neutral-200),0_0.25rem_0.375rem_-0.25rem_var(--color-neutral-200)] outline outline-1 outline-neutral-200 transition-[opacity,transform,scale] duration-100 data-[ending-style]:transition-none data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-neutral-300"
             aria-busy={isPending || undefined}
           >
             <Combobox.Status>
