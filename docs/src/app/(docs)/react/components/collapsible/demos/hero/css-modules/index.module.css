@@ -1,6 +1,6 @@
 .Collapsible {
   display: flex;
-  width: 14rem;
+  width: 12rem;
   min-height: 9rem;
   flex-direction: column;
   justify-content: center;
