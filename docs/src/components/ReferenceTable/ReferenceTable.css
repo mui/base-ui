@@ -23,7 +23,7 @@
   }
 
   .ReferenceNameCell {
-    padding-inline: 0.75rem;
+    padding-left: 0.75rem;
   }
 
   .ReferenceRequired {
@@ -35,7 +35,7 @@
   .ReferenceTypeCell {
     display: none;
     align-items: baseline;
-    padding-inline: 0.75rem;
+    padding-left: 0.75rem;
     font-size: var(--font-size-14);
     line-height: 1;
     white-space: nowrap;
@@ -43,7 +43,7 @@
 
   .ReferenceDefaultCell {
     display: none;
-    padding-inline: 0.75rem;
+    padding-left: 0.75rem;
     white-space: nowrap;
   }
 

@@ -33,11 +33,11 @@ export const ComboboxItem = React.memo(
     const {
       render,
       className,
+      style,
       value: itemValue = null,
       index: indexProp,
       disabled = false,
       nativeButton = false,
-      style,
       ...elementProps
     } = componentProps;
 
@@ -131,22 +131,22 @@ export const ComboboxItem = React.memo(
       }
     }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
 
-    const state: ComboboxItemState = {
-      disabled,
-      selected,
-      highlighted,
-    };
-
-    const rootProps = getItemProps({ active: highlighted, selected });
-    rootProps.id = undefined;
-    rootProps.onFocus = undefined;
-
     const { getButtonProps, buttonRef } = useButton({
       disabled,
       focusableWhenDisabled: true,
       native: nativeButton,
       composite: true,
     });
+
+    const rootProps = getItemProps({ active: highlighted, selected });
+    rootProps.id = undefined;
+    rootProps.onFocus = undefined;
+
+    const state: ComboboxItemState = {
+      disabled,
+      selected,
+      highlighted,
+    };
 
     function commitSelection(nativeEvent: MouseEvent) {
       function selectItem() {

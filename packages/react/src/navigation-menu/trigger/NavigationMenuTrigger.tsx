@@ -69,11 +69,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
-    className,
     render,
+    className,
+    style,
     nativeButton = true,
     disabled,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -145,7 +145,15 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     popupAutoSizeResetRef.current.owner = null;
   });
 
-  React.useEffect(cancelAutoSizeReset, [isActiveItem, cancelAutoSizeReset]);
+  useIsoLayoutEffect(() => {
+    if (isActiveItem) {
+      return;
+    }
+
+    mutationFrame.cancel();
+    sizeFrame.cancel();
+    cancelAutoSizeReset();
+  }, [isActiveItem, mutationFrame, sizeFrame, cancelAutoSizeReset]);
 
   function setAutoSizes() {
     if (!popupElement) {
@@ -243,6 +251,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       );
 
       sizeFrame.request(() => {
+        if (!isActiveItemRef.current) {
+          return;
+        }
+
         popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${measuredWidth}px`);
         popupElement.style.setProperty(
           NavigationMenuPopupCssVars.popupHeight,
@@ -292,6 +304,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           setSharedFixedSizes(currentWidth, currentHeight);
 
           sizeFrame.request(() => {
+            if (!isActiveItemRef.current) {
+              return;
+            }
+
             setSharedFixedSizes(measuredWidth, measuredHeight);
             scheduleAutoSizeReset();
           });
@@ -488,6 +504,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         skipAutoSizeSyncRef.current = false;
         return undefined;
       }
+
       const { width, height } = getCssDimensions(popupElement);
       handleValueChange(width, height);
     }

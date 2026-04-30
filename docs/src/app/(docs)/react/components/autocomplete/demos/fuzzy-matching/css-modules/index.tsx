@@ -28,14 +28,16 @@ export default function ExampleFuzzyMatchingAutocomplete() {
                 <Autocomplete.Item key={item.title} value={item} className={styles.Item}>
                   <Autocomplete.Value>
                     {(value) => (
-                      <div className={styles.ItemContent}>
-                        <div className={styles.ItemHeader}>
-                          <div className={styles.ItemTitle}>{highlightText(item.title, value)}</div>
-                        </div>
-                        <div className={styles.ItemDescription}>
+                      <span className={styles.ItemContent}>
+                        <span className={styles.ItemHeader}>
+                          <span className={styles.ItemTitle}>
+                            {highlightText(item.title, value)}
+                          </span>
+                        </span>
+                        <span className={styles.ItemDescription}>
                           {highlightText(item.description, value)}
-                        </div>
-                      </div>
+                        </span>
+                      </span>
                     )}
                   </Autocomplete.Value>
                 </Autocomplete.Item>

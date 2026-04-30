@@ -76,12 +76,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     disableHoverablePopup,
   });
 
-  useIsoLayoutEffect(() => {
-    if (openState && disabled) {
-      store.setOpen(false, createChangeEventDetails(REASONS.disabled));
-    }
-  }, [openState, disabled, store]);
-
   store.useSyncedValue('disabled', disabled);
 
   useImplicitActiveTrigger(store);
@@ -97,6 +91,13 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   // Otherwise, allow the animation to play. In particular, do not disable animations
   // during the 'ending' phase unless it's due to a sibling opening.
   const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+
+  useIsoLayoutEffect(() => {
+    if (openState && disabled) {
+      store.setOpen(false, createChangeEventDetails(REASONS.disabled));
+    }
+  }, [openState, disabled, store]);
+
   useIsoLayoutEffect(() => {
     if (
       (transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
@@ -124,7 +125,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   }, [store, activeTriggerId, open]);
 
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createTooltipEventDetails(store, REASONS.imperativeAction));
+    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }, [store]);
 
   React.useImperativeHandle(
@@ -163,20 +164,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     </TooltipRootContext.Provider>
   );
 });
-
-function createTooltipEventDetails<Payload>(
-  store: TooltipStore<Payload>,
-  reason: TooltipRoot.ChangeEventReason,
-) {
-  const details: TooltipRoot.ChangeEventDetails =
-    createChangeEventDetails<TooltipRoot.ChangeEventReason>(
-      reason,
-    ) as TooltipRoot.ChangeEventDetails;
-  details.preventUnmountOnClose = () => {
-    store.set('preventUnmountingOnClose', true);
-  };
-  return details;
-}
 
 export interface TooltipRootState {}
 

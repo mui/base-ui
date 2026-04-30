@@ -11,7 +11,10 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -35,9 +38,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     ...elementProps
   } = componentProps;
 
-  // Track whether the user explicitly provided a `defaultValue` prop.
+  // Track whether the user explicitly provided a defined `defaultValue` prop.
   // Used to determine if we should honor a disabled tab selection.
-  const hasExplicitDefaultValueProp = Object.hasOwn(componentProps, 'defaultValue');
+  const hasExplicitDefaultValueProp = componentProps.defaultValue !== undefined;
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
   const [mountedTabPanels, setMountedTabPanels] = React.useState(
@@ -127,6 +130,17 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       }
 
       setValue(newValue);
+    },
+  );
+
+  const notifyAutomaticValueChange = useStableCallback(
+    (nextValue: TabsTab.Value, reason: TabsRoot.ChangeEventReason) => {
+      onValueChangeProp?.(
+        nextValue,
+        createChangeEventDetails(reason, undefined, undefined, {
+          activationDirection: 'none',
+        }),
+      );
     },
   );
 
@@ -226,51 +240,104 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     return undefined;
   }, [tabMap]);
 
-  // Automatically switch to the first enabled tab when:
-  // - The current selection is disabled (and wasn't explicitly set via defaultValue)
-  // - The current selection is missing (tab was removed from DOM)
-  // Falls back to null if all tabs are disabled.
+  // Implicit uncontrolled selections are still automatic changes, so notify
+  // once when the tabs first register. Explicit defaults are treated as user-owned.
+  const shouldNotifyInitialValueChangeRef = React.useRef(!hasExplicitDefaultValueProp);
+  // An explicit defaultValue can intentionally point at a disabled tab on mount.
+  // Once that selection becomes valid, later disabled states should fall back.
+  const shouldHonorDisabledDefaultValueRef = React.useRef(hasExplicitDefaultValueProp);
+  const didRegisterTabsRef = React.useRef(false);
+
+  // Uncontrolled roots own automatic fallback. Controlled roots keep the exact
+  // value supplied by the parent, even when that tab is disabled or missing.
   useIsoLayoutEffect(() => {
-    if (isControlled || tabMap.size === 0) {
+    if (isControlled) {
       return;
     }
+
+    function commitAutomaticValueChange(
+      fallbackValue: TabsTab.Value,
+      fallbackReason: TabsRoot.ChangeEventReason,
+    ) {
+      setValue(fallbackValue);
+      // Automatic fallbacks are not directional transitions; reset the direction
+      // alongside the value so the batched commit keeps both in sync.
+      setActivationDirectionState((prev) => {
+        if (prev.previousValue === fallbackValue && prev.tabActivationDirection === 'none') {
+          return prev;
+        }
+
+        return {
+          previousValue: fallbackValue,
+          tabActivationDirection: 'none',
+        };
+      });
+      notifyAutomaticValueChange(fallbackValue, fallbackReason);
+      // Mark the initial notification as delivered only after the consumer
+      // callback returns. The fallback value is queued first so automatic
+      // consistency updates are not cancelable through a throwing handler.
+      shouldNotifyInitialValueChangeRef.current = false;
+    }
+
+    if (tabMap.size === 0) {
+      if (!didRegisterTabsRef.current || value === null) {
+        return;
+      }
+
+      commitAutomaticValueChange(null, REASONS.missing);
+      return;
+    }
+
+    didRegisterTabsRef.current = true;
 
     const selectionIsDisabled = selectedTabMetadata?.disabled;
     const selectionIsMissing = selectedTabMetadata == null && value !== null;
 
-    const shouldHonorExplicitDefaultSelection =
-      hasExplicitDefaultValueProp && selectionIsDisabled && value === defaultValueProp;
+    if (!selectionIsDisabled && value === defaultValueProp) {
+      shouldHonorDisabledDefaultValueRef.current = false;
+    }
 
-    if (shouldHonorExplicitDefaultSelection) {
+    if (
+      shouldHonorDisabledDefaultValueRef.current &&
+      selectionIsDisabled &&
+      value === defaultValueProp
+    ) {
       return;
     }
 
-    if (!selectionIsDisabled && !selectionIsMissing) {
-      return;
-    }
+    const shouldNotifyInitialValueChange = shouldNotifyInitialValueChangeRef.current;
 
-    const fallbackValue = firstEnabledTabValue ?? null;
+    if (selectionIsDisabled || selectionIsMissing) {
+      const fallbackValue = firstEnabledTabValue ?? null;
 
-    if (value === fallbackValue) {
-      return;
-    }
-
-    setValue(fallbackValue);
-    setActivationDirectionState((prev) => {
-      if (prev.tabActivationDirection === 'none') {
-        return prev;
+      if (value === fallbackValue) {
+        // Already at the fallback value; no commit or notification needed,
+        // but record that the implicit-initial transition has resolved.
+        shouldNotifyInitialValueChangeRef.current = false;
+        return;
       }
 
-      return {
-        ...prev,
-        tabActivationDirection: 'none',
-      };
-    });
+      let fallbackReason: TabsRoot.ChangeEventReason = REASONS.missing;
+
+      if (shouldNotifyInitialValueChange) {
+        fallbackReason = REASONS.initial;
+      } else if (selectionIsDisabled) {
+        fallbackReason = REASONS.disabled;
+      }
+
+      commitAutomaticValueChange(fallbackValue, fallbackReason);
+      return;
+    }
+
+    if (shouldNotifyInitialValueChange && selectedTabMetadata != null) {
+      notifyAutomaticValueChange(value, REASONS.initial);
+      shouldNotifyInitialValueChangeRef.current = false;
+    }
   }, [
     defaultValueProp,
     firstEnabledTabValue,
-    hasExplicitDefaultValueProp,
     isControlled,
+    notifyAutomaticValueChange,
     selectedTabMetadata,
     setValue,
     tabMap,
@@ -396,13 +463,32 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
   orientation?: TabsRoot.Orientation | undefined;
   /**
    * Callback invoked when new value is being set.
+   *
+   * The event `reason` is `'none'` for user-initiated changes, such as a click
+   * or keyboard navigation; `'initial'` for the first automatic selection or
+   * fallback in uncontrolled roots when `defaultValue` is omitted or
+   * `undefined`, including when the implicit initial value is disabled or
+   * missing; `'disabled'` for automatic fallback when the selected tab becomes
+   * disabled in uncontrolled roots; or `'missing'` for automatic fallback when
+   * the selected tab is removed, or when an explicit `defaultValue` never
+   * matches a mounted tab in uncontrolled roots.
+   *
+   * For automatic changes, the selected value can be `null` when no enabled Tab
+   * is available as a fallback.
+   *
+   * Automatic changes cannot be canceled; calling `eventDetails.cancel()` for
+   * `'initial'`, `'disabled'`, or `'missing'` has no effect.
    */
   onValueChange?:
     | ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void)
     | undefined;
 }
 
-export type TabsRootChangeEventReason = typeof REASONS.none;
+export type TabsRootChangeEventReason =
+  | typeof REASONS.none
+  | typeof REASONS.disabled
+  | typeof REASONS.missing
+  | typeof REASONS.initial;
 export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
   TabsRoot.ChangeEventReason,
   { activationDirection: TabsTab.ActivationDirection }

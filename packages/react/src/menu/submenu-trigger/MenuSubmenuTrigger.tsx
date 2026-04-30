@@ -27,13 +27,14 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
+export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
     className,
+    style,
     label,
     id: idProp,
     nativeButton = false,
@@ -41,7 +42,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     delay = 100,
     closeDelay = 0,
     disabled: disabledProp = false,
-    style,
     ...elementProps
   } = componentProps;
 

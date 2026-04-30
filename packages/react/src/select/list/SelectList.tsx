@@ -20,7 +20,7 @@ export const SelectList = React.forwardRef(function SelectList(
   componentProps: SelectList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { store, scrollHandlerRef } = useSelectRootContext();
   const { alignItemWithTriggerActive } = useSelectPositionerContext();

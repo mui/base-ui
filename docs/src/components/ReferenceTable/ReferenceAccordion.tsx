@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
+import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as CodeBlock from '../CodeBlock';
@@ -63,7 +64,9 @@ export function ReferenceAccordion({
         // anchor hash for each prop
         const id = `${partName.replace('.', '')}-${name}`;
 
-        const shortTypeText = prop.shortTypeText ?? 'type';
+        const shortTypeText = prop.shortType
+          ? stringOrHastToString(prop.shortType as string)
+          : 'type';
         const defaultText = prop.defaultText;
 
         return (
@@ -108,9 +111,8 @@ export function ReferenceAccordion({
                   height="10"
                   viewBox="0 0 10 10"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </span>
             </Accordion.Trigger>

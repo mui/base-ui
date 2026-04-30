@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -32,24 +33,24 @@ export function useRole(
   context: FloatingRootContext | FloatingContext,
   props: UseRoleProps = {},
 ): ElementProps {
+  const { role = 'dialog' } = props;
+
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
   const defaultFloatingId = store.useState('floatingId');
   const domReference = store.useState('domReferenceElement');
   const floatingElement = store.useState('floatingElement');
 
-  const { role = 'dialog' } = props;
-
   const defaultReferenceId = useId();
-  const referenceId = domReference?.id || defaultReferenceId;
+  const parentId = useFloatingParentNodeId();
   const floatingId = React.useMemo(
     () => getFloatingFocusElement(floatingElement)?.id || defaultFloatingId,
     [floatingElement, defaultFloatingId],
   );
 
+  const referenceId = domReference?.id || defaultReferenceId;
   const ariaRole = (componentRoleToAriaRoleMap.get(role) ?? role) as AriaRole | false | undefined;
-
-  const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
 
   const trigger: ElementProps['trigger'] = React.useMemo(() => {
@@ -74,9 +75,8 @@ export function useRole(
       };
     }
 
-    const triggerProps = trigger;
     return {
-      ...triggerProps,
+      ...trigger,
       'aria-expanded': open ? 'true' : 'false',
       'aria-controls': open ? floatingId : undefined,
       ...(ariaRole === 'menu' && { id: referenceId }),
@@ -103,26 +103,18 @@ export function useRole(
 
   const item: ElementProps['item'] = React.useCallback(
     ({ active, selected }: ExtendedUserProps) => {
-      const commonProps = {
-        role: 'option',
-        ...(active && { id: `${floatingId}-fui-option` }),
-      };
-
       // For `menu`, we are unable to tell if the item is a `menuitemradio`
       // or `menuitemcheckbox`. For backwards-compatibility reasons, also
       // avoid defaulting to `menuitem` as it may overwrite custom role props.
-      switch (role) {
-        case 'select':
-        case 'combobox':
-          return {
-            ...commonProps,
-            'aria-selected': selected,
-          };
-
-        default:
+      if (role !== 'select' && role !== 'combobox') {
+        return {};
       }
 
-      return {};
+      return {
+        role: 'option',
+        ...(active && { id: `${floatingId}-fui-option` }),
+        'aria-selected': selected,
+      };
     },
     [floatingId, role],
   );

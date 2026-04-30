@@ -5,8 +5,8 @@
 
 .Heading {
   margin-bottom: 1rem;
-  font-size: var(--text-lg);
-  line-height: var(--text-lg--line-height);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
 }
 
 .Row {

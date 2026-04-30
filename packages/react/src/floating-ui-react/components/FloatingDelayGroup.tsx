@@ -120,9 +120,10 @@ export function useDelayGroup(
   context: FloatingRootContext | FloatingContext,
   options: UseDelayGroupOptions = { open: false },
 ): UseDelayGroupReturn {
+  const { open } = options;
+
   const store = 'rootStore' in context ? context.rootStore : context;
   const floatingId = store.useState('floatingId');
-  const { open } = options;
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
   const {
@@ -217,7 +218,6 @@ export function useDelayGroup(
     store,
     currentIdRef,
     delayRef,
-    timeoutMs,
     initialDelayRef,
     currentContextRef,
     timeout,

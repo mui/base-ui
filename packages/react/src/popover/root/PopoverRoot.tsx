@@ -60,6 +60,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const open = store.useState('open');
   const payload = store.useState('payload') as Payload | undefined;
+  const nested = useFloatingParentNodeId() != null;
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
@@ -77,24 +78,9 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [store, open]);
 
-  const createPopoverEventDetails = React.useCallback(
-    (reason: PopoverRoot.ChangeEventReason) => {
-      const details: PopoverRoot.ChangeEventDetails =
-        createChangeEventDetails<PopoverRoot.ChangeEventReason>(
-          reason,
-        ) as PopoverRoot.ChangeEventDetails;
-      details.preventUnmountOnClose = () => {
-        store.set('preventUnmountingOnClose', true);
-      };
-
-      return details;
-    },
-    [store],
-  );
-
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createPopoverEventDetails(REASONS.imperativeAction));
-  }, [store, createPopoverEventDetails]);
+    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+  }, [store]);
 
   React.useImperativeHandle(
     props.actionsRef,
@@ -139,7 +125,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     inactiveTriggerProps,
     popupProps,
     floatingRootContext,
-    nested: useFloatingParentNodeId() != null,
+    nested,
   });
 
   const popoverContext: PopoverRootContext<Payload> = React.useMemo(
@@ -203,7 +189,7 @@ export interface PopoverRootProps<Payload = unknown> {
    * - `unmount`: When specified, the popover will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the popover manually.
    * Useful when the popover's animation is controlled by an external library.
-   * - `close`: Closes the dialog imperatively when called.
+   * - `close`: Closes the popover imperatively when called.
    */
   actionsRef?: React.RefObject<PopoverRoot.Actions | null> | undefined;
   /**

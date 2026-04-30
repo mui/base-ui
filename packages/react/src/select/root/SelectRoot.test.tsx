@@ -3127,6 +3127,203 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it.skipIf(isJSDOM)(
+      'resets aligned positioning after controlled value reset and option replacement',
+      async () => {
+        function Test() {
+          const [group, setGroup] = React.useState<'a' | 'b'>('a');
+          const [value, setValue] = React.useState<string | null>(null);
+          const options = Array.from({ length: 40 }, (_, index) => `${group}-${index}`);
+
+          return (
+            <div style={{ paddingTop: 120, paddingLeft: 32 }}>
+              <button
+                data-testid="replace-options"
+                onClick={() => {
+                  setGroup('b');
+                  setValue(null);
+                }}
+              >
+                Replace options
+              </button>
+              <Select.Root value={value} onValueChange={setValue}>
+                <Select.Trigger data-testid="trigger" style={{ width: 160, height: 36 }}>
+                  <Select.Value placeholder="Pick one" />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner data-testid="positioner">
+                    <Select.Popup style={{ maxHeight: 'none', minHeight: 100 }}>
+                      {options.map((option, index) => (
+                        <Select.Item key={index} value={option}>
+                          <Select.ItemText>{option}</Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        await user.click(await screen.findByRole('option', { name: 'a-35' }));
+        await user.click(screen.getByTestId('replace-options'));
+        await user.click(trigger);
+
+        const listbox = await screen.findByRole('listbox');
+        const positioner = screen.getByTestId('positioner');
+        const firstOption = screen.getByRole('option', { name: 'b-0' });
+
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+        await waitFor(() => expect(listbox.scrollTop).toBe(0));
+        await waitFor(() =>
+          expect(firstOption.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+            positioner.getBoundingClientRect().top,
+          ),
+        );
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets aligned positioning when value reset, option replacement, and controlled open happen together',
+      async () => {
+        function Test() {
+          const [group, setGroup] = React.useState<'a' | 'b'>('a');
+          const [value, setValue] = React.useState<string | null>(null);
+          const [open, setOpen] = React.useState(false);
+          const options = Array.from({ length: 40 }, (_, index) => `${group}-${index}`);
+
+          return (
+            <div style={{ paddingTop: 120, paddingLeft: 32 }}>
+              <button
+                data-testid="replace-options-and-open"
+                onClick={() => {
+                  setGroup('b');
+                  setValue(null);
+                  setOpen(true);
+                }}
+              >
+                Replace options and open
+              </button>
+              <Select.Root
+                value={value}
+                onValueChange={setValue}
+                open={open}
+                onOpenChange={setOpen}
+              >
+                <Select.Trigger data-testid="trigger" style={{ width: 160, height: 36 }}>
+                  <Select.Value placeholder="Pick one" />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner data-testid="positioner">
+                    <Select.Popup style={{ maxHeight: 'none', minHeight: 100 }}>
+                      {options.map((option, index) => (
+                        <Select.Item key={index} value={option}>
+                          <Select.ItemText>{option}</Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        await user.click(await screen.findByRole('option', { name: 'a-35' }));
+        await user.click(screen.getByTestId('replace-options-and-open'));
+
+        const listbox = await screen.findByRole('listbox');
+        const positioner = screen.getByTestId('positioner');
+        const firstOption = screen.getByRole('option', { name: 'b-0' });
+
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+        await waitFor(() => expect(listbox.scrollTop).toBe(0));
+        await waitFor(() =>
+          expect(firstOption.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+            positioner.getBoundingClientRect().top,
+          ),
+        );
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'resets aligned positioning when a stale controlled value, option replacement, and controlled open happen together',
+      async () => {
+        function Test() {
+          const [group, setGroup] = React.useState<'a' | 'b'>('a');
+          const [value, setValue] = React.useState<string | null>(null);
+          const [open, setOpen] = React.useState(false);
+          const options = Array.from({ length: 40 }, (_, index) => `${group}-${index}`);
+
+          return (
+            <div style={{ paddingTop: 120, paddingLeft: 32 }}>
+              <button
+                data-testid="replace-options-and-open"
+                onClick={() => {
+                  setGroup('b');
+                  setOpen(true);
+                }}
+              >
+                Replace options and open
+              </button>
+              <Select.Root
+                value={value}
+                onValueChange={setValue}
+                open={open}
+                onOpenChange={setOpen}
+              >
+                <Select.Trigger data-testid="trigger" style={{ width: 160, height: 36 }}>
+                  <Select.Value placeholder="Pick one" />
+                </Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner data-testid="positioner">
+                    <Select.Popup style={{ maxHeight: 'none', minHeight: 100 }}>
+                      {options.map((option, index) => (
+                        <Select.Item key={index} value={option}>
+                          <Select.ItemText>{option}</Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        await user.click(await screen.findByRole('option', { name: 'a-35' }));
+        await user.click(screen.getByTestId('replace-options-and-open'));
+
+        const listbox = await screen.findByRole('listbox');
+        const positioner = screen.getByTestId('positioner');
+        const firstOption = screen.getByRole('option', { name: 'b-0' });
+
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+        await waitFor(() => expect(listbox.scrollTop).toBe(0));
+        await waitFor(() =>
+          expect(firstOption.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+            positioner.getBoundingClientRect().top,
+          ),
+        );
+      },
+    );
+
     it('falls back to null when both selected and initial default are removed (uncontrolled)', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();

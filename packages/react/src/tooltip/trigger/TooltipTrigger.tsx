@@ -30,8 +30,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const {
-    className,
     render,
+    className,
+    style,
     handle,
     payload,
     disabled: disabledProp,
@@ -39,7 +40,6 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     closeOnClick = true,
     closeDelay,
     id: idProp,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -124,9 +124,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
 
-  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
-
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+
+  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
   const element = useRenderElement('button', componentProps, {
     state,

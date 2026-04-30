@@ -37,6 +37,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const {
     render,
     className,
+    style,
     disabled = false,
     nativeButton = true,
     handle,
@@ -45,7 +46,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     delay = OPEN_DELAY,
     closeDelay = 0,
     id: idProp,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -104,28 +104,28 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
-  const state: PopoverTriggerState = {
-    disabled,
-    open: isOpenedByThisTrigger,
-  };
-
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
   });
 
-  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = React.useMemo(
-    () => ({
-      open(value) {
-        if (value && openReason === REASONS.triggerPress) {
-          return pressableTriggerOpenStateMapping.open(value);
-        }
+  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = {
+    open(value) {
+      if (value && openReason === REASONS.triggerPress) {
+        return pressableTriggerOpenStateMapping.open(value);
+      }
 
-        return triggerOpenStateMapping.open(value);
-      },
-    }),
-    [openReason],
-  );
+      return triggerOpenStateMapping.open(value);
+    },
+  };
+
+  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
+    useTriggerFocusGuards(store, triggerElementRef);
+
+  const state: PopoverTriggerState = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
 
   const element = useRenderElement('button', componentProps, {
     state,
@@ -140,9 +140,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     ],
     stateAttributesMapping,
   });
-
-  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
-    useTriggerFocusGuards(store, triggerElementRef);
 
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
   // regardless of whether the focus guards are rendered or not.

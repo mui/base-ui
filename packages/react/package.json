@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/react",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
   "license": "MIT",
@@ -76,6 +76,7 @@
     "./internals/composite": "./src/internals/composite/index.ts",
     "./internals/constants": "./src/internals/constants.ts",
     "./internals/createBaseUIEventDetails": "./src/internals/createBaseUIEventDetails.ts",
+    "./internals/csp-context": "./src/internals/csp-context/index.ts",
     "./internals/direction-context": "./src/internals/direction-context/index.ts",
     "./internals/field-constants": "./src/internals/field-constants/index.ts",
     "./internals/field-register-control": "./src/internals/field-register-control/index.ts",
@@ -137,11 +138,11 @@
     "clsx": "2.1.1",
     "date-fns": "4.1.0",
     "luxon": "3.7.2",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "react-router": "7.13.2",
-    "typescript": "6.0.2",
-    "vitest-browser-react": "2.1.0"
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "react-router": "7.14.2",
+    "typescript": "6.0.3",
+    "vitest-browser-react": "2.2.0"
   },
   "peerDependencies": {
     "@date-fns/tz": "^1.2.0",
@@ -151,7 +152,13 @@
     "react-dom": "^17 || ^18 || ^19"
   },
   "peerDependenciesMeta": {
+    "@date-fns/tz": {
+      "optional": true
+    },
     "@types/react": {
+      "optional": true
+    },
+    "date-fns": {
       "optional": true
     }
   },

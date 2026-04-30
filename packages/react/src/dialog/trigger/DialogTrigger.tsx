@@ -24,12 +24,12 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   const {
     render,
     className,
+    style,
     disabled = false,
     nativeButton = true,
     id: idProp,
     payload,
     handle,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -105,7 +105,7 @@ export interface DialogTriggerProps<Payload = unknown>
   payload?: Payload | undefined;
   /**
    * ID of the trigger. In addition to being forwarded to the rendered element,
-   * it is also used to specify the active trigger for the dialogs in controlled mode (with the DialogRoot `triggerId` prop).
+   * it is also used to specify the active trigger for the dialog in controlled mode (with the DialogRoot `triggerId` prop).
    */
   id?: string | undefined;
 }

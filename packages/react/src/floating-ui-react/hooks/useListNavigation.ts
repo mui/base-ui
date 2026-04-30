@@ -1,37 +1,37 @@
 'use client';
 import * as React from 'react';
-import { isHTMLElement } from '@floating-ui/utils/dom';
-import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
-import {
-  activeElement,
-  contains,
-  getTarget,
-  isTypeableCombobox,
-  getFloatingFocusElement,
-} from '../utils/element';
-import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
-import {
-  isIndexOutOfListBounds,
-  getMinListIndex,
-  getMaxListIndex,
-  getGridNavigatedIndex,
-  isListIndexDisabled,
-  createGridCellMap,
-  getGridCellIndices,
-  getGridCellIndexOfCorner,
-  findNonDisabledListIndex,
-} from '../utils/composite';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { isHTMLElement } from '@floating-ui/utils/dom';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
+import {
+  createGridCellMap,
+  findNonDisabledListIndex,
+  getGridCellIndexOfCorner,
+  getGridCellIndices,
+  getGridNavigatedIndex,
+  getMaxListIndex,
+  getMinListIndex,
+  isIndexOutOfListBounds,
+  isListIndexDisabled,
+} from '../utils/composite';
+import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
+import {
+  activeElement,
+  contains,
+  getFloatingFocusElement,
+  getTarget,
+  isTypeableCombobox,
+} from '../utils/element';
 import { enqueueFocus } from '../utils/enqueueFocus';
-import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
+import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
 
 export const ESCAPE = 'Escape';
 
@@ -220,7 +220,7 @@ export interface UseListNavigationProps {
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
-   * External FlatingTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
 }
@@ -234,12 +234,6 @@ export function useListNavigation(
   context: FloatingRootContext | FloatingContext,
   props: UseListNavigationProps,
 ): ElementProps {
-  const store = 'rootStore' in context ? context.rootStore : context;
-  const open = store.useState('open');
-  const floatingElement = store.useState('floatingElement');
-  const domReferenceElement = store.useState('domReferenceElement');
-  const dataRef = store.context.dataRef;
-
   const {
     listRef,
     activeIndex,
@@ -282,17 +276,20 @@ export function useListNavigation(
     }
   }
 
+  const store = 'rootStore' in context ? context.rootStore : context;
+
+  const open = store.useState('open');
+  const floatingElement = store.useState('floatingElement');
+  const domReferenceElement = store.useState('domReferenceElement');
+
+  const dataRef = store.context.dataRef;
+
   const floatingFocusElement = getFloatingFocusElement(floatingElement);
+  const typeableComboboxReference = isTypeableCombobox(domReferenceElement);
   const floatingFocusElementRef = useValueAsRef(floatingFocusElement);
 
   const parentId = useFloatingParentNodeId();
   const tree = useFloatingTree(externalTree);
-
-  useIsoLayoutEffect(() => {
-    dataRef.current.orientation = orientation;
-  }, [dataRef, orientation]);
-
-  const typeableComboboxReference = isTypeableCombobox(domReferenceElement);
 
   const focusItemOnOpenRef = React.useRef(focusItemOnOpen);
   const indexRef = React.useRef(selectedIndex ?? -1);
@@ -315,6 +312,9 @@ export function useListNavigation(
   const selectedIndexRef = useValueAsRef(selectedIndex);
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
 
+  const focusFrame = useAnimationFrame();
+  const waitForListPopulatedFrame = useAnimationFrame();
+
   const focusItem = useStableCallback(() => {
     function runFocus(item: HTMLElement) {
       if (virtual) {
@@ -334,7 +334,9 @@ export function useListNavigation(
       runFocus(initialItem);
     }
 
-    const scheduler = forceSyncFocusRef.current ? (v: () => void) => v() : requestAnimationFrame;
+    const scheduler = forceSyncFocusRef.current
+      ? (callback: () => void) => callback()
+      : (callback: () => void) => focusFrame.request(callback);
 
     scheduler(() => {
       const waitedItem = listRef.current[indexRef.current] || initialItem;
@@ -358,6 +360,10 @@ export function useListNavigation(
       }
     });
   });
+
+  useIsoLayoutEffect(() => {
+    dataRef.current.orientation = orientation;
+  }, [dataRef, orientation]);
 
   // Sync `selectedIndex` to be the `activeIndex` upon opening the floating
   // element. Also, reset `activeIndex` upon closing the floating element.
@@ -423,7 +429,9 @@ export function useListNavigation(
             // otherwise use rAF. Don't try more than twice, since something
             // is wrong otherwise.
             if (runs < 2) {
-              const scheduler = runs ? requestAnimationFrame : queueMicrotask;
+              const scheduler = runs
+                ? (callback: () => void) => waitForListPopulatedFrame.request(callback)
+                : queueMicrotask;
               scheduler(waitForListPopulated);
             }
             runs += 1;
@@ -459,7 +467,7 @@ export function useListNavigation(
     rtl,
     onNavigate,
     focusItem,
-    disabledIndicesRef,
+    waitForListPopulatedFrame,
   ]);
 
   // Ensure the parent floating element has focus when a nested child closes
@@ -508,80 +516,17 @@ export function useListNavigation(
     }
   });
 
-  const item = React.useMemo(() => {
-    const itemProps: ElementProps['item'] = {
-      onFocus(event) {
-        forceSyncFocusRef.current = true;
-        syncCurrentTarget(event);
-      },
-      onClick: ({ currentTarget }) => currentTarget.focus({ preventScroll: true }), // Safari
-      onMouseMove(event) {
-        forceSyncFocusRef.current = true;
-        forceScrollIntoViewRef.current = false;
-        if (focusItemOnHover) {
-          syncCurrentTarget(event);
-        }
-      },
-      onPointerLeave(event) {
-        if (
-          !latestOpenRef.current ||
-          !isPointerModalityRef.current ||
-          event.pointerType === 'touch'
-        ) {
-          return;
-        }
-
-        forceSyncFocusRef.current = true;
-
-        const relatedTarget = event.relatedTarget as HTMLElement | null;
-
-        if (isMouseWithinBounds(event)) {
-          return;
-        }
-
-        if (!focusItemOnHover || listRef.current.includes(relatedTarget)) {
-          return;
-        }
-
-        if (!resetOnPointerLeaveRef.current) {
-          return;
-        }
-
-        cancelQueuedFocusRef.current?.();
-        cancelQueuedFocusRef.current = null;
-
-        indexRef.current = -1;
-        onNavigate(event);
-
-        if (!virtual) {
-          const floatingFocusEl = floatingFocusElementRef.current;
-          const activeEl = activeElement(ownerDocument(floatingFocusEl));
-          if (floatingFocusEl && contains(floatingFocusEl, activeEl)) {
-            floatingFocusEl.focus({ preventScroll: true });
-          }
-        }
-      },
-    };
-
-    return itemProps;
-  }, [
-    syncCurrentTarget,
-    latestOpenRef,
-    floatingFocusElementRef,
-    focusItemOnHover,
-    listRef,
-    onNavigate,
-    resetOnPointerLeaveRef,
-    virtual,
-  ]);
-
-  const getParentOrientation = React.useCallback(() => {
+  const getParentOrientation = useStableCallback(() => {
     return (
       parentOrientation ??
       (tree?.nodesRef.current.find((node) => node.id === parentId)?.context?.dataRef?.current
         .orientation as UseListNavigationProps['orientation'])
     );
-  }, [parentId, tree, parentOrientation]);
+  });
+
+  const getMinEnabledIndex = useStableCallback(() => {
+    return getMinListIndex(listRef, disabledIndicesRef.current);
+  });
 
   const commonOnKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     isPointerModalityRef.current = false;
@@ -793,6 +738,69 @@ export function useListNavigation(
     }
   });
 
+  const item = React.useMemo(() => {
+    const itemProps: ElementProps['item'] = {
+      onFocus(event) {
+        forceSyncFocusRef.current = true;
+        syncCurrentTarget(event);
+      },
+      onClick: ({ currentTarget }) => currentTarget.focus({ preventScroll: true }), // Safari
+      onMouseMove(event) {
+        forceSyncFocusRef.current = true;
+        forceScrollIntoViewRef.current = false;
+        if (focusItemOnHover) {
+          syncCurrentTarget(event);
+        }
+      },
+      onPointerLeave(event) {
+        if (
+          !latestOpenRef.current ||
+          !isPointerModalityRef.current ||
+          event.pointerType === 'touch'
+        ) {
+          return;
+        }
+
+        forceSyncFocusRef.current = true;
+
+        const relatedTarget = event.relatedTarget as HTMLElement | null;
+
+        if (!focusItemOnHover || listRef.current.includes(relatedTarget)) {
+          return;
+        }
+
+        if (!resetOnPointerLeaveRef.current) {
+          return;
+        }
+
+        cancelQueuedFocusRef.current?.();
+        cancelQueuedFocusRef.current = null;
+
+        indexRef.current = -1;
+        onNavigate(event);
+
+        if (!virtual) {
+          const floatingFocusEl = floatingFocusElementRef.current;
+          const activeEl = activeElement(ownerDocument(floatingFocusEl));
+          if (floatingFocusEl && contains(floatingFocusEl, activeEl)) {
+            floatingFocusEl.focus({ preventScroll: true });
+          }
+        }
+      },
+    };
+
+    return itemProps;
+  }, [
+    syncCurrentTarget,
+    latestOpenRef,
+    floatingFocusElementRef,
+    focusItemOnHover,
+    listRef,
+    onNavigate,
+    resetOnPointerLeaveRef,
+    virtual,
+  ]);
+
   const ariaActiveDescendantProp = React.useMemo(() => {
     return (
       virtual &&
@@ -847,6 +855,17 @@ export function useListNavigation(
   ]);
 
   const trigger: ElementProps['trigger'] = React.useMemo(() => {
+    function openOnNavigationKeyDown(event: React.KeyboardEvent) {
+      store.setOpen(
+        true,
+        createChangeEventDetails(
+          REASONS.listNavigation,
+          event.nativeEvent,
+          event.currentTarget as HTMLElement,
+        ),
+      );
+    }
+
     function checkVirtualMouse(event: React.PointerEvent) {
       if (focusItemOnOpen === 'auto' && isVirtualClick(event.nativeEvent)) {
         focusItemOnOpenRef.current = !virtual;
@@ -899,17 +918,10 @@ export function useListNavigation(
             stopEvent(event);
 
             if (currentOpen) {
-              indexRef.current = getMinListIndex(listRef, disabledIndicesRef.current);
+              indexRef.current = getMinEnabledIndex();
               onNavigate(event);
             } else {
-              store.setOpen(
-                true,
-                createChangeEventDetails(
-                  REASONS.listNavigation,
-                  event.nativeEvent,
-                  event.currentTarget as HTMLElement,
-                ),
-              );
+              openOnNavigationKeyDown(event);
             }
           }
 
@@ -924,14 +936,7 @@ export function useListNavigation(
           stopEvent(event);
 
           if (!currentOpen && openOnArrowKeyDown) {
-            store.setOpen(
-              true,
-              createChangeEventDetails(
-                REASONS.listNavigation,
-                event.nativeEvent,
-                event.currentTarget as HTMLElement,
-              ),
-            );
+            openOnNavigationKeyDown(event);
           } else {
             commonOnKeyDown(event);
           }
@@ -956,9 +961,8 @@ export function useListNavigation(
     };
   }, [
     commonOnKeyDown,
-    disabledIndicesRef,
     focusItemOnOpen,
-    listRef,
+    getMinEnabledIndex,
     nested,
     onNavigate,
     store,

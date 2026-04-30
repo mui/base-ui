@@ -19,7 +19,7 @@ export const SelectItemText = React.memo(
     const { indexRef, textRef, selectedByFocus, hasRegistered } = useSelectItemContext();
     const { selectedItemTextRef } = useSelectRootContext();
 
-    const { className, render, style, ...elementProps } = componentProps;
+    const { render, className, style, ...elementProps } = componentProps;
 
     const localRef = React.useCallback(
       (node: HTMLElement | null) => {

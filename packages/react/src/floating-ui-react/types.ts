@@ -119,8 +119,6 @@ export interface FloatingEvents {
 export interface ContextData {
   openEvent?: Event | undefined;
   floatingContext?: FloatingContext | undefined;
-  /** @deprecated use `onTypingChange` prop in `useTypeahead` */
-  typing?: boolean | undefined;
   [key: string]: any;
 }
 
@@ -204,7 +202,7 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
    */
   nodeId?: string | undefined;
   /**
-   * External FlatingTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
 }

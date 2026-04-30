@@ -16,11 +16,11 @@ export enum OTPFieldRootDataAttributes {
    */
   required = 'data-required',
   /**
-   * Present when the OTP field is in valid state (when wrapped in Field.Root).
+   * Present when the OTP field is in a valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**
-   * Present when the OTP field is in invalid state (when wrapped in Field.Root).
+   * Present when the OTP field is in an invalid state (when wrapped in Field.Root).
    */
   invalid = 'data-invalid',
   /**

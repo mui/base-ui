@@ -25,7 +25,7 @@ function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
       width="16"
       height="16"
       viewBox="0 0 16 16"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeLinecap="round"
       {...props}
     >
@@ -43,7 +43,7 @@ function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
       width="16"
       height="16"
       viewBox="0 0 16 16"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeLinecap="round"
       {...props}
     >
@@ -61,7 +61,7 @@ function AlignRightIcon(props: React.ComponentProps<'svg'>) {
       width="16"
       height="16"
       viewBox="0 0 16 16"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeLinecap="round"
       {...props}
     >
