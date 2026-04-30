@@ -31,11 +31,11 @@ export default function ExampleEmojiPicker() {
 
   return (
     <div className="mx-auto w-[16rem]">
-      <div className="grid grid-cols-[1fr_auto] items-center has-[input:focus]:outline-2 has-[input:focus]:-outline-offset-2 has-[input:focus]:outline-blue-800">
+      <div className="relative flex">
         <input
           ref={textInputRef}
           type="text"
-          className="col-span-full row-start-1 h-8 border border-neutral-950 bg-transparent px-2 text-sm font-normal text-neutral-950 outline-none dark:border-white dark:text-white"
+          className="-mr-px h-8 border border-r-0 border-neutral-950 px-2 text-sm font-normal text-neutral-950 outline-none focus:relative focus:outline-2 focus:-outline-offset-2 focus:outline-solid focus:outline-blue-800 dark:border-white dark:text-white"
           placeholder="iMessage"
           value={textValue}
           onChange={(event) => setTextValue(event.target.value)}
@@ -55,18 +55,21 @@ export default function ExampleEmojiPicker() {
           }}
         >
           <Autocomplete.Trigger
-            className="col-start-2 row-start-1 mr-px flex size-[calc(2rem-2px)] items-center justify-center border-0 bg-transparent text-xl leading-none text-neutral-950 outline-hidden hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-popup-open:bg-neutral-100 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800"
+            className="flex size-8 items-center justify-center border border-neutral-950 bg-transparent text-xl leading-none text-neutral-950 outline-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-solid focus-visible:outline-blue-800 data-popup-open:bg-neutral-100 dark:border-white dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800"
             aria-label="Choose emoji"
           >
             😀
           </Autocomplete.Trigger>
           <Autocomplete.Portal>
-            <Autocomplete.Positioner className="outline-hidden" sideOffset={4} align="end">
-              <Autocomplete.Popup className="[--input-container-height:2rem] max-h-[20.5rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[transform,scale,opacity] data-ending-style:scale-90 data-ending-style:opacity-0 data-starting-style:scale-90 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
+            <Autocomplete.Positioner className="outline-0" sideOffset={4} align="end">
+              <Autocomplete.Popup
+                className="[--input-container-height:2rem] max-h-[20.5rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[transform,scale,opacity] data-ending-style:scale-90 data-ending-style:opacity-0 data-starting-style:scale-90 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
+                aria-label="Select emoji"
+              >
                 <div className="relative z-[2] h-[var(--input-container-height)] w-64 bg-white dark:bg-neutral-950">
                   <Autocomplete.Input
                     placeholder="Search emojis…"
-                    className="h-8 w-full border-0 bg-transparent px-2 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 dark:text-white"
+                    className="h-8 w-full border-0 bg-transparent px-2 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-blue-800 dark:text-white"
                   />
                 </div>
                 <Autocomplete.Empty>
@@ -74,9 +77,9 @@ export default function ExampleEmojiPicker() {
                     No emojis found
                   </div>
                 </Autocomplete.Empty>
-                <Autocomplete.List className="max-h-[min(calc(20.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto scroll-pt-10 scroll-pb-[0.35rem] overscroll-contain">
+                <Autocomplete.List className="max-h-[min(calc(20.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto scroll-pt-10 scroll-pb-[0.35rem] overscroll-contain empty:p-0">
                   {(group: EmojiGroup) => (
-                    <Autocomplete.Group key={group.value} items={group.items} className="block">
+                    <Autocomplete.Group key={group.value} items={group.items} className="block pb-2">
                       <Autocomplete.GroupLabel className="sticky top-0 z-[1] bg-white p-2 text-xs font-bold text-neutral-500 uppercase tracking-wider dark:bg-neutral-950 dark:text-neutral-400">
                         {group.label}
                       </Autocomplete.GroupLabel>
@@ -87,7 +90,7 @@ export default function ExampleEmojiPicker() {
                               <Autocomplete.Item
                                 key={rowItem.emoji}
                                 value={rowItem}
-                                className="group flex h-10 min-w-[var(--anchor-width)] flex-col items-center justify-center bg-transparent px-0.5 py-2 text-neutral-950 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-100 dark:text-white dark:data-highlighted:before:bg-neutral-800"
+                                className="group flex h-10 min-w-[var(--anchor-width)] cursor-default flex-col items-center justify-center bg-transparent px-0.5 py-2 text-neutral-950 outline-0 select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-100 dark:text-white dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-neutral-800"
                                 onClick={() => {
                                   handleInsertEmoji(rowItem.emoji);
                                   setPickerOpen(false);
