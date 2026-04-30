@@ -630,7 +630,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     });
 
     const inertCleanup = markOthers(insideElements, {
-      inert: modal,
+      inert: modal && !isUntrappedTypeableCombobox,
       mark: false,
     });
 
