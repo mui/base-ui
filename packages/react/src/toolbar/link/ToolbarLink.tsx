@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 
 const TOOLBAR_LINK_METADATA = {
-  // links cannot be disabled, this metadata is only used for deriving `disabledIndices``
-  // TODO: better name
+  // Links cannot be disabled, but they still occupy a focusable composite item slot.
   focusableWhenDisabled: true,
 };
 

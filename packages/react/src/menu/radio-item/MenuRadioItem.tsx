@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -74,13 +73,13 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     [disabled, highlighted, checked],
   );
 
-  const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = {
-      ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
-      preventUnmountOnClose: () => {},
-    };
+  function handleClick(event: React.MouseEvent) {
+    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
+      preventUnmountOnClose() {},
+    });
+
     setSelectedValue(value, details);
-  });
+  }
 
   const element = useRenderElement('div', componentProps, {
     state,

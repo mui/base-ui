@@ -2,12 +2,10 @@
 import * as React from 'react';
 import type { UseCollapsibleRootReturnValue } from './useCollapsibleRoot';
 import type { CollapsibleRoot, CollapsibleRootState } from './CollapsibleRoot';
-import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 export interface CollapsibleRootContext extends UseCollapsibleRootReturnValue {
   onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
   state: CollapsibleRootState;
-  transitionStatus: TransitionStatus;
 }
 
 export const CollapsibleRootContext = React.createContext<CollapsibleRootContext | undefined>(

@@ -44,7 +44,7 @@ export function CssVariablesReferenceTable({
                   viewBox="0 0 10 10"
                   fill="none"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </Accordion.Trigger>
               <Accordion.Panel>

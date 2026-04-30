@@ -39,7 +39,6 @@ export default {
       },
       // Category overrides - labels that force a specific section
       categoryOverrides: {
-        'all components': 'general changes',
         'scope: all components': 'general changes',
       },
       // Explicit flag labels

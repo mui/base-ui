@@ -780,11 +780,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
 
       if (typeof resolvedReturnFocusValue === 'boolean') {
-        const el = domReference || getPreviouslyFocusedElement();
-        return el && el.isConnected ? el : null;
+        if (domReference?.isConnected) {
+          return domReference;
+        }
+
+        return getPreviouslyFocusedElement() || null;
       }
 
-      const fallback = domReference || getPreviouslyFocusedElement();
+      const fallback = domReference?.isConnected ? domReference : getPreviouslyFocusedElement();
 
       return resolveRef(resolvedReturnFocusValue) || fallback || null;
     }

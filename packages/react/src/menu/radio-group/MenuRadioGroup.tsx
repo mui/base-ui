@@ -35,11 +35,9 @@ export const MenuRadioGroup = React.memo(
       name: 'MenuRadioGroup',
     });
 
-    const onValueChange = useStableCallback(onValueChangeProp);
-
     const setValue = useStableCallback(
       (newValue: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => {
-        onValueChange?.(newValue, eventDetails);
+        onValueChangeProp?.(newValue, eventDetails);
 
         if (eventDetails.isCanceled) {
           return;

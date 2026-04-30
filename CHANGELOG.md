@@ -15,7 +15,7 @@ _Apr 20, 2026_
 
 - Fix stale popup size on rapid trigger hover (#4646) by @atomiks
 
-All contributors of this release in alphabetical order : @atomiks, @LukasTy
+All contributors of this release in alphabetical order: @atomiks, @LukasTy
 
 ## v1.4.0
 
@@ -146,7 +146,7 @@ _Apr 13, 2026_
 
 - Fix incorrect keyboard nav on cross axis (#4488) by @mj12albert
 
-All contributors of this release in alphabetical order : @arturbien, @atomiks, @CiscoFran10, @devxoul, @flaviendelangle, @kyrregjerstad, @LukasTy, @lunaxislu, @mattrothenberg, @mdm317, @michaldudak, @mj12albert, @Profesor08, @ryanrhee, @sai6855, @tsbehlman
+All contributors of this release in alphabetical order: @arturbien, @atomiks, @CiscoFran10, @devxoul, @flaviendelangle, @kyrregjerstad, @LukasTy, @lunaxislu, @mattrothenberg, @mdm317, @michaldudak, @mj12albert, @Profesor08, @ryanrhee, @sai6855, @tsbehlman
 
 ## v1.3.0
 
@@ -293,7 +293,7 @@ _Mar 12, 2026_
 
 - Add `closeOnClick` prop (#4140) by @atomiks
 
-All contributors of this release in alphabetical order : @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
 
 ## v1.2.0
 
@@ -466,7 +466,7 @@ _Feb 12, 2026_
 - Fix broken scale transition with detached triggers (#3810) by @michaldudak
 - Fix disabled prop on Triggers (#4049) by @michaldudak
 
-All contributors of this release in alphabetical order : @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
+All contributors of this release in alphabetical order: @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
 
 ## v1.1.0
 
@@ -2099,7 +2099,7 @@ _Mar 20, 2025_
 - Mention Progress.Value in API reference (#1429) @aarongarciah
 - Update release instructions (#1417) @michaldudak
 
-### Core
+### Internal
 
 - [code-infra] Polish VS Code DX (#1238) @oliviertassinari
 - [code-infra] Fix build:types not copying on some setups (#1482) @Janpot

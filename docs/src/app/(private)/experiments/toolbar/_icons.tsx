@@ -86,7 +86,7 @@ export function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
       height="12"
       viewBox="0 0 8 12"
       fill="none"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeWidth="1.5"
       {...props}
     >
@@ -98,7 +98,7 @@ export function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
 
 export function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+    <svg fill="currentColor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
   );
@@ -117,7 +117,7 @@ export function MoreHorizontalIcon(props: React.ComponentProps<'svg'>) {
 export function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" strokeWidth="1.5" />
+      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -125,7 +125,7 @@ export function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 export function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentcolor" strokeWidth="1.5" />
+      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -162,7 +162,7 @@ export function PlusIcon(props: React.ComponentProps<'svg'>) {
       height="10"
       viewBox="0 0 10 10"
       fill="none"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeWidth="1.6"
       {...props}
     >
@@ -178,7 +178,7 @@ export function MinusIcon(props: React.ComponentProps<'svg'>) {
       height="10"
       viewBox="0 0 10 10"
       fill="none"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeWidth="1.6"
       {...props}
     >
@@ -189,7 +189,7 @@ export function MinusIcon(props: React.ComponentProps<'svg'>) {
 
 export function BellIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="20" height="20" viewBox="0 0 16 16" {...props}>
+    <svg fill="currentColor" width="20" height="20" viewBox="0 0 16 16" {...props}>
       <path d="M 8 1 C 7.453125 1 7 1.453125 7 2 L 7 3.140625 C 5.28125 3.589844 4 5.144531 4 7 L 4 10.984375 C 4 10.984375 3.984375 11.261719 3.851563 11.519531 C 3.71875 11.78125 3.558594 12 3 12 L 3 13 L 13 13 L 13 12 C 12.40625 12 12.253906 11.78125 12.128906 11.53125 C 12.003906 11.277344 12 11.003906 12 11.003906 L 12 7 C 12 5.144531 10.71875 3.589844 9 3.140625 L 9 2 C 9 1.453125 8.546875 1 8 1 Z M 8 13 C 7.449219 13 7 13.449219 7 14 C 7 14.550781 7.449219 15 8 15 C 8.550781 15 9 14.550781 9 14 C 9 13.449219 8.550781 13 8 13 Z M 8 4 C 9.664063 4 11 5.335938 11 7 L 11 10.996094 C 11 10.996094 10.988281 11.472656 11.234375 11.96875 C 11.238281 11.980469 11.246094 11.988281 11.25 12 L 4.726563 12 C 4.730469 11.992188 4.738281 11.984375 4.742188 11.980469 C 4.992188 11.488281 5 11.015625 5 11.015625 L 5 7 C 5 5.335938 6.335938 4 8 4 Z" />
     </svg>
   );

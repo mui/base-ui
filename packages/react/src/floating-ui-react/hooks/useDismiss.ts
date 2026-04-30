@@ -233,6 +233,10 @@ export function useDismiss(
 
       store.setOpen(false, eventDetails);
 
+      if (!eventDetails.isCanceled) {
+        event.preventDefault();
+      }
+
       if (!escapeKeyBubbles && !eventDetails.isPropagationAllowed) {
         event.stopPropagation();
       }
