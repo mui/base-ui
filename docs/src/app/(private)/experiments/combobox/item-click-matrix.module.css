@@ -1,0 +1,422 @@
+.Page {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  color: var(--color-gray-900);
+}
+
+.Hero {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.Title {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.1;
+}
+
+.Description {
+  margin: 0;
+  max-width: 42rem;
+  color: var(--color-gray-700);
+}
+
+.Layout {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 75rem) {
+  .Layout {
+    grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.Panel {
+  min-width: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  background-color: canvas;
+  padding: 1rem;
+}
+
+.PanelHeader {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.PanelTitle {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.PanelText {
+  margin: 0;
+  color: var(--color-gray-700);
+}
+
+.ControlGrid {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.Field {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.FieldLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.Select,
+.Input,
+.PopupInput,
+.PopupTrigger,
+.Trigger,
+.ResetButton {
+  font: inherit;
+}
+
+.Select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: canvas;
+  padding: 0 0.875rem;
+  color: inherit;
+}
+
+.Select:focus-visible,
+.PopupTrigger:focus-visible,
+.ResetButton:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
+}
+
+.StatusGrid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 48rem) {
+  .StatusGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ExpectationCard {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: canvas;
+  padding: 0.875rem 1rem;
+}
+
+.ExpectationLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-gray-600);
+}
+
+.ExpectationValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.PreviewStack,
+.StatusStack {
+  display: grid;
+  gap: 1rem;
+}
+
+.Toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ToolbarHint {
+  color: var(--color-gray-700);
+}
+
+.ResetButton {
+  box-sizing: border-box;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: canvas;
+  color: inherit;
+  padding: 0.45rem 0.8rem;
+}
+
+.ResetButton:hover {
+  background-color: var(--color-gray-100);
+}
+
+.PreviewSurface {
+  display: grid;
+  justify-items: start;
+  gap: 1rem;
+  min-height: calc(24rem + 2.75rem);
+  overflow: visible;
+}
+
+.InputGroup {
+  position: relative;
+  width: 16rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: canvas;
+}
+
+.InputGroup:focus-within {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
+}
+
+.Input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: none;
+  border-radius: inherit;
+  background-color: transparent;
+  padding-left: 0.875rem;
+  padding-right: calc(0.5rem + 1.5rem);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-gray-900);
+}
+
+.Input:focus {
+  outline: none;
+}
+
+.ActionButtons {
+  box-sizing: border-box;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: 0;
+  height: 2.5rem;
+  right: 0.5rem;
+  border-radius: 0.25rem;
+  border: none;
+  color: var(--color-gray-600);
+  padding: 0;
+}
+
+.Trigger {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 0.25rem;
+  background: none;
+  color: var(--color-gray-600);
+  padding: 0;
+}
+
+.PopupTrigger {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 12rem;
+  height: 2.5rem;
+  margin: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: canvas;
+  padding-left: 0.875rem;
+  padding-right: 0.75rem;
+  color: var(--color-gray-900);
+  cursor: default;
+  user-select: none;
+}
+
+.PopupTrigger:hover,
+.PopupTrigger[data-popup-open] {
+  background-color: var(--color-gray-100);
+}
+
+.TriggerIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.Positioner {
+  outline: 0;
+}
+
+.Popup {
+  --input-container-height: 0px;
+  box-sizing: border-box;
+  border-radius: 0.5rem;
+  background-color: canvas;
+  color: var(--color-gray-900);
+  width: var(--anchor-width);
+  max-height: 24rem;
+  max-width: var(--available-width);
+  transition:
+    opacity 0.1s,
+    transform 0.1s;
+  transform-origin: var(--transform-origin);
+}
+
+.PopupWithInput {
+  --input-container-height: 3rem;
+  width: max-content;
+}
+
+.Popup[data-starting-style],
+.Popup[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+@media (prefers-color-scheme: light) {
+  .Popup {
+    outline: 1px solid var(--color-gray-200);
+    box-shadow:
+      0 10px 15px -3px var(--color-gray-200),
+      0 4px 6px -4px var(--color-gray-200);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .Popup {
+    outline: 1px solid var(--color-gray-300);
+    outline-offset: -1px;
+  }
+}
+
+.InputContainer {
+  box-sizing: border-box;
+  width: 20rem;
+  height: var(--input-container-height);
+  padding: 0.5rem;
+}
+
+.PopupInput {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 18rem;
+  height: 2.5rem;
+  margin: 0;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 0.375rem;
+  background-color: canvas;
+  padding-left: 0.875rem;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-gray-900);
+}
+
+.PopupInput:focus {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
+}
+
+.List {
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: 0.5rem;
+  scroll-padding-block: 0.5rem;
+  outline: 0;
+  max-height: min(
+    calc(23rem - var(--input-container-height)),
+    calc(var(--available-height) - var(--input-container-height))
+  );
+}
+
+.List:empty {
+  padding: 0;
+}
+
+.Item {
+  box-sizing: border-box;
+  outline: 0;
+  cursor: default;
+  user-select: none;
+  padding-block: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 2rem;
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: 0.75rem 1fr;
+  font-size: 1rem;
+  line-height: 1rem;
+  min-width: var(--anchor-width);
+}
+
+.Item[data-highlighted] {
+  z-index: 0;
+  position: relative;
+  color: var(--color-gray-50);
+}
+
+.Item[data-highlighted]::before {
+  content: '';
+  z-index: -1;
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--color-gray-900);
+}
+
+.ItemText {
+  grid-column-start: 2;
+}
+
+.ItemIndicator {
+  grid-column-start: 1;
+}
+
+.ItemIndicatorIcon {
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.LogCard {
+  display: grid;
+  gap: 0.625rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: canvas;
+  padding: 0.875rem 1rem;
+}
+
+.LogHeader {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.LogList {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--color-gray-700);
+}

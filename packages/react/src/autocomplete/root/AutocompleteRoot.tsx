@@ -39,8 +39,10 @@ export function AutocompleteRoot<ItemValue>(
     onValueChange,
     mode = 'list',
     itemToStringValue,
+    keepFilterText,
     ...other
-  } = props;
+  } = props as AutocompleteRoot.Props<ItemValue> & { keepFilterText?: never | undefined };
+  void keepFilterText;
 
   const enableInline = mode === 'inline' || mode === 'both';
   const staticItems = mode === 'inline' || mode === 'none';
@@ -172,6 +174,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'actionsRef'
   | 'onOpenChange'
   | 'openOnInputClick'
+  | 'keepFilterText'
 > {
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
