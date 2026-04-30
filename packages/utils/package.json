@@ -37,9 +37,9 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/use-sync-external-store": "1.5.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "typescript": "6.0.2"
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "typescript": "6.0.3"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",

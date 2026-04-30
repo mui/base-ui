@@ -3,9 +3,9 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Tabs } from '@base-ui/react/tabs';
-import { SettingsMetadata, useExperimentSettings } from './_components/SettingsPanel';
-import '../../../demo-data/theme/css-modules/theme.css';
-import classes from './tabs.module.css';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import '../../../../demo-data/theme/css-modules/theme.css';
+import classes from './tabs-basic.module.css';
 
 export default function TabsExperiment() {
   const [value, setValue] = React.useState<string | number | null>(0);

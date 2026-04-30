@@ -139,6 +139,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     anchorHidden: positioning.anchorHidden,
   };
 
+  useIsoLayoutEffect(() => {
+    store.set('popupSide', positioning.side);
+  }, [store, positioning.side]);
+
   const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
   });

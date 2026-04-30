@@ -105,7 +105,7 @@ export interface ProgressRootState {
 
 export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressRootState> {
   /**
-   * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
+   * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the progress bar.
    */
   'aria-valuetext'?: React.AriaAttributes['aria-valuetext'] | undefined;
   /**

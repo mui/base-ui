@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -123,9 +123,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const stylesRef = React.useRef<CSSStyleDeclaration>(null);
   const setStylesRef = useStableCallback((element: HTMLElement | null) => {
     if (element && stylesRef.current == null) {
-      if (stylesRef.current == null) {
-        stylesRef.current = getComputedStyle(element);
-      }
+      stylesRef.current = ownerWindow(element).getComputedStyle(element);
     }
   });
 
@@ -138,7 +136,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const insetThumbOffsetRef = React.useRef(0);
   const latestValuesRef = useValueAsRef(values);
 
-  const updatePressedThumb = useStableCallback((nextIndex: number) => {
+  function updatePressedThumb(nextIndex: number) {
     if (pressedThumbIndexRef.current !== nextIndex) {
       pressedThumbIndexRef.current = nextIndex;
     }
@@ -152,9 +150,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     pressedInputRef.current = thumbElement.querySelector<HTMLInputElement>('input[type="range"]');
-  });
+  }
 
-  const getFingerState = useStableCallback((fingerCoords: Coords): FingerState | null => {
+  function getFingerState(fingerCoords: Coords): FingerState | null {
     const control = controlRef.current;
 
     if (!control) {
@@ -215,9 +213,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     return collisionResult;
-  });
+  }
 
-  const startPressing = useStableCallback((fingerCoords: Coords) => {
+  function startPressing(fingerCoords: Coords) {
     pressedValuesRef.current = range ? values.slice() : null;
     latestValuesRef.current = values;
 
@@ -267,9 +265,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
         insetThumbOffsetRef.current = thumbRect[side] / 2;
       }
     }
-  });
+  }
 
-  const focusThumb = useStableCallback((thumbIndex: number) => {
+  function focusThumb(thumbIndex: number) {
     const input =
       thumbRefs.current?.[thumbIndex]?.querySelector<HTMLInputElement>('input[type="range"]');
     if (!input) {
@@ -282,7 +280,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       // Supported in Chrome from 144+.
       focusVisible: false,
     });
-  });
+  }
 
   const handleTouchMove = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
     const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
