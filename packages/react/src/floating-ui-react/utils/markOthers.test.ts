@@ -400,3 +400,19 @@ test('uses shadow root host as avoid element when parent chain includes anchor',
 
   expect(outside.getAttribute('aria-hidden')).toBe(null);
 });
+
+test('does not apply inert to focus guards', () => {
+  const target = document.createElement('div');
+  const guard = document.createElement('span');
+  guard.setAttribute('data-base-ui-focus-guard', '');
+  const outside = document.createElement('div');
+
+  document.body.append(target, guard, outside);
+
+  const cleanup = markOthers([target], { inert: true });
+
+  expect(outside.hasAttribute('inert')).toBe(true);
+  expect(guard.hasAttribute('inert')).toBe(false);
+
+  cleanup();
+});
