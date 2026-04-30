@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as RadixAvatar from '@radix-ui/react-avatar';
 import { Avatar as CurrentAvatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
 import { AvatarRoot as MasterAvatarRoot } from '../../../../../../packages/react/src/avatar-master/root/AvatarRoot';
 import { AvatarImage as MasterAvatarImage } from '../../../../../../packages/react/src/avatar-master/image/AvatarImage';
@@ -88,6 +89,9 @@ export default function AvatarPlayground() {
           renderMaster={(props) => (
             <MasterAvatar.Image className={styles.avatarImageMaster} src={FAST_AVATAR_SRC} {...props} />
           )}
+          renderRadix={(props) => (
+            <RadixAvatar.Image className={styles.avatarImageRadix} src={FAST_AVATAR_SRC} {...props} />
+          )}
         >
         </Scenario>
 
@@ -105,6 +109,9 @@ export default function AvatarPlayground() {
               {...props}
             />
           )}
+          renderRadix={(props) => (
+            <RadixAvatar.Image className={styles.avatarImageRadix} src={SLOW_AVATAR_SRC(2000)} {...props} />
+          )}
         >
         </Scenario>
 
@@ -117,6 +124,9 @@ export default function AvatarPlayground() {
           )}
           renderMaster={(props) => (
             <MasterAvatar.Image className={styles.avatarImageMaster} src={BROKEN_AVATAR_SRC} {...props} />
+          )}
+          renderRadix={(props) => (
+            <RadixAvatar.Image className={styles.avatarImageRadix} src={BROKEN_AVATAR_SRC} {...props} />
           )}
         >
         </Scenario>
@@ -156,6 +166,7 @@ interface ScenarioProps {
   expectedAfterRemount?: ImageLoadingStatus[];
   renderCurrent: (props: ImageProps) => React.ReactNode;
   renderMaster: (props: ImageProps) => React.ReactNode;
+  renderRadix: (props: ImageProps) => React.ReactNode;
 }
 
 function Scenario({
@@ -165,10 +176,12 @@ function Scenario({
   expectedAfterRemount,
   renderCurrent,
   renderMaster,
+  renderRadix,
 }: ScenarioProps) {
   const [remountKey, setRemountKey] = React.useState(0);
   const currentLog = useStatusLog();
   const masterLog = useStatusLog();
+  const radixLog = useStatusLog();
 
   return (
     <section className={styles.card}>
@@ -197,12 +210,22 @@ function Scenario({
               </MasterAvatar.Fallback>
             </MasterAvatar.Root>
           </div>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Radix</span>
+            <RadixAvatar.Root key={`radix-${remountKey}`} className={styles.avatarRoot}>
+              {renderRadix({ onLoadingStatusChange: radixLog.push })}
+              <RadixAvatar.Fallback className={styles.avatarFallbackRadix} delayMs={FALLBACK_DELAY_MS}>
+                AV
+              </RadixAvatar.Fallback>
+            </RadixAvatar.Root>
+          </div>
         </div>
       </div>
 
       <div className={styles.compareReadoutGrid}>
         <StatusReadout title="Current" entries={currentLog.entries} />
         <StatusReadout title="Master" entries={masterLog.entries} />
+        <StatusReadout title="Radix" entries={radixLog.entries} />
       </div>
       <ExpectedSequences first={expected} subsequent={expectedAfterRemount} />
 
@@ -213,6 +236,7 @@ function Scenario({
           onClick={() => {
             currentLog.clear();
             masterLog.clear();
+            radixLog.clear();
             setRemountKey((k) => k + 1);
           }}
         >
@@ -232,6 +256,7 @@ function ToggleScenario({ title, description }: ToggleScenarioProps) {
   const [mounted, setMounted] = React.useState(true);
   const currentLog = useStatusLog();
   const masterLog = useStatusLog();
+  const radixLog = useStatusLog();
 
   return (
     <section className={styles.card}>
@@ -271,12 +296,26 @@ function ToggleScenario({ title, description }: ToggleScenarioProps) {
               </MasterAvatar.Fallback>
             </MasterAvatar.Root>
           </div>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Radix</span>
+            <RadixAvatar.Root className={styles.avatarRoot}>
+              <RadixAvatar.Image
+                className={styles.avatarImageRadix}
+                src={mounted ? FAST_AVATAR_SRC : undefined}
+                onLoadingStatusChange={radixLog.push}
+              />
+              <RadixAvatar.Fallback className={styles.avatarFallbackRadix} delayMs={FALLBACK_DELAY_MS}>
+                AV
+              </RadixAvatar.Fallback>
+            </RadixAvatar.Root>
+          </div>
         </div>
       </div>
 
       <div className={styles.compareReadoutGrid}>
         <StatusReadout title="Current" entries={currentLog.entries} />
         <StatusReadout title="Master" entries={masterLog.entries} />
+        <StatusReadout title="Radix" entries={radixLog.entries} />
       </div>
 
       <footer className={styles.cardFooter}>
@@ -295,6 +334,7 @@ function ToggleScenario({ title, description }: ToggleScenarioProps) {
           onClick={() => {
             currentLog.clear();
             masterLog.clear();
+            radixLog.clear();
           }}
         >
           Clear log
@@ -313,6 +353,7 @@ function SwitchScenario({ title, description }: SwitchScenarioProps) {
   const [whichSrc, setWhichSrc] = React.useState<'a' | 'b'>('a');
   const currentLog = useStatusLog();
   const masterLog = useStatusLog();
+  const radixLog = useStatusLog();
 
   const src = whichSrc === 'a' ? FAST_AVATAR_SRC : ALT_AVATAR_SRC;
 
@@ -354,12 +395,26 @@ function SwitchScenario({ title, description }: SwitchScenarioProps) {
               </MasterAvatar.Fallback>
             </MasterAvatar.Root>
           </div>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Radix</span>
+            <RadixAvatar.Root className={styles.avatarRoot}>
+              <RadixAvatar.Image
+                className={styles.avatarImageRadix}
+                src={src}
+                onLoadingStatusChange={radixLog.push}
+              />
+              <RadixAvatar.Fallback className={styles.avatarFallbackRadix} delayMs={FALLBACK_DELAY_MS}>
+                AV
+              </RadixAvatar.Fallback>
+            </RadixAvatar.Root>
+          </div>
         </div>
       </div>
 
       <div className={styles.compareReadoutGrid}>
         <StatusReadout title="Current" entries={currentLog.entries} currentSrc={src} />
         <StatusReadout title="Master" entries={masterLog.entries} currentSrc={src} />
+        <StatusReadout title="Radix" entries={radixLog.entries} currentSrc={src} />
       </div>
 
       <footer className={styles.cardFooter}>
@@ -378,6 +433,7 @@ function SwitchScenario({ title, description }: SwitchScenarioProps) {
           onClick={() => {
             currentLog.clear();
             masterLog.clear();
+            radixLog.clear();
           }}
         >
           Clear log
@@ -396,6 +452,7 @@ function NoSrcScenario({ title, description }: NoSrcScenarioProps) {
   const [src, setSrc] = React.useState<string | undefined>(undefined);
   const currentLog = useStatusLog();
   const masterLog = useStatusLog();
+  const radixLog = useStatusLog();
 
   return (
     <section className={styles.card}>
@@ -435,12 +492,26 @@ function NoSrcScenario({ title, description }: NoSrcScenarioProps) {
               </MasterAvatar.Fallback>
             </MasterAvatar.Root>
           </div>
+          <div className={styles.avatarCompareCell}>
+            <span className={styles.avatarCompareLabel}>Radix</span>
+            <RadixAvatar.Root className={styles.avatarRoot}>
+              <RadixAvatar.Image
+                className={styles.avatarImageRadix}
+                src={src}
+                onLoadingStatusChange={radixLog.push}
+              />
+              <RadixAvatar.Fallback className={styles.avatarFallbackRadix} delayMs={FALLBACK_DELAY_MS}>
+                AV
+              </RadixAvatar.Fallback>
+            </RadixAvatar.Root>
+          </div>
         </div>
       </div>
 
       <div className={styles.compareReadoutGrid}>
         <StatusReadout title="Current" entries={currentLog.entries} />
         <StatusReadout title="Master" entries={masterLog.entries} />
+        <StatusReadout title="Radix" entries={radixLog.entries} />
       </div>
 
       <footer className={styles.cardFooter}>
@@ -457,6 +528,7 @@ function NoSrcScenario({ title, description }: NoSrcScenarioProps) {
           onClick={() => {
             currentLog.clear();
             masterLog.clear();
+            radixLog.clear();
           }}
         >
           Clear log
@@ -474,6 +546,7 @@ interface LazyLoadingScenarioProps {
 function LazyLoadingScenario({ title, description }: LazyLoadingScenarioProps) {
   const currentLog = useStatusLog();
   const masterLog = useStatusLog();
+  const radixLog = useStatusLog();
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
 
   return (
@@ -523,6 +596,21 @@ function LazyLoadingScenario({ title, description }: LazyLoadingScenarioProps) {
                   </MasterAvatar.Fallback>
                 </MasterAvatar.Root>
               </div>
+              <div className={styles.avatarCompareCell}>
+                <span className={styles.avatarCompareLabel}>Radix</span>
+                <RadixAvatar.Root className={styles.avatarRoot}>
+                  <RadixAvatar.Image
+                    className={styles.avatarImageRadix}
+                    src={LAZY_AVATAR_SRC}
+                    loading="lazy"
+                    decoding="async"
+                    onLoadingStatusChange={radixLog.push}
+                  />
+                  <RadixAvatar.Fallback className={styles.avatarFallbackRadix} delayMs={FALLBACK_DELAY_MS}>
+                    AV
+                  </RadixAvatar.Fallback>
+                </RadixAvatar.Root>
+              </div>
             </div>
           </div>
         </div>
@@ -531,6 +619,7 @@ function LazyLoadingScenario({ title, description }: LazyLoadingScenarioProps) {
       <div className={styles.compareReadoutGrid}>
         <StatusReadout title="Current" entries={currentLog.entries} />
         <StatusReadout title="Master" entries={masterLog.entries} />
+        <StatusReadout title="Radix" entries={radixLog.entries} />
       </div>
 
       <footer className={styles.cardFooter}>
@@ -552,6 +641,7 @@ function LazyLoadingScenario({ title, description }: LazyLoadingScenarioProps) {
           onClick={() => {
             currentLog.clear();
             masterLog.clear();
+            radixLog.clear();
           }}
         >
           Clear log
