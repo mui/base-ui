@@ -60,7 +60,7 @@ export default function ExampleMenubar() {
       <Menu.Root>
         <Menu.Trigger className={styles.MenuTrigger}>Edit</Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className={styles.MenuPositioner} sideOffset={6}>
+          <Menu.Positioner className={styles.MenuPositioner} sideOffset={4}>
             <Menu.Popup className={styles.MenuPopup}>
               <Menu.Item className={styles.MenuItem} onClick={handleClick}>
                 Cut
@@ -79,7 +79,7 @@ export default function ExampleMenubar() {
       <Menu.Root>
         <Menu.Trigger className={styles.MenuTrigger}>View</Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className={styles.MenuPositioner} sideOffset={6}>
+          <Menu.Positioner className={styles.MenuPositioner} sideOffset={4}>
             <Menu.Popup className={styles.MenuPopup}>
               <Menu.Item className={styles.MenuItem} onClick={handleClick}>
                 Zoom In

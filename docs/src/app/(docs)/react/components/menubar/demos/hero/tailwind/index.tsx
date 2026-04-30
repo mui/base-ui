@@ -80,7 +80,7 @@ export default function ExampleMenubar() {
           Edit
         </Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className="outline-none" sideOffset={6}>
+          <Menu.Positioner className="outline-none" sideOffset={4}>
             <Menu.Popup className="origin-[var(--transform-origin)] border border-neutral-950 bg-white py-1 text-neutral-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[scale,opacity] duration-100 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[instant]:transition-none data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:[filter:none]">
               <Menu.Item
                 onClick={handleClick}
@@ -110,7 +110,7 @@ export default function ExampleMenubar() {
           View
         </Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className="outline-none" sideOffset={6}>
+          <Menu.Positioner className="outline-none" sideOffset={4}>
             <Menu.Popup className="origin-[var(--transform-origin)] border border-neutral-950 bg-white py-1 text-neutral-950 outline-none [filter:drop-shadow(4px_4px_0_rgb(0_0_0_/_12%))] transition-[scale,opacity] duration-100 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[instant]:transition-none data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:[filter:none]">
               <Menu.Item
                 onClick={handleClick}
