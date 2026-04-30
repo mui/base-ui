@@ -134,6 +134,7 @@
   border-top: 1px solid light-dark(var(--color-neutral-950), white);
   background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
+  outline: 0;
   box-shadow: 0 -0.25rem 0 rgb(0 0 0 / 12%);
   overflow-y: auto;
   overscroll-behavior: contain;
