@@ -53,7 +53,7 @@ export class PreviewCardHandle<Payload> {
    * Indicates whether the preview card is currently open.
    */
   get isOpen() {
-    return this.store.state.open;
+    return this.store.select('open');
   }
 }
 

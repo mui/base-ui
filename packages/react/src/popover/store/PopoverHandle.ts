@@ -52,7 +52,7 @@ export class PopoverHandle<Payload> {
    * Indicates whether the popover is currently open.
    */
   get isOpen() {
-    return this.store.state.open;
+    return this.store.select('open');
   }
 }
 

@@ -148,6 +148,49 @@ describe('<AlertDialog.Root />', () => {
       expect(handleOpenChange.mock.calls.length).toBe(0);
       expect(screen.queryByRole('alertdialog')).not.toBe(null);
     });
+
+    it('keeps the trigger data-popup-open attribute and handle.isOpen when a controlled close is vetoed', async () => {
+      const handle = AlertDialog.createHandle();
+
+      function TestCase() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <AlertDialog.Root
+            handle={handle}
+            open={open}
+            onOpenChange={(nextOpen) => {
+              if (nextOpen) {
+                setOpen(true);
+              }
+            }}
+          >
+            <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                <AlertDialog.Title>Confirm</AlertDialog.Title>
+                <AlertDialog.Close>Cancel</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        );
+      }
+
+      const { user } = await render(<TestCase />);
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      await screen.findByRole('alertdialog');
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(handle.isOpen).toBe(true);
+
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(screen.getByRole('alertdialog')).toHaveAttribute('data-open');
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(handle.isOpen).toBe(true);
+    });
   });
 
   describe('prop: actionsRef', () => {
