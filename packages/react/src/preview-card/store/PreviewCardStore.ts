@@ -1,18 +1,15 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
-import { useId } from '@base-ui/utils/useId';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
-  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  usePopupStore,
 } from '../../utils/popups';
-import { useFloatingParentNodeId, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY } from '../utils/constants';
@@ -39,14 +36,12 @@ export class PreviewCardStore<Payload> extends ReactStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingRootContextOptions?: PopupFloatingRootContextOptions,
+    floatingId?: string | undefined,
+    nested = false,
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
-    state.floatingRootContext = createPopupFloatingRootContext(
-      triggerElements,
-      floatingRootContextOptions,
-    );
+    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
     super(
       state,
@@ -120,22 +115,10 @@ export class PreviewCardStore<Payload> extends ReactStore<
     initialState?: Partial<State<Payload>>,
   ) {
     /* eslint-disable react-hooks/rules-of-hooks */
-    const floatingId = useId();
-    const nested = useFloatingParentNodeId() != null;
-
-    const internalStore = useRefWithInit(() => {
-      return new PreviewCardStore<Payload>(initialState, { floatingId, nested });
-    }).current;
-
-    const store = externalStore ?? internalStore;
-
-    useSyncedFloatingRootContext({
-      popupStore: store,
-      floatingRootContext: store.state.floatingRootContext,
-      floatingId,
-      nested,
-      onOpenChange: store.setOpen,
-    });
+    const store = usePopupStore(
+      externalStore,
+      (floatingId, nested) => new PreviewCardStore<Payload>(initialState, floatingId, nested),
+    ).store;
     /* eslint-enable react-hooks/rules-of-hooks */
 
     return store;

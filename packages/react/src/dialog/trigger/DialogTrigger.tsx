@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -19,7 +18,7 @@ import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export const DialogTrigger = fastComponentRef(function DialogTrigger(
+export const DialogTrigger = React.forwardRef(function DialogTrigger(
   componentProps: DialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -91,7 +90,7 @@ export const DialogTrigger = fastComponentRef(function DialogTrigger(
         id: thisTriggerId,
         'aria-haspopup': 'dialog' as const,
         'aria-expanded': isOpenedByThisTrigger,
-        'aria-controls': popupId || undefined,
+        'aria-controls': popupId,
       },
       elementProps,
       getButtonProps,

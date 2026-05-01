@@ -62,23 +62,6 @@ export function usePopupStore<
   return { store, internalStore: internalStoreRef.current };
 }
 
-function syncTriggerCount<State extends PopupStoreState<unknown>>(
-  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
-) {
-  const triggerCount = store.context.triggerElements.size;
-  if (store.state.triggerCount !== triggerCount) {
-    store.set('triggerCount', triggerCount);
-  }
-}
-
-function syncTriggerCountIfOpen<State extends PopupStoreState<unknown>>(
-  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
-) {
-  if (store.select('open')) {
-    syncTriggerCount(store);
-  }
-}
-
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
  *
@@ -122,7 +105,10 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
       }
 
       if (shouldSyncTriggerCount) {
-        syncTriggerCountIfOpen(store);
+        const triggerCount = store.context.triggerElements.size;
+        if (store.select('open') && store.state.triggerCount !== triggerCount) {
+          store.set('triggerCount', triggerCount);
+        }
       }
     },
     [store, id],
@@ -248,7 +234,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       }
     }
 
-    store.update(stateUpdates as Partial<State>);
+    if (stateUpdates.triggerCount !== undefined || stateUpdates.activeTriggerId !== undefined) {
+      store.update(stateUpdates as Partial<State>);
+    }
   }, [open, store, reactiveTriggerCount]);
 }
 

@@ -103,17 +103,11 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
   };
 }
 
-export interface PopupFloatingRootContextOptions {
-  floatingId?: string | undefined;
-  nested?: boolean | undefined;
-}
-
 export function createPopupFloatingRootContext(
   triggerElements: PopupTriggerMap,
-  options: PopupFloatingRootContextOptions = {},
+  floatingId?: string | undefined,
+  nested = false,
 ) {
-  const { floatingId, nested = false } = options;
-
   return new FloatingRootStore({
     open: false,
     transitionStatus: undefined,
@@ -160,12 +154,9 @@ const popupIdSelector = createSelector((state: S) => {
 });
 
 function triggerOwnsOpenPopup(state: S, triggerId: string | undefined) {
-  if (triggerId === undefined) {
-    return false;
-  }
-
-  const activeTriggerId = activeTriggerIdSelector(state);
-  return openSelector(state) && activeTriggerId === triggerId;
+  return (
+    triggerId !== undefined && openSelector(state) && activeTriggerIdSelector(state) === triggerId
+  );
 }
 
 function triggerOwnsOpenPopupOrIsOnlyTrigger(state: S, triggerId: string | undefined) {
@@ -215,18 +206,14 @@ export const popupStoreSelectors = {
     (state: S, triggerId: string | undefined) =>
       triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.mounted,
   ),
-  /**
-   * Popup id for the trigger that currently owns the open popup, or for the only trigger
-   * when the popup is open and no active trigger is known yet.
-   */
-  triggerPopupId: createSelector((state: S, triggerId: string | undefined) => {
-    return triggerOwnsOpenPopupOrIsOnlyTrigger(state, triggerId)
-      ? popupIdSelector(state)
-      : undefined;
-  }),
-
   triggerProps: createSelector((state: S, isActive: boolean) =>
     isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
+  ),
+  /**
+   * Popup id for the trigger that currently owns the open popup.
+   */
+  triggerPopupId: createSelector((state: S, triggerId: string | undefined) =>
+    triggerOwnsOpenPopupOrIsOnlyTrigger(state, triggerId) ? popupIdSelector(state) : undefined,
   ),
   popupProps: createSelector((state: S) => state.popupProps),
 

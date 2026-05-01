@@ -126,6 +126,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const rootId = useId();
+  const floatingId = useId();
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
@@ -337,6 +338,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,
+    floatingId,
+    nested: floatingParentNodeIdFromContext != null,
     onOpenChange: setOpen,
   });
 

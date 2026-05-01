@@ -1,20 +1,17 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
-import { useId } from '@base-ui/utils/useId';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type TooltipRoot } from '../root/TooltipRoot';
-import { useFloatingParentNodeId, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
-  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  usePopupStore,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -53,14 +50,12 @@ export class TooltipStore<Payload> extends ReactStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingRootContextOptions?: PopupFloatingRootContextOptions,
+    floatingId?: string | undefined,
+    nested = false,
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
-    state.floatingRootContext = createPopupFloatingRootContext(
-      triggerElements,
-      floatingRootContextOptions,
-    );
+    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
     super(
       state,
@@ -141,22 +136,10 @@ export class TooltipStore<Payload> extends ReactStore<
     initialState?: Partial<State<Payload>>,
   ) {
     /* eslint-disable react-hooks/rules-of-hooks */
-    const floatingId = useId();
-    const nested = useFloatingParentNodeId() != null;
-
-    const internalStore = useRefWithInit(() => {
-      return new TooltipStore<Payload>(initialState, { floatingId, nested });
-    }).current;
-
-    const store = externalStore ?? internalStore;
-
-    useSyncedFloatingRootContext({
-      popupStore: store,
-      floatingRootContext: store.state.floatingRootContext,
-      floatingId,
-      nested,
-      onOpenChange: store.setOpen,
-    });
+    const store = usePopupStore(
+      externalStore,
+      (floatingId, nested) => new TooltipStore<Payload>(initialState, floatingId, nested),
+    ).store;
     /* eslint-enable react-hooks/rules-of-hooks */
 
     return store;

@@ -1,19 +1,16 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
-import { useId } from '@base-ui/utils/useId';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { useFloatingParentNodeId, useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { type DialogRoot } from '../root/DialogRoot';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
-  type PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
   setOpenTriggerState,
+  usePopupStore,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -59,14 +56,12 @@ export class DialogStore<Payload> extends ReactStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingRootContextOptions?: PopupFloatingRootContextOptions,
+    floatingId?: string | undefined,
+    nested = false,
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(initialState);
-    state.floatingRootContext = createPopupFloatingRootContext(
-      triggerElements,
-      floatingRootContextOptions,
-    );
+    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
     super(
       state,
@@ -119,23 +114,11 @@ export class DialogStore<Payload> extends ReactStore<
     initialState?: Partial<State<Payload>>,
   ) {
     /* eslint-disable react-hooks/rules-of-hooks */
-    const floatingId = useId();
-    const nested = useFloatingParentNodeId() != null;
-
-    const internalStore = useRefWithInit(() => {
-      return new DialogStore<Payload>(initialState, { floatingId, nested });
-    }).current;
-
-    const store = externalStore ?? internalStore;
-
-    useSyncedFloatingRootContext({
-      popupStore: store,
-      treatPopupAsFloatingElement: true,
-      floatingRootContext: store.state.floatingRootContext,
-      floatingId,
-      nested,
-      onOpenChange: store.setOpen,
-    });
+    const store = usePopupStore(
+      externalStore,
+      (floatingId, nested) => new DialogStore<Payload>(initialState, floatingId, nested),
+      true,
+    ).store;
     /* eslint-enable react-hooks/rules-of-hooks */
 
     return store;

@@ -21,9 +21,7 @@ import {
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
 import { mergeProps } from '../../merge-props';
 
-const PreviewCardRootComponent = fastComponent(function PreviewCardRootComponent<Payload>(
-  props: PreviewCardRoot.Props<Payload>,
-) {
+function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>) {
   const {
     open: openProp,
     defaultOpen = false,
@@ -93,7 +91,7 @@ const PreviewCardRootComponent = fastComponent(function PreviewCardRootComponent
       {typeof children === 'function' ? children({ payload }) : children}
     </PreviewCardRootContext.Provider>
   );
-});
+}
 
 function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<Payload> }) {
   const floatingRootContext = store.useState('floatingRootContext');
@@ -121,7 +119,9 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) {
+export const PreviewCardRoot = fastComponent(function PreviewCardRoot<Payload>(
+  props: PreviewCardRoot.Props<Payload>,
+) {
   if (usePreviewCardRootContext(true)) {
     return <PreviewCardRootComponent {...props} />;
   }
@@ -131,7 +131,7 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
       <PreviewCardRootComponent {...props} />
     </FloatingTree>
   );
-}
+});
 
 export interface PreviewCardRootState {}
 

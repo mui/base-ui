@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
@@ -27,7 +26,7 @@ import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
+export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -142,7 +141,7 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
         id: thisTriggerId,
         'aria-haspopup': 'dialog' as const,
         'aria-expanded': isOpenedByThisTrigger,
-        'aria-controls': popupId || undefined,
+        'aria-controls': popupId,
       },
       elementProps,
       getButtonProps,

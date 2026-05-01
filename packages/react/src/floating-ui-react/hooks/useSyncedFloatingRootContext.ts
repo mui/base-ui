@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ReactStore } from '@base-ui/utils/store';
 import { isElement } from '@floating-ui/utils/dom';
 import { BaseUIChangeEventDetails } from '../../types';
 import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
-import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
 
 export interface UseSyncedFloatingRootContextOptions<
@@ -20,8 +18,8 @@ export interface UseSyncedFloatingRootContextOptions<
    */
   treatPopupAsFloatingElement?: boolean | undefined;
   floatingRootContext?: FloatingRootStore | undefined;
-  floatingId?: string | undefined;
-  nested?: boolean | undefined;
+  floatingId: string | undefined;
+  nested: boolean;
   onOpenChange(open: boolean, eventDetails: OpenChangeEventDetails): void;
 }
 
@@ -40,13 +38,10 @@ export function useSyncedFloatingRootContext<
     popupStore,
     treatPopupAsFloatingElement = false,
     floatingRootContext: floatingRootContextProp,
-    floatingId: floatingIdProp,
-    nested: nestedProp,
+    floatingId,
+    nested,
     onOpenChange,
   } = options;
-
-  const generatedFloatingId = useId();
-  const floatingParentNodeId = useFloatingParentNodeId();
 
   const open = popupStore.useState('open');
   const referenceElement = popupStore.useState('activeTriggerElement');
@@ -55,8 +50,6 @@ export function useSyncedFloatingRootContext<
   );
   const triggerElements = popupStore.context.triggerElements;
 
-  const floatingId = floatingIdProp ?? generatedFloatingId;
-  const nested = nestedProp ?? floatingParentNodeId != null;
   const handleOpenChange = onOpenChange as (
     open: boolean,
     eventDetails: BaseUIChangeEventDetails<string>,

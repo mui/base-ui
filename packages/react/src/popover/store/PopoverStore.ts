@@ -1,16 +1,15 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
-  PopupFloatingRootContextOptions,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -87,7 +86,8 @@ export class PopoverStore<Payload> extends ReactStore<
 > {
   constructor(
     initialState?: Partial<State<Payload>>,
-    floatingRootContextOptions?: PopupFloatingRootContextOptions,
+    floatingId?: string | undefined,
+    nested = false,
   ) {
     const initial = { ...createInitialState<Payload>(), ...initialState };
     const triggerElements = new PopupTriggerMap();
@@ -98,7 +98,8 @@ export class PopoverStore<Payload> extends ReactStore<
 
     initial.floatingRootContext = createPopupFloatingRootContext(
       triggerElements,
-      floatingRootContextOptions,
+      floatingId,
+      nested,
     );
 
     super(
@@ -194,14 +195,10 @@ export class PopoverStore<Payload> extends ReactStore<
   ) {
     const { store, internalStore } = usePopupStore(
       externalStore,
-      (floatingId, nested) =>
-        new PopoverStore<Payload>(initialState, {
-          floatingId,
-          nested,
-        }),
+      (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
     );
 
-    useOnMount(() => internalStore?.disposeEffect());
+    React.useEffect(() => internalStore?.disposeEffect(), [internalStore]);
     return store;
   }
 
