@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
-import { useDirection } from '../../direction-provider/DirectionContext';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { Align, Side } from '../../utils/useAnchorPositioning';
 
@@ -27,7 +27,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
   componentProps: NavigationMenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { className, render, id: idProp, style, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { open, transitionStatus, setPopupElement } = useNavigationMenuRootContext();
   const positioning = useNavigationMenuPositionerContext();

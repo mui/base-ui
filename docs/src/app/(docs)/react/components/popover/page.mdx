@@ -58,10 +58,14 @@ This involves placing the `<Popover.Trigger>` outside of `<Popover.Root>` and li
 ```jsx title="Detached triggers"
 const demoPopover = Popover.createHandle();
 
+// @highlight
+// @highlight-text "handle={demoPopover}"
 <Popover.Trigger handle={demoPopover}>
   Trigger
 </Popover.Trigger>
 
+// @highlight
+// @highlight-text "handle={demoPopover}"
 <Popover.Root handle={demoPopover}>
   ...
 </Popover.Root>
@@ -106,18 +110,23 @@ This is achieved by passing a `payload` to the `<Popover.Trigger>` and using the
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
 ```jsx title="Detached triggers with payload"
+// @highlight
 const demoPopover = Popover.createHandle<{ text: string }>();
 
+// @highlight
+// @highlight-text "payload"
 <Popover.Trigger handle={demoPopover} payload={{ text: 'Trigger 1' }}>
   Trigger 1
 </Popover.Trigger>
 
+// @highlight
+// @highlight-text "payload"
 <Popover.Trigger handle={demoPopover} payload={{ text: 'Trigger 2' }}>
   Trigger 2
 </Popover.Trigger>
 
 <Popover.Root handle={demoPopover}>
-  {({ payload }) => (
+  {({ payload }) => ( // @highlight-text "payload"
     <Popover.Portal>
       <Popover.Positioner sideOffset={8}>
         <Popover.Popup className={styles.Popup}>
@@ -125,9 +134,9 @@ const demoPopover = Popover.createHandle<{ text: string }>();
             <ArrowSvg />
           </Popover.Arrow>
           <Popover.Title className={styles.Title}>Popover</Popover.Title>
-          {payload !== undefined && (
+          {payload !== undefined && ( // @highlight-text "payload"
             <Popover.Description className={styles.Description}>
-              This has been opened by {payload.text}
+              This has been opened by {payload.text} {/* @highlight-text "payload" */}
             </Popover.Description>
           )}
         </Popover.Popup>

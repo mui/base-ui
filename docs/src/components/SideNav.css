@@ -4,7 +4,7 @@
   .SideNavRoot {
     /* Match quick nav spacing so side nav and quick nav are visually aligned */
     --side-nav-item-height: 2rem;
-    --side-nav-item-line-height: var(--text-md--line-height);
+    --side-nav-item-line-height: 1.375rem;
     --side-nav-item-padding-y: calc(
       var(--side-nav-item-height) / 2 - var(--side-nav-item-line-height) / 2
     );
@@ -18,8 +18,8 @@
         var(--side-nav-scrollbar-thumb-width) / 2
     );
 
-    font-size: var(--text-md);
-    line-height: var(--text-md--line-height);
+    font-size: var(--font-size-15);
+    line-height: 1.375rem;
     position: sticky;
     top: 0;
 
@@ -85,8 +85,8 @@
       height: 100%;
       /* Visible thumb width */
       width: var(--side-nav-scrollbar-thumb-width);
-      border-radius: var(--radius-sm);
-      background-color: var(--color-gray-400);
+      border-radius: var(--radius-4);
+      background-color: var(--gray-p2);
     }
   }
 
@@ -97,8 +97,8 @@
   .SideNavHeading {
     display: inline-flex;
     padding-block: var(--side-nav-item-padding-y);
-    font-weight: 400;
-    color: var(--color-gray-600);
+    font-weight: var(--font-weight-400);
+    color: var(--gray-t1);
   }
 
   .SideNavItem {
@@ -113,22 +113,22 @@
     padding: calc(var(--side-nav-item-padding-y) - 1px) 0.75rem;
     border-block: 1px solid transparent; /* Maintain a 1px gap between active an inactive item */
     background-clip: padding-box;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
     user-select: none;
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--color-gray-50);
+        background-color: var(--gray-s2);
       }
     }
 
     &[data-active] {
       border: none;
       padding: var(--side-nav-item-padding-y) 0.75rem;
-      background-color: var(--color-gray-50);
-      outline: 1px solid var(--color-gray-200);
+      background-color: var(--gray-s2);
+      outline: 1px solid var(--gray-c2);
       outline-offset: -1px;
-      font-weight: 400;
+      font-weight: var(--font-weight-400);
       word-spacing: -0.005em;
       cursor: default;
     }
@@ -141,12 +141,12 @@
   }
 
   .SideNavBadge {
-    color: var(--color-red);
+    color: var(--poppy-t1);
     line-height: inherit;
     user-select: none;
     text-transform: uppercase;
-    font-size: 0.6875rem;
-    font-weight: 700;
+    font-size: 0.625rem;
+    font-weight: var(--font-weight-700);
     letter-spacing: 0.035em;
     padding-inline: 2px;
     translate: 0 -2px;

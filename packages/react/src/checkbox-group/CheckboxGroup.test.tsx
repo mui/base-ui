@@ -101,6 +101,33 @@ describe('<CheckboxGroup />', () => {
       expect(handleValueChange.mock.calls.length).toBe(3);
       expect(handleValueChange.mock.calls[2][0]).toEqual(['red', 'green', 'blue']);
     });
+
+    it('should treat an omitted defaultValue as an empty array', () => {
+      const handleValueChange = vi.fn();
+
+      render(
+        <CheckboxGroup onValueChange={handleValueChange}>
+          <Checkbox.Root name="red" data-testid="red" />
+          <Checkbox.Root name="green" data-testid="green" />
+          <Checkbox.Root name="blue" data-testid="blue" />
+        </CheckboxGroup>,
+      );
+
+      const red = screen.getByTestId('red');
+      const green = screen.getByTestId('green');
+
+      fireEvent.click(red);
+
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['red']);
+
+      fireEvent.click(green);
+
+      expect(handleValueChange.mock.calls[1][0]).toEqual(['red', 'green']);
+
+      fireEvent.click(red);
+
+      expect(handleValueChange.mock.calls[2][0]).toEqual(['green']);
+    });
   });
 
   describe('prop: defaultValue', () => {

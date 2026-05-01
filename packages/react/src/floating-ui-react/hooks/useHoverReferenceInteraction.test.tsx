@@ -4,8 +4,8 @@ import * as React from 'react';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useFloating } from './useFloating';
 import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
-import { REASONS } from '../../utils/reasons';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
   it('does not treat child target as inactive when handlers are on a wrapper', async () => {
@@ -270,6 +270,79 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
     await flushMicrotasks();
 
     // Close from hover + immediate reopen without waiting open delay.
+    expect(onOpenChange).toHaveBeenCalledTimes(2);
+    expect(onOpenChange.mock.calls[1][0]).toBe(true);
+    expect(screen.queryByRole('tooltip')).not.toBe(null);
+  });
+
+  it('reopens immediately when close transition state is provided externally', async () => {
+    const onOpenChange = vi.fn();
+    let closeFromHover: (() => void) | null = null;
+
+    function App() {
+      const [open, setOpen] = React.useState(true);
+      const triggerElementRef = React.useRef<Element | null>(null);
+      const { refs, context } = useFloating({
+        open,
+        onOpenChange(nextOpen, details) {
+          onOpenChange(nextOpen, details);
+          setOpen(nextOpen);
+        },
+      });
+
+      closeFromHover = () => {
+        context.rootStore.setOpen(
+          false,
+          createChangeEventDetails(REASONS.triggerHover, new MouseEvent('mouseleave')),
+        );
+      };
+
+      const hoverProps = useHoverReferenceInteraction(context, {
+        mouseOnly: true,
+        move: false,
+        delay: { open: 500, close: 0 },
+        triggerElementRef,
+        isClosing: () => !open,
+      });
+
+      return (
+        <React.Fragment>
+          <div
+            data-testid="wrapper"
+            {...hoverProps}
+            ref={(node) => {
+              triggerElementRef.current = node;
+            }}
+          >
+            <button
+              data-testid="trigger"
+              ref={(node) => {
+                refs.setReference(node);
+              }}
+            />
+          </div>
+          {open && <div role="tooltip" ref={refs.setFloating} />}
+        </React.Fragment>
+      );
+    }
+
+    render(<App />);
+
+    const wrapper = screen.getByTestId('wrapper');
+    await flushMicrotasks();
+
+    await act(async () => {
+      closeFromHover?.();
+    });
+
+    await flushMicrotasks();
+    expect(screen.queryByRole('tooltip')).toBe(null);
+
+    fireEvent.pointerEnter(wrapper, { pointerType: 'mouse' });
+    fireEvent.mouseEnter(wrapper);
+
+    await flushMicrotasks();
+
     expect(onOpenChange).toHaveBeenCalledTimes(2);
     expect(onOpenChange.mock.calls[1][0]).toBe(true);
     expect(screen.queryByRole('tooltip')).not.toBe(null);

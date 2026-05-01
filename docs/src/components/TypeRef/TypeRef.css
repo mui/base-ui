@@ -53,12 +53,12 @@
   }
 
   .TypeRefArrowStroke {
-    fill: var(--color-gray-200);
+    fill: var(--blackA-3);
   }
 
   .TypeRefArrowStrokeDark {
     @media (prefers-color-scheme: dark) {
-      fill: var(--color-gray-300);
+      fill: var(--gray-c3);
     }
   }
 

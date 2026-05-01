@@ -3,7 +3,6 @@ import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { usePreference } from '@mui/internal-docs-infra/usePreference';
 import { GoogleAnalyticsProvider } from 'docs/src/blocks/GoogleAnalyticsProvider';
-import { DemoVariantSelectorContext } from './Demo/DemoVariantSelectorProvider';
 import { GoogleTagManager } from '../blocks/GoogleTagManager';
 
 const PRODUCTION_GA =
@@ -12,7 +11,6 @@ const GOOGLE_ANALYTICS_ID_V4 = PRODUCTION_GA ? 'G-FE5XQBD0BH' : 'G-LSE9X5R2CN';
 
 export function GoogleAnalytics({ children }: { children?: React.ReactNode }) {
   const currentRoute = usePathname();
-  const demoVariantSelectorContext = React.useContext(DemoVariantSelectorContext);
   const [stylingVariant] = usePreference('variant', 'CssModules:Tailwind', 'CssModules');
 
   return (
@@ -23,7 +21,7 @@ export function GoogleAnalytics({ children }: { children?: React.ReactNode }) {
         productId="base-ui"
         productCategoryId="core"
         currentRoute={currentRoute}
-        codeLanguage={demoVariantSelectorContext?.selectedLanguage ?? 'ts'}
+        codeLanguage="ts"
         codeStylingVariant={stylingVariant}
         userLanguage="en"
       >

@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 
 /**
  * A heading that labels the popover.
@@ -22,12 +21,7 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
 
   const id = useBaseUiId(elementProps.id);
 
-  useIsoLayoutEffect(() => {
-    store.set('titleElementId', id);
-    return () => {
-      store.set('titleElementId', undefined);
-    };
-  }, [store, id]);
+  store.useSyncedValueWithCleanup('titleElementId', id);
 
   const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,

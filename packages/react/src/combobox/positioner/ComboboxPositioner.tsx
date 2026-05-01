@@ -4,7 +4,6 @@ import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import {
   useComboboxFloatingContext,
   useComboboxRootContext,
@@ -17,16 +16,19 @@ import {
   useAnchorPositioning,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
-import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { selectors } from '../store';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { usePositioner } from '../../utils/usePositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
 /**
  * Positions the popup against the trigger.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   componentProps: ComboboxPositioner.Props,
@@ -60,6 +62,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const openMethod = useStore(store, selectors.openMethod);
+  const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const inputGroupElement = useStore(store, selectors.inputGroupElement);
@@ -89,7 +92,12 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     lazyFlip: true,
   });
 
-  useScrollLock(open && modal && openMethod !== 'touch', triggerElement);
+  useAnchoredPopupScrollLock(
+    open && modal,
+    openMethod === 'touch',
+    positionerElement,
+    triggerElement,
+  );
 
   const state: ComboboxPositionerState = {
     open,

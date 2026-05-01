@@ -1,32 +1,35 @@
 @layer components {
   .MarkdownLinkAnchor {
     flex-shrink: 0;
+
+    &:focus-visible {
+      outline: none;
+    }
   }
 
   .MarkdownLink {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
     display: inline-flex;
     align-items: baseline;
     gap: 0.5em;
     padding: 0.5em;
     margin-inline: -0.5em;
-    color: inherit;
+    color: var(--color-foreground);
+  }
 
-    &:focus-visible {
-      color: var(--color-foreground);
-      outline: 2px solid var(--color-blue);
-      outline-offset: -2px;
-      border-radius: var(--radius-sm);
-    }
+  .MarkdownLinkAnchor:focus-visible .MarkdownLink {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -2px;
+    border-radius: var(--radius-4);
+  }
 
+  .MarkdownLinkAnchor:hover .MarkdownLink {
     @media (hover: hover) {
-      &:hover {
-        text-decoration: underline;
-        text-underline-offset: 2px;
-        text-decoration-thickness: 1px;
-        text-decoration-color: var(--color-gray-500);
-      }
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-thickness: 1px;
+      text-decoration-color: currentColor;
     }
   }
 

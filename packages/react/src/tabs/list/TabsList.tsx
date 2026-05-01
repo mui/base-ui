@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
-import { EMPTY_ARRAY } from '../../utils/constants';
 
 /**
  * Groups the individual tab buttons.
@@ -39,22 +39,15 @@ export const TabsList = React.forwardRef(function TabsList(
   const tabResizeObserverElementsRef = React.useRef(new Set<HTMLElement>());
   const resizeObserverRef = React.useRef<ResizeObserver | null>(null);
 
-  const notifyIndicatorUpdateListeners = useStableCallback(() => {
-    indicatorUpdateListenersRef.current.forEach((listener) => {
-      listener();
-    });
-  });
-
   React.useEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
     const resizeObserver = new ResizeObserver(() => {
-      if (!indicatorUpdateListenersRef.current.size) {
-        return;
-      }
-      notifyIndicatorUpdateListeners();
+      indicatorUpdateListenersRef.current.forEach((listener) => {
+        listener();
+      });
     });
 
     resizeObserverRef.current = resizeObserver;
@@ -71,7 +64,7 @@ export const TabsList = React.forwardRef(function TabsList(
       resizeObserver.disconnect();
       resizeObserverRef.current = null;
     };
-  }, [tabsListElement, notifyIndicatorUpdateListeners]);
+  }, [tabsListElement]);
 
   const registerIndicatorUpdateListener = useStableCallback((listener: () => void) => {
     indicatorUpdateListenersRef.current.add(listener);

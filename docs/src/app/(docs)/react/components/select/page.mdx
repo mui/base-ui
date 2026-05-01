@@ -33,8 +33,8 @@ import { Select } from '@base-ui/react/select';
   <Select.Portal>
     <Select.Backdrop />
     <Select.Positioner>
-      <Select.ScrollUpArrow />
       <Select.Popup>
+        <Select.ScrollUpArrow />
         <Select.Arrow />
         <Select.List>
           <Select.Item>
@@ -46,8 +46,8 @@ import { Select } from '@base-ui/react/select';
             <Select.GroupLabel />
           </Select.Group>
         </Select.List>
+        <Select.ScrollDownArrow />
       </Select.Popup>
-      <Select.ScrollDownArrow />
     </Select.Positioner>
   </Select.Portal>
 </Select.Root>;
@@ -92,7 +92,8 @@ By default, the `<Select.Value>` component renders the raw `value`.
 
 Passing the `items` prop to `<Select.Root>` instead renders the matching label for the rendered value:
 
-```jsx title="items prop" "items"1,3
+```jsx title="items prop"
+// @highlight-text "items"
 const items = [
   { value: null, label: 'Select theme' },
   { value: 'system', label: 'System default' },
@@ -100,6 +101,7 @@ const items = [
   { value: 'dark', label: 'Dark' },
 ];
 
+// @highlight-text "items"
 <Select.Root items={items}>
   <Select.Value />
 </Select.Root>;
@@ -107,7 +109,7 @@ const items = [
 
 A function can also be passed as the `children` prop of `<Select.Value>` to render a formatted value:
 
-```jsx title="Lookup map" {8-12}
+```jsx title="Lookup map"
 const items = {
   monospace: 'Monospace',
   serif: 'Serif',
@@ -115,11 +117,13 @@ const items = {
 };
 
 <Select.Value>
+  {/* @highlight-start */}
   {(value: keyof typeof items) => (
     <span style={{ fontFamily: value }}>
       {items[value]}
     </span>
   )}
+  {/* @highlight-end */}
 </Select.Value>;
 ```
 
@@ -129,8 +133,9 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 
 Use `<Select.Label>` to provide a visible label for the select trigger:
 
-```tsx title="Using Select.Label to label a select" {2}
+```tsx title="Using Select.Label to label a select"
 <Select.Root>
+  {/* @highlight */}
   <Select.Label>Theme</Select.Label>
   {/* ... */}
 </Select.Root>
@@ -142,7 +147,7 @@ Use `<Select.Label>` to provide a visible label for the select trigger:
 
 To show a placeholder value, use the `placeholder` prop on `<Select.Value>`:
 
-```jsx title="Placeholder item" {8}
+```jsx title="Placeholder item"
 const items = [
   { value: 'system', label: 'System default' },
   { value: 'light', label: 'Light' },
@@ -150,14 +155,16 @@ const items = [
 ];
 
 <Select.Root items={items}>
+  {/* @highlight */}
   <Select.Value placeholder="Select theme" />
 </Select.Root>;
 ```
 
 With placeholders, users cannot clear selected values using the select itself. If the select value should be clearable from the popup (instead of an external "reset" button), use a `null` item rendered in the list itself:
 
-```jsx title="Clearable item" {2}
+```jsx title="Clearable item"
 const items = [
+  // @highlight
   { value: null, label: 'Select theme' },
   { value: 'system', label: 'System default' },
   { value: 'light', label: 'Light' },
@@ -192,19 +199,22 @@ Organize related options with `<Select.Group>` and `<Select.GroupLabel>` to add 
 
 Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
 
-```tsx title="Example" {3,9,13}
+```tsx title="Example"
 interface ProduceGroupItem {
   value: string;
+  // @highlight
   items: string[];
 }
 
 const groups: ProduceGroupItem[] = [
   {
     value: 'Fruits',
+    // @highlight
     items: ['Apple', 'Banana', 'Orange'],
   },
   {
     value: 'Vegetables',
+    // @highlight
     items: ['Carrot', 'Lettuce', 'Spinach'],
   },
 ];

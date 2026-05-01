@@ -35,6 +35,7 @@ import { PreviewCard } from '@base-ui/react/preview-card';
     <PreviewCard.Positioner>
       <PreviewCard.Popup>
         <PreviewCard.Arrow />
+        <PreviewCard.Viewport />
       </PreviewCard.Popup>
     </PreviewCard.Positioner>
   </PreviewCard.Portal>
@@ -51,16 +52,20 @@ For simple, one-off interactions, place the `<PreviewCard.Trigger>` inside `<Pre
 However, if defining the preview card's content next to its trigger is not practical, you can use a detached trigger.
 This involves placing the `<PreviewCard.Trigger>` outside of `<PreviewCard.Root>` and linking them with a `handle` created by the `PreviewCard.createHandle()` function.
 
-```jsx title="Detached triggers" {3,5} "handle={demoPreviewCard}"
+```jsx title="Detached triggers"
 const demoPreviewCard = PreviewCard.createHandle();
 
+// @highlight
+// @highlight-text "handle={demoPreviewCard}"
 <PreviewCard.Trigger handle={demoPreviewCard} href="#">
   Link
 </PreviewCard.Trigger>
 
+// @highlight
+// @highlight-text "handle={demoPreviewCard}"
 <PreviewCard.Root handle={demoPreviewCard}>
   ...
-</PreviewCard.Root>
+</PreviewCard.Root>;
 ```
 
 import { DemoPreviewCardDetachedTriggersSimple } from './demos/detached-triggers-simple';
@@ -101,25 +106,30 @@ This is achieved by passing a `payload` to the `<PreviewCard.Trigger>` and using
 
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
-```jsx title="Detached triggers with payload" {1,3,7} "payload"
+```jsx title="Detached triggers with payload"
+// @highlight
 const demoPreviewCard = PreviewCard.createHandle<{ title: string }>();
 
+// @highlight
+// @highlight-text "payload"
 <PreviewCard.Trigger handle={demoPreviewCard} payload={{ title: 'Trigger 1' }} href="#">
   Trigger 1
 </PreviewCard.Trigger>
 
+// @highlight
+// @highlight-text "payload"
 <PreviewCard.Trigger handle={demoPreviewCard} payload={{ title: 'Trigger 2' }} href="#">
   Trigger 2
 </PreviewCard.Trigger>
 
 <PreviewCard.Root handle={demoPreviewCard}>
-  {({ payload }) => (
+  {({ payload }) => ( // @highlight-text "payload"
     <PreviewCard.Portal>
       <PreviewCard.Positioner sideOffset={8}>
         <PreviewCard.Popup>
-          {payload !== undefined && (
+          {payload !== undefined && ( // @highlight-text "payload"
             <span>
-              Preview card opened by {payload.title}
+              Preview card opened by {payload.title} {/* @highlight-text "payload" */}
             </span>
           )}
         </PreviewCard.Popup>

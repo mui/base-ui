@@ -99,7 +99,7 @@ It's also common to use `onOpenChange` if your app needs to do something when th
 
 In order to open a dialog using a menu, control the dialog state and open it imperatively using the `onClick` handler on the menu item.
 
-```tsx {12-13,17-18,24-25,28-29} title="Connecting a dialog to a menu"
+```tsx title="Connecting a dialog to a menu"
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
@@ -114,15 +114,19 @@ function ExampleMenu() {
         <Menu.Portal>
           <Menu.Positioner>
             <Menu.Popup>
+              {/* @highlight-start */}
               {/* Open the dialog when the menu item is clicked */}
               <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
+              {/* @highlight-end */}
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
       </Menu.Root>
 
+      {/* @highlight-start */}
       {/* Control the dialog state */}
       <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+        {/* @highlight-end */}
         <Dialog.Portal>
           <Dialog.Backdrop />
           <Dialog.Popup>
@@ -190,11 +194,15 @@ For simple, one-off interactions, place the `<Dialog.Trigger>` inside `<Dialog.R
 However, if defining the dialog's content next to its trigger is not practical, you can use a detached trigger.
 This involves placing the `<Dialog.Trigger>` outside of `<Dialog.Root>` and linking them with a `handle` created by the `Dialog.createHandle()` function.
 
-```jsx title="Detached triggers" {3,5} "handle={demoDialog}"
+```jsx title="Detached triggers"
 const demoDialog = Dialog.createHandle();
 
-<Dialog.Trigger handle={demoDialog}>Open</Dialog.Trigger>
+// @highlight
+// @highlight-text "handle={demoDialog}"
+<Dialog.Trigger handle={demoDialog}>Open</Dialog.Trigger> {/* @highlight-text "handle={demoDialog}" */}
 
+// @highlight
+// @highlight-text "handle={demoDialog}"
 <Dialog.Root handle={demoDialog}>
   ...
 </Dialog.Root>
@@ -232,25 +240,30 @@ This is achieved by passing a `payload` to the `<Dialog.Trigger>` and using the 
 
 The payload can be strongly typed by providing a type argument to the `createHandle()` function:
 
-```jsx title="Detached triggers with payload" {1,3,7,12}
+```jsx title="Detached triggers with payload"
+// @highlight
 const demoDialog = Dialog.createHandle<{ text: string }>();
 
+// @highlight
+// @highlight-text "payload"
 <Dialog.Trigger handle={demoDialog} payload={{ text: 'Trigger 1' }}>
   Trigger 1
 </Dialog.Trigger>
 
+// @highlight
+// @highlight-text "payload"
 <Dialog.Trigger handle={demoDialog} payload={{ text: 'Trigger 2' }}>
   Trigger 2
 </Dialog.Trigger>
 
 <Dialog.Root handle={demoDialog}>
-  {({ payload }) => (
+  {({ payload }) => ( // @highlight-text "payload"
     <Dialog.Portal>
       <Dialog.Popup>
         <Dialog.Title>Dialog</Dialog.Title>
-        {payload !== undefined && (
+        {payload !== undefined && ( // @highlight-text "payload"
           <Dialog.Description>
-            This has been opened by {payload.text}
+            This has been opened by {payload.text} {/* @highlight-text "payload" */}
           </Dialog.Description>
         )}
       </Dialog.Popup>

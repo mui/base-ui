@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { HTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../internals/types';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -16,6 +17,7 @@ import {
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean;
+  openMethod: InteractionType | null;
   allowMouseEnter: boolean;
   parent: MenuParent;
   rootId: string | undefined;
@@ -56,6 +58,7 @@ const selectors = {
       (state.parent.type === undefined || state.parent.type === 'context-menu') &&
       (state.modal ?? true),
   ),
+  openMethod: createSelector((state: State<unknown>) => state.openMethod),
 
   allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
@@ -188,6 +191,7 @@ function createInitialState<Payload>(): State<Payload> {
     ...createInitialPopupStoreState(),
     disabled: false,
     modal: true,
+    openMethod: null,
     allowMouseEnter: false,
     stickIfOpen: true,
     parent: {

@@ -1,6 +1,5 @@
 import { Link as RouterLink, createFileRoute } from '@tanstack/react-router';
 import { Bell, Heart, Plus } from 'lucide-react';
-import clsx from 'clsx';
 import { Input } from '@/components/input';
 import { Link } from '@/components/link';
 import { Toggle } from '@/components/toggle';
@@ -43,18 +42,9 @@ function App() {
               </Popover.Portal>
             </Popover.Root>
 
-            <div className="flex gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5">
-              <Toggle
-                aria-label="Favorite"
-                render={(props, state) => {
-                  return (
-                    <button type="button" {...props}>
-                      <Heart className={clsx('size-5', state.pressed && 'fill-current')} />
-                    </button>
-                  );
-                }}
-              />
-            </div>
+            <Toggle aria-label="Favorite">
+              <Heart className="size-4" />
+            </Toggle>
 
             <Dialog.Root>
               <Dialog.Trigger className="pl-2">
@@ -63,7 +53,7 @@ function App() {
               <Dialog.Portal>
                 <Dialog.Backdrop />
                 <Dialog.Popup className="flex flex-col gap-4 items-start">
-                  <Dialog.Title className="!text-base">Project name</Dialog.Title>
+                  <Dialog.Title>Project name</Dialog.Title>
                   <Input placeholder="e.g. My Design System" defaultValue="" />
                   <Dialog.Close className="mt-1 self-end">Next</Dialog.Close>
                 </Dialog.Popup>
@@ -72,7 +62,7 @@ function App() {
           </div>
           <div className="flex gap-3">
             <NavigationMenu.Root>
-              <NavigationMenu.List className="gap-1">
+              <NavigationMenu.List>
                 <NavigationMenu.Item>
                   <NavigationMenu.Link href="https://github.com/mui/base-ui" target="_blank">
                     GitHub
@@ -80,10 +70,7 @@ function App() {
                 </NavigationMenu.Item>
 
                 <NavigationMenu.Item>
-                  <NavigationMenu.Trigger>
-                    More
-                    <NavigationMenu.Icon className="transition-transform duration-200 ease-in-out data-[popup-open]:rotate-180" />
-                  </NavigationMenu.Trigger>
+                  <NavigationMenu.Trigger>More</NavigationMenu.Trigger>
 
                   <NavigationMenu.Content>
                     <ul className="flex max-w-[320px] flex-col justify-center items-stretch gap-1">
@@ -92,10 +79,8 @@ function App() {
                           variant="card"
                           render={<RouterLink to="/combobox-server-fn" />}
                         >
-                          <h3 className="m-0 mb-1 text-base leading-5 font-medium">
-                            Combobox Example
-                          </h3>
-                          <p className="m-0 text-sm leading-5 text-gray-500">
+                          <h3 className="mb-1 text-sm font-medium">Combobox Example</h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
                             An example using TanStack Start Server Functions to load combobox items.
                           </p>
                         </NavigationMenu.Link>
@@ -106,10 +91,8 @@ function App() {
                           href="https://base-ui.com/react/handbook/forms#tanstack-form"
                           target="_blank"
                         >
-                          <h3 className="m-0 mb-1 text-base leading-5 font-medium">
-                            TanStack Form Example
-                          </h3>
-                          <p className="m-0 text-sm leading-5 text-gray-500">
+                          <h3 className="mb-1 text-sm font-medium">TanStack Form Example</h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
                             A guide to integrating Base UI components and TanStack Form.
                           </p>
                         </NavigationMenu.Link>
@@ -121,7 +104,7 @@ function App() {
 
               <NavigationMenu.Portal>
                 <NavigationMenu.Positioner
-                  sideOffset={10}
+                  sideOffset={12}
                   collisionPadding={{ top: 5, bottom: 5, left: 20, right: 20 }}
                   collisionAvoidance={{ side: 'none' }}
                 >

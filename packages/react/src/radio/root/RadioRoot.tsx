@@ -4,25 +4,26 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { EMPTY_OBJECT } from '../../utils/constants';
-import { NOOP } from '../../utils/noop';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { ownerWindow } from '@base-ui/utils/owner';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { NOOP } from '../../internals/noop';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useButton } from '../../use-button';
-import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
-import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useButton } from '../../internals/use-button';
+import { ACTIVE_COMPOSITE_ITEM } from '../../internals/composite/constants';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useAriaLabelledBy } from '../../labelable-provider/useAriaLabelledBy';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
-import { serializeValue } from '../../utils/serializeValue';
+import { serializeValue } from '../../internals/serializeValue';
 import { RadioRootContext } from './RadioRootContext';
 
 /**
@@ -84,7 +85,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const form = formGroup;
 
   const checked = groupContext ? checkedValue === value : value === '';
-  const serializedValue = React.useMemo(() => serializeValue(value), [value]);
 
   const radioRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -157,8 +157,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
       event.preventDefault();
 
-      inputRef.current?.dispatchEvent(
-        new PointerEvent('click', {
+      const input = inputRef.current;
+      if (!input) {
+        return;
+      }
+
+      input.dispatchEvent(
+        new (ownerWindow(input).PointerEvent)('click', {
           bubbles: true,
           shiftKey: event.shiftKey,
           ctrlKey: event.ctrlKey,
@@ -192,7 +197,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     tabIndex: -1,
     style: name ? visuallyHiddenInput : visuallyHidden,
     'aria-hidden': true,
-    ...(value !== undefined ? { value: serializedValue } : EMPTY_OBJECT),
+    ...(value !== undefined ? { value: serializeValue(value) } : EMPTY_OBJECT),
     disabled,
     checked,
     required,
@@ -271,7 +276,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       ) : (
         element
       )}
-      <input {...inputProps} />
+      <input {...inputProps} suppressHydrationWarning />
     </RadioRootContext.Provider>
   );
 }) as {

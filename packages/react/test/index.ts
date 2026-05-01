@@ -5,5 +5,4 @@ export { popupConformanceTests } from './popupConformanceTests';
 export * from './wait';
 
 // Temporal
-export { createTemporalRenderer } from './temporal';
 export { describeGregorianAdapter } from './describeGregorianAdapter';

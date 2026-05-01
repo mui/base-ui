@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { Orientation } from '../utils/types';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
-import type { BaseUIEventReasons } from '../utils/reasons';
+import type { Orientation } from '../internals/types';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../internals/reasons';
 
 export interface ToggleGroupContext<Value> {
   value: readonly Value[];

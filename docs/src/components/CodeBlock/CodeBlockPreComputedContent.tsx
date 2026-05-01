@@ -5,8 +5,20 @@ import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/type
 import { useCode } from '@mui/internal-docs-infra/useCode';
 import * as CodeBlock from './CodeBlock';
 
-export function CodeBlockPreComputedContent(props: ContentProps<object>) {
-  const code = useCode(props);
+type CodeBlockPreComputedUserProps = {
+  title?: string;
+};
 
-  return <CodeBlock.Pre>{code.selectedFile}</CodeBlock.Pre>;
+export function CodeBlockPreComputedContent(props: ContentProps<CodeBlockPreComputedUserProps>) {
+  const code = useCode(props, {
+    preClassName: 'CodeBlockPreInline CodeBlockPre',
+  });
+  const title = code.userProps.title;
+
+  return (
+    <React.Fragment>
+      {title ? <CodeBlock.Panel>{title}</CodeBlock.Panel> : null}
+      <CodeBlock.Content>{code.selectedFile}</CodeBlock.Content>
+    </React.Fragment>
+  );
 }

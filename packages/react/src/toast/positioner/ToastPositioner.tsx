@@ -1,17 +1,18 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   useAnchorPositioning,
   type Side,
   type Align,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { EMPTY_OBJECT, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
 import { useFloatingRootContext } from '../../floating-ui-react';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { ToastRootCssVars } from '../root/ToastRootCssVars';
 import { useToastProviderContext } from '../provider/ToastProviderContext';

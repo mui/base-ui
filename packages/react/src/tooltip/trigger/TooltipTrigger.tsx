@@ -4,11 +4,11 @@ import { isElement } from '@floating-ui/utils/dom';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useTriggerDataForwarding } from '../../utils/popups';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import {
@@ -18,8 +18,8 @@ import {
   useHoverReferenceInteraction,
 } from '../../floating-ui-react';
 import { closest, contains, getTarget } from '../../floating-ui-react/utils/element';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { TooltipTriggerDataAttributes } from './TooltipTriggerDataAttributes';
 
 import { OPEN_DELAY } from '../utils/constants';
@@ -37,8 +37,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const {
-    className,
     render,
+    className,
+    style,
     handle,
     payload,
     disabled: disabledProp,
@@ -46,7 +47,6 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     closeOnClick = true,
     closeDelay,
     id: idProp,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -151,6 +151,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
+    isClosing: () => store.select('transitionStatus') === 'ending',
     shouldOpen,
   });
 
@@ -184,9 +185,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     }
   });
 
-  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
-
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+
+  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
   const element = useRenderElement('button', componentProps, {
     state,

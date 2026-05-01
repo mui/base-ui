@@ -4,10 +4,10 @@
     flex-direction: column;
     align-items: baseline;
     justify-content: space-between;
-    font-size: var(--text-lg);
-    line-height: var(--text-lg--line-height);
+    font-size: var(--font-size-18);
+    line-height: 1.75rem;
     text-wrap: pretty;
-    color: var(--color-gray);
+    color: var(--gray-t1);
     margin-bottom: 1.25rem;
     gap: 0.5rem;
 

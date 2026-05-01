@@ -1,6 +1,6 @@
 import { TooltipStore } from './TooltipStore';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * A handle to control a tooltip imperatively and to associate detached triggers with it.
@@ -53,7 +53,7 @@ export class TooltipHandle<Payload> {
    * Indicates whether the tooltip is currently open.
    */
   get isOpen() {
-    return this.store.state.open;
+    return this.store.select('open');
   }
 }
 

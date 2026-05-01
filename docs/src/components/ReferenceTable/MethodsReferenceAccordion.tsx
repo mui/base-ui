@@ -50,7 +50,7 @@ export function MethodsReferenceAccordion({
               className="MethodsTrigger"
             >
               <Accordion.Scrollable className="ReferenceNameCell">
-                <code className="Code language-ts TableCode" data-table-code="">
+                <code className="Code language-ts TableCode">
                   <span className="pl-en">{name}</span>
                   {'('}
                   {method.parameters.map((param, i) => (
@@ -73,9 +73,8 @@ export function MethodsReferenceAccordion({
                   height="10"
                   viewBox="0 0 10 10"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </span>
             </Accordion.Trigger>

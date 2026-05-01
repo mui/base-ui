@@ -1,12 +1,12 @@
 'use client';
 import { useId } from '@base-ui/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { ReactStore } from '@base-ui/utils/store';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isElement } from '@floating-ui/utils/dom';
 import { BaseUIChangeEventDetails } from '../../types';
-import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
+import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
 
 export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreState<any>> {
@@ -31,7 +31,6 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
   const nested = useFloatingParentNodeId() != null;
 
   const open = popupStore.useState('open');
-  const transitionStatus = popupStore.useState('transitionStatus');
   const referenceElement = popupStore.useState('activeTriggerElement');
   const floatingElement = popupStore.useState(
     treatPopupAsFloatingElement ? 'popupElement' : 'positionerElement',
@@ -42,7 +41,7 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
     () =>
       new FloatingRootStore({
         open,
-        transitionStatus,
+        transitionStatus: undefined,
         referenceElement,
         floatingElement,
         triggerElements,
@@ -56,7 +55,6 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
   useIsoLayoutEffect(() => {
     const valuesToSync: Partial<FloatingRootState> = {
       open,
-      transitionStatus,
       floatingId,
       referenceElement,
       floatingElement,
@@ -71,7 +69,7 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
     }
 
     store.update(valuesToSync);
-  }, [open, transitionStatus, floatingId, referenceElement, floatingElement, store]);
+  }, [open, floatingId, referenceElement, floatingElement, store]);
 
   // TODO: When `setOpen` is a part of the PopupStore API, we don't need to sync it.
   store.context.onOpenChange = onOpenChange;

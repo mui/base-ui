@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   contains,
   type FocusableElement,
@@ -13,8 +12,8 @@ import {
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../createBaseUIEventDetails';
-import { REASONS } from '../reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Minimal store interface required by the focus guard hook.
@@ -42,7 +41,7 @@ export function useTriggerFocusGuards(
 ) {
   const preFocusGuardRef = React.useRef<HTMLElement>(null);
 
-  const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
+  function handlePreFocusGuardFocus(event: React.FocusEvent) {
     ReactDOM.flushSync(() => {
       store.setOpen(
         false,
@@ -58,9 +57,9 @@ export function useTriggerFocusGuards(
       preFocusGuardRef.current,
     );
     previousTabbable?.focus();
-  });
+  }
 
-  const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
+  function handleFocusTargetFocus(event: React.FocusEvent) {
     const positionerElement = store.select('positionerElement');
     if (positionerElement && isOutsideEvent(event, positionerElement)) {
       store.context.beforeContentFocusGuardRef.current?.focus();
@@ -90,7 +89,7 @@ export function useTriggerFocusGuards(
 
       nextTabbable?.focus();
     }
-  });
+  }
 
   return { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus };
 }

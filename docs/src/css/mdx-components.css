@@ -1,16 +1,20 @@
 @import './custom-media.css';
 
 @layer components {
-  .MdInlineCode[data-inline] {
+  .MdCode {
     margin-inline: 0.1em;
+  }
+
+  pre .MdCode {
+    margin-inline: 0;
   }
 
   .MdH1 {
     margin-bottom: 1rem;
     font-family: var(--font-sans-b);
-    font-size: var(--text-3xl);
-    line-height: var(--text-3xl--line-height);
-    font-weight: 700;
+    font-size: var(--font-size-34);
+    line-height: 2.7rem;
+    font-weight: var(--font-weight-700);
     text-wrap: balance;
   }
 
@@ -19,9 +23,9 @@
     margin-bottom: 1rem;
     scroll-margin-top: 4.5rem;
     font-family: var(--font-sans-b);
-    font-size: var(--text-xl);
-    line-height: var(--text-xl--line-height);
-    font-weight: 700;
+    font-size: var(--font-size-21);
+    line-height: 1.625rem;
+    font-weight: var(--font-weight-700);
     text-wrap: balance;
   }
 
@@ -30,9 +34,9 @@
     margin-bottom: 0.375rem;
     scroll-margin-top: 4.5rem;
     font-family: var(--font-sans-b);
-    font-size: var(--text-lg);
-    line-height: var(--text-lg--line-height);
-    font-weight: 700;
+    font-size: var(--font-size-18);
+    line-height: 1.75rem;
+    font-weight: var(--font-weight-700);
     text-wrap: balance;
   }
 
@@ -49,7 +53,7 @@
     margin-top: 2rem;
     margin-bottom: 0.375rem;
     scroll-margin-top: 1.5rem;
-    font-weight: 700;
+    font-weight: var(--font-weight-700);
     text-wrap: balance;
   }
 
@@ -92,8 +96,8 @@
   }
 
   .MdFigure {
-    margin-top: calc(var(--spacing) * 5);
-    margin-bottom: calc(var(--spacing) * 6);
+    margin-top: var(--space-20);
+    margin-bottom: var(--space-24);
   }
 
   .MdEm {

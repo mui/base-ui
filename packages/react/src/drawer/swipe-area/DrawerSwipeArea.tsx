@@ -3,11 +3,11 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   getDisplacement,
   getElementTransform,
@@ -18,7 +18,7 @@ import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { DrawerSwipeAreaDataAttributes } from './DrawerSwipeAreaDataAttributes';
@@ -81,11 +81,11 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    className,
     render,
+    className,
+    style,
     disabled = false,
     swipeDirection: swipeDirectionProp,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -109,14 +109,14 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   const open = store.useState('open');
 
-  const resolvedSwipeDirection = swipeDirectionProp ?? oppositeSwipeDirection[swipeDirection];
-  const dismissDirection = oppositeSwipeDirection[resolvedSwipeDirection];
-  const enabled = !disabled && (!open || swipeActive);
-
   const resetDragDelta = useStableCallback(() => {
     dragDeltaRef.current.x = 0;
     dragDeltaRef.current.y = 0;
   });
+
+  const resolvedSwipeDirection = swipeDirectionProp ?? oppositeSwipeDirection[swipeDirection];
+  const dismissDirection = oppositeSwipeDirection[resolvedSwipeDirection];
+  const enabled = !disabled && (!open || swipeActive);
 
   function disableDismissForSwipe() {
     releaseDismissTimeout.clear();
@@ -418,6 +418,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
             return;
           }
           swipePointerProps.onPointerDown?.(event);
+
           // Prevent native text selection/drag gestures from competing with swipe-open dragging.
           if (event.cancelable) {
             event.preventDefault();

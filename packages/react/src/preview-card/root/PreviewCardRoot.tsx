@@ -7,8 +7,8 @@ import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCard
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
   PayloadChildRenderFunction,
@@ -54,6 +54,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
+  const floatingRootContext = store.select('floatingRootContext');
 
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload') as Payload | undefined;
@@ -70,7 +71,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   }, [store, activeTriggerId, open]);
 
   const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createPreviewCardEventDetails(store, REASONS.imperativeAction));
+    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }, [store]);
 
   React.useImperativeHandle(
@@ -78,8 +79,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
     [forceUnmount, handleImperativeClose],
   );
-
-  const floatingRootContext = store.useState('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext);
 
@@ -118,20 +117,6 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
       <PreviewCardRootComponent {...props} />
     </FloatingTree>
   );
-}
-
-function createPreviewCardEventDetails<Payload>(
-  store: PreviewCardStore<Payload>,
-  reason: PreviewCardRoot.ChangeEventReason,
-) {
-  const details: PreviewCardRoot.ChangeEventDetails =
-    createChangeEventDetails<PreviewCardRoot.ChangeEventReason>(
-      reason,
-    ) as PreviewCardRoot.ChangeEventDetails;
-  details.preventUnmountOnClose = () => {
-    store.set('preventUnmountingOnClose', true);
-  };
-  return details;
 }
 
 export interface PreviewCardRootState {}

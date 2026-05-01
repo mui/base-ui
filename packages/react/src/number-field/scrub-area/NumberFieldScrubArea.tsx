@@ -7,17 +7,17 @@ import { ownerWindow, ownerDocument } from '@base-ui/utils/owner';
 import { isFirefox, isWebKit } from '@base-ui/utils/detectBrowser';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { getViewportRect } from '../utils/getViewportRect';
 import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize';
 import { DEFAULT_STEP } from '../utils/constants';
-import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { getTarget } from '../../floating-ui-react/utils';
 
 /**
@@ -166,9 +166,14 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
             // Manually dispatch a click event if no movement happened, since
             // preventDefault on pointerdown prevents the browser click event.
-            if (!didMoveRef.current && pointerDownTargetRef.current != null) {
-              pointerDownTargetRef.current.dispatchEvent(
-                new MouseEvent('click', { bubbles: true, cancelable: true }),
+            const pointerDownTarget = pointerDownTargetRef.current;
+            const input = inputRef.current;
+            if (!didMoveRef.current && pointerDownTarget != null && input) {
+              pointerDownTarget.dispatchEvent(
+                new (ownerWindow(input).MouseEvent)('click', {
+                  bubbles: true,
+                  cancelable: true,
+                }),
               );
             }
 

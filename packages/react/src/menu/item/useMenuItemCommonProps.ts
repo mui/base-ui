@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { isMac } from '@base-ui/utils/detectBrowser';
-import { HTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../internals/types';
 import { MenuStore } from '../store/MenuStore';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import type { UseMenuItemMetadata } from './useMenuItem';
 

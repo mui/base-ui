@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { MeterRootContext } from './MeterRootContext';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { formatNumberValue } from '../../utils/formatNumber';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * Groups all parts of the meter and provides the value for screen readers.

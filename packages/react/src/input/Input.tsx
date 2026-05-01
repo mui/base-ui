@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../utils/types';
+import type { BaseUIComponentProps } from '../internals/types';
 import { Field, type FieldControlState } from '../field';
 
 /**

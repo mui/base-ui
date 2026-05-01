@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuBackdropState> = {
@@ -23,7 +23,7 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
   componentProps: NavigationMenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { open, mounted, transitionStatus } = useNavigationMenuRootContext();
 

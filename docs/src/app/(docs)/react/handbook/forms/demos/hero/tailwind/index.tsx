@@ -66,7 +66,7 @@ function ExampleForm() {
                         <Combobox.ItemIndicator>
                           <Check className="size-4" />
                         </Combobox.ItemIndicator>
-                        <div className="col-start-2">{region}</div>
+                        <span className="col-start-2">{region}</span>
                       </Combobox.Item>
                     );
                   }}

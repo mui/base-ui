@@ -21,15 +21,15 @@ Renders a `<div>` element.
 
 **Root Data Attributes:**
 
-| Attribute            | Type                                  | Description                                                    |
-| :------------------- | :------------------------------------ | :------------------------------------------------------------- |
-| data-expanded        | `boolean`                             | Present when the toast is expanded in the viewport.            |
-| data-limited         | `boolean`                             | Present when the toast was removed due to exceeding the limit. |
-| data-swipe-direction | `'up' \| 'down' \| 'left' \| 'right'` | The direction the toast was swiped.                            |
-| data-swiping         | `boolean`                             | Present when the toast is being swiped.                        |
-| data-type            | `string`                              | The type of the toast.                                         |
-| data-starting-style  | -                                     | Present when the toast is animating in.                        |
-| data-ending-style    | -                                     | Present when the toast is animating out.                       |
+| Attribute            | Type                                  | Description                                                              |
+| :------------------- | :------------------------------------ | :----------------------------------------------------------------------- |
+| data-expanded        | `boolean`                             | Present when the toast is expanded in the viewport.                      |
+| data-limited         | `boolean`                             | Present when the toast was limited because the toast limit was exceeded. |
+| data-swipe-direction | `'up' \| 'down' \| 'left' \| 'right'` | The direction the toast was swiped.                                      |
+| data-swiping         | `boolean`                             | Present when the toast is being swiped.                                  |
+| data-type            | `string`                              | The type of the toast.                                                   |
+| data-starting-style  | -                                     | Present when the toast is animating in.                                  |
+| data-ending-style    | -                                     | Present when the toast is animating out.                                 |
 
 **Root CSS Variables:**
 
@@ -53,7 +53,7 @@ type ToastRootState = {
   transitionStatus: TransitionStatus;
   /** Whether the toasts in the viewport are expanded. */
   expanded: boolean;
-  /** Whether the toast was removed due to exceeding the limit. */
+  /** Whether the toast was limited because the toast limit was exceeded. */
   limited: boolean;
   /** The type of the toast. */
   type: string | undefined;
@@ -98,7 +98,7 @@ type ToastRootToastObject<Data extends {} = any> = {
   transitionStatus?: 'starting' | 'ending';
   /** A counter that increments whenever the toast is updated or upserted. */
   updateKey?: number;
-  /** Determines if the toast was closed due to the limit being reached. */
+  /** Determines if the toast was limited because the toast limit was exceeded. */
   limited?: boolean;
   /** The height of the toast. */
   height?: number;
@@ -557,7 +557,7 @@ type ToastObject<Data extends {}> = {
   transitionStatus?: 'starting' | 'ending';
   /** A counter that increments whenever the toast is updated or upserted. */
   updateKey?: number;
-  /** Determines if the toast was closed due to the limit being reached. */
+  /** Determines if the toast was limited because the toast limit was exceeded. */
   limited?: boolean;
   /** The height of the toast. */
   height?: number;

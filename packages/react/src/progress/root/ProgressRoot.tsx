@@ -3,10 +3,10 @@ import * as React from 'react';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { formatNumberValue } from '../../utils/formatNumber';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 
 function getDefaultAriaValueText(formattedValue: string | null, value: number | null) {
   if (value == null) {
@@ -105,7 +105,7 @@ export interface ProgressRootState {
 
 export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressRootState> {
   /**
-   * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
+   * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the progress bar.
    */
   'aria-valuetext'?: React.AriaAttributes['aria-valuetext'] | undefined;
   /**

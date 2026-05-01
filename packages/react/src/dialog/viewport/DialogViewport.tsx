@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { type BaseUIComponentProps } from '../../utils/types';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
-import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { type BaseUIComponentProps } from '../../internals/types';
+import { type TransitionStatus } from '../../internals/useTransitionStatus';
+import { type StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { DialogViewportDataAttributes } from './DialogViewportDataAttributes';
@@ -31,7 +31,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   componentProps: DialogViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, style, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
   const keepMounted = useDialogPortalContext();
   const { store } = useDialogRootContext();
@@ -41,6 +41,8 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   const transitionStatus = store.useState('transitionStatus');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
   const mounted = store.useState('mounted');
+
+  const setViewportElement = store.useStateSetter('viewportElement');
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
@@ -56,7 +58,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   return useRenderElement('div', componentProps, {
     enabled: shouldRender,
     state,
-    ref: [forwardedRef, store.useStateSetter('viewportElement')],
+    ref: [forwardedRef, setViewportElement],
     stateAttributesMapping,
     props: [
       {

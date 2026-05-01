@@ -2,35 +2,42 @@
   .CodeBlockRoot {
     align-self: stretch;
     background-color: var(--color-content);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-md);
+    border: 1px solid var(--gray-c2);
+    border-radius: var(--radius-6);
 
-    & pre {
-      white-space: normal;
+    & code .frame {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
 
-    & [data-line],
-    & .line {
-      padding-inline: 0.75rem;
+    & code .frame[data-lined] {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    & code .frame[data-lined] .line {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
   }
 
   .CodeBlockPanel {
-    font-size: var(--text-xs);
+    font-size: var(--font-size-14);
     line-height: 1;
-    background-color: var(--color-gray-50);
+    background-color: var(--gray-s2);
     background-clip: padding-box;
-    color: var(--color-gray);
+    color: var(--gray-t2);
     display: flex;
     align-items: center;
     justify-content: space-between;
     white-space: nowrap;
-    padding: 0 0.75rem;
+    padding-inline-start: 0.75rem;
+    padding-inline-end: 0.25rem;
     height: 2.25rem;
     gap: 1rem;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
-    border-bottom: 1px solid var(--color-gray-200);
+    border-bottom: 1px solid var(--gray-c2);
 
     /* Scroll */
     overflow: auto hidden;
@@ -51,10 +58,10 @@
   }
 
   .CodeBlockPanelTitle {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
-    color: var(--color-gray-700);
-    font-weight: 400;
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
+    color: var(--gray-t2);
+    font-weight: var(--font-weight-400);
   }
 
   .CodeBlockCopyIcon {
@@ -65,20 +72,18 @@
     justify-content: center;
   }
 
+  .CodeBlockViewport {
+    overscroll-behavior-x: contain;
+  }
+
   .CodeBlockPreInline {
-    font-size: var(--text-xs);
-    line-height: var(--text-xs--line-height);
-    letter-spacing: var(--text-xs--letter-spacing);
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.25rem; /* 20px */
     cursor: text;
     color: var(--color-foreground);
     outline: 0;
-    white-space: normal;
 
-    /* Scroll */
     display: flex;
-    overflow: auto;
-    /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
-    overscroll-behavior-x: contain;
 
     & code {
       /* Different fonts may introduce vertical align issues */
@@ -87,34 +92,33 @@
       flex-grow: 1;
     }
 
-    & [data-line],
-    & .line {
+    & code .frame {
+      display: block;
+    }
+
+    & code .frame[data-lined] {
+      white-space: normal;
+    }
+
+    & code .frame[data-lined] .line {
       display: block;
       white-space: pre;
     }
 
-    & [data-line]:empty,
     & .line:empty {
       height: 1lh;
     }
 
     /* Hide JSDoc comment frames */
-    &:not(.CodeBlockPre) .frame[data-frame-type='comment'] {
-      display: none;
+    &:not(.CodeBlockPre) [data-frame-type='comment'] {
+      display: none !important;
     }
   }
 
   .CodeBlockPre,
   .CodeBlockRoot .CodeBlockPreInline {
-    background-color: var(--color-content);
     padding: 0.5rem 0;
-    border-radius: var(--radius-md);
-  }
-
-  .CodeBlockPreBackground {
-    background-color: var(--color-content);
-    padding: 0.5rem 0;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
   }
 
   .CodeBlockPreContainer {

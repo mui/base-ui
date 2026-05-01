@@ -7,9 +7,9 @@ import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
 import { ToastViewportCssVars } from './ToastViewportCssVars';
 
@@ -41,6 +41,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const hasTransitioningToasts = React.useMemo(
     () => toasts.some((toast) => toast.transitionStatus === 'ending'),
+    [toasts],
+  );
+  const highPriorityToasts = React.useMemo(
+    () => toasts.filter((toast) => toast.priority === 'high'),
     [toasts],
   );
 
@@ -286,11 +290,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       },
     ],
   });
-
-  const highPriorityToasts = React.useMemo(
-    () => toasts.filter((toast) => toast.priority === 'high'),
-    [toasts],
-  );
 
   return (
     <React.Fragment>

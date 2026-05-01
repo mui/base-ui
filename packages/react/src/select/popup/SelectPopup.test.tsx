@@ -1,6 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -160,6 +161,424 @@ describe('<Select.Popup />', () => {
     } finally {
       docEl.style.zoom = previousZoom;
     }
+  });
+
+  it.skipIf(isJSDOM)('aligns the selected item with the trigger inline start in ltr', async () => {
+    await render(
+      <div
+        dir="ltr"
+        style={{
+          marginLeft: 100,
+          minHeight: 600,
+          paddingTop: 96,
+        }}
+      >
+        <DirectionProvider direction="ltr">
+          <Select.Root open defaultValue="with-longer-label">
+            <Select.Trigger
+              style={{
+                width: 160,
+                display: 'flex',
+                justifyContent: 'flex-start',
+                paddingInlineStart: 12,
+                paddingInlineEnd: 28,
+              }}
+            >
+              <Select.Value data-testid="value">With longer label</Select.Value>
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner">
+                <Select.Popup style={{ width: 180, maxHeight: 'none' }}>
+                  <Select.Item value="with-longer-label">
+                    <Select.ItemText
+                      data-testid="item-text"
+                      style={{
+                        paddingInlineStart: 24,
+                        paddingInlineEnd: 8,
+                      }}
+                    >
+                      With longer label
+                    </Select.ItemText>
+                  </Select.Item>
+                  <Select.Item value="other">
+                    <Select.ItemText>Other option</Select.ItemText>
+                  </Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </DirectionProvider>
+      </div>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    const value = screen.getByTestId('value');
+    const itemText = screen.getByTestId('item-text');
+
+    await waitFor(() => {
+      expect(positioner).toHaveAttribute('data-side', 'none');
+      expect(
+        Math.abs(value.getBoundingClientRect().left - itemText.getBoundingClientRect().left),
+      ).toBeLessThan(1);
+    });
+  });
+
+  it.skipIf(isJSDOM)(
+    'aligns the selected item with the trigger inline start in ltr when popup padding shifts the item text',
+    async () => {
+      await render(
+        <div
+          dir="ltr"
+          style={{
+            marginLeft: 100,
+            minHeight: 600,
+            paddingTop: 96,
+          }}
+        >
+          <DirectionProvider direction="ltr">
+            <Select.Root open defaultValue="with-longer-label">
+              <Select.Trigger
+                style={{
+                  width: 160,
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  paddingInlineStart: 12,
+                  paddingInlineEnd: 28,
+                }}
+              >
+                <Select.Value data-testid="value">With longer label</Select.Value>
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup
+                    style={{
+                      width: 220,
+                      maxHeight: 'none',
+                      boxSizing: 'border-box',
+                      border: '4px solid transparent',
+                      paddingInlineStart: 20,
+                      paddingInlineEnd: 12,
+                    }}
+                  >
+                    <Select.Item value="with-longer-label">
+                      <Select.ItemText
+                        data-testid="item-text"
+                        style={{
+                          paddingInlineStart: 24,
+                          paddingInlineEnd: 8,
+                        }}
+                      >
+                        With longer label
+                      </Select.ItemText>
+                    </Select.Item>
+                    <Select.Item value="other">
+                      <Select.ItemText>Other option</Select.ItemText>
+                    </Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </DirectionProvider>
+        </div>,
+      );
+
+      const positioner = screen.getByTestId('positioner');
+      const value = screen.getByTestId('value');
+      const itemText = screen.getByTestId('item-text');
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'none');
+        expect(
+          Math.abs(value.getBoundingClientRect().left - itemText.getBoundingClientRect().left),
+        ).toBeLessThan(1);
+      });
+    },
+  );
+
+  it.skipIf(isJSDOM)('aligns the selected item with the trigger inline end in rtl', async () => {
+    await render(
+      <div
+        dir="rtl"
+        style={{
+          marginLeft: 100,
+          minHeight: 600,
+          paddingTop: 96,
+        }}
+      >
+        <DirectionProvider direction="rtl">
+          <Select.Root open defaultValue="with-longer-label">
+            <Select.Trigger
+              style={{
+                width: 160,
+                display: 'flex',
+                justifyContent: 'flex-end',
+                paddingInlineStart: 28,
+                paddingInlineEnd: 12,
+              }}
+            >
+              <Select.Value data-testid="value">With longer label</Select.Value>
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner data-testid="positioner">
+                <Select.Popup style={{ width: 180, maxHeight: 'none' }}>
+                  <Select.Item value="with-longer-label">
+                    <Select.ItemText
+                      data-testid="item-text"
+                      style={{
+                        paddingInlineStart: 8,
+                        paddingInlineEnd: 24,
+                      }}
+                    >
+                      With longer label
+                    </Select.ItemText>
+                  </Select.Item>
+                  <Select.Item value="other">
+                    <Select.ItemText>Other option</Select.ItemText>
+                  </Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </DirectionProvider>
+      </div>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    const value = screen.getByTestId('value');
+    const itemText = screen.getByTestId('item-text');
+
+    await waitFor(() => {
+      expect(positioner).toHaveAttribute('data-side', 'none');
+      expect(
+        Math.abs(value.getBoundingClientRect().right - itemText.getBoundingClientRect().right),
+      ).toBeLessThan(1);
+    });
+  });
+
+  it.skipIf(isJSDOM)(
+    'aligns the popup with the trigger inline end in rtl when no selected item text is available',
+    async () => {
+      await render(
+        <div
+          dir="rtl"
+          style={{
+            width: 280,
+            marginLeft: 100,
+            minHeight: 600,
+            paddingTop: 96,
+          }}
+        >
+          <DirectionProvider direction="rtl">
+            <Select.Root open>
+              <Select.Trigger
+                data-testid="trigger"
+                style={{
+                  width: 160,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  paddingInlineStart: 28,
+                  paddingInlineEnd: 12,
+                }}
+              >
+                <Select.Value placeholder="اختر لهجة" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup style={{ width: 180, maxHeight: 'none' }}>
+                    <Select.Item value="with-longer-label">With longer label</Select.Item>
+                    <Select.Item value="other">Other option</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </DirectionProvider>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const positioner = screen.getByTestId('positioner');
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'none');
+        expect(
+          Math.abs(
+            trigger.getBoundingClientRect().right - positioner.getBoundingClientRect().right,
+          ),
+        ).toBeLessThan(1);
+      });
+    },
+  );
+
+  describe.skipIf(isJSDOM)('rtl alignment', () => {
+    const RTL_FIXTURE_OPTIONS = [
+      { value: 'first', label: 'الخيار الأول' },
+      { value: 'selected', label: 'الخيار المحدد' },
+      { value: 'third', label: 'الخيار الثالث' },
+    ];
+
+    const RTL_FIXTURE_CSS = `
+      .rtlFixtureRoot {
+        width: 240px;
+        margin-left: 100px;
+        padding-top: 96px;
+        direction: rtl;
+      }
+
+      .rtlFixtureTrigger {
+        box-sizing: border-box;
+        display: flex;
+        justify-content: flex-end;
+        height: 2.5rem;
+        width: 160px;
+        padding-inline-start: 28px;
+        padding-inline-end: 12px;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        direction: rtl;
+      }
+
+      .rtlFixturePositioner,
+      .rtlFixturePopup,
+      .rtlFixtureItem {
+        direction: rtl;
+      }
+
+      .rtlFixturePopup {
+        box-sizing: border-box;
+        min-width: var(--anchor-width);
+      }
+
+      .rtlFixturePopup[data-side='none'] {
+        min-width: calc(var(--anchor-width) + 1rem);
+      }
+
+      .rtlFixtureList {
+        padding-block: 0.25rem;
+        max-height: var(--available-height);
+      }
+
+      .rtlFixtureItem {
+        box-sizing: border-box;
+        padding-block: 0.5rem;
+        padding-inline-start: 1rem;
+        padding-inline-end: 0.625rem;
+        display: grid;
+        gap: 0.5rem;
+        align-items: center;
+        grid-template-columns: 0.75rem 1fr;
+      }
+
+      [data-side='none'] .rtlFixtureItem {
+        padding-inline-start: 3rem;
+      }
+
+      .rtlFixtureIndicator {
+        grid-column: 1;
+      }
+
+      .rtlFixtureText {
+        grid-column: 2;
+      }
+    `;
+
+    function RtlAlignmentSelect({
+      defaultValue,
+      anchorRef,
+      anchorStyle,
+    }: {
+      defaultValue: string;
+      anchorRef?: React.RefObject<HTMLDivElement | null>;
+      anchorStyle?: React.CSSProperties;
+    }) {
+      const [open, setOpen] = React.useState(false);
+
+      return (
+        <div dir="rtl" className="rtlFixtureRoot" ref={anchorRef} style={anchorStyle}>
+          <style>{RTL_FIXTURE_CSS}</style>
+          <DirectionProvider direction="rtl">
+            <Select.Root defaultValue={defaultValue} open={open} onOpenChange={setOpen}>
+              <Select.Trigger className="rtlFixtureTrigger">
+                <Select.Value data-testid="value">
+                  {(value) =>
+                    RTL_FIXTURE_OPTIONS.find((option) => option.value === value)?.label ?? 'اختر'
+                  }
+                </Select.Value>
+              </Select.Trigger>
+
+              <Select.Portal>
+                <Select.Positioner
+                  anchor={anchorRef}
+                  className="rtlFixturePositioner"
+                  data-testid="positioner"
+                  dir="rtl"
+                  sideOffset={8}
+                >
+                  <Select.Popup className="rtlFixturePopup" dir="rtl">
+                    <Select.List className="rtlFixtureList">
+                      {RTL_FIXTURE_OPTIONS.map(({ label, value }) => (
+                        <Select.Item key={value} value={value} className="rtlFixtureItem">
+                          <Select.ItemIndicator className="rtlFixtureIndicator">
+                            ✓
+                          </Select.ItemIndicator>
+                          <Select.ItemText
+                            className="rtlFixtureText"
+                            data-testid={value === defaultValue ? 'item-text' : undefined}
+                          >
+                            {label}
+                          </Select.ItemText>
+                        </Select.Item>
+                      ))}
+                    </Select.List>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </DirectionProvider>
+        </div>
+      );
+    }
+
+    it('aligns the selected item with the trigger inline end on first open in the docs-style rtl layout', async () => {
+      const { user } = await render(<RtlAlignmentSelect defaultValue="selected" />);
+
+      await user.click(screen.getByRole('combobox'));
+
+      const positioner = await screen.findByTestId('positioner');
+      const value = screen.getByTestId('value');
+      const itemText = screen.getByTestId('item-text');
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'none');
+        expect(
+          Math.abs(value.getBoundingClientRect().right - itemText.getBoundingClientRect().right),
+        ).toBeLessThan(1);
+      });
+    });
+
+    it('seeds anchor width from the custom anchor on first open', async () => {
+      function AnchoredRtlAlignmentSelect() {
+        const anchorRef = React.useRef<HTMLDivElement | null>(null);
+
+        return (
+          <RtlAlignmentSelect
+            defaultValue="selected"
+            anchorRef={anchorRef}
+            anchorStyle={{ width: 240 }}
+          />
+        );
+      }
+
+      const { user } = await render(<AnchoredRtlAlignmentSelect />);
+
+      await user.click(screen.getByRole('combobox'));
+
+      const positioner = await screen.findByTestId('positioner');
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'none');
+        expect(positioner.style.getPropertyValue('--anchor-width')).toBe('240px');
+      });
+    });
   });
 
   it.skipIf(isJSDOM)(

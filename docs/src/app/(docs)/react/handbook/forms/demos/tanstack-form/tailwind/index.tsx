@@ -151,7 +151,7 @@ function TanstackForm() {
                               <Combobox.ItemIndicator>
                                 <Check className="size-3" />
                               </Combobox.ItemIndicator>
-                              <div className="col-start-2">{region}</div>
+                              <span className="col-start-2">{region}</span>
                             </Combobox.Item>
                           );
                         }}

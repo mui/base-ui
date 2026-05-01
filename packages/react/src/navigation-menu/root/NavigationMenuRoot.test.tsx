@@ -5,7 +5,7 @@ import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { OPEN_DELAY } from '../utils/constants';
 
 function TestNavigationMenu(props: NavigationMenu.Root.Props) {
@@ -65,6 +65,96 @@ function TestNavigationMenuWithTopLevelLink(props: NavigationMenu.Root.Props = {
       <NavigationMenu.Portal>
         <NavigationMenu.Positioner data-testid="top-level-positioner">
           <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
+const scopedPopupAnimationStyles = `
+  .test-navigation-menu-popup {
+    transition-property: opacity, transform, width, height;
+    transition-duration: 350ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .test-navigation-menu-popup[data-starting-style],
+  .test-navigation-menu-popup[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  .test-navigation-menu-popup[data-ending-style] {
+    transition-property: opacity, transform;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+
+  .test-navigation-menu-content {
+    transition:
+      opacity 175ms ease,
+      transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .test-navigation-menu-content[data-starting-style],
+  .test-navigation-menu-content[data-ending-style] {
+    opacity: 0;
+  }
+
+  .test-navigation-menu-content[data-starting-style][data-activation-direction='left'] {
+    transform: translateX(-2rem);
+  }
+
+  .test-navigation-menu-content[data-starting-style][data-activation-direction='right'] {
+    transform: translateX(2rem);
+  }
+
+  .test-navigation-menu-content[data-ending-style] {
+    transition-duration: 175ms;
+    transition-timing-function: ease;
+  }
+
+  .test-navigation-menu-content[data-ending-style][data-activation-direction='left'] {
+    transform: translateX(2rem);
+  }
+
+  .test-navigation-menu-content[data-ending-style][data-activation-direction='right'] {
+    transform: translateX(-2rem);
+  }
+`;
+
+function TestNavigationMenuWithTopLevelLinkScopedPopupAnimation() {
+  return (
+    <NavigationMenu.Root>
+      {/* eslint-disable-next-line react/no-danger */}
+      <style dangerouslySetInnerHTML={{ __html: scopedPopupAnimationStyles }} />
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-product">Product</NavigationMenu.Trigger>
+          <NavigationMenu.Content className="test-navigation-menu-content">
+            <div style={{ width: 675, height: 220 }}>Product panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="#top-level-link" data-testid="top-level-link">
+            Top level link
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-learn">Learn</NavigationMenu.Trigger>
+          <NavigationMenu.Content className="test-navigation-menu-content">
+            <div style={{ width: 500, height: 180 }}>Learn panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal keepMounted>
+        <NavigationMenu.Positioner data-testid="positioner">
+          <NavigationMenu.Popup className="test-navigation-menu-popup" data-testid="popup-root">
             <NavigationMenu.Viewport />
           </NavigationMenu.Popup>
         </NavigationMenu.Positioner>
@@ -485,62 +575,11 @@ function TestNavigationMenuWithScopedPopupExitAnimation(
   } = {},
 ) {
   const { onOpenChangeComplete } = props;
-  const style = `
-    .test-navigation-menu-popup {
-      transition-property: opacity, transform, width, height;
-      transition-duration: 350ms;
-      transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .test-navigation-menu-popup[data-starting-style],
-    .test-navigation-menu-popup[data-ending-style] {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-
-    .test-navigation-menu-popup[data-ending-style] {
-      transition-property: opacity, transform;
-      transition-duration: 150ms;
-      transition-timing-function: ease;
-    }
-
-    .test-navigation-menu-content {
-      transition:
-        opacity 175ms ease,
-        transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .test-navigation-menu-content[data-starting-style],
-    .test-navigation-menu-content[data-ending-style] {
-      opacity: 0;
-    }
-
-    .test-navigation-menu-content[data-starting-style][data-activation-direction='left'] {
-      transform: translateX(-2rem);
-    }
-
-    .test-navigation-menu-content[data-starting-style][data-activation-direction='right'] {
-      transform: translateX(2rem);
-    }
-
-    .test-navigation-menu-content[data-ending-style] {
-      transition-duration: 175ms;
-      transition-timing-function: ease;
-    }
-
-    .test-navigation-menu-content[data-ending-style][data-activation-direction='left'] {
-      transform: translateX(2rem);
-    }
-
-    .test-navigation-menu-content[data-ending-style][data-activation-direction='right'] {
-      transform: translateX(-2rem);
-    }
-  `;
 
   return (
     <NavigationMenu.Root onOpenChangeComplete={onOpenChangeComplete}>
       {/* eslint-disable-next-line react/no-danger */}
-      <style dangerouslySetInnerHTML={{ __html: style }} />
+      <style dangerouslySetInnerHTML={{ __html: scopedPopupAnimationStyles }} />
       <NavigationMenu.List>
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-product">Product</NavigationMenu.Trigger>
@@ -2661,6 +2700,118 @@ describe('<NavigationMenu.Root />', () => {
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
           restoreResizeObserver();
+        }
+      });
+
+      it('seeds the popup width from the exiting panel when reopening after hovering a top-level link', async () => {
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        let popupWidthSpy: ReturnType<typeof vi.spyOn> | undefined;
+
+        try {
+          function waitForAnimationFrame() {
+            return new Promise<void>((resolve) => {
+              requestAnimationFrame(() => {
+                resolve();
+              });
+            });
+          }
+
+          await render(<TestNavigationMenuWithTopLevelLinkScopedPopupAnimation />);
+
+          const triggerProduct = screen.getByTestId('trigger-product');
+          const triggerLearn = screen.getByTestId('trigger-learn');
+          const topLevelLink = screen.getByTestId('top-level-link');
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+          const animations = mockAnimations(popupRoot);
+
+          let nextPanelWidth = 675;
+          let nextPanelHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => {
+              const fixedWidth = popupRoot.style.getPropertyValue('--popup-width');
+              return fixedWidth && fixedWidth !== 'auto'
+                ? parseInt(fixedWidth, 10)
+                : nextPanelWidth;
+            },
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => {
+              const fixedHeight = popupRoot.style.getPropertyValue('--popup-height');
+              return fixedHeight && fixedHeight !== 'auto'
+                ? parseInt(fixedHeight, 10)
+                : nextPanelHeight;
+            },
+          });
+
+          const openAnimation = animations.start();
+          fireEvent.mouseEnter(triggerProduct);
+          fireEvent.mouseMove(triggerProduct);
+          clock.tick(OPEN_DELAY);
+          await flushMicrotasks();
+
+          await act(async () => {
+            await animations.finish(openAnimation);
+            await flushMicrotasks();
+          });
+
+          await waitFor(() => {
+            expect(triggerProduct).toHaveAttribute('aria-expanded', 'true');
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+          });
+
+          const closeAnimation = animations.start();
+          fireEvent.mouseLeave(triggerProduct, { relatedTarget: topLevelLink });
+          fireEvent.mouseEnter(topLevelLink);
+          fireEvent.mouseMove(topLevelLink);
+          clock.tick(OPEN_DELAY);
+          await flushMicrotasks();
+
+          await waitFor(() => {
+            expect(triggerProduct).toHaveAttribute('aria-expanded', 'false');
+          });
+
+          nextPanelWidth = 500;
+          nextPanelHeight = 180;
+          popupWidthSpy = vi.spyOn(popupRoot.style, 'setProperty');
+
+          const reopenAnimation = animations.start();
+          fireEvent.mouseEnter(triggerLearn);
+          fireEvent.mouseMove(triggerLearn);
+          clock.tick(OPEN_DELAY);
+          await flushMicrotasks();
+
+          await act(async () => {
+            await waitForAnimationFrame();
+            await flushMicrotasks();
+          });
+
+          const popupWidthCalls = (
+            popupWidthSpy.mock.calls as Array<[property: string, value: string, priority?: string]>
+          )
+            .filter((call) => call[0] === '--popup-width')
+            .map((call) => call[1]);
+          const exitingWidthIndex = popupWidthCalls.indexOf('675px');
+          const reopeningWidthIndex = popupWidthCalls.lastIndexOf('500px');
+
+          expect(triggerLearn).toHaveAttribute('aria-expanded', 'true');
+          expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
+          expect(exitingWidthIndex).toBeGreaterThan(-1);
+          expect(reopeningWidthIndex).toBeGreaterThan(exitingWidthIndex);
+
+          await act(async () => {
+            await animations.finish(closeAnimation);
+            await animations.finish(reopenAnimation);
+            await flushMicrotasks();
+          });
+        } finally {
+          popupWidthSpy?.mockRestore();
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
         }
       });
 

@@ -33,9 +33,10 @@ import { Button } from '@base-ui/react/button';
 
 The button can remain keyboard accessible while being rendered as another tag, such as a `<div>`, by specifying `nativeButton={false}`.
 
-```jsx title="Custom tag button" "nativeButton"
+```jsx title="Custom tag button"
 import { Button } from '@base-ui/react/button';
 
+// @highlight-text "nativeButton={false}"
 <Button render={<div />} nativeButton={false}>
   Button that can contain complex children
 </Button>;

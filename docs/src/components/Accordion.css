@@ -1,7 +1,7 @@
 @layer components {
   .AccordionRoot {
     --color-trigger-hover: hsl(0deg 0 99);
-    --color-open-trigger-shadow: var(--color-gray-300);
+    --color-open-trigger-shadow: var(--gray-c3);
 
     @media (prefers-color-scheme: dark) {
       --color-trigger-hover: hsl(0deg 0 9);
@@ -12,28 +12,28 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    color: var(--color-gray);
+    color: var(--gray-t1);
 
-    border: 1px solid var(--color-gray-200);
+    border: 1px solid var(--gray-c2);
     border-collapse: separate;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
   }
 
   .AccordionHeaderRow {
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    border-bottom: 1px solid var(--color-gray-200);
-    background-color: var(--color-gray-50);
+    border-radius: var(--radius-6) var(--radius-6) 0 0;
+    border-bottom: 1px solid var(--gray-c2);
+    background-color: var(--gray-s2);
   }
 
   .AccordionHeaderCell {
     padding: 0.5rem 0.75rem;
-    font-size: var(--text-sm);
-    font-weight: 400;
+    font-size: var(--font-size-14);
+    font-weight: var(--font-weight-400);
     color: var(--color-foreground);
   }
 
   .AccordionItem:not(:last-child) {
-    border-bottom: 1px solid var(--color-gray-200);
+    border-bottom: 1px solid var(--gray-c2);
   }
 
   .AccordionTrigger {
@@ -76,8 +76,8 @@
     }
 
     .AccordionItem:not([open]):last-child & {
-      border-bottom-left-radius: var(--radius-md);
-      border-bottom-right-radius: var(--radius-md);
+      border-bottom-left-radius: var(--radius-6);
+      border-bottom-right-radius: var(--radius-6);
     }
   }
 
@@ -105,13 +105,13 @@
     padding-block: 1px;
 
     [open] & {
-      background-color: var(--color-gray-50);
-      box-shadow: inset 0 1px 0 0 var(--color-gray-100);
+      background-color: var(--gray-s2);
+      box-shadow: inset 0 1px 0 0 var(--gray-c1);
     }
 
     .AccordionItem:last-child & {
-      border-bottom-left-radius: var(--radius-md);
-      border-bottom-right-radius: var(--radius-md);
+      border-bottom-left-radius: var(--radius-6);
+      border-bottom-right-radius: var(--radius-6);
     }
   }
 

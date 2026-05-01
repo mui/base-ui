@@ -253,7 +253,7 @@
     display: block;
     height: 100%;
     width: 0.25rem;
-    border-radius: var(--radius-sm);
+    border-radius: 0.25rem;
     background-color: var(--color-gray-400);
   }
 }
