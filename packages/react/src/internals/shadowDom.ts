@@ -1,4 +1,4 @@
-import { isShadowRoot } from '@floating-ui/utils/dom';
+import { isShadowRoot, isElement } from '@floating-ui/utils/dom';
 
 export function activeElement(doc: Document) {
   let element = doc.activeElement;
@@ -34,6 +34,23 @@ export function contains(parent?: Element | null, child?: Element | null) {
   }
 
   return false;
+}
+
+/**
+ * Shadow DOM-safe version of `Element.closest()`. Runs `closest()` in the
+ * current tree, then hops from a shadow root to its host and repeats.
+ */
+export function closest(element: Element | null, selector: string): Element | null {
+  let current = element;
+  while (current) {
+    const match = current.closest(selector);
+    if (match) {
+      return match;
+    }
+    const root = current.getRootNode();
+    current = isShadowRoot(root) && isElement(root.host) ? (root.host as Element) : null;
+  }
+  return null;
 }
 
 export function getTarget(event: Event) {

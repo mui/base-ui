@@ -1728,8 +1728,10 @@ describe('nested tooltips', () => {
       fireEvent.mouseMove(outerTrigger, { clientX: 10, clientY: 10 });
 
       // Move onto content inside the inner trigger's shadow root before the
-      // delay expires. The composed mouseover path includes the inner trigger,
-      // so the parent can find its private marker and suppress the outer tooltip.
+      // delay expires. The composed mouseover bubbles to the outer trigger,
+      // and the shadow-DOM-safe closest() walks out of the shadow root to
+      // find the private marker on the inner trigger, suppressing the outer
+      // tooltip via shouldOpen.
       fireEvent.pointerEnter(innerTrigger, { clientX: 50, clientY: 10 });
       fireEvent.mouseEnter(innerTrigger);
       innerShadowTarget.dispatchEvent(
