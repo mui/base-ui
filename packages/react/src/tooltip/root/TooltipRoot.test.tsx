@@ -1393,6 +1393,50 @@ describe('nested tooltips', () => {
     expect(screen.getByTestId('outer-popup')).not.toBe(null);
   });
 
+  it('should close a focus-opened inner tooltip when the inner trigger loses focus', async () => {
+    await render(
+      <Tooltip.Provider delay={0}>
+        <Tooltip.Root open={false}>
+          <Tooltip.Trigger data-testid="outer-trigger" render={<div />}>
+            row label
+            <Tooltip.Root>
+              <Tooltip.Trigger data-testid="inner-trigger">button with tooltip</Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup data-testid="inner-popup">inner popup</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+            <button data-testid="after">button</button>
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup data-testid="outer-popup">outer popup</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </Tooltip.Provider>,
+    );
+
+    const innerTrigger = screen.getByTestId('inner-trigger');
+    const after = screen.getByTestId('after');
+
+    await act(async () => {
+      innerTrigger.focus();
+    });
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('inner-popup')).not.toBe(null);
+
+    await act(async () => {
+      after.focus();
+    });
+    clock.tick(OPEN_DELAY);
+    await flushMicrotasks();
+
+    expect(screen.queryByTestId('inner-popup')).toBe(null);
+  });
+
   it('should allow the parent tooltip to open when a nested trigger is disabled', async () => {
     await render(
       <Tooltip.Root>
