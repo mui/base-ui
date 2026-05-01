@@ -48,17 +48,23 @@ describe('<Tabs.Indicator />', () => {
     ) {
       const tabRect = activeTab.getBoundingClientRect();
       const tabListRect = tabList.getBoundingClientRect();
-      const { width: tabWidth, height: tabHeight } = getCssDimensions(activeTab);
       const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabList);
       const scaleX = tabListWidth > 0 ? tabListRect.width / tabListWidth : 1;
       const scaleY = tabListHeight > 0 ? tabListRect.height / tabListHeight : 1;
+      const devicePixelRatio = window.devicePixelRatio || 1;
+      const snap = (value: number) => Math.round(value * devicePixelRatio) / devicePixelRatio;
+      const isVertical = tabList.getAttribute('aria-orientation') === 'vertical';
+      const tabLeft = isVertical ? tabRect.left : snap(tabRect.left);
+      const tabRight = isVertical ? tabRect.right : snap(tabRect.right);
+      const tabTop = isVertical ? snap(tabRect.top) : tabRect.top;
+      const tabBottom = isVertical ? snap(tabRect.bottom) : tabRect.bottom;
 
-      const relativeLeft =
-        (tabRect.left - tabListRect.left) / scaleX + tabList.scrollLeft - tabList.clientLeft;
-      const relativeTop =
-        (tabRect.top - tabListRect.top) / scaleY + tabList.scrollTop - tabList.clientTop;
-      const relativeRight = tabList.scrollWidth - relativeLeft - tabWidth;
-      const relativeBottom = tabList.scrollHeight - relativeTop - tabHeight;
+      const left = (tabLeft - tabListRect.left) / scaleX + tabList.scrollLeft - tabList.clientLeft;
+      const top = (tabTop - tabListRect.top) / scaleY + tabList.scrollTop - tabList.clientTop;
+      const width = (tabRight - tabLeft) / scaleX;
+      const height = (tabBottom - tabTop) / scaleY;
+      const relativeRight = tabList.scrollWidth - left - width;
+      const relativeBottom = tabList.scrollHeight - top - height;
 
       const bubbleComputedStyle = window.getComputedStyle(bubble);
       const actualLeft = bubbleComputedStyle.getPropertyValue('--active-tab-left');
@@ -68,13 +74,137 @@ describe('<Tabs.Indicator />', () => {
       const actualWidth = bubbleComputedStyle.getPropertyValue('--active-tab-width');
       const actualHeight = bubbleComputedStyle.getPropertyValue('--active-tab-height');
 
-      assertSize(actualLeft, relativeLeft);
+      assertSize(actualLeft, left);
       assertSize(actualRight, relativeRight);
-      assertSize(actualTop, relativeTop);
+      assertSize(actualTop, top);
       assertSize(actualBottom, relativeBottom);
-      assertSize(actualWidth, tabWidth);
-      assertSize(actualHeight, tabHeight);
+      assertSize(actualWidth, width);
+      assertSize(actualHeight, height);
     }
+
+    function getAbsoluteIndicatorEdges(bubble: HTMLElement, tabList: HTMLElement) {
+      const bubbleComputedStyle = window.getComputedStyle(bubble);
+      const left = parseFloat(bubbleComputedStyle.getPropertyValue('--active-tab-left'));
+      const top = parseFloat(bubbleComputedStyle.getPropertyValue('--active-tab-top'));
+      const width = parseFloat(bubbleComputedStyle.getPropertyValue('--active-tab-width'));
+      const height = parseFloat(bubbleComputedStyle.getPropertyValue('--active-tab-height'));
+      const tabListRect = tabList.getBoundingClientRect();
+      const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabList);
+      const scaleX = tabListWidth > 0 ? tabListRect.width / tabListWidth : 1;
+      const scaleY = tabListHeight > 0 ? tabListRect.height / tabListHeight : 1;
+
+      return {
+        left: tabListRect.left + (left - tabList.scrollLeft + tabList.clientLeft) * scaleX,
+        right: tabListRect.left + (left + width - tabList.scrollLeft + tabList.clientLeft) * scaleX,
+        top: tabListRect.top + (top - tabList.scrollTop + tabList.clientTop) * scaleY,
+        bottom: tabListRect.top + (top + height - tabList.scrollTop + tabList.clientTop) * scaleY,
+      };
+    }
+
+    function assertDevicePixelSnapped(value: number) {
+      const devicePixelRatio = window.devicePixelRatio || 1;
+      const devicePixel = value * devicePixelRatio;
+
+      expect(Math.abs(devicePixel - Math.round(devicePixel))).toBeLessThanOrEqual(0.01);
+    }
+
+    function assertMainAxisEdgesAreSnapped(bubble: HTMLElement, tabList: HTMLElement) {
+      const edges = getAbsoluteIndicatorEdges(bubble, tabList);
+
+      if (tabList.getAttribute('aria-orientation') === 'vertical') {
+        assertDevicePixelSnapped(edges.top);
+        assertDevicePixelSnapped(edges.bottom);
+      } else {
+        assertDevicePixelSnapped(edges.left);
+        assertDevicePixelSnapped(edges.right);
+      }
+    }
+
+    it('snaps fractional tab edges to the device pixel grid', async () => {
+      const halfDevicePixel = 0.5 / (window.devicePixelRatio || 1);
+
+      await render(
+        <div style={{ transform: `translate(${halfDevicePixel}px, ${halfDevicePixel}px)` }}>
+          <Tabs.Root value={2}>
+            <Tabs.List data-testid="tab-list" style={{ display: 'flex' }}>
+              <Tabs.Tab value={1} style={{ flex: `0 0 ${50 + halfDevicePixel}px` }}>
+                One
+              </Tabs.Tab>
+              <Tabs.Tab value={2} style={{ flex: `0 0 ${69 + halfDevicePixel}px` }}>
+                Two
+              </Tabs.Tab>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        </div>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      await waitFor(() => assertBubblePositionVariables(bubble, tabList, activeTab));
+      assertMainAxisEdgesAreSnapped(bubble, tabList);
+    });
+
+    it('does not introduce a cross-axis scrollbar from main-axis snapping', async () => {
+      const halfDevicePixel = 0.5 / (window.devicePixelRatio || 1);
+
+      await render(
+        <div style={{ transform: `translate(${halfDevicePixel}px, ${halfDevicePixel}px)` }}>
+          <Tabs.Root value={2}>
+            <Tabs.List
+              data-testid="tab-list"
+              style={{ display: 'flex', overflowX: 'auto', height: `${32 + halfDevicePixel}px` }}
+            >
+              <Tabs.Tab value={1} style={{ flex: '0 0 80px' }}>
+                One
+              </Tabs.Tab>
+              <Tabs.Tab value={2} style={{ flex: '0 0 80px' }}>
+                Two
+              </Tabs.Tab>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        </div>,
+      );
+
+      const tabList = screen.getByTestId('tab-list');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      await waitFor(() =>
+        assertBubblePositionVariables(screen.getByTestId('bubble'), tabList, activeTab),
+      );
+
+      expect(tabList.scrollHeight).toBeLessThanOrEqual(tabList.clientHeight);
+    });
+
+    it('snaps fractional tab edges on the vertical axis for vertical orientation', async () => {
+      const halfDevicePixel = 0.5 / (window.devicePixelRatio || 1);
+
+      await render(
+        <div style={{ transform: `translate(${halfDevicePixel}px, ${halfDevicePixel}px)` }}>
+          <Tabs.Root value={2} orientation="vertical">
+            <Tabs.List data-testid="tab-list" style={{ display: 'flex', flexDirection: 'column' }}>
+              <Tabs.Tab value={1} style={{ flex: `0 0 ${30 + halfDevicePixel}px` }}>
+                One
+              </Tabs.Tab>
+              <Tabs.Tab value={2} style={{ flex: `0 0 ${42 + halfDevicePixel}px` }}>
+                Two
+              </Tabs.Tab>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        </div>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      await waitFor(() => assertBubblePositionVariables(bubble, tabList, activeTab));
+      assertMainAxisEdgesAreSnapped(bubble, tabList);
+    });
 
     it('should set CSS variables corresponding to the active tab', async () => {
       await render(

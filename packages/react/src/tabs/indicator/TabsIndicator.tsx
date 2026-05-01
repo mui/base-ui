@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
@@ -77,18 +78,33 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
         Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
       if (hasNonZeroScale) {
-        const tabLeftDelta = tabRect.left - tabsListRect.left;
-        const tabTopDelta = tabRect.top - tabsListRect.top;
+        const devicePixelRatio = ownerWindow(tabsListElement).devicePixelRatio || 1;
+        const snap = (edge: number) => Math.round(edge * devicePixelRatio) / devicePixelRatio;
+        // Snap edges along the main axis only. Snapping the cross axis can push the
+        // indicator past the tablist's content box and trigger an unwanted scrollbar.
+        const isVertical = orientation === 'vertical';
+        const tabLeft = isVertical ? tabRect.left : snap(tabRect.left);
+        const tabRight = isVertical ? tabRect.right : snap(tabRect.right);
+        const tabTop = isVertical ? snap(tabRect.top) : tabRect.top;
+        const tabBottom = isVertical ? snap(tabRect.bottom) : tabRect.bottom;
 
-        left = tabLeftDelta / scaleX + tabsListElement.scrollLeft - tabsListElement.clientLeft;
-        top = tabTopDelta / scaleY + tabsListElement.scrollTop - tabsListElement.clientTop;
+        left =
+          (tabLeft - tabsListRect.left) / scaleX +
+          tabsListElement.scrollLeft -
+          tabsListElement.clientLeft;
+        top =
+          (tabTop - tabsListRect.top) / scaleY +
+          tabsListElement.scrollTop -
+          tabsListElement.clientTop;
+        width = (tabRight - tabLeft) / scaleX;
+        height = (tabBottom - tabTop) / scaleY;
       } else {
         left = activeTab.offsetLeft;
         top = activeTab.offsetTop;
+        width = computedWidth;
+        height = computedHeight;
       }
 
-      width = computedWidth;
-      height = computedHeight;
       right = tabsListElement.scrollWidth - left - width;
       bottom = tabsListElement.scrollHeight - top - height;
     }

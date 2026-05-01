@@ -54,18 +54,25 @@
     const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
     if (hasNonZeroScale) {
-      const tabLeftDelta = tabRect.left - tabsListRect.left;
-      const tabTopDelta = tabRect.top - tabsListRect.top;
+      const devicePixelRatio = window.devicePixelRatio || 1;
+      const snap = (value) => Math.round(value * devicePixelRatio) / devicePixelRatio;
+      const isVertical = tabsList.getAttribute('aria-orientation') === 'vertical';
+      const tabLeft = isVertical ? tabRect.left : snap(tabRect.left);
+      const tabRight = isVertical ? tabRect.right : snap(tabRect.right);
+      const tabTop = isVertical ? snap(tabRect.top) : tabRect.top;
+      const tabBottom = isVertical ? snap(tabRect.bottom) : tabRect.bottom;
 
-      left = tabLeftDelta / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
-      top = tabTopDelta / scaleY + tabsList.scrollTop - tabsList.clientTop;
+      left = (tabLeft - tabsListRect.left) / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
+      top = (tabTop - tabsListRect.top) / scaleY + tabsList.scrollTop - tabsList.clientTop;
+      width = (tabRight - tabLeft) / scaleX;
+      height = (tabBottom - tabTop) / scaleY;
     } else {
       left = activeTab.offsetLeft;
       top = activeTab.offsetTop;
+      width = computedWidth;
+      height = computedHeight;
     }
 
-    width = computedWidth;
-    height = computedHeight;
     right = tabsList.scrollWidth - left - width;
     bottom = tabsList.scrollHeight - top - height;
   }
