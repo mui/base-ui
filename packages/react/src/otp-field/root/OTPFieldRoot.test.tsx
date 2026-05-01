@@ -229,19 +229,37 @@ describe('<OTPFieldPreview />', () => {
         expect(getValues()).toBe('AB12CD');
       });
 
-      it('warns when `sanitizeValue` is used without `validationType="none"`', async () => {
+      it('composes with built-in validation and advances focus', async () => {
         const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
         try {
-          await render(<OTPField sanitizeValue={(value) => value.toUpperCase()} />);
-
-          expect(warnSpy).toHaveBeenCalledTimes(1);
-          expect(warnSpy.mock.calls[0]?.[0]).toContain(
-            'Base UI: <OTPField.Root> `sanitizeValue` is only used when `validationType="none"`.',
+          await render(
+            <OTPField
+              validationType="alphanumeric"
+              sanitizeValue={(value) => value.toUpperCase()}
+            />,
           );
+
+          const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+          fireEvent.change(inputs[0], { target: { value: 'a!' } });
+
+          expect(getValues()).toBe('A');
+          expect(inputs[1]).toHaveFocus();
+          expect(warnSpy).not.toHaveBeenCalled();
         } finally {
           warnSpy.mockRestore();
         }
+      });
+
+      it('composes built-in validation and custom sanitization for pasted values', async () => {
+        await render(
+          <OTPField validationType="alphanumeric" sanitizeValue={(value) => value.toUpperCase()} />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        pasteText(firstInput, 'ab-12 cd!');
+
+        expect(getValues()).toBe('AB12CD');
       });
     });
 
@@ -309,6 +327,65 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
 
+      it('fires when custom sanitization removes characters after built-in validation', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(
+          <OTPField
+            validationType="numeric"
+            sanitizeValue={(value) => value.replace(/[^0-3]/g, '')}
+            onValueInvalid={onValueInvalid}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        fireEvent.change(firstInput, { target: { value: '1209' } });
+
+        expect(getValues()).toBe('120');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1209');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      });
+
+      it('fires when custom sanitization removes all characters after built-in validation', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(
+          <OTPField
+            validationType="numeric"
+            sanitizeValue={() => ''}
+            onValueInvalid={onValueInvalid}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        fireEvent.change(firstInput, { target: { value: '1' } });
+
+        expect(getValues()).toBe('');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      });
+
+      it('fires when built-in validation removes characters before custom sanitization expands the value', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(
+          <OTPField
+            sanitizeValue={(value) => (value === '1' ? '12' : value)}
+            onValueInvalid={onValueInvalid}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        fireEvent.change(firstInput, { target: { value: '1a' } });
+
+        expect(getValues()).toBe('12');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1a');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      });
+
       it('fires `input-paste` when pasted text is sanitized before the OTP value updates', async () => {
         const onValueInvalid = vi.fn();
 
@@ -320,6 +397,26 @@ describe('<OTPFieldPreview />', () => {
         expect(getValues()).toBe('1234');
         expect(onValueInvalid).toHaveBeenCalledTimes(1);
         expect(onValueInvalid.mock.calls[0]?.[0]).toBe('12a34');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
+      });
+
+      it('fires `input-paste` when custom sanitization removes characters after built-in validation', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(
+          <OTPField
+            validationType="numeric"
+            sanitizeValue={(value) => value.replace(/[^0-3]/g, '')}
+            onValueInvalid={onValueInvalid}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        pasteText(firstInput, '1209');
+
+        expect(getValues()).toBe('120');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1209');
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
       });
     });

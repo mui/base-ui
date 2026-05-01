@@ -6,8 +6,8 @@ import styles from './index.module.css';
 
 const CODE_LENGTH = 6;
 
-function sanitizeTierCode(value: string) {
-  return value.replace(/[^0-3]/g, '');
+function sanitizeRecoveryCode(value: string) {
+  return value.toUpperCase();
 }
 
 function getInvalidClassName(invalidPulse: number, evenClassName: string, oddClassName: string) {
@@ -40,14 +40,13 @@ export default function OTPFieldCustomSanitizeDemo() {
   return (
     <div className={styles.Field}>
       <label htmlFor={id} className={styles.Label}>
-        Tier code
+        Recovery code
       </label>
       <OTPField.Root
         id={id}
         length={CODE_LENGTH}
-        validationType="none"
-        inputMode="numeric"
-        sanitizeValue={sanitizeTierCode}
+        validationType="alphanumeric"
+        sanitizeValue={sanitizeRecoveryCode}
         onValueChange={handleValueChange}
         onValueInvalid={handleValueInvalid}
         aria-describedby={descriptionId}
@@ -65,7 +64,7 @@ export default function OTPFieldCustomSanitizeDemo() {
         ))}
       </OTPField.Root>
       <p id={descriptionId} className={styles.Description}>
-        Digits <span className={styles.Code}>0-3</span> only.
+        Letters and digits only. Letters are converted to uppercase.
       </p>
       <span aria-live="polite" className={styles.ScreenReaderOnly}>
         {statusMessage}

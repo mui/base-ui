@@ -31,8 +31,7 @@ import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {
   getOTPValidationConfig,
-  normalizeOTPValue,
-  stripOTPWhitespace,
+  normalizeOTPValueWithDetails,
   type OTPValidationType,
 } from '../utils/otp';
 
@@ -134,7 +133,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const inputMode = inputModeProp ?? validationConfig?.inputMode;
   const hasValidLength = Number.isInteger(length) && length > 0;
 
-  const value = normalizeOTPValue(valueUnwrapped, length, validationType, sanitizeValue);
+  const value = normalizeOTPValueWithDetails(
+    valueUnwrapped,
+    length,
+    validationType,
+    sanitizeValue,
+  ).value;
   const valueRef = useValueAsRef(value);
   const filled = value !== '';
 
@@ -155,8 +159,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     useOTPFieldRootDevWarnings({
       inputCount,
       length,
-      sanitizeValue,
-      validationType,
     });
   }
 
@@ -229,7 +231,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const setValue = useStableCallback(
     (nextValue: string, details: OTPFieldRoot.ChangeEventDetails) => {
-      const normalizedValue = normalizeOTPValue(nextValue, length, validationType, sanitizeValue);
+      const normalizedValue = normalizeOTPValueWithDetails(
+        nextValue,
+        length,
+        validationType,
+        sanitizeValue,
+      ).value;
       const completeEventDetails =
         normalizedValue.length === length &&
         (valueRef.current.length !== length || details.reason === REASONS.inputPaste)
@@ -412,14 +419,15 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
                 }
 
                 const rawValue = event.currentTarget.value;
-                const normalizedValue = normalizeOTPValue(
+                const normalizedValueDetails = normalizeOTPValueWithDetails(
                   rawValue,
                   length,
                   validationType,
                   sanitizeValue,
                 );
+                const { value: normalizedValue, didSanitize } = normalizedValueDetails;
 
-                if (stripOTPWhitespace(rawValue).length > normalizedValue.length) {
+                if (didSanitize) {
                   reportValueInvalid(
                     rawValue,
                     createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -517,8 +525,13 @@ export interface OTPFieldRootProps extends Omit<
    */
   validationType?: OTPFieldRoot.ValidationType | undefined;
   /**
-   * Function for custom sanitization when `validationType` is set to `'none'`.
+   * Function for custom sanitization after whitespace and `validationType` filtering.
    * This function runs before updating the OTP value from user interactions.
+   *
+   * The returned value is filtered by `validationType` again, then clamped to `length`.
+   * It should be idempotent because the component may normalize controlled values on every render
+   * and normalize again for each user edit. Characters removed by this function are reported
+   * through `onValueInvalid`.
    */
   sanitizeValue?: ((value: string) => string) | undefined;
   /**
@@ -648,12 +661,10 @@ function mergeAriaIds(...values: Array<string | undefined>) {
 interface UseOTPFieldRootDevWarningsParameters {
   inputCount: number;
   length: number;
-  sanitizeValue: ((value: string) => string) | undefined;
-  validationType: OTPFieldRoot.ValidationType;
 }
 
 function useOTPFieldRootDevWarnings(parameters: UseOTPFieldRootDevWarningsParameters) {
-  const { inputCount, length, sanitizeValue, validationType } = parameters;
+  const { inputCount, length } = parameters;
 
   React.useEffect(() => {
     if (!Number.isInteger(length) || length <= 0 || inputCount === 0 || inputCount === length) {
@@ -679,16 +690,4 @@ function useOTPFieldRootDevWarnings(parameters: UseOTPFieldRootDevWarningsParame
       ownerStackMessage,
     );
   }, [length]);
-
-  React.useEffect(() => {
-    if (sanitizeValue == null || validationType === 'none') {
-      return;
-    }
-
-    const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
-    warn(
-      '<OTPField.Root> `sanitizeValue` is only used when `validationType="none"`.',
-      ownerStackMessage,
-    );
-  }, [sanitizeValue, validationType]);
 }

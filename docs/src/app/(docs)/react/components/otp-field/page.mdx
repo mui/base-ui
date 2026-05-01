@@ -108,10 +108,12 @@ import { DemoOTPFieldFocusedPlaceholder } from './demos/focused-placeholder';
 
 ### Custom sanitization
 
-Set `validationType="none"` with `sanitizeValue` when you need to normalize pasted values before
-they reach state or apply custom validation rules. Use `inputMode` when a custom rule still needs a
-specific virtual keyboard hint, and `onValueInvalid` when you want to react to rejected
-characters.
+Use `sanitizeValue` to normalize accepted values before state updates, such as converting
+alphanumeric codes to uppercase. It runs after `validationType` filtering, and the result is checked
+against `validationType` again. Use `validationType="none"` when the sanitizer should provide the
+full validation rule.
+
+Pair custom rules with `inputMode` for keyboard hints and `onValueInvalid` for rejected characters.
 
 import { DemoOTPFieldCustomSanitize } from './demos/custom-sanitize';
 

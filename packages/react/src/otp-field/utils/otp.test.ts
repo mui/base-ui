@@ -1,5 +1,14 @@
-import { describe, expect, it } from 'vitest';
-import { normalizeOTPValue, removeOTPCharacter, replaceOTPValue, stripOTPWhitespace } from './otp';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  normalizeOTPValueWithDetails,
+  removeOTPCharacter,
+  replaceOTPValue,
+  stripOTPWhitespace,
+} from './otp';
+
+function normalizeValue(...args: Parameters<typeof normalizeOTPValueWithDetails>) {
+  return normalizeOTPValueWithDetails(...args).value;
+}
 
 describe('otp utils', () => {
   it('removes whitespace from pasted values', () => {
@@ -12,32 +21,61 @@ describe('otp utils', () => {
   });
 
   it('normalizes, filters, and clamps numeric values', () => {
-    expect(normalizeOTPValue('1a 2b34c56', 4, 'numeric')).toBe('1234');
+    expect(normalizeValue('1a 2b34c56', 4, 'numeric')).toBe('1234');
   });
 
   it('normalizes alphabetic values', () => {
-    expect(normalizeOTPValue('1a 2b3C4', 6, 'alpha')).toBe('abC');
+    expect(normalizeValue('1a 2b3C4', 6, 'alpha')).toBe('abC');
   });
 
   it('normalizes alphanumeric values', () => {
-    expect(normalizeOTPValue('A1-B2 c3!', 6, 'alphanumeric')).toBe('A1B2c3');
+    expect(normalizeValue('A1-B2 c3!', 6, 'alphanumeric')).toBe('A1B2c3');
   });
 
   it('returns an empty string for nullish input values', () => {
-    expect(normalizeOTPValue(null, 6, 'numeric')).toBe('');
-    expect(normalizeOTPValue(undefined, 6, 'alpha')).toBe('');
+    expect(normalizeValue(null, 6, 'numeric')).toBe('');
+    expect(normalizeValue(undefined, 6, 'alpha')).toBe('');
   });
 
   it('uses custom sanitization when validationType is none', () => {
     expect(
-      normalizeOTPValue('ab-12 cd', 6, 'none', (value) =>
+      normalizeValue('ab-12 cd', 6, 'none', (value) =>
         value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase(),
       ),
     ).toBe('AB12CD');
   });
 
+  it('applies custom sanitization after built-in validation', () => {
+    expect(normalizeValue('ab-12 cd!', 6, 'alphanumeric', (value) => value.toUpperCase())).toBe(
+      'AB12CD',
+    );
+  });
+
+  it('filters custom sanitization output through built-in validation', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      expect(normalizeValue('12', 6, 'numeric', (value) => `${value}AB`)).toBe('12');
+      expect(warnSpy.mock.calls[0]?.[0]).toContain(
+        '`sanitizeValue` returned characters that are not allowed by `validationType`',
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
+  it('throws when custom sanitization returns a non-string value', () => {
+    expect(() => normalizeValue('12', 6, 'numeric', () => 12 as unknown as string)).toThrow(
+      'Base UI: <OTPField.Root> `sanitizeValue` must return a string. Returning a non-string value prevents the OTP value from being normalized. Ensure `sanitizeValue` returns the sanitized string.',
+    );
+  });
+
+  it('clamps values after custom sanitization', () => {
+    expect(normalizeValue('123456', 4, 'numeric', (value) => `${value}789`)).toBe('1234');
+  });
+
   it('returns an empty string for negative lengths', () => {
-    expect(normalizeOTPValue('1234', -1, 'none')).toBe('');
+    expect(normalizeValue('1234', -1, 'none')).toBe('');
   });
 
   it('replaces values from the middle of the OTP', () => {
@@ -50,6 +88,14 @@ describe('otp utils', () => {
 
   it('replaces values at the last slot', () => {
     expect(replaceOTPValue('123456', 5, '9', 6, 'numeric')).toBe('123459');
+  });
+
+  it('applies custom sanitization once when replacing OTP values', () => {
+    const sanitizeValue = vi.fn((value: string) => value.toUpperCase());
+
+    expect(replaceOTPValue('123456', 2, 'ab', 6, 'alphanumeric', sanitizeValue)).toBe('12AB56');
+    expect(sanitizeValue).toHaveBeenCalledTimes(1);
+    expect(sanitizeValue).toHaveBeenCalledWith('12ab56');
   });
 
   it('removes a character from the first slot', () => {
