@@ -99,6 +99,11 @@ export function useHoverReferenceInteraction(
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
+  const checkShouldOpen = useStableCallback(() => {
+    // `shouldOpen` is an optional veto; keep default hover behavior unless it explicitly returns false.
+    return shouldOpenRef.current?.() !== false;
+  });
+
   const isOverInactiveTrigger = useStableCallback(
     (
       currentDomReference: Element | null,
@@ -261,7 +266,7 @@ export function useHoverReferenceInteraction(
       // Open immediately when moving between triggers while open, or during
       // a hover-driven close transition (including same-trigger re-entry).
       if (shouldOpenImmediately) {
-        if (shouldOpenRef.current?.() !== false) {
+        if (checkShouldOpen()) {
           store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
         }
         return;
@@ -273,12 +278,12 @@ export function useHoverReferenceInteraction(
 
       if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
-          if (shouldOpen && shouldOpenRef.current?.() !== false) {
+          if (shouldOpen && checkShouldOpen()) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
         });
       } else if (shouldOpen) {
-        if (shouldOpenRef.current?.() !== false) {
+        if (checkShouldOpen()) {
           store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
         }
       }
@@ -376,7 +381,7 @@ export function useHoverReferenceInteraction(
     enabledRef,
     getHandleCloseContext,
     isClosingRef,
-    shouldOpenRef,
+    checkShouldOpen,
   ]);
 
   return React.useMemo<HTMLProps | undefined>(() => {
@@ -444,11 +449,7 @@ export function useHoverReferenceInteraction(
 
           const latestOpen = store.select('open');
 
-          if (
-            !instance.blockMouseMove &&
-            (!latestOpen || isOverInactive) &&
-            shouldOpenRef.current?.() !== false
-          ) {
+          if (!instance.blockMouseMove && (!latestOpen || isOverInactive) && checkShouldOpen()) {
             store.setOpen(
               true,
               createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
@@ -476,6 +477,6 @@ export function useHoverReferenceInteraction(
     mouseOnly,
     store,
     restMsRef,
-    shouldOpenRef,
+    checkShouldOpen,
   ]);
 }
