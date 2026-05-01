@@ -137,6 +137,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const clearNestedTriggerHover = useStableCallback(() => {
     isNestedTriggerHoveredRef.current = false;
     nestedTriggerOpenTimeout.clear();
+    pointerTypeRef.current = undefined;
   });
 
   const shouldOpen = useStableCallback(() => {
