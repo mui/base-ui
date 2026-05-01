@@ -19,19 +19,11 @@ export function getDefaultFormSubmitter(form: HTMLFormElement | null): DefaultFo
   for (const candidate of form.elements) {
     const tagName = candidate.tagName;
 
-    if (tagName === 'BUTTON') {
-      const button = candidate as HTMLButtonElement;
+    if (tagName === 'BUTTON' || tagName === 'INPUT') {
+      const button = candidate as HTMLButtonElement | HTMLInputElement;
 
       if (button.type === 'submit') {
         return button;
-      }
-    }
-
-    if (tagName === 'INPUT') {
-      const input = candidate as HTMLInputElement;
-
-      if (input.type === 'submit') {
-        return input;
       }
     }
   }
