@@ -46,11 +46,6 @@ export interface UseHoverReferenceInteractionProps {
   triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
   isClosing?: (() => boolean) | undefined;
-  /**
-   * Called before hover opens the floating element. Return `false` to veto this
-   * particular hover-open attempt.
-   */
-  shouldOpen?: (() => boolean) | undefined;
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
@@ -75,7 +70,6 @@ export function useHoverReferenceInteraction(
     isActiveTrigger = true,
     getHandleCloseContext,
     isClosing,
-    shouldOpen: shouldOpenProp,
   } = props;
 
   const store = 'rootStore' in context ? context.rootStore : context;
@@ -91,16 +85,10 @@ export function useHoverReferenceInteraction(
   const delayRef = useValueAsRef(delay);
   const restMsRef = useValueAsRef(restMs);
   const enabledRef = useValueAsRef(enabled);
-  const shouldOpenRef = useValueAsRef(shouldOpenProp);
   const isClosingRef = useValueAsRef(isClosing);
 
   const isClickLikeOpenEvent = useStableCallback(() => {
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
-  });
-
-  const checkShouldOpen = useStableCallback(() => {
-    // `shouldOpen` is an optional veto; keep default hover behavior unless it explicitly returns false.
-    return shouldOpenRef.current?.() !== false;
   });
 
   const isOverInactiveTrigger = useStableCallback(
@@ -265,9 +253,7 @@ export function useHoverReferenceInteraction(
       // Open immediately when moving between triggers while open, or during
       // a hover-driven close transition (including same-trigger re-entry).
       if (shouldOpenImmediately) {
-        if (checkShouldOpen()) {
-          store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
-        }
+        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
         return;
       }
 
@@ -277,14 +263,12 @@ export function useHoverReferenceInteraction(
 
       if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
-          if (shouldOpen && checkShouldOpen()) {
+          if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
         });
       } else if (shouldOpen) {
-        if (checkShouldOpen()) {
-          store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
-        }
+        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       }
     }
 
@@ -380,7 +364,6 @@ export function useHoverReferenceInteraction(
     enabledRef,
     getHandleCloseContext,
     isClosingRef,
-    checkShouldOpen,
   ]);
 
   return React.useMemo<HTMLProps | undefined>(() => {
@@ -448,7 +431,7 @@ export function useHoverReferenceInteraction(
 
           const latestOpen = store.select('open');
 
-          if (!instance.blockMouseMove && (!latestOpen || isOverInactive) && checkShouldOpen()) {
+          if (!instance.blockMouseMove && (!latestOpen || isOverInactive)) {
             store.setOpen(
               true,
               createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
@@ -468,14 +451,5 @@ export function useHoverReferenceInteraction(
         }
       },
     };
-  }, [
-    enabled,
-    instance,
-    isClickLikeOpenEvent,
-    isOverInactiveTrigger,
-    mouseOnly,
-    store,
-    restMsRef,
-    checkShouldOpen,
-  ]);
+  }, [enabled, instance, isClickLikeOpenEvent, isOverInactiveTrigger, mouseOnly, store, restMsRef]);
 }
