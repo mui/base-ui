@@ -120,8 +120,12 @@ const activeTriggerIdSelector = createSelector(
   (state: S) => state.triggerIdProp ?? state.activeTriggerId,
 );
 
+function getOpen(state: S) {
+  return state.openProp ?? state.open;
+}
+
 export const popupStoreSelectors = {
-  open: createSelector((state: S) => state.openProp ?? state.open),
+  open: createSelector(getOpen),
   mounted: createSelector((state: S) => state.mounted),
   transitionStatus: createSelector((state: S) => state.transitionStatus),
   floatingRootContext: createSelector((state: S) => state.floatingRootContext),
@@ -144,7 +148,7 @@ export const popupStoreSelectors = {
    */
   isOpenedByTrigger: createSelector(
     (state: S, triggerId: string | undefined) =>
-      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.open,
+      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && getOpen(state),
   ),
   /**
    * Whether the popup is mounted and was activated by a trigger with the given ID.
