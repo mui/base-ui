@@ -51,18 +51,16 @@
     height = tabRect.height / scaleY;
   }
 
-  const props = {
-    left,
-    right: tabsList.scrollWidth - left - width,
-    top,
-    bottom: tabsList.scrollHeight - top - height,
-    width,
-    height,
-  };
-
-  for (const name in props) {
-    indicator.style.setProperty(`--active-tab-${name}`, `${props[name]}px`);
-  }
+  [
+    ['left', left],
+    ['right', tabsList.scrollWidth - left - width],
+    ['top', top],
+    ['bottom', tabsList.scrollHeight - top - height],
+    ['width', width],
+    ['height', height],
+  ].forEach(([name, value]) => {
+    indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);
+  });
 
   if (width > 0 && height > 0) {
     indicator.removeAttribute('hidden');
