@@ -37,9 +37,8 @@ export function contains(parent?: Element | null, child?: Element | null) {
 }
 
 /**
- * Shadow DOM-safe version of `Element.closest()`. Searches ancestors within the
- * starting element's shadow root first, then crosses each shadow boundary and
- * repeats until a match is found or the document root is reached.
+ * Shadow DOM-safe version of `Element.closest()`. Runs `closest()` in the
+ * current tree, then hops from a shadow root to its host and repeats.
  */
 export function closest(element: Element | null, selector: string): Element | null {
   let current = element;

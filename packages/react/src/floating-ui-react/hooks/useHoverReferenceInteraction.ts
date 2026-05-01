@@ -47,9 +47,8 @@ export interface UseHoverReferenceInteractionProps {
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
   isClosing?: (() => boolean) | undefined;
   /**
-   * Called before the floating element is opened by hover. Return `false` to
-   * prevent the open. Useful for preventing nested tooltip triggers from
-   * opening parent tooltips.
+   * Called before hover opens the floating element. Return `false` to veto this
+   * particular hover-open attempt.
    */
   shouldOpen?: (() => boolean) | undefined;
 }

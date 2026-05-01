@@ -1205,6 +1205,69 @@ describe('nested tooltips', () => {
     expect(screen.getByTestId('outer-popup')).not.toBe(null);
   });
 
+  it('should support nested triggers inside a detached parent trigger', async () => {
+    const delay = 100;
+    const rowHandle = Tooltip.createHandle<string>();
+
+    await render(
+      <Tooltip.Provider delay={delay}>
+        <Tooltip.Trigger
+          handle={rowHandle}
+          payload="Row"
+          data-testid="outer-trigger"
+          render={<div />}
+        >
+          <span data-testid="outer-area">Row</span>
+          <Tooltip.Root>
+            <Tooltip.Trigger data-testid="inner-trigger" delay={0}>
+              Inner
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup data-testid="inner-popup">Inner tooltip</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Trigger>
+
+        <Tooltip.Root handle={rowHandle}>
+          {({ payload }) => (
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup data-testid="outer-popup">{payload} tooltip</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          )}
+        </Tooltip.Root>
+      </Tooltip.Provider>,
+    );
+
+    const outerTrigger = screen.getByTestId('outer-trigger');
+    const outerArea = screen.getByTestId('outer-area');
+    const innerTrigger = screen.getByTestId('inner-trigger');
+
+    fireEvent.pointerEnter(outerTrigger, { pointerType: 'mouse', clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(outerTrigger);
+    fireEvent.pointerEnter(innerTrigger, { pointerType: 'mouse', clientX: 50, clientY: 10 });
+    fireEvent.mouseEnter(innerTrigger);
+    fireEvent.mouseOver(innerTrigger);
+    fireEvent.mouseMove(innerTrigger, { clientX: 50, clientY: 10 });
+
+    clock.tick(delay);
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('inner-popup')).not.toBe(null);
+    expect(screen.queryByTestId('outer-popup')).toBe(null);
+
+    fireEvent.mouseOut(innerTrigger, { relatedTarget: outerArea });
+    fireEvent.mouseOver(outerArea);
+
+    clock.tick(delay);
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('outer-popup')).toHaveTextContent('Row tooltip');
+  });
+
   it('should not reopen the outer tooltip when rapidly moving back to a nested trigger', async () => {
     const delay = 100;
 
@@ -1257,6 +1320,107 @@ describe('nested tooltips', () => {
     expect(screen.queryByTestId('outer-popup')).toBe(null);
   });
 
+  it('should not reopen the outer tooltip when hovering the nested tooltip popup', async () => {
+    const delay = 100;
+
+    await render(
+      <Tooltip.Root>
+        <Tooltip.Trigger data-testid="outer-trigger" render={<span />} delay={delay}>
+          <span data-testid="outer-area">Outer</span>
+          <Tooltip.Root>
+            <Tooltip.Trigger data-testid="inner-trigger" delay={0}>
+              Inner
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup data-testid="inner-popup">Inner tooltip</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup data-testid="outer-popup">Outer tooltip</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const outerTrigger = screen.getByTestId('outer-trigger');
+    const innerTrigger = screen.getByTestId('inner-trigger');
+
+    fireEvent.pointerEnter(outerTrigger, { pointerType: 'mouse', clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(outerTrigger);
+    fireEvent.pointerEnter(innerTrigger, { pointerType: 'mouse', clientX: 50, clientY: 10 });
+    fireEvent.mouseEnter(innerTrigger);
+    fireEvent.mouseOver(innerTrigger);
+    fireEvent.mouseMove(innerTrigger, { clientX: 50, clientY: 10 });
+
+    clock.tick(delay);
+    await flushMicrotasks();
+
+    const innerPopup = screen.getByTestId('inner-popup');
+    expect(screen.queryByTestId('outer-popup')).toBe(null);
+
+    fireEvent.mouseOver(innerPopup);
+
+    clock.tick(delay);
+    await flushMicrotasks();
+
+    expect(screen.queryByTestId('outer-popup')).toBe(null);
+  });
+
+  it('should cancel the pending parent reopen when the pointer leaves the parent trigger', async () => {
+    const delay = 100;
+
+    await render(
+      <Tooltip.Root>
+        <Tooltip.Trigger data-testid="outer-trigger" render={<span />} delay={delay}>
+          <span data-testid="outer-area">Outer</span>
+          <Tooltip.Root>
+            <Tooltip.Trigger data-testid="inner-trigger">Inner</Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup data-testid="inner-popup">Inner tooltip</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup data-testid="outer-popup">Outer tooltip</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const outerTrigger = screen.getByTestId('outer-trigger');
+    const innerTrigger = screen.getByTestId('inner-trigger');
+    const outerArea = screen.getByTestId('outer-area');
+
+    fireEvent.pointerEnter(outerTrigger, { pointerType: 'mouse', clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(outerTrigger);
+    fireEvent.pointerEnter(innerTrigger, { pointerType: 'mouse', clientX: 50, clientY: 10 });
+    fireEvent.mouseEnter(innerTrigger);
+    fireEvent.mouseOver(innerTrigger);
+    fireEvent.mouseMove(innerTrigger, { clientX: 50, clientY: 10 });
+
+    clock.tick(delay);
+    await flushMicrotasks();
+
+    fireEvent.mouseOut(innerTrigger, { relatedTarget: outerArea });
+    fireEvent.mouseOver(outerArea);
+
+    clock.tick(delay / 2);
+
+    fireEvent.mouseLeave(outerTrigger, { relatedTarget: document.body });
+
+    clock.tick(delay);
+    await flushMicrotasks();
+
+    expect(screen.queryByTestId('outer-popup')).toBe(null);
+  });
+
   it('should not open the outer tooltip when the pointer moves onto a nested trigger before the delay expires', async () => {
     await render(
       <Tooltip.Root>
@@ -1291,10 +1455,11 @@ describe('nested tooltips', () => {
 
     fireEvent.pointerEnter(innerTrigger, { clientX: 50, clientY: 10 });
     fireEvent.pointerMove(innerTrigger, { clientX: 50, clientY: 10 });
+    fireEvent.mouseOver(innerTrigger);
     fireEvent.mouseEnter(innerTrigger);
     fireEvent.mouseMove(innerTrigger, { clientX: 50, clientY: 10 });
 
-    clock.tick(OPEN_DELAY / 2);
+    clock.tick(OPEN_DELAY);
     await flushMicrotasks();
 
     expect(screen.queryByTestId('outer-popup')).toBe(null);
@@ -1391,6 +1556,48 @@ describe('nested tooltips', () => {
     await flushMicrotasks();
 
     expect(screen.getByTestId('outer-popup')).not.toBe(null);
+  });
+
+  it('should keep a controlled-open outer tooltip open when hovering over a nested trigger', async () => {
+    const onOpenChange = vi.fn();
+
+    await render(
+      <Tooltip.Root open onOpenChange={onOpenChange}>
+        <Tooltip.Trigger data-testid="outer-trigger" render={<span />}>
+          <span>Outer</span>
+          <Tooltip.Root>
+            <Tooltip.Trigger data-testid="inner-trigger" delay={OPEN_DELAY * 10}>
+              Inner
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup data-testid="inner-popup">Inner tooltip</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup data-testid="outer-popup">Outer tooltip</Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const innerTrigger = screen.getByTestId('inner-trigger');
+
+    expect(screen.getByTestId('outer-popup')).not.toBe(null);
+
+    fireEvent.pointerEnter(innerTrigger, { pointerType: 'mouse', clientX: 50, clientY: 10 });
+    fireEvent.mouseEnter(innerTrigger);
+    fireEvent.mouseOver(innerTrigger);
+    fireEvent.mouseMove(innerTrigger, { clientX: 50, clientY: 10 });
+
+    clock.tick(OPEN_DELAY);
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('outer-popup')).not.toBe(null);
+    expect(onOpenChange).not.toHaveBeenCalled();
   });
 
   it('should close a focus-opened inner tooltip when the inner trigger loses focus', async () => {
@@ -1523,8 +1730,8 @@ describe('nested tooltips', () => {
       // Move onto content inside the inner trigger's shadow root before the
       // delay expires. The composed mouseover bubbles to the outer trigger,
       // and the shadow-DOM-safe closest() walks out of the shadow root to
-      // find [data-tooltip-trigger] on the inner trigger, suppressing the
-      // outer tooltip via shouldOpen.
+      // find the private marker on the inner trigger, suppressing the outer
+      // tooltip via shouldOpen.
       fireEvent.pointerEnter(innerTrigger, { clientX: 50, clientY: 10 });
       fireEvent.mouseEnter(innerTrigger);
       innerShadowTarget.dispatchEvent(

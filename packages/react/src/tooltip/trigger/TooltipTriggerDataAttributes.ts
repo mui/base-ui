@@ -9,8 +9,4 @@ export enum TooltipTriggerDataAttributes {
    * Present when the trigger is disabled, either by the `disabled` prop or by a parent `<Tooltip.Root>` component.
    */
   triggerDisabled = 'data-trigger-disabled',
-  /**
-   * Present on all tooltip triggers.
-   */
-  tooltipTrigger = 'data-tooltip-trigger',
 }
