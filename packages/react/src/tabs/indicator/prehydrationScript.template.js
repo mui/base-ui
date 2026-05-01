@@ -10,20 +10,9 @@
   }
 
   const activeTab = tabsList.querySelector('[data-active]');
-  if (!activeTab) {
+  if (!activeTab || activeTab.offsetWidth === 0 || tabsList.offsetWidth === 0) {
     return;
   }
-
-  if (activeTab.offsetWidth === 0 || tabsList.offsetWidth === 0) {
-    return;
-  }
-
-  let left = 0;
-  let right = 0;
-  let top = 0;
-  let bottom = 0;
-  let width = 0;
-  let height = 0;
 
   function getCssDimensions(element) {
     const css = getComputedStyle(element);
@@ -44,49 +33,36 @@
     };
   }
 
-  if (activeTab != null && tabsList != null) {
-    const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
-    const { width: tabsListWidth, height: tabsListHeight } = getCssDimensions(tabsList);
-    const tabRect = activeTab.getBoundingClientRect();
-    const tabsListRect = tabsList.getBoundingClientRect();
-    const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
-    const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
-    const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
+  const { width: tabsListWidth, height: tabsListHeight } = getCssDimensions(tabsList);
+  const tabRect = activeTab.getBoundingClientRect();
+  const tabsListRect = tabsList.getBoundingClientRect();
+  const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
+  const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
 
-    if (hasNonZeroScale) {
-      const devicePixelRatio = window.devicePixelRatio || 1;
-      const snap = (value) => Math.round(value * devicePixelRatio) / devicePixelRatio;
-      const isVertical = tabsList.getAttribute('aria-orientation') === 'vertical';
-      const tabLeft = isVertical ? tabRect.left : snap(tabRect.left);
-      const tabRight = isVertical ? tabRect.right : snap(tabRect.right);
-      const tabTop = isVertical ? snap(tabRect.top) : tabRect.top;
-      const tabBottom = isVertical ? snap(tabRect.bottom) : tabRect.bottom;
+  let left = activeTab.offsetLeft;
+  let top = activeTab.offsetTop;
+  let width = activeTab.offsetWidth;
+  let height = activeTab.offsetHeight;
 
-      left = (tabLeft - tabsListRect.left) / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
-      top = (tabTop - tabsListRect.top) / scaleY + tabsList.scrollTop - tabsList.clientTop;
-      width = (tabRight - tabLeft) / scaleX;
-      height = (tabBottom - tabTop) / scaleY;
-    } else {
-      left = activeTab.offsetLeft;
-      top = activeTab.offsetTop;
-      width = computedWidth;
-      height = computedHeight;
-    }
-
-    right = tabsList.scrollWidth - left - width;
-    bottom = tabsList.scrollHeight - top - height;
+  if (Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON) {
+    left = (tabRect.left - tabsListRect.left) / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
+    top = (tabRect.top - tabsListRect.top) / scaleY + tabsList.scrollTop - tabsList.clientTop;
+    width = tabRect.width / scaleX;
+    height = tabRect.height / scaleY;
   }
 
-  function setProp(name, value) {
-    indicator.style.setProperty(`--active-tab-${name}`, `${value}px`);
-  }
+  const props = {
+    left,
+    right: tabsList.scrollWidth - left - width,
+    top,
+    bottom: tabsList.scrollHeight - top - height,
+    width,
+    height,
+  };
 
-  setProp('left', left);
-  setProp('right', right);
-  setProp('top', top);
-  setProp('bottom', bottom);
-  setProp('width', width);
-  setProp('height', height);
+  for (const name in props) {
+    indicator.style.setProperty(`--active-tab-${name}`, `${props[name]}px`);
+  }
 
   if (width > 0 && height > 0) {
     indicator.removeAttribute('hidden');

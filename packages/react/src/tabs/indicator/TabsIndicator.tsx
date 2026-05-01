@@ -68,7 +68,6 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
     isTabSelected = true;
 
     if (activeTab != null) {
-      const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
       const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabsListElement);
       const tabRect = activeTab.getBoundingClientRect();
       const tabsListRect = tabsListElement.getBoundingClientRect();
@@ -101,8 +100,8 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
       } else {
         left = activeTab.offsetLeft;
         top = activeTab.offsetTop;
-        width = computedWidth;
-        height = computedHeight;
+        width = activeTab.offsetWidth;
+        height = activeTab.offsetHeight;
       }
 
       right = tabsListElement.scrollWidth - left - width;
