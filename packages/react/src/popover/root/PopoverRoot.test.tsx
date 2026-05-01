@@ -60,6 +60,37 @@ describe('<Popover.Root />', () => {
 
         expect(screen.queryByText('Content')).toBe(null);
       });
+
+      it('rewires dismiss interactions after closing and reopening', async () => {
+        const { user } = await render(
+          <TestPopover
+            rootProps={{ modal: false }}
+            popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
+          />,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        fireEvent.click(document.body);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+      });
     });
 
     describe('controlled open', () => {

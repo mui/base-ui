@@ -208,6 +208,28 @@ describe('useTriggerRegistration', () => {
     expect(store.state.activeTriggerId).toBe('trigger');
     expect(store.state.activeTriggerElement).toBe(element);
   });
+
+  it('resets triggerCount when the popup closes', () => {
+    const store = createStore();
+    const element = document.createElement('button');
+
+    store.set('open', true);
+
+    render(
+      <React.Fragment>
+        <ImplicitActiveTriggerTest store={store} />
+        <TestTrigger id="trigger" store={store} element={element} />
+      </React.Fragment>,
+    );
+
+    expect(store.state.triggerCount).toBe(1);
+
+    act(() => {
+      store.set('open', false);
+    });
+
+    expect(store.state.triggerCount).toBe(0);
+  });
 });
 
 describe('popupId selector', () => {

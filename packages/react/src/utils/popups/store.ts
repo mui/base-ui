@@ -37,7 +37,7 @@ export type PopupStoreState<Payload> = {
   triggerCount: number;
   /**
    * Whether to prevent unmounting the popup when closed.
-   * Useful for interactling with JS animation libraries that control unmounting themselves.
+   * Useful for interacting with JS animation libraries that control unmounting themselves.
    */
   preventUnmountingOnClose: boolean;
 

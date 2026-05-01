@@ -216,7 +216,6 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  *
  * This should be called on the Root part.
  *
- * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
  */
 export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>(
@@ -227,6 +226,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 
   useIsoLayoutEffect(() => {
     if (!open) {
+      if (store.state.triggerCount !== 0) {
+        store.set('triggerCount', 0);
+      }
       return;
     }
 
@@ -251,7 +253,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 }
 
 /**
- * Mangages the mounted state of the popup.
+ * Manages the mounted state of the popup.
  * Sets up the transition status listeners and handles unmounting when needed.
  * Updates the `mounted` and `transitionStatus` states in the store.
  *

@@ -26,8 +26,8 @@ export interface UseSyncedFloatingRootContextOptions<
 }
 
 /**
- * Initializes a FloatingRootStore that is kept in sync with the provided PopupStore.
- * The new instance is created only once and updated on every render.
+ * Keeps a FloatingRootStore in sync with the provided PopupStore.
+ * Uses the provided FloatingRootStore when one exists, otherwise creates one once and updates it on every render.
  */
 export function useSyncedFloatingRootContext<
   State extends PopupStoreState<unknown>,

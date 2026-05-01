@@ -1014,6 +1014,64 @@ describe('<Tooltip.Root />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'updates the tracked cursor position after closing and reopening',
+    async () => {
+      await render(
+        <div style={{ paddingTop: 100, paddingLeft: 40 }}>
+          <Tooltip.Root trackCursorAxis="x">
+            <Tooltip.Trigger delay={100} style={{ width: 300, height: 40 }}>
+              Trigger
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner data-testid="positioner" side="bottom">
+                <Tooltip.Popup style={{ width: 40, height: 20 }}>Tooltip</Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const triggerRect = trigger.getBoundingClientRect();
+      const firstCursorX = triggerRect.left + 240;
+      const secondCursorX = triggerRect.left + 60;
+      const cursorY = triggerRect.top + 20;
+
+      fireEvent.pointerDown(trigger, {
+        pointerType: 'mouse',
+        clientX: firstCursorX,
+        clientY: cursorY,
+      });
+      fireEvent.mouseEnter(trigger, { clientX: firstCursorX, clientY: cursorY });
+      fireEvent.mouseMove(trigger, { clientX: firstCursorX, clientY: cursorY });
+
+      const firstPositioner = await screen.findByTestId('positioner');
+
+      await waitFor(() => {
+        const positionerRect = firstPositioner.getBoundingClientRect();
+        const positionerCenterX = positionerRect.left + positionerRect.width / 2;
+        expect(Math.abs(positionerCenterX - firstCursorX)).toBeLessThanOrEqual(2);
+      });
+
+      fireEvent.mouseLeave(trigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('positioner')).toBe(null);
+      });
+
+      fireEvent.mouseEnter(trigger, { clientX: secondCursorX, clientY: cursorY });
+      fireEvent.mouseMove(trigger, { clientX: secondCursorX, clientY: cursorY });
+
+      const secondPositioner = await screen.findByTestId('positioner');
+
+      await waitFor(() => {
+        const positionerRect = secondPositioner.getBoundingClientRect();
+        const positionerCenterX = positionerRect.left + positionerRect.width / 2;
+        expect(Math.abs(positionerCenterX - secondCursorX)).toBeLessThanOrEqual(2);
+      });
+    },
+  );
+
   it('keeps the tooltip open when moving across spaced triggers without a closeDelay', async () => {
     const testTooltip = Tooltip.createHandle();
     const { user } = await render(

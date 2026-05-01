@@ -37,6 +37,32 @@ describe('<Dialog.Root />', () => {
     { name: 'detached triggers', Component: DetachedTriggerDialog },
     { name: 'multiple detached triggers', Component: MultipleDetachedTriggersDialog },
   ])('when using $name', ({ Component: TestDialog }) => {
+    it('rewires dismiss interactions after closing and reopening', async () => {
+      const { user } = await render(<TestDialog rootProps={{ modal: false }} />);
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      fireEvent.click(document.body);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+    });
+
     it('ARIA attributes', async () => {
       await render(
         <TestDialog

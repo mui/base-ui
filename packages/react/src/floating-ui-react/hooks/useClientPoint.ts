@@ -220,6 +220,7 @@ export function useClientPoint(
     reactive,
   ]);
 
+  // Keep this separate from the main effect so disabling cursor tracking also clears the virtual reference.
   React.useEffect(() => resetReference, [resetReference]);
 
   React.useEffect(() => {
