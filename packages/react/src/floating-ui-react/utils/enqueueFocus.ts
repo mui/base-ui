@@ -22,8 +22,8 @@ export function enqueueFocus(el: FocusableElement | null, options: Options = {})
   const currentRafId = requestAnimationFrame(exec);
   rafId = currentRafId;
   return () => {
+    cancelAnimationFrame(currentRafId);
     if (rafId === currentRafId) {
-      cancelAnimationFrame(currentRafId);
       rafId = 0;
     }
   };
