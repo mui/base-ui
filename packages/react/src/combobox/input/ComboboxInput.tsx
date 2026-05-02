@@ -113,6 +113,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     store.update({
       inputElement: element,
       inputInsidePopup: nextIsInsidePopup,
+      inputInsidePositioner: hasPositionerParent,
     });
   });
 
@@ -203,7 +204,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         readOnly,
         required: selectionMode === 'none' ? required : undefined,
         form,
-        ...(selectionMode === 'none' && name && { name }),
+        ...(selectionMode === 'none' && !hasPositionerParent && name && { name }),
         id,
         onFocus() {
           setFocused(true);

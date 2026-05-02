@@ -5,6 +5,7 @@ import { createRenderer, isJSDOM } from '#test-utils';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
+import { Input } from '@base-ui/react/input';
 
 describe('<Autocomplete.Root />', () => {
   beforeEach(() => {
@@ -1111,6 +1112,137 @@ describe('<Autocomplete.Root />', () => {
       await user.click(screen.getByText('Submit'));
 
       expect(submitted).toBe('base ui');
+    });
+
+    it('submits the popup input value through native FormData when rendering a field-aware input', async () => {
+      let submitted: FormDataEntryValue | null = null;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        submitted = data.get('search');
+      };
+
+      const { user } = await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root name="search">
+            <Autocomplete.Root items={['alpha', 'alpine']}>
+              <Autocomplete.Trigger>
+                <Autocomplete.Value />
+              </Autocomplete.Trigger>
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.Input render={<Input data-testid="input" />} />
+                    <Autocomplete.List>
+                      {(item) => (
+                        <Autocomplete.Item key={item} value={item}>
+                          {item}
+                        </Autocomplete.Item>
+                      )}
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      const input = await screen.findByTestId('input');
+      expect(input).not.toHaveAttribute('name');
+
+      await user.click(screen.getByRole('option', { name: 'alpha' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('combobox')).toHaveTextContent('alpha');
+      });
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(submitted).toBe('alpha');
+    });
+
+    it('submits the inline input value through native FormData', async () => {
+      let submitted: FormDataEntryValue | null = null;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        submitted = data.get('search');
+      };
+
+      const { user } = await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root name="search">
+            <Autocomplete.Root items={['alpha', 'alpine']} inline>
+              <Autocomplete.Input data-testid="input" />
+              <Autocomplete.List>
+                {(item) => (
+                  <Autocomplete.Item key={item} value={item}>
+                    {item}
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </Autocomplete.Root>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByTestId('input');
+      expect(input).toHaveAttribute('name', 'search');
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).not.toHaveAttribute('name');
+
+      await user.type(input, 'alp');
+      await user.click(screen.getByText('Submit'));
+
+      expect(submitted).toBe('alp');
+    });
+
+    it('submits a default popup input value through native FormData before the popup opens', async () => {
+      let submitted: FormDataEntryValue | null = null;
+
+      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        submitted = data.get('search');
+      };
+
+      const { user } = await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root name="search">
+            <Autocomplete.Root items={['alpha', 'alpine']} defaultValue="alpha">
+              <Autocomplete.Trigger>
+                <Autocomplete.Value />
+              </Autocomplete.Trigger>
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.Input render={<Input data-testid="input" />} />
+                    <Autocomplete.List>
+                      {(item) => (
+                        <Autocomplete.Item key={item} value={item}>
+                          {item}
+                        </Autocomplete.Item>
+                      )}
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(submitted).toBe('alpha');
     });
 
     it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {

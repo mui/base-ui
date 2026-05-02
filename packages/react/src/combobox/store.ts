@@ -43,6 +43,7 @@ export type State = {
   openMethod: InteractionType | null;
 
   inputInsidePopup: boolean;
+  inputInsidePositioner: boolean;
 
   selectionMode: 'single' | 'multiple' | 'none';
 
@@ -160,6 +161,7 @@ export const selectors = {
   openMethod: createSelector((state: State) => state.openMethod),
 
   inputInsidePopup: createSelector((state: State) => state.inputInsidePopup),
+  inputInsidePositioner: createSelector((state: State) => state.inputInsidePositioner),
 
   selectionMode: createSelector((state: State) => state.selectionMode),
 

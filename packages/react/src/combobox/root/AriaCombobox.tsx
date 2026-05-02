@@ -395,6 +395,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         popupSide: null,
         openMethod: null,
         inputInsidePopup: true,
+        inputInsidePositioner: false,
         onOpenChangeComplete: onOpenChangeCompleteProp || NOOP,
         // Placeholder callbacks replaced on first render
         setOpen: NOOP,
@@ -432,6 +433,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
+  const inputInsidePositioner = useStore(store, selectors.inputInsidePositioner);
 
   const triggerRef = useValueAsRef(triggerElement);
 
@@ -1200,7 +1202,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [fieldRawValue, itemToStringValue]);
 
   const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
-  const hiddenInputName = multiple || selectionMode === 'none' ? undefined : name;
+  const hiddenInputOwnsNoneValue =
+    inputInsidePositioner || (!inline && triggerElement != null && inputElement == null);
+  const hiddenInputName =
+    multiple || (selectionMode === 'none' && !hiddenInputOwnsNoneValue) ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {
