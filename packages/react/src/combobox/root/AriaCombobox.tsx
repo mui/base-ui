@@ -1203,7 +1203,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
   const hiddenInputOwnsNoneValue =
-    inputInsidePositioner || (!inline && triggerElement != null && inputElement == null);
+    inputInsidePositioner ||
+    // Before the popup input mounts, trigger-only compositions still need
+    // the persistent hidden input to own native form submission.
+    (!inline && triggerElement != null && inputElement == null);
   const hiddenInputName =
     multiple || (selectionMode === 'none' && !hiddenInputOwnsNoneValue) ? undefined : name;
 
