@@ -174,6 +174,7 @@
   scroll-padding-top: 2.5rem;
   scroll-padding-bottom: 0.35rem;
   overscroll-behavior: contain;
+  isolation: isolate; /* Prevent overlap with iOS overlay scrollbars. */
   max-height: min(
     calc(20.5rem - var(--input-container-height)),
     calc(var(--available-height) - var(--input-container-height))
