@@ -372,7 +372,7 @@ export function SearchBar({
     <React.Fragment>
       <Button onClick={handleOpenDialog} aria-label="Search" className={`SearchTrigger`}>
         <Search className="SearchTriggerIcon" />
-        <div className="SearchTriggerKbd">
+        <span className="SearchTriggerKbd">
           {showCmdSymbol ? (
             <kbd className="SearchTriggerCmd">⌘</kbd>
           ) : (
@@ -382,7 +382,7 @@ export function SearchBar({
             </React.Fragment>
           )}
           <kbd className="SearchTriggerK">K</kbd>
-        </div>
+        </span>
       </Button>
       <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
         <Dialog.Portal>
