@@ -120,6 +120,20 @@ export class PopoverStore<Payload> extends ReactStore<
       this.set('preventUnmountingOnClose', true);
     };
 
+    const activeTriggerId = this.select('activeTriggerId');
+
+    if (
+      !nextOpen &&
+      eventDetails.reason === REASONS.closePress &&
+      eventDetails.trigger == null &&
+      activeTriggerId != null
+    ) {
+      eventDetails.trigger =
+        this.context.triggerElements.getById(activeTriggerId) ??
+        this.select('activeTriggerElement') ??
+        undefined;
+    }
+
     this.context.onOpenChange?.(nextOpen, eventDetails as PopoverRoot.ChangeEventDetails);
 
     if (eventDetails.isCanceled) {

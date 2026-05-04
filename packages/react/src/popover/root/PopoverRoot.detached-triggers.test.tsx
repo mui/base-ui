@@ -522,11 +522,15 @@ describe('<Popover.Root />', () => {
                   <Popover.Positioner data-testid="positioner" side="bottom" align="start">
                     <Popover.Popup>
                       <span data-testid="content">{payload}</span>
+                      <Popover.Close data-testid="close" id="close-button">
+                        Close
+                      </Popover.Close>
                     </Popover.Popup>
                   </Popover.Positioner>
                 </Popover.Portal>
               )}
             </Popover.Root>
+            <span data-testid="active-trigger">{activeTrigger}</span>
 
             <button
               onClick={() => {
@@ -568,6 +572,7 @@ describe('<Popover.Root />', () => {
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
       expect(screen.getByTestId('content').textContent).toBe('2');
+      expect(screen.getByTestId('active-trigger').textContent).toBe('trigger-2');
       await waitFor(() => {
         expect(
           Math.abs(
@@ -576,9 +581,14 @@ describe('<Popover.Root />', () => {
           ),
         ).toBeLessThanOrEqual(1);
       });
+      expect(trigger2.previousElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+      expect(trigger2.nextElementSibling).toHaveAttribute('data-base-ui-focus-guard');
 
-      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await user.click(screen.getByTestId('close'));
       expect(screen.queryByTestId('content')).toBe(null);
+      expect(screen.getByTestId('active-trigger').textContent).toBe('trigger-2');
+      expect(trigger2.previousElementSibling).not.toHaveAttribute('data-base-ui-focus-guard');
+      expect(trigger2.nextElementSibling).not.toHaveAttribute('data-base-ui-focus-guard');
     });
 
     it('allows setting an initially open popover', async () => {

@@ -144,7 +144,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
   // regardless of whether the focus guards are rendered or not.
 
-  if (isTriggerActive && !focusManagerModal) {
+  if (isMountedByThisTrigger && !focusManagerModal) {
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />

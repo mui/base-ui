@@ -395,6 +395,40 @@ describe('<Popover.Root />', () => {
 
         expect(screen.queryByText('Content')).toBe(null);
       });
+
+      it('onOpenChange cancel() prevents closing from a close press without changing the trigger', async () => {
+        let closePressTriggerId: string | undefined;
+
+        await render(
+          <TestPopover
+            triggerProps={{ id: 'trigger-1' }}
+            rootProps={{
+              onOpenChange: (nextOpen, eventDetails) => {
+                if (!nextOpen && eventDetails.reason === REASONS.closePress) {
+                  closePressTriggerId = eventDetails.trigger?.id;
+                  eventDetails.cancel();
+                }
+              },
+            }}
+            popupProps={{
+              children: (
+                <Popover.Close data-testid="close" id="close-button">
+                  Close
+                </Popover.Close>
+              ),
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+
+        fireEvent.click(screen.getByTestId('close'));
+
+        expect(closePressTriggerId).toBe('trigger-1');
+        expect(screen.queryByTestId('close')).not.toBe(null);
+      });
     });
 
     describe('focus management', () => {
@@ -860,6 +894,7 @@ describe('<Popover.Root />', () => {
 
           expect(handleOpenChange.mock.calls.length).toBe(1);
           expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
         } finally {
           await act(async () => {
             host.remove();
@@ -892,6 +927,7 @@ describe('<Popover.Root />', () => {
 
           expect(handleOpenChange.mock.calls.length).toBe(1);
           expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
         } finally {
           await act(async () => {
             host.remove();
