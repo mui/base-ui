@@ -51,7 +51,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
-  const dialogRootResult = useDialogRoot({
+  const dialogRoot = useDialogRoot({
     store,
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
@@ -65,13 +65,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   return (
     <IsDrawerContext.Provider value={false}>
       <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-        {shouldRenderInteractions && (
-          <DialogInteractions
-            store={store}
-            parentContext={dialogRootResult.parentContext}
-            isDrawer={dialogRootResult.isDrawer}
-          />
-        )}
+        {shouldRenderInteractions && <DialogInteractions store={store} dialogRoot={dialogRoot} />}
         {typeof children === 'function' ? children({ payload }) : children}
       </DialogRootContext.Provider>
     </IsDrawerContext.Provider>

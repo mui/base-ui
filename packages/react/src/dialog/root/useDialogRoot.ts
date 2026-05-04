@@ -55,13 +55,13 @@ export interface UseDialogRootState {}
 
 export function DialogInteractions({
   store,
-  parentContext,
-  isDrawer,
+  dialogRoot,
 }: {
   store: DialogStore<any>;
-  parentContext: DialogStore<unknown>['context'] | undefined;
-  isDrawer: boolean;
+  dialogRoot: UseDialogRootReturnValue;
 }) {
+  const { parentContext, isDrawer } = dialogRoot;
+
   const open = store.useState('open');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
