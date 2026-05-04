@@ -54,10 +54,22 @@ describe('<Tabs.Indicator />', () => {
       const devicePixelRatio = window.devicePixelRatio || 1;
       const snap = (value: number) => Math.round(value * devicePixelRatio) / devicePixelRatio;
       const isVertical = tabList.getAttribute('aria-orientation') === 'vertical';
-      const tabLeft = isVertical ? tabRect.left : snap(tabRect.left);
-      const tabRight = isVertical ? tabRect.right : snap(tabRect.right);
-      const tabTop = isVertical ? snap(tabRect.top) : tabRect.top;
-      const tabBottom = isVertical ? snap(tabRect.bottom) : tabRect.bottom;
+      const tabLeft =
+        isVertical || Math.abs(tabRect.left - tabListRect.left) < 0.01
+          ? tabRect.left
+          : snap(tabRect.left);
+      const tabRight =
+        isVertical || Math.abs(tabRect.right - tabListRect.right) < 0.01
+          ? tabRect.right
+          : snap(tabRect.right);
+      const tabTop =
+        !isVertical || Math.abs(tabRect.top - tabListRect.top) < 0.01
+          ? tabRect.top
+          : snap(tabRect.top);
+      const tabBottom =
+        !isVertical || Math.abs(tabRect.bottom - tabListRect.bottom) < 0.01
+          ? tabRect.bottom
+          : snap(tabRect.bottom);
 
       const left = (tabLeft - tabListRect.left) / scaleX + tabList.scrollLeft - tabList.clientLeft;
       const top = (tabTop - tabListRect.top) / scaleY + tabList.scrollTop - tabList.clientTop;
@@ -127,12 +139,15 @@ describe('<Tabs.Indicator />', () => {
       await render(
         <div style={{ transform: `translate(${halfDevicePixel}px, ${halfDevicePixel}px)` }}>
           <Tabs.Root value={2}>
-            <Tabs.List data-testid="tab-list" style={{ display: 'flex' }}>
+            <Tabs.List data-testid="tab-list" style={{ display: 'inline-flex' }}>
               <Tabs.Tab value={1} style={{ flex: `0 0 ${50 + halfDevicePixel}px` }}>
                 One
               </Tabs.Tab>
               <Tabs.Tab value={2} style={{ flex: `0 0 ${69 + halfDevicePixel}px` }}>
                 Two
+              </Tabs.Tab>
+              <Tabs.Tab value={3} style={{ flex: '0 0 50px' }}>
+                Three
               </Tabs.Tab>
               <Tabs.Indicator data-testid="bubble" />
             </Tabs.List>
@@ -146,6 +161,33 @@ describe('<Tabs.Indicator />', () => {
 
       await waitFor(() => assertBubblePositionVariables(bubble, tabList, activeTab));
       assertMainAxisEdgesAreSnapped(bubble, tabList);
+    });
+
+    it('keeps boundary tab edges flush with the tab list edge', async () => {
+      const halfDevicePixel = 0.5 / (window.devicePixelRatio || 1);
+
+      await render(
+        <div style={{ transform: `translate(${halfDevicePixel}px, ${halfDevicePixel}px)` }}>
+          <Tabs.Root value={2}>
+            <Tabs.List data-testid="tab-list" style={{ display: 'inline-flex' }}>
+              <Tabs.Tab value={1}>One</Tabs.Tab>
+              <Tabs.Tab value={2}>Two</Tabs.Tab>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        </div>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      await waitFor(() => assertBubblePositionVariables(bubble, tabList, activeTab));
+
+      const edges = getAbsoluteIndicatorEdges(bubble, tabList);
+      expect(Math.abs(edges.right - tabList.getBoundingClientRect().right)).toBeLessThanOrEqual(
+        0.01,
+      );
     });
 
     it('does not introduce a cross-axis scrollbar from main-axis snapping', async () => {
@@ -192,6 +234,9 @@ describe('<Tabs.Indicator />', () => {
               </Tabs.Tab>
               <Tabs.Tab value={2} style={{ flex: `0 0 ${42 + halfDevicePixel}px` }}>
                 Two
+              </Tabs.Tab>
+              <Tabs.Tab value={3} style={{ flex: '0 0 30px' }}>
+                Three
               </Tabs.Tab>
               <Tabs.Indicator data-testid="bubble" />
             </Tabs.List>

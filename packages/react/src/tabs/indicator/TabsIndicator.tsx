@@ -79,13 +79,17 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
       if (hasNonZeroScale) {
         const devicePixelRatio = ownerWindow(tabsListElement).devicePixelRatio || 1;
         const snap = (edge: number) => Math.round(edge * devicePixelRatio) / devicePixelRatio;
-        // Snap edges along the main axis only. Snapping the cross axis can push the
-        // indicator past the tablist's content box and trigger an unwanted scrollbar.
+        const isAtStart = Math.abs(tabRect.left - tabsListRect.left) < 0.01;
+        const isAtEnd = Math.abs(tabRect.right - tabsListRect.right) < 0.01;
+        const isAtTop = Math.abs(tabRect.top - tabsListRect.top) < 0.01;
+        const isAtBottom = Math.abs(tabRect.bottom - tabsListRect.bottom) < 0.01;
+        // Snap only interior edges along the main axis. Boundary edges stay flush with
+        // the tab list so bordered indicators can connect to an adjacent panel border.
         const isVertical = orientation === 'vertical';
-        const tabLeft = isVertical ? tabRect.left : snap(tabRect.left);
-        const tabRight = isVertical ? tabRect.right : snap(tabRect.right);
-        const tabTop = isVertical ? snap(tabRect.top) : tabRect.top;
-        const tabBottom = isVertical ? snap(tabRect.bottom) : tabRect.bottom;
+        const tabLeft = isVertical || isAtStart ? tabRect.left : snap(tabRect.left);
+        const tabRight = isVertical || isAtEnd ? tabRect.right : snap(tabRect.right);
+        const tabTop = !isVertical || isAtTop ? tabRect.top : snap(tabRect.top);
+        const tabBottom = !isVertical || isAtBottom ? tabRect.bottom : snap(tabRect.bottom);
 
         left =
           (tabLeft - tabsListRect.left) / scaleX +
