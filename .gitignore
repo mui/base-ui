@@ -6,24 +6,24 @@
 *.iml
 *.log
 /.eslintcache
-/coverage
+/coverage/
 /docs/.env.local
-/docs/.next
-/docs/export
+/docs/.next/
+/docs/export/
 /docs/public/feed/
 /docs/reference/temp/*
-/test/regressions/screenshots
+/test/regressions/screenshots/
 # created by netlify dev (to perform local debug)
 .netlify
-build
-build-tests
-node_modules
+build/
+build-tests/
+node_modules/
 package-lock.json
 size-snapshot.json
 # vale downloaded config
 .github/styles/
-.nx/cache
-.nx/workspace-data
+.nx/cache/
+.nx/workspace-data/
 
 # Remove if you want to pregenerate the docs md files
 docs/public/llms.txt

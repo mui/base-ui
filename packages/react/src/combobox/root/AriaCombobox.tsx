@@ -558,6 +558,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
+      // If reopening interrupts the close animation, handleUnmount won't run to clear the
+      // frozen closeQuery and pending popup input.
+      if (nextOpen && multiple && inputInsidePopup && !inline && closeQuery !== null) {
+        setQueryChangedAfterOpen(false);
+        setCloseQuery(null);
+
+        if (inputValue !== '') {
+          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+        }
+      }
+
       if (!nextOpen && queryChangedAfterOpen) {
         if (single) {
           if (!inline) {
@@ -568,15 +579,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             setQueryChangedAfterOpen(false);
           }
         } else if (multiple) {
-          if (inline || inputInsidePopup) {
-            setIndices({ activeIndex: null });
-          } else {
+          if (!inline) {
             // Freeze the current query so filtering remains stable while exiting.
             setCloseQuery(query);
           }
+
+          if (inputInsidePopup) {
+            setIndices({ activeIndex: null });
+          }
+
           // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
-          // if the input is outside the popup.
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          // if the input is outside the popup. When the input is inside the popup, defer the clear until
+          // unmount so the filtered list doesn't flash to unfiltered during the exit animation.
+          if (!inputInsidePopup || inline) {
+            setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          }
         }
       }
 

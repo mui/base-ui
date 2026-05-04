@@ -1769,6 +1769,28 @@ describe('<NumberField />', () => {
   });
 
   describe('integration: exotic inputs and IME', () => {
+    it('accepts Persian digit keyboard input', async () => {
+      const onValueChange = vi.fn();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <NumberField
+            value={value}
+            onValueChange={(v) => {
+              onValueChange(v);
+              setValue(v);
+            }}
+          />
+        );
+      }
+      const { user } = await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      await user.type(input, '۱۲۳');
+
+      expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(123);
+    });
+
     it('parses Persian digits and separators via change events', async () => {
       const onValueChange = vi.fn();
       function App() {
