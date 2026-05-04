@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
@@ -72,7 +71,6 @@ export const SelectItem = React.memo(
     const hasRegistered = index !== -1;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useValueAsRef(index);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -225,12 +223,12 @@ export const SelectItem = React.memo(
     const contextValue: SelectItemContext = React.useMemo(
       () => ({
         selected,
-        indexRef,
+        index,
         textRef,
         selectedByFocus,
         hasRegistered,
       }),
-      [selected, indexRef, textRef, selectedByFocus, hasRegistered],
+      [selected, index, textRef, selectedByFocus, hasRegistered],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;

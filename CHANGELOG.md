@@ -4,7 +4,7 @@
 
 _Apr 20, 2026_
 
-### General Changes
+### General changes
 
 - Clear highlight on pointer leave when item is clipped by scroll container (#4604) by @atomiks
 - Fix `display: contents` tabbability (#4642) by @atomiks
@@ -21,7 +21,7 @@ All contributors of this release in alphabetical order: @atomiks, @LukasTy
 
 _Apr 13, 2026_
 
-### General Changes
+### General changes
 
 - Improve `render` prop warning accuracy (#4324, #4363) by @atomiks
 - Fix `preventBaseUIHandler` runtime wrapping (#4330) by @atomiks
@@ -152,7 +152,7 @@ All contributors of this release in alphabetical order: @arturbien, @atomiks, @C
 
 _Mar 12, 2026_
 
-### General Changes
+### General changes
 
 - Warn when a component function is rendered directly (#4077) by @atomiks
 - Reset `openMethod` after close transition (#4128) by @atomiks
