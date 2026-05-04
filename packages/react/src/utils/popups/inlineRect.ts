@@ -1,11 +1,18 @@
 import * as React from 'react';
 import type { Middleware, VirtualElement } from '@floating-ui/react-dom';
+import { isElement } from '@floating-ui/utils/dom';
+
+// Floating UI ships an `inline()` middleware. This local version mirrors its line-rect
+// selection while adding trigger identity checks, delayed-open hit-line reuse, and
+// improved left/right edge grouping for Preview Card's reusable trigger model.
 
 export interface InlineRectCoords {
   /** The x position in viewport coordinates. */
   x: number;
   /** The y position in viewport coordinates. */
   y: number;
+  /** The line index under the pointer when coordinates were captured. */
+  lineIndex?: number | undefined;
   /** The trigger element whose rects produced these coordinates. */
   element: Element;
 }
@@ -26,20 +33,6 @@ interface ClientRectLike extends RectLike {
 
 interface ClientRectsReference {
   getClientRects(): ArrayLike<RectLike>;
-}
-
-function getInlineRectCoords(event: React.MouseEvent<Element>): InlineRectCoords | undefined {
-  const { currentTarget, clientX, clientY } = event;
-
-  if (currentTarget.getClientRects().length < 2) {
-    return undefined;
-  }
-
-  return {
-    x: clientX,
-    y: clientY,
-    element: currentTarget,
-  };
 }
 
 function createRect(left: number, top: number, right: number, bottom: number): ClientRectLike {
@@ -100,6 +93,38 @@ function getLineRects(rects: ArrayLike<RectLike>) {
   };
 }
 
+function findLineIndex(lines: RectLike[], x: number, y: number) {
+  return lines.findIndex(
+    (lineRect) =>
+      x > lineRect.left - 2 &&
+      x < lineRect.right + 2 &&
+      y > lineRect.top - 2 &&
+      y < lineRect.bottom + 2,
+  );
+}
+
+function createClientRect(rect: RectLike) {
+  return createRect(rect.left, rect.top, rect.right, rect.bottom);
+}
+
+function getInlineRectCoords(event: React.MouseEvent<Element>): InlineRectCoords | undefined {
+  const { currentTarget, clientX, clientY } = event;
+  const { lines } = getLineRects(currentTarget.getClientRects());
+
+  if (lines.length < 2) {
+    return undefined;
+  }
+
+  const lineIndex = findLineIndex(lines, clientX, clientY);
+
+  return {
+    x: clientX,
+    y: clientY,
+    lineIndex: lineIndex === -1 ? undefined : lineIndex,
+    element: currentTarget,
+  };
+}
+
 function getInlineReferenceRect(
   reference: ClientRectsReference,
   placement: string,
@@ -115,16 +140,20 @@ function getInlineReferenceRect(
   const y = coords?.y;
   const side = placement[0];
 
-  if (lines.length === 2 && lines[0].left > lines[1].right && x != null && y != null) {
-    const rect = lines.find(
-      (lineRect) =>
-        x > lineRect.left - 2 &&
-        x < lineRect.right + 2 &&
-        y > lineRect.top - 2 &&
-        y < lineRect.bottom + 2,
-    );
+  if (coords?.lineIndex != null && lines[coords.lineIndex]) {
+    return createClientRect(lines[coords.lineIndex]);
+  }
 
-    return rect ? createRect(rect.left, rect.top, rect.right, rect.bottom) : fallback;
+  if (x != null && y != null) {
+    const lineIndex = findLineIndex(lines, x, y);
+
+    if (lineIndex !== -1) {
+      return createClientRect(lines[lineIndex]);
+    }
+  }
+
+  if (lines.length === 2 && lines[0].left > lines[1].right && x != null && y != null) {
+    return fallback;
   }
 
   if (side === 't' || side === 'b') {
@@ -161,11 +190,11 @@ function getInlineReferenceRect(
 }
 
 function getContextElement(reference: Element | VirtualElement): Element | undefined {
-  if ('contextElement' in reference) {
+  if ('contextElement' in reference && reference.contextElement) {
     return reference.contextElement;
   }
 
-  return typeof Element !== 'undefined' && reference instanceof Element ? reference : undefined;
+  return isElement(reference) ? reference : undefined;
 }
 
 export function getInlineRectTriggerProps(
@@ -207,11 +236,14 @@ export function createInlineMiddleware(
         return {};
       }
 
+      const contextElement = getContextElement(reference);
       const coords = coordsRef.current;
+      const currentCoords =
+        coords?.element === reference || coords?.element === contextElement ? coords : undefined;
       const rect = getInlineReferenceRect(
         reference as ClientRectsReference,
         state.placement,
-        coords?.element === reference ? coords : undefined,
+        currentCoords,
       );
 
       if (!rect || typeof state.platform.getElementRects !== 'function') {
@@ -220,7 +252,7 @@ export function createInlineMiddleware(
 
       const resetRects = await state.platform.getElementRects({
         reference: {
-          contextElement: getContextElement(reference),
+          contextElement,
           getBoundingClientRect() {
             return rect;
           },

@@ -732,6 +732,10 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   shiftCrossAxis?: boolean | undefined;
   lazyFlip?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
+  /**
+   * Optional middleware that can replace the measured reference rect before offsets and collision
+   * middleware run. Used by Preview Card to position against a specific inline line box.
+   */
   inline?: Middleware | undefined;
 }
 

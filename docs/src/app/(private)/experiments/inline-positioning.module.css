@@ -56,7 +56,12 @@
 }
 
 .PreviewPopup {
+  width: 256px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.65rem;
   border-radius: 0.5rem;
   background-color: canvas;
   transform-origin: var(--transform-origin);
@@ -81,14 +86,6 @@
     outline: 1px solid var(--color-gray-300);
     outline-offset: -1px;
   }
-}
-
-.PreviewPopup {
-  width: 256px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 0.65rem;
 }
 
 .Arrow {

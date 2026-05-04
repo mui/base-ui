@@ -20,6 +20,14 @@ type RectLike = {
   height: number;
 };
 
+const multilineWrapperStyle = { width: 140 };
+const multilineTriggerStyle = { display: 'inline', lineHeight: '20px' };
+
+function expectWithin(actual: number, expected: number, tolerance = 2) {
+  expect(Math.abs(actual - expected)).toBeLessThanOrEqual(tolerance);
+}
+
+// These overrides are safe because each test renders fresh trigger elements before mocking them.
 function mockClientRects(element: Element, rects: RectLike[]) {
   const left = Math.min(...rects.map((rect) => rect.left));
   const top = Math.min(...rects.map((rect) => rect.top));
@@ -350,13 +358,9 @@ describe('<PreviewCard.Positioner />', () => {
 
     it('positions the popup relative to the hovered line of a multiline trigger', async () => {
       const { user } = await render(
-        <div>
+        <div style={multilineWrapperStyle}>
           <PreviewCard.Root>
-            <PreviewCard.Trigger
-              delay={0}
-              data-testid="trigger"
-              style={{ display: 'inline', width: 100, lineHeight: 20 }}
-            >
+            <PreviewCard.Trigger delay={0} data-testid="trigger" style={multilineTriggerStyle}>
               This is a long text that will wrap across multiple lines in the trigger element
             </PreviewCard.Trigger>
             <PreviewCard.Portal>
@@ -373,7 +377,7 @@ describe('<PreviewCard.Positioner />', () => {
       const trigger = screen.getByTestId('trigger');
       const triggerRects = trigger.getClientRects();
 
-      expect(triggerRects.length).to.be.greaterThan(1);
+      expect(triggerRects.length).toBeGreaterThan(2);
 
       // Enter over the second line so opening on hover uses the correct inline rect.
       const secondLineRect = triggerRects[1];
@@ -399,13 +403,13 @@ describe('<PreviewCard.Positioner />', () => {
       const expectedY = secondLineRect.bottom + 5;
 
       await waitFor(() => {
-        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
-        expect(positionerY).to.be.closeTo(expectedY, 2);
-
-        // x-coordinate should also be relative to where we hovered on the second line
-        expect(positionerX).to.be.greaterThanOrEqual(secondLineRect.left - 10);
-        expect(positionerX).to.be.lessThanOrEqual(secondLineRect.right + 10);
+        expectWithin(positioner.getBoundingClientRect().y, expectedY);
       });
+
+      // x-coordinate should also be relative to where we hovered on the second line
+      const { x: positionerX } = positioner.getBoundingClientRect();
+      expect(positionerX).toBeGreaterThanOrEqual(secondLineRect.left - 10);
+      expect(positionerX).toBeLessThanOrEqual(secondLineRect.right + 10);
     });
 
     it('keeps the popup aligned after page scroll', async () => {
@@ -416,22 +420,20 @@ describe('<PreviewCard.Positioner />', () => {
       const { user } = await render(
         <div>
           <div style={{ height: 1200 }} />
-          <PreviewCard.Root>
-            <PreviewCard.Trigger
-              delay={0}
-              data-testid="trigger"
-              style={{ display: 'inline', width: 100, lineHeight: 20 }}
-            >
-              This is a long text that will wrap across multiple lines in the trigger element
-            </PreviewCard.Trigger>
-            <PreviewCard.Portal>
-              <PreviewCard.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
-                <PreviewCard.Popup style={{ width: 80, height: 40 }}>
-                  Preview Content
-                </PreviewCard.Popup>
-              </PreviewCard.Positioner>
-            </PreviewCard.Portal>
-          </PreviewCard.Root>
+          <div style={multilineWrapperStyle}>
+            <PreviewCard.Root>
+              <PreviewCard.Trigger delay={0} data-testid="trigger" style={multilineTriggerStyle}>
+                This is a long text that will wrap across multiple lines in the trigger element
+              </PreviewCard.Trigger>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
+                  <PreviewCard.Popup style={{ width: 80, height: 40 }}>
+                    Preview Content
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
           <div style={{ height: 1200 }} />
         </div>,
       );
@@ -445,7 +447,7 @@ describe('<PreviewCard.Positioner />', () => {
       const trigger = screen.getByTestId('trigger');
       const triggerRects = trigger.getClientRects();
 
-      expect(triggerRects.length).to.be.greaterThan(1);
+      expect(triggerRects.length).toBeGreaterThan(1);
 
       const secondLineRect = triggerRects[1];
       const secondLineCenterX = secondLineRect.left + secondLineRect.width / 2;
@@ -467,11 +469,12 @@ describe('<PreviewCard.Positioner />', () => {
       const expectedY = secondLineRect.bottom + 5;
 
       await waitFor(() => {
-        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
-        expect(positionerY).to.be.closeTo(expectedY, 2);
-        expect(positionerX).to.be.greaterThanOrEqual(secondLineRect.left - 10);
-        expect(positionerX).to.be.lessThanOrEqual(secondLineRect.right + 10);
+        expectWithin(positioner.getBoundingClientRect().y, expectedY);
       });
+
+      const { x: positionerX } = positioner.getBoundingClientRect();
+      expect(positionerX).toBeGreaterThanOrEqual(secondLineRect.left - 10);
+      expect(positionerX).toBeLessThanOrEqual(secondLineRect.right + 10);
     });
 
     it('positions the popup relative to the side-aligned rect when open is controlled', async () => {
@@ -479,13 +482,9 @@ describe('<PreviewCard.Positioner />', () => {
       const inlinePopupHeight = 40;
 
       await render(
-        <div>
+        <div style={multilineWrapperStyle}>
           <PreviewCard.Root open>
-            <PreviewCard.Trigger
-              delay={0}
-              data-testid="trigger"
-              style={{ display: 'inline', width: 100, lineHeight: 20 }}
-            >
+            <PreviewCard.Trigger delay={0} data-testid="trigger" style={multilineTriggerStyle}>
               This is a long text that will wrap across multiple lines in the trigger element
             </PreviewCard.Trigger>
             <PreviewCard.Portal>
@@ -506,20 +505,23 @@ describe('<PreviewCard.Positioner />', () => {
       const trigger = screen.getByTestId('trigger');
       const triggerRects = trigger.getClientRects();
 
-      expect(triggerRects.length).to.be.greaterThan(1);
+      expect(triggerRects.length).toBeGreaterThan(1);
 
       const targetRect = triggerRects[triggerRects.length - 1];
       const expectedY = targetRect.bottom + sideOffset;
+      const positioner = screen.getByTestId('positioner');
 
       await waitFor(() => {
-        const positioner = screen.getByTestId('positioner');
         expect(positioner).toBeVisible();
-
-        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
-        expect(positionerY).to.be.closeTo(expectedY, 2);
-        expect(positionerX).to.be.greaterThanOrEqual(targetRect.left - 10);
-        expect(positionerX).to.be.lessThanOrEqual(targetRect.right + 10);
       });
+
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, expectedY);
+      });
+
+      const { x: positionerX } = positioner.getBoundingClientRect();
+      expect(positionerX).toBeGreaterThanOrEqual(targetRect.left - 10);
+      expect(positionerX).toBeLessThanOrEqual(targetRect.right + 10);
     });
 
     it('ignores stale hovered coords when a controlled trigger switch reuses the popup', async () => {
@@ -601,14 +603,77 @@ describe('<PreviewCard.Positioner />', () => {
 
       await user.click(screen.getByRole('button', { name: 'Switch' }));
 
-      await waitFor(() => {
-        const { x: positionerX, y: positionerY } = screen
-          .getByTestId('positioner')
-          .getBoundingClientRect();
+      const positioner = screen.getByTestId('positioner');
 
-        expect(positionerY).to.be.closeTo(135, 2);
-        expect(positionerX).to.be.greaterThanOrEqual(90);
-        expect(positionerX).to.be.lessThanOrEqual(170);
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, 135);
+      });
+
+      const { x: positionerX } = positioner.getBoundingClientRect();
+      expect(positionerX).toBeGreaterThanOrEqual(90);
+      expect(positionerX).toBeLessThanOrEqual(170);
+    });
+
+    it('uses the hovered line with a custom anchor in a clipped keepMounted portal', async () => {
+      document.body.style.margin = '0';
+
+      function Test() {
+        const triggerRef = React.useRef<HTMLAnchorElement | null>(null);
+        const [portalContainer, setPortalContainer] = React.useState<HTMLDivElement | null>(null);
+
+        return (
+          <div>
+            <div ref={setPortalContainer} data-testid="portal-container" />
+            <PreviewCard.Root>
+              <PreviewCard.Trigger ref={triggerRef} href="#" delay={0} data-testid="trigger">
+                Trigger
+              </PreviewCard.Trigger>
+              <PreviewCard.Portal keepMounted container={portalContainer}>
+                <PreviewCard.Positioner
+                  anchor={triggerRef}
+                  collisionBoundary={{ x: 0, y: 0, width: 300, height: 120 }}
+                  collisionPadding={0}
+                  data-testid="positioner"
+                  side="bottom"
+                  sideOffset={5}
+                >
+                  <PreviewCard.Popup style={{ width: 80, height: 40 }}>
+                    Preview Content
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const portalContainer = screen.getByTestId('portal-container');
+      const trigger = screen.getByTestId('trigger');
+      const positioner = screen.getByTestId('positioner');
+
+      mockClientRects(trigger, [
+        { left: 180, top: 80, right: 220, bottom: 90, width: 40, height: 10 },
+        { left: 0, top: 100, right: 60, bottom: 110, width: 60, height: 10 },
+      ]);
+
+      await user.pointer([
+        { target: document.body },
+        { target: trigger, coords: { clientX: 30, clientY: 105 } },
+      ]);
+
+      await waitFor(() => {
+        expect(positioner).toBeVisible();
+      });
+
+      expect(portalContainer).toContainElement(positioner);
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'top');
+      });
+
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, 55);
       });
     });
 
@@ -616,13 +681,13 @@ describe('<PreviewCard.Positioner />', () => {
       const sideOffset = 5;
       const inlinePopupHeight = 40;
       const { user } = await render(
-        <div>
+        <div style={{ ...multilineWrapperStyle, marginTop: 100 }}>
           <PreviewCard.Root>
             <PreviewCard.Trigger
               delay={0}
               data-testid="trigger"
               tabIndex={0}
-              style={{ display: 'inline', width: 100, lineHeight: 20 }}
+              style={multilineTriggerStyle}
             >
               This is a long text that will wrap across multiple lines in the trigger element
             </PreviewCard.Trigger>
@@ -640,22 +705,26 @@ describe('<PreviewCard.Positioner />', () => {
       const trigger = screen.getByTestId('trigger');
       const triggerRects = trigger.getClientRects();
 
-      expect(triggerRects.length).to.be.greaterThan(1);
+      expect(triggerRects.length).toBeGreaterThan(1);
 
       const targetRect = triggerRects[0];
       const expectedY = targetRect.top - inlinePopupHeight - sideOffset;
 
       await user.tab();
 
-      await waitFor(() => {
-        const positioner = screen.getByTestId('positioner');
-        expect(positioner).toBeVisible();
+      const positioner = screen.getByTestId('positioner');
 
-        const { x: positionerX, y: positionerY } = positioner.getBoundingClientRect();
-        expect(positionerY).to.be.closeTo(expectedY, 2);
-        expect(positionerX).to.be.greaterThanOrEqual(targetRect.left - 10);
-        expect(positionerX).to.be.lessThanOrEqual(targetRect.right + 10);
+      await waitFor(() => {
+        expect(positioner).toBeVisible();
       });
+
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, expectedY);
+      });
+
+      const { x: positionerX } = positioner.getBoundingClientRect();
+      expect(positionerX).toBeGreaterThanOrEqual(targetRect.left - 10);
+      expect(positionerX).toBeLessThanOrEqual(targetRect.right + 10);
     });
   });
 });

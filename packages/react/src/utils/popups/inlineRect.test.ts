@@ -12,10 +12,10 @@ type RectLike = {
   height: number;
 };
 
-function createTrigger(rects: RectLike[]) {
+function createTrigger(rects: RectLike[] | (() => RectLike[])) {
   const trigger = document.createElement('span');
   Object.defineProperty(trigger, 'getClientRects', {
-    value: () => rects,
+    value: () => (typeof rects === 'function' ? rects() : rects),
   });
   return trigger;
 }
@@ -33,11 +33,14 @@ function createMouseEvent(
 }
 
 function createMiddlewareState(
-  trigger: Element,
+  reference: Element | { getClientRects(): ArrayLike<RectLike>; contextElement?: Element },
   placement: string,
   referenceRect: { x: number; y: number; width: number; height: number },
   options?: {
-    getElementRects?: (rect: RectLike & { x: number; y: number }) => {
+    getElementRects?: (
+      rect: RectLike & { x: number; y: number },
+      contextElement: Element | undefined,
+    ) => {
       x: number;
       y: number;
       width: number;
@@ -50,21 +53,24 @@ function createMiddlewareState(
   return {
     placement,
     strategy: 'absolute',
-    elements: { reference: trigger, floating: document.createElement('div') },
+    elements: { reference, floating: document.createElement('div') },
     rects: {
       reference: referenceRect,
       floating: floatingRect,
     },
     platform: {
       getElementRects: async ({
-        reference,
+        reference: positioningReference,
       }: {
-        reference: { getBoundingClientRect(): RectLike & { x: number; y: number } };
+        reference: {
+          contextElement?: Element;
+          getBoundingClientRect(): RectLike & { x: number; y: number };
+        };
       }) => {
-        const rect = reference.getBoundingClientRect();
+        const rect = positioningReference.getBoundingClientRect();
         return {
           reference: options?.getElementRects
-            ? options.getElementRects(rect)
+            ? options.getElementRects(rect, positioningReference.contextElement)
             : { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
           floating: floatingRect,
         };
@@ -77,7 +83,7 @@ describe('inlineRect', () => {
   it('clears stored coords on focus', () => {
     const trigger = document.createElement('span');
     const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = {
-      current: { x: 2, y: 3, element: trigger },
+      current: { x: 2, y: 3, lineIndex: undefined, element: trigger },
     };
 
     getInlineRectTriggerProps(coordsRef, false).onFocus?.({} as React.FocusEvent<Element>);
@@ -90,7 +96,7 @@ describe('inlineRect', () => {
       { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },
     ]);
     const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = {
-      current: { x: 1, y: 1, element: trigger },
+      current: { x: 1, y: 1, lineIndex: 0, element: trigger },
     };
 
     getInlineRectTriggerProps(coordsRef, false).onMouseMove?.(createMouseEvent(trigger, 5, 5));
@@ -107,7 +113,7 @@ describe('inlineRect', () => {
 
     getInlineRectTriggerProps(coordsRef, false).onMouseMove?.(createMouseEvent(trigger, 5, 25));
 
-    expect(coordsRef.current).toEqual({ x: 5, y: 25, element: trigger });
+    expect(coordsRef.current).toEqual({ x: 5, y: 25, lineIndex: 1, element: trigger });
   });
 
   it('does not update stored coords on mouse move while open', () => {
@@ -116,22 +122,23 @@ describe('inlineRect', () => {
       { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
     ]);
     const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = {
-      current: { x: 1, y: 1, element: trigger },
+      current: { x: 1, y: 1, lineIndex: 0, element: trigger },
     };
 
     getInlineRectTriggerProps(coordsRef, true).onMouseMove?.(createMouseEvent(trigger, 5, 25));
 
-    expect(coordsRef.current).toEqual({ x: 1, y: 1, element: trigger });
+    expect(coordsRef.current).toEqual({ x: 1, y: 1, lineIndex: 0, element: trigger });
   });
 
   it('creates inline middleware rects from the hovered line', async () => {
     const rects: RectLike[] = [
-      { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },
-      { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
+      { left: 0, top: 0, right: 80, bottom: 10, width: 80, height: 10 },
+      { left: 0, top: 20, right: 80, bottom: 30, width: 80, height: 10 },
+      { left: 0, top: 40, right: 80, bottom: 50, width: 80, height: 10 },
     ];
     const trigger = createTrigger(rects);
     const middleware = createInlineMiddleware({
-      current: { x: 2, y: 23, element: trigger },
+      current: { x: 2, y: 23, lineIndex: 1, element: trigger },
     });
 
     expect(
@@ -143,9 +150,43 @@ describe('inlineRect', () => {
         rects: {
           reference: {
             x: rects[1].left,
-            y: rects[0].top,
+            y: rects[1].top,
             width: rects[1].width,
-            height: rects[1].bottom - rects[0].top,
+            height: rects[1].height,
+          },
+          floating: { x: 0, y: 0, width: 20, height: 10 },
+        },
+      },
+    });
+  });
+
+  it('reuses the captured line index if client coordinates become stale', async () => {
+    let rects: RectLike[] = [
+      { left: 80, top: 0, right: 120, bottom: 10, width: 40, height: 10 },
+      { left: 0, top: 20, right: 60, bottom: 30, width: 60, height: 10 },
+    ];
+    const trigger = createTrigger(() => rects);
+    const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = { current: undefined };
+
+    getInlineRectTriggerProps(coordsRef, false).onMouseEnter?.(createMouseEvent(trigger, 100, 5));
+
+    rects = [
+      { left: 80, top: 100, right: 120, bottom: 110, width: 40, height: 10 },
+      { left: 0, top: 120, right: 60, bottom: 130, width: 60, height: 10 },
+    ];
+
+    expect(
+      await createInlineMiddleware(coordsRef).fn?.(
+        createMiddlewareState(trigger, 'bottom', { x: 0, y: 100, width: 120, height: 30 }) as never,
+      ),
+    ).toEqual({
+      reset: {
+        rects: {
+          reference: {
+            x: rects[0].left,
+            y: rects[0].top,
+            width: rects[0].width,
+            height: rects[0].height,
           },
           floating: { x: 0, y: 0, width: 20, height: 10 },
         },
@@ -192,7 +233,7 @@ describe('inlineRect', () => {
     ];
     const trigger = createTrigger(rects);
     const middleware = createInlineMiddleware({
-      current: { x: 100, y: 5, element: previousTrigger },
+      current: { x: 100, y: 5, lineIndex: 0, element: previousTrigger },
     });
 
     expect(
@@ -207,6 +248,39 @@ describe('inlineRect', () => {
             y: rects[0].top,
             width: rects[1].width,
             height: rects[1].bottom - rects[0].top,
+          },
+          floating: { x: 0, y: 0, width: 20, height: 10 },
+        },
+      },
+    });
+  });
+
+  it('accepts stored coords from a virtual reference context element', async () => {
+    const rects: RectLike[] = [
+      { left: 80, top: 0, right: 120, bottom: 10, width: 40, height: 10 },
+      { left: 0, top: 20, right: 60, bottom: 30, width: 60, height: 10 },
+    ];
+    const trigger = createTrigger(rects);
+    const reference = {
+      contextElement: trigger,
+      getClientRects: () => rects,
+    };
+    const middleware = createInlineMiddleware({
+      current: { x: 100, y: 5, lineIndex: 0, element: trigger },
+    });
+
+    expect(
+      await middleware.fn?.(
+        createMiddlewareState(reference, 'bottom', { x: 0, y: 0, width: 120, height: 30 }) as never,
+      ),
+    ).toEqual({
+      reset: {
+        rects: {
+          reference: {
+            x: rects[0].left,
+            y: rects[0].top,
+            width: rects[0].width,
+            height: rects[0].height,
           },
           floating: { x: 0, y: 0, width: 20, height: 10 },
         },
