@@ -395,7 +395,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         popupSide: null,
         openMethod: null,
         inputInsidePopup: true,
-        inputOwnsFormValue: false,
+        // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
+        // until after hydration, so the hidden input takes over then if needed.
+        inputOwnsFormValue: selectionMode === 'none',
         onOpenChangeComplete: onOpenChangeCompleteProp || NOOP,
         // Placeholder callbacks replaced on first render
         setOpen: NOOP,
@@ -1146,6 +1148,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       submitOnItemClick,
       hasInputValue,
       requestSubmit,
+      inputOwnsFormValue: selectionMode === 'none' && (inlineProp || !store.state.inputInsidePopup),
     });
   }, [
     store,
@@ -1202,13 +1205,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [fieldRawValue, itemToStringValue]);
 
   const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
-  const hiddenInputOwnsNoneValue =
-    !inputOwnsFormValue ||
-    // Before the popup input mounts, trigger-control comboboxes still need
-    // the persistent hidden input to own native form submission.
-    (!inline && triggerElement != null && inputElement == null);
   const hiddenInputName =
-    multiple || (selectionMode === 'none' && !hiddenInputOwnsNoneValue) ? undefined : name;
+    multiple || (selectionMode === 'none' && inputOwnsFormValue) ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {
