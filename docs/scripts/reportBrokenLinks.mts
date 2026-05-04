@@ -8,6 +8,12 @@ async function main() {
     ignoredPaths: [],
     // CSS selectors for content to ignore during link checking
     ignoredContent: [],
+    ignores: [
+      {
+        path: '/react/components/tabs',
+        href: ['#overview', '#projects', '#account'],
+      },
+    ],
   });
 
   process.exit(issues.length);
