@@ -207,19 +207,21 @@ describe('<Select.Trigger />', () => {
       'sets data-popup-side to the resolved side when alignItemWithTrigger is active',
       async () => {
         const { user } = await render(
-          <Select.Root defaultValue="apple">
-            <Select.Trigger data-testid="trigger" style={{ width: 120, height: 36 }}>
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner data-testid="positioner">
-                <Select.Popup style={{ maxHeight: 'none' }}>
-                  <Select.Item value="apple">apple</Select.Item>
-                  <Select.Item value="orange">orange</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>,
+          <div style={{ paddingTop: 100, paddingLeft: 10 }}>
+            <Select.Root defaultValue="apple">
+              <Select.Trigger data-testid="trigger" style={{ width: 120, height: 36 }}>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup style={{ maxHeight: 'none' }}>
+                    <Select.Item value="apple">apple</Select.Item>
+                    <Select.Item value="orange">orange</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>,
         );
 
         const trigger = screen.getByTestId('trigger');
@@ -228,8 +230,8 @@ describe('<Select.Trigger />', () => {
 
         await waitFor(() => {
           expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'none');
+          expect(trigger).toHaveAttribute('data-popup-side', 'bottom');
         });
-        expect(trigger).toHaveAttribute('data-popup-side', 'bottom');
       },
     );
 
