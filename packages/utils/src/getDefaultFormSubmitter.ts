@@ -22,6 +22,8 @@ export function getDefaultFormSubmitter(form: HTMLFormElement | null): DefaultFo
     if (tagName === 'BUTTON' || tagName === 'INPUT') {
       const button = candidate as HTMLButtonElement | HTMLInputElement;
 
+      // Intentionally excludes input[type="image"]: Chromium omits it from form.elements,
+      // so supporting it would require separate traversal for an exotic submitter type.
       if (button.type === 'submit') {
         return button;
       }
