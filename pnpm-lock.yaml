@@ -239,6 +239,9 @@ importers:
       react-is:
         specifier: ^19.2.5
         version: 19.2.5
+      react-router:
+        specifier: 7.14.2
+        version: 7.14.2(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       remark:
         specifier: ^15.0.1
         version: 15.0.1
