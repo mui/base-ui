@@ -1,13 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import {
-  normalizeOTPValueWithDetails,
-  removeOTPCharacter,
-  replaceOTPValue,
-  stripOTPWhitespace,
-} from './otp';
+import { normalizeOTPValue, removeOTPCharacter, replaceOTPValue, stripOTPWhitespace } from './otp';
 
-function normalizeValue(...args: Parameters<typeof normalizeOTPValueWithDetails>) {
-  return normalizeOTPValueWithDetails(...args).value;
+function normalizeValue(...args: Parameters<typeof normalizeOTPValue>) {
+  return normalizeOTPValue(...args);
 }
 
 describe('otp utils', () => {
@@ -52,22 +47,7 @@ describe('otp utils', () => {
   });
 
   it('filters custom sanitization output through built-in validation', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-    try {
-      expect(normalizeValue('12', 6, 'numeric', (value) => `${value}AB`)).toBe('12');
-      expect(warnSpy.mock.calls[0]?.[0]).toContain(
-        '`sanitizeValue` returned characters that are not allowed by `validationType`',
-      );
-    } finally {
-      warnSpy.mockRestore();
-    }
-  });
-
-  it('throws when custom sanitization returns a non-string value', () => {
-    expect(() => normalizeValue('12', 6, 'numeric', () => 12 as unknown as string)).toThrow(
-      'Base UI: <OTPField.Root> `sanitizeValue` must return a string. Returning a non-string value prevents the OTP value from being normalized. Ensure `sanitizeValue` returns the sanitized string.',
-    );
+    expect(normalizeValue('12', 6, 'numeric', (value) => `${value}AB`)).toBe('12');
   });
 
   it('clamps values after custom sanitization', () => {
@@ -90,12 +70,16 @@ describe('otp utils', () => {
     expect(replaceOTPValue('123456', 5, '9', 6, 'numeric')).toBe('123459');
   });
 
-  it('applies custom sanitization once when replacing OTP values', () => {
+  it('applies custom sanitization when replacing OTP values', () => {
     const sanitizeValue = vi.fn((value: string) => value.toUpperCase());
 
     expect(replaceOTPValue('123456', 2, 'ab', 6, 'alphanumeric', sanitizeValue)).toBe('12AB56');
-    expect(sanitizeValue).toHaveBeenCalledTimes(1);
-    expect(sanitizeValue).toHaveBeenCalledWith('12ab56');
+  });
+
+  it('preserves suffix characters when custom sanitization removes part of a middle replacement', () => {
+    expect(
+      replaceOTPValue('1303', 1, '29', 4, 'numeric', (value) => value.replace(/[^0-3]/g, '')),
+    ).toBe('1203');
   });
 
   it('removes a character from the first slot', () => {

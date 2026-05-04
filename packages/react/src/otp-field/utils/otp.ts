@@ -1,5 +1,3 @@
-import { warn } from '@base-ui/utils/warn';
-
 interface OTPValidationConfig {
   slotPattern: string;
   getRootPattern: (length: number) => string;
@@ -46,94 +44,26 @@ function applyOTPValidation(value: string, validation: OTPValidationConfig | nul
   return validation ? value.replace(validation.regexp, '') : value;
 }
 
-function getStringLength(value: string) {
-  return Array.from(value).length;
-}
-
 /**
  * Normalizes user-entered OTP text by stripping whitespace, applying validation and custom
  * sanitization, and clamping the final value to the configured slot count.
  */
-export function normalizeOTPValueWithDetails(
+export function normalizeOTPValue(
   value: string | null | undefined,
   length: number,
   validationType: OTPValidationType,
   sanitizeValue?: ((value: string) => string) | undefined,
 ) {
-  const strippedValue = stripOTPWhitespace(value);
+  let sanitizedValue = stripOTPWhitespace(value);
   const validation = getOTPValidationConfig(validationType);
-  let sanitizedValue = applyOTPValidation(strippedValue, validation);
-  let didSanitize = getStringLength(strippedValue) > getStringLength(sanitizedValue);
+  sanitizedValue = applyOTPValidation(sanitizedValue, validation);
 
   if (sanitizeValue) {
-    const customSanitizedValue = sanitizeValue(sanitizedValue);
-
-    if (process.env.NODE_ENV !== 'production') {
-      if (typeof customSanitizedValue !== 'string') {
-        throw new Error(
-          'Base UI: <OTPField.Root> `sanitizeValue` must return a string. ' +
-            'Returning a non-string value prevents the OTP value from being normalized. ' +
-            'Ensure `sanitizeValue` returns the sanitized string.',
-        );
-      }
-    }
-
-    const validatedCustomValue = applyOTPValidation(customSanitizedValue, validation);
-
-    if (process.env.NODE_ENV !== 'production') {
-      if (validatedCustomValue !== customSanitizedValue) {
-        warn(
-          '<OTPField.Root> `sanitizeValue` returned characters that are not allowed by ' +
-            '`validationType`. These characters were removed before updating the OTP value. ' +
-            'Ensure `sanitizeValue` returns only characters allowed by `validationType`.',
-        );
-      }
-    }
-
-    didSanitize ||= getStringLength(sanitizedValue) > getStringLength(validatedCustomValue);
-    sanitizedValue = validatedCustomValue;
+    sanitizedValue = applyOTPValidation(sanitizeValue(sanitizedValue), validation);
   }
 
   // Slice by Unicode code points so multi-byte characters do not split across OTP slots.
-  const clampedValue = Array.from(sanitizedValue).slice(0, Math.max(length, 0)).join('');
-
-  return {
-    value: clampedValue,
-    didSanitize: didSanitize || getStringLength(sanitizedValue) > getStringLength(clampedValue),
-  };
-}
-
-export function replaceOTPValueWithDetails(
-  currentValue: string,
-  index: number,
-  nextValue: string,
-  length: number,
-  validationType: OTPValidationType,
-  sanitizeValue?: ((value: string) => string) | undefined,
-) {
-  const strippedValue = stripOTPWhitespace(nextValue);
-  const validation = getOTPValidationConfig(validationType);
-  const normalizedValue = applyOTPValidation(strippedValue, validation);
-  const prefix = currentValue.slice(0, index);
-  const suffix = currentValue.slice(index + normalizedValue.length);
-  const nextOTPValue = `${prefix}${normalizedValue}${suffix}`;
-  const normalizedDetails = normalizeOTPValueWithDetails(
-    nextOTPValue,
-    length,
-    validationType,
-    sanitizeValue,
-  );
-
-  return {
-    ...normalizedDetails,
-    didSanitize:
-      normalizedDetails.didSanitize ||
-      getStringLength(strippedValue) > getStringLength(normalizedValue),
-    insertionLength: Math.max(
-      getStringLength(normalizedDetails.value) - getStringLength(prefix) - getStringLength(suffix),
-      0,
-    ),
-  };
+  return Array.from(sanitizedValue).slice(0, Math.max(length, 0)).join('');
 }
 
 /**
@@ -148,14 +78,16 @@ export function replaceOTPValue(
   validationType: OTPValidationType,
   sanitizeValue?: ((value: string) => string) | undefined,
 ) {
-  return replaceOTPValueWithDetails(
-    currentValue,
-    index,
-    nextValue,
+  const normalizedValue = normalizeOTPValue(nextValue, length, validationType, sanitizeValue);
+  const prefix = currentValue.slice(0, index);
+  const suffix = currentValue.slice(index + normalizedValue.length);
+
+  return normalizeOTPValue(
+    `${prefix}${normalizedValue}${suffix}`,
     length,
     validationType,
     sanitizeValue,
-  ).value;
+  );
 }
 
 export function removeOTPCharacter(currentValue: string, index: number) {

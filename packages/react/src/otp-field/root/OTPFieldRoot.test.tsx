@@ -367,25 +367,6 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
 
-      it('fires when built-in validation removes characters before custom sanitization expands the value', async () => {
-        const onValueInvalid = vi.fn();
-
-        await render(
-          <OTPField
-            sanitizeValue={(value) => (value === '1' ? '12' : value)}
-            onValueInvalid={onValueInvalid}
-          />,
-        );
-
-        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
-        fireEvent.change(firstInput, { target: { value: '1a' } });
-
-        expect(getValues()).toBe('12');
-        expect(onValueInvalid).toHaveBeenCalledTimes(1);
-        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1a');
-        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
-      });
-
       it('fires `input-paste` when pasted text is sanitized before the OTP value updates', async () => {
         const onValueInvalid = vi.fn();
 

@@ -31,7 +31,8 @@ import { OTPFieldRootContext } from './OTPFieldRootContext';
 import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {
   getOTPValidationConfig,
-  normalizeOTPValueWithDetails,
+  normalizeOTPValue,
+  stripOTPWhitespace,
   type OTPValidationType,
 } from '../utils/otp';
 
@@ -133,12 +134,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const inputMode = inputModeProp ?? validationConfig?.inputMode;
   const hasValidLength = Number.isInteger(length) && length > 0;
 
-  const value = normalizeOTPValueWithDetails(
-    valueUnwrapped,
-    length,
-    validationType,
-    sanitizeValue,
-  ).value;
+  const value = normalizeOTPValue(valueUnwrapped, length, validationType, sanitizeValue);
   const valueRef = useValueAsRef(value);
   const filled = value !== '';
 
@@ -231,12 +227,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const setValue = useStableCallback(
     (nextValue: string, details: OTPFieldRoot.ChangeEventDetails) => {
-      const normalizedValue = normalizeOTPValueWithDetails(
-        nextValue,
-        length,
-        validationType,
-        sanitizeValue,
-      ).value;
+      const normalizedValue = normalizeOTPValue(nextValue, length, validationType, sanitizeValue);
       const completeEventDetails =
         normalizedValue.length === length &&
         (valueRef.current.length !== length || details.reason === REASONS.inputPaste)
@@ -419,15 +410,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
                 }
 
                 const rawValue = event.currentTarget.value;
-                const normalizedValueDetails = normalizeOTPValueWithDetails(
+                const normalizedValue = normalizeOTPValue(
                   rawValue,
                   length,
                   validationType,
                   sanitizeValue,
                 );
-                const { value: normalizedValue, didSanitize } = normalizedValueDetails;
 
-                if (didSanitize) {
+                if (stripOTPWhitespace(rawValue).length > normalizedValue.length) {
                   reportValueInvalid(
                     rawValue,
                     createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -530,7 +520,7 @@ export interface OTPFieldRootProps extends Omit<
    *
    * The returned value is filtered by `validationType` again, then clamped to `length`.
    * It should be idempotent because the component may normalize controlled values on every render
-   * and normalize again for each user edit. Characters removed by this function are reported
+   * and normalize again for each user edit. Characters removed from user-entered text are reported
    * through `onValueInvalid`.
    */
   sanitizeValue?: ((value: string) => string) | undefined;
