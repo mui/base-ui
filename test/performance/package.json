@@ -10,7 +10,7 @@
     "react-dom": "19.2.5"
   },
   "devDependencies": {
-    "@mui/internal-benchmark": "0.0.3-canary.2",
+    "@mui/internal-benchmark": "0.0.3-canary.3",
     "@types/react": "19.2.14",
     "@vitest/browser-playwright": "4.1.5",
     "vite": "8.0.5",
