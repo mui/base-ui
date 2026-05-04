@@ -104,7 +104,20 @@ export function useTabsTab(params: UseTabsTabParameters): UseTabsTabReturnValue 
   const isMainButtonRef = React.useRef(false);
 
   function onClick(event: React.MouseEvent<HTMLElement>) {
-    if (active || disabled) {
+    if (disabled) {
+      event.preventDefault();
+      return;
+    }
+
+    if (active) {
+      return;
+    }
+
+    if (
+      event.defaultPrevented ||
+      (!nativeButton &&
+        (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey))
+    ) {
       return;
     }
 
@@ -150,18 +163,15 @@ export function useTabsTab(params: UseTabsTabParameters): UseTabsTabReturnValue 
     }
 
     isPressingRef.current = true;
+    isMainButtonRef.current = event.button === 0;
 
     function handlePointerUp() {
       isPressingRef.current = false;
       isMainButtonRef.current = false;
     }
 
-    if (!event.button || event.button === 0) {
-      isMainButtonRef.current = true;
-
-      const doc = ownerDocument(event.currentTarget);
-      doc.addEventListener('pointerup', handlePointerUp, { once: true });
-    }
+    const doc = ownerDocument(event.currentTarget);
+    doc.addEventListener('pointerup', handlePointerUp, { once: true });
   }
 
   const state: TabsTabState = {
