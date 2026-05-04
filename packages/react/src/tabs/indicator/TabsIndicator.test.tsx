@@ -93,6 +93,7 @@ describe('<Tabs.Indicator />', () => {
       const scaleX = tabListWidth > 0 ? tabListRect.width / tabListWidth : 1;
       const scaleY = tabListHeight > 0 ? tabListRect.height / tabListHeight : 1;
 
+      // Convert the indicator CSS variables back to viewport coordinates.
       return {
         left: tabListRect.left + (left - tabList.scrollLeft + tabList.clientLeft) * scaleX,
         right: tabListRect.left + (left + width - tabList.scrollLeft + tabList.clientLeft) * scaleX,

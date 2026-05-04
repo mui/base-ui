@@ -41,10 +41,10 @@
 
   let left = activeTab.offsetLeft;
   let top = activeTab.offsetTop;
-  let width = activeTab.offsetWidth;
-  let height = activeTab.offsetHeight;
+  let { width, height } = getCssDimensions(activeTab);
 
   if (Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON) {
+    // Hydration applies device-pixel snapping; this inline script stays positioning-only.
     left = (tabRect.left - tabsListRect.left) / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
     top = (tabRect.top - tabsListRect.top) / scaleY + tabsList.scrollTop - tabsList.clientTop;
     width = tabRect.width / scaleX;

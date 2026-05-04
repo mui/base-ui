@@ -98,10 +98,12 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
         width = (tabRight - tabLeft) / scaleX;
         height = (tabBottom - tabTop) / scaleY;
       } else {
+        const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
+
         left = activeTab.offsetLeft;
         top = activeTab.offsetTop;
-        width = activeTab.offsetWidth;
-        height = activeTab.offsetHeight;
+        width = computedWidth;
+        height = computedHeight;
       }
 
       right = tabsListElement.scrollWidth - left - width;
