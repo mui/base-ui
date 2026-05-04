@@ -610,6 +610,8 @@ describe('<Checkbox.Root />', () => {
 
         await user.keyboard('[Enter]');
 
+        // getDefaultFormSubmitter intentionally returns the disabled default button;
+        // clicking it should be a no-op rather than falling through to a later submitter.
         expect(submitSpy.mock.calls.length).toBe(0);
         expect(checkbox).toHaveAttribute('aria-checked', 'false');
       },
@@ -695,6 +697,7 @@ describe('<Checkbox.Root />', () => {
 
         expect(submitSpy.mock.calls.length).toBe(1);
         expect(submitSpy.mock.results.at(-1)?.value).toBe(screen.getByRole('button'));
+        expect(checkbox).toHaveAttribute('aria-checked', 'false');
       },
     );
 

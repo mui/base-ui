@@ -340,6 +340,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             return;
           }
 
+          // Enter should not activate/toggle the checkbox. After canceling the default
+          // button behavior, mirror native checkbox form submission via the default submitter.
           event.preventDefault();
           getDefaultFormSubmitter(inputRef.current?.form ?? null)?.click();
         },
