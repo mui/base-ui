@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useRenderElement } from '../../internals/useRenderElement';
-import type { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import { useTabsTab } from '../tab/useTabsTab';
@@ -34,14 +35,40 @@ export const TabsLinkTab = React.forwardRef(function TabsLinkTab(
   });
 
   const linkTabState: TabsLinkTabState = state;
+  const linkTabProps = {
+    onClick(event: React.MouseEvent<HTMLAnchorElement>) {
+      if (shouldSkipTabActivationForClick(event)) {
+        (event as BaseUIEvent<typeof event>).preventBaseUIHandler();
+      }
+    },
+  };
 
   return useRenderElement('a', componentProps, {
     state: linkTabState,
     ref: [forwardedRef, ...refs],
-    props: [elementProps, getTabProps],
+    props: [linkTabProps, elementProps, getTabProps],
     stateAttributesMapping: tabsStateAttributesMapping,
   });
 });
+
+function shouldSkipTabActivationForClick(event: React.MouseEvent<HTMLElement>) {
+  const win = ownerWindow(event.currentTarget);
+
+  // Keyboard activation also dispatches click handlers, but it should still select the tab.
+  // Only mouse clicks need the link-navigation guard below.
+  if (!(event.nativeEvent instanceof win.MouseEvent)) {
+    return false;
+  }
+
+  return (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey ||
+    event.altKey
+  );
+}
 
 export interface TabsLinkTabState extends TabsTab.State {}
 

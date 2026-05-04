@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import { Tabs } from '@base-ui/react/tabs';
-import { screen } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tabs.Tab />', () => {
@@ -49,5 +49,59 @@ describe('<Tabs.Tab />', () => {
 
     expect(panels[0]).toHaveAttribute('hidden');
     expect(panels[1]).not.toHaveAttribute('hidden');
+  });
+
+  it('activates custom non-native tabs with the keyboard', async () => {
+    const { user } = await render(
+      <Tabs.Root defaultValue="overview">
+        <Tabs.List activateOnFocus={false}>
+          <Tabs.Tab nativeButton={false} render={<div />} value="overview">
+            Overview
+          </Tabs.Tab>
+          <Tabs.Tab nativeButton={false} render={<div />} value="settings">
+            Settings
+          </Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="overview" keepMounted>
+          Overview panel
+        </Tabs.Panel>
+        <Tabs.Panel value="settings" keepMounted>
+          Settings panel
+        </Tabs.Panel>
+      </Tabs.Root>,
+    );
+
+    const overviewTab = screen.getByRole('tab', { name: 'Overview' });
+    const settingsTab = screen.getByRole('tab', { name: 'Settings' });
+
+    act(() => {
+      settingsTab.focus();
+    });
+
+    await waitFor(() => {
+      expect(settingsTab).toHaveFocus();
+    });
+
+    await user.keyboard('[Enter]');
+
+    let panels = screen.getAllByRole('tabpanel', { hidden: true });
+
+    expect(panels[0]).toHaveAttribute('hidden');
+    expect(panels[1]).not.toHaveAttribute('hidden');
+
+    act(() => {
+      overviewTab.focus();
+    });
+
+    await waitFor(() => {
+      expect(overviewTab).toHaveFocus();
+    });
+
+    await user.keyboard('[Space]');
+
+    panels = screen.getAllByRole('tabpanel', { hidden: true });
+
+    expect(panels[0]).not.toHaveAttribute('hidden');
+    expect(panels[1]).toHaveAttribute('hidden');
   });
 });

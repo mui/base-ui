@@ -103,21 +103,13 @@ export function useTabsTab(params: UseTabsTabParameters): UseTabsTabReturnValue 
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
 
-  function onClick(event: React.MouseEvent<HTMLElement>) {
+  function onClick(event: React.SyntheticEvent<HTMLElement>) {
     if (disabled) {
       event.preventDefault();
       return;
     }
 
     if (active) {
-      return;
-    }
-
-    if (
-      event.defaultPrevented ||
-      (!nativeButton &&
-        (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey))
-    ) {
       return;
     }
 
