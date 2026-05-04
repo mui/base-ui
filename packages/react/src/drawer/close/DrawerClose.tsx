@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import { DialogClose } from '../../dialog/close/DialogClose';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 
 /**
  * A button that closes the drawer.
@@ -11,8 +11,10 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
  */
 export const DrawerClose = DialogClose as DrawerClose;
 
-export interface DrawerCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', DrawerCloseState> {}
+export type DrawerCloseProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, DrawerClose.State>;
 
 export interface DrawerCloseState {
   /**
@@ -22,10 +24,25 @@ export interface DrawerCloseState {
 }
 
 export interface DrawerClose {
-  (componentProps: DrawerCloseProps): React.JSX.Element;
+  <TElement extends React.ElementType = 'button'>(
+    componentProps: DrawerClose.Props<true, TElement> & React.RefAttributes<HTMLButtonElement>,
+  ): React.JSX.Element;
+  <TElement extends React.ElementType = 'button'>(
+    componentProps: DrawerClose.Props<false, TElement> & {
+      nativeButton: false;
+    } & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
+  <TElement extends React.ElementType = 'button'>(
+    componentProps: DrawerClose.Props<boolean, TElement> & {
+      nativeButton: boolean;
+    } & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
 }
 
 export namespace DrawerClose {
-  export type Props = DrawerCloseProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = DrawerCloseProps<TNativeButton, TElement>;
   export type State = DrawerCloseState;
 }

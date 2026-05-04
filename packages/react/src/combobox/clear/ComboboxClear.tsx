@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
@@ -142,7 +142,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   }
 
   return element;
-});
+}) as unknown as ComboboxClearComponent;
 
 export interface ComboboxClearState {
   /**
@@ -163,8 +163,10 @@ export interface ComboboxClearState {
   transitionStatus: TransitionStatus;
 }
 
-export interface ComboboxClearProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClearState> {
+export type ComboboxClearProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = Omit<NativeButtonComponentProps<TNativeButton, TElement, ComboboxClear.State>, 'disabled'> & {
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -175,9 +177,28 @@ export interface ComboboxClearProps
    * @default false
    */
   keepMounted?: boolean | undefined;
-}
+};
 
 export namespace ComboboxClear {
   export type State = ComboboxClearState;
-  export type Props = ComboboxClearProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = ComboboxClearProps<TNativeButton, TElement>;
 }
+
+type ComboboxClearComponent = {
+  <TElement extends React.ElementType = 'button'>(
+    props: ComboboxClear.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: ComboboxClear.Props<false, TElement> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: ComboboxClear.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

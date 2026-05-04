@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useButton } from '../internals/use-button/useButton';
 import { useRenderElement } from '../internals/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../internals/types';
+import type { NativeButtonComponentProps } from '../internals/types';
 
 /**
  * A button component that can be used to trigger actions.
@@ -39,7 +39,7 @@ export const Button = React.forwardRef(function Button(
     ref: [forwardedRef, buttonRef],
     props: [elementProps, getButtonProps],
   });
-});
+}) as unknown as ButtonComponent;
 
 export interface ButtonState {
   /**
@@ -48,16 +48,37 @@ export interface ButtonState {
   disabled: boolean;
 }
 
-export interface ButtonProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ButtonState> {
+export type ButtonProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, Button.State> & {
   /**
    * Whether the button should be focusable when disabled.
    * @default false
    */
   focusableWhenDisabled?: boolean | undefined;
-}
+};
 
 export namespace Button {
   export type State = ButtonState;
-  export type Props = ButtonProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = ButtonProps<TNativeButton, TElement>;
 }
+
+type ButtonComponent = {
+  <TElement extends React.ElementType = 'button'>(
+    props: Button.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: Button.Props<false, TElement> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: Button.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

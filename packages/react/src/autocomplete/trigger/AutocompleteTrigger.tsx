@@ -3,7 +3,7 @@ import type * as React from 'react';
 import { ComboboxTrigger } from '../../combobox/trigger/ComboboxTrigger';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import type { Side } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 
 /**
  * A button that opens the popup.
@@ -32,22 +32,41 @@ export interface AutocompleteTriggerState extends FieldRootState {
   listEmpty: boolean;
 }
 
-export interface AutocompleteTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', AutocompleteTriggerState> {
+export type AutocompleteTriggerProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = Omit<
+  NativeButtonComponentProps<TNativeButton, TElement, AutocompleteTrigger.State>,
+  'disabled'
+> & {
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
   disabled?: boolean | undefined;
-}
+};
 
 export interface AutocompleteTrigger {
-  (
-    componentProps: AutocompleteTriggerProps & React.RefAttributes<HTMLButtonElement>,
+  <TElement extends React.ElementType = 'button'>(
+    componentProps: AutocompleteTrigger.Props<true, TElement> &
+      React.RefAttributes<HTMLButtonElement>,
+  ): React.JSX.Element;
+  <TElement extends React.ElementType = 'button'>(
+    componentProps: AutocompleteTrigger.Props<false, TElement> & {
+      nativeButton: false;
+    } & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
+  <TElement extends React.ElementType = 'button'>(
+    componentProps: AutocompleteTrigger.Props<boolean, TElement> & {
+      nativeButton: boolean;
+    } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
 }
 
 export namespace AutocompleteTrigger {
   export type State = AutocompleteTriggerState;
-  export type Props = AutocompleteTriggerProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = AutocompleteTriggerProps<TNativeButton, TElement>;
 }

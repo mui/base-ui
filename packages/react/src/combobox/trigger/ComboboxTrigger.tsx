@@ -4,7 +4,7 @@ import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import {
@@ -275,7 +275,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   });
 
   return element;
-});
+}) as unknown as ComboboxTriggerComponent;
 
 export interface ComboboxTriggerState extends FieldRootState {
   /**
@@ -300,16 +300,39 @@ export interface ComboboxTriggerState extends FieldRootState {
   placeholder: boolean;
 }
 
-export interface ComboboxTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxTriggerState> {
+export type ComboboxTriggerProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = Omit<NativeButtonComponentProps<TNativeButton, TElement, ComboboxTrigger.State>, 'disabled'> & {
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
   disabled?: boolean | undefined;
-}
+};
 
 export namespace ComboboxTrigger {
   export type State = ComboboxTriggerState;
-  export type Props = ComboboxTriggerProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = ComboboxTriggerProps<TNativeButton, TElement>;
 }
+
+type ComboboxTriggerComponent = {
+  <TElement extends React.ElementType = 'button'>(
+    props: ComboboxTrigger.Props<true, TElement> & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: ComboboxTrigger.Props<false, TElement> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: ComboboxTrigger.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

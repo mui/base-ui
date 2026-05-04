@@ -26,7 +26,7 @@ export default function MenuSubmenus() {
     [settings.customTriggerElement],
   );
 
-  const handleItemClick = useStableCallback((event: React.MouseEvent<HTMLDivElement>) => {
+  const handleItemClick = useStableCallback((event: React.MouseEvent<HTMLElement>) => {
     console.log(`${event.currentTarget.textContent} clicked`);
   });
 
