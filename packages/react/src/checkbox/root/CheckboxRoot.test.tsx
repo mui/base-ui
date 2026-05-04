@@ -523,6 +523,40 @@ describe('<Checkbox.Root />', () => {
       },
     );
 
+    it.skipIf(isJSDOM)(
+      'does not submit the form with Enter when an ancestor prevents default',
+      async () => {
+        const submitSpy = vi.fn((event) => {
+          event.preventDefault();
+        });
+        const keyDownSpy = vi.fn((event: React.KeyboardEvent) => {
+          const defaultPrevented = event.defaultPrevented;
+          event.preventDefault();
+          return defaultPrevented;
+        });
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy} onKeyDown={keyDownSpy}>
+            <Field.Root name="test-checkbox">
+              <Checkbox.Root />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+
+        await user.keyboard('[Tab]');
+        expect(checkbox).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+
+        expect(keyDownSpy.mock.results.at(-1)?.value).toBe(false);
+        expect(submitSpy.mock.calls.length).toBe(0);
+        expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      },
+    );
+
     it.skipIf(isJSDOM)('submits the form with Enter when readOnly', async () => {
       const submitSpy = vi.fn((event) => {
         event.preventDefault();
@@ -610,8 +644,6 @@ describe('<Checkbox.Root />', () => {
 
         await user.keyboard('[Enter]');
 
-        // getDefaultFormSubmitter intentionally returns the disabled default button;
-        // clicking it should be a no-op rather than falling through to a later submitter.
         expect(submitSpy.mock.calls.length).toBe(0);
         expect(checkbox).toHaveAttribute('aria-checked', 'false');
       },
@@ -643,6 +675,8 @@ describe('<Checkbox.Root />', () => {
 
         await user.keyboard('[Enter]');
 
+        // getDefaultFormSubmitter intentionally returns the disabled default button;
+        // clicking it should be a no-op rather than falling through to a later submitter.
         expect(submitSpy.mock.calls.length).toBe(0);
         expect(checkbox).toHaveAttribute('aria-checked', 'false');
       },

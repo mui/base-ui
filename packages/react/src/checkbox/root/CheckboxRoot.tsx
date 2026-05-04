@@ -340,10 +340,35 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             return;
           }
 
-          // Enter should not activate/toggle the checkbox. After canceling the default
-          // button behavior, mirror native checkbox form submission via the default submitter.
-          event.preventDefault();
-          getDefaultFormSubmitter(inputRef.current?.form ?? null)?.click();
+          const formToSubmit = inputRef.current?.form ?? null;
+          const currentTarget = event.currentTarget;
+          const nativeEvent = event.nativeEvent;
+          const originalPreventDefault = event.preventDefault;
+          const originalNativePreventDefault = nativeEvent.preventDefault;
+          let preventDefaultCalledAfterPropagation = false;
+
+          event.preventDefault = () => {
+            preventDefaultCalledAfterPropagation = true;
+            originalPreventDefault.call(event);
+          };
+          nativeEvent.preventDefault = () => {
+            preventDefaultCalledAfterPropagation = true;
+            originalNativePreventDefault.call(nativeEvent);
+          };
+
+          // Enter should not activate/toggle the checkbox. Cancel the native button behavior
+          // without setting React's synthetic `defaultPrevented`, so ancestor React handlers
+          // can still opt out by calling `preventDefault()` during propagation.
+          originalNativePreventDefault.call(nativeEvent);
+
+          ownerWindow(currentTarget).queueMicrotask(() => {
+            event.preventDefault = originalPreventDefault;
+            nativeEvent.preventDefault = originalNativePreventDefault;
+
+            if (!preventDefaultCalledAfterPropagation) {
+              getDefaultFormSubmitter(formToSubmit)?.click();
+            }
+          });
         },
         onClick(event: React.MouseEvent) {
           if (readOnly || disabled) {
