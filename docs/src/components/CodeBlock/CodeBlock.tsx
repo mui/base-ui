@@ -10,7 +10,10 @@ import { CheckIcon } from '../../icons/CheckIcon';
 import { GhostButton } from '../GhostButton';
 import './CodeBlock.css';
 
-const CodeBlockContext = React.createContext({ codeId: '', titleId: '' });
+const CodeBlockContext = React.createContext<{
+  codeId: string | undefined;
+  titleId: string | undefined;
+}>({ codeId: undefined, titleId: undefined });
 
 export function Root(props: React.ComponentPropsWithoutRef<'div'>) {
   const titleId = React.useId();
@@ -57,12 +60,13 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
         aria-label="Copy code"
         layout="icon"
         onClick={async () => {
-          const codeRoot = document.getElementById(codeId);
+          const codeRoot = codeId ? document.getElementById(codeId) : null;
           const code = codeRoot?.querySelector('pre code')?.textContent ?? codeRoot?.textContent;
 
           if (code) {
             await copy(code);
-            const titleText = document.getElementById(titleId)?.textContent ?? undefined;
+            const titleText =
+              (titleId ? document.getElementById(titleId)?.textContent : undefined) ?? undefined;
             const codeBlockId = titleText ? `${pathname}#${titleText}` : pathname;
             ga?.trackEvent({
               category: 'code_block',

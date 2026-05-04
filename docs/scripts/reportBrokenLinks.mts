@@ -8,6 +8,15 @@ async function main() {
     ignoredPaths: [],
     // CSS selectors for content to ignore during link checking
     ignoredContent: [],
+    htmlValidate: {
+      extends: ['mui:recommended'],
+      rules: {
+        // Portaled elements (Menu, Select, Autocomplete listbox) and Base UI
+        // components render aria-controls/aria-labelledby targets only after
+        // client hydration, so they're missing from the static HTML.
+        'no-missing-references': 'off',
+      },
+    },
   });
 
   process.exit(issues.length);
