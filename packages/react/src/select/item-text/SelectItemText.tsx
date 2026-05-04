@@ -27,7 +27,7 @@ export const SelectItemText = React.memo(
           return;
         }
 
-        if (!firstItemTextRef.current?.isConnected || (hasRegistered && index === 0)) {
+        if (hasRegistered && index === 0) {
           firstItemTextRef.current = node;
         }
         if (hasRegistered && selectedByFocus) {
