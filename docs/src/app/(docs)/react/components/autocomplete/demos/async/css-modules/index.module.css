@@ -95,7 +95,7 @@
 .MovieYear {
   font-size: 0.875rem;
   line-height: 1rem;
-  opacity: 0.8;
+  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
 }
 
 .Status {
