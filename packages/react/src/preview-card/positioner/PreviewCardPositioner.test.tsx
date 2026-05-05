@@ -524,6 +524,100 @@ describe('<PreviewCard.Positioner />', () => {
       expect(positionerX).toBeLessThanOrEqual(targetRect.right + 10);
     });
 
+    it('clears hovered-line coords after close before controlled reopen of the same trigger', async () => {
+      const sideOffset = 5;
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        const [triggerId, setTriggerId] = React.useState<string | null>(null);
+
+        return (
+          <div style={multilineWrapperStyle}>
+            <PreviewCard.Root
+              open={open}
+              triggerId={triggerId}
+              onOpenChange={(nextOpen, eventDetails) => {
+                setOpen(nextOpen);
+                setTriggerId(eventDetails.trigger?.id ?? null);
+              }}
+            >
+              <PreviewCard.Trigger
+                delay={0}
+                data-testid="trigger"
+                id="trigger"
+                style={multilineTriggerStyle}
+              >
+                This is a long text that will wrap across multiple lines in the trigger element
+              </PreviewCard.Trigger>
+              <PreviewCard.Portal keepMounted>
+                <PreviewCard.Positioner
+                  data-testid="positioner"
+                  side="bottom"
+                  sideOffset={sideOffset}
+                >
+                  <PreviewCard.Popup style={{ width: 80, height: 40 }}>
+                    Preview Content
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+
+            <button
+              type="button"
+              onClick={() => {
+                setTriggerId('trigger');
+                setOpen(true);
+              }}
+            >
+              Open
+            </button>
+            <button type="button" onClick={() => setOpen(false)}>
+              Close
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).toBeGreaterThan(2);
+
+      const secondLineRect = triggerRects[1];
+      await user.pointer([
+        { target: document.body },
+        {
+          target: trigger,
+          coords: {
+            clientX: secondLineRect.left + secondLineRect.width / 2,
+            clientY: secondLineRect.top + secondLineRect.height / 2,
+          },
+        },
+      ]);
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, secondLineRect.bottom + sideOffset);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('hidden');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+
+      const targetRect = triggerRects[triggerRects.length - 1];
+      await waitFor(() => {
+        expect(positioner).toBeVisible();
+      });
+
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, targetRect.bottom + sideOffset);
+      });
+    });
+
     it('ignores stale hovered coords when a controlled trigger switch reuses the popup', async () => {
       function Test() {
         const [open, setOpen] = React.useState(false);
@@ -725,6 +819,81 @@ describe('<PreviewCard.Positioner />', () => {
       const { x: positionerX } = positioner.getBoundingClientRect();
       expect(positionerX).toBeGreaterThanOrEqual(targetRect.left - 10);
       expect(positionerX).toBeLessThanOrEqual(targetRect.right + 10);
+    });
+
+    it('clears hovered-line coords when opened via focus', async () => {
+      const sideOffset = 5;
+      const inlinePopupHeight = 40;
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        const [triggerId, setTriggerId] = React.useState<string | null>(null);
+
+        return (
+          <div style={{ ...multilineWrapperStyle, marginTop: 100 }}>
+            <PreviewCard.Root
+              open={open}
+              triggerId={triggerId}
+              onOpenChange={(nextOpen, eventDetails) => {
+                if (eventDetails.reason === 'trigger-focus') {
+                  setOpen(nextOpen);
+                  setTriggerId(eventDetails.trigger?.id ?? null);
+                }
+              }}
+            >
+              <PreviewCard.Trigger
+                delay={0}
+                data-testid="trigger"
+                id="trigger"
+                tabIndex={0}
+                style={multilineTriggerStyle}
+              >
+                This is a long text that will wrap across multiple lines in the trigger element
+              </PreviewCard.Trigger>
+              <PreviewCard.Portal keepMounted>
+                <PreviewCard.Positioner data-testid="positioner" side="top" sideOffset={sideOffset}>
+                  <PreviewCard.Popup style={{ width: 80, height: inlinePopupHeight }}>
+                    Preview Content
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).toBeGreaterThan(2);
+
+      const secondLineRect = triggerRects[1];
+      await user.pointer([
+        { target: document.body },
+        {
+          target: trigger,
+          coords: {
+            clientX: secondLineRect.left + secondLineRect.width / 2,
+            clientY: secondLineRect.top + secondLineRect.height / 2,
+          },
+        },
+      ]);
+
+      const targetRect = triggerRects[0];
+      const expectedY = targetRect.top - inlinePopupHeight - sideOffset;
+
+      await user.tab();
+
+      const positioner = screen.getByTestId('positioner');
+
+      await waitFor(() => {
+        expect(positioner).toBeVisible();
+      });
+
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, expectedY);
+      });
     });
   });
 });

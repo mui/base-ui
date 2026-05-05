@@ -205,20 +205,18 @@ export function getInlineRectTriggerProps(
     coordsRef.current = getInlineRectCoords(event);
   }
 
+  function updateCoordsIfClosed(event: React.MouseEvent<Element>) {
+    if (!isOpen) {
+      updateCoords(event);
+    }
+  }
+
   return {
     onFocus() {
       coordsRef.current = undefined;
     },
-    onMouseEnter(event: React.MouseEvent<Element>) {
-      updateCoords(event);
-    },
-    onMouseMove(event: React.MouseEvent<Element>) {
-      if (isOpen) {
-        return;
-      }
-
-      updateCoords(event);
-    },
+    onMouseEnter: updateCoordsIfClosed,
+    onMouseMove: updateCoordsIfClosed,
   };
 }
 
