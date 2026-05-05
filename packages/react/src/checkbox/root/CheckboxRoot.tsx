@@ -7,11 +7,16 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
 import { NOOP } from '../../internals/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  NonNativeButtonProps,
+} from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button/useButton';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -321,6 +326,49 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           if (validationMode === 'onBlur') {
             validation.commit(groupContext ? groupValue : inputEl.checked);
           }
+        },
+        onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+          if (event.key !== 'Enter') {
+            return;
+          }
+
+          // Let consumer `preventDefault()` handlers opt out while defensively stopping
+          // any remaining Base UI Enter handling from treating the checkbox as a button.
+          event.preventBaseUIHandler();
+
+          if (event.defaultPrevented) {
+            return;
+          }
+
+          const formToSubmit = inputRef.current?.form ?? null;
+          const currentTarget = event.currentTarget;
+          const nativeEvent = event.nativeEvent;
+          const originalPreventDefault = event.preventDefault;
+          const originalNativePreventDefault = nativeEvent.preventDefault;
+          let preventDefaultCalledAfterPropagation = false;
+
+          event.preventDefault = () => {
+            preventDefaultCalledAfterPropagation = true;
+            originalPreventDefault.call(event);
+          };
+          nativeEvent.preventDefault = () => {
+            preventDefaultCalledAfterPropagation = true;
+            originalNativePreventDefault.call(nativeEvent);
+          };
+
+          // Enter should not activate/toggle the checkbox. Cancel the native button behavior
+          // without setting React's synthetic `defaultPrevented`, so ancestor React handlers
+          // can still opt out by calling `preventDefault()` during propagation.
+          originalNativePreventDefault.call(nativeEvent);
+
+          ownerWindow(currentTarget).queueMicrotask(() => {
+            event.preventDefault = originalPreventDefault;
+            nativeEvent.preventDefault = originalNativePreventDefault;
+
+            if (!preventDefaultCalledAfterPropagation) {
+              getDefaultFormSubmitter(formToSubmit)?.click();
+            }
+          });
         },
         onClick(event: React.MouseEvent) {
           if (readOnly || disabled) {
