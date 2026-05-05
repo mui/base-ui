@@ -31,7 +31,7 @@ export default function ExampleAsyncSingleCombobox() {
         <React.Fragment>
           <span
             aria-hidden
-            className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
+            className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent"
           />
           Searching…
         </React.Fragment>

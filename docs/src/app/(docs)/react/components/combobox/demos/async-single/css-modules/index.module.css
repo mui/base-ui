@@ -147,11 +147,6 @@
   animation: comboboxSpinner 0.75s linear infinite;
 }
 
-.Spinner:dir(rtl) {
-  border-right-color: currentColor;
-  border-left-color: transparent;
-}
-
 @keyframes comboboxSpinner {
   100% {
     transform: rotate(360deg);
