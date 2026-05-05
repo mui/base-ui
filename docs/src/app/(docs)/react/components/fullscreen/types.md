@@ -87,9 +87,10 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute       | Type | Description                                                      |
-| :-------------- | :--- | :--------------------------------------------------------------- |
-| data-fullscreen | -    | Present when the container is currently displayed in fullscreen. |
+| Attribute           | Type | Description                                                          |
+| :------------------ | :--- | :------------------------------------------------------------------- |
+| data-fullscreen     | -    | Present when the container is currently displayed in fullscreen.     |
+| data-not-fullscreen | -    | Present when the container is not currently displayed in fullscreen. |
 
 ### Trigger.Props
 
@@ -124,9 +125,10 @@ Renders a `<button>` element.
 
 **Close Data Attributes:**
 
-| Attribute       | Type | Description                                                      |
-| :-------------- | :--- | :--------------------------------------------------------------- |
-| data-fullscreen | -    | Present when the container is currently displayed in fullscreen. |
+| Attribute           | Type | Description                                                          |
+| :------------------ | :--- | :------------------------------------------------------------------- |
+| data-fullscreen     | -    | Present when the container is currently displayed in fullscreen.     |
+| data-not-fullscreen | -    | Present when the container is not currently displayed in fullscreen. |
 
 ### Close.Props
 
@@ -136,8 +138,12 @@ Re-export of [Close](#close) props.
 
 ```typescript
 type FullscreenCloseState = {
-  /** Whether the button is currently disabled. */
+  /** Whether the container is currently displayed in fullscreen. */
+  open: boolean;
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the browser supports the Fullscreen API for the container's owner document. */
+  supported: boolean;
 };
 ```
 

@@ -59,14 +59,17 @@
   }
 }
 
+.Trigger[data-fullscreen] {
+  display: none;
+}
+
 .Close {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  display: none;
   background-color: rgb(255 255 255 / 0.85);
 }
 
-.Container[data-fullscreen] .Close {
-  display: inline-flex;
+.Close[data-not-fullscreen] {
+  display: none;
 }

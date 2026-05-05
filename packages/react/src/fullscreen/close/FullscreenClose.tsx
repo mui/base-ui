@@ -4,6 +4,8 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useFullscreenRootContext } from '../root/FullscreenRootContext';
+import type { FullscreenRootState } from '../root/FullscreenRoot';
+import { fullscreenStateMapping } from '../root/stateAttributesMapping';
 
 /**
  * A button that exits the fullscreen container.
@@ -17,21 +19,27 @@ export const FullscreenClose = React.forwardRef(function FullscreenClose(
 ) {
   const {
     className,
-    disabled = false,
+    disabled: disabledProp = false,
     nativeButton = true,
     render,
     style,
     ...elementProps
   } = componentProps;
 
-  const { handleClose, open } = useFullscreenRootContext();
+  const { handleClose, open, state: rootState } = useFullscreenRootContext();
 
   const { getButtonProps, buttonRef } = useButton({
-    disabled,
+    disabled: disabledProp,
     native: nativeButton,
   });
 
-  const state: FullscreenCloseState = { disabled };
+  const state: FullscreenCloseState = React.useMemo(
+    () => ({
+      ...rootState,
+      disabled: disabledProp,
+    }),
+    [rootState, disabledProp],
+  );
 
   function handleClick(event: React.MouseEvent) {
     if (open) {
@@ -43,18 +51,14 @@ export const FullscreenClose = React.forwardRef(function FullscreenClose(
     state,
     ref: [forwardedRef, buttonRef],
     props: [{ onClick: handleClick }, elementProps, getButtonProps],
+    stateAttributesMapping: fullscreenStateMapping,
   });
 });
 
 export interface FullscreenCloseProps
   extends NativeButtonProps, BaseUIComponentProps<'button', FullscreenCloseState> {}
 
-export interface FullscreenCloseState {
-  /**
-   * Whether the button is currently disabled.
-   */
-  disabled: boolean;
-}
+export interface FullscreenCloseState extends FullscreenRootState {}
 
 export namespace FullscreenClose {
   export type Props = FullscreenCloseProps;

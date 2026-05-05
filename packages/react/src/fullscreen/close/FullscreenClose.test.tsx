@@ -82,6 +82,27 @@ describe('<Fullscreen.Close />', () => {
       expect(handleOpenChange).not.toHaveBeenCalled();
     });
 
+    it('reflects the fullscreen state with `data-fullscreen` and `data-not-fullscreen`', async () => {
+      await render(
+        <Fullscreen.Root>
+          <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+          <Fullscreen.Container>
+            <Fullscreen.Close>Close</Fullscreen.Close>
+          </Fullscreen.Container>
+        </Fullscreen.Root>,
+      );
+
+      const close = screen.getByRole('button', { name: 'Close' });
+      expect(close).toHaveAttribute('data-not-fullscreen');
+      expect(close).not.toHaveAttribute('data-fullscreen');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+
+      expect(close).toHaveAttribute('data-fullscreen');
+      expect(close).not.toHaveAttribute('data-not-fullscreen');
+    });
+
     it('respects `disabled`', async () => {
       const handleOpenChange = vi.fn();
 

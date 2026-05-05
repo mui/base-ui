@@ -9,7 +9,7 @@ import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFullscreenRootContext } from '../root/FullscreenRootContext';
 import type { FullscreenRootState } from '../root/FullscreenRoot';
-import { fullscreenContainerStateMapping } from '../root/stateAttributesMapping';
+import { fullscreenStateMapping } from '../root/stateAttributesMapping';
 import {
   FULLSCREEN_CHANGE_EVENTS,
   FULLSCREEN_ERROR_EVENTS,
@@ -75,7 +75,7 @@ export const FullscreenContainer = React.forwardRef(function FullscreenContainer
     state,
     ref: [forwardedRef, setContainer],
     props: [{ id: containerId }, elementProps],
-    stateAttributesMapping: fullscreenContainerStateMapping,
+    stateAttributesMapping: fullscreenStateMapping,
   });
 });
 

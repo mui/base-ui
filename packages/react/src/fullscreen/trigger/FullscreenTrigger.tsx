@@ -5,7 +5,7 @@ import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useFullscreenRootContext } from '../root/FullscreenRootContext';
 import { type FullscreenRootState } from '../root/FullscreenRoot';
-import { fullscreenTriggerStateMapping } from '../root/stateAttributesMapping';
+import { fullscreenStateMapping } from '../root/stateAttributesMapping';
 
 /**
  * A button that toggles the fullscreen state of the container.
@@ -66,7 +66,7 @@ export const FullscreenTrigger = React.forwardRef(function FullscreenTrigger(
       elementProps,
       getButtonProps,
     ],
-    stateAttributesMapping: fullscreenTriggerStateMapping,
+    stateAttributesMapping: fullscreenStateMapping,
   });
 });
 
