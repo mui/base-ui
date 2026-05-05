@@ -1,0 +1,59 @@
+# Fullscreen
+
+<Subtitle>Presents an element in fullscreen using the browser Fullscreen API.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React fullscreen component that presents an element with the browser Fullscreen API."
+/>
+
+import { DemoFullscreenHero } from './demos/hero';
+
+<DemoFullscreenHero />
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Fullscreen } from '@base-ui/react/fullscreen';
+
+<Fullscreen.Root>
+  <Fullscreen.Trigger />
+  <Fullscreen.Container>
+    <Fullscreen.Close />
+  </Fullscreen.Container>
+</Fullscreen.Root>;
+```
+
+The `Container` is the element passed to the browser's `requestFullscreen()`. The `Trigger` toggles the fullscreen state, and the `Close` only ever exits fullscreen. Place the `Close` inside the `Container` so it remains visible while the page is in fullscreen.
+
+## API reference
+
+import { TypesFullscreen } from './types';
+
+### Root
+
+<TypesFullscreen.Root />
+
+### Trigger
+
+<TypesFullscreen.Trigger />
+
+### Container
+
+<TypesFullscreen.Container />
+
+### Close
+
+<TypesFullscreen.Close />
+
+export const metadata = {
+  keywords: [
+    'React Fullscreen',
+    'Fullscreen Component',
+    'Fullscreen API',
+    'Toggle Fullscreen Button',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

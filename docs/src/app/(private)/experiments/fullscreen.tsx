@@ -1,0 +1,113 @@
+'use client';
+import * as React from 'react';
+import { Fullscreen } from '@base-ui/react/fullscreen';
+
+export default function FullscreenExperiment() {
+  const [open, setOpen] = React.useState(false);
+  const [navigationUI, setNavigationUI] = React.useState<Fullscreen.Root.NavigationUI>('auto');
+  const [lastEvent, setLastEvent] = React.useState<{
+    open: boolean;
+    reason: Fullscreen.Root.ChangeEventReason;
+  } | null>(null);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
+      <h1 style={{ margin: 0 }}>Fullscreen experiment</h1>
+      <p style={{ margin: 0 }}>
+        Use this to validate the Fullscreen API integration in real browsers (Chromium, WebKit,
+        Firefox), including the user-gesture requirement, controlled mode, and the unsupported
+        fallback. The Esc key (or browser exit affordance) should leave the controlled state in
+        sync.
+      </p>
+
+      <fieldset
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 8,
+          border: '1px solid #ccc',
+          padding: 16,
+        }}
+      >
+        <legend>Settings</legend>
+        <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span>navigationUI:</span>
+          <select
+            value={navigationUI}
+            onChange={(event) =>
+              setNavigationUI(event.target.value as Fullscreen.Root.NavigationUI)
+            }
+          >
+            <option value="auto">auto</option>
+            <option value="show">show</option>
+            <option value="hide">hide</option>
+          </select>
+        </label>
+        <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <input
+            type="checkbox"
+            checked={open}
+            onChange={(event) => setOpen(event.target.checked)}
+          />
+          <span>open (controlled)</span>
+        </label>
+        <p style={{ margin: 0 }}>
+          Last event:{' '}
+          {lastEvent ? `${lastEvent.open ? 'opened' : 'closed'} (${lastEvent.reason})` : '—'}
+        </p>
+      </fieldset>
+
+      <Fullscreen.Root
+        open={open}
+        onOpenChange={(nextOpen, details) => {
+          setOpen(nextOpen);
+          setLastEvent({ open: nextOpen, reason: details.reason });
+        }}
+        navigationUI={navigationUI}
+      >
+        <Fullscreen.Container
+          style={{
+            position: 'relative',
+            width: 320,
+            height: 200,
+            background: 'linear-gradient(135deg, #4f46e5, #06b6d4)',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 8,
+            fontSize: 16,
+          }}
+        >
+          <Fullscreen.Trigger
+            style={{
+              padding: '6px 12px',
+              borderRadius: 4,
+              border: 'none',
+              background: 'white',
+              color: '#111',
+              cursor: 'pointer',
+            }}
+          >
+            Toggle fullscreen
+          </Fullscreen.Trigger>
+          <Fullscreen.Close
+            style={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              padding: '4px 10px',
+              borderRadius: 4,
+              border: 'none',
+              background: 'rgba(255, 255, 255, 0.85)',
+              color: '#111',
+              cursor: 'pointer',
+            }}
+          >
+            Exit
+          </Fullscreen.Close>
+        </Fullscreen.Container>
+      </Fullscreen.Root>
+    </div>
+  );
+}
