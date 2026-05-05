@@ -11,7 +11,7 @@ export default function ExampleDrawerSwipeArea() {
       className="relative min-h-80 w-full overflow-hidden border border-neutral-950 bg-white text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white"
     >
       <Drawer.Root swipeDirection="right" modal={false}>
-        <Drawer.SwipeArea className="absolute inset-y-0 right-0 z-[1] box-border w-10 border-l-2 border-dashed border-blue-800 bg-blue-800/10 dark:border-blue-500 dark:bg-blue-500/10">
+        <Drawer.SwipeArea className="absolute inset-y-0 right-0 z-[1] w-10 border-l-2 border-dashed border-blue-800 bg-blue-800/10 dark:border-blue-500 dark:bg-blue-500/10">
           <span className="pointer-events-none absolute right-0 top-1/2 z-0 mr-2 -translate-y-1/2 -rotate-90 origin-center whitespace-nowrap text-xs font-bold tracking-[0.12em] text-blue-800 uppercase dark:text-blue-500">
             Swipe here
           </span>

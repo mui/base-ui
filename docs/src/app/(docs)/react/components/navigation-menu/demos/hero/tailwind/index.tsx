@@ -14,7 +14,7 @@ export default function ExampleNavigationMenu() {
           </NavigationMenu.Trigger>
 
           <NavigationMenu.Content className={contentClassName}>
-            <ul className="box-border m-0 grid list-none grid-cols-2 p-0 max-[500px]:grid-cols-1">
+            <ul className="m-0 grid list-none grid-cols-2 p-0 max-[500px]:grid-cols-1">
               {overviewLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
@@ -38,7 +38,7 @@ export default function ExampleNavigationMenu() {
           </NavigationMenu.Trigger>
 
           <NavigationMenu.Content className={contentClassName}>
-            <ul className="m-0 box-border flex max-w-[400px] list-none flex-col justify-center p-0">
+            <ul className="m-0 flex max-w-[400px] list-none flex-col justify-center p-0">
               {handbookLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>

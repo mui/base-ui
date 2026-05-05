@@ -6,7 +6,7 @@ const demoPreviewCard = PreviewCard.createHandle<React.ReactElement>();
 
 const cardContents = {
   typography: (
-    <div className="box-border flex w-min flex-col gap-2 p-2">
+    <div className="flex w-min flex-col gap-2 p-2">
       <img
         width="224"
         height="150"
@@ -20,7 +20,7 @@ const cardContents = {
     </div>
   ),
   design: (
-    <div className="box-border flex w-min flex-col gap-2 p-2">
+    <div className="flex w-min flex-col gap-2 p-2">
       <img
         width="241"
         height="240"
@@ -34,7 +34,7 @@ const cardContents = {
     </div>
   ),
   art: (
-    <div className="box-border flex w-min flex-col gap-2 p-2">
+    <div className="flex w-min flex-col gap-2 p-2">
       <img
         width="206"
         height="240"
@@ -99,7 +99,7 @@ export default function PreviewCardDetachedTriggersControlledDemo() {
         </p>
         <button
           type="button"
-          className="box-border flex h-10 items-center justify-center border border-neutral-950 bg-white px-3.5 font-[inherit] text-base font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 disabled:border-neutral-500 disabled:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-10 items-center justify-center border border-neutral-950 bg-white px-3.5 font-[inherit] text-base font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 disabled:border-neutral-500 disabled:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           onClick={() => {
             setTriggerId('trigger-2');
             setOpen(true);
@@ -121,8 +121,8 @@ export default function PreviewCardDetachedTriggersControlledDemo() {
               sideOffset={8}
               className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)]"
             >
-              <PreviewCard.Popup className="relative box-border h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] border border-neutral-950 bg-white text-neutral-950 drop-shadow-[0.25rem_0.25rem_0] drop-shadow-black/12 transition-[transform,opacity] duration-100 ease-out data-ending-style:[transform:scale(0.98)] data-ending-style:opacity-0 data-starting-style:[transform:scale(0.98)] data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:drop-shadow-none">
-                <PreviewCard.Arrow className="relative block h-1.5 w-3 overflow-clip data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:absolute before:bottom-0 before:left-1/2 before:box-border before:h-[calc(6px*sqrt(2))] before:w-[calc(6px*sqrt(2))] before:border before:border-neutral-950 before:bg-white before:content-[''] before:[transform:translate(-50%,50%)_rotate(45deg)] dark:before:border-white dark:before:bg-neutral-950" />
+              <PreviewCard.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] border border-neutral-950 bg-white text-neutral-950 drop-shadow-[0.25rem_0.25rem_0] drop-shadow-black/12 transition-[transform,opacity] duration-100 ease-out data-ending-style:[transform:scale(0.98)] data-ending-style:opacity-0 data-starting-style:[transform:scale(0.98)] data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:drop-shadow-none">
+                <PreviewCard.Arrow className="relative block h-1.5 w-3 overflow-clip data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:absolute before:bottom-0 before:left-1/2 before:h-[calc(6px*sqrt(2))] before:w-[calc(6px*sqrt(2))] before:border before:border-neutral-950 before:bg-white before:content-[''] before:[transform:translate(-50%,50%)_rotate(45deg)] dark:before:border-white dark:before:bg-neutral-950" />
                 {payload}
               </PreviewCard.Popup>
             </PreviewCard.Positioner>

@@ -9,12 +9,12 @@ export default function RangeSlider() {
           <Slider.Thumb
             index={0}
             aria-label="Minimum value"
-            className="box-border size-4 border border-neutral-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-800 dark:border-white dark:bg-neutral-950"
+            className="size-4 border border-neutral-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-800 dark:border-white dark:bg-neutral-950"
           />
           <Slider.Thumb
             index={1}
             aria-label="Maximum value"
-            className="box-border size-4 border border-neutral-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-800 dark:border-white dark:bg-neutral-950"
+            className="size-4 border border-neutral-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-800 dark:border-white dark:bg-neutral-950"
           />
         </Slider.Track>
       </Slider.Control>
