@@ -254,7 +254,7 @@ describe('e2e', () => {
         await expect(page.getByTestId('test-page')).toHaveText('Page two');
       });
 
-      it('navigates on Enter key press', async () => {
+      it('navigates on Enter key press', { timeout: process.env.CIRCLECI === 'true' ? 8000 : 4000 }, async () => {
         await renderFixture('menu/LinkItemNavigation');
 
         await page.keyboard.press('Tab');
