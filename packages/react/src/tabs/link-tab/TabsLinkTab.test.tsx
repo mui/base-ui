@@ -173,6 +173,38 @@ describe('<Tabs.LinkTab />', () => {
     }
   });
 
+  it('does not activate links that open outside the current page', async () => {
+    const handleChange = vi.fn();
+
+    await render(
+      <Tabs.Root value="overview" onValueChange={handleChange}>
+        <Tabs.List>
+          <Tabs.LinkTab href="#overview" value="overview">
+            Overview
+          </Tabs.LinkTab>
+          <Tabs.LinkTab href="#target" render={<a target="_blank" />} value="target">
+            Target
+          </Tabs.LinkTab>
+          <Tabs.LinkTab href="#download" render={<a download="" />} value="download">
+            Download
+          </Tabs.LinkTab>
+        </Tabs.List>
+      </Tabs.Root>,
+    );
+
+    const overviewTab = screen.getByRole('tab', { name: 'Overview' });
+    const targetTab = screen.getByRole('tab', { name: 'Target' });
+    const downloadTab = screen.getByRole('tab', { name: 'Download' });
+
+    fireEvent.click(targetTab);
+    fireEvent.click(downloadTab);
+
+    expect(handleChange).not.toHaveBeenCalled();
+    expect(overviewTab).toHaveAttribute('aria-selected', 'true');
+    expect(targetTab).toHaveAttribute('aria-selected', 'false');
+    expect(downloadTab).toHaveAttribute('aria-selected', 'false');
+  });
+
   it('supports keyboard navigation across link tabs', async () => {
     await render(
       <Tabs.Root defaultValue="overview">

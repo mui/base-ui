@@ -51,7 +51,7 @@ export const TabsLinkTab = React.forwardRef(function TabsLinkTab(
   });
 });
 
-function shouldSkipTabActivationForClick(event: React.MouseEvent<HTMLElement>) {
+function shouldSkipTabActivationForClick(event: React.MouseEvent<HTMLAnchorElement>) {
   const win = ownerWindow(event.currentTarget);
 
   // Keyboard activation also dispatches click handlers, but it should still select the tab.
@@ -60,8 +60,13 @@ function shouldSkipTabActivationForClick(event: React.MouseEvent<HTMLElement>) {
     return false;
   }
 
+  // Let normal link behavior win when the click does not navigate in the current page:
+  // already handled events, new-window/download links, and modified or non-primary clicks
+  // should not update the selected tab in this browsing context.
   return (
     event.defaultPrevented ||
+    (event.currentTarget.target !== '' && event.currentTarget.target !== '_self') ||
+    event.currentTarget.hasAttribute('download') ||
     event.button !== 0 ||
     event.metaKey ||
     event.ctrlKey ||
@@ -72,7 +77,10 @@ function shouldSkipTabActivationForClick(event: React.MouseEvent<HTMLElement>) {
 
 export interface TabsLinkTabState extends TabsTab.State {}
 
-export interface TabsLinkTabProps extends BaseUIComponentProps<'a', TabsLinkTabState> {
+export interface TabsLinkTabProps extends Omit<
+  BaseUIComponentProps<'a', TabsLinkTabState>,
+  'download' | 'target'
+> {
   /**
    * The value of the LinkTab.
    */
