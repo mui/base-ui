@@ -18,7 +18,7 @@ import {
   useFocus,
   useHoverReferenceInteraction,
 } from '../../floating-ui-react';
-import { closest, contains, getTarget } from '../../floating-ui-react/utils/element';
+import { contains } from '../../floating-ui-react/utils/element';
 import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -28,16 +28,8 @@ import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/us
 import { OPEN_DELAY } from '../utils/constants';
 
 const TOOLTIP_TRIGGER_IDENTIFIER = 'data-base-ui-tooltip-trigger';
-const ENABLED_TOOLTIP_TRIGGER_SELECTOR = `[${TOOLTIP_TRIGGER_IDENTIFIER}]`;
 
 function getTargetElement(event: Event): Element | null {
-  const target = getTarget(event);
-  if (isElement(target)) {
-    return target;
-  }
-
-  // Events dispatched on a shadow root can report the ShadowRoot as the target.
-  // Walk the composed path to recover the nearest Element for trigger detection.
   if ('composedPath' in event) {
     const path = event.composedPath();
     for (let i = 0; i < path.length; i += 1) {
@@ -46,6 +38,31 @@ function getTargetElement(event: Event): Element | null {
         return element;
       }
     }
+  }
+
+  const target = event.target;
+  if (isElement(target)) {
+    return target;
+  }
+
+  return null;
+}
+
+function closestEnabledTooltipTrigger(element: Element | null): Element | null {
+  let current = element;
+  while (current) {
+    if (current.hasAttribute(TOOLTIP_TRIGGER_IDENTIFIER)) {
+      return current;
+    }
+
+    const parentElement = current.parentElement;
+    if (parentElement) {
+      current = parentElement;
+      continue;
+    }
+
+    const root = current.getRootNode();
+    current = 'host' in root && isElement(root.host) ? root.host : null;
   }
 
   return null;
@@ -145,7 +162,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
       return false;
     }
 
-    const nearestTrigger = closest(target, ENABLED_TOOLTIP_TRIGGER_SELECTOR);
+    const nearestTrigger = closestEnabledTooltipTrigger(target);
     return (
       nearestTrigger !== null && nearestTrigger !== triggerEl && contains(triggerEl, nearestTrigger)
     );
