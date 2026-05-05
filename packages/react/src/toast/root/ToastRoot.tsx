@@ -78,6 +78,27 @@ function getElementTransform(element: HTMLElement) {
   return { x: translateX, y: translateY, scale };
 }
 
+// `setPointerCapture`/`releasePointerCapture` can throw `NotFoundError` when the pointer is not (or
+// no longer) active. This can happen in normal browser flow (e.g. the capture was released
+// implicitly before our handler ran), so swallow that specific error to keep drag state in sync.
+function safelyChangePointerCapture(
+  element: HTMLElement | null,
+  pointerId: number,
+  method: 'setPointerCapture' | 'releasePointerCapture',
+) {
+  if (!element || typeof element[method] !== 'function') {
+    return;
+  }
+  try {
+    element[method](pointerId);
+  } catch (error) {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'NotFoundError') {
+      return;
+    }
+    throw error;
+  }
+}
+
 /**
  * Groups all parts of an individual toast.
  * Renders a `<div>` element.
@@ -132,6 +153,10 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const cancelledSwipeRef = React.useRef(false);
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
   const isFirstPointerMoveRef = React.useRef(false);
+  const isSwipingRef = React.useRef(false);
+  const dragOffsetRef = React.useRef({ x: 0, y: 0 });
+  const activePointerIdRef = React.useRef<number | null>(null);
+  const cleanupDocumentPointerListenersRef = React.useRef<(() => void) | null>(null);
 
   const domIndex = store.useState('toastIndex', toast.id);
   const visibleIndex = store.useState('toastVisibleIndex', toast.id);
@@ -178,6 +203,24 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   });
 
   useIsoLayoutEffect(recalculateHeight, [recalculateHeight]);
+
+  function setSwiping(nextSwiping: boolean) {
+    isSwipingRef.current = nextSwiping;
+    setIsSwiping(nextSwiping);
+  }
+
+  function setResolvedDragOffset(nextDragOffset: { x: number; y: number }) {
+    dragOffsetRef.current = nextDragOffset;
+    setDragOffset(nextDragOffset);
+  }
+
+  const cleanupDocumentPointerListeners = useStableCallback(() => {
+    cleanupDocumentPointerListenersRef.current?.();
+  });
+
+  // Pointer release listeners are attached synchronously for the active gesture, but still need
+  // a final cleanup if the toast unmounts before the browser sends pointerup/pointercancel.
+  useIsoLayoutEffect(() => cleanupDocumentPointerListeners, [cleanupDocumentPointerListeners]);
 
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
     let newDeltaX = deltaX;
@@ -236,6 +279,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     cancelledSwipeRef.current = false;
     intendedSwipeDirectionRef.current = undefined;
     maxSwipeDisplacementRef.current = 0;
+    activePointerIdRef.current = event.pointerId;
     dragStartPosRef.current = { x: event.clientX, y: event.clientY };
     swipeCancelBaselineRef.current = dragStartPosRef.current;
 
@@ -243,23 +287,24 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       const transform = getElementTransform(rootRef.current);
       initialTransformRef.current = transform;
       setInitialTransform(transform);
-      setDragOffset({
+      setResolvedDragOffset({
         x: transform.x,
         y: transform.y,
       });
     }
 
     store.setHovering(true);
-    setIsSwiping(true);
+    setSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
     isFirstPointerMoveRef.current = true;
 
-    rootRef.current?.setPointerCapture(event.pointerId);
+    addDocumentPointerListeners();
+    safelyChangePointerCapture(rootRef.current, event.pointerId, 'setPointerCapture');
   }
 
   function handlePointerMove(event: React.PointerEvent) {
-    if (!isSwiping) {
+    if (!isSwipingRef.current || event.pointerId !== activePointerIdRef.current) {
       return;
     }
 
@@ -373,29 +418,34 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       }
     }
 
-    setDragOffset({ x: newOffsetX, y: newOffsetY });
+    setResolvedDragOffset({ x: newOffsetX, y: newOffsetY });
   }
 
-  function handlePointerUp(event: React.PointerEvent) {
-    if (!isSwiping) {
+  const handleSwipeEnd = useStableCallback((event: React.PointerEvent | PointerEvent) => {
+    if (!isSwipingRef.current || event.pointerId !== activePointerIdRef.current) {
       return;
     }
 
-    setIsSwiping(false);
+    setSwiping(false);
     setIsRealSwipe(false);
     setLockedDirection(null);
+    activePointerIdRef.current = null;
+    cleanupDocumentPointerListeners();
 
-    rootRef.current?.releasePointerCapture(event.pointerId);
+    safelyChangePointerCapture(rootRef.current, event.pointerId, 'releasePointerCapture');
+
+    const resolvedInitialTransform = initialTransformRef.current;
 
     if (cancelledSwipeRef.current) {
-      setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+      setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
       setCurrentSwipeDirection(undefined);
       return;
     }
 
     let shouldClose = false;
-    const deltaX = dragOffset.x - initialTransform.x;
-    const deltaY = dragOffset.y - initialTransform.y;
+    const resolvedDragOffset = dragOffsetRef.current;
+    const deltaX = resolvedDragOffset.x - resolvedInitialTransform.x;
+    const deltaY = resolvedDragOffset.y - resolvedInitialTransform.y;
     let dismissDirection: 'up' | 'down' | 'left' | 'right' | undefined;
 
     for (const direction of swipeDirections) {
@@ -437,21 +487,51 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       setDragDismissed(true);
       store.closeToast(toast.id);
     } else {
-      setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+      setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
       setCurrentSwipeDirection(undefined);
     }
+  });
+
+  function handlePointerUp(event: React.PointerEvent) {
+    handleSwipeEnd(event);
   }
 
-  function handlePointerCancel() {
-    if (!isSwiping) {
+  const handleSwipeCancel = useStableCallback((event: React.PointerEvent | PointerEvent) => {
+    if (!isSwipingRef.current || event.pointerId !== activePointerIdRef.current) {
       return;
     }
 
-    setIsSwiping(false);
+    setSwiping(false);
     setIsRealSwipe(false);
     setLockedDirection(null);
-    setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+    activePointerIdRef.current = null;
+    cleanupDocumentPointerListeners();
+    const resolvedInitialTransform = initialTransformRef.current;
+    setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
     setCurrentSwipeDirection(undefined);
+  });
+
+  function handlePointerCancel(event: React.PointerEvent) {
+    handleSwipeCancel(event);
+  }
+
+  function addDocumentPointerListeners() {
+    const element = rootRef.current;
+    if (!element) {
+      return;
+    }
+
+    cleanupDocumentPointerListeners();
+
+    const doc = ownerDocument(element);
+    const cleanupPointerUp = addEventListener(doc, 'pointerup', handleSwipeEnd);
+    const cleanupPointerCancel = addEventListener(doc, 'pointercancel', handleSwipeCancel);
+
+    cleanupDocumentPointerListenersRef.current = () => {
+      cleanupPointerUp();
+      cleanupPointerCancel();
+      cleanupDocumentPointerListenersRef.current = null;
+    };
   }
 
   function handleKeyDown(event: React.KeyboardEvent) {
