@@ -75,27 +75,24 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeWidth="1"
       {...props}
     >
-      <path d="M20 6 9 17l-5-5" />
+      <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }
 
 function HorizontalRuleIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" strokeWidth={1} {...props}>
       <line
         x1="3"
         y1="12"
         x2="21"
         y2="12"
         stroke="currentColor"
-        strokeWidth={2}
-        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
       />
     </svg>
   );

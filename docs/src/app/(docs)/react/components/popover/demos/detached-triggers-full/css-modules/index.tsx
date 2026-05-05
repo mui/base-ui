@@ -104,8 +104,6 @@ function UserIcon(props: React.ComponentProps<'svg'>) {
       fill="none"
       stroke="currentColor"
       strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
       {...props}
     >
       <path d="M18 20a6 6 0 0 0-12 0" />
@@ -124,8 +122,6 @@ function ListIcon(props: React.ComponentProps<'svg'>) {
       fill="none"
       stroke="currentColor"
       strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
       {...props}
     >
       <path d="M3 5h.01" />

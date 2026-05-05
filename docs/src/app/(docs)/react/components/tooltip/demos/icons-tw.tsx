@@ -8,8 +8,7 @@ export function InfoIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
+      strokeWidth={1}
       strokeLinejoin="round"
       {...props}
     >
@@ -28,14 +27,14 @@ export function HelpIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
+      strokeWidth={1}
+      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
     >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-      <path d="M12 17h.01" />
+      <circle cx="12" cy="12" r="10" vectorEffect="non-scaling-stroke" />
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" vectorEffect="non-scaling-stroke" />
+      <path d="M12 17h.01" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }
@@ -48,8 +47,7 @@ export function AlertIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
+      strokeWidth={1}
       strokeLinejoin="round"
       {...props}
     >

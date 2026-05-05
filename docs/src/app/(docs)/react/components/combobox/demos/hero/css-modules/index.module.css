@@ -1,6 +1,7 @@
 .InputGroup {
+  box-sizing: border-box;
   position: relative;
-  width: 16rem;
+  width: 14rem;
   height: 2rem;
   border: 1px solid light-dark(var(--color-neutral-950), white);
   background-color: transparent;
@@ -11,14 +12,14 @@
   }
 
   &:has(.Clear) .Input {
-    padding-right: calc(0.5rem + 1.5rem * 2);
+    padding-right: calc(0.5rem + 2rem * 2);
   }
 }
 
 .Input {
   box-sizing: border-box;
   padding-left: 0.5rem;
-  padding-right: calc(0.5rem + 1.5rem);
+  padding-right: calc(0.5rem + 2rem);
   margin: 0;
   border: none;
   width: 100%;
@@ -52,8 +53,8 @@
   align-items: center;
   justify-content: center;
   bottom: 0;
-  height: 2rem;
-  right: 0.5rem;
+  height: 100%;
+  right: 0;
   border: none;
   color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   padding: 0;
@@ -66,17 +67,21 @@
   align-items: center;
   justify-content: center;
   width: 1.5rem;
-  height: 2rem;
-  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  height: 100%;
+  color: light-dark(var(--color-neutral-950), white);
   border: none;
   padding: 0;
   background: none;
 }
 
-.ClearIcon,
-.TriggerIcon {
+.ClearIcon {
   width: 1rem;
   height: 1rem;
+}
+
+.TriggerIcon {
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
 .Positioner {
@@ -131,7 +136,7 @@
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 0.5rem;
-  padding-right: 2rem;
+  padding-right: 0.5rem;
   display: grid;
   gap: 0.5rem;
   align-items: center;

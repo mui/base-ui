@@ -32,13 +32,11 @@ function XIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeWidth="1"
       {...props}
     >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
+      <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
+      <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }

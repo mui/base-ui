@@ -28,9 +28,9 @@ export default function OutsideScrollDialog() {
                     <Dialog.Title className="m-0 text-base font-bold">Dialog</Dialog.Title>
                     <Dialog.Close
                       aria-label="Close"
-                      className="relative top-[-0.25rem] right-[-0.25rem] inline-flex items-center justify-center w-8 h-8 bg-transparent text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+                      className="relative top-[-0.25rem] right-[-0.25rem] inline-flex items-center justify-center w-8 h-8 bg-transparent text-neutral-950 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-950 hover:text-neutral-950 dark:hover:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
                     >
-                      <XIcon className="h-4 w-4" />
+                      <XIcon className="h-5 w-5" />
                     </Dialog.Close>
                   </div>
 
@@ -86,13 +86,11 @@ function XIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeWidth="1"
       {...props}
     >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
+      <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
+      <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }

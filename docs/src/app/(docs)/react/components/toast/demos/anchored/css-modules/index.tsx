@@ -134,8 +134,6 @@ function ClipboardIcon(props: React.ComponentProps<'svg'>) {
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
       {...props}
     >
       <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
@@ -152,12 +150,10 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeWidth="1"
       {...props}
     >
-      <path d="M20 6 9 17l-5-5" />
+      <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }

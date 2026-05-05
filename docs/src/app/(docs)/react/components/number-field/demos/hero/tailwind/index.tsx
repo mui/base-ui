@@ -22,11 +22,11 @@ export default function ExampleNumberField() {
 
       <NumberField.Group className="flex h-8">
         <NumberField.Decrement className={stepperClasses}>
-          <MinusIcon />
+          <MinusIcon className="size-3" />
         </NumberField.Decrement>
         <NumberField.Input className="h-full w-[7ch] border-y border-neutral-950 rounded-none bg-transparent px-3 text-left text-sm font-normal text-neutral-950 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white" />
         <NumberField.Increment className={stepperClasses}>
-          <PlusIcon />
+          <PlusIcon className="size-3" />
         </NumberField.Increment>
       </NumberField.Group>
     </NumberField.Root>
@@ -43,33 +43,17 @@ function CursorGrowIcon(props: React.ComponentProps<'svg'>) {
 
 function PlusIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 10 10"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1"
-      {...props}
-    >
-      <path d="M5 0.5V9.5" />
-      <path d="M0.5 5H9.5" />
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentcolor" strokeWidth="1" {...props}>
+      <path d="M6 0.5V11.5" vectorEffect="non-scaling-stroke" />
+      <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }
 
 function MinusIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 10 10"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1"
-      {...props}
-    >
-      <path d="M0.5 5H9.5" />
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentcolor" strokeWidth="1" {...props}>
+      <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }

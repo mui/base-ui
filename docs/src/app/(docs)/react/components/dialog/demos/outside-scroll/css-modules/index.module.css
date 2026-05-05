@@ -177,13 +177,16 @@
   padding: 0;
   border: none;
   background-color: transparent;
-  color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
+  color: light-dark(var(--color-neutral-950), white);
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-neutral-200), var(--color-neutral-800));
-      color: light-dark(var(--color-neutral-950), white);
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
+  }
+
+  &:active {
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
   }
 
   &:focus-visible {
@@ -193,8 +196,8 @@
 }
 
 .CloseIcon {
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .Body {

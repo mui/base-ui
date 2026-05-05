@@ -52,8 +52,8 @@ export default function ExampleAccordion() {
 function PlusIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg viewBox="0 0 12 12" fill="none" stroke="currentcolor" strokeWidth="1" {...props}>
-      <path d="M6 0.5V11.5" />
-      <path d="M0.5 6H11.5" />
+      <path d="M6 0.5V11.5" vectorEffect="non-scaling-stroke" />
+      <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }

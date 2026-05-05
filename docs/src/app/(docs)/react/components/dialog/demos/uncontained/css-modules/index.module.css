@@ -136,18 +136,13 @@
   }
 
   @media (hover: hover) {
-    &:hover:not([data-disabled]) {
+    &:hover {
       background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
-  &:active:not([data-disabled]) {
+  &:active {
     background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
-  }
-
-  &[data-disabled] {
-    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
-    border-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   }
 
   &:focus-visible {
@@ -157,6 +152,6 @@
 }
 
 .CloseIcon {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
