@@ -3,18 +3,18 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
 
-const stateAttributesMapping: StateAttributesMapping<PreviewCardPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<PreviewCardPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -29,7 +29,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   componentProps: PreviewCardPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const store = usePreviewCardRootContext();
   const { side, align } = usePreviewCardPositionerContext();
@@ -56,16 +56,13 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     closeDelay: getCloseDelay,
   });
 
-  const state: PreviewCardPopup.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      instant: instantType,
-      transitionStatus,
-    }),
-    [open, side, align, instantType, transitionStatus],
-  );
+  const state: PreviewCardPopupState = {
+    open,
+    side,
+    align,
+    instant: instantType,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -82,16 +79,25 @@ export interface PreviewCardPopupState {
    * Whether the preview card is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether transitions should be skipped.
+   */
   instant: 'dismiss' | 'focus' | undefined;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface PreviewCardPopupProps extends BaseUIComponentProps<
-  'div',
-  PreviewCardPopup.State
-> {}
+export interface PreviewCardPopupProps extends BaseUIComponentProps<'div', PreviewCardPopupState> {}
 
 export namespace PreviewCardPopup {
   export type State = PreviewCardPopupState;

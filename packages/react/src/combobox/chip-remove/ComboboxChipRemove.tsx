@@ -1,20 +1,22 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useComboboxChipContext } from '../chip/ComboboxChipContext';
-import { useButton } from '../../use-button';
+import { useButton } from '../../internals/use-button';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { findItemIndex } from '../../utils/itemEquality';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { findItemIndex } from '../../internals/itemEquality';
 
 /**
  * A button to remove a chip.
  * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
   componentProps: ComboboxChipRemove.Props,
@@ -25,6 +27,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     className,
     disabled: disabledProp = false,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -44,12 +47,48 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     focusableWhenDisabled: true,
   });
 
-  const state: ComboboxChipRemove.State = React.useMemo(
-    () => ({
-      disabled,
-    }),
-    [disabled],
-  );
+  const state: ComboboxChipRemoveState = {
+    disabled,
+  };
+
+  function clearActiveIndexForRemovedItem(removedItem: any) {
+    const activeIndex = store.state.activeIndex;
+
+    if (activeIndex == null) {
+      return;
+    }
+
+    // Try current visible list first; if not found, it's filtered out.
+    // No need to clear highlight in that case since it can't equal activeIndex.
+    const removedIndex = findItemIndex(
+      store.state.valuesRef.current,
+      removedItem,
+      isItemEqualToValue,
+    );
+    if (removedIndex !== -1 && activeIndex === removedIndex) {
+      store.state.setIndices({
+        activeIndex: null,
+        type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
+      });
+    }
+  }
+
+  function removeChip(
+    event: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLButtonElement>,
+  ) {
+    const eventDetails = createChangeEventDetails(REASONS.chipRemovePress, event.nativeEvent);
+    const removedItem = selectedValue[index];
+
+    clearActiveIndexForRemovedItem(removedItem);
+
+    store.state.setSelectedValue(
+      selectedValue.filter((_: any, i: number) => i !== index),
+      eventDetails,
+    );
+
+    store.state.inputRef.current?.focus();
+    return eventDetails;
+  }
 
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
@@ -57,77 +96,29 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     props: [
       {
         tabIndex: -1,
-        'aria-readonly': readOnly || undefined,
+        onMouseDown(event) {
+          event.preventDefault();
+        },
         onClick(event) {
           if (disabled || readOnly) {
             return;
           }
 
-          const eventDetails = createChangeEventDetails(REASONS.chipRemovePress, event.nativeEvent);
-
-          // If the removed chip was the active item, clear highlight
-          const activeIndex = store.state.activeIndex;
-          const removedItem = selectedValue[index];
-
-          // Try current visible list first; if not found, it's filtered out. No need
-          // to clear highlight in that case since it can't equal activeIndex.
-          const removedIndex = findItemIndex(
-            store.state.valuesRef.current,
-            removedItem,
-            isItemEqualToValue,
-          );
-          if (removedIndex !== -1 && activeIndex === removedIndex) {
-            store.state.setIndices({
-              activeIndex: null,
-              type: store.state.keyboardActiveRef.current ? 'pointer' : 'keyboard',
-            });
-          }
-
-          store.state.setSelectedValue(
-            selectedValue.filter((_: any, i: number) => i !== index),
-            eventDetails,
-          );
-
+          const eventDetails = removeChip(event);
           if (!eventDetails.isPropagationAllowed) {
             event.stopPropagation();
           }
-
-          store.state.inputRef.current?.focus();
         },
         onKeyDown(event) {
           if (disabled || readOnly) {
             return;
           }
 
-          const eventDetails = createChangeEventDetails(REASONS.chipRemovePress, event.nativeEvent);
-
           if (event.key === 'Enter' || event.key === ' ') {
-            // If the removed chip was the active item, clear highlight
-            const activeIndex = store.state.activeIndex;
-            const removedItem = selectedValue[index];
-            const removedIndex = findItemIndex(
-              store.state.valuesRef.current,
-              removedItem,
-              isItemEqualToValue,
-            );
-
-            if (removedIndex !== -1 && activeIndex === removedIndex) {
-              store.state.setIndices({
-                activeIndex: null,
-                type: store.state.keyboardActiveRef.current ? 'pointer' : 'keyboard',
-              });
-            }
-
-            store.state.setSelectedValue(
-              selectedValue.filter((_: any, i: number) => i !== index),
-              eventDetails,
-            );
-
+            const eventDetails = removeChip(event);
             if (!eventDetails.isPropagationAllowed) {
               stopEvent(event);
             }
-
-            store.state.inputRef.current?.focus();
           }
         },
       },
@@ -147,7 +138,7 @@ export interface ComboboxChipRemoveState {
 }
 
 export interface ComboboxChipRemoveProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxChipRemove.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxChipRemoveState> {}
 
 export namespace ComboboxChipRemove {
   export type State = ComboboxChipRemoveState;

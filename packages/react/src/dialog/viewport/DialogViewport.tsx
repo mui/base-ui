@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { type BaseUIComponentProps } from '../../utils/types';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
-import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { type BaseUIComponentProps } from '../../internals/types';
+import { type TransitionStatus } from '../../internals/useTransitionStatus';
+import { type StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { DialogViewportDataAttributes } from './DialogViewportDataAttributes';
 
-const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
+const stateAttributesMapping: StateAttributesMapping<DialogViewportState> = {
   ...baseMapping,
   ...transitionStatusMapping,
   nested(value) {
@@ -31,7 +31,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   componentProps: DialogViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
   const keepMounted = useDialogPortalContext();
   const { store } = useDialogRootContext();
@@ -42,29 +42,31 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
   const mounted = store.useState('mounted');
 
+  const setViewportElement = store.useStateSetter('viewportElement');
+
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
-  const state: DialogViewport.State = React.useMemo(
-    () => ({
-      open,
-      nested,
-      transitionStatus,
-      nestedDialogOpen,
-    }),
-    [open, nested, transitionStatus, nestedDialogOpen],
-  );
+  const state: DialogViewportState = {
+    open,
+    nested,
+    transitionStatus,
+    nestedDialogOpen,
+  };
 
   const shouldRender = keepMounted || mounted;
 
   return useRenderElement('div', componentProps, {
     enabled: shouldRender,
     state,
-    ref: [forwardedRef, store.useStateSetter('viewportElement')],
+    ref: [forwardedRef, setViewportElement],
     stateAttributesMapping,
     props: [
       {
         role: 'presentation',
         hidden: !mounted,
+        style: {
+          pointerEvents: !open ? 'none' : undefined,
+        },
         children,
       },
       elementProps,
@@ -77,6 +79,9 @@ export interface DialogViewportState {
    * Whether the dialog is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
   /**
    * Whether the dialog is nested within another dialog.

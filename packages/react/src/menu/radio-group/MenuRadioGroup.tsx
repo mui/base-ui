@@ -3,8 +3,8 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**
@@ -25,6 +25,7 @@ export const MenuRadioGroup = React.memo(
       defaultValue,
       onValueChange: onValueChangeProp,
       disabled = false,
+      style,
       ...elementProps
     } = componentProps;
 
@@ -34,11 +35,9 @@ export const MenuRadioGroup = React.memo(
       name: 'MenuRadioGroup',
     });
 
-    const onValueChange = useStableCallback(onValueChangeProp);
-
     const setValue = useStableCallback(
       (newValue: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => {
-        onValueChange?.(newValue, eventDetails);
+        onValueChangeProp?.(newValue, eventDetails);
 
         if (eventDetails.isCanceled) {
           return;
@@ -48,7 +47,7 @@ export const MenuRadioGroup = React.memo(
       },
     );
 
-    const state = React.useMemo(() => ({ disabled }), [disabled]);
+    const state: MenuRadioGroupState = { disabled };
 
     const element = useRenderElement('div', componentProps, {
       state,
@@ -75,7 +74,7 @@ export const MenuRadioGroup = React.memo(
   }),
 );
 
-export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRadioGroup.State> {
+export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRadioGroupState> {
   /**
    * The content of the component.
    */
@@ -106,9 +105,12 @@ export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRad
   disabled?: boolean | undefined;
 }
 
-export type MenuRadioGroupState = {
+export interface MenuRadioGroupState {
+  /**
+   * Whether the component is disabled.
+   */
   disabled: boolean;
-};
+}
 
 export type MenuRadioGroupChangeEventReason = MenuRoot.ChangeEventReason;
 export type MenuRadioGroupChangeEventDetails = MenuRoot.ChangeEventDetails;

@@ -7,8 +7,8 @@ export default function RangeSlider() {
       <Slider.Control className={styles.Control}>
         <Slider.Track className={styles.Track}>
           <Slider.Indicator className={styles.Indicator} />
-          <Slider.Thumb index={0} className={styles.Thumb} />
-          <Slider.Thumb index={1} className={styles.Thumb} />
+          <Slider.Thumb index={0} aria-label="Minimum value" className={styles.Thumb} />
+          <Slider.Thumb index={1} aria-label="Maximum value" className={styles.Thumb} />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>

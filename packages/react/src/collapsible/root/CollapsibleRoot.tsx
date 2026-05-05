@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useCollapsibleRoot } from './useCollapsibleRoot';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useCollapsibleRoot, type UseCollapsibleRootReturnValue } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Groups all parts of the collapsible.
@@ -26,6 +26,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     disabled = false,
     onOpenChange: onOpenChangeProp,
     open,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -38,7 +39,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     disabled,
   });
 
-  const state: CollapsibleRoot.State = React.useMemo(
+  const state: CollapsibleRootState = React.useMemo(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
@@ -71,11 +72,11 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 });
 
 export interface CollapsibleRootState extends Pick<
-  useCollapsibleRoot.ReturnValue,
-  'open' | 'disabled'
+  UseCollapsibleRootReturnValue,
+  'open' | 'disabled' | 'transitionStatus'
 > {}
 
-export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
+export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRootState> {
   /**
    * Whether the collapsible panel is currently open.
    *

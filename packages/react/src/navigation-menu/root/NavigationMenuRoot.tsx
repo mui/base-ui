@@ -5,24 +5,28 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
+  FloatingNode,
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
   type FloatingRootContext,
 } from '../../floating-ui-react';
 import { activeElement, contains } from '../../floating-ui-react/utils';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
+  type NavigationMenuPopupAutoSizeResetState,
   NavigationMenuRootContext,
   NavigationMenuTreeContext,
   useNavigationMenuRootContext,
 } from './NavigationMenuRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { setFixedSize } from '../utils/setFixedSize';
-import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
+import { getCssDimensions } from '../../utils/getCssDimensions';
+import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
+import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 
 const blockedReturnFocusReasons = new Set<string>([
   REASONS.triggerHover,
@@ -30,14 +34,33 @@ const blockedReturnFocusReasons = new Set<string>([
   REASONS.focusOut,
 ]);
 
+function setSharedFixedSize(popupElement: HTMLElement, positionerElement: HTMLElement) {
+  const { width, height } = getCssDimensions(popupElement);
+
+  if (width === 0 || height === 0) {
+    return;
+  }
+
+  popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
+  popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
+  positionerElement.style.setProperty(
+    NavigationMenuPositionerCssVars.positionerWidth,
+    `${width}px`,
+  );
+  positionerElement.style.setProperty(
+    NavigationMenuPositionerCssVars.positionerHeight,
+    `${height}px`,
+  );
+}
+
 /**
  * Groups all parts of the navigation menu.
  * Renders a `<nav>` element at the root, or `<div>` element when nested.
  *
  * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */
-export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
-  componentProps: NavigationMenuRoot.Props,
+export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<Value = any>(
+  componentProps: NavigationMenuRoot.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
@@ -52,6 +75,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   } = componentProps;
 
   const nested = useFloatingParentNodeId() != null;
+  const parentRootContext = useNavigationMenuRootContext(true);
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueParam,
@@ -85,6 +109,12 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const afterInsideRef = React.useRef<HTMLSpanElement | null>(null);
   const beforeOutsideRef = React.useRef<HTMLSpanElement | null>(null);
   const afterOutsideRef = React.useRef<HTMLSpanElement | null>(null);
+  // Shared across triggers so a newly active trigger can cancel a stale
+  // popup auto-size reset scheduled by the previously active trigger.
+  const popupAutoSizeResetRef = React.useRef<NavigationMenuPopupAutoSizeResetState>({
+    abortController: null,
+    owner: null,
+  });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -93,15 +123,17 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   }, [value]);
 
   const setValue = useStableCallback(
-    (nextValue: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => {
+    (
+      nextValue: NavigationMenuRoot.Value<Value>,
+      eventDetails: NavigationMenuRoot.ChangeEventDetails,
+    ) => {
       if (!nextValue) {
         closeReasonRef.current = eventDetails.reason;
         setActivationDirection(null);
         setFloatingRootContext(undefined);
 
         if (positionerElement && popupElement) {
-          setFixedSize(popupElement, 'popup');
-          setFixedSize(positionerElement, 'positioner');
+          setSharedFixedSize(popupElement, positionerElement);
         }
       }
 
@@ -114,6 +146,10 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       }
 
       setValueUnwrapped(nextValue);
+
+      if (nested && !nextValue && eventDetails.reason === REASONS.linkPress && parentRootContext) {
+        parentRootContext.setValue(null, eventDetails);
+      }
     },
   );
 
@@ -166,7 +202,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     },
   });
 
-  const contextValue: NavigationMenuRootContext = React.useMemo(
+  const contextValue: NavigationMenuRootContext<Value> = React.useMemo(
     () => ({
       open,
       value,
@@ -193,6 +229,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
       beforeOutsideRef,
       afterOutsideRef,
       prevTriggerElementRef,
+      popupAutoSizeResetRef,
       delay,
       closeDelay,
       orientation,
@@ -233,10 +270,12 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   }
 
   return jsx;
-});
+}) as {
+  <Value = any>(props: NavigationMenuRoot.Props<Value>): React.JSX.Element;
+};
 
-function TreeContext(props: {
-  componentProps: NavigationMenuRoot.Props;
+function TreeContext<Value>(props: {
+  componentProps: NavigationMenuRoot.Props<Value>;
   forwardedRef: React.ForwardedRef<HTMLElement>;
   children: React.ReactNode;
 }) {
@@ -251,31 +290,27 @@ function TreeContext(props: {
     closeDelay,
     orientation,
     onOpenChangeComplete,
+    style,
     ...elementProps
   } = props.componentProps;
 
   const nodeId = useFloatingNodeId();
-  const { rootRef, nested } = useNavigationMenuRootContext();
+  const { rootRef, nested, open } = useNavigationMenuRootContext();
 
-  const { open } = useNavigationMenuRootContext();
-
-  const state: NavigationMenuRoot.State = React.useMemo(
-    () => ({
-      open,
-      nested,
-    }),
-    [open, nested],
-  );
+  const state: NavigationMenuRootState = {
+    open,
+    nested,
+  };
 
   const element = useRenderElement(nested ? 'div' : 'nav', props.componentProps, {
     state,
     ref: [props.forwardedRef, rootRef],
-    props: [{ 'aria-orientation': orientation }, elementProps],
+    props: elementProps,
   });
 
   return (
     <NavigationMenuTreeContext.Provider value={nodeId}>
-      {element}
+      <FloatingNode id={nodeId}>{element}</FloatingNode>
     </NavigationMenuTreeContext.Provider>
   );
 }
@@ -291,9 +326,9 @@ export interface NavigationMenuRootState {
   nested: boolean;
 }
 
-export interface NavigationMenuRootProps extends BaseUIComponentProps<
+export interface NavigationMenuRootProps<Value = any> extends BaseUIComponentProps<
   'nav',
-  NavigationMenuRoot.State
+  NavigationMenuRootState
 > {
   /**
    * A ref to imperative actions.
@@ -310,27 +345,27 @@ export interface NavigationMenuRootProps extends BaseUIComponentProps<
    * To render an uncontrolled navigation menu, use the `defaultValue` prop instead.
    * @default null
    */
-  value?: any;
+  value?: Value | null | undefined;
   /**
    * The uncontrolled value of the item that should be initially selected.
    *
    * To render a controlled navigation menu, use the `value` prop instead.
    * @default null
    */
-  defaultValue?: any;
+  defaultValue?: Value | null | undefined;
   /**
    * Callback fired when the value changes.
    */
   onValueChange?:
-    | ((value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void)
+    | ((value: Value | null, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void)
     | undefined;
   /**
-   * How long to wait before opening the navigation menu. Specified in milliseconds.
+   * How long to wait before opening the navigation popup. Specified in milliseconds.
    * @default 50
    */
   delay?: number | undefined;
   /**
-   * How long to wait before closing the navigation menu. Specified in milliseconds.
+   * How long to wait before closing the navigation popup. Specified in milliseconds.
    * @default 50
    */
   closeDelay?: number | undefined;
@@ -338,7 +373,7 @@ export interface NavigationMenuRootProps extends BaseUIComponentProps<
    * The orientation of the navigation menu.
    * @default 'horizontal'
    */
-  orientation?: ('horizontal' | 'vertical') | undefined;
+  orientation?: 'horizontal' | 'vertical' | undefined;
 }
 
 export interface NavigationMenuRootActions {
@@ -360,7 +395,8 @@ export type NavigationMenuRootChangeEventDetails =
 
 export namespace NavigationMenuRoot {
   export type State = NavigationMenuRootState;
-  export type Props = NavigationMenuRootProps;
+  export type Props<TValue = any> = NavigationMenuRootProps<TValue>;
+  export type Value<TValue = any> = TValue | null;
   export type Actions = NavigationMenuRootActions;
   export type ChangeEventReason = NavigationMenuRootChangeEventReason;
   export type ChangeEventDetails = NavigationMenuRootChangeEventDetails;

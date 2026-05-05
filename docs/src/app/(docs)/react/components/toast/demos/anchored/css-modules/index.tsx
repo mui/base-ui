@@ -61,16 +61,10 @@ function CopyButton() {
   }
 
   return (
-    <Tooltip.Root
-      disabled={copied}
-      onOpenChange={(open, eventDetails) => {
-        if (eventDetails.reason === 'trigger-press') {
-          eventDetails.cancel();
-        }
-      }}
-    >
+    <Tooltip.Root disabled={copied}>
       <Tooltip.Trigger
         ref={buttonRef}
+        closeOnClick={false}
         className={styles.CopyButton}
         onClick={handleCopy}
         aria-label="Copy to clipboard"
@@ -157,7 +151,6 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 function ClipboardIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -177,7 +170,6 @@ function ClipboardIcon(props: React.ComponentProps<'svg'>) {
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -196,7 +188,6 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"

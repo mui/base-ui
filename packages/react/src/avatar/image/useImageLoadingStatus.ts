@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -41,6 +41,11 @@ export function useImageLoadingStatus(
     }
     image.crossOrigin = crossOrigin ?? null;
     image.src = src;
+
+    // Fast path for cached/decoded images
+    if (image.complete) {
+      setLoadingStatus(image.naturalWidth > 0 ? 'loaded' : 'error');
+    }
 
     return () => {
       isMounted = false;

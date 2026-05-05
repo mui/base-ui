@@ -2,26 +2,28 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui/utils/store';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { ComboboxChipContext } from './ComboboxChipContext';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * An individual chip that represents a value in a multiselectable input.
  * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxChip = React.forwardRef(function ComboboxChip(
   componentProps: ComboboxChip.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
   const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
@@ -44,7 +46,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       }
     } else if (event.key === 'ArrowRight') {
       event.preventDefault();
-      if (index < selectedValue.length - 1) {
+      if (index < chipsRef.current.length - 1) {
         nextIndex = index + 1;
       } else {
         nextIndex = undefined;
@@ -84,12 +86,9 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
     return nextIndex;
   }
 
-  const state: ComboboxChip.State = React.useMemo(
-    () => ({
-      disabled,
-    }),
-    [disabled],
-  );
+  const state: ComboboxChipState = {
+    disabled,
+  };
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, ref],
@@ -116,13 +115,6 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
             chipsRef.current[nextIndex]?.focus();
           }
         },
-        onMouseDown(event) {
-          if (disabled || readOnly) {
-            return;
-          }
-          event.preventDefault();
-          store.state.inputRef.current?.focus();
-        },
       },
       elementProps,
     ],
@@ -147,7 +139,7 @@ export interface ComboboxChipState {
   disabled: boolean;
 }
 
-export interface ComboboxChipProps extends BaseUIComponentProps<'div', ComboboxChip.State> {}
+export interface ComboboxChipProps extends BaseUIComponentProps<'div', ComboboxChipState> {}
 
 export namespace ComboboxChip {
   export type State = ComboboxChipState;

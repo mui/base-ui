@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { resolveMultipleLabels, resolveSelectedLabel } from '../../utils/resolveValueLabel';
+import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
 import { selectors } from '../store';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 
-const stateAttributesMapping: StateAttributesMapping<SelectValue.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectValueState> = {
   value: () => null,
 };
 
@@ -27,6 +27,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
     render,
     children: childrenProp,
     placeholder,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -40,13 +41,10 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
   const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
-  const state: SelectValue.State = React.useMemo(
-    () => ({
-      value,
-      placeholder: !hasSelectedValue,
-    }),
-    [value, hasSelectedValue],
-  );
+  const state: SelectValueState = {
+    value,
+    placeholder: !hasSelectedValue,
+  };
 
   let children = null;
   if (typeof childrenProp === 'function') {
@@ -76,10 +74,14 @@ export interface SelectValueState {
    * The value of the currently selected item.
    */
   value: any;
+  /**
+   * Whether the placeholder is being displayed.
+   */
+  placeholder: boolean;
 }
 
 export interface SelectValueProps extends Omit<
-  BaseUIComponentProps<'span', SelectValue.State>,
+  BaseUIComponentProps<'span', SelectValueState>,
   'children'
 > {
   /**

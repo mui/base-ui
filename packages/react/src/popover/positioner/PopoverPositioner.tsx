@@ -5,17 +5,21 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
-import { useAnchorPositioning, type Side, type Align } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import {
+  useAnchorPositioning,
+  type Side,
+  type Align,
+  type UseAnchorPositioningSharedParameters,
+} from '../../utils/useAnchorPositioning';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { REASONS } from '../../utils/reasons';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { REASONS } from '../../internals/reasons';
+import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { usePositioner } from '../../utils/usePositioner';
+import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
 /**
  * Positions the popover against the trigger.
@@ -30,6 +34,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const {
     render,
     className,
+    style,
     anchor,
     positionMethod = 'absolute',
     side = 'bottom',
@@ -55,6 +60,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
+  const openMethod = store.useState('openMethod');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
@@ -84,32 +90,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    if (!open) {
-      hiddenStyles.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-      },
-    };
-  }, [open, mounted, positioning.positionerStyles]);
-
-  const positioner = React.useMemo(
-    () => ({
-      props: defaultProps,
-      ...positioning,
-    }),
-    [defaultProps, positioning],
-  );
-
-  const domReference = floatingRootContext?.select('domReferenceElement');
+  const domReference = floatingRootContext.useState('domReferenceElement');
 
   // When the current trigger element changes, enable transitions on the
   // positioner temporarily
@@ -140,15 +121,11 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
 
-  const state: PopoverPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
-      instant: instantType,
-    }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden, instantType],
+  useAnchoredPopupScrollLock(
+    open && modal === true && openReason !== REASONS.triggerHover,
+    openMethod === 'touch',
+    positionerElement,
+    triggerElement,
   );
 
   const setPositionerElement = React.useCallback(
@@ -158,15 +135,25 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [store],
   );
 
-  const element = useRenderElement('div', componentProps, {
-    state,
-    props: [positioner.props, getDisabledMountTransitionStyles(transitionStatus), elementProps],
-    ref: [forwardedRef, setPositionerElement],
-    stateAttributesMapping: popupStateMapping,
+  const state: PopoverPositionerState = {
+    open,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+    instant: instantType,
+  };
+
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
+    transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, setPositionerElement],
+    hidden: !mounted,
+    inert: !open,
   });
 
   return (
-    <PopoverPositionerContext.Provider value={positioner}>
+    <PopoverPositionerContext.Provider value={positioning}>
       {mounted && modal === true && openReason !== REASONS.triggerHover && (
         <InternalBackdrop
           ref={store.context.internalBackdropRef}
@@ -184,8 +171,17 @@ export interface PopoverPositionerState {
    * Whether the popover is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
   anchorHidden: boolean;
   /**
    * Whether CSS transitions should be disabled.
@@ -195,8 +191,8 @@ export interface PopoverPositionerState {
 
 export interface PopoverPositionerProps
   extends
-    useAnchorPositioning.SharedParameters,
-    BaseUIComponentProps<'div', PopoverPositioner.State> {}
+    UseAnchorPositioningSharedParameters,
+    BaseUIComponentProps<'div', PopoverPositionerState> {}
 
 export namespace PopoverPositioner {
   export type State = PopoverPositionerState;

@@ -29,12 +29,6 @@
     outline-offset: -1px;
   }
 
-  @media (hover: hover) {
-    &:hover {
-      background-color: var(--color-gray-100);
-    }
-  }
-
   &:active {
     background-color: var(--color-gray-200);
   }

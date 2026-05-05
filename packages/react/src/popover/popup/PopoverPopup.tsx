@@ -6,19 +6,20 @@ import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floatin
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import type { BaseUIComponentProps } from '../../internals/types';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { REASONS } from '../../utils/reasons';
-import { COMPOSITE_KEYS } from '../../composite/composite';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { REASONS } from '../../internals/reasons';
+import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { ClosePartProvider, useClosePartCount } from '../../utils/closePart';
 
-const stateAttributesMapping: StateAttributesMapping<PopoverPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<PopoverPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -33,12 +34,13 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   componentProps: PopoverPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, initialFocus, finalFocus, ...elementProps } = componentProps;
+  const { render, className, style, initialFocus, finalFocus, ...elementProps } = componentProps;
 
   const { store } = usePopoverRootContext();
 
   const positioner = usePopoverPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
+  const { context: closePartContext, hasClosePart } = useClosePartCount();
 
   const open = store.useState('open');
   const openMethod = store.useState('openMethod');
@@ -52,6 +54,9 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const openReason = store.useState('openChangeReason');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');
+  const disabled = store.useState('disabled');
+  const openOnHover = store.useState('openOnHover');
+  const closeDelay = store.useState('closeDelay');
 
   useOpenChangeComplete({
     open,
@@ -62,10 +67,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       }
     },
   });
-
-  const disabled = store.useState('disabled');
-  const openOnHover = store.useState('openOnHover');
-  const closeDelay = store.useState('closeDelay');
 
   useHoverFloatingInteraction(floatingContext, { enabled: openOnHover && !disabled, closeDelay });
 
@@ -81,16 +82,8 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
-  const state: PopoverPopup.State = React.useMemo(
-    () => ({
-      open,
-      side: positioner.side,
-      align: positioner.align,
-      instant: instantType,
-      transitionStatus,
-    }),
-    [open, positioner.side, positioner.align, instantType, transitionStatus],
-  );
+  const focusManagerModal = modal !== false && hasClosePart;
+  store.useSyncedValue('focusManagerModal', focusManagerModal);
 
   const setPopupElement = React.useCallback(
     (element: HTMLElement | null) => {
@@ -98,6 +91,14 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
     [store],
   );
+
+  const state: PopoverPopupState = {
+    open,
+    side: positioner.side,
+    align: positioner.align,
+    instant: instantType,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -123,7 +124,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     <FloatingFocusManager
       context={floatingContext}
       openInteractionType={openMethod}
-      modal={modal === 'trap-focus'}
+      modal={focusManagerModal}
       disabled={!mounted || openReason === REASONS.triggerHover}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
@@ -134,7 +135,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       nextFocusableElement={store.context.triggerFocusTargetRef}
       beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
-      {element}
+      <ClosePartProvider value={closePartContext}>{element}</ClosePartProvider>
     </FloatingFocusManager>
   );
 });
@@ -144,12 +145,25 @@ export interface PopoverPopupState {
    * Whether the popover is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
+  /**
+   * Whether transitions should be skipped.
+   */
+  instant: 'dismiss' | 'click' | undefined;
 }
 
-export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPopup.State> {
+export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPopupState> {
   /**
    * Determines the element to focus when the popover is opened.
    *
@@ -160,11 +174,9 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((openType: InteractionType) => void | boolean | HTMLElement | null)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((openType: InteractionType) => void | boolean | HTMLElement | null)
     | undefined;
   /**
    * Determines the element to focus when the popover is closed.
@@ -176,11 +188,9 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((closeType: InteractionType) => void | boolean | HTMLElement | null)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => void | boolean | HTMLElement | null)
     | undefined;
 }
 

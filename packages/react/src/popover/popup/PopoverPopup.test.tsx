@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Popover.Popup />', () => {
@@ -33,7 +33,7 @@ describe('<Popover.Popup />', () => {
       </Popover.Root>,
     );
 
-    expect(screen.getByText('Content')).not.to.equal(null);
+    expect(screen.getByText('Content')).not.toBe(null);
   });
 
   describe('prop: initialFocus', () => {
@@ -331,7 +331,7 @@ describe('<Popover.Popup />', () => {
       fireEvent.click(trigger);
       await flushMicrotasks();
 
-      expect(screen.getByText('Close')).not.to.equal(null);
+      expect(screen.getByText('Close')).not.toBe(null);
 
       clock.tick(1000);
       await flushMicrotasks();

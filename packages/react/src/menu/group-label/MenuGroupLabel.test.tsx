@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { MenuGroupContext } from '../group/MenuGroupContext';
@@ -37,7 +37,7 @@ describe('<Menu.GroupLabel />', () => {
       );
 
       const groupLabel = screen.getByText('Test group');
-      expect(groupLabel).to.have.attribute('role', 'presentation');
+      expect(groupLabel).toHaveAttribute('role', 'presentation');
     });
 
     it("should reference the generated id in Group's `aria-labelledby`", async () => {
@@ -58,7 +58,7 @@ describe('<Menu.GroupLabel />', () => {
       const group = screen.getByRole('group');
       const groupLabel = screen.getByText('Test group');
 
-      expect(group).to.have.attribute('aria-labelledby', groupLabel.id);
+      expect(group).toHaveAttribute('aria-labelledby', groupLabel.id);
     });
 
     it("should reference the provided id in Group's `aria-labelledby`", async () => {
@@ -77,7 +77,7 @@ describe('<Menu.GroupLabel />', () => {
       );
 
       const group = screen.getByRole('group');
-      expect(group).to.have.attribute('aria-labelledby', 'test-group');
+      expect(group).toHaveAttribute('aria-labelledby', 'test-group');
     });
   });
 });

@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
@@ -35,22 +36,22 @@ describe('<Popover.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
 
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
 
       await user.click(trigger1);
       expect(screen.getByText('Popover Content')).toBeVisible();
       await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
 
       await user.click(trigger2);
       expect(screen.getByText('Popover Content')).toBeVisible();
       await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
 
       await user.click(trigger3);
       expect(screen.getByText('Popover Content')).toBeVisible();
       await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
     });
 
     it('should open the popover with any trigger', async () => {
@@ -75,22 +76,22 @@ describe('<Popover.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
 
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
 
       await user.click(trigger1);
       expect(screen.getByText('Popover Content')).toBeVisible();
       await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
 
       await user.click(trigger2);
       expect(screen.getByText('Popover Content')).toBeVisible();
       await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
 
       await user.click(trigger3);
       expect(screen.getByText('Popover Content')).toBeVisible();
       await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
     });
 
     it('should set the payload and render content based on its value', async () => {
@@ -117,10 +118,10 @@ describe('<Popover.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
       await user.click(trigger1);
-      expect(screen.getByTestId('content').textContent).to.equal('1');
+      expect(screen.getByTestId('content').textContent).toBe('1');
 
       await user.click(trigger2);
-      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(screen.getByTestId('content').textContent).toBe('2');
     });
 
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
@@ -151,8 +152,8 @@ describe('<Popover.Root />', () => {
       const positionerElement = screen.getByTestId('positioner');
 
       await user.click(trigger2);
-      expect(screen.getByTestId('popup')).to.equal(popupElement);
-      expect(screen.getByTestId('positioner')).to.equal(positionerElement);
+      expect(screen.getByTestId('popup')).toBe(popupElement);
+      expect(screen.getByTestId('positioner')).toBe(positionerElement);
     });
 
     it('should allow controlling the popover state programmatically', async () => {
@@ -212,11 +213,11 @@ describe('<Popover.Root />', () => {
 
       const { user } = await render(<Test />);
       await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
-      expect(screen.getByTestId('content').textContent).to.equal('1');
+      expect(screen.getByTestId('content').textContent).toBe('1');
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
-      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(screen.getByTestId('content').textContent).toBe('2');
       await user.click(screen.getByRole('button', { name: 'Close' }));
-      expect(screen.queryByTestId('content')).to.equal(null);
+      expect(screen.queryByTestId('content')).toBe(null);
     });
 
     it('allows setting an initially open popover', async () => {
@@ -243,7 +244,7 @@ describe('<Popover.Root />', () => {
         </Popover.Root>,
       );
 
-      expect(screen.getByTestId('popup').textContent).to.equal('2');
+      expect(screen.getByTestId('popup').textContent).toBe('2');
     });
   });
 
@@ -319,7 +320,7 @@ describe('<Popover.Root />', () => {
       });
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
-        expect(screen.queryByText('Popover Content')).to.equal(null);
+        expect(screen.queryByText('Popover Content')).toBe(null);
       });
     }
 
@@ -348,22 +349,22 @@ describe('<Popover.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
 
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
 
       await user.click(trigger1);
       expect(screen.getByText('Popover Content')).toBeVisible();
       await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
 
       await user.click(trigger2);
       expect(screen.getByText('Popover Content')).toBeVisible();
       await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
 
       await user.click(trigger3);
       expect(screen.getByText('Popover Content')).toBeVisible();
       await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).to.equal(null);
+      expect(screen.queryByText('Popover Content')).toBe(null);
     });
 
     it('should set the payload and render content based on its value', async () => {
@@ -395,10 +396,10 @@ describe('<Popover.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
       await user.click(trigger1);
-      expect(screen.getByTestId('content').textContent).to.equal('1');
+      expect(screen.getByTestId('content').textContent).toBe('1');
 
       await user.click(trigger2);
-      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(screen.getByTestId('content').textContent).toBe('2');
     });
 
     it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {
@@ -488,8 +489,8 @@ describe('<Popover.Root />', () => {
       const positionerElement = screen.getByTestId('positioner');
 
       await user.click(trigger2);
-      expect(screen.getByTestId('popup')).to.equal(popupElement);
-      expect(screen.getByTestId('positioner')).to.equal(positionerElement);
+      expect(screen.getByTestId('popup')).toBe(popupElement);
+      expect(screen.getByTestId('positioner')).toBe(positionerElement);
     });
 
     it('should allow controlling the popover state programmatically', async () => {
@@ -521,11 +522,15 @@ describe('<Popover.Root />', () => {
                   <Popover.Positioner data-testid="positioner" side="bottom" align="start">
                     <Popover.Popup>
                       <span data-testid="content">{payload}</span>
+                      <Popover.Close data-testid="close" id="close-button">
+                        Close
+                      </Popover.Close>
                     </Popover.Popup>
                   </Popover.Positioner>
                 </Popover.Portal>
               )}
             </Popover.Root>
+            <span data-testid="active-trigger">{activeTrigger}</span>
 
             <button
               onClick={() => {
@@ -554,26 +559,36 @@ describe('<Popover.Root />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
-      expect(screen.getByTestId('content').textContent).to.equal('1');
+      expect(screen.getByTestId('content').textContent).toBe('1');
 
       await waitFor(() => {
-        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.closeTo(
-          trigger1.getBoundingClientRect().left,
-          1,
-        );
+        expect(
+          Math.abs(
+            screen.getByTestId('positioner').getBoundingClientRect().left -
+              trigger1.getBoundingClientRect().left,
+          ),
+        ).toBeLessThanOrEqual(1);
       });
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
-      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(screen.getByTestId('content').textContent).toBe('2');
+      expect(screen.getByTestId('active-trigger').textContent).toBe('trigger-2');
       await waitFor(() => {
-        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.closeTo(
-          trigger2.getBoundingClientRect().left,
-          1,
-        );
+        expect(
+          Math.abs(
+            screen.getByTestId('positioner').getBoundingClientRect().left -
+              trigger2.getBoundingClientRect().left,
+          ),
+        ).toBeLessThanOrEqual(1);
       });
+      expect(trigger2.previousElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+      expect(trigger2.nextElementSibling).toHaveAttribute('data-base-ui-focus-guard');
 
-      await user.click(screen.getByRole('button', { name: 'Close' }));
-      expect(screen.queryByTestId('content')).to.equal(null);
+      await user.click(screen.getByTestId('close'));
+      expect(screen.queryByTestId('content')).toBe(null);
+      expect(screen.getByTestId('active-trigger').textContent).toBe('trigger-2');
+      expect(trigger2.previousElementSibling).not.toHaveAttribute('data-base-ui-focus-guard');
+      expect(trigger2.nextElementSibling).not.toHaveAttribute('data-base-ui-focus-guard');
     });
 
     it('allows setting an initially open popover', async () => {
@@ -601,7 +616,61 @@ describe('<Popover.Root />', () => {
         </React.Fragment>,
       );
 
-      expect(screen.getByTestId('popup').textContent).to.equal('2');
+      expect(screen.getByTestId('popup').textContent).toBe('2');
+    });
+
+    it('should not have inline scale style after switching triggers', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testPopover = Popover.createHandle<number>();
+
+      function Test() {
+        return (
+          <React.Fragment>
+            <Popover.Trigger handle={testPopover} payload={1}>
+              Trigger 1
+            </Popover.Trigger>
+            <Popover.Trigger handle={testPopover} payload={2}>
+              Trigger 2
+            </Popover.Trigger>
+
+            <Popover.Root handle={testPopover}>
+              {({ payload }: NumberPayload) => (
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup data-testid="popup">
+                      <Popover.Viewport>
+                        <span data-testid="content">{payload}</span>
+                      </Popover.Viewport>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              )}
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      // Open with Trigger 1
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      // Switch to Trigger 2
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
+
+      // The popup should not have an inline scale style that would override CSS transitions
+      const popup = screen.getByTestId('popup');
+      expect(popup.style.scale).toBe('');
     });
 
     it('keeps positioning correct when conditional triggers unmount and the tree remounts', async () => {
@@ -655,19 +724,23 @@ describe('<Popover.Root />', () => {
 
       const trigger0 = screen.getByRole('button', { name: 'Trigger 0' });
       await waitFor(() => {
-        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.closeTo(
-          trigger0.getBoundingClientRect().left,
-          1,
-        );
+        expect(
+          Math.abs(
+            screen.getByTestId('positioner').getBoundingClientRect().left -
+              trigger0.getBoundingClientRect().left,
+          ),
+        ).toBeLessThanOrEqual(1);
       });
 
       await user.click(screen.getByRole('button', { name: 'Toggle' }));
       const trigger0After = screen.getByRole('button', { name: 'Trigger 0' });
       await waitFor(() => {
-        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.closeTo(
-          trigger0After.getBoundingClientRect().left,
-          1,
-        );
+        expect(
+          Math.abs(
+            screen.getByTestId('positioner').getBoundingClientRect().left -
+              trigger0After.getBoundingClientRect().left,
+          ),
+        ).toBeLessThanOrEqual(1);
       });
     });
   });
@@ -691,22 +764,22 @@ describe('<Popover.Root />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Trigger' });
-      expect(screen.queryByRole('dialog')).to.equal(null);
+      expect(screen.queryByRole('dialog')).toBe(null);
 
       await act(() => popover.open('trigger'));
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.to.equal(null);
+        expect(screen.queryByRole('dialog')).not.toBe(null);
       });
 
-      expect(screen.getByTestId('content').textContent).to.equal('Content');
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(screen.getByTestId('content').textContent).toBe('Content');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       await act(() => popover.close());
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).toBe(null);
       });
 
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('sets the payload assosiated with the trigger', async () => {
@@ -733,23 +806,23 @@ describe('<Popover.Root />', () => {
 
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
-      expect(screen.queryByRole('dialog')).to.equal(null);
+      expect(screen.queryByRole('dialog')).toBe(null);
 
       await act(() => popover.open('trigger2'));
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.to.equal(null);
+        expect(screen.queryByRole('dialog')).not.toBe(null);
       });
 
-      expect(screen.getByTestId('content').textContent).to.equal('2');
-      expect(trigger2).to.have.attribute('aria-expanded', 'true');
-      expect(trigger1).not.to.have.attribute('aria-expanded', 'true');
+      expect(screen.getByTestId('content').textContent).toBe('2');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger1).not.toHaveAttribute('aria-expanded', 'true');
 
       await act(() => popover.close());
       await waitFor(() => {
-        expect(screen.queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).toBe(null);
       });
 
-      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
   });
 });

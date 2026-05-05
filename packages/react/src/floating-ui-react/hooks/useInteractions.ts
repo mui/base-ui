@@ -24,10 +24,10 @@ export interface UseInteractionsReturn {
  * @see https://floating-ui.com/docs/useInteractions
  */
 export function useInteractions(propsList: Array<ElementProps | void> = []): UseInteractionsReturn {
-  const referenceDeps = propsList.map((key) => key?.reference);
-  const floatingDeps = propsList.map((key) => key?.floating);
-  const itemDeps = propsList.map((key) => key?.item);
-  const triggerDeps = propsList.map((key) => key?.trigger);
+  const referenceDeps = propsList.map((interactionProps) => interactionProps?.reference);
+  const floatingDeps = propsList.map((interactionProps) => interactionProps?.floating);
+  const itemDeps = propsList.map((interactionProps) => interactionProps?.item);
+  const triggerDeps = propsList.map((interactionProps) => interactionProps?.trigger);
 
   const getReferenceProps = React.useCallback(
     (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'reference'),
@@ -77,15 +77,6 @@ function mergeProps<Key extends keyof ElementProps>(
     outputProps[FOCUSABLE_ATTRIBUTE] = '';
   }
 
-  for (const key in userProps) {
-    if (isItem && userProps) {
-      if (key === ACTIVE_KEY || key === SELECTED_KEY) {
-        continue;
-      }
-    }
-    outputProps[key] = (userProps as any)[key];
-  }
-
   for (let i = 0; i < propsList.length; i += 1) {
     let props;
 
@@ -120,23 +111,45 @@ function mutablyMergeProps(
       continue;
     }
 
-    if (!key.startsWith('on')) {
+    if (!isEventHandlerKey(key)) {
       outputProps[key] = value;
-    } else {
-      if (!eventHandlers.has(key)) {
-        eventHandlers.set(key, []);
-      }
-
-      if (typeof value === 'function') {
-        eventHandlers.get(key)?.push(value);
-
-        outputProps[key] = (...args: unknown[]) => {
-          return eventHandlers
-            .get(key)
-            ?.map((fn) => fn(...args))
-            .find((val) => val !== undefined);
-        };
-      }
+      continue;
     }
+
+    if (typeof value !== 'function') {
+      continue;
+    }
+
+    let handlers = eventHandlers.get(key);
+    if (!handlers) {
+      const newHandlers: Array<(...args: unknown[]) => void> = [];
+      handlers = newHandlers;
+      eventHandlers.set(key, handlers);
+
+      outputProps[key] = (...args: unknown[]) => {
+        let returnValue: unknown;
+
+        for (const fn of newHandlers) {
+          const result = fn(...args);
+          if (returnValue === undefined && result !== undefined) {
+            returnValue = result;
+          }
+        }
+
+        return returnValue;
+      };
+    }
+
+    handlers.push(value);
   }
+}
+
+function isEventHandlerKey(key: string) {
+  const thirdCharCode = key.charCodeAt(2);
+  return (
+    key.charCodeAt(0) === 111 &&
+    key.charCodeAt(1) === 110 &&
+    thirdCharCode >= 65 &&
+    thirdCharCode <= 90
+  );
 }

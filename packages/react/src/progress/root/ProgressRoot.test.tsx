@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { Progress } from '@base-ui/react/progress';
 import { createRenderer, describeConformance } from '#test-utils';
 import type { ProgressRoot } from './ProgressRoot';
@@ -37,21 +37,21 @@ describe('<Progress.Root />', () => {
       const progressbar = screen.getByRole('progressbar');
       const label = screen.getByText('Downloading');
 
-      expect(progressbar).to.have.attribute('aria-valuenow', '30');
-      expect(progressbar).to.have.attribute('aria-valuemin', '0');
-      expect(progressbar).to.have.attribute('aria-valuemax', '100');
-      expect(progressbar).to.have.attribute(
+      expect(progressbar).toHaveAttribute('aria-valuenow', '30');
+      expect(progressbar).toHaveAttribute('aria-valuemin', '0');
+      expect(progressbar).toHaveAttribute('aria-valuemax', '100');
+      expect(progressbar).toHaveAttribute(
         'aria-valuetext',
         (0.3).toLocaleString(undefined, { style: 'percent' }),
       );
-      expect(progressbar.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
+      expect(progressbar.getAttribute('aria-labelledby')).toBe(label.getAttribute('id'));
     });
 
     it('should update aria-valuenow when value changes', async () => {
       const { setProps } = await render(<TestProgress value={50} />);
       const progressbar = screen.getByRole('progressbar');
       await setProps({ value: 77 });
-      expect(progressbar).to.have.attribute('aria-valuenow', '77');
+      expect(progressbar).toHaveAttribute('aria-valuenow', '77');
     });
   });
 
@@ -76,8 +76,8 @@ describe('<Progress.Root />', () => {
 
       const value = screen.getByTestId('value');
       const progressbar = screen.getByRole('progressbar');
-      expect(value).to.have.text(formatValue(30));
-      expect(progressbar).to.have.attribute('aria-valuetext', formatValue(30));
+      expect(value).toHaveTextContent(formatValue(30));
+      expect(progressbar).toHaveAttribute('aria-valuetext', formatValue(30));
     });
   });
 
@@ -100,7 +100,7 @@ describe('<Progress.Root />', () => {
         </Progress.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text(expectedValue);
+      expect(screen.getByTestId('value')).toHaveTextContent(expectedValue);
     });
   });
 });

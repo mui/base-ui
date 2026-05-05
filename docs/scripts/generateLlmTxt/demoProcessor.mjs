@@ -6,6 +6,7 @@
  */
 
 import path from 'path';
+import { pathToFileURL } from 'url';
 import {
   loadServerCodeMeta,
   resolveModulePathWithFs,
@@ -26,7 +27,7 @@ import * as mdx from './mdxNodeHelpers.mjs';
 export async function processDemo(mdxFilePath, demoPath) {
   // Resolve demo path relative to the MDX file
   const mdxDir = path.dirname(mdxFilePath);
-  demoPath = path.resolve(mdxDir, demoPath);
+  demoPath = pathToFileURL(path.resolve(mdxDir, demoPath)).href;
   const demoModule = await resolveModulePathWithFs(demoPath).catch((err) => {
     throw new Error(`Failed to resolve demo module at "${demoPath}": ${err.message}`);
   });

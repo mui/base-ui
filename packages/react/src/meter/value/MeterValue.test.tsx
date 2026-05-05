@@ -1,6 +1,5 @@
+import { expect, vi } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { Meter } from '@base-ui/react/meter';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -23,7 +22,7 @@ describe('<Meter.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).to.have.text((0.3).toLocaleString(undefined, { style: 'percent' }));
+      expect(value).toHaveTextContent((0.3).toLocaleString(undefined, { style: 'percent' }));
     });
 
     it('renders a formatted value when a format is provided', async () => {
@@ -42,11 +41,11 @@ describe('<Meter.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).to.have.text(formatValue(30));
+      expect(value).toHaveTextContent(formatValue(30));
     });
 
     it('accepts a render function', async () => {
-      const renderSpy = spy();
+      const renderSpy = vi.fn();
       const format: Intl.NumberFormatOptions = {
         style: 'currency',
         currency: 'USD',
@@ -59,8 +58,8 @@ describe('<Meter.Value />', () => {
           <Meter.Value data-testid="value">{renderSpy}</Meter.Value>
         </Meter.Root>,
       );
-      expect(renderSpy.lastCall.args[0]).to.deep.equal(formatValue(30));
-      expect(renderSpy.lastCall.args[1]).to.deep.equal(30);
+      expect(renderSpy.mock.lastCall?.[0]).toEqual(formatValue(30));
+      expect(renderSpy.mock.lastCall?.[1]).toEqual(30);
     });
   });
 });

@@ -36,6 +36,19 @@ export default function OutsideScrollDialog() {
                       </section>
                     ))}
                   </div>
+
+                  <p className={styles.FooterNote}>
+                    Related docs:{' '}
+                    {RELATED_LINKS.map((item, index) => (
+                      <React.Fragment key={item.href}>
+                        {index > 0 ? ', ' : null}
+                        <a className={styles.FooterLink} href={item.href}>
+                          {item.label}
+                        </a>
+                      </React.Fragment>
+                    ))}
+                    .
+                  </p>
                 </Dialog.Popup>
               </ScrollArea.Content>
             </ScrollArea.Viewport>
@@ -52,7 +65,6 @@ export default function OutsideScrollDialog() {
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -155,3 +167,9 @@ const CONTENT_SECTIONS = [
     body: 'After a successful action, close the dialog and show confirmation in context (toast, inline message, or updated UI) so people can see the result of what they just did.',
   },
 ];
+
+const RELATED_LINKS = [
+  { href: '/react/components/scroll-area', label: 'Scroll Area' },
+  { href: '/react/components/drawer', label: 'Drawer' },
+  { href: '/react/components/popover', label: 'Popover' },
+] as const;

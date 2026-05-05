@@ -1,19 +1,16 @@
+'use client';
 import { useId } from '@base-ui/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { ReactStore } from '@base-ui/utils/store';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isElement } from '@floating-ui/utils/dom';
 import { BaseUIChangeEventDetails } from '../../types';
-import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
+import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
 
 export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreState<any>> {
   popupStore: ReactStore<State, PopupStoreContext<any>, PopupStoreSelectors>;
-  /**
-   * Whether to prevent the auto-emitted `openchange` event.
-   */
-  noEmit?: boolean | undefined;
   /**
    * Whether the Popup element is passed to Floating UI as the floating element instead of the default Positioner.
    */
@@ -28,7 +25,7 @@ export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreSta
 export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>(
   options: UseSyncedFloatingRootContextOptions<State>,
 ): FloatingRootStore {
-  const { popupStore, noEmit = false, treatPopupAsFloatingElement = false, onOpenChange } = options;
+  const { popupStore, treatPopupAsFloatingElement = false, onOpenChange } = options;
 
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
@@ -44,13 +41,14 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
     () =>
       new FloatingRootStore({
         open,
+        transitionStatus: undefined,
         referenceElement,
         floatingElement,
         triggerElements,
         onOpenChange,
         floatingId,
+        syncOnly: true,
         nested,
-        noEmit,
       }),
   ).current;
 
@@ -76,7 +74,6 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
   // TODO: When `setOpen` is a part of the PopupStore API, we don't need to sync it.
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
-  store.context.noEmit = noEmit;
 
   return store;
 }

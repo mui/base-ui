@@ -9,7 +9,7 @@ export default function TooltipDetachedTriggersSimpleDemo() {
   return (
     <Tooltip.Provider>
       <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip}>
-        <InfoIcon aria-label="Information" className={styles.Icon} />
+        <InfoIcon aria-label="This is a detached tooltip" className={styles.Icon} />
       </Tooltip.Trigger>
 
       <Tooltip.Root handle={demoTooltip}>
@@ -50,7 +50,6 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 function InfoIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="20"
       height="20"
       viewBox="0 0 24 24"

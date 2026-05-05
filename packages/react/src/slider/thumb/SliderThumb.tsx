@@ -2,14 +2,16 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { BaseUIComponentProps } from '../../utils/types';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { BaseUIComponentProps } from '../../internals/types';
+import { clamp } from '../../internals/clamp';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useIsHydrating } from '../../utils/useIsHydrating';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import {
   ARROW_DOWN,
@@ -19,35 +21,26 @@ import {
   HOME,
   END,
   COMPOSITE_KEYS,
-} from '../../composite/composite';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import { useDirection } from '../../direction-provider/DirectionContext';
-import { useCSPContext } from '../../csp-provider/CSPContext';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { type LabelableContext } from '../../labelable-provider/LabelableContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
+  PAGE_UP,
+  PAGE_DOWN,
+} from '../../internals/composite/composite';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
+import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
-import { roundValueToStep } from '../utils/roundValueToStep';
-import type { SliderRoot } from '../root/SliderRoot';
+import { getDecimalPrecision, roundValueToStep } from '../utils/roundValueToStep';
+import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 import { script as prehydrationScript } from './prehydrationScript.min';
 
-const PAGE_UP = 'PageUp';
-const PAGE_DOWN = 'PageDown';
-
-const ALL_KEYS = new Set([
-  ARROW_UP,
-  ARROW_DOWN,
-  ARROW_LEFT,
-  ARROW_RIGHT,
-  HOME,
-  END,
-  PAGE_UP,
-  PAGE_DOWN,
-]);
+const ALL_KEYS = new Set([...COMPOSITE_KEYS, PAGE_UP, PAGE_DOWN]);
 
 function getDefaultAriaValueText(
   values: readonly number[],
@@ -72,12 +65,22 @@ function getDefaultAriaValueText(
 
 function getNewValue(
   thumbValue: number,
-  step: number,
+  increment: number,
   direction: 1 | -1,
   min: number,
   max: number,
 ): number {
-  return direction === 1 ? Math.min(thumbValue + step, max) : Math.max(thumbValue - step, min);
+  const value = direction === 1 ? thumbValue + increment : thumbValue - increment;
+  const roundedValue = Number(
+    value.toFixed(
+      Math.max(
+        getDecimalPrecision(thumbValue),
+        getDecimalPrecision(increment),
+        getDecimalPrecision(min),
+      ),
+    ),
+  );
+  return clamp(roundedValue, min, max);
 }
 
 /**
@@ -107,6 +110,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -128,6 +132,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     max,
     min,
     minStepsBetweenValues,
+    form,
     name,
     orientation,
     pressedInputRef,
@@ -152,6 +157,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const restoringFocusVisibleRef = React.useRef(false);
 
   const defaultInputId = useBaseUiId();
   const labelableId = useLabelableId();
@@ -173,10 +179,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbValue = sliderValues[index];
   const thumbValuePercent = valueToPercent(thumbValue, min, max);
 
-  const [isMounted, setIsMounted] = React.useState(false);
   const [positionPercent, setPositionPercent] = React.useState<number | undefined>();
-
-  useOnMount(() => setIsMounted(true));
+  const isHydrating = useIsHydrating();
 
   const safeLastUsedThumbIndex =
     lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
@@ -197,11 +201,16 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const thumbOffsetFromControlEdge =
       thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
     const nextPositionPercent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
-    setPositionPercent(nextPositionPercent);
+    const nextInsetPosition = Number.isFinite(nextPositionPercent)
+      ? nextPositionPercent
+      : undefined;
+
+    setPositionPercent(nextInsetPosition);
+
     if (index === 0) {
-      setIndicatorPosition((prevPosition) => [nextPositionPercent, prevPosition[1]]);
+      setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
     } else if (last) {
-      setIndicatorPosition((prevPosition) => [prevPosition[0], nextPositionPercent]);
+      setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
     }
   });
 
@@ -217,39 +226,53 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     }
   }, [getInsetPosition, inset, thumbValuePercent]);
 
-  const getThumbStyle = React.useCallback(() => {
-    const startEdge = vertical ? 'bottom' : 'insetInlineStart';
-    const crossOffsetProperty = vertical ? 'left' : 'top';
+  useIsoLayoutEffect(() => {
+    if (!inset) {
+      return undefined;
+    }
 
-    let zIndex: number | undefined;
-    if (range) {
-      if (activeIndex === index) {
-        zIndex = 2;
-      } else if (safeLastUsedThumbIndex === index) {
-        zIndex = 1;
-      }
-    } else if (activeIndex === index) {
+    const control = controlRef.current;
+    const thumb = thumbRef.current;
+
+    if (!control || !thumb) {
+      return undefined;
+    }
+
+    const ResizeObserverCtor = ownerWindow(control).ResizeObserver;
+    if (typeof ResizeObserverCtor !== 'function') {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserverCtor(getInsetPosition);
+
+    resizeObserver.observe(control);
+    resizeObserver.observe(thumb);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [controlRef, getInsetPosition, inset]);
+
+  const startEdge = vertical ? 'bottom' : 'insetInlineStart';
+  const crossOffsetProperty = vertical ? 'left' : 'top';
+
+  let zIndex: number | undefined;
+  if (range) {
+    if (activeIndex === index) {
+      zIndex = 2;
+    } else if (safeLastUsedThumbIndex === index) {
       zIndex = 1;
     }
+  } else if (activeIndex === index) {
+    zIndex = 1;
+  }
 
-    if (!inset) {
-      if (!Number.isFinite(thumbValuePercent)) {
-        return visuallyHidden;
-      }
-
-      return {
-        position: 'absolute',
-        [startEdge]: `${thumbValuePercent}%`,
-        [crossOffsetProperty]: '50%',
-        translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
-        zIndex,
-      } satisfies React.CSSProperties;
-    }
-
-    return {
-      ['--position' as string]: `${positionPercent}%`,
+  let thumbStyle: React.CSSProperties;
+  if (inset) {
+    thumbStyle = {
+      ['--position' as string]: `${positionPercent ?? 0}%`,
       visibility:
-        (renderBeforeHydration && !isMounted) || positionPercent === undefined
+        (renderBeforeHydration && isHydrating) || positionPercent === undefined
           ? 'hidden'
           : undefined,
       position: 'absolute',
@@ -257,31 +280,31 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       [crossOffsetProperty]: '50%',
       translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
       zIndex,
-    } satisfies React.CSSProperties;
-  }, [
-    activeIndex,
-    index,
-    inset,
-    isMounted,
-    positionPercent,
-    range,
-    renderBeforeHydration,
-    rtl,
-    safeLastUsedThumbIndex,
-    thumbValuePercent,
-    vertical,
-  ]);
+    };
+  } else {
+    thumbStyle = !Number.isFinite(thumbValuePercent)
+      ? visuallyHidden
+      : {
+          position: 'absolute',
+          [startEdge]: `${thumbValuePercent}%`,
+          [crossOffsetProperty]: '50%',
+          translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
+          zIndex,
+        };
+  }
 
   let cssWritingMode: React.CSSProperties['writingMode'];
   if (orientation === 'vertical') {
     cssWritingMode = rtl ? 'vertical-rl' : 'vertical-lr';
   }
 
+  const ariaLabel =
+    typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp;
+
   const inputProps = mergeProps<'input'>(
     {
-      'aria-label':
-        typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp,
-      'aria-labelledby': ariaLabelledByProp ?? labelId,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledByProp ?? (ariaLabel == null ? labelId : undefined),
       'aria-describedby': ariaDescribedByProp,
       'aria-orientation': orientation,
       'aria-valuenow': thumbValue,
@@ -299,18 +322,30 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               locale,
             ),
       disabled,
+      form,
       id: inputId,
       max,
       min,
       name,
-      onChange(event: React.ChangeEvent<HTMLInputElement>) {
-        handleInputChange(event.target.valueAsNumber, index, event);
+      onChange(event) {
+        handleInputChange(event.currentTarget.valueAsNumber, index, event);
       },
-      onFocus() {
+      onFocus(event) {
+        const isRestoringFocusVisible = restoringFocusVisibleRef.current;
+        restoringFocusVisibleRef.current = false;
         setActive(index);
         setFocused(true);
+
+        if (isRestoringFocusVisible) {
+          event.stopPropagation();
+        }
       },
-      onBlur() {
+      onBlur(event) {
+        if (restoringFocusVisibleRef.current) {
+          event.stopPropagation();
+          return;
+        }
+
         if (!thumbRef.current) {
           return;
         }
@@ -387,6 +422,19 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
 
         if (newValue !== null) {
+          const input = event.currentTarget as HTMLInputElement;
+
+          if (!matchesFocusVisible(input)) {
+            restoringFocusVisibleRef.current = true;
+            input.blur();
+            input.focus({
+              preventScroll: true,
+              // Show `:focus-visible` after keyboard interaction, even if the
+              // thumb was previously focused by a pointer.
+              focusVisible: true,
+            });
+          }
+
           handleInputChange(newValue, index, event);
           event.preventDefault();
         }
@@ -417,9 +465,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         children: (
           <React.Fragment>
             {childrenProp}
-            <input ref={mergedInputRef} {...inputProps} />
+            <input ref={mergedInputRef} {...inputProps} suppressHydrationWarning />
             {inset &&
-              !isMounted &&
+              isHydrating &&
               renderBeforeHydration &&
               // this must be rendered with the last thumb to ensure all
               // preceding thumbs are already rendered in the DOM
@@ -451,9 +499,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
             pressedInputRef.current = inputRef.current;
           }
         },
-        style: getThumbStyle(),
+        style: thumbStyle,
         suppressHydrationWarning: renderBeforeHydration || undefined,
-        tabIndex: -1,
       },
       elementProps,
     ],
@@ -467,10 +514,10 @@ export interface ThumbMetadata {
   inputId: LabelableContext['controlId'];
 }
 
-export interface SliderThumbState extends SliderRoot.State {}
+export interface SliderThumbState extends SliderRootState {}
 
 export interface SliderThumbProps extends Omit<
-  BaseUIComponentProps<'div', SliderThumb.State>,
+  BaseUIComponentProps<'div', SliderThumbState>,
   'onBlur' | 'onFocus'
 > {
   /**
@@ -481,13 +528,14 @@ export interface SliderThumbProps extends Omit<
   /**
    * A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.
    */
-  getAriaLabel?: (((index: number) => string) | null) | undefined;
+  getAriaLabel?: ((index: number) => string) | null | undefined;
   /**
    * A function which returns a string value for the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.
    * This is important for screen reader users.
    */
   getAriaValueText?:
-    | (((formattedValue: string, value: number, index: number) => string) | null)
+    | ((formattedValue: string, value: number, index: number) => string)
+    | null
     | undefined;
   /**
    * The index of the thumb which corresponds to the index of its value in the

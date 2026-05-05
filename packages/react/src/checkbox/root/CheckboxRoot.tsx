@@ -2,31 +2,38 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
-import { NOOP } from '../../utils/noop';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
+import { NOOP } from '../../internals/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  NonNativeButtonProps,
+} from '../../internals/types';
 import { mergeProps } from '../../merge-props';
-import { useButton } from '../../use-button/useButton';
-import type { FieldRoot } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useButton } from '../../internals/use-button/useButton';
+import type { FieldRootState } from '../../field/root/FieldRoot';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
-import { useField } from '../../field/useField';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
 import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { useValueChanged } from '../../utils/useValueChanged';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { useValueChanged } from '../../internals/useValueChanged';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -44,12 +51,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     checked: checkedProp,
     className,
     defaultChecked = false,
+    'aria-labelledby': ariaLabelledByProp,
     disabled: disabledProp = false,
+    form,
     id: idProp,
     indeterminate = false,
     inputRef: inputRefProp,
     name: nameProp,
-    onCheckedChange: onCheckedChangeProp,
+    onCheckedChange,
     parent = false,
     readOnly = false,
     render,
@@ -57,6 +66,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     uncheckedValue,
     value: valueProp,
     nativeButton = false,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -75,7 +85,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { labelId, controlId, setControlId, getDescriptionProps } = useLabelableContext();
+  const { labelId, controlId, registerControlId, getDescriptionProps } = useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.parent;
@@ -105,8 +115,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }
 
-  const onCheckedChange = useStableCallback(onCheckedChangeProp);
-
   const {
     checked: groupChecked = checkedProp,
     indeterminate: groupIndeterminate = indeterminate,
@@ -119,6 +127,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const defaultGroupValue = groupContext?.defaultValue;
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
+  const controlSourceRef = useRefWithInit(() => Symbol('checkbox-control'));
+  const hasRegisteredRef = React.useRef(false);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -137,29 +147,40 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   // can't use useLabelableId because of optional groupContext and/or parent
   useIsoLayoutEffect(() => {
-    if (setControlId === NOOP) {
+    if (registerControlId === NOOP) {
       return undefined;
     }
 
-    setControlId(inputId);
+    hasRegisteredRef.current = true;
+    registerControlId(controlSourceRef.current, inputId);
+
+    return undefined;
+  }, [inputId, registerControlId, controlSourceRef]);
+
+  React.useEffect(() => {
+    const controlSource = controlSourceRef.current;
 
     return () => {
-      setControlId(undefined);
-    };
-  }, [inputId, groupContext, setControlId, parent]);
+      if (!hasRegisteredRef.current || registerControlId === NOOP) {
+        return;
+      }
 
-  useField({
-    enabled: !groupContext,
-    id,
-    commit: validation.commit,
-    value: checked,
-    controlRef,
-    name,
-    getValue: () => checked,
-  });
+      hasRegisteredRef.current = false;
+      registerControlId(controlSource, undefined);
+    };
+  }, [registerControlId, controlSourceRef]);
+
+  useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
+  const ariaLabelledBy = useAriaLabelledBy(
+    ariaLabelledByProp,
+    labelId,
+    inputRef,
+    !nativeButton,
+    inputId ?? undefined,
+  );
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
@@ -190,6 +211,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     {
       checked,
       disabled,
+      form,
       // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
       // Set `id` to stop Chrome warning about an unassociated input.
@@ -207,11 +229,16 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           return;
         }
 
-        const nextChecked = event.target.checked;
+        if (readOnly) {
+          event.preventDefault();
+          return;
+        }
+
+        const nextChecked = event.currentTarget.checked;
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         groupOnChange?.(nextChecked, details);
-        onCheckedChange(nextChecked, details);
+        onCheckedChange?.(nextChecked, details);
 
         if (details.isCanceled) {
           return;
@@ -219,7 +246,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
         setCheckedState(nextChecked);
 
-        if (value && groupValue && setGroupValue && !parent) {
+        if (value && groupValue && setGroupValue && !parent && !isGroupedWithParent) {
           const nextGroupValue = nextChecked
             ? [...groupValue, value]
             : groupValue.filter((item) => item !== value);
@@ -246,12 +273,19 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     : indeterminate;
 
   React.useEffect(() => {
-    if (parentContext && value) {
-      parentContext.disabledStatesRef.current.set(value, disabled);
+    if (!parentContext || !value) {
+      return undefined;
     }
+
+    const disabledStates = parentContext.disabledStatesRef.current;
+    disabledStates.set(value, disabled);
+
+    return () => {
+      disabledStates.delete(value);
+    };
   }, [parentContext, disabled, value]);
 
-  const state: CheckboxRoot.State = React.useMemo(
+  const state: CheckboxRootState = React.useMemo(
     () => ({
       ...fieldState,
       checked: computedChecked,
@@ -275,7 +309,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         'aria-checked': groupIndeterminate ? 'mixed' : checked,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
-        'aria-labelledby': labelId,
+        'aria-labelledby': ariaLabelledBy,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
           setFocused(true);
@@ -293,6 +327,49 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             validation.commit(groupContext ? groupValue : inputEl.checked);
           }
         },
+        onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+          if (event.key !== 'Enter') {
+            return;
+          }
+
+          // Let consumer `preventDefault()` handlers opt out while defensively stopping
+          // any remaining Base UI Enter handling from treating the checkbox as a button.
+          event.preventBaseUIHandler();
+
+          if (event.defaultPrevented) {
+            return;
+          }
+
+          const formToSubmit = inputRef.current?.form ?? null;
+          const currentTarget = event.currentTarget;
+          const nativeEvent = event.nativeEvent;
+          const originalPreventDefault = event.preventDefault;
+          const originalNativePreventDefault = nativeEvent.preventDefault;
+          let preventDefaultCalledAfterPropagation = false;
+
+          event.preventDefault = () => {
+            preventDefaultCalledAfterPropagation = true;
+            originalPreventDefault.call(event);
+          };
+          nativeEvent.preventDefault = () => {
+            preventDefaultCalledAfterPropagation = true;
+            originalNativePreventDefault.call(nativeEvent);
+          };
+
+          // Enter should not activate/toggle the checkbox. Cancel the native button behavior
+          // without setting React's synthetic `defaultPrevented`, so ancestor React handlers
+          // can still opt out by calling `preventDefault()` during propagation.
+          originalNativePreventDefault.call(nativeEvent);
+
+          ownerWindow(currentTarget).queueMicrotask(() => {
+            event.preventDefault = originalPreventDefault;
+            nativeEvent.preventDefault = originalNativePreventDefault;
+
+            if (!preventDefaultCalledAfterPropagation) {
+              getDefaultFormSubmitter(formToSubmit)?.click();
+            }
+          });
+        },
         onClick(event: React.MouseEvent) {
           if (readOnly || disabled) {
             return;
@@ -300,7 +377,20 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
           event.preventDefault();
 
-          inputRef.current?.click();
+          const input = inputRef.current;
+          if (!input) {
+            return;
+          }
+
+          input.dispatchEvent(
+            new (ownerWindow(input).PointerEvent)('click', {
+              bubbles: true,
+              shiftKey: event.shiftKey,
+              ctrlKey: event.ctrlKey,
+              altKey: event.altKey,
+              metaKey: event.metaKey,
+            }),
+          );
         },
       },
       getDescriptionProps,
@@ -316,14 +406,14 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     <CheckboxRootContext.Provider value={state}>
       {element}
       {!checked && !groupContext && name && !parent && uncheckedValue !== undefined && (
-        <input type="hidden" name={name} value={uncheckedValue} />
+        <input type="hidden" form={form} name={name} value={uncheckedValue} />
       )}
-      <input {...inputProps} />
+      <input {...inputProps} suppressHydrationWarning />
     </CheckboxRootContext.Provider>
   );
 });
 
-export interface CheckboxRootState extends FieldRoot.State {
+export interface CheckboxRootState extends FieldRootState {
   /**
    * Whether the checkbox is currently ticked.
    */
@@ -349,7 +439,7 @@ export interface CheckboxRootState extends FieldRoot.State {
 export interface CheckboxRootProps
   extends
     NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'span', CheckboxRoot.State>, 'onChange' | 'value'> {
+    Omit<BaseUIComponentProps<'span', CheckboxRootState>, 'onChange' | 'value'> {
   /**
    * The id of the input element.
    */
@@ -359,6 +449,11 @@ export interface CheckboxRootProps
    * @default undefined
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the hidden input.
+   * Useful when the checkbox is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * Whether the checkbox is currently ticked.
    *

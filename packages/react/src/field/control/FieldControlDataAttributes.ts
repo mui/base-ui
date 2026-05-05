@@ -4,11 +4,11 @@ export enum FieldControlDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * Present when the field is in valid state.
+   * Present when the field is in a valid state.
    */
   valid = 'data-valid',
   /**
-   * Present when the field is in invalid state.
+   * Present when the field is in an invalid state.
    */
   invalid = 'data-invalid',
   /**

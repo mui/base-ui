@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * An accessible label that is automatically associated with its parent group.
@@ -16,7 +16,7 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
   componentProps: SelectGroupLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, id: idProp, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { setLabelId } = useSelectGroupContext();
 
@@ -36,10 +36,7 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
 export interface SelectGroupLabelState {}
 
-export interface SelectGroupLabelProps extends BaseUIComponentProps<
-  'div',
-  SelectGroupLabel.State
-> {}
+export interface SelectGroupLabelProps extends BaseUIComponentProps<'div', SelectGroupLabelState> {}
 
 export namespace SelectGroupLabel {
   export type State = SelectGroupLabelState;

@@ -15,7 +15,7 @@ export const Input = React.forwardRef<HTMLInputElement, Combobox.Input.Props>(fu
     <Combobox.Input
       ref={forwardedRef}
       className={clsx(
-        'h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+        'h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
         className,
       )}
       {...props}
@@ -71,12 +71,15 @@ export function Popup({ className, ...props }: Combobox.Popup.Props) {
   );
 }
 
-export function Empty({ className, ...props }: Combobox.Empty.Props) {
+export function Empty({ className, children, ...props }: Combobox.Empty.Props) {
   return (
-    <Combobox.Empty
-      className={clsx('p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0', className)}
-      {...props}
-    />
+    <Combobox.Empty {...props}>
+      {children ? (
+        <div className={clsx('p-4 text-[0.925rem] leading-4 text-gray-600', className)}>
+          {children}
+        </div>
+      ) : null}
+    </Combobox.Empty>
   );
 }
 

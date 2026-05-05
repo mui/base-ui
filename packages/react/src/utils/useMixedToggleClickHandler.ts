@@ -1,14 +1,15 @@
+'use client';
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { BaseUIEvent } from './types';
-import { EMPTY_OBJECT } from './constants';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { BaseUIEvent } from '../internals/types';
 
 /**
  * Returns `click` and `mousedown` handlers that fix the behavior of triggers of popups that are toggled by different events.
  * For example, a button that opens a popup on mousedown and closes it on click.
  * This hook prevents the popup from closing immediately after the mouse button is released.
  */
-export function useMixedToggleClickHandler(params: useMixedToggleClickHandler.Parameters) {
+export function useMixedToggleClickHandler(params: UseMixedToggleClickHandlerParameters) {
   const { enabled = true, mouseDownAction, open } = params;
   const ignoreClickRef = React.useRef(false);
 
@@ -57,6 +58,4 @@ export interface UseMixedToggleClickHandlerParameters {
   open: boolean;
 }
 
-export namespace useMixedToggleClickHandler {
-  export type Parameters = UseMixedToggleClickHandlerParameters;
-}
+export interface UseMixedToggleClickHandlerState {}

@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 import { Field } from '@base-ui/react/field';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'vitest';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Label />', () => {
@@ -22,7 +22,7 @@ describe('<Field.Label />', () => {
       </Field.Root>,
     );
 
-    expect(screen.getByTestId('label')).to.have.attribute('for', screen.getByRole('textbox').id);
+    expect(screen.getByTestId('label')).toHaveAttribute('for', screen.getByRole('textbox').id);
   });
 
   it('when nativeLabel={false}, clicking focuses the associated control', async () => {
@@ -38,7 +38,7 @@ describe('<Field.Label />', () => {
     const label = screen.getByTestId('label');
     const control = screen.getByTestId('control');
 
-    expect(label).to.not.have.attribute('for');
+    expect(label).not.toHaveAttribute('for');
 
     await user.click(label);
     expect(control).toHaveFocus();
@@ -79,7 +79,11 @@ describe('<Field.Label />', () => {
 
       expect(errorSpy).toHaveBeenCalledTimes(1);
       expect(errorSpy).toHaveBeenCalledWith(
-        'Base UI: <Field.Label> was not rendered as a <label> element, which does not match the `nativeLabel` prop on the component. Ensure that the element passed to the `render` prop of <Field.Label> is a real <label>, or set the `nativeLabel` prop on the component to `false`.',
+        expect.stringContaining(
+          'Base UI: <Field.Label> expected a <label> element because the `nativeLabel` prop is true. ' +
+            'Rendering a non-<label> disables native label association, so `htmlFor` will not ' +
+            'work. Use a real <label> in the `render` prop, or set `nativeLabel` to `false`.',
+        ),
       );
       errorSpy.mockRestore();
     });
@@ -99,7 +103,12 @@ describe('<Field.Label />', () => {
 
       expect(errorSpy).toHaveBeenCalledTimes(1);
       expect(errorSpy).toHaveBeenCalledWith(
-        'Base UI: <Field.Label> was rendered as a <label> element, which does not match the `nativeLabel` prop on the component. Ensure that the element passed to the `render` prop of <Field.Label> is not a real <label>, or set the `nativeLabel` prop on the component to `true`.',
+        expect.stringContaining(
+          'Base UI: <Field.Label> expected a non-<label> element because the `nativeLabel` prop is false. ' +
+            'Rendering a <label> assumes native label behavior while Base UI treats it as ' +
+            'non-native, which can cause unexpected pointer behavior. Use a non-<label> in the ' +
+            '`render` prop, or set `nativeLabel` to `true`.',
+        ),
       );
       errorSpy.mockRestore();
     });

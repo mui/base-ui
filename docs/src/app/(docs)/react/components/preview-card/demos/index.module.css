@@ -116,19 +116,19 @@
 .Link {
   outline: 0;
   color: var(--color-blue);
-  text-decoration-line: none;
+  text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-decoration-color: color-mix(in oklab, var(--color-blue), transparent 40%);
   text-underline-offset: 2px;
 
   @media (hover: hover) {
     &:hover {
-      text-decoration-line: underline;
+      text-decoration-color: var(--color-blue);
     }
   }
 
   &[data-popup-open] {
-    text-decoration-line: underline;
+    text-decoration-color: var(--color-blue);
   }
 
   &:focus-visible {
@@ -159,7 +159,7 @@
   background-color: var(--color-gray-50);
   font-family: inherit;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5rem;
   color: var(--color-gray-900);
   user-select: none;

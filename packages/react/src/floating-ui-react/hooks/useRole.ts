@@ -1,26 +1,21 @@
+'use client';
 import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
-import { getFloatingFocusElement } from '../utils';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { getFloatingFocusElement } from '../utils/element';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import type { ExtendedUserProps } from './useInteractions';
-import { EMPTY_OBJECT } from '../../utils/constants';
 
 type AriaRole = 'tooltip' | 'dialog' | 'alertdialog' | 'menu' | 'listbox' | 'grid' | 'tree';
 type ComponentRole = 'select' | 'label' | 'combobox';
 
 export interface UseRoleProps {
   /**
-   * Whether the Hook is enabled, including all internal Effects and event
-   * handlers.
-   * @default true
-   */
-  enabled?: boolean | undefined;
-  /**
    * The role of the floating element.
    * @default 'dialog'
    */
-  role?: (AriaRole | ComponentRole) | undefined;
+  role?: AriaRole | ComponentRole | undefined;
 }
 
 const componentRoleToAriaRoleMap = new Map<AriaRole | ComponentRole, AriaRole | false>([
@@ -38,24 +33,24 @@ export function useRole(
   context: FloatingRootContext | FloatingContext,
   props: UseRoleProps = {},
 ): ElementProps {
+  const { role = 'dialog' } = props;
+
   const store = 'rootStore' in context ? context.rootStore : context;
+
   const open = store.useState('open');
   const defaultFloatingId = store.useState('floatingId');
   const domReference = store.useState('domReferenceElement');
   const floatingElement = store.useState('floatingElement');
 
-  const { enabled = true, role = 'dialog' } = props;
-
   const defaultReferenceId = useId();
-  const referenceId = domReference?.id || defaultReferenceId;
+  const parentId = useFloatingParentNodeId();
   const floatingId = React.useMemo(
     () => getFloatingFocusElement(floatingElement)?.id || defaultFloatingId,
     [floatingElement, defaultFloatingId],
   );
 
+  const referenceId = domReference?.id || defaultReferenceId;
   const ariaRole = (componentRoleToAriaRoleMap.get(role) ?? role) as AriaRole | false | undefined;
-
-  const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
 
   const trigger: ElementProps['trigger'] = React.useMemo(() => {
@@ -80,9 +75,8 @@ export function useRole(
       };
     }
 
-    const triggerProps = trigger;
     return {
-      ...triggerProps,
+      ...trigger,
       'aria-expanded': open ? 'true' : 'false',
       'aria-controls': open ? floatingId : undefined,
       ...(ariaRole === 'menu' && { id: referenceId }),
@@ -109,32 +103,24 @@ export function useRole(
 
   const item: ElementProps['item'] = React.useCallback(
     ({ active, selected }: ExtendedUserProps) => {
-      const commonProps = {
-        role: 'option',
-        ...(active && { id: `${floatingId}-fui-option` }),
-      };
-
       // For `menu`, we are unable to tell if the item is a `menuitemradio`
       // or `menuitemcheckbox`. For backwards-compatibility reasons, also
       // avoid defaulting to `menuitem` as it may overwrite custom role props.
-      switch (role) {
-        case 'select':
-        case 'combobox':
-          return {
-            ...commonProps,
-            'aria-selected': selected,
-          };
-
-        default:
+      if (role !== 'select' && role !== 'combobox') {
+        return {};
       }
 
-      return {};
+      return {
+        role: 'option',
+        ...(active && { id: `${floatingId}-fui-option` }),
+        'aria-selected': selected,
+      };
     },
     [floatingId, role],
   );
 
   return React.useMemo(
-    () => (enabled ? { reference, floating, item, trigger } : {}),
-    [enabled, reference, floating, trigger, item],
+    () => ({ reference, floating, item, trigger }),
+    [reference, floating, trigger, item],
   );
 }

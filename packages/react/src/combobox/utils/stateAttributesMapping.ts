@@ -1,7 +1,7 @@
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { Side } from '../../utils/useAnchorPositioning';
-import { fieldValidityMapping } from '../../field/utils/constants';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
 
 export const triggerStateAttributesMapping = {
   ...pressableTriggerOpenStateMapping,

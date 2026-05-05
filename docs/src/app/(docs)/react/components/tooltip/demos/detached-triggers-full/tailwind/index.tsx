@@ -14,7 +14,7 @@ export default function TooltipDetachedTriggersFullDemo() {
             box-border flex size-10 items-center justify-center
             border border-gray-200 rounded-l-md
             bg-gray-50
-            text-base font-bold text-gray-900
+            text-base text-gray-900
             select-none
             data-popup-open:bg-gray-100
             focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
@@ -23,7 +23,7 @@ export default function TooltipDetachedTriggersFullDemo() {
           handle={demoTooltip}
           payload={InfoContent}
         >
-          <InfoIcon aria-label="Information" className="size-5" />
+          <InfoIcon aria-label="This is information about the feature" className="size-5" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
@@ -31,7 +31,7 @@ export default function TooltipDetachedTriggersFullDemo() {
             box-border flex size-10 items-center justify-center
             border-y border-r border-gray-200
             bg-gray-50
-            text-base font-bold text-gray-900
+            text-base text-gray-900
             select-none
             data-popup-open:bg-gray-100
             focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
@@ -40,7 +40,7 @@ export default function TooltipDetachedTriggersFullDemo() {
           handle={demoTooltip}
           payload={HelpContent}
         >
-          <HelpIcon aria-label="Help" className="size-5" />
+          <HelpIcon aria-label="Need help?" className="size-5" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
@@ -48,7 +48,7 @@ export default function TooltipDetachedTriggersFullDemo() {
             box-border flex size-10 items-center justify-center
             border-y border-r border-gray-200 rounded-r-md
             bg-gray-50
-            text-base font-bold text-gray-900
+            text-base text-gray-900
             select-none
             data-popup-open:bg-gray-100
             focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
@@ -57,7 +57,7 @@ export default function TooltipDetachedTriggersFullDemo() {
           handle={demoTooltip}
           payload={AlertContent}
         >
-          <AlertIcon aria-label="Alert" className="size-5" />
+          <AlertIcon aria-label="Warning: This action cannot be undone" className="size-5" />
         </Tooltip.Trigger>
       </div>
 

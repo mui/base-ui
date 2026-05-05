@@ -1,7 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { FocusableElement } from 'tabbable';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
@@ -19,33 +17,27 @@ import {
   useFloatingParentNodeId,
 } from '../../floating-ui-react';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import {
-  contains,
-  getNextTabbable,
-  getTabbableAfterElement,
-  getTabbableBeforeElement,
-  isOutsideEvent,
-} from '../../floating-ui-react/utils';
+import { contains } from '../../floating-ui-react/utils';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { useButton } from '../../use-button/useButton';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useButton } from '../../internals/use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import { CompositeItem } from '../../composite/item/CompositeItem';
-import { useCompositeRootContext } from '../../composite/root/CompositeRootContext';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
+import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { useTriggerDataForwarding } from '../../utils/popups';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { REASONS } from '../../utils/reasons';
+import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
 import { MenuHandle } from '../store/MenuHandle';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -62,6 +54,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const {
     render,
     className,
+    style,
     disabled: disabledProp = false,
     nativeButton = true,
     id: idProp,
@@ -192,6 +185,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
+    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   // Whether to ignore clicks to open the menu.
@@ -219,15 +213,15 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const localInteractionProps = useInteractions([click, focus]);
 
-  const state: MenuTrigger.State = React.useMemo(
-    () => ({
-      disabled,
-      open: isOpenedByThisTrigger,
-    }),
-    [disabled, isOpenedByThisTrigger],
-  );
-
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+
+  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
+    useTriggerFocusGuards(store, triggerElementRef);
+
+  const state: MenuTriggerState = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
 
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
@@ -257,58 +251,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     getButtonProps,
   ];
 
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
-
-  const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
-    ReactDOM.flushSync(() => {
-      store.setOpen(
-        false,
-        createChangeEventDetails(
-          REASONS.focusOut,
-          event.nativeEvent,
-          event.currentTarget as HTMLElement,
-        ),
-      );
-    });
-
-    const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
-      preFocusGuardRef.current,
-    );
-    previousTabbable?.focus();
-  });
-
-  const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
-    const currentPositionerElement = store.select('positionerElement');
-    if (currentPositionerElement && isOutsideEvent(event, currentPositionerElement)) {
-      store.context.beforeContentFocusGuardRef.current?.focus();
-    } else {
-      ReactDOM.flushSync(() => {
-        store.setOpen(
-          false,
-          createChangeEventDetails(
-            REASONS.focusOut,
-            event.nativeEvent,
-            event.currentTarget as HTMLElement,
-          ),
-        );
-      });
-
-      let nextTabbable = getTabbableAfterElement(
-        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
-      );
-
-      while (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) {
-        const prevTabbable = nextTabbable;
-        nextTabbable = getNextTabbable(nextTabbable);
-        if (nextTabbable === prevTabbable) {
-          break;
-        }
-      }
-
-      nextTabbable?.focus();
-    }
-  });
-
   const element = useRenderElement('button', componentProps, {
     enabled: !isInMenubar,
     stateAttributesMapping: pressableTriggerOpenStateMapping,
@@ -323,6 +265,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
         tag="button"
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={ref}
         props={props}
@@ -362,7 +305,7 @@ export interface MenuTrigger {
 }
 
 export interface MenuTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTriggerState> {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
@@ -398,12 +341,16 @@ export interface MenuTriggerProps<Payload = unknown>
   openOnHover?: boolean | undefined;
 }
 
-export type MenuTriggerState = {
+export interface MenuTriggerState {
   /**
    * Whether the menu is currently open.
    */
   open: boolean;
-};
+  /**
+   * Whether the trigger is disabled.
+   */
+  disabled: boolean;
+}
 
 export namespace MenuTrigger {
   export type Props<Payload = unknown> = MenuTriggerProps<Payload>;

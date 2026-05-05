@@ -1,59 +1,60 @@
-.AccordionRoot {
-  border-top: 1px solid var(--border);
-}
+@layer components {
+  .AccordionWebsiteRoot {
+    border-top: 1px solid var(--border);
+  }
 
-.AccordionItem {
-  box-sizing: border-box;
-  border-bottom: 1px solid var(--border);
-}
+  .AccordionWebsiteItem {
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--border);
+  }
 
-.AccordionHeader {
-  margin: 0;
-}
+  .AccordionWebsiteHeader {
+    margin: 0;
+  }
 
-.AccordionTrigger {
-  box-sizing: border-box;
-  position: relative;
-  display: flex;
-  width: 100%;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-  color: inherit;
-  font-family: inherit;
-  font-weight: 500;
-  background-color: transparent;
-  font-size: 1rem;
-  padding-block: 0.75rem;
-  padding-inline: 0;
-  line-height: 1.5rem;
-  border: none;
-  outline: none;
-  text-align: left;
-  -webkit-tap-highlight-color: transparent;
-}
+  .AccordionWebsiteTrigger {
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    width: 100%;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    color: inherit;
+    font-family: inherit;
+    background-color: transparent;
+    font-size: 1rem;
+    padding-block: 0.75rem;
+    padding-inline: 0;
+    line-height: 1.5rem;
+    border: none;
+    outline: none;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-.AccordionTrigger:focus-visible {
-  outline: 2px solid currentColor;
-}
+  .AccordionWebsiteTrigger:focus-visible {
+    outline: 2px solid currentColor;
+  }
 
-.AccordionIconMinus {
-  display: none;
-}
+  .AccordionWebsiteIconMinus {
+    display: none;
+  }
 
-.AccordionIconPlus {
-  display: block;
-}
+  .AccordionWebsiteIconPlus {
+    display: block;
+  }
 
-.AccordionTrigger[data-panel-open] .AccordionIconPlus {
-  display: none;
-}
+  .AccordionWebsiteTrigger[data-panel-open] .AccordionWebsiteIconPlus {
+    display: none;
+  }
 
-.AccordionTrigger[data-panel-open] .AccordionIconMinus {
-  display: block;
-}
+  .AccordionWebsiteTrigger[data-panel-open] .AccordionWebsiteIconMinus {
+    display: block;
+  }
 
-.AccordionPanel {
-  padding-block-start: 4px;
-  padding-block-end: 12px;
+  .AccordionWebsitePanel {
+    padding-block-start: 4px;
+    padding-block-end: 12px;
+  }
 }

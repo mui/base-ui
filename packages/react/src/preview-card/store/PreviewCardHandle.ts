@@ -1,6 +1,6 @@
 import { PreviewCardStore } from './PreviewCardStore';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * A handle to control a preview card imperatively and to associate detached triggers with it.
@@ -53,7 +53,7 @@ export class PreviewCardHandle<Payload> {
    * Indicates whether the preview card is currently open.
    */
   get isOpen() {
-    return this.store.state.open;
+    return this.store.select('open');
   }
 }
 

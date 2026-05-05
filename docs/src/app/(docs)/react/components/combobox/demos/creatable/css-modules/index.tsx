@@ -12,7 +12,6 @@ export default function ExampleCreatableCombobox() {
   const [query, setQuery] = React.useState('');
   const [openDialog, setOpenDialog] = React.useState(false);
 
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const createInputRef = React.useRef<HTMLInputElement | null>(null);
   const comboboxInputRef = React.useRef<HTMLInputElement | null>(null);
   const pendingQueryRef = React.useRef('');
@@ -127,35 +126,46 @@ export default function ExampleCreatableCombobox() {
           <label className={styles.Label} htmlFor={id}>
             Labels
           </label>
-          <Combobox.Chips className={styles.Chips} ref={containerRef}>
-            <Combobox.Value>
-              {(value: LabelItem[]) => (
-                <React.Fragment>
-                  {value.map((label) => (
-                    <Combobox.Chip key={label.id} className={styles.Chip} aria-label={label.value}>
-                      {label.value}
-                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
-                        <XIcon />
-                      </Combobox.ChipRemove>
-                    </Combobox.Chip>
-                  ))}
-                  <Combobox.Input
-                    ref={comboboxInputRef}
-                    id={id}
-                    placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                    className={styles.Input}
-                    onKeyDown={handleInputKeyDown}
-                  />
-                </React.Fragment>
-              )}
-            </Combobox.Value>
-          </Combobox.Chips>
+          <Combobox.InputGroup className={styles.InputGroup}>
+            <Combobox.Chips className={styles.Chips}>
+              <Combobox.Value>
+                {(value: LabelItem[]) => (
+                  <React.Fragment>
+                    {value.map((label) => (
+                      <Combobox.Chip
+                        key={label.id}
+                        className={styles.Chip}
+                        aria-label={label.value}
+                      >
+                        {label.value}
+                        <Combobox.ChipRemove
+                          className={styles.ChipRemove}
+                          aria-label={`Remove ${label.value}`}
+                        >
+                          <XIcon />
+                        </Combobox.ChipRemove>
+                      </Combobox.Chip>
+                    ))}
+                    <Combobox.Input
+                      ref={comboboxInputRef}
+                      id={id}
+                      placeholder={value.length > 0 ? '' : 'e.g. bug'}
+                      className={styles.Input}
+                      onKeyDown={handleInputKeyDown}
+                    />
+                  </React.Fragment>
+                )}
+              </Combobox.Value>
+            </Combobox.Chips>
+          </Combobox.InputGroup>
         </div>
 
         <Combobox.Portal>
-          <Combobox.Positioner className={styles.Positioner} sideOffset={4} anchor={containerRef}>
+          <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
             <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>No labels found.</Combobox.Empty>
+              <Combobox.Empty>
+                <div className={styles.Empty}>No labels found.</div>
+              </Combobox.Empty>
               <Combobox.List>
                 {(item: LabelItem) =>
                   item.creatable ? (
@@ -163,14 +173,14 @@ export default function ExampleCreatableCombobox() {
                       <span className={styles.ItemIndicator}>
                         <PlusIcon className={styles.CreateIcon} />
                       </span>
-                      <div className={styles.ItemText}>Create "{item.creatable}"</div>
+                      <span className={styles.ItemText}>Create "{item.creatable}"</span>
                     </Combobox.Item>
                   ) : (
                     <Combobox.Item key={item.id} className={styles.Item} value={item}>
                       <Combobox.ItemIndicator className={styles.ItemIndicator}>
                         <CheckIcon className={styles.ItemIndicatorIcon} />
                       </Combobox.ItemIndicator>
-                      <div className={styles.ItemText}>{item.value}</div>
+                      <span className={styles.ItemText}>{item.value}</span>
                     </Combobox.Item>
                   )
                 }
@@ -211,7 +221,7 @@ export default function ExampleCreatableCombobox() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+    <svg fill="currentColor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
   );
@@ -239,7 +249,6 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width={16}
       height={16}
       viewBox="0 0 24 24"

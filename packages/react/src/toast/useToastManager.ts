@@ -6,24 +6,24 @@ import type { ToastPositionerProps } from './positioner/ToastPositioner';
 /**
  * Returns the array of toasts and methods to manage them.
  */
-export function useToastManager(): UseToastManagerReturnValue {
-  const context = React.useContext(ToastContext);
+export function useToastManager<Data extends object = any>(): UseToastManagerReturnValue<Data> {
+  const store = React.useContext(ToastContext);
 
-  if (!context) {
+  if (!store) {
     throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
   }
 
-  const { toasts, add, close, update, promise } = context;
+  const toasts = store.useState('toasts');
 
   return React.useMemo(
     () => ({
       toasts,
-      add,
-      close,
-      update,
-      promise,
+      add: store.addToast,
+      close: store.closeToast,
+      update: store.updateToast,
+      promise: store.promiseToast,
     }),
-    [toasts, add, close, update, promise],
+    [toasts, store],
   );
 }
 
@@ -61,13 +61,17 @@ export interface ToastObject<Data extends object> {
    * - `high` - The toast will be announced urgently.
    * @default 'low'
    */
-  priority?: ('low' | 'high') | undefined;
+  priority?: 'low' | 'high' | undefined;
   /**
    * The transition status of the toast.
    */
   transitionStatus?: 'starting' | 'ending' | undefined;
   /**
-   * Determines if the toast was closed due to the limit being reached.
+   * A counter that increments whenever the toast is updated or upserted.
+   */
+  updateKey?: number | undefined;
+  /**
+   * Determines if the toast was limited because the toast limit was exceeded.
    */
   limited?: boolean | undefined;
   /**
@@ -103,29 +107,33 @@ export interface ToastManagerPositionerProps extends Omit<
   /**
    * An element to position the toast against.
    */
-  anchor?: (Element | null) | undefined;
+  anchor?: Element | null | undefined;
 }
 
-export interface UseToastManagerReturnValue {
-  toasts: ToastContext<any>['toasts'];
-  add: <Data extends object>(options: ToastManagerAddOptions<Data>) => string;
-  close: (toastId: string) => void;
-  update: <Data extends object>(toastId: string, options: ToastManagerUpdateOptions<Data>) => void;
-  promise: <Value, Data extends object>(
+export interface UseToastManagerReturnValue<Data extends object = any> {
+  toasts: ToastObject<Data>[];
+  add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
+  close: (toastId?: string) => void;
+  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
-    options: ToastManagerPromiseOptions<Value, Data>,
+    options: ToastManagerPromiseOptions<Value, T>,
   ) => Promise<Value>;
 }
 
 export interface ToastManagerAddOptions<Data extends object> extends Omit<
   ToastObject<Data>,
-  'id' | 'animation' | 'height' | 'ref' | 'limited'
+  'id' | 'animation' | 'height' | 'ref' | 'limited' | 'updateKey'
 > {
+  /**
+   * The unique identifier for the toast. Adding a toast with an existing ID
+   * updates it in place and refreshes its auto-dismiss timer.
+   */
   id?: string | undefined;
 }
 
 export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
-  ToastManagerAddOptions<Data>
+  Omit<ToastObject<Data>, 'id' | 'ref' | 'height' | 'transitionStatus' | 'limited' | 'updateKey'>
 > {}
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {

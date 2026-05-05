@@ -1,18 +1,17 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**
@@ -36,6 +35,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     checked: checkedProp,
     defaultChecked,
     onCheckedChange,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -61,11 +61,11 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuCheckboxItem.State = React.useMemo(
+  const state: MenuCheckboxItemState = React.useMemo(
     () => ({
       disabled,
       highlighted,
@@ -74,11 +74,10 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     [disabled, highlighted, checked],
   );
 
-  const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = {
-      ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
-      preventUnmountOnClose: () => {},
-    };
+  function handleClick(event: React.MouseEvent) {
+    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
+      preventUnmountOnClose() {},
+    });
 
     onCheckedChange?.(!checked, details);
 
@@ -87,7 +86,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     }
 
     setChecked((currentlyChecked) => !currentlyChecked);
-  });
+  }
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -110,7 +109,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 });
 
-export type MenuCheckboxItemState = {
+export interface MenuCheckboxItemState {
   /**
    * Whether the checkbox item should ignore user interaction.
    */
@@ -123,10 +122,10 @@ export type MenuCheckboxItemState = {
    * Whether the checkbox item is currently ticked.
    */
   checked: boolean;
-};
+}
 
 export interface MenuCheckboxItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuCheckboxItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuCheckboxItemState> {
   /**
    * Whether the checkbox item is currently ticked.
    *
@@ -149,7 +148,7 @@ export interface MenuCheckboxItemProps
   /**
    * The click handler for the menu item.
    */
-  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
+  onClick?: BaseUIComponentProps<'div', MenuCheckboxItemState>['onClick'] | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false

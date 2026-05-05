@@ -19,15 +19,15 @@ export default function TooltipDetachedTriggersControlledDemo() {
       <div className={styles.Container}>
         <div className={styles.ButtonGroup}>
           <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-1">
-            <InfoIcon aria-label="Information 1" className={styles.Icon} />
+            <InfoIcon aria-label="Controlled tooltip" className={styles.Icon} />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-2">
-            <InfoIcon aria-label="Information 2" className={styles.Icon} />
+            <InfoIcon aria-label="Controlled tooltip" className={styles.Icon} />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-3">
-            <InfoIcon aria-label="Information 3" className={styles.Icon} />
+            <InfoIcon aria-label="Controlled tooltip" className={styles.Icon} />
           </Tooltip.Trigger>
         </div>
 
@@ -86,7 +86,6 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 function InfoIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="20"
       height="20"
       viewBox="0 0 24 24"

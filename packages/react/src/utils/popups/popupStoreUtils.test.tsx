@@ -1,6 +1,6 @@
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { render } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
@@ -55,9 +55,9 @@ describe('PopupTriggerMap', () => {
 
     map.add('trigger', button);
 
-    expect(map.getById('trigger')).to.equal(button);
-    expect(map.hasElement(button)).to.equal(true);
-    expect(map.hasMatchingElement((element) => element === button)).to.equal(true);
+    expect(map.getById('trigger')).toBe(button);
+    expect(map.hasElement(button)).toBe(true);
+    expect(map.hasMatchingElement((element) => element === button)).toBe(true);
   });
 
   it('replaces a registered element when the id is reused', () => {
@@ -68,9 +68,9 @@ describe('PopupTriggerMap', () => {
     map.add('trigger', first);
     map.add('trigger', second);
 
-    expect(map.getById('trigger')).to.equal(second);
-    expect(map.hasElement(first)).to.equal(false);
-    expect(map.hasElement(second)).to.equal(true);
+    expect(map.getById('trigger')).toBe(second);
+    expect(map.hasElement(first)).toBe(false);
+    expect(map.hasElement(second)).toBe(true);
   });
 
   it('deletes an element and no longer matches it', () => {
@@ -81,8 +81,8 @@ describe('PopupTriggerMap', () => {
     map.delete('trigger');
 
     expect(map.getById('trigger')).toBeUndefined();
-    expect(map.hasElement(button)).to.equal(false);
-    expect(map.hasMatchingElement((element) => element === button)).to.equal(false);
+    expect(map.hasElement(button)).toBe(false);
+    expect(map.hasMatchingElement((element) => element === button)).toBe(false);
   });
 });
 
@@ -96,13 +96,13 @@ describe('useTriggerRegistration', () => {
       <TestTrigger id="trigger" store={store} element={element} repeat={3} />,
     );
 
-    expect(store.context.triggerElements.getById('trigger')).to.equal(element);
-    expect(store.context.triggerElements.hasElement(element)).to.equal(true);
+    expect(store.context.triggerElements.getById('trigger')).toBe(element);
+    expect(store.context.triggerElements.hasElement(element)).toBe(true);
     expect(spy).not.toHaveBeenCalled();
 
     unmount();
     expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
-    expect(store.context.triggerElements.hasElement(element)).to.equal(false);
+    expect(store.context.triggerElements.hasElement(element)).toBe(false);
   });
 
   it('re-registers when the trigger id changes without notifying the store', () => {
@@ -114,17 +114,17 @@ describe('useTriggerRegistration', () => {
       <TestTrigger id="first" store={store} element={element} />,
     );
 
-    expect(store.context.triggerElements.getById('first')).to.equal(element);
+    expect(store.context.triggerElements.getById('first')).toBe(element);
     expect(spy).not.toHaveBeenCalled();
 
     rerender(<TestTrigger id="second" store={store} element={element} />);
 
     expect(store.context.triggerElements.getById('first')).toBeUndefined();
-    expect(store.context.triggerElements.getById('second')).to.equal(element);
+    expect(store.context.triggerElements.getById('second')).toBe(element);
     expect(spy).not.toHaveBeenCalled();
 
     unmount();
     expect(store.context.triggerElements.getById('second')).toBeUndefined();
-    expect(store.context.triggerElements.hasElement(element)).to.equal(false);
+    expect(store.context.triggerElements.hasElement(element)).toBe(false);
   });
 });

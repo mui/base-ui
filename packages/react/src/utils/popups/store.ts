@@ -1,10 +1,10 @@
 import { createSelector } from '@base-ui/utils/store';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FloatingRootContext } from '../../floating-ui-react';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
-import { EMPTY_OBJECT } from '../constants';
-import { TransitionStatus } from '../useTransitionStatus';
+import { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
-import { HTMLProps } from '../types';
+import { HTMLProps } from '../../internals/types';
 
 /**
  * State common to all popup stores.
@@ -80,7 +80,7 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     open: false,
     openProp: undefined,
     mounted: false,
-    transitionStatus: 'idle',
+    transitionStatus: undefined,
     floatingRootContext: getEmptyRootContext(),
     preventUnmountingOnClose: false,
     payload: undefined,
@@ -120,8 +120,12 @@ const activeTriggerIdSelector = createSelector(
   (state: S) => state.triggerIdProp ?? state.activeTriggerId,
 );
 
+function getOpen(state: S) {
+  return state.openProp ?? state.open;
+}
+
 export const popupStoreSelectors = {
-  open: createSelector((state: S) => state.openProp ?? state.open),
+  open: createSelector(getOpen),
   mounted: createSelector((state: S) => state.mounted),
   transitionStatus: createSelector((state: S) => state.transitionStatus),
   floatingRootContext: createSelector((state: S) => state.floatingRootContext),
@@ -144,7 +148,7 @@ export const popupStoreSelectors = {
    */
   isOpenedByTrigger: createSelector(
     (state: S, triggerId: string | undefined) =>
-      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.open,
+      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && getOpen(state),
   ),
   /**
    * Whether the popup is mounted and was activated by a trigger with the given ID.

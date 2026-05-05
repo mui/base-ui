@@ -8,6 +8,7 @@ export default function ExampleDialog() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [confirmationOpen, setConfirmationOpen] = React.useState(false);
   const [textareaValue, setTextareaValue] = React.useState('');
+  const titleId = React.useId();
 
   return (
     <Dialog.Root
@@ -28,7 +29,9 @@ export default function ExampleDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup}>
-          <Dialog.Title className={styles.Title}>New tweet</Dialog.Title>
+          <Dialog.Title id={titleId} className={styles.Title}>
+            New tweet
+          </Dialog.Title>
           <form
             className={styles.TextareaContainer}
             onSubmit={(event) => {
@@ -38,6 +41,7 @@ export default function ExampleDialog() {
             }}
           >
             <textarea
+              aria-labelledby={titleId}
               required
               className={styles.Textarea}
               placeholder="What’s on your mind?"

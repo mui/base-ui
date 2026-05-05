@@ -21,7 +21,7 @@ export default function TooltipDetachedTriggersSimpleDemo() {
           active:bg-gray-100"
         handle={demoTooltip}
       >
-        <InfoIcon aria-label="Information" />
+        <InfoIcon aria-label="This is a detached tooltip" />
       </Tooltip.Trigger>
 
       <Tooltip.Root handle={demoTooltip}>

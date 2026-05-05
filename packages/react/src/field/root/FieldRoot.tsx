@@ -1,15 +1,19 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { FieldRootContext } from './FieldRootContext';
-import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
+import { FieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import {
+  DEFAULT_VALIDITY_STATE,
+  fieldValidityMapping,
+} from '../../internals/field-constants/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import type { Form } from '../../form';
-import { useFormContext } from '../../form/FormContext';
-import { LabelableProvider } from '../../labelable-provider';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { LabelableProvider } from '../../internals/labelable-provider';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useFieldValidation } from './useFieldValidation';
+import { useFieldControlRegistration } from '../../internals/field-register-control/useFieldControlRegistration';
 
 /**
  * @internal
@@ -32,6 +36,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     dirty: dirtyProp,
     touched: touchedProp,
     actionsRef,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -75,9 +80,8 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       (validationMode === 'onSubmit' && submitAttemptedRef.current),
   );
 
-  const invalid = Boolean(
-    invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
-  );
+  const hasFormError = !!name && Object.hasOwn(errors, name) && errors[name] !== undefined;
+  const invalid = invalidProp === true || hasFormError;
 
   const [validityData, setValidityData] = React.useState<FieldValidityData>({
     state: DEFAULT_VALIDITY_STATE,
@@ -89,7 +93,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const valid = !invalid && validityData.state.valid;
 
-  const state: FieldRoot.State = React.useMemo(
+  const state: FieldRootState = React.useMemo(
     () => ({
       disabled,
       touched,
@@ -113,10 +117,21 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     shouldValidateOnChange,
   });
 
+  const validityValue = validityData.value;
+
   const handleImperativeValidate = React.useCallback(() => {
     markedDirtyRef.current = true;
-    validation.commit(validityData.value);
-  }, [validation, validityData]);
+    validation.commit(validityValue);
+  }, [validation, validityValue]);
+
+  const registerFieldControl = useFieldControlRegistration({
+    commit: validation.commit,
+    invalid,
+    markedDirtyRef,
+    name,
+    setValidityData,
+    validityData,
+  });
 
   React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
     handleImperativeValidate,
@@ -143,6 +158,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       shouldValidateOnChange,
       state,
       markedDirtyRef,
+      registerFieldControl,
       validation,
     }),
     [
@@ -163,6 +179,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       validationDebounceTime,
       shouldValidateOnChange,
       state,
+      registerFieldControl,
       validation,
     ],
   );
@@ -219,16 +236,33 @@ export interface FieldRootActions {
 }
 
 export interface FieldRootState {
-  /** Whether the component should ignore user interaction. */
+  /**
+   * Whether the component should ignore user interaction.
+   */
   disabled: boolean;
+  /**
+   * Whether the field has been touched.
+   */
   touched: boolean;
+  /**
+   * Whether the field value has changed from its initial value.
+   */
   dirty: boolean;
+  /**
+   * Whether the field is valid.
+   */
   valid: boolean | null;
+  /**
+   * Whether the field has a value.
+   */
   filled: boolean;
+  /**
+   * Whether the field is focused.
+   */
   focused: boolean;
 }
 
-export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.State> {
+export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootState> {
   /**
    * Whether the component should ignore user interaction.
    * Takes precedence over the `disabled` prop on the `<Field.Control>` component.

@@ -1,6 +1,5 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { act, waitFor, screen } from '@mui/internal-test-utils';
@@ -37,10 +36,10 @@ describe('<Dialog.Popup />', () => {
 
         const dialog = screen.queryByRole('dialog', { hidden: true });
         if (expectedIsMounted) {
-          expect(dialog).not.to.equal(null);
+          expect(dialog).not.toBe(null);
           expect(dialog).toBeInaccessible();
         } else {
-          expect(dialog).to.equal(null);
+          expect(dialog).toBe(null);
         }
       });
     });
@@ -261,7 +260,7 @@ describe('<Dialog.Popup />', () => {
     });
 
     it('should not call initialFocus function when closing the dialog', async () => {
-      const initialFocusSpy = spy();
+      const initialFocusSpy = vi.fn();
 
       function TestComponent() {
         const input2Ref = React.useRef<HTMLInputElement>(null);
@@ -297,7 +296,7 @@ describe('<Dialog.Popup />', () => {
         expect(input2).toHaveFocus();
       });
 
-      expect(initialFocusSpy.callCount).to.equal(1);
+      expect(initialFocusSpy.mock.calls.length).toBe(1);
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
@@ -306,7 +305,78 @@ describe('<Dialog.Popup />', () => {
         expect(trigger).toHaveFocus();
       });
 
-      expect(initialFocusSpy.callCount).to.equal(1);
+      expect(initialFocusSpy.mock.calls.length).toBe(1);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('display: contents ancestors', () => {
+    it('keeps initial focus working when the popup is wrapped by a display: contents ancestor', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="outside-before">Outside before</button>
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <form style={{ display: 'contents' }}>
+                <Dialog.Popup data-testid="dialog-popup">
+                  <input data-testid="dialog-input" />
+                  <button type="button">Close</button>
+                </Dialog.Popup>
+              </form>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <button data-testid="outside-after">Outside after</button>
+        </div>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog-input')).toHaveFocus();
+      });
+    });
+
+    it('keeps trap-focus tab cycling inside the popup when wrapped by a display: contents ancestor', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="outside-before">Outside before</button>
+          <Dialog.Root defaultOpen modal="trap-focus">
+            <Dialog.Portal>
+              <form style={{ display: 'contents' }}>
+                <Dialog.Popup data-testid="dialog-popup">
+                  <input data-testid="first-input" />
+                  <button type="button" data-testid="second-button">
+                    Second
+                  </button>
+                </Dialog.Popup>
+              </form>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <button data-testid="outside-after">Outside after</button>
+        </div>,
+      );
+
+      const popup = screen.getByTestId('dialog-popup');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('first-input')).toHaveFocus();
+      });
+
+      await user.keyboard('[Tab]');
+      expect(screen.getByTestId('second-button')).toHaveFocus();
+
+      await user.keyboard('[Tab]');
+      await waitFor(() => {
+        expect(screen.getByTestId('first-input')).toHaveFocus();
+      });
+      expect(screen.getByTestId('outside-before')).not.toHaveFocus();
+      expect(screen.getByTestId('outside-after')).not.toHaveFocus();
+
+      await user.keyboard('[ShiftLeft>][Tab][/ShiftLeft]');
+      await waitFor(() => {
+        expect(screen.getByTestId('second-button')).toHaveFocus();
+      });
+      expect(popup.contains(document.activeElement)).toBe(true);
     });
   });
 
@@ -632,36 +702,36 @@ describe('<Dialog.Popup />', () => {
       await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
 
       await waitFor(() => {
-        expect(screen.getByTestId('popup0')).not.to.equal(null);
+        expect(screen.getByTestId('popup0')).not.toBe(null);
       });
 
       const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
 
-      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('0');
 
       await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
 
       await waitFor(() => {
-        expect(screen.getByTestId('popup1')).not.to.equal(null);
+        expect(screen.getByTestId('popup1')).not.toBe(null);
       });
 
-      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('1');
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('1');
 
       await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
 
       await waitFor(() => {
-        expect(screen.getByTestId('popup2')).not.to.equal(null);
+        expect(screen.getByTestId('popup2')).not.toBe(null);
       });
 
-      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('2');
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('2');
 
       await user.click(screen.getByRole('button', { name: 'Close 2' }));
 
-      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('1');
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('1');
 
       await user.click(screen.getByRole('button', { name: 'Close 1' }));
 
-      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('0');
     });
 
     it('decrements the count when an open nested dialog is unmounted', async () => {
@@ -697,24 +767,24 @@ describe('<Dialog.Popup />', () => {
       await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
 
       await waitFor(() => {
-        expect(screen.getByTestId('popup0')).not.to.equal(null);
+        expect(screen.getByTestId('popup0')).not.toBe(null);
       });
 
       const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
 
-      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('0');
 
       await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
 
       await waitFor(() => {
-        expect(screen.getByTestId('popup1')).not.to.equal(null);
+        expect(screen.getByTestId('popup1')).not.toBe(null);
       });
 
-      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('1');
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('1');
 
       await user.click(screen.getByRole('button', { name: 'toggle', hidden: true }));
 
-      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('0');
     });
 
     it('does not change the count when a closed nested dialog is unmounted', async () => {
@@ -746,16 +816,16 @@ describe('<Dialog.Popup />', () => {
       await user.click(screen.getByRole('button', { name: 'Trigger 0' }));
 
       await waitFor(() => {
-        expect(screen.getByTestId('popup0')).not.to.equal(null);
+        expect(screen.getByTestId('popup0')).not.toBe(null);
       });
 
       const computedStyles = getComputedStyle(screen.getByTestId('popup0'));
 
-      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('0');
 
       await user.click(screen.getByRole('button', { name: 'toggle' }));
 
-      expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
+      expect(computedStyles.getPropertyValue('--nested-dialogs')).toBe('0');
     });
 
     it('increments for nested alert dialog and decrements on close (cross-type)', async () => {
@@ -779,20 +849,20 @@ describe('<Dialog.Popup />', () => {
       );
 
       await user.click(screen.getByRole('button', { name: 'Open Dialog' }));
-      await waitFor(() => expect(screen.getByTestId('parent-dialog')).not.to.equal(null));
+      await waitFor(() => expect(screen.getByTestId('parent-dialog')).not.toBe(null));
 
       const parent = screen.getByTestId('parent-dialog');
-      expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('0');
+      expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).toBe('0');
 
       await user.click(screen.getByRole('button', { name: 'Open Alert' }));
-      await waitFor(() => expect(screen.getByTestId('nested-alert')).not.to.equal(null));
+      await waitFor(() => expect(screen.getByTestId('nested-alert')).not.toBe(null));
       await waitFor(() => {
-        expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('1');
+        expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).toBe('1');
       });
 
       await user.click(screen.getByRole('button', { name: 'Close Alert' }));
       await waitFor(() => {
-        expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('0');
+        expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).toBe('0');
       });
     });
   });
@@ -821,11 +891,11 @@ describe('<Dialog.Popup />', () => {
       const parentDialog = screen.getByTestId('parent-dialog');
       const nestedDialog = screen.getByTestId('nested-dialog');
 
-      expect(parentDialog).not.to.have.attribute('data-nested');
-      expect(nestedDialog).to.have.attribute('data-nested');
+      expect(parentDialog).not.toHaveAttribute('data-nested');
+      expect(nestedDialog).toHaveAttribute('data-nested');
 
-      expect(parentDialog).to.have.attribute('data-nested-dialog-open');
-      expect(nestedDialog).not.to.have.attribute('data-nested-dialog-open');
+      expect(parentDialog).toHaveAttribute('data-nested-dialog-open');
+      expect(nestedDialog).not.toHaveAttribute('data-nested-dialog-open');
     });
 
     it('adds the `nested` and `nested-dialog-open` style hooks if a dialog has a parent alert dialog', async () => {
@@ -851,11 +921,11 @@ describe('<Dialog.Popup />', () => {
       const parentDialog = screen.getByTestId('parent-dialog');
       const nestedDialog = screen.getByTestId('nested-dialog');
 
-      expect(parentDialog).not.to.have.attribute('data-nested');
-      expect(nestedDialog).to.have.attribute('data-nested');
+      expect(parentDialog).not.toHaveAttribute('data-nested');
+      expect(nestedDialog).toHaveAttribute('data-nested');
 
-      expect(parentDialog).to.have.attribute('data-nested-dialog-open');
-      expect(nestedDialog).not.to.have.attribute('data-nested-dialog-open');
+      expect(parentDialog).toHaveAttribute('data-nested-dialog-open');
+      expect(nestedDialog).not.toHaveAttribute('data-nested-dialog-open');
     });
   });
 });

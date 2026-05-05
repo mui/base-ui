@@ -1,16 +1,13 @@
 'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
 export default function ExamplePopoverCombobox() {
   return (
-    <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
-        Country
-      </Field.Label>
+    <div className={styles.Field}>
       <Combobox.Root items={countries}>
+        <Combobox.Label className={styles.Label}>Country</Combobox.Label>
         <Combobox.Trigger className={styles.Trigger}>
           <Combobox.Value
             placeholder={<span className={styles.Placeholder}>Select country</span>}
@@ -25,14 +22,16 @@ export default function ExamplePopoverCombobox() {
               <div className={styles.InputContainer}>
                 <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
               </div>
-              <Combobox.Empty className={styles.Empty}>No countries found.</Combobox.Empty>
+              <Combobox.Empty>
+                <div className={styles.Empty}>No countries found.</div>
+              </Combobox.Empty>
               <Combobox.List className={styles.List}>
                 {(country: Country) => (
                   <Combobox.Item key={country.code} value={country} className={styles.Item}>
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Combobox.ItemIndicator>
-                    <div className={styles.ItemText}>{country.label}</div>
+                    <span className={styles.ItemText}>{country.label}</span>
                   </Combobox.Item>
                 )}
               </Combobox.List>
@@ -40,7 +39,7 @@ export default function ExamplePopoverCombobox() {
           </Combobox.Positioner>
         </Combobox.Portal>
       </Combobox.Root>
-    </Field.Root>
+    </div>
   );
 }
 
@@ -51,7 +50,7 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
       height="12"
       viewBox="0 0 8 12"
       fill="none"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeWidth="1.5"
       {...props}
     >
@@ -63,7 +62,7 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+    <svg fill="currentColor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
   );

@@ -18,7 +18,7 @@ export default function ExampleNavigationMenu() {
               {overviewLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
-                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">{item.title}</h3>
+                    <h3 className="m-0 mb-1 text-base leading-5 font-normal">{item.title}</h3>
                     <p className="m-0 text-sm leading-5 text-gray-500">{item.description}</p>
                   </Link>
                 </li>
@@ -27,7 +27,7 @@ export default function ExampleNavigationMenu() {
                 <NavigationMenu.Root orientation="vertical">
                   <NavigationMenu.Item>
                     <NavigationMenu.Trigger className={linkCardClassName}>
-                      <span className="m-0 mb-1 text-base leading-5 font-medium">Handbook</span>
+                      <span className="m-0 mb-1 text-base leading-5 font-normal">Handbook</span>
                       <p className="m-0 text-sm leading-5 text-gray-500">
                         How to use Base UI effectively.
                       </p>
@@ -40,7 +40,7 @@ export default function ExampleNavigationMenu() {
                         {handbookLinks.map((item) => (
                           <li key={item.href}>
                             <Link href={item.href} className={linkCardClassName}>
-                              <h3 className="m-0 mb-1 text-base leading-5 font-medium">
+                              <h3 className="m-0 mb-1 text-base leading-5 font-normal">
                                 {item.title}
                               </h3>
                               <p className="m-0 text-sm leading-5 text-gray-500">
@@ -65,7 +65,7 @@ export default function ExampleNavigationMenu() {
                         ['--easing' as string]: 'cubic-bezier(0.22, 1, 0.36, 1)',
                       }}
                     >
-                      <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] w-[300px] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 min-[500px]:w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+                      <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] w-[var(--popup-width)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
                         <NavigationMenu.Viewport className="relative h-full w-full overflow-hidden" />
                       </NavigationMenu.Popup>
                     </NavigationMenu.Positioner>
@@ -87,7 +87,7 @@ export default function ExampleNavigationMenu() {
             ['--easing' as string]: 'cubic-bezier(0.22, 1, 0.36, 1)',
           }}
         >
-          <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+          <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
             <NavigationMenu.Arrow className="flex transition-[left] duration-[var(--duration)] ease-[var(--easing)] data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
               <ArrowSvg />
             </NavigationMenu.Arrow>
@@ -150,13 +150,13 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 
 const triggerClassName =
   'box-border flex items-center justify-center gap-1.5 h-10 ' +
-  'px-2 sm:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium ' +
+  'px-2 sm:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-normal ' +
   'text-[0.925rem] sm:text-base leading-6 select-none no-underline ' +
   'hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 ' +
-  'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative';
+  'focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative';
 
 const contentClassName =
-  'w-[calc(100vw_-_40px)] h-full p-6 xs:w-max xs:min-w-[400px] xs:w-max ' +
+  'w-[calc(100vw_-_40px)] h-full p-6 [@media(min-width:32rem)]:w-max [@media(min-width:32rem)]:min-w-[400px] ' +
   'transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] ' +
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 ' +
   'data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] ' +
@@ -166,7 +166,7 @@ const contentClassName =
 
 const linkCardClassName =
   'w-full text-left relative block rounded-md p-2 sm:p-3 no-underline text-inherit ' +
-  'hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2 ' +
+  'hover:bg-gray-100 focus-visible:relative focus-visible:outline-2 ' +
   'focus-visible:-outline-offset-1 focus-visible:outline-blue-800 ' +
   'data-[popup-open]:bg-gray-100';
 

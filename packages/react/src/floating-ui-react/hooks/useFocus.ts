@@ -1,21 +1,24 @@
+'use client';
 import * as React from 'react';
-import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { isMac, isSafari } from '@base-ui/utils/detectBrowser';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import { createAttribute } from '../utils/createAttribute';
 import {
   activeElement,
   contains,
-  getDocument,
   getTarget,
+  isTargetInsideEnabledTrigger,
   isTypeableElement,
   matchesFocusVisible,
-} from '../utils';
-
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { createAttribute } from '../utils/createAttribute';
-import { FloatingUIOpenChangeDetails } from '../../utils/types';
+} from '../utils/element';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { FloatingUIOpenChangeDetails } from '../../internals/types';
 
 const isMacSafari = isMac && isSafari;
 
@@ -27,16 +30,10 @@ export interface UseFocusProps {
    */
   enabled?: boolean | undefined;
   /**
-   * Whether the open state only changes if the focus event is considered
-   * visible (`:focus-visible` CSS selector).
-   * @default true
-   */
-  visibleOnly?: boolean | undefined;
-  /**
    * Waits for the specified time before opening.
    * @default undefined
    */
-  delay?: (number | (() => number | undefined)) | undefined;
+  delay?: number | (() => number | undefined) | undefined;
 }
 
 /**
@@ -48,23 +45,26 @@ export function useFocus(
   context: FloatingRootContext | FloatingContext,
   props: UseFocusProps = {},
 ): ElementProps {
+  const { enabled = true, delay } = props;
+
   const store = 'rootStore' in context ? context.rootStore : context;
 
   const { events, dataRef } = store.context;
-  const { enabled = true, visibleOnly = true, delay } = props;
 
   const blockFocusRef = React.useRef(false);
   // Track which reference should be blocked from re-opening after Escape/press dismissal.
   const blockedReferenceRef = React.useRef<Element | null>(null);
-  const timeout = useTimeout();
   const keyboardModalityRef = React.useRef(true);
 
+  const timeout = useTimeout();
+
   React.useEffect(() => {
+    const domReference = store.select('domReferenceElement');
+
     if (!enabled) {
       return undefined;
     }
 
-    const domReference = store.select('domReferenceElement');
     const win = getWindow(domReference);
 
     // If the reference was focused and the user left the tab/window, and the
@@ -75,7 +75,7 @@ export function useFocus(
       if (
         !store.select('open') &&
         isHTMLElement(currentDomReference) &&
-        currentDomReference === activeElement(getDocument(currentDomReference))
+        currentDomReference === activeElement(ownerDocument(currentDomReference))
       ) {
         blockFocusRef.current = true;
       }
@@ -89,21 +89,11 @@ export function useFocus(
       keyboardModalityRef.current = false;
     }
 
-    win.addEventListener('blur', onBlur);
-
-    if (isMacSafari) {
-      win.addEventListener('keydown', onKeyDown, true);
-      win.addEventListener('pointerdown', onPointerDown, true);
-    }
-
-    return () => {
-      win.removeEventListener('blur', onBlur);
-
-      if (isMacSafari) {
-        win.removeEventListener('keydown', onKeyDown, true);
-        win.removeEventListener('pointerdown', onPointerDown, true);
-      }
-    };
+    return mergeCleanups(
+      addEventListener(win, 'blur', onBlur),
+      isMacSafari && addEventListener(win, 'keydown', onKeyDown, true),
+      isMacSafari && addEventListener(win, 'pointerdown', onPointerDown, true),
+    );
   }, [store, enabled]);
 
   React.useEffect(() => {
@@ -127,26 +117,30 @@ export function useFocus(
     };
   }, [events, enabled, store]);
 
-  const reference: ElementProps['reference'] = React.useMemo(
-    () => ({
+  const reference: ElementProps['reference'] = React.useMemo(() => {
+    function resetBlockedFocus() {
+      blockFocusRef.current = false;
+      blockedReferenceRef.current = null;
+    }
+
+    return {
       onMouseLeave() {
-        blockFocusRef.current = false;
-        blockedReferenceRef.current = null;
+        resetBlockedFocus();
       },
       onFocus(event) {
         const focusTarget = event.currentTarget as Element;
+
         if (blockFocusRef.current) {
           if (blockedReferenceRef.current === focusTarget) {
             return;
           }
 
-          blockFocusRef.current = false;
-          blockedReferenceRef.current = null;
+          resetBlockedFocus();
         }
 
         const target = getTarget(event.nativeEvent);
 
-        if (visibleOnly && isElement(target)) {
+        if (isElement(target)) {
           // Safari fails to match `:focus-visible` if focus was initially
           // outside the document.
           if (isMacSafari && !event.relatedTarget) {
@@ -158,15 +152,16 @@ export function useFocus(
           }
         }
 
-        const movedFromOtherTrigger =
-          event.relatedTarget &&
-          store.context.triggerElements.hasElement(event.relatedTarget as Element);
+        const movedFromOtherEnabledTrigger = isTargetInsideEnabledTrigger(
+          event.relatedTarget,
+          store.context.triggerElements,
+        );
 
         const { nativeEvent, currentTarget } = event;
         const delayValue = typeof delay === 'function' ? delay() : delay;
 
         if (
-          (store.select('open') && movedFromOtherTrigger) ||
+          (store.select('open') && movedFromOtherEnabledTrigger) ||
           delayValue === 0 ||
           delayValue === undefined
         ) {
@@ -197,8 +192,8 @@ export function useFocus(
         });
       },
       onBlur(event) {
-        blockFocusRef.current = false;
-        blockedReferenceRef.current = null;
+        resetBlockedFocus();
+
         const relatedTarget = event.relatedTarget;
         const nativeEvent = event.nativeEvent;
 
@@ -212,7 +207,7 @@ export function useFocus(
         // Wait for the window blur listener to fire.
         timeout.start(0, () => {
           const domReference = store.select('domReferenceElement');
-          const activeEl = activeElement(domReference ? domReference.ownerDocument : document);
+          const activeEl = activeElement(ownerDocument(domReference));
 
           // Focus left the page, keep it open.
           if (!relatedTarget && activeEl === domReference) {
@@ -238,22 +233,15 @@ export function useFocus(
           // the floating element. The focus handler of that trigger will
           // handle the open state.
           const nextFocusedElement = relatedTarget ?? activeEl;
-          if (isElement(nextFocusedElement)) {
-            const triggerElements = store.context.triggerElements;
-            if (
-              triggerElements.hasElement(nextFocusedElement) ||
-              triggerElements.hasMatchingElement((trigger) => contains(trigger, nextFocusedElement))
-            ) {
-              return;
-            }
+          if (isTargetInsideEnabledTrigger(nextFocusedElement, store.context.triggerElements)) {
+            return;
           }
 
           store.setOpen(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },
-    }),
-    [dataRef, store, visibleOnly, timeout, delay],
-  );
+    };
+  }, [dataRef, delay, store, timeout]);
 
   return React.useMemo(
     () => (enabled ? { reference, trigger: reference } : {}),

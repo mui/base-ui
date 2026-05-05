@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
-import { DirectionContext, type TextDirection } from './DirectionContext';
+import {
+  DirectionContext,
+  type TextDirection,
+} from '../internals/direction-context/DirectionContext';
 
 /**
  * Enables RTL behavior for Base UI components.
@@ -17,6 +20,8 @@ export const DirectionProvider: React.FC<DirectionProvider.Props> = function Dir
   );
 };
 
+export interface DirectionProviderState {}
+
 export interface DirectionProviderProps {
   children?: React.ReactNode;
   /**
@@ -27,5 +32,6 @@ export interface DirectionProviderProps {
 }
 
 export namespace DirectionProvider {
+  export type State = DirectionProviderState;
   export type Props = DirectionProviderProps;
 }

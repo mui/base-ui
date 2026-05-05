@@ -4,16 +4,16 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { BaseUIComponentProps, Orientation } from '../../utils/types';
-import { CompositeList } from '../../composite/list/CompositeList';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import { BaseUIComponentProps, Orientation } from '../../internals/types';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 const rootStateAttributesMapping = {
   value: () => null,
@@ -25,8 +25,8 @@ const rootStateAttributesMapping = {
  *
  * Documentation: [Base UI Accordion](https://base-ui.com/react/components/accordion)
  */
-export const AccordionRoot = React.forwardRef(function AccordionRoot(
-  componentProps: AccordionRoot.Props,
+export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any>(
+  componentProps: AccordionRoot.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -36,11 +36,12 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     hiddenUntilFound: hiddenUntilFoundProp,
     keepMounted: keepMountedProp,
     loopFocus = true,
-    onValueChange: onValueChangeProp,
+    onValueChange,
     multiple = false,
     orientation = 'vertical',
     value: valueProp,
     defaultValue: defaultValueProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -51,7 +52,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     useIsoLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
-          'The `keepMounted={false}` prop on a Accordion.Root will be ignored when using `hiddenUntilFound` since it requires Panels to remain mounted when closed.',
+          'The `keepMounted={false}` prop on `Accordion.Root` is ignored when `hiddenUntilFound` is enabled, since panels must remain mounted while closed.',
         );
       }
     }, [hiddenUntilFoundProp, keepMountedProp]);
@@ -67,8 +68,6 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     return undefined;
   }, [valueProp, defaultValueProp]);
 
-  const onValueChange = useStableCallback(onValueChangeProp);
-
   const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   const [value, setValue] = useControlled({
@@ -78,34 +77,36 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     state: 'value',
   });
 
-  const handleValueChange = useStableCallback((newValue: number | string, nextOpen: boolean) => {
-    const details = createChangeEventDetails(REASONS.none);
-    if (!multiple) {
-      const nextValue = value[0] === newValue ? [] : [newValue];
-      onValueChange(nextValue, details);
-      if (details.isCanceled) {
-        return;
+  const handleValueChange = useStableCallback(
+    (newValue: AccordionRoot.Value<Value>[number], nextOpen: boolean) => {
+      const details = createChangeEventDetails(REASONS.none);
+      if (!multiple) {
+        const nextValue = value[0] === newValue ? [] : [newValue];
+        onValueChange?.(nextValue, details);
+        if (details.isCanceled) {
+          return;
+        }
+        setValue(nextValue);
+      } else if (nextOpen) {
+        const nextOpenValues = value.slice();
+        nextOpenValues.push(newValue);
+        onValueChange?.(nextOpenValues, details);
+        if (details.isCanceled) {
+          return;
+        }
+        setValue(nextOpenValues);
+      } else {
+        const nextOpenValues = value.filter((v) => v !== newValue);
+        onValueChange?.(nextOpenValues, details);
+        if (details.isCanceled) {
+          return;
+        }
+        setValue(nextOpenValues);
       }
-      setValue(nextValue);
-    } else if (nextOpen) {
-      const nextOpenValues = value.slice();
-      nextOpenValues.push(newValue);
-      onValueChange(nextOpenValues, details);
-      if (details.isCanceled) {
-        return;
-      }
-      setValue(nextOpenValues);
-    } else {
-      const nextOpenValues = value.filter((v) => v !== newValue);
-      onValueChange(nextOpenValues, details);
-      if (details.isCanceled) {
-        return;
-      }
-      setValue(nextOpenValues);
-    }
-  });
+    },
+  );
 
-  const state: AccordionRoot.State = React.useMemo(
+  const state: AccordionRoot.State<Value> = React.useMemo(
     () => ({
       value,
       disabled,
@@ -114,7 +115,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     [value, disabled, orientation],
   );
 
-  const contextValue: AccordionRootContext = React.useMemo(
+  const contextValue: AccordionRootContext<Value> = React.useMemo(
     () => ({
       accordionItemRefs,
       direction,
@@ -158,39 +159,50 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       <CompositeList elementsRef={accordionItemRefs}>{element}</CompositeList>
     </AccordionRootContext.Provider>
   );
-});
+}) as {
+  <Value = any>(props: AccordionRoot.Props<Value>): React.JSX.Element;
+};
 
-export type AccordionValue = (any | null)[];
+export type AccordionValue<Value = any> = Value[];
 
-export interface AccordionRootState {
-  value: AccordionValue;
+export interface AccordionRootState<Value = any> {
+  /**
+   * The current value.
+   */
+  value: AccordionValue<Value>;
   /**
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * The component orientation.
+   */
   orientation: Orientation;
 }
 
-export interface AccordionRootProps extends BaseUIComponentProps<'div', AccordionRoot.State> {
+export interface AccordionRootProps<Value = any> extends BaseUIComponentProps<
+  'div',
+  AccordionRoot.State<Value>
+> {
   /**
    * The controlled value of the item(s) that should be expanded.
    *
    * To render an uncontrolled accordion, use the `defaultValue` prop instead.
    */
-  value?: AccordionValue | undefined;
+  value?: AccordionValue<Value> | undefined;
   /**
    * The uncontrolled value of the item(s) that should be initially expanded.
    *
    * To render a controlled accordion, use the `value` prop instead.
    */
-  defaultValue?: AccordionValue | undefined;
+  defaultValue?: AccordionValue<Value> | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
   disabled?: boolean | undefined;
   /**
-   * Allows the browser’s built-in page search to find and expand the panel contents.
+   * Allows the browser's built-in page search to find and expand the panel contents.
    *
    * Overrides the `keepMounted` prop and uses `hidden="until-found"`
    * to hide the element without removing it from the DOM.
@@ -214,7 +226,7 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
    * Provides the new value as an argument.
    */
   onValueChange?:
-    | ((value: AccordionValue, eventDetails: AccordionRootChangeEventDetails) => void)
+    | ((value: AccordionValue<Value>, eventDetails: AccordionRootChangeEventDetails) => void)
     | undefined;
   /**
    * Whether multiple items can be open at the same time.
@@ -235,8 +247,9 @@ export type AccordionRootChangeEventDetails =
   BaseUIChangeEventDetails<AccordionRoot.ChangeEventReason>;
 
 export namespace AccordionRoot {
-  export type State = AccordionRootState;
-  export type Props = AccordionRootProps;
+  export type Value<TValue = any> = AccordionValue<TValue>;
+  export type State<TValue = any> = AccordionRootState<TValue>;
+  export type Props<TValue = any> = AccordionRootProps<TValue>;
   export type ChangeEventReason = AccordionRootChangeEventReason;
   export type ChangeEventDetails = AccordionRootChangeEventDetails;
 }

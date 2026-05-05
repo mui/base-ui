@@ -1,11 +1,10 @@
+import { vi, expect } from 'vitest';
 import * as React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
 
 import { useClick, useFloating, useInteractions, useTypeahead } from '../index';
 import type { UseTypeaheadProps } from './useTypeahead';
-import { Main } from '../../../test/floating-ui-tests/Menu';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -14,7 +13,7 @@ beforeEach(() => {
 const useImpl = ({
   addUseClick = false,
   ...props
-}: Pick<UseTypeaheadProps, 'onMatch' | 'onTypingChange'> & {
+}: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping'> & {
   list?: Array<string>;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -34,7 +33,7 @@ const useImpl = ({
       setActiveIndex(index);
       props.onMatch?.(index);
     },
-    onTypingChange: props.onTypingChange,
+    onTyping: props.onTyping,
   });
   const click = useClick(context, {
     enabled: addUseClick,
@@ -60,7 +59,7 @@ const useImpl = ({
 };
 
 function Combobox(
-  props: Pick<UseTypeaheadProps, 'onMatch' | 'onTypingChange'> & {
+  props: Pick<UseTypeaheadProps, 'onMatch' | 'onTyping'> & {
     list?: Array<string>;
   },
 ) {
@@ -69,6 +68,58 @@ function Combobox(
     <React.Fragment>
       <input {...getReferenceProps()} />
       <div {...getFloatingProps()} />
+    </React.Fragment>
+  );
+}
+
+function ComboboxWithElementsRef(
+  props: Pick<UseTypeaheadProps, 'onMatch'> & {
+    list?: Array<string>;
+    hiddenIndices?: Array<number>;
+  },
+) {
+  const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
+  const [open, setOpen] = React.useState(true);
+  const { refs, context } = useFloating({
+    open,
+    onOpenChange: setOpen,
+  });
+  const listRef = React.useRef(props.list ?? ['apple', 'apricot', 'banana']);
+  const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
+  const typeahead = useTypeahead(context, {
+    listRef,
+    elementsRef,
+    activeIndex,
+    onMatch(index) {
+      setActiveIndex(index);
+      props.onMatch?.(index);
+    },
+  });
+
+  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([typeahead]);
+
+  return (
+    <React.Fragment>
+      <input {...getReferenceProps({ role: 'combobox', ref: refs.setReference })} />
+      {open && (
+        <div {...getFloatingProps({ role: 'listbox', ref: refs.setFloating })}>
+          {listRef.current.map((value, index) => (
+            <div
+              key={value}
+              role="option"
+              aria-selected={activeIndex === index}
+              style={props.hiddenIndices?.includes(index) ? { display: 'none' } : undefined}
+              {...getItemProps({
+                ref(node) {
+                  elementsRef.current[index] = node;
+                },
+              })}
+            >
+              {value}
+            </div>
+          ))}
+        </div>
+      )}
     </React.Fragment>
   );
 }
@@ -210,9 +261,9 @@ describe('useTypeahead', () => {
     expect((await screen.findByRole('option', { selected: true })).textContent).toBe('three');
   });
 
-  it('onTypingChange is called when typing starts or stops', async () => {
+  it('onTyping is called with typing activity', async () => {
     const spy = vi.fn();
-    render(<Combobox onTypingChange={spy} list={['one', 'two', 'three']} />);
+    render(<Combobox onTyping={spy} list={['one', 'two', 'three']} />);
 
     act(() => screen.getByRole('combobox').focus());
 
@@ -225,33 +276,27 @@ describe('useTypeahead', () => {
     expect(spy).toHaveBeenCalledWith(false);
   });
 
-  it('Menu - skips disabled items and opens submenu on space if no match', async () => {
-    vi.useRealTimers();
+  it('skips hidden items when matching with elementsRef', async () => {
+    const spy = vi.fn();
+    render(<ComboboxWithElementsRef onMatch={spy} hiddenIndices={[0]} />);
 
-    render(<Main />);
+    await userEvent.click(screen.getByRole('combobox'));
 
-    await userEvent.click(screen.getByText('Edit'));
+    await userEvent.keyboard('a');
+    expect(spy).toHaveBeenCalledWith(1);
+  });
 
-    await waitFor(() => {
-      expect(screen.getByRole('menu')).toBeInTheDocument();
-    });
+  it('skips visibility:hidden items when matching with elementsRef', async () => {
+    const spy = vi.fn();
+    render(<ComboboxWithElementsRef onMatch={spy} />);
 
-    await userEvent.keyboard('c');
+    const apple = screen.getByRole('option', { name: 'apple' });
 
-    await waitFor(() => {
-      expect(screen.getByText('Copy as')).toHaveFocus();
-    });
+    apple.style.visibility = 'hidden';
 
-    await userEvent.keyboard('opy as ');
+    await userEvent.click(screen.getByRole('combobox'));
 
-    await waitFor(() => {
-      expect(screen.getByText('Copy as').getAttribute('aria-expanded')).toBe('false');
-    });
-
-    await userEvent.keyboard(' ');
-
-    await waitFor(() => {
-      expect(screen.getByText('Copy as').getAttribute('aria-expanded')).toBe('true');
-    });
+    await userEvent.keyboard('a');
+    expect(spy).toHaveBeenCalledWith(1);
   });
 });

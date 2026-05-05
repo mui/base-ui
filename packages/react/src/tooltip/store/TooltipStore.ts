@@ -4,7 +4,7 @@ import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -20,6 +20,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
   disableHoverablePopup: boolean;
   openChangeReason: TooltipRoot.ChangeEventReason | null;
+  closeOnClick: boolean;
   closeDelay: number;
   hasViewport: boolean;
 };
@@ -36,6 +37,7 @@ const selectors = {
   trackCursorAxis: createSelector((state: State<unknown>) => state.trackCursorAxis),
   disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
+  closeOnClick: createSelector((state: State<unknown>) => state.closeOnClick),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
   hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
@@ -78,6 +80,8 @@ export class TooltipStore<Payload> extends ReactStore<
     if (eventDetails.isCanceled) {
       return;
     }
+
+    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
@@ -145,6 +149,7 @@ function createInitialState<Payload>(): State<Payload> {
     trackCursorAxis: 'none',
     disableHoverablePopup: false,
     openChangeReason: null,
+    closeOnClick: true,
     closeDelay: 0,
     hasViewport: false,
   };

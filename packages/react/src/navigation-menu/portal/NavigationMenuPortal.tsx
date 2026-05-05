@@ -31,11 +31,9 @@ export const NavigationMenuPortal = React.forwardRef(function NavigationMenuPort
   );
 });
 
-export namespace NavigationMenuPortal {
-  export interface State {}
-}
+export interface NavigationMenuPortalState {}
 
-export interface NavigationMenuPortalProps extends FloatingPortal.Props<NavigationMenuPortal.State> {
+export interface NavigationMenuPortalProps extends FloatingPortal.Props<NavigationMenuPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
@@ -44,9 +42,10 @@ export interface NavigationMenuPortalProps extends FloatingPortal.Props<Navigati
   /**
    * A parent element to render the portal element into.
    */
-  container?: FloatingPortal.Props<NavigationMenuPortal.State>['container'] | undefined;
+  container?: FloatingPortal.Props<NavigationMenuPortalState>['container'] | undefined;
 }
 
 export namespace NavigationMenuPortal {
+  export type State = NavigationMenuPortalState;
   export type Props = NavigationMenuPortalProps;
 }

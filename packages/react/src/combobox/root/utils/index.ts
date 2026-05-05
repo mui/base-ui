@@ -1,4 +1,4 @@
-import { stringifyAsLabel } from '../../../utils/resolveValueLabel';
+import { stringifyAsLabel } from '../../../internals/resolveValueLabel';
 import type { Filter } from './useFilter';
 
 /**

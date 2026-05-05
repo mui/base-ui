@@ -5,6 +5,7 @@ packages:
   - test/*
   - scripts/*
   - examples/*
+  - playground/*
 
 onlyBuiltDependencies:
   - '@mui/internal-babel-plugin-display-name'

@@ -2,10 +2,10 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
@@ -29,6 +29,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     id: idProp,
     payload,
     handle,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -72,14 +73,12 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     delay: () => ({ open: delayWithDefault, close: closeDelayWithDefault }),
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
+    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const focusProps = useFocus(floatingRootContext, { delay: delayWithDefault });
 
-  const state: PreviewCardTrigger.State = React.useMemo(
-    () => ({ open: isOpenedByThisTrigger }),
-    [isOpenedByThisTrigger],
-  );
+  const state: PreviewCardTriggerState = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
@@ -114,7 +113,7 @@ export interface PreviewCardTriggerState {
 
 export interface PreviewCardTriggerProps<Payload = unknown> extends BaseUIComponentProps<
   'a',
-  PreviewCardTrigger.State
+  PreviewCardTriggerState
 > {
   /**
    * A handle to associate the trigger with a preview card.

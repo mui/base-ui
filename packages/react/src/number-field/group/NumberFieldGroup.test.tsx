@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -19,6 +19,6 @@ describe('<NumberField.Group />', () => {
         <NumberField.Group />
       </NumberField.Root>,
     );
-    expect(screen.queryByRole('group')).not.to.equal(null);
+    expect(screen.queryByRole('group')).not.toBe(null);
   });
 });

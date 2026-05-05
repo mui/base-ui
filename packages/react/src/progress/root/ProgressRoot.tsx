@@ -1,27 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { formatNumber } from '../../utils/formatNumber';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { formatNumberValue } from '../../utils/formatNumber';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
-import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-
-function formatValue(
-  value: number | null,
-  locale?: Intl.LocalesArgument,
-  format?: Intl.NumberFormatOptions,
-): string {
-  if (value == null) {
-    return '';
-  }
-
-  if (!format) {
-    return formatNumber(value / 100, locale, { style: 'percent' });
-  }
-
-  return formatNumber(value, locale, format);
-}
+import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 
 function getDefaultAriaValueText(formattedValue: string | null, value: number | null) {
   if (value == null) {
@@ -50,6 +35,8 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     value,
     render,
     className,
+    children,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -61,14 +48,9 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   if (Number.isFinite(value)) {
     status = value === max ? 'complete' : 'progressing';
   }
-  const formattedValue = formatValue(value, locale, formatOptionsRef.current);
+  const formattedValue = formatNumberValue(value, locale, formatOptionsRef.current);
 
-  const state: ProgressRoot.State = React.useMemo(
-    () => ({
-      status,
-    }),
-    [status],
-  );
+  const state: ProgressRootState = React.useMemo(() => ({ status }), [status]);
 
   const defaultProps: HTMLProps = {
     'aria-labelledby': labelId,
@@ -77,6 +59,14 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     'aria-valuenow': value ?? undefined,
     'aria-valuetext': getAriaValueText(formattedValue, value),
     role: 'progressbar',
+    children: (
+      <React.Fragment>
+        {children}
+        <span role="presentation" style={visuallyHidden}>
+          {/* force NVDA to read the label https://github.com/mui/base-ui/issues/4184 */}x
+        </span>
+      </React.Fragment>
+    ),
   };
 
   const contextValue: ProgressRootContext = React.useMemo(
@@ -107,12 +97,15 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
 export type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 
 export interface ProgressRootState {
+  /**
+   * The current status.
+   */
   status: ProgressStatus;
 }
 
-export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressRoot.State> {
+export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressRootState> {
   /**
-   * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
+   * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the progress bar.
    */
   'aria-valuetext'?: React.AriaAttributes['aria-valuetext'] | undefined;
   /**

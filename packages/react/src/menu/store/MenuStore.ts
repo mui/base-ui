@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { HTMLProps } from '../../utils/types';
+import { HTMLProps } from '../../internals/types';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -16,13 +17,14 @@ import {
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean;
+  openMethod: InteractionType | null;
   allowMouseEnter: boolean;
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
   hoverEnabled: boolean;
   stickIfOpen: boolean;
-  instantType: 'dismiss' | 'click' | 'group' | undefined;
+  instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
   floatingNodeId: string | undefined;
@@ -30,6 +32,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
+  hasViewport: boolean;
 };
 
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
@@ -50,18 +53,14 @@ const selectors = {
       ? state.parent.context.disabled || state.disabled
       : state.disabled,
   ),
-
   modal: createSelector(
     (state: State<unknown>) =>
       (state.parent.type === undefined || state.parent.type === 'context-menu') &&
       (state.modal ?? true),
   ),
+  openMethod: createSelector((state: State<unknown>) => state.openMethod),
 
-  allowMouseEnter: createSelector((state: State<unknown>): boolean =>
-    state.parent.type === 'menu'
-      ? state.parent.store.select('allowMouseEnter')
-      : state.allowMouseEnter,
-  ),
+  allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   parent: createSelector((state: State<unknown>) => state.parent),
   rootId: createSelector((state: State<unknown>): string | undefined => {
@@ -89,6 +88,7 @@ const selectors = {
   floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
   keyboardEventRelay: createSelector(
     (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
       if (state.keyboardEventRelay) {
@@ -127,24 +127,31 @@ export class MenuStore<Payload> extends ReactStore<
       selectors,
     );
 
-    // Sync `allowMouseEnter` with parent menu if applicable.
-    this.observe(
-      createSelector((state) => state.allowMouseEnter),
-      (allowMouseEnter, oldValue) => {
-        // The allowMouseEnter !== oldValue check prevent calling parent store's set
-        // on intialization. Without it, React might complain about updating one component during rendering another.
-        if (this.state.parent.type === 'menu' && allowMouseEnter !== oldValue) {
-          this.state.parent.store.set('allowMouseEnter', allowMouseEnter);
-        }
-      },
-    );
-
     // Set up propagation of state from parent menu if applicable.
     this.unsubscribeParentListener = this.observe('parent', (parent) => {
       this.unsubscribeParentListener?.();
 
       if (parent.type === 'menu') {
+        let rootId = parent.store.select('rootId');
+        let floatingTreeRoot = parent.store.select('floatingTreeRoot');
+        let keyboardEventRelay = parent.store.select('keyboardEventRelay');
+
         this.unsubscribeParentListener = parent.store.subscribe(() => {
+          const nextRootId = parent.store.select('rootId');
+          const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
+          const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
+
+          if (
+            rootId === nextRootId &&
+            floatingTreeRoot === nextFloatingTreeRoot &&
+            keyboardEventRelay === nextKeyboardEventRelay
+          ) {
+            return;
+          }
+
+          rootId = nextRootId;
+          floatingTreeRoot = nextFloatingTreeRoot;
+          keyboardEventRelay = nextKeyboardEventRelay;
           this.notifyAll();
         });
 
@@ -184,7 +191,8 @@ function createInitialState<Payload>(): State<Payload> {
     ...createInitialPopupStoreState(),
     disabled: false,
     modal: true,
-    allowMouseEnter: true,
+    openMethod: null,
+    allowMouseEnter: false,
     stickIfOpen: true,
     parent: {
       type: undefined,
@@ -200,5 +208,6 @@ function createInitialState<Payload>(): State<Payload> {
     itemProps: EMPTY_OBJECT as HTMLProps,
     keyboardEventRelay: undefined,
     closeDelay: 0,
+    hasViewport: false,
   };
 }

@@ -8,7 +8,7 @@ export { useMenuSubmenuRootContext } from './MenuSubmenuRootContext';
 
 /**
  * Groups all parts of a submenu.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

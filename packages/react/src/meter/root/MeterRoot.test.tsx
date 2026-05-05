@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Meter } from '@base-ui/react/meter';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -24,11 +24,11 @@ describe('<Meter.Root />', () => {
 
       const meter = screen.getByRole('meter');
 
-      expect(meter).to.have.attribute('aria-valuenow', '30');
-      expect(meter).to.have.attribute('aria-valuemin', '0');
-      expect(meter).to.have.attribute('aria-valuemax', '100');
-      expect(meter).to.have.attribute('aria-valuetext', '30%');
-      expect(meter.getAttribute('aria-labelledby')).to.equal(
+      expect(meter).toHaveAttribute('aria-valuenow', '30');
+      expect(meter).toHaveAttribute('aria-valuemin', '0');
+      expect(meter).toHaveAttribute('aria-valuemax', '100');
+      expect(meter).toHaveAttribute('aria-valuetext', '30%');
+      expect(meter.getAttribute('aria-labelledby')).toBe(
         screen.getByText('Battery Level').getAttribute('id'),
       );
     });
@@ -43,7 +43,7 @@ describe('<Meter.Root />', () => {
       );
       const meter = screen.getByRole('meter');
       await setProps({ value: 77 });
-      expect(meter).to.have.attribute('aria-valuenow', '77');
+      expect(meter).toHaveAttribute('aria-valuenow', '77');
     });
   });
 
@@ -68,8 +68,8 @@ describe('<Meter.Root />', () => {
 
       const value = screen.getByTestId('value');
       const meter = screen.getByRole('meter');
-      expect(value).to.have.text(formatValue(30));
-      expect(meter).to.have.attribute('aria-valuetext', formatValue(30));
+      expect(value).toHaveTextContent(formatValue(30));
+      expect(meter).toHaveAttribute('aria-valuetext', formatValue(30));
     });
   });
 
@@ -92,7 +92,7 @@ describe('<Meter.Root />', () => {
         </Meter.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text(expectedValue);
+      expect(screen.getByTestId('value')).toHaveTextContent(expectedValue);
     });
   });
 });

@@ -1,6 +1,5 @@
+import { expect, vi } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { Progress } from '@base-ui/react/progress';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -23,7 +22,7 @@ describe('<Progress.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).to.have.text((0.3).toLocaleString(undefined, { style: 'percent' }));
+      expect(value).toHaveTextContent((0.3).toLocaleString(undefined, { style: 'percent' }));
     });
 
     it('renders a formatted value when a format is provided', async () => {
@@ -42,12 +41,12 @@ describe('<Progress.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).to.have.text(formatValue(30));
+      expect(value).toHaveTextContent(formatValue(30));
     });
 
     describe('it accepts a render function', () => {
       it('numerical value', async () => {
-        const renderSpy = spy();
+        const renderSpy = vi.fn();
         const format: Intl.NumberFormatOptions = {
           style: 'currency',
           currency: 'USD',
@@ -60,12 +59,12 @@ describe('<Progress.Value />', () => {
             <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
           </Progress.Root>,
         );
-        expect(renderSpy.lastCall.args[0]).to.deep.equal(formatValue(30));
-        expect(renderSpy.lastCall.args[1]).to.deep.equal(30);
+        expect(renderSpy.mock.lastCall?.[0]).toEqual(formatValue(30));
+        expect(renderSpy.mock.lastCall?.[1]).toEqual(30);
       });
 
       it('indeterminate value', async () => {
-        const renderSpy = spy();
+        const renderSpy = vi.fn();
         const format: Intl.NumberFormatOptions = {
           style: 'currency',
           currency: 'USD',
@@ -75,8 +74,8 @@ describe('<Progress.Value />', () => {
             <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
           </Progress.Root>,
         );
-        expect(renderSpy.lastCall.args[0]).to.deep.equal('indeterminate');
-        expect(renderSpy.lastCall.args[1]).to.deep.equal(null);
+        expect(renderSpy.mock.lastCall?.[0]).toEqual('indeterminate');
+        expect(renderSpy.mock.lastCall?.[1]).toEqual(null);
       });
     });
   });

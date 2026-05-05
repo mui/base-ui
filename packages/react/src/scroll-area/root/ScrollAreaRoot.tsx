@@ -2,23 +2,23 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { ScrollAreaRootCssVars } from './ScrollAreaRootCssVars';
 import { SCROLL_TIMEOUT } from '../constants';
 import { getOffset } from '../utils/getOffset';
 import { ScrollAreaScrollbarDataAttributes } from '../scrollbar/ScrollAreaScrollbarDataAttributes';
 import { styleDisableScrollbar } from '../../utils/styles';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
 import { contains } from '../../floating-ui-react/utils';
-import { useCSPContext } from '../../csp-provider/CSPContext';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
 
 const DEFAULT_COORDS = { x: 0, y: 0 };
 const DEFAULT_SIZE = { width: 0, height: 0 };
 const DEFAULT_OVERFLOW_EDGES = { xStart: false, xEnd: false, yStart: false, yEnd: false };
-const DEFAULT_HIDDEN_STATE = { x: false, y: false, corner: false };
+const DEFAULT_HIDDEN_STATE = { x: true, y: true, corner: true };
 
 export type HiddenState = typeof DEFAULT_HIDDEN_STATE;
 export type OverflowEdges = typeof DEFAULT_OVERFLOW_EDGES;
@@ -39,6 +39,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     render,
     className,
     overflowEdgeThreshold: overflowEdgeThresholdProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -48,12 +49,14 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const scrollYTimeout = useTimeout();
   const scrollXTimeout = useTimeout();
+
   const { nonce, disableStyleElements } = useCSPContext();
 
   const [hovering, setHovering] = React.useState(false);
   const [scrollingX, setScrollingX] = React.useState(false);
   const [scrollingY, setScrollingY] = React.useState(false);
   const [touchModality, setTouchModality] = React.useState(false);
+  const [hasMeasuredScrollbar, setHasMeasuredScrollbar] = React.useState(false);
   const [cornerSize, setCornerSize] = React.useState<Size>(DEFAULT_SIZE);
   const [thumbSize, setThumbSize] = React.useState<Size>(DEFAULT_SIZE);
   const [overflowEdges, setOverflowEdges] = React.useState(DEFAULT_OVERFLOW_EDGES);
@@ -205,8 +208,9 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
   }
 
-  const state: ScrollAreaRoot.State = React.useMemo(
+  const state: ScrollAreaRootState = React.useMemo(
     () => ({
+      scrolling: scrollingX || scrollingY,
       hasOverflowX: !hiddenState.x,
       hasOverflowY: !hiddenState.y,
       overflowXStart: overflowEdges.xStart,
@@ -215,7 +219,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       overflowYEnd: overflowEdges.yEnd,
       cornerHidden: hiddenState.corner,
     }),
-    [hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
+    [scrollingX, scrollingY, hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
   );
 
   const props: HTMLProps = {
@@ -250,6 +254,8 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       setCornerSize,
       thumbSize,
       setThumbSize,
+      hasMeasuredScrollbar,
+      setHasMeasuredScrollbar,
       touchModality,
       cornerRef,
       scrollingX,
@@ -279,6 +285,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       handleScroll,
       cornerSize,
       thumbSize,
+      hasMeasuredScrollbar,
       touchModality,
       scrollingX,
       setScrollingX,
@@ -303,38 +310,54 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 });
 
 export interface ScrollAreaRootState {
-  /** Whether horizontal overflow is present. */
+  /**
+   * Whether the scroll area is being scrolled.
+   */
+  scrolling: boolean;
+  /**
+   * Whether horizontal overflow is present.
+   */
   hasOverflowX: boolean;
-  /** Whether vertical overflow is present. */
+  /**
+   * Whether vertical overflow is present.
+   */
   hasOverflowY: boolean;
-  /** Whether there is overflow on the inline start side for the horizontal axis. */
+  /**
+   * Whether there is overflow on the inline start side for the horizontal axis.
+   */
   overflowXStart: boolean;
-  /** Whether there is overflow on the inline end side for the horizontal axis. */
+  /**
+   * Whether there is overflow on the inline end side for the horizontal axis.
+   */
   overflowXEnd: boolean;
-  /** Whether there is overflow on the block start side. */
+  /**
+   * Whether there is overflow on the block start side.
+   */
   overflowYStart: boolean;
-  /** Whether there is overflow on the block end side. */
+  /**
+   * Whether there is overflow on the block end side.
+   */
   overflowYEnd: boolean;
-  /** Whether the scrollbar corner is hidden. */
+  /**
+   * Whether the scrollbar corner is hidden.
+   */
   cornerHidden: boolean;
 }
 
-export interface ScrollAreaRootProps extends BaseUIComponentProps<'div', ScrollAreaRoot.State> {
+export interface ScrollAreaRootProps extends BaseUIComponentProps<'div', ScrollAreaRootState> {
   /**
    * The threshold in pixels that must be passed before the overflow edge attributes are applied.
    * Accepts a single number for all edges or an object to configure them individually.
    * @default 0
    */
   overflowEdgeThreshold?:
-    | (
-        | number
-        | Partial<{
-            xStart: number;
-            xEnd: number;
-            yStart: number;
-            yEnd: number;
-          }>
-      )
+    | number
+    | Partial<{
+        xStart: number;
+        xEnd: number;
+        yStart: number;
+        yEnd: number;
+      }>
     | undefined;
 }
 

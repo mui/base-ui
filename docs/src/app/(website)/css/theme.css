@@ -1,19 +1,19 @@
-/* Theme variables and styles */
-
-:root {
-  --gray-s1: white;
-  --gray-s2: hsl(0deg 0% 97%);
-  --gray-t2: hsl(0deg 0% 18%);
-  --border: hsl(0deg 0% 18%);
-  --selection: hsl(0deg 0% 92%);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer theme {
   :root {
-    --gray-s1: hsl(0deg 0% 6%);
-    --gray-s2: hsl(0deg 0% 12%);
-    --gray-t2: hsl(0deg 0% 93%);
-    --border: hsl(0deg 0% 20%);
-    --selection: hsl(0deg 0% 18%);
+    --gray-s1: white;
+    --gray-s2: hsl(0deg 0% 97%);
+    --gray-t2: hsl(0deg 0% 18%);
+    --border: hsl(0deg 0% 18%);
+    --selection: hsl(0deg 0% 92%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --gray-s1: hsl(0deg 0% 6%);
+      --gray-s2: hsl(0deg 0% 12%);
+      --gray-t2: hsl(0deg 0% 93%);
+      --border: hsl(0deg 0% 20%);
+      --selection: hsl(0deg 0% 18%);
+    }
   }
 }

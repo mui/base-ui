@@ -11,7 +11,7 @@ import {
 } from '../../utils/popups';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY } from '../utils/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -68,6 +68,8 @@ export class PreviewCardStore<Payload> extends ReactStore<
     if (eventDetails.isCanceled) {
       return;
     }
+
+    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = { open: nextOpen };
