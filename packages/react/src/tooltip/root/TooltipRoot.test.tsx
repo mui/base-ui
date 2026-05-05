@@ -1992,7 +1992,7 @@ describe('nested tooltips', () => {
     expect(screen.queryByTestId('outer-popup')).toBe(null);
   });
 
-  it('should clear the cached pointer type when the pointer leaves the outer trigger', async () => {
+  it('should allow mouse hover after leaving a touch interaction', async () => {
     await render(
       <Tooltip.Root>
         <Tooltip.Trigger data-testid="outer-trigger" render={<span />} delay={0}>
@@ -2018,19 +2018,12 @@ describe('nested tooltips', () => {
     const innerTrigger = screen.getByTestId('inner-trigger');
     const outerArea = screen.getByTestId('outer-area');
 
-    // Prime pointerTypeRef with a touch interaction, then leave the trigger.
+    // Start with a touch interaction, then leave the trigger before the next hover.
     fireEvent.pointerEnter(outerTrigger, { pointerType: 'touch', clientX: 10, clientY: 10 });
     fireEvent.mouseLeave(outerTrigger, { relatedTarget: document.body });
 
-    // A subsequent mouse-driven interaction (without a fresh pointerEnter that
-    // sets pointerType) must not be silently suppressed by a stale 'touch'
-    // value. With pointerTypeRef cleared on mouseLeave,
-    // `isMouseLikePointerType(undefined)` returns true and the reopen fires.
-    fireEvent.pointerEnter(innerTrigger, { clientX: 50, clientY: 10 });
+    // A later mouse-only hover should not be suppressed by the previous touch input.
     fireEvent.mouseOver(innerTrigger);
-
-    await flushMicrotasks();
-
     fireEvent.mouseOut(innerTrigger, { relatedTarget: outerArea });
     fireEvent.mouseOver(outerArea);
 
