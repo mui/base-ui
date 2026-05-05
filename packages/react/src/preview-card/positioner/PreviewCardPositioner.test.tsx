@@ -477,6 +477,64 @@ describe('<PreviewCard.Positioner />', () => {
       expect(positionerX).toBeLessThanOrEqual(secondLineRect.right + 10);
     });
 
+    it('re-anchors to a newly entered line while already open', async () => {
+      const { user } = await render(
+        <div style={multilineWrapperStyle}>
+          <PreviewCard.Root>
+            <PreviewCard.Trigger delay={0} data-testid="trigger" style={multilineTriggerStyle}>
+              This is a long text that will wrap across multiple lines in the trigger element
+            </PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
+                <PreviewCard.Popup style={{ width: 80, height: 40 }}>
+                  Preview Content
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).toBeGreaterThan(2);
+
+      const firstLineRect = triggerRects[0];
+      const secondLineRect = triggerRects[1];
+
+      await user.pointer([
+        { target: document.body },
+        {
+          target: trigger,
+          coords: {
+            clientX: firstLineRect.left + firstLineRect.width / 2,
+            clientY: firstLineRect.top + firstLineRect.height / 2,
+          },
+        },
+      ]);
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, firstLineRect.bottom + 5);
+      });
+
+      await user.pointer([
+        { target: document.body },
+        {
+          target: trigger,
+          coords: {
+            clientX: secondLineRect.left + secondLineRect.width / 2,
+            clientY: secondLineRect.top + secondLineRect.height / 2,
+          },
+        },
+      ]);
+
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, secondLineRect.bottom + 5);
+      });
+    });
+
     it('positions the popup relative to the side-aligned rect when open is controlled', async () => {
       const sideOffset = 5;
       const inlinePopupHeight = 40;
