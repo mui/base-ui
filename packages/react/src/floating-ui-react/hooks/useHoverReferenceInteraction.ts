@@ -47,8 +47,8 @@ export interface UseHoverReferenceInteractionProps {
   getHandleCloseContext?: (() => HandleCloseContextBase | null) | undefined;
   isClosing?: (() => boolean) | undefined;
   /**
-   * Called before hover opens the floating element. Return `false` to veto this
-   * particular hover-open attempt.
+   * Called before each hover-driven open attempt (immediate, delayed, and rest-ms
+   * paths). Return `false` to veto; any other return value permits the open.
    */
   shouldOpen?: (() => boolean) | undefined;
 }
@@ -99,7 +99,6 @@ export function useHoverReferenceInteraction(
   });
 
   const checkShouldOpen = useStableCallback(() => {
-    // `shouldOpen` is an optional veto; keep default hover behavior unless it explicitly returns false.
     return shouldOpenRef.current?.() !== false;
   });
 

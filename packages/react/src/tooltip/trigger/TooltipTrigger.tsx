@@ -30,6 +30,25 @@ import { OPEN_DELAY } from '../utils/constants';
 const TOOLTIP_TRIGGER_IDENTIFIER = 'data-base-ui-tooltip-trigger';
 const ENABLED_TOOLTIP_TRIGGER_SELECTOR = `[${TOOLTIP_TRIGGER_IDENTIFIER}]:not([${TooltipTriggerDataAttributes.triggerDisabled}])`;
 
+function getTargetElement(event: Event): Element | null {
+  const target = getTarget(event);
+  if (isElement(target)) {
+    return target;
+  }
+
+  if ('composedPath' in event) {
+    const path = event.composedPath();
+    for (let i = 0; i < path.length; i += 1) {
+      const element = path[i];
+      if (isElement(element)) {
+        return element;
+      }
+    }
+  }
+
+  return null;
+}
+
 /**
  * An element to attach the tooltip to.
  * Renders a `<button>` element.
@@ -98,6 +117,8 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const isNestedTriggerHoveredRef = React.useRef(false);
   const nestedTriggerOpenTimeout = useTimeout();
+  // Tracked locally so it can be cleared on mouseLeave; the hover hook's
+  // internal pointer type is retained.
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
 
   const getOpenDelay = useStableCallback(() => {
@@ -116,11 +137,11 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     return computedOpenDelay;
   });
 
-  const detectNestedTriggerHover = useStableCallback((target: EventTarget | null) => {
+  const detectNestedTriggerHover = useStableCallback((target: Element | null) => {
     const triggerEl = triggerElementRef.current;
     let nestedTriggerHovered = false;
 
-    if (triggerEl && isElement(target)) {
+    if (triggerEl && target) {
       const nearestTrigger = closest(target, ENABLED_TOOLTIP_TRIGGER_SELECTOR);
       if (nearestTrigger && nearestTrigger !== triggerEl && contains(triggerEl, nearestTrigger)) {
         nestedTriggerHovered = true;
@@ -172,10 +193,10 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const handleNestedTriggerHover = useStableCallback((event: MouseEvent) => {
     const wasNestedTriggerHovered = isNestedTriggerHoveredRef.current;
-    const target = getTarget(event);
+    const target = getTargetElement(event);
     const nestedTriggerHovered = detectNestedTriggerHover(target);
     const triggerEl = triggerElementRef.current as HTMLElement | null;
-    const targetInsideTrigger = triggerEl && isElement(target) && contains(triggerEl, target);
+    const targetInsideTrigger = triggerEl && target && contains(triggerEl, target);
 
     if (
       nestedTriggerHovered &&
@@ -193,6 +214,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
       !disabledRef.current &&
       !store.select('open') &&
       triggerEl &&
+      // Match the hover hook's non-strict mouse fallback for mouse-only event sequences.
       isMouseLikePointerType(pointerTypeRef.current)
     ) {
       const open = () => {
@@ -202,8 +224,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
       };
       const openDelay = getOpenDelay();
 
-      // Tooltip passes `move: false` to the hover interaction, so moving off a
-      // nested trigger inside the same parent trigger needs this local reopen.
+      // With `move: false`, the hover hook only listens to mouseenter/mouseleave
+      // on the parent trigger. Leaving a nested child for the parent area fires
+      // no event the hook can react to, so reopen locally.
       if (openDelay === 0) {
         nestedTriggerOpenTimeout.clear();
         open();
