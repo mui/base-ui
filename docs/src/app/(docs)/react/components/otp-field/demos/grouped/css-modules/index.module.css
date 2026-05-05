@@ -37,7 +37,7 @@
   font-size: 1rem;
   font-weight: 400;
   text-align: center;
-  background-color: transparent;
+  background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
 
   &:focus {

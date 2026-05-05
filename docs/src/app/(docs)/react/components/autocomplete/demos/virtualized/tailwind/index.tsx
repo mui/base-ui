@@ -32,7 +32,7 @@ export default function ExampleVirtualizedAutocomplete() {
     >
       <label className="flex flex-col gap-1 text-sm font-bold text-neutral-950 dark:text-white">
         Search 10,000 items
-        <Autocomplete.Input className="h-8 w-[16rem] border border-neutral-950 bg-transparent px-2 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white" />
+        <Autocomplete.Input className="h-8 w-[16rem] border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white" />
       </label>
 
       <Autocomplete.Portal>

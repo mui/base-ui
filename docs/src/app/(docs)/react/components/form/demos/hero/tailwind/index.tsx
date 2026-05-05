@@ -37,7 +37,7 @@ export default function ExampleForm() {
           defaultValue="https://example.com"
           placeholder="https://example.com"
           pattern="https?://.*"
-          className="h-8 w-full border border-neutral-950 bg-transparent px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
+          className="h-8 w-full border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
         />
         <Field.Error className="text-sm text-red-700 dark:text-red-400" />
       </Field.Root>

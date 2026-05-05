@@ -15,7 +15,7 @@
   width: 16rem;
   height: 2rem;
   border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: transparent;
+  background-color: light-dark(white, var(--color-neutral-950));
 
   &:focus-within {
     outline: 2px solid var(--color-blue-800);
@@ -42,7 +42,7 @@
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
-  background-color: transparent;
+  background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
 
   &:focus {

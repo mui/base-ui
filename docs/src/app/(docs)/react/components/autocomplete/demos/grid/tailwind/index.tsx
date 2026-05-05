@@ -35,7 +35,7 @@ export default function ExampleEmojiPicker() {
         <input
           ref={textInputRef}
           type="text"
-          className="-mr-px h-8 border border-r-0 border-neutral-950 px-2 text-sm font-normal text-neutral-950 outline-none bg-transparent focus:relative focus:outline-2 focus:-outline-offset-2 focus:outline-solid focus:outline-blue-800 dark:border-white dark:text-white"
+          className="-mr-px h-8 border border-r-0 border-neutral-950 px-2 text-sm font-normal text-neutral-950 outline-none bg-white dark:bg-neutral-950 focus:relative focus:outline-2 focus:-outline-offset-2 focus:outline-solid focus:outline-blue-800 dark:border-white dark:text-white"
           placeholder="iMessage"
           value={textValue}
           onChange={(event) => setTextValue(event.target.value)}
@@ -69,7 +69,7 @@ export default function ExampleEmojiPicker() {
                 <div className="relative z-[2] h-[var(--input-container-height)] w-64 bg-white dark:bg-neutral-950">
                   <Autocomplete.Input
                     placeholder="Search emojis…"
-                    className="h-8 w-full border-0 bg-transparent px-2 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-blue-800 dark:text-white"
+                    className="h-8 w-full border-0 bg-white px-2 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-blue-800 dark:bg-neutral-950 dark:text-white"
                   />
                 </div>
                 <Autocomplete.Empty>

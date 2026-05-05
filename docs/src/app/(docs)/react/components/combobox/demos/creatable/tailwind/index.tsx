@@ -128,7 +128,7 @@ export default function ExampleCreatableCombobox() {
           >
             Labels
           </label>
-          <Combobox.InputGroup className="flex min-h-8 w-64 cursor-text flex-wrap items-center gap-0.5 border border-neutral-950 bg-transparent px-2 py-1 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-blue-800 has-[button]:px-1 dark:border-white min-[32rem]:w-[22rem]">
+          <Combobox.InputGroup className="flex min-h-8 w-64 cursor-text flex-wrap items-center gap-0.5 border border-neutral-950 bg-white dark:bg-neutral-950 px-2 py-1 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-blue-800 has-[button]:px-1 dark:border-white min-[32rem]:w-[22rem]">
             <Combobox.Chips className="flex w-full flex-wrap items-center gap-1">
               <Combobox.Value>
                 {(value: LabelItem[]) => (
@@ -152,7 +152,7 @@ export default function ExampleCreatableCombobox() {
                       ref={comboboxInputRef}
                       id={id}
                       placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                      className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-transparent p-0 text-sm leading-none font-normal text-neutral-950 outline-none dark:text-white"
+                      className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm dark:bg-neutral-950 leading-none font-normal text-neutral-950 outline-none dark:text-white"
                       onKeyDown={handleInputKeyDown}
                     />
                   </React.Fragment>
@@ -216,7 +216,7 @@ export default function ExampleCreatableCombobox() {
             <form onSubmit={handleCreateSubmit}>
               <input
                 ref={createInputRef}
-                className="h-8 w-full border border-neutral-950 bg-transparent px-2 text-sm leading-5 font-normal text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:text-white"
+                className="h-8 w-full border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm leading-5 font-normal text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:text-white"
                 placeholder="Label name"
                 defaultValue={pendingQueryRef.current}
               />
