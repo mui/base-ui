@@ -44,7 +44,7 @@ export default function AnimatedSelectMotionDemo() {
   return (
     <Select.Root items={fonts} open={open} onOpenChange={setOpen}>
       <Select.Trigger className={styles.Select}>
-        <Select.Value />
+        <Select.Value className={styles.Value} />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
