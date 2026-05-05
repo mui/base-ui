@@ -40,9 +40,9 @@ const triggerClass = `
   rounded-none border border-neutral-950 bg-white
   px-3 text-sm font-normal text-neutral-950
   select-none
-  hover:bg-neutral-50 active:bg-neutral-100 data-[popup-open]:bg-neutral-100
+  hover:bg-neutral-50 active:bg-neutral-100 data-popup-open:bg-neutral-100
   dark:border-white dark:bg-neutral-950 dark:text-white
-  dark:hover:bg-neutral-900 dark:active:bg-neutral-800 dark:data-[popup-open]:bg-neutral-800
+  dark:hover:bg-neutral-900 dark:active:bg-neutral-800 dark:data-popup-open:bg-neutral-800
   focus-visible:outline focus-visible:outline-2
   focus-visible:-outline-offset-2 focus-visible:outline-blue-800
 `;
@@ -50,11 +50,11 @@ const triggerClass = `
 const itemClass = `
   flex cursor-default py-2 pr-8 pl-4
   text-sm leading-4 outline-none select-none
-  data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-white
-  data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1
-  data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1]
-  data-[highlighted]:before:bg-neutral-950 data-[highlighted]:before:content-['']
-  dark:data-[highlighted]:text-neutral-950 dark:data-[highlighted]:before:bg-white
+  data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white
+  data-highlighted:before:absolute data-highlighted:before:inset-x-1
+  data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1]
+  data-highlighted:before:bg-neutral-950 data-highlighted:before:content-['']
+  dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white
 `;
 
 export default function MenuDetachedTriggersFullDemo() {
@@ -90,8 +90,8 @@ export default function MenuDetachedTriggersFullDemo() {
                   bg-white text-neutral-950 outline-none drop-shadow-[0.25rem_0.25rem_0] drop-shadow-black/12
                   transition-[width,height,opacity,scale]
                   duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]
-                  data-[starting-style]:scale-90 data-[starting-style]:opacity-0
-                  data-[ending-style]:scale-90 data-[ending-style]:opacity-0
+                  data-starting-style:scale-90 data-starting-style:opacity-0
+                  data-ending-style:scale-90 data-ending-style:opacity-0
                   data-instant:transition-none
                   dark:border-white dark:bg-neutral-950 dark:text-white dark:drop-shadow-none
                 `}

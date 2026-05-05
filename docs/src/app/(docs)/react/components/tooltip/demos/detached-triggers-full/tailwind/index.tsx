@@ -9,7 +9,7 @@ const triggerClass =
   'box-border flex size-8 items-center justify-center border border-neutral-950 bg-white text-sm font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 hover:bg-neutral-50 active:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-popup-open:bg-neutral-800 dark:hover:bg-neutral-900 dark:active:bg-neutral-800';
 
 const arrowClass =
-  "relative block w-3 h-1.5 overflow-clip transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[instant]:transition-none data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]";
+  "relative block w-3 h-1.5 overflow-clip transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-instant:transition-none data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:box-border before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]";
 
 export default function TooltipDetachedTriggersFullDemo() {
   return (
@@ -47,7 +47,7 @@ export default function TooltipDetachedTriggersFullDemo() {
                 transition-[top,left,right,bottom,transform]
                 duration-[0.35s]
                 ease-[cubic-bezier(0.22,1,0.36,1)]
-                data-[instant]:transition-none"
+                data-instant:transition-none"
             >
               <Tooltip.Popup
                 className="
@@ -62,9 +62,9 @@ export default function TooltipDetachedTriggersFullDemo() {
                   transition-[width,height,opacity,scale]
                   duration-[0.35s]
                   ease-[cubic-bezier(0.22,1,0.36,1)]
-                  data-[ending-style]:opacity-0 data-[ending-style]:scale-90
-                  data-[instant]:transition-none
-                  data-[starting-style]:opacity-0 data-[starting-style]:scale-90"
+                  data-ending-style:opacity-0 data-ending-style:scale-90
+                  data-instant:transition-none
+                  data-starting-style:opacity-0 data-starting-style:scale-90"
               >
                 <Tooltip.Arrow className={arrowClass} />
 

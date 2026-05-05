@@ -29,7 +29,7 @@ export function Portal(props: Autocomplete.Portal.Props) {
 export function Positioner({ className, ...props }: Autocomplete.Positioner.Props) {
   return (
     <Autocomplete.Positioner
-      className={clsx('outline-none data-[empty]:hidden', className)}
+      className={clsx('outline-none data-empty:hidden', className)}
       sideOffset={4}
       {...props}
     />
@@ -56,7 +56,7 @@ export function Item({ className, ...props }: Autocomplete.Item.Props) {
   return (
     <Autocomplete.Item
       className={clsx(
-        'flex flex-col gap-0.25 cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-neutral-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded data-[highlighted]:before:bg-neutral-900',
+        'flex flex-col gap-0.25 cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-neutral-50 data-highlighted:before:absolute data-highlighted:before:inset-x-2 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:rounded data-highlighted:before:bg-neutral-900',
         className,
       )}
       {...props}
