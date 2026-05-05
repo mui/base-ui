@@ -78,19 +78,13 @@ function getElementTransform(element: HTMLElement) {
   return { x: translateX, y: translateY, scale };
 }
 
-// `setPointerCapture`/`releasePointerCapture` can throw `NotFoundError` when the pointer is not (or
-// no longer) active. This can happen in normal browser flow (e.g. the capture was released
-// implicitly before our handler ran), so swallow that specific error to keep drag state in sync.
-function safelyChangePointerCapture(
-  element: HTMLElement | null,
-  pointerId: number,
-  method: 'setPointerCapture' | 'releasePointerCapture',
-) {
-  if (!element || typeof element[method] !== 'function') {
+function safelySetPointerCapture(element: HTMLElement | null, pointerId: number) {
+  if (!element || typeof element.setPointerCapture !== 'function') {
     return;
   }
+
   try {
-    element[method](pointerId);
+    element.setPointerCapture(pointerId);
   } catch (error) {
     if (error && typeof error === 'object' && 'name' in error && error.name === 'NotFoundError') {
       return;
@@ -153,7 +147,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const cancelledSwipeRef = React.useRef(false);
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
   const isFirstPointerMoveRef = React.useRef(false);
-  const isSwipingRef = React.useRef(false);
   const dragOffsetRef = React.useRef({ x: 0, y: 0 });
   const activePointerIdRef = React.useRef<number | null>(null);
   const cleanupDocumentPointerListenersRef = React.useRef<(() => void) | null>(null);
@@ -204,23 +197,12 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   useIsoLayoutEffect(recalculateHeight, [recalculateHeight]);
 
-  function setSwiping(nextSwiping: boolean) {
-    isSwipingRef.current = nextSwiping;
-    setIsSwiping(nextSwiping);
-  }
-
   function setResolvedDragOffset(nextDragOffset: { x: number; y: number }) {
     dragOffsetRef.current = nextDragOffset;
     setDragOffset(nextDragOffset);
   }
 
-  const cleanupDocumentPointerListeners = useStableCallback(() => {
-    cleanupDocumentPointerListenersRef.current?.();
-  });
-
-  // Pointer release listeners are attached synchronously for the active gesture, but still need
-  // a final cleanup if the toast unmounts before the browser sends pointerup/pointercancel.
-  useIsoLayoutEffect(() => cleanupDocumentPointerListeners, [cleanupDocumentPointerListeners]);
+  useIsoLayoutEffect(() => () => cleanupDocumentPointerListenersRef.current?.(), []);
 
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
     let newDeltaX = deltaX;
@@ -294,17 +276,17 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     store.setHovering(true);
-    setSwiping(true);
+    setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
     isFirstPointerMoveRef.current = true;
 
     addDocumentPointerListeners();
-    safelyChangePointerCapture(rootRef.current, event.pointerId, 'setPointerCapture');
+    safelySetPointerCapture(rootRef.current, event.pointerId);
   }
 
   function handlePointerMove(event: React.PointerEvent) {
-    if (!isSwipingRef.current || event.pointerId !== activePointerIdRef.current) {
+    if (!isSwiping || event.pointerId !== activePointerIdRef.current) {
       return;
     }
 
@@ -421,18 +403,16 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     setResolvedDragOffset({ x: newOffsetX, y: newOffsetY });
   }
 
-  const handleSwipeEnd = useStableCallback((event: React.PointerEvent | PointerEvent) => {
-    if (!isSwipingRef.current || event.pointerId !== activePointerIdRef.current) {
+  const handlePointerUp = useStableCallback((event: React.PointerEvent | PointerEvent) => {
+    if (event.pointerId !== activePointerIdRef.current) {
       return;
     }
 
-    setSwiping(false);
+    setIsSwiping(false);
     setIsRealSwipe(false);
     setLockedDirection(null);
     activePointerIdRef.current = null;
-    cleanupDocumentPointerListeners();
-
-    safelyChangePointerCapture(rootRef.current, event.pointerId, 'releasePointerCapture');
+    cleanupDocumentPointerListenersRef.current?.();
 
     const resolvedInitialTransform = initialTransformRef.current;
 
@@ -492,28 +472,20 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   });
 
-  function handlePointerUp(event: React.PointerEvent) {
-    handleSwipeEnd(event);
-  }
-
-  const handleSwipeCancel = useStableCallback((event: React.PointerEvent | PointerEvent) => {
-    if (!isSwipingRef.current || event.pointerId !== activePointerIdRef.current) {
+  const handlePointerCancel = useStableCallback((event: React.PointerEvent | PointerEvent) => {
+    if (event.pointerId !== activePointerIdRef.current) {
       return;
     }
 
-    setSwiping(false);
+    setIsSwiping(false);
     setIsRealSwipe(false);
     setLockedDirection(null);
     activePointerIdRef.current = null;
-    cleanupDocumentPointerListeners();
+    cleanupDocumentPointerListenersRef.current?.();
     const resolvedInitialTransform = initialTransformRef.current;
     setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
     setCurrentSwipeDirection(undefined);
   });
-
-  function handlePointerCancel(event: React.PointerEvent) {
-    handleSwipeCancel(event);
-  }
 
   function addDocumentPointerListeners() {
     const element = rootRef.current;
@@ -521,11 +493,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       return;
     }
 
-    cleanupDocumentPointerListeners();
+    cleanupDocumentPointerListenersRef.current?.();
 
     const doc = ownerDocument(element);
-    const cleanupPointerUp = addEventListener(doc, 'pointerup', handleSwipeEnd);
-    const cleanupPointerCancel = addEventListener(doc, 'pointercancel', handleSwipeCancel);
+    const cleanupPointerUp = addEventListener(doc, 'pointerup', handlePointerUp);
+    const cleanupPointerCancel = addEventListener(doc, 'pointercancel', handlePointerCancel);
 
     cleanupDocumentPointerListenersRef.current = () => {
       cleanupPointerUp();
