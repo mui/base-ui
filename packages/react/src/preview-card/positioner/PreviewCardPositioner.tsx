@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
@@ -77,6 +78,17 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
     inline: createInlineMiddleware(inlineRectCoordsRef),
   });
+
+  useIsoLayoutEffect(() => {
+    const update = positioning.update;
+    store.context.inlineRectPositionerUpdateRef.current = update;
+
+    return () => {
+      if (store.context.inlineRectPositionerUpdateRef.current === update) {
+        store.context.inlineRectPositionerUpdateRef.current = undefined;
+      }
+    };
+  }, [store, positioning.update]);
 
   const state: PreviewCardPositionerState = {
     open,

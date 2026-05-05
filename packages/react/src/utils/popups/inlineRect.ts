@@ -107,9 +107,12 @@ function createClientRect(rect: RectLike) {
   return createRect(rect.left, rect.top, rect.right, rect.bottom);
 }
 
-function getInlineRectCoords(event: React.MouseEvent<Element>): InlineRectCoords | undefined {
-  const { currentTarget, clientX, clientY } = event;
-  const { lines } = getLineRects(currentTarget.getClientRects());
+function getInlineRectCoords(
+  element: Element,
+  clientX: number,
+  clientY: number,
+): InlineRectCoords | undefined {
+  const { lines } = getLineRects(element.getClientRects());
 
   if (lines.length < 2) {
     return undefined;
@@ -121,7 +124,7 @@ function getInlineRectCoords(event: React.MouseEvent<Element>): InlineRectCoords
     x: clientX,
     y: clientY,
     lineIndex: lineIndex === -1 ? undefined : lineIndex,
-    element: currentTarget,
+    element,
   };
 }
 
@@ -202,7 +205,7 @@ export function getInlineRectTriggerProps(
   isOpen: boolean,
 ): Pick<React.HTMLAttributes<Element>, 'onFocus' | 'onMouseEnter' | 'onMouseMove'> {
   function updateCoords(event: React.MouseEvent<Element>) {
-    coordsRef.current = getInlineRectCoords(event);
+    updateInlineRectCoords(coordsRef, event.currentTarget, event.clientX, event.clientY);
   }
 
   function updateCoordsOnMove(event: React.MouseEvent<Element>) {
@@ -218,6 +221,17 @@ export function getInlineRectTriggerProps(
     onMouseEnter: updateCoords,
     onMouseMove: updateCoordsOnMove,
   };
+}
+
+export function updateInlineRectCoords(
+  coordsRef: React.RefObject<InlineRectCoords | undefined>,
+  element: Element,
+  clientX: number,
+  clientY: number,
+) {
+  const nextCoords = getInlineRectCoords(element, clientX, clientY);
+  coordsRef.current = nextCoords;
+  return nextCoords;
 }
 
 export function createInlineMiddleware(

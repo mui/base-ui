@@ -8,7 +8,11 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
-import { getInlineRectTriggerProps, useTriggerDataForwarding } from '../../utils/popups';
+import {
+  getInlineRectTriggerProps,
+  updateInlineRectCoords,
+  useTriggerDataForwarding,
+} from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-react';
 
@@ -41,6 +45,7 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
       'Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle.',
     );
   }
+  const previewCardStore = store;
 
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
@@ -67,6 +72,34 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
       store.context.closeDelayRef.current = closeDelayWithDefault;
     }
   }, [store, isMountedByThisTrigger, closeDelayWithDefault]);
+
+  useIsoLayoutEffect(() => {
+    const element = triggerElementRef.current;
+
+    if (!element) {
+      return undefined;
+    }
+
+    function handleMouseOver(event: Event) {
+      const mouseEvent = event as MouseEvent;
+      const nextCoords = updateInlineRectCoords(
+        inlineRectCoordsRef,
+        element as Element,
+        mouseEvent.clientX,
+        mouseEvent.clientY,
+      );
+
+      if (nextCoords && previewCardStore.select('mounted')) {
+        previewCardStore.context.inlineRectPositionerUpdateRef.current?.();
+      }
+    }
+
+    element.addEventListener('mouseover', handleMouseOver, true);
+
+    return () => {
+      element.removeEventListener('mouseover', handleMouseOver, true);
+    };
+  }, [inlineRectCoordsRef, previewCardStore]);
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     mouseOnly: true,

@@ -350,6 +350,7 @@ describe('<PreviewCard.Positioner />', () => {
 
   describe.skipIf(isJSDOM)('multiline inline trigger', () => {
     afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
       window.scrollTo(0, 0);
       document.documentElement.style.height = '';
       document.body.style.height = '';
@@ -521,6 +522,82 @@ describe('<PreviewCard.Positioner />', () => {
 
       await user.pointer([
         { target: document.body },
+        {
+          target: trigger,
+          coords: {
+            clientX: secondLineRect.left + secondLineRect.width / 2,
+            clientY: secondLineRect.top + secondLineRect.height / 2,
+          },
+        },
+      ]);
+
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, secondLineRect.bottom + 5);
+      });
+    });
+
+    it('re-anchors to a newly entered line while reopening during close transition', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const style = `
+        @keyframes preview-card-inline-reentry-close-transition {
+          from { opacity: 1; }
+          to { opacity: 0.01; }
+        }
+        [data-testid="popup"][data-ending-style] {
+          animation: preview-card-inline-reentry-close-transition 50ms linear forwards;
+        }
+      `;
+
+      const { user } = await render(
+        <React.Fragment>
+          <style>{style}</style>
+          <div style={multilineWrapperStyle}>
+            <PreviewCard.Root>
+              <PreviewCard.Trigger delay={0} data-testid="trigger" style={multilineTriggerStyle}>
+                This is a long text that will wrap across multiple lines in the trigger element
+              </PreviewCard.Trigger>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
+                  <PreviewCard.Popup data-testid="popup" style={{ width: 80, height: 40 }}>
+                    Preview Content
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).toBeGreaterThan(2);
+
+      const firstLineRect = triggerRects[0];
+      const secondLineRect = triggerRects[1];
+
+      await user.pointer([
+        { target: document.body },
+        {
+          target: trigger,
+          coords: {
+            clientX: firstLineRect.left + firstLineRect.width / 2,
+            clientY: firstLineRect.top + firstLineRect.height / 2,
+          },
+        },
+      ]);
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expectWithin(positioner.getBoundingClientRect().y, firstLineRect.bottom + 5);
+      });
+
+      await user.pointer([{ target: document.body, coords: { clientX: 300, clientY: 300 } }]);
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      });
+
+      await user.pointer([
         {
           target: trigger,
           coords: {

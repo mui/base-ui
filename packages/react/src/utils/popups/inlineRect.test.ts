@@ -1,7 +1,11 @@
 import type * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import type { InlineRectCoords } from './inlineRect';
-import { createInlineMiddleware, getInlineRectTriggerProps } from './inlineRect';
+import {
+  createInlineMiddleware,
+  getInlineRectTriggerProps,
+  updateInlineRectCoords,
+} from './inlineRect';
 
 type RectLike = {
   left: number;
@@ -140,6 +144,20 @@ describe('inlineRect', () => {
     };
 
     getInlineRectTriggerProps(coordsRef, true).onMouseEnter?.(createMouseEvent(trigger, 5, 25));
+
+    expect(coordsRef.current).toEqual({ x: 5, y: 25, lineIndex: 1, element: trigger });
+  });
+
+  it('updates stored coords from a native mouse event while open', () => {
+    const trigger = createTrigger([
+      { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },
+      { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
+    ]);
+    const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = {
+      current: { x: 1, y: 1, lineIndex: 0, element: trigger },
+    };
+
+    updateInlineRectCoords(coordsRef, trigger, 5, 25);
 
     expect(coordsRef.current).toEqual({ x: 5, y: 25, lineIndex: 1, element: trigger });
   });
