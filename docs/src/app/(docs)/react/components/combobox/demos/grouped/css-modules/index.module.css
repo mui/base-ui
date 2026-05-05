@@ -124,6 +124,7 @@
   scroll-padding-bottom: 0.5rem;
   max-height: min(23rem, var(--available-height));
   outline: 0;
+  isolation: isolate; /* Prevent overlap with iOS overlay scrollbars. */
 }
 
 .Group {
@@ -137,7 +138,6 @@
   z-index: 1;
   top: 0;
   padding: 0.5rem 0.5rem 0.25rem 1.75rem;
-  margin: 0 0.5rem 0 0; /* Prevent overlap with iOS overlay scrollbars. */
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1rem;

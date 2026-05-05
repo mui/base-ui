@@ -169,6 +169,7 @@
     calc(20.5rem - var(--input-container-height) - 2px),
     calc(var(--available-height) - var(--input-container-height) - 2px)
   );
+  isolation: isolate; /* Prevent overlap with iOS overlay scrollbars. */
 
   &:empty {
     padding: 0;
@@ -185,7 +186,6 @@
   z-index: 1;
   top: 0;
   padding: 0.5rem;
-  margin: 0 0.5rem 0 0; /* Prevent overlap with iOS overlay scrollbars. */
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1rem;

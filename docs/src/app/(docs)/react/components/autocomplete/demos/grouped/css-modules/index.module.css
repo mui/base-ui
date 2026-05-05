@@ -57,6 +57,7 @@
   overscroll-behavior: contain;
   max-height: min(22.5rem, var(--available-height));
   outline: 0;
+  isolation: isolate; /* Prevent overlap with iOS overlay scrollbars. */
 
   &[data-empty] {
     padding: 0;
@@ -74,7 +75,6 @@
   z-index: 1;
   top: 0;
   padding: 0.5rem 0.5rem 0.25rem;
-  margin: 0 0.5rem 0 0; /* Prevent overlap with iOS overlay scrollbars. */
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1rem;
