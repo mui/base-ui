@@ -73,7 +73,6 @@
   max-height: min(36rem, calc(100dvh - 5rem));
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -111,8 +110,8 @@
   }
 
   &:focus {
-    border-bottom-color: var(--color-neutral-100);
-    outline: none;
+    outline: 2px solid var(--color-blue-800);
+    outline-offset: -1px;
   }
 }
 
@@ -163,8 +162,7 @@
   align-items: center;
   min-height: 2rem;
   padding: 0 0.5rem;
-  font-size: 0.9375rem;
-  letter-spacing: 0.00625em;
+  font-size: 0.875rem;
   line-height: 1;
   font-weight: 400;
   color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
@@ -253,7 +251,7 @@
   padding: 0.625rem 0.75rem;
   border-top: 1px solid light-dark(var(--color-neutral-950), white);
   font-size: 0.75rem;
-  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
   background-color: light-dark(white, var(--color-neutral-950));
 }
 
@@ -276,9 +274,9 @@
     ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
   font-weight: 400;
   line-height: 1;
-  color: light-dark(var(--color-neutral-700), var(--color-neutral-300));
-  background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
-  border: 1px solid light-dark(var(--color-neutral-950), white);
+  color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
+  background-color: light-dark(var(--color-neutral-100), var(--color-neutral-900));
+  border: 1px solid light-dark(var(--color-neutral-400), var(--color-neutral-600));
 }
 
 .VisuallyHiddenClose {

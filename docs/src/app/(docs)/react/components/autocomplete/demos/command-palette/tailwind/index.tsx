@@ -20,7 +20,7 @@ export default function ExampleAutocompleteCommandPalette() {
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-150 ease-[cubic-bezier(0.45,1.005,0,1.005)] data-ending-style:opacity-0 data-starting-style:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 flex items-start justify-center overflow-hidden px-2 pt-18 pb-2">
           <Dialog.Popup
-            className="relative flex max-h-[min(36rem,calc(100dvh-5rem))] w-[calc(100vw-1rem)] max-w-[28rem] flex-col overflow-hidden border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[opacity,transform,scale,translate] duration-150 data-ending-style:-translate-y-4 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:-translate-y-4 data-starting-style:scale-95 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
+            className="relative flex max-h-[min(36rem,calc(100dvh-5rem))] w-[calc(100vw-1rem)] max-w-[28rem] flex-col border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[opacity,transform,scale,translate] duration-150 data-ending-style:-translate-y-4 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:-translate-y-4 data-starting-style:scale-95 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
             aria-label="Command palette"
           >
             <Autocomplete.Root
@@ -31,7 +31,7 @@ export default function ExampleAutocompleteCommandPalette() {
               keepHighlight
             >
               <Autocomplete.Input
-                className="h-8 w-full border-0 border-b border-neutral-950 bg-transparent px-2 text-sm font-normal tracking-[0.016em] text-neutral-950 outline-none placeholder:text-neutral-500 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
+                className="h-8 w-full border-0 border-b border-neutral-950 bg-transparent px-2 text-sm font-normal tracking-[0.016em] text-neutral-950 outline-none placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
                 placeholder="Search for apps and commands…"
               />
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
@@ -52,7 +52,7 @@ export default function ExampleAutocompleteCommandPalette() {
                           items={group.items}
                           className="not-last:mb-1"
                         >
-                          <Autocomplete.GroupLabel className="m-0 flex h-8 items-center px-2 text-[0.9375rem] tracking-[0.00625em] font-normal leading-none text-neutral-500 dark:text-neutral-400 select-none outline-none">
+                          <Autocomplete.GroupLabel className="m-0 flex min-h-8 cursor-default items-center px-2 text-sm leading-none font-normal text-neutral-500 select-none outline-none dark:text-neutral-400">
                             {group.value}
                           </Autocomplete.GroupLabel>
                           <Autocomplete.Collection>
@@ -63,7 +63,7 @@ export default function ExampleAutocompleteCommandPalette() {
                                 onClick={handleItemClick}
                                 className="grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 pl-2 pr-3 text-sm font-normal leading-[1.25] tracking-[0.016em] outline-none select-none [scroll-margin-block:0.25rem] data-highlighted:bg-neutral-100 dark:data-highlighted:bg-neutral-800"
                               >
-                                <span className="truncate font-normal">{item.label}</span>
+                                <span className="min-w-0 truncate font-normal">{item.label}</span>
                                 <span className="shrink-0 whitespace-nowrap text-[0.875rem] tracking-[0.00625em] text-neutral-500 data-highlighted:text-neutral-700 dark:text-neutral-400 dark:data-highlighted:text-neutral-300">
                                   {group.value === 'Suggestions' ? 'Application' : 'Command'}
                                 </span>
@@ -80,19 +80,19 @@ export default function ExampleAutocompleteCommandPalette() {
                 </ScrollArea.Scrollbar>
               </ScrollArea.Root>
 
-              <div className="flex items-center justify-between border-t border-neutral-950 bg-white px-3 py-2.5 text-xs text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-neutral-400">
+              <div className="flex items-center justify-between border-t border-neutral-950 bg-white px-3 py-2.5 text-xs text-neutral-600 dark:border-white dark:bg-neutral-950 dark:text-neutral-400">
                 <div className="flex items-center gap-2">
                   <span>Activate</span>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-950 bg-neutral-100 px-1 text-[0.625rem] font-normal text-neutral-700 dark:border-white dark:bg-neutral-800 dark:text-neutral-300">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-400 bg-neutral-100 px-1 font-mono text-[0.625rem] leading-none font-normal text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
                     Enter
                   </kbd>
                 </div>
                 <div className="flex items-center gap-2">
                   <span>Actions</span>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-950 bg-neutral-100 px-1 text-[0.625rem] font-normal text-neutral-700 dark:border-white dark:bg-neutral-800 dark:text-neutral-300">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-400 bg-neutral-100 px-1 font-mono text-[0.625rem] leading-none font-normal text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
                     Cmd
                   </kbd>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-950 bg-neutral-100 px-1 text-[0.625rem] font-normal text-neutral-700 dark:border-white dark:bg-neutral-800 dark:text-neutral-300">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-400 bg-neutral-100 px-1 font-mono text-[0.625rem] leading-none font-normal text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
                     K
                   </kbd>
                 </div>

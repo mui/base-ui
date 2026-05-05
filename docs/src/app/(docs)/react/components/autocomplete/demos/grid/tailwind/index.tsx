@@ -35,7 +35,7 @@ export default function ExampleEmojiPicker() {
         <input
           ref={textInputRef}
           type="text"
-          className="-mr-px h-8 border border-r-0 border-neutral-950 px-2 text-sm font-normal text-neutral-950 outline-none focus:relative focus:outline-2 focus:-outline-offset-2 focus:outline-solid focus:outline-blue-800 dark:border-white dark:text-white"
+          className="-mr-px h-8 border border-r-0 border-neutral-950 px-2 text-sm font-normal text-neutral-950 outline-none bg-transparent focus:relative focus:outline-2 focus:-outline-offset-2 focus:outline-solid focus:outline-blue-800 dark:border-white dark:text-white"
           placeholder="iMessage"
           value={textValue}
           onChange={(event) => setTextValue(event.target.value)}

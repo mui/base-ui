@@ -21,6 +21,7 @@
   font-weight: 400;
   color: light-dark(var(--color-neutral-950), white);
   outline: none;
+  background-color: transparent;
 
   &:focus {
     position: relative;
@@ -115,7 +116,6 @@
   box-sizing: border-box;
   padding-inline: 0.5rem;
   margin: 0;
-  /* border: 1px solid light-dark(var(--color-neutral-950), white); */
   width: 100%;
   height: 2rem;
   font-family: inherit;
