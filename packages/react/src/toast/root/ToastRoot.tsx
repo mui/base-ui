@@ -78,21 +78,6 @@ function getElementTransform(element: HTMLElement) {
   return { x: translateX, y: translateY, scale };
 }
 
-function safelySetPointerCapture(element: HTMLElement | null, pointerId: number) {
-  if (!element || typeof element.setPointerCapture !== 'function') {
-    return;
-  }
-
-  try {
-    element.setPointerCapture(pointerId);
-  } catch (error) {
-    if (error && typeof error === 'object' && 'name' in error && error.name === 'NotFoundError') {
-      return;
-    }
-    throw error;
-  }
-}
-
 /**
  * Groups all parts of an individual toast.
  * Renders a `<div>` element.
@@ -202,7 +187,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     setDragOffset(nextDragOffset);
   }
 
-  useIsoLayoutEffect(() => () => cleanupDocumentPointerListenersRef.current?.(), []);
+  useIsoLayoutEffect(() => {
+    return () => {
+      cleanupDocumentPointerListenersRef.current?.();
+    };
+  }, []);
 
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
     let newDeltaX = deltaX;
@@ -282,11 +271,15 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     isFirstPointerMoveRef.current = true;
 
     addDocumentPointerListeners();
-    safelySetPointerCapture(rootRef.current, event.pointerId);
+    try {
+      rootRef.current?.setPointerCapture?.(event.pointerId);
+    } catch {
+      // The document listener still cleans up if pointer capture is unavailable.
+    }
   }
 
   function handlePointerMove(event: React.PointerEvent) {
-    if (!isSwiping || event.pointerId !== activePointerIdRef.current) {
+    if (event.pointerId !== activePointerIdRef.current) {
       return;
     }
 
@@ -403,16 +396,16 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     setResolvedDragOffset({ x: newOffsetX, y: newOffsetY });
   }
 
-  const handlePointerUp = useStableCallback((event: React.PointerEvent | PointerEvent) => {
+  const handleSwipeEnd = useStableCallback((event: React.PointerEvent | PointerEvent) => {
     if (event.pointerId !== activePointerIdRef.current) {
       return;
     }
 
+    activePointerIdRef.current = null;
+    cleanupDocumentPointerListenersRef.current?.();
     setIsSwiping(false);
     setIsRealSwipe(false);
     setLockedDirection(null);
-    activePointerIdRef.current = null;
-    cleanupDocumentPointerListenersRef.current?.();
 
     const resolvedInitialTransform = initialTransformRef.current;
 
@@ -472,16 +465,16 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   });
 
-  const handlePointerCancel = useStableCallback((event: React.PointerEvent | PointerEvent) => {
+  const handleSwipeCancel = useStableCallback((event: React.PointerEvent | PointerEvent) => {
     if (event.pointerId !== activePointerIdRef.current) {
       return;
     }
 
+    activePointerIdRef.current = null;
+    cleanupDocumentPointerListenersRef.current?.();
     setIsSwiping(false);
     setIsRealSwipe(false);
     setLockedDirection(null);
-    activePointerIdRef.current = null;
-    cleanupDocumentPointerListenersRef.current?.();
     const resolvedInitialTransform = initialTransformRef.current;
     setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
     setCurrentSwipeDirection(undefined);
@@ -496,8 +489,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     cleanupDocumentPointerListenersRef.current?.();
 
     const doc = ownerDocument(element);
-    const cleanupPointerUp = addEventListener(doc, 'pointerup', handlePointerUp);
-    const cleanupPointerCancel = addEventListener(doc, 'pointercancel', handlePointerCancel);
+    const cleanupPointerUp = addEventListener(doc, 'pointerup', handleSwipeEnd);
+    const cleanupPointerCancel = addEventListener(doc, 'pointercancel', handleSwipeCancel);
 
     cleanupDocumentPointerListenersRef.current = () => {
       cleanupPointerUp();
@@ -576,8 +569,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     'aria-hidden': isHighPriority && !focused ? true : undefined,
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
-    onPointerUp: swipeEnabled ? handlePointerUp : undefined,
-    onPointerCancel: swipeEnabled ? handlePointerCancel : undefined,
+    onPointerUp: swipeEnabled ? handleSwipeEnd : undefined,
+    onPointerCancel: swipeEnabled ? handleSwipeCancel : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {
