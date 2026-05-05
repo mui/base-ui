@@ -2,6 +2,18 @@
 import * as React from 'react';
 import { Fullscreen } from '@base-ui/react/fullscreen';
 
+const NAVIGATION_UI_OPTIONS: Fullscreen.Root.NavigationUI[] = ['auto', 'show', 'hide'];
+
+const buttonStyle: React.CSSProperties = {
+  padding: '6px 12px',
+  borderRadius: 6,
+  border: '1px solid #d1d5db',
+  background: '#f9fafb',
+  color: '#111827',
+  font: 'inherit',
+  cursor: 'pointer',
+};
+
 export default function FullscreenExperiment() {
   const [open, setOpen] = React.useState(false);
   const [navigationUI, setNavigationUI] = React.useState<Fullscreen.Root.NavigationUI>('auto');
@@ -24,25 +36,31 @@ export default function FullscreenExperiment() {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 8,
+          gap: 12,
           border: '1px solid #ccc',
           padding: 16,
         }}
       >
         <legend>Settings</legend>
-        <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div
+          role="radiogroup"
+          aria-label="navigationUI"
+          style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}
+        >
           <span>navigationUI:</span>
-          <select
-            value={navigationUI}
-            onChange={(event) =>
-              setNavigationUI(event.target.value as Fullscreen.Root.NavigationUI)
-            }
-          >
-            <option value="auto">auto</option>
-            <option value="show">show</option>
-            <option value="hide">hide</option>
-          </select>
-        </label>
+          {NAVIGATION_UI_OPTIONS.map((value) => (
+            <label key={value} style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+              <input
+                type="radio"
+                name="navigationUI"
+                value={value}
+                checked={navigationUI === value}
+                onChange={() => setNavigationUI(value)}
+              />
+              <code>{value}</code>
+            </label>
+          ))}
+        </div>
         <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <input
             type="checkbox"
@@ -52,11 +70,12 @@ export default function FullscreenExperiment() {
           <span>open (controlled)</span>
         </label>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <button type="button" onClick={() => setOpen(true)}>
+          <button type="button" style={buttonStyle} onClick={() => setOpen(true)}>
             Open from external button (should work)
           </button>
           <button
             type="button"
+            style={buttonStyle}
             onClick={() => {
               setTimeout(() => setOpen(true), 500);
             }}
@@ -65,6 +84,7 @@ export default function FullscreenExperiment() {
           </button>
           <button
             type="button"
+            style={buttonStyle}
             onClick={() => {
               setTimeout(() => setOpen(true), 6000);
             }}
