@@ -18,7 +18,7 @@ export default function ExampleAsyncAutocomplete() {
     if (isPending) {
       return (
         <React.Fragment>
-          <div className={styles.Spinner} aria-hidden />
+          <span className={styles.Spinner} aria-hidden />
           Searching…
         </React.Fragment>
       );

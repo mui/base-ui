@@ -111,18 +111,15 @@
 
 .Spinner {
   box-sizing: border-box;
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid light-dark(var(--color-neutral-200), var(--color-neutral-800));
-  border-top: 2px solid var(--color-neutral-600);
+  width: 0.75rem;
+  height: 0.75rem;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  border: 1px solid currentColor;
+  border-right-color: transparent;
+  animation: autocompleteSpinner 0.75s linear infinite;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
+@keyframes autocompleteSpinner {
   100% {
     transform: rotate(360deg);
   }

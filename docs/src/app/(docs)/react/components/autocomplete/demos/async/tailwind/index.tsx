@@ -17,8 +17,8 @@ export default function ExampleAsyncAutocomplete() {
     if (isPending) {
       return (
         <React.Fragment>
-          <div
-            className="size-4 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-600 dark:border-neutral-800 dark:border-t-neutral-400"
+          <span
+            className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
             aria-hidden
           />
           Searching…
