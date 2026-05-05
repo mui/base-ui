@@ -31,6 +31,7 @@ export const FullscreenContainer = React.forwardRef(function FullscreenContainer
   const {
     containerId,
     containerRef,
+    handleContainerUnmount,
     handleFullscreenChange,
     handleFullscreenError,
     setContainerIdState,
@@ -68,8 +69,12 @@ export const FullscreenContainer = React.forwardRef(function FullscreenContainer
     for (const eventName of FULLSCREEN_ERROR_EVENTS) {
       cleanups.push(addEventListener(doc, eventName, handleFullscreenError));
     }
-    return mergeCleanups(...cleanups);
-  }, [containerRef, handleFullscreenChange, handleFullscreenError]);
+    const cleanup = mergeCleanups(...cleanups);
+    return () => {
+      cleanup();
+      handleContainerUnmount();
+    };
+  }, [containerRef, handleContainerUnmount, handleFullscreenChange, handleFullscreenError]);
 
   return useRenderElement('div', componentProps, {
     state,

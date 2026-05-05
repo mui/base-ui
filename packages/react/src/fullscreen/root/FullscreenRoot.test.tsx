@@ -151,6 +151,39 @@ describe('<Fullscreen.Root />', () => {
     });
   });
 
+  describe('container unmount', () => {
+    it('resets state and dispatches `onOpenChange` when the container unmounts while in fullscreen', async () => {
+      const handleOpenChange = vi.fn();
+
+      function App({ mounted }: { mounted: boolean }) {
+        return (
+          <Fullscreen.Root onOpenChange={handleOpenChange}>
+            <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+            {mounted && <Fullscreen.Container data-testid="container" />}
+          </Fullscreen.Root>
+        );
+      }
+
+      const { setProps } = await render(<App mounted />);
+
+      const trigger = screen.getByRole('button');
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-pressed', 'true');
+      handleOpenChange.mockClear();
+
+      await setProps({ mounted: false });
+      await flushMicrotasks();
+
+      expect(handleOpenChange).toHaveBeenLastCalledWith(
+        false,
+        expect.objectContaining({ reason: REASONS.none }),
+      );
+      expect(trigger).toHaveAttribute('aria-pressed', 'false');
+    });
+  });
+
   describe('external fullscreenchange', () => {
     it('updates open and dispatches reason=escape-key when the browser exits without our request', async () => {
       const handleOpenChange = vi.fn();

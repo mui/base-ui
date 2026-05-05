@@ -10,6 +10,14 @@ import { DemoFullscreenHero } from './demos/hero';
 
 <DemoFullscreenHero />
 
+## Usage guidelines
+
+- **User gesture required:** Browsers only honor `requestFullscreen()` when called from a trusted user interaction (click, tap, keypress). The bundled `<Fullscreen.Trigger>` already satisfies this, but a programmatic `open` change made outside of an event handler will be rejected by the browser.
+- **Browser support:** Fullscreen is unavailable on iOS Safari for iPhone (only iPad iOS 16.4+ supports `requestFullscreen()` on arbitrary elements). When the API is unavailable for the container's owner document, `<Fullscreen.Trigger>` is automatically disabled (`data-disabled`, `aria-disabled="true"`). The `supported` state is also exposed on Root, Trigger, Container, and Close so you can render fallback UI.
+- **Inside iframes:** The hosting `<iframe>` must include the `allowfullscreen` attribute (or `allow="fullscreen"`) and any [Permissions Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Permissions_Policy) must permit the `fullscreen` feature for the document. Without these, requests are rejected with a `TypeError`.
+- **Mobile considerations:** Some mobile browsers ignore `<meta name="viewport">` settings and disable user pinch-zoom while a page is in fullscreen.
+- **Exit affordance:** Users can always exit fullscreen with Esc (or F11). The component listens to the browser's `fullscreenchange` event and reconciles state automatically — `onOpenChange` is fired with `reason: 'escape-key'` in that case.
+
 ## Anatomy
 
 Import the component and assemble its parts:
@@ -26,6 +34,74 @@ import { Fullscreen } from '@base-ui/react/fullscreen';
 ```
 
 The `Container` is the element passed to the browser's `requestFullscreen()`. The `Trigger` toggles the fullscreen state, and the `Close` only ever exits fullscreen. Place the `Close` inside the `Container` so it remains visible while the page is in fullscreen.
+
+## Examples
+
+### Styling fullscreen state
+
+`<Fullscreen.Container>`, `<Fullscreen.Trigger>`, and `<Fullscreen.Close>` all expose `data-fullscreen` and `data-not-fullscreen` attributes so you can show or hide controls based on the current state without managing it manually.
+
+```css title="Hide trigger in fullscreen, show close only when fullscreen"
+.Trigger[data-fullscreen] {
+  display: none;
+}
+
+.Close[data-not-fullscreen] {
+  display: none;
+}
+```
+
+You can also target the container with the standard CSS [`:fullscreen` pseudo-class](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:fullscreen) and style its [`::backdrop`](https://developer.mozilla.org/en-US/docs/Web/CSS/::backdrop) pseudo-element:
+
+```css title="Native :fullscreen and ::backdrop"
+.Container:fullscreen {
+  padding: 2rem;
+}
+
+.Container::backdrop {
+  background: rgb(0 0 0 / 0.9);
+}
+```
+
+### Controlled state
+
+Use `open` and `onOpenChange` to control the state externally. The second argument to `onOpenChange` includes a `reason` that distinguishes between user interactions:
+
+```tsx title="Controlled fullscreen"
+const [open, setOpen] = React.useState(false);
+
+<Fullscreen.Root
+  open={open}
+  onOpenChange={(nextOpen, details) => {
+    setOpen(nextOpen);
+    // details.reason: 'trigger-press' | 'close-press' | 'escape-key' | 'none'
+  }}
+>
+  {/* ... */}
+</Fullscreen.Root>;
+```
+
+Programmatically setting `open={true}` outside of a user gesture will be rejected by the browser. Toggle from inside a click handler instead.
+
+### Detecting unsupported browsers
+
+The `supported` state lets you hide or replace the UI when the Fullscreen API is unavailable (for example, on iOS Safari for iPhone):
+
+```tsx title="Render alternate UI when unsupported"
+<Fullscreen.Trigger
+  render={(props, state) => (state.supported ? <button {...props} /> : <span {...props} />)}
+>
+  Enter fullscreen
+</Fullscreen.Trigger>
+```
+
+### Hint to the browser about navigation UI
+
+Pass `navigationUI` to `<Fullscreen.Root>` to forward the [`FullscreenOptions.navigationUI`](https://fullscreen.spec.whatwg.org/#dictdef-fullscreenoptions) hint to `requestFullscreen()`. The browser is free to honor user preference over this hint.
+
+```tsx title="Prefer maximum screen real estate"
+<Fullscreen.Root navigationUI="hide">{/* ... */}</Fullscreen.Root>
+```
 
 ## API reference
 

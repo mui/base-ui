@@ -176,12 +176,31 @@ export function useFullscreenRoot(
     }
   });
 
+  // Called when the container element unmounts. Per the Fullscreen spec, the
+  // browser auto-exits fullscreen when the active element is removed, but the
+  // `fullscreenchange` event fires after our document listeners are gone. We
+  // sync state here so consumers (especially controlled mode) don't get stuck
+  // with a stale `open: true`.
+  const handleContainerUnmount = useStableCallback(() => {
+    pendingReasonRef.current = null;
+    if (!open) {
+      return;
+    }
+    const eventDetails = createChangeEventDetails(REASONS.none);
+    onOpenChange(false, eventDetails);
+    if (eventDetails.isCanceled) {
+      return;
+    }
+    setOpen(false);
+  });
+
   return React.useMemo(
     () => ({
       containerId,
       containerRef,
       disabled,
       handleClose,
+      handleContainerUnmount,
       handleFullscreenChange,
       handleFullscreenError,
       handleTrigger,
@@ -196,6 +215,7 @@ export function useFullscreenRoot(
       containerId,
       disabled,
       handleClose,
+      handleContainerUnmount,
       handleFullscreenChange,
       handleFullscreenError,
       handleTrigger,
@@ -257,6 +277,12 @@ export interface UseFullscreenRootReturnValue {
    * Exits fullscreen. Used by `Fullscreen.Close`.
    */
   handleClose: (event: React.MouseEvent | React.KeyboardEvent | React.PointerEvent) => void;
+  /**
+   * Called by the container when it unmounts. Resets state if we believe the
+   * container is still in fullscreen so consumers stay in sync after the browser
+   * auto-exits fullscreen on element removal.
+   */
+  handleContainerUnmount: () => void;
   /**
    * Handler for the document's `fullscreenchange` event. Called by the container.
    */
