@@ -80,7 +80,7 @@ describe('<Fullscreen.Root />', () => {
       expect(container).toHaveAttribute('data-not-fullscreen');
     });
 
-    it('does not update internal state in controlled mode', async () => {
+    it('does not update internal state or call the API in controlled mode when the parent ignores onOpenChange', async () => {
       function ControlledFullscreen() {
         const [open] = React.useState(false);
         return (
@@ -101,7 +101,125 @@ describe('<Fullscreen.Root />', () => {
 
       expect(trigger).toHaveAttribute('aria-pressed', 'false');
       expect(container).toHaveAttribute('data-not-fullscreen');
-      expect(stubs.request).toHaveBeenCalled();
+      // Because the parent ignored `onOpenChange`, `open` never flipped, so the
+      // browser API is never called either.
+      expect(stubs.request).not.toHaveBeenCalled();
+    });
+
+    it('toggles via the bundled trigger in controlled mode', async () => {
+      function ControlledFullscreen() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <Fullscreen.Root open={open} onOpenChange={setOpen}>
+            <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+            <Fullscreen.Container data-testid="container" />
+          </Fullscreen.Root>
+        );
+      }
+
+      await render(<ControlledFullscreen />);
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      const container = screen.getByTestId('container');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(stubs.request).toHaveBeenCalledOnce();
+      expect(trigger).toHaveAttribute('aria-pressed', 'true');
+      expect(container).toHaveAttribute('data-fullscreen');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(stubs.exit).toHaveBeenCalledOnce();
+      expect(trigger).toHaveAttribute('aria-pressed', 'false');
+      expect(container).toHaveAttribute('data-not-fullscreen');
+    });
+
+    it('drives the browser API when controlled `open` is flipped from outside', async () => {
+      function ControlledFullscreen() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setOpen(true)}>
+              External open
+            </button>
+            <button type="button" onClick={() => setOpen(false)}>
+              External close
+            </button>
+            <Fullscreen.Root open={open} onOpenChange={setOpen}>
+              <Fullscreen.Container data-testid="container" />
+            </Fullscreen.Root>
+          </React.Fragment>
+        );
+      }
+
+      await render(<ControlledFullscreen />);
+
+      const externalOpen = screen.getByRole('button', { name: 'External open' });
+      const externalClose = screen.getByRole('button', { name: 'External close' });
+      const container = screen.getByTestId('container');
+
+      fireEvent.click(externalOpen);
+      await flushMicrotasks();
+
+      expect(stubs.request).toHaveBeenCalledOnce();
+      expect(container).toHaveAttribute('data-fullscreen');
+
+      fireEvent.click(externalClose);
+      await flushMicrotasks();
+
+      expect(stubs.exit).toHaveBeenCalledOnce();
+      expect(container).toHaveAttribute('data-not-fullscreen');
+    });
+
+    it('reverts `open` and dispatches `reason: none` when `requestFullscreen` is rejected', async () => {
+      stubs.request.mockImplementation(() => Promise.reject(new TypeError('blocked')));
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const handleOpenChange = vi.fn();
+
+      function ControlledFullscreen() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              External open
+            </button>
+            <Fullscreen.Root
+              open={open}
+              onOpenChange={(nextOpen, details) => {
+                setOpen(nextOpen);
+                handleOpenChange(nextOpen, details);
+              }}
+            >
+              <Fullscreen.Container data-testid="container" />
+            </Fullscreen.Root>
+          </React.Fragment>
+        );
+      }
+
+      await render(<ControlledFullscreen />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'External open' }));
+      await flushMicrotasks();
+
+      expect(stubs.request).toHaveBeenCalledOnce();
+      expect(handleOpenChange).toHaveBeenLastCalledWith(
+        false,
+        expect.objectContaining({ reason: REASONS.none }),
+      );
+      expect(screen.getByTestId('container')).toHaveAttribute('data-not-fullscreen');
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('`requestFullscreen()` was rejected'),
+      );
+
+      warnSpy.mockRestore();
     });
   });
 

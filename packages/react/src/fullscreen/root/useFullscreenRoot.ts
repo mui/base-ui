@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { warn } from '@base-ui/utils/warn';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -34,106 +35,111 @@ export function useFullscreenRoot(
   const defaultContainerId = useBaseUiId();
   const containerId = containerIdState ?? defaultContainerId;
 
-  // We default to `true` so the component does not flicker into a "disabled"
-  // state during the very first render. The real value is determined the moment
-  // the container element mounts, via `setSupported`.
+  // Default to `true` so the trigger doesn't briefly render as disabled before
+  // the container mounts and reports the actual capability.
   const [supported, setSupported] = React.useState(true);
 
-  // The active reason for the next state change. We set this synchronously
-  // before invoking `requestFullscreen` / `exitFullscreen` so that the
-  // `fullscreenchange` listener can surface the correct reason to consumers.
-  // When the listener observes a change with no pending reason, the change
-  // came from outside our control (Esc key, ancestor exit, etc.).
+  // Tracks the reason currently driving a state change so the
+  // `fullscreenchange` listener can label the resulting browser event with
+  // the original cause (`trigger-press` / `close-press` / `escape-key`).
   const pendingReasonRef = React.useRef<FullscreenRoot.ChangeEventReason | null>(null);
 
-  const handleEnter = useStableCallback(
-    (event: React.MouseEvent | React.KeyboardEvent | React.PointerEvent) => {
-      const container = containerRef.current;
-      if (!container || disabled || !supported) {
-        return;
-      }
-
-      const eventDetails = createChangeEventDetails(REASONS.triggerPress, event.nativeEvent);
-      onOpenChange(true, eventDetails);
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      pendingReasonRef.current = REASONS.triggerPress;
-      setOpen(true);
-
-      const promise = requestElementFullscreen(container, navigationUI);
-      if (promise) {
-        promise.catch(() => {
-          // The browser denied the request. Roll the optimistic update back
-          // and let consumers know via the change handler.
-          pendingReasonRef.current = null;
-          setOpen(false);
-          if (process.env.NODE_ENV !== 'production') {
-            warn(
-              '`requestFullscreen()` was rejected. The browser may have blocked the request because it was not initiated by a user gesture, or because fullscreen is not supported.',
-            );
-          }
-          const failureDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
-          onOpenChange(false, failureDetails);
-        });
-      }
-    },
-  );
-
-  const handleExit = useStableCallback(
-    (
-      event: React.MouseEvent | React.KeyboardEvent | React.PointerEvent,
-      reason: typeof REASONS.triggerPress | typeof REASONS.closePress,
-    ) => {
-      const container = containerRef.current;
-      if (!container) {
-        return;
-      }
-      const doc = ownerDocument(container);
-      if (getFullscreenElement(doc) !== container) {
-        return;
-      }
-
-      const eventDetails = createChangeEventDetails(reason, event.nativeEvent);
-      onOpenChange(false, eventDetails);
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      pendingReasonRef.current = reason;
-      setOpen(false);
-
-      const promise = exitDocumentFullscreen(doc);
-      if (promise) {
-        promise.catch(() => {
-          // Restoring fullscreen after a failed exit would be jarring, so we
-          // simply clear the pending reason. The next `fullscreenchange` event
-          // (if any) will reconcile state.
-          pendingReasonRef.current = null;
-        });
-      }
-    },
-  );
+  // Tracks the current request promise so we can ignore stale rejections from
+  // a request superseded by a newer state change (e.g. user toggles rapidly).
+  const requestPromiseRef = React.useRef<Promise<void> | null>(null);
 
   const handleTrigger = useStableCallback(
     (event: React.MouseEvent | React.KeyboardEvent | React.PointerEvent) => {
-      if (open) {
-        handleExit(event, REASONS.triggerPress);
-      } else {
-        handleEnter(event);
+      if (disabled || !supported) {
+        return;
       }
+      const next = !open;
+      const eventDetails = createChangeEventDetails(REASONS.triggerPress, event.nativeEvent);
+      onOpenChange(next, eventDetails);
+      if (eventDetails.isCanceled) {
+        return;
+      }
+      pendingReasonRef.current = REASONS.triggerPress;
+      setOpen(next);
     },
   );
 
   const handleClose = useStableCallback(
     (event: React.MouseEvent | React.KeyboardEvent | React.PointerEvent) => {
-      handleExit(event, REASONS.closePress);
+      if (!open) {
+        return;
+      }
+      const eventDetails = createChangeEventDetails(REASONS.closePress, event.nativeEvent);
+      onOpenChange(false, eventDetails);
+      if (eventDetails.isCanceled) {
+        return;
+      }
+      pendingReasonRef.current = REASONS.closePress;
+      setOpen(false);
     },
   );
 
-  // Reconcile state with the browser. Called by the `fullscreenchange` listener
-  // attached to the container's owner document.
+  // Reactive bridge between React state and the browser Fullscreen API.
+  //
+  // Running this as a layout effect (instead of a plain `useEffect`) is what
+  // makes controlled mode work end-to-end. React commits a state update from a
+  // user-initiated event handler synchronously in the same JS task as the
+  // event, and the layout effect runs before the browser yields. As long as
+  // the `open={true}` change is initiated from a user gesture, the document's
+  // transient activation is still valid when `requestFullscreen()` is called
+  // here, satisfying the spec's user-activation requirement.
+  //
+  // If the change is initiated outside of a user gesture (timer, network
+  // response, programmatic `defaultOpen`, etc.), the browser will reject the
+  // promise; we revert state via the `.catch` below so consumers see the
+  // request fail through `onOpenChange(false, { reason: 'none' })`.
+  useIsoLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+    const doc = ownerDocument(container);
+    const isInFullscreen = getFullscreenElement(doc) === container;
+
+    if (open && !isInFullscreen) {
+      const promise = requestElementFullscreen(container, navigationUI);
+      requestPromiseRef.current = promise;
+      if (promise) {
+        promise.catch(() => {
+          // Ignore the rejection if the user changed state again before we
+          // observed it (e.g. they toggled twice in quick succession).
+          if (requestPromiseRef.current !== promise) {
+            return;
+          }
+          if (process.env.NODE_ENV !== 'production') {
+            warn(
+              '`requestFullscreen()` was rejected. The browser may have blocked the request because it was not initiated by a user gesture, or because fullscreen is not supported.',
+            );
+          }
+          pendingReasonRef.current = null;
+          const failureDetails = createChangeEventDetails(REASONS.none);
+          onOpenChange(false, failureDetails);
+          if (failureDetails.isCanceled) {
+            return;
+          }
+          setOpen(false);
+        });
+      }
+    } else if (!open && isInFullscreen) {
+      const promise = exitDocumentFullscreen(doc);
+      requestPromiseRef.current = promise;
+      if (promise) {
+        promise.catch(() => {
+          // Restoring fullscreen after a failed exit would be jarring. The
+          // next `fullscreenchange` event will reconcile state if needed.
+          pendingReasonRef.current = null;
+        });
+      }
+    }
+  }, [open, navigationUI, onOpenChange, setOpen]);
+
+  // Handles browser-initiated state changes (most commonly the Esc key, but
+  // also browser exit affordances or the active element being removed).
   const handleFullscreenChange = useStableCallback((event: Event) => {
     const container = containerRef.current;
     if (!container) {
@@ -155,25 +161,17 @@ export function useFullscreenRoot(
     if (eventDetails.isCanceled) {
       return;
     }
-
     setOpen(isInFullscreen);
   });
 
-  const handleFullscreenError = useStableCallback((event: Event) => {
+  const handleFullscreenError = useStableCallback(() => {
     if (process.env.NODE_ENV !== 'production') {
       warn(
         'A `fullscreenerror` event was dispatched on the document. The browser refused to enter fullscreen for the requested element.',
       );
     }
-    if (pendingReasonRef.current != null) {
-      pendingReasonRef.current = null;
-      const eventDetails = createChangeEventDetails(REASONS.none, event);
-      onOpenChange(false, eventDetails);
-      if (eventDetails.isCanceled) {
-        return;
-      }
-      setOpen(false);
-    }
+    // The promise rejection from `requestFullscreen()` is the source of truth
+    // for reverting state, so this handler is informational only.
   });
 
   // Called when the container element unmounts. Per the Fullscreen spec, the
@@ -183,6 +181,7 @@ export function useFullscreenRoot(
   // with a stale `open: true`.
   const handleContainerUnmount = useStableCallback(() => {
     pendingReasonRef.current = null;
+    requestPromiseRef.current = null;
     if (!open) {
       return;
     }

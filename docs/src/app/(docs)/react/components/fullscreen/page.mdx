@@ -12,7 +12,7 @@ import { DemoFullscreenHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **User gesture required:** Browsers only honor `requestFullscreen()` when called from a trusted user interaction (click, tap, keypress). The bundled `<Fullscreen.Trigger>` already satisfies this, but a programmatic `open` change made outside of an event handler will be rejected by the browser.
+- **User gesture required:** Browsers only honor `requestFullscreen()` while the window has [transient activation](https://html.spec.whatwg.org/multipage/interaction.html#transient-activation) — granted by a recent user interaction (click, tap, keypress) and valid for roughly five seconds. The bundled `<Fullscreen.Trigger>` always satisfies this. Flipping `open` from any external handler triggered by a user gesture (including a deferred `setTimeout` that still runs within the activation window) also works. Requests fired without a recent gesture are rejected.
 - **Browser support:** Fullscreen is unavailable on iOS Safari for iPhone (only iPad iOS 16.4+ supports `requestFullscreen()` on arbitrary elements). When the API is unavailable for the container's owner document, `<Fullscreen.Trigger>` is automatically disabled (`data-disabled`, `aria-disabled="true"`). The `supported` state is also exposed on Root, Trigger, Container, and Close so you can render fallback UI.
 - **Inside iframes:** The hosting `<iframe>` must include the `allowfullscreen` attribute (or `allow="fullscreen"`) and any [Permissions Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Permissions_Policy) must permit the `fullscreen` feature for the document. Without these, requests are rejected with a `TypeError`.
 - **Mobile considerations:** Some mobile browsers ignore `<meta name="viewport">` settings and disable user pinch-zoom while a page is in fullscreen.
@@ -81,7 +81,18 @@ const [open, setOpen] = React.useState(false);
 </Fullscreen.Root>;
 ```
 
-Programmatically setting `open={true}` outside of a user gesture will be rejected by the browser. Toggle from inside a click handler instead.
+You can also drive the fullscreen state from a button outside `<Fullscreen.Root>`. Flipping `open` to `true` inside a click handler triggers `requestFullscreen()` synchronously in the same task as the click, satisfying the spec's user-activation requirement:
+
+```tsx title="External trigger"
+const [open, setOpen] = React.useState(false);
+
+<button onClick={() => setOpen(true)}>Open externally</button>
+<Fullscreen.Root open={open} onOpenChange={setOpen}>
+  <Fullscreen.Container>{/* ... */}</Fullscreen.Container>
+</Fullscreen.Root>
+```
+
+If `open` is set to `true` outside the browser's transient-activation window (no recent user gesture, or more than ~5 seconds after one), the browser rejects the request. Base UI catches the rejection, dispatches `onOpenChange(false, { reason: 'none' })` so the controlled state can roll back, and logs a warning in development.
 
 ### Detecting unsupported browsers
 

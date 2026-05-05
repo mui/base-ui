@@ -51,6 +51,27 @@ export default function FullscreenExperiment() {
           />
           <span>open (controlled)</span>
         </label>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <button type="button" onClick={() => setOpen(true)}>
+            Open from external button (should work)
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTimeout(() => setOpen(true), 500);
+            }}
+          >
+            Open after 500ms timeout (should still work — within activation window)
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTimeout(() => setOpen(true), 6000);
+            }}
+          >
+            Open after 6s timeout (should be rejected — activation expired)
+          </button>
+        </div>
         <p style={{ margin: 0 }}>
           Last event:{' '}
           {lastEvent ? `${lastEvent.open ? 'opened' : 'closed'} (${lastEvent.reason})` : '—'}
