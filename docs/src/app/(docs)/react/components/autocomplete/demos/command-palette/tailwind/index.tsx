@@ -31,7 +31,7 @@ export default function ExampleAutocompleteCommandPalette() {
               keepHighlight
             >
               <Autocomplete.Input
-                className="h-10 w-full border-0 border-b border-neutral-950 bg-transparent px-2 text-sm font-normal tracking-[0.016em] text-neutral-950 outline-none placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
+                className="h-10 w-full border-0 border-b border-neutral-950 bg-transparent px-4 text-sm font-normal tracking-[0.016em] text-neutral-950 outline-none placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
                 placeholder="Search for apps and commands…"
               />
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
@@ -80,7 +80,7 @@ export default function ExampleAutocompleteCommandPalette() {
                 </ScrollArea.Scrollbar>
               </ScrollArea.Root>
 
-              <div className="flex items-center justify-between border-t border-neutral-950 bg-white px-3 py-2.5 text-xs text-neutral-600 dark:border-white dark:bg-neutral-950 dark:text-neutral-400">
+              <div className="flex items-center justify-between border-t border-neutral-950 bg-white px-4 py-2.5 text-xs text-neutral-600 dark:border-white dark:bg-neutral-950 dark:text-neutral-400">
                 <div className="flex items-center gap-1">
                   <span>Activate</span>
                   <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-400 bg-neutral-100 px-1 font-mono text-[0.625rem] leading-none font-normal text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">

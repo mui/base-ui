@@ -90,7 +90,7 @@
 
 .Input {
   box-sizing: border-box;
-  padding-inline: 0.5rem;
+  padding: 0 0.75rem;
   margin: 0;
   border: none;
   border-bottom: 1px solid light-dark(var(--color-neutral-950), white);
@@ -161,7 +161,7 @@
   display: flex;
   align-items: center;
   min-height: 2rem;
-  padding: 0 1.5rem 0 1rem;
+  padding: 0 1.5rem 0 0.75rem;
   font-size: 0.875rem;
   line-height: 1;
   font-weight: 400;
