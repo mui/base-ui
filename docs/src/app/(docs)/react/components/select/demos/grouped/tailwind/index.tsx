@@ -32,7 +32,7 @@ export default function ExampleSelectGrouped() {
                 {groupedProduce.map((group, index) => (
                   <React.Fragment key={group.value}>
                     <Select.Group className="block pb-0.5">
-                      <Select.GroupLabel className="sticky top-0 z-[1] bg-white pr-4 pb-1 pl-[1.875rem] pt-2 text-xs font-bold text-neutral-500 uppercase tracking-wider dark:bg-neutral-950 dark:text-neutral-400">
+                      <Select.GroupLabel className="sticky top-0 z-[1] bg-white mr-2 pr-2 pb-1 pl-[1.875rem] pt-2 text-xs font-bold text-neutral-500 uppercase tracking-wider dark:bg-neutral-950 dark:text-neutral-400">
                         {group.value}
                       </Select.GroupLabel>
                       {group.items.map((item) => (

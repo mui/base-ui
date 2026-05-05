@@ -70,7 +70,11 @@
 
 .GroupLabel {
   box-sizing: border-box;
-  padding: 0.5rem 1rem 0.25rem 0.5rem;
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  padding: 0.5rem 0.5rem 0.25rem;
+  margin: 0 0.5rem 0 0; /* Prevent overlap with iOS overlay scrollbars. */
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1rem;
@@ -78,9 +82,6 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   background-color: light-dark(white, var(--color-neutral-950));
-  position: sticky;
-  z-index: 1;
-  top: 0;
 }
 
 .Item {

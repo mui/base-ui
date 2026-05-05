@@ -23,7 +23,7 @@ export default function ExampleGroupAutocomplete() {
             <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(22.5rem,var(--available-height))] data-empty:p-0">
               {(group: TagGroup) => (
                 <Autocomplete.Group key={group.value} items={group.items} className="block pb-2">
-                  <Autocomplete.GroupLabel className="sticky top-0 z-[1] bg-white pr-4 pb-1 pl-2 pt-2 text-xs font-bold text-neutral-500 uppercase tracking-wider dark:bg-neutral-950 dark:text-neutral-400">
+                  <Autocomplete.GroupLabel className="sticky top-0 z-[1] bg-white pt-2 px-2 pb-1 text-xs font-bold text-neutral-500 uppercase tracking-wider dark:bg-neutral-950 dark:text-neutral-400">
                     {group.value}
                   </Autocomplete.GroupLabel>
                   <Autocomplete.Collection>
