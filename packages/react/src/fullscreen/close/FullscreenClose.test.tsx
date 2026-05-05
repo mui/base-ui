@@ -128,4 +128,55 @@ describe('<Fullscreen.Close />', () => {
       expect(handleOpenChange).not.toHaveBeenCalled();
     });
   });
+
+  describe('render prop state', () => {
+    let stubs: FullscreenApiStubs;
+
+    beforeEach(() => {
+      stubs = installFullscreenApiStubs();
+    });
+
+    afterEach(() => {
+      stubs.restore();
+    });
+
+    it('passes the fullscreen state to render, className, and style callbacks', async () => {
+      const renderSpy = vi.fn();
+      const classNameSpy = vi.fn().mockReturnValue('close-class');
+      const styleSpy = vi.fn().mockReturnValue({ color: 'red' });
+
+      await render(
+        <Fullscreen.Root>
+          <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+          <Fullscreen.Container>
+            <Fullscreen.Close
+              className={classNameSpy}
+              style={styleSpy}
+              render={(props, state) => {
+                renderSpy(state);
+                return (
+                  <button type="button" {...props}>
+                    Close
+                  </button>
+                );
+              }}
+            />
+          </Fullscreen.Container>
+        </Fullscreen.Root>,
+      );
+
+      const initialState = renderSpy.mock.calls.at(-1)?.[0];
+      expect(initialState).toEqual({ open: false, disabled: false, supported: true });
+      expect(classNameSpy).toHaveBeenLastCalledWith(initialState);
+      expect(styleSpy).toHaveBeenLastCalledWith(initialState);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+
+      const openState = renderSpy.mock.calls.at(-1)?.[0];
+      expect(openState).toEqual({ open: true, disabled: false, supported: true });
+      expect(classNameSpy).toHaveBeenLastCalledWith(openState);
+      expect(styleSpy).toHaveBeenLastCalledWith(openState);
+    });
+  });
 });
