@@ -10,6 +10,7 @@ import {
   PopupStoreState,
   PopupTriggerMap,
   setOpenTriggerState,
+  updateInlineRectCoords,
   usePopupStore,
 } from '../../utils/popups';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
@@ -24,7 +25,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
   closeDelayRef: React.RefObject<number>;
   inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
-  inlineRectPositionerUpdateRef: React.MutableRefObject<(() => void) | undefined>;
 };
 
 const selectors = {
@@ -56,7 +56,6 @@ export class PreviewCardStore<Payload> extends ReactStore<
         triggerElements,
         closeDelayRef: { current: CLOSE_DELAY },
         inlineRectCoordsRef: { current: undefined },
-        inlineRectPositionerUpdateRef: { current: undefined },
       },
       selectors,
     );
@@ -81,6 +80,16 @@ export class PreviewCardStore<Payload> extends ReactStore<
 
     if (eventDetails.isCanceled) {
       return;
+    }
+
+    const event = eventDetails.event;
+    if (nextOpen && isHover && eventDetails.trigger && 'clientX' in event && 'clientY' in event) {
+      updateInlineRectCoords(
+        this.context.inlineRectCoordsRef,
+        eventDetails.trigger,
+        event.clientX,
+        event.clientY,
+      );
     }
 
     this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);

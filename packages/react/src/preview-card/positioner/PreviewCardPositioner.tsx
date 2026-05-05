@@ -78,17 +78,13 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
     inline: createInlineMiddleware(inlineRectCoordsRef),
   });
+  const updatePosition = positioning.update;
 
   useIsoLayoutEffect(() => {
-    const update = positioning.update;
-    store.context.inlineRectPositionerUpdateRef.current = update;
-
-    return () => {
-      if (store.context.inlineRectPositionerUpdateRef.current === update) {
-        store.context.inlineRectPositionerUpdateRef.current = undefined;
-      }
-    };
-  }, [store, positioning.update]);
+    if (open && mounted) {
+      updatePosition();
+    }
+  }, [open, mounted, updatePosition]);
 
   const state: PreviewCardPositionerState = {
     open,
