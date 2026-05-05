@@ -36,6 +36,8 @@ function getTargetElement(event: Event): Element | null {
     return target;
   }
 
+  // Events dispatched on a shadow root can report the ShadowRoot as the target.
+  // Walk the composed path to recover the nearest Element for trigger detection.
   if ('composedPath' in event) {
     const path = event.composedPath();
     for (let i = 0; i < path.length; i += 1) {
@@ -117,8 +119,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const isNestedTriggerHoveredRef = React.useRef(false);
   const nestedTriggerOpenTimeout = useTimeout();
-  // Tracked locally so it can be cleared on mouseLeave; the hover hook's
-  // internal pointer type is retained.
+  // Local copy so it can be cleared on mouseLeave without resetting the hover hook's own pointerType.
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
 
   const getOpenDelay = useStableCallback(() => {
@@ -198,6 +199,8 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     const triggerEl = triggerElementRef.current as HTMLElement | null;
     const targetInsideTrigger = triggerEl && target && contains(triggerEl, target);
 
+    // Only close hover-opened parents. Focus/click-like opens remain owned by
+    // their original interaction and should not be clobbered by nested hover.
     if (
       nestedTriggerHovered &&
       store.select('open') &&
@@ -263,7 +266,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
         },
         id: thisTriggerId,
         [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
-        [TOOLTIP_TRIGGER_IDENTIFIER as string]: '',
+        [TOOLTIP_TRIGGER_IDENTIFIER]: '',
       } as React.HTMLAttributes<Element>,
       elementProps,
     ],
