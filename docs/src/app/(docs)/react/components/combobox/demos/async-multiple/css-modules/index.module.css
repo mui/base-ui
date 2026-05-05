@@ -252,7 +252,8 @@
 }
 
 .ItemTitle {
-  font-size: 0.95rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 700;
 }
 
@@ -260,15 +261,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
-}
-
-.ItemUsername {
-  opacity: 0.8;
 }
 
 .ItemEmail {
   font-size: 0.75rem;
-  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
 }

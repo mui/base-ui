@@ -167,12 +167,12 @@ export default function ExampleAsyncSingleCombobox() {
                     <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>
                   <span className="col-start-2 flex flex-col gap-1">
-                    <span className="text-[0.95rem] font-bold">{user.name}</span>
-                    <span className="flex flex-wrap gap-3 text-[0.8125rem] text-neutral-500 dark:text-neutral-400">
-                      <span className="opacity-80">@{user.username}</span>
+                    <span className="text-sm leading-5 font-bold">{user.name}</span>
+                    <span className="text-xs">{user.email}</span>
+                    <span className="flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                      <span>@{user.username}</span>
                       <span>{user.title}</span>
                     </span>
-                    <span className="text-xs opacity-80">{user.email}</span>
                   </span>
                 </Combobox.Item>
               )}

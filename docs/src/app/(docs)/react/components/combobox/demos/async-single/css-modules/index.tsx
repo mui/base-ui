@@ -142,11 +142,11 @@ export default function ExampleAsyncSingleCombobox() {
                   </Combobox.ItemIndicator>
                   <span className={styles.ItemText}>
                     <span className={styles.ItemTitle}>{user.name}</span>
+                    <span className={styles.ItemEmail}>{user.email}</span>
                     <span className={styles.ItemSubtitle}>
-                      <span className={styles.ItemUsername}>@{user.username}</span>
+                      <span>@{user.username}</span>
                       <span>{user.title}</span>
                     </span>
-                    <span className={styles.ItemEmail}>{user.email}</span>
                   </span>
                 </Combobox.Item>
               )}
