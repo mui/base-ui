@@ -26,7 +26,6 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-
       {...props}
     >
       <path d="M20 6 9 17l-5-5" />
