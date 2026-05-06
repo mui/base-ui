@@ -14,6 +14,7 @@ import {
   FULLSCREEN_CHANGE_EVENTS,
   FULLSCREEN_ERROR_EVENTS,
 } from './fullscreenApi';
+import { installFullscreenEscapeBridge } from '../escapeBridge';
 import type { FullscreenStore } from '../store/FullscreenStore';
 
 /**
@@ -31,6 +32,15 @@ export function useFullscreenRoot(
   parameters: UseFullscreenRootParameters,
 ): UseFullscreenRootReturnValue {
   const { store, onOpenChange } = parameters;
+
+  // Installed lazily from a layout effect (rather than at module evaluation
+  // time) because the package declares `sideEffects: false`; bundlers would
+  // otherwise drop a top-level install call from the namespace re-export.
+  // The function itself is idempotent and SSR-safe, so calling it from every
+  // `<Fullscreen.Root>` mount is a no-op after the first one.
+  useIsoLayoutEffect(() => {
+    installFullscreenEscapeBridge();
+  }, []);
 
   store.useContextCallback('onOpenChange', onOpenChange);
 
@@ -121,7 +131,9 @@ export function useFullscreenRoot(
   // Handles browser-initiated state changes (most commonly the Esc key, but
   // also browser exit affordances or the active element being removed). When
   // the browser state and our state already match, the event is a no-op (it
-  // fired in response to one of our own request/exit calls).
+  // fired in response to one of our own request/exit calls). The document-
+  // level Esc bridge in `escapeBridge.ts` ensures Esc reaches popup handlers
+  // first; this listener only reconciles the React state with the browser.
   const handleFullscreenChange = useStableCallback((event: Event) => {
     const container = containerRef.current;
     if (!container) {

@@ -2,6 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, flushMicrotasks } from '@mui/internal-test-utils';
 import { Fullscreen } from '@base-ui/react/fullscreen';
+import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { installFullscreenApiStubs, type FullscreenApiStubs } from './fullscreenApiTestUtils';
@@ -299,6 +300,135 @@ describe('<Fullscreen.Root />', () => {
         expect.objectContaining({ reason: REASONS.none }),
       );
       expect(trigger).toHaveAttribute('aria-pressed', 'false');
+    });
+  });
+
+  describe('Esc bridging', () => {
+    it('exits fullscreen on Escape when nothing else handles the event', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <Fullscreen.Root onOpenChange={handleOpenChange}>
+          <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+          <Fullscreen.Container data-testid="container" />
+        </Fullscreen.Root>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+      handleOpenChange.mockClear();
+
+      const escEvent = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      });
+      await act(async () => {
+        document.dispatchEvent(escEvent);
+      });
+      await flushMicrotasks();
+
+      expect(stubs.exit).toHaveBeenCalledOnce();
+      expect(handleOpenChange).toHaveBeenLastCalledWith(
+        false,
+        expect.objectContaining({ reason: REASONS.escapeKey }),
+      );
+    });
+
+    it('lets a Base UI Dialog dismiss on Escape without exiting fullscreen', async () => {
+      const handleFullscreenOpenChange = vi.fn();
+      const handleDialogOpenChange = vi.fn();
+
+      await render(
+        <Fullscreen.Root onOpenChange={handleFullscreenOpenChange}>
+          <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+          <Fullscreen.Container data-testid="container">
+            <Dialog.Root onOpenChange={handleDialogOpenChange}>
+              <Dialog.Trigger>Open dialog</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Backdrop />
+                <Dialog.Popup>
+                  <Dialog.Title>Dialog title</Dialog.Title>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Fullscreen.Container>
+        </Fullscreen.Root>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Open dialog' }));
+      await flushMicrotasks();
+
+      handleFullscreenOpenChange.mockClear();
+      handleDialogOpenChange.mockClear();
+      stubs.exit.mockClear();
+
+      const escEvent = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      });
+      await act(async () => {
+        document.dispatchEvent(escEvent);
+      });
+      await flushMicrotasks();
+
+      expect(handleDialogOpenChange).toHaveBeenLastCalledWith(
+        false,
+        expect.objectContaining({ reason: REASONS.escapeKey }),
+      );
+      expect(stubs.exit).not.toHaveBeenCalled();
+      expect(handleFullscreenOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('does not exit fullscreen when an Escape handler calls preventDefault', async () => {
+      const handleOpenChange = vi.fn();
+
+      function App() {
+        React.useEffect(() => {
+          function handleKey(event: KeyboardEvent) {
+            if (event.key === 'Escape') {
+              event.preventDefault();
+            }
+          }
+          document.addEventListener('keydown', handleKey);
+          return () => document.removeEventListener('keydown', handleKey);
+        }, []);
+
+        return (
+          <Fullscreen.Root onOpenChange={handleOpenChange}>
+            <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+            <Fullscreen.Container data-testid="container" />
+          </Fullscreen.Root>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+      handleOpenChange.mockClear();
+      stubs.exit.mockClear();
+
+      const escEvent = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      });
+      await act(async () => {
+        document.dispatchEvent(escEvent);
+      });
+      await flushMicrotasks();
+
+      expect(stubs.exit).not.toHaveBeenCalled();
+      expect(handleOpenChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('button', { name: 'Toggle' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      );
     });
   });
 

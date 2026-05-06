@@ -17,6 +17,7 @@ import { DemoFullscreenHero } from './demos/hero';
 - **Inside iframes:** The hosting `<iframe>` must include the `allowfullscreen` attribute (or `allow="fullscreen"`) and any [Permissions Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Permissions_Policy) must permit the `fullscreen` feature for the document. Without these, requests are rejected with a `TypeError`.
 - **Mobile considerations:** Some mobile browsers ignore `<meta name="viewport">` settings and disable user pinch-zoom while a page is in fullscreen.
 - **Exit affordance:** Users can always exit fullscreen with Esc (or F11). The component listens to the browser's `fullscreenchange` event and reconciles state automatically — `onOpenChange` is fired with `reason: 'escape-key'` in that case.
+- **Esc inside popups:** When a `<Dialog>`, `<Popover>`, `<Menu>`, or any other popup is open inside fullscreen, pressing Esc dismisses the popup first instead of immediately exiting fullscreen. Base UI uses the [Keyboard Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/lock) so the keypress reaches JS handlers; popups (which call `event.preventDefault()` on Esc) keep fullscreen alive, while a "bare" Esc still exits. Keyboard Lock is only implemented in Chromium today — Safari and Firefox keep their native behavior of always exiting fullscreen on Esc.
 
 ## Anatomy
 

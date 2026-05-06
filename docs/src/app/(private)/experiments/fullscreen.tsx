@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { Dialog } from '@base-ui/react/dialog';
 import { Fullscreen } from '@base-ui/react/fullscreen';
 import styles from './fullscreen.module.css';
 
@@ -106,6 +107,19 @@ export default function FullscreenExperiment() {
               <CloseIcon />
               Exit
             </Fullscreen.Close>
+            <Dialog.Root>
+              <Dialog.Trigger className={styles.Button} data-testid="dialog-trigger">
+                Open dialog inside fullscreen
+              </Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Backdrop className={styles.DialogBackdrop} />
+                <Dialog.Popup className={styles.DialogPopup} data-testid="dialog-popup">
+                  <Dialog.Title>Dialog inside fullscreen</Dialog.Title>
+                  <p>Press Escape to close this dialog. Fullscreen should remain active.</p>
+                  <Dialog.Close className={styles.Button}>Close dialog</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
           </Fullscreen.Container>
         </Fullscreen.Root>
       </section>

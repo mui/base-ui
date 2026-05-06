@@ -1,3 +1,4 @@
+import { installFullscreenEscapeBridge } from './escapeBridge';
 import { exitDocumentFullscreen, requestElementFullscreen } from './root/fullscreenApi';
 import type { FullscreenNavigationUI } from './root/useFullscreenRoot';
 
@@ -28,6 +29,7 @@ export interface FullscreenRequestOptions {
  * Documentation: [Base UI Fullscreen](https://base-ui.com/react/components/fullscreen)
  */
 export function request(element: Element, options: FullscreenRequestOptions = {}): Promise<void> {
+  installFullscreenEscapeBridge();
   const { navigationUI = 'auto' } = options;
   const promise = requestElementFullscreen(element as HTMLElement, navigationUI);
   if (promise === null) {
