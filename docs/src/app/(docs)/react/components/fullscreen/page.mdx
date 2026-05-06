@@ -159,14 +159,20 @@ import { DemoFullscreenPortal } from './demos/portal';
 
 ### Detecting unsupported browsers
 
-The `supported` state lets you hide or replace the UI when the Fullscreen API is unavailable (for example, on iOS Safari for iPhone):
+The Fullscreen API is unavailable in some environments (notably iOS Safari for iPhone). `<Fullscreen.Trigger>` handles this for you out of the box — when the API is unsupported it sets `disabled`, `aria-disabled="true"`, and `data-disabled`, and silently no-ops on activation. Most apps can ship `<Fullscreen.Trigger>Enter fullscreen</Fullscreen.Trigger>` as-is.
+
+To render entirely different UI in the unsupported case, branch inside the trigger's `render` prop. Spread `props` on the supported branch (so the trigger's click handler, ref, and ARIA attributes wire up), and render a plain non-interactive node on the unsupported branch — do **not** spread `props` there, otherwise you'll attach button-like behavior to an element that can't actually enter fullscreen:
 
 ```tsx title="Render alternate UI when unsupported"
 <Fullscreen.Trigger
-  render={(props, state) => (state.supported ? <button {...props} /> : <span {...props} />)}
->
-  Enter fullscreen
-</Fullscreen.Trigger>
+  render={(props, state) =>
+    state.supported ? (
+      <button {...props}>Enter fullscreen</button>
+    ) : (
+      <span>Fullscreen isn't available on this device</span>
+    )
+  }
+/>
 ```
 
 ### Hint to the browser about navigation UI
