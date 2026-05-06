@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
+import { ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
 import { Button } from '../../components/button';
 import { CheckboxGroup } from '../../components/checkbox-group';
 import { Form } from '../../components/form';
@@ -45,15 +45,17 @@ function ExampleForm() {
 
       <Field.Root name="region">
         <Combobox.Root items={REGIONS} required>
-          <div className="relative flex flex-col gap-1 text-sm text-neutral-900">
-            <Field.Label>Region</Field.Label>
-            <Combobox.Input placeholder="e.g. eu-central-1" />
-            <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-neutral-600">
-              <Combobox.Clear />
-              <Combobox.Trigger>
-                <ChevronDown className="size-4" />
-              </Combobox.Trigger>
-            </div>
+          <div className="relative text-sm leading-5 font-bold text-neutral-950 dark:text-white">
+            <Field.Label className="mb-1 block">Region</Field.Label>
+            <Combobox.InputGroup>
+              <Combobox.Input placeholder="e.g. eu-central-1" />
+              <div className="absolute right-0 bottom-0 inline-flex h-full items-center justify-center text-neutral-500 dark:text-neutral-400">
+                <Combobox.Clear />
+                <Combobox.Trigger>
+                  <Combobox.ChevronDownIcon className="size-3" />
+                </Combobox.Trigger>
+              </div>
+            </Combobox.InputGroup>
           </div>
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -64,7 +66,7 @@ function ExampleForm() {
                     return (
                       <Combobox.Item key={region} value={region}>
                         <Combobox.ItemIndicator>
-                          <Check className="size-4" />
+                          <Check className="size-3" />
                         </Combobox.ItemIndicator>
                         <span className="col-start-2">{region}</span>
                       </Combobox.Item>
@@ -95,7 +97,7 @@ function ExampleForm() {
                   {(image: Image) => {
                     return (
                       <Autocomplete.Item key={image.url} value={image}>
-                        <span className="text-base">{image.name}</span>
+                        <span>{image.name}</span>
                         <span className="font-mono whitespace-nowrap text-xs opacity-80">
                           {image.url}
                         </span>
@@ -112,12 +114,12 @@ function ExampleForm() {
 
       <Field.Root name="serverType">
         <Select.Root items={SERVER_TYPES} required>
-          <div className="flex flex-col items-start gap-1">
+          <div className="w-fit space-y-1">
             <Select.Label>Server type</Select.Label>
             <Select.Trigger className="w-48">
               <Select.Value />
               <Select.Icon>
-                <ChevronsUpDown className="size-4" />
+                <ChevronsUpDown className="size-3" />
               </Select.Icon>
             </Select.Trigger>
           </div>
@@ -130,7 +132,7 @@ function ExampleForm() {
                     return (
                       <Select.Item key={value} value={value}>
                         <Select.ItemIndicator>
-                          <Check className="size-4" />
+                          <Check className="size-3" />
                         </Select.ItemIndicator>
                         <Select.ItemText>{label}</Select.ItemText>
                       </Select.Item>
@@ -150,11 +152,11 @@ function ExampleForm() {
           <Field.Label>Number of instances</Field.Label>
           <NumberField.Group>
             <NumberField.Decrement>
-              <Minus className="size-4" />
+              <Minus className="size-3" />
             </NumberField.Decrement>
-            <NumberField.Input className="!w-16" />
+            <NumberField.Input />
             <NumberField.Increment>
-              <Plus className="size-4" />
+              <Plus className="size-3" />
             </NumberField.Increment>
           </NumberField.Group>
         </NumberField.Root>
@@ -175,7 +177,7 @@ function ExampleForm() {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
               }}
-              className="w-98/100 gap-y-2"
+              className="w-full gap-y-2"
             />
           }
         >
@@ -214,7 +216,7 @@ function ExampleForm() {
       </Field.Root>
 
       <Field.Root name="restartOnFailure">
-        <Field.Label className="gap-4">
+        <Field.Label className="gap-2">
           Restart on failure
           <Switch.Root defaultChecked>
             <Switch.Thumb />

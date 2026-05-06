@@ -14,7 +14,7 @@ export const Input = React.forwardRef<HTMLInputElement, Autocomplete.Input.Props
     <Autocomplete.Input
       ref={forwardedRef}
       className={clsx(
-        'bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-neutral-200 pl-3.5 text-base text-neutral-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+        'h-8 w-[16rem] border border-neutral-950 bg-white px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 md:w-[20rem] dark:border-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400',
         className,
       )}
       {...props}
@@ -40,7 +40,7 @@ export function Popup({ className, ...props }: Autocomplete.Popup.Props) {
   return (
     <Autocomplete.Popup
       className={clsx(
-        'w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-neutral-900 shadow-lg shadow-neutral-200 outline-1 outline-neutral-200 dark:shadow-none dark:-outline-offset-1 dark:outline-neutral-300',
+        'w-(--anchor-width) max-h-[23rem] max-w-(--available-width) overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none',
         className,
       )}
       {...props}
@@ -48,15 +48,23 @@ export function Popup({ className, ...props }: Autocomplete.Popup.Props) {
   );
 }
 
-export function List(props: Autocomplete.List.Props) {
-  return <Autocomplete.List {...props} />;
+export function List({ className, ...props }: Autocomplete.List.Props) {
+  return (
+    <Autocomplete.List
+      className={clsx(
+        'max-h-[min(23rem,var(--available-height))] overflow-y-auto overscroll-contain py-2 scroll-py-2 outline-0 data-empty:p-0',
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 export function Item({ className, ...props }: Autocomplete.Item.Props) {
   return (
     <Autocomplete.Item
       className={clsx(
-        'flex flex-col gap-0.25 cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-neutral-50 data-highlighted:before:absolute data-highlighted:before:inset-x-2 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:rounded data-highlighted:before:bg-neutral-900',
+        'flex cursor-default flex-col gap-0.25 py-2 pr-8 pl-2 text-sm leading-4 outline-none select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white',
         className,
       )}
       {...props}

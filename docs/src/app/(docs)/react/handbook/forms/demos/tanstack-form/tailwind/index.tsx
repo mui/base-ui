@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useForm, revalidateLogic, DeepKeys, ValidationError } from '@tanstack/react-form';
-import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
+import { ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
 import { Button } from '../../components/button';
 import { CheckboxGroup } from '../../components/checkbox-group';
 import { RadioGroup } from '../../components/radio-group';
@@ -82,7 +82,7 @@ function TanstackForm() {
   return (
     <form
       aria-label="Launch new cloud server"
-      className="flex w-full max-w-3xs sm:max-w-[20rem] flex-col gap-5"
+      className="flex w-full max-w-3xs flex-col gap-5 sm:max-w-[20rem]"
       noValidate
       onSubmit={(event) => {
         event.preventDefault();
@@ -130,15 +130,17 @@ function TanstackForm() {
                 value={field.state.value}
                 onValueChange={field.handleChange}
               >
-                <div className="relative flex flex-col gap-1 text-sm text-neutral-900">
-                  <Field.Label>Region</Field.Label>
-                  <Combobox.Input placeholder="e.g. eu-central-1" onBlur={field.handleBlur} />
-                  <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-neutral-600">
-                    <Combobox.Clear />
-                    <Combobox.Trigger>
-                      <ChevronDown className="size-4" />
-                    </Combobox.Trigger>
-                  </div>
+                <div className="relative text-sm leading-5 font-bold text-neutral-950 dark:text-white">
+                  <Field.Label className="mb-1 block">Region</Field.Label>
+                  <Combobox.InputGroup>
+                    <Combobox.Input placeholder="e.g. eu-central-1" onBlur={field.handleBlur} />
+                    <div className="absolute right-0 bottom-0 inline-flex h-full items-center justify-center text-neutral-500 dark:text-neutral-400">
+                      <Combobox.Clear />
+                      <Combobox.Trigger>
+                        <Combobox.ChevronDownIcon className="size-3" />
+                      </Combobox.Trigger>
+                    </div>
+                  </Combobox.InputGroup>
                 </div>
                 <Combobox.Portal>
                   <Combobox.Positioner>
@@ -199,7 +201,7 @@ function TanstackForm() {
                         {(image: Image) => {
                           return (
                             <Autocomplete.Item key={image.url} value={image}>
-                              <span className="text-base">{image.name}</span>
+                              <span>{image.name}</span>
                               <span className="font-mono whitespace-nowrap text-xs opacity-80">
                                 {image.url}
                               </span>
@@ -234,12 +236,12 @@ function TanstackForm() {
                 value={field.state.value}
                 onValueChange={field.handleChange}
               >
-                <div className="flex flex-col items-start gap-1">
+                <div className="w-fit space-y-1">
                   <Select.Label>Server type</Select.Label>
-                  <Select.Trigger className="!w-48" onBlur={field.handleBlur}>
+                  <Select.Trigger className="w-48" onBlur={field.handleBlur}>
                     <Select.Value />
                     <Select.Icon>
-                      <ChevronsUpDown className="size-4" />
+                      <ChevronsUpDown className="size-3" />
                     </Select.Icon>
                   </Select.Trigger>
                 </div>
@@ -291,11 +293,11 @@ function TanstackForm() {
                 <Field.Label>Number of instances</Field.Label>
                 <NumberField.Group>
                   <NumberField.Decrement>
-                    <Minus className="size-4" />
+                    <Minus className="size-3" />
                   </NumberField.Decrement>
-                  <NumberField.Input className="!w-16" onBlur={field.handleBlur} />
+                  <NumberField.Input onBlur={field.handleBlur} />
                   <NumberField.Increment>
-                    <Plus className="size-4" />
+                    <Plus className="size-3" />
                   </NumberField.Increment>
                 </NumberField.Group>
               </NumberField.Root>
@@ -332,7 +334,7 @@ function TanstackForm() {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
                     }}
-                    className="w-98/100 gap-y-2"
+                    className="w-full gap-y-2"
                   />
                 }
               >
@@ -411,7 +413,7 @@ function TanstackForm() {
               dirty={field.state.meta.isDirty}
               touched={field.state.meta.isTouched}
             >
-              <Field.Label className="gap-4">
+              <Field.Label className="gap-2">
                 Restart on failure
                 <Switch.Root
                   checked={field.state.value}
