@@ -1,14 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  useFullscreenRoot,
-  type FullscreenNavigationUI,
-  type UseFullscreenRootReturnValue,
-} from './useFullscreenRoot';
+import { useFullscreenRoot, type FullscreenNavigationUI } from './useFullscreenRoot';
 import { FullscreenRootContext } from './FullscreenRootContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { FullscreenStore } from '../store/FullscreenStore';
+import { FullscreenHandle } from '../store/FullscreenHandle';
 
 /**
  * Groups all parts of the fullscreen.
@@ -21,6 +19,7 @@ export function FullscreenRoot(componentProps: FullscreenRoot.Props) {
     children,
     defaultOpen = false,
     disabled = false,
+    handle,
     navigationUI = 'auto',
     onOpenChange: onOpenChangeProp,
     open,
@@ -28,30 +27,27 @@ export function FullscreenRoot(componentProps: FullscreenRoot.Props) {
 
   const onOpenChange = useStableCallback(onOpenChangeProp);
 
-  const fullscreen = useFullscreenRoot({
-    open,
-    defaultOpen,
-    onOpenChange,
+  const store = FullscreenStore.useStore(handle?.store, {
+    open: defaultOpen,
+    openProp: open,
     disabled,
     navigationUI,
   });
 
-  const state: FullscreenRootState = React.useMemo(
-    () => ({
-      open: fullscreen.open,
-      disabled: fullscreen.disabled,
-      supported: fullscreen.supported,
-    }),
-    [fullscreen.open, fullscreen.disabled, fullscreen.supported],
-  );
+  store.useControlledProp('openProp', open);
+  store.useSyncedValues({ disabled, navigationUI });
+
+  const fullscreen = useFullscreenRoot({
+    store,
+    onOpenChange,
+  });
 
   const contextValue: FullscreenRootContext = React.useMemo(
     () => ({
       ...fullscreen,
-      onOpenChange,
-      state,
+      store,
     }),
-    [fullscreen, onOpenChange, state],
+    [fullscreen, store],
   );
 
   return (
@@ -59,10 +55,20 @@ export function FullscreenRoot(componentProps: FullscreenRoot.Props) {
   );
 }
 
-export interface FullscreenRootState extends Pick<
-  UseFullscreenRootReturnValue,
-  'open' | 'disabled' | 'supported'
-> {}
+export interface FullscreenRootState {
+  /**
+   * Whether the container is currently displayed in fullscreen.
+   */
+  open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the browser supports the Fullscreen API for the container's owner document.
+   */
+  supported: boolean;
+}
 
 export interface FullscreenRootProps {
   /**
@@ -98,6 +104,12 @@ export interface FullscreenRootProps {
    */
   navigationUI?: FullscreenNavigationUI | undefined;
   /**
+   * A handle to control the fullscreen imperatively or to associate detached
+   * `<Fullscreen.Trigger>` components with this root. Create one with
+   * `Fullscreen.createHandle()`.
+   */
+  handle?: FullscreenHandle | undefined;
+  /**
    * The content of the fullscreen.
    */
   children?: React.ReactNode | undefined;
@@ -107,6 +119,7 @@ export type FullscreenRootChangeEventReason =
   | typeof REASONS.triggerPress
   | typeof REASONS.closePress
   | typeof REASONS.escapeKey
+  | typeof REASONS.imperativeAction
   | typeof REASONS.none;
 
 export type FullscreenRootChangeEventDetails =

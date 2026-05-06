@@ -7,6 +7,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useFullscreenRootContext } from '../root/FullscreenRootContext';
 import type { FullscreenRootState } from '../root/FullscreenRoot';
 import { fullscreenStateMapping } from '../root/stateAttributesMapping';
@@ -28,36 +29,32 @@ export const FullscreenContainer = React.forwardRef(function FullscreenContainer
 ) {
   const { className, id: idProp, render, style, ...elementProps } = componentProps;
 
-  const {
-    containerId,
-    containerRef,
-    handleContainerUnmount,
-    handleFullscreenChange,
-    handleFullscreenError,
-    setContainerIdState,
-    setSupported,
-    state,
-  } = useFullscreenRootContext();
+  const { store, handleContainerUnmount, handleFullscreenChange, handleFullscreenError } =
+    useFullscreenRootContext();
+
+  const open = store.useState('open');
+  const disabled = store.useState('disabled');
+  const supported = store.useState('supported');
+
+  const defaultContainerId = useBaseUiId();
+  const containerId = idProp ?? defaultContainerId;
 
   useIsoLayoutEffect(() => {
-    if (idProp) {
-      setContainerIdState(idProp);
-      return () => {
-        setContainerIdState(undefined);
-      };
-    }
-    return undefined;
-  }, [idProp, setContainerIdState]);
+    store.set('containerId', containerId);
+    return () => {
+      store.set('containerId', undefined);
+    };
+  }, [containerId, store]);
 
   const setContainer = useStableCallback((node: HTMLDivElement | null) => {
-    containerRef.current = node;
+    store.context.containerRef.current = node;
     if (node) {
-      setSupported(isFullscreenEnabled(ownerDocument(node)));
+      store.set('supported', isFullscreenEnabled(ownerDocument(node)));
     }
   });
 
   React.useEffect(() => {
-    const container = containerRef.current;
+    const container = store.context.containerRef.current;
     if (!container) {
       return undefined;
     }
@@ -74,7 +71,12 @@ export const FullscreenContainer = React.forwardRef(function FullscreenContainer
       cleanup();
       handleContainerUnmount();
     };
-  }, [containerRef, handleContainerUnmount, handleFullscreenChange, handleFullscreenError]);
+  }, [store, handleContainerUnmount, handleFullscreenChange, handleFullscreenError]);
+
+  const state: FullscreenContainerState = React.useMemo(
+    () => ({ open, disabled, supported }),
+    [open, disabled, supported],
+  );
 
   return useRenderElement('div', componentProps, {
     state,

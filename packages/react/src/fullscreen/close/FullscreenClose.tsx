@@ -1,8 +1,11 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useFullscreenRootContext } from '../root/FullscreenRootContext';
 import type { FullscreenRootState } from '../root/FullscreenRoot';
 import { fullscreenStateMapping } from '../root/stateAttributesMapping';
@@ -26,26 +29,31 @@ export const FullscreenClose = React.forwardRef(function FullscreenClose(
     ...elementProps
   } = componentProps;
 
-  const { handleClose, open, state: rootState } = useFullscreenRootContext();
+  const { store } = useFullscreenRootContext();
+
+  const open = store.useState('open');
+  const supported = store.useState('supported');
 
   const { getButtonProps, buttonRef } = useButton({
     disabled: disabledProp,
     native: nativeButton,
   });
 
+  const handleClick = useStableCallback((event: React.MouseEvent) => {
+    if (disabledProp || !store.select('open')) {
+      return;
+    }
+    store.setOpen(false, createChangeEventDetails(REASONS.closePress, event.nativeEvent));
+  });
+
   const state: FullscreenCloseState = React.useMemo(
     () => ({
-      ...rootState,
+      open,
       disabled: disabledProp,
+      supported,
     }),
-    [rootState, disabledProp],
+    [open, disabledProp, supported],
   );
-
-  function handleClick(event: React.MouseEvent) {
-    if (open) {
-      handleClose(event);
-    }
-  }
 
   return useRenderElement('button', componentProps, {
     state,

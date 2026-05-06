@@ -14,6 +14,8 @@ const buttonStyle: React.CSSProperties = {
   cursor: 'pointer',
 };
 
+const detachedHandle = Fullscreen.createHandle();
+
 export default function FullscreenExperiment() {
   const [open, setOpen] = React.useState(false);
   const [navigationUI, setNavigationUI] = React.useState<Fullscreen.Root.NavigationUI>('auto');
@@ -132,6 +134,68 @@ export default function FullscreenExperiment() {
           >
             Toggle fullscreen
           </Fullscreen.Trigger>
+          <Fullscreen.Close
+            style={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              padding: '4px 10px',
+              borderRadius: 4,
+              border: 'none',
+              background: 'rgba(255, 255, 255, 0.85)',
+              color: '#111',
+              cursor: 'pointer',
+            }}
+          >
+            Exit
+          </Fullscreen.Close>
+        </Fullscreen.Container>
+      </Fullscreen.Root>
+
+      <hr style={{ width: '100%', border: 0, borderTop: '1px solid #d1d5db', margin: '8px 0' }} />
+
+      <h2 style={{ margin: 0 }}>Detached + imperative</h2>
+      <p style={{ margin: 0 }}>
+        Triggers and the imperative handle below are wired to a separate{' '}
+        <code>Fullscreen.Root</code> via <code>Fullscreen.createHandle()</code>. Detached triggers
+        can live anywhere in the tree; only the trigger that activated the fullscreen receives{' '}
+        <code>data-fullscreen</code>.
+      </p>
+
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Fullscreen.Trigger handle={detachedHandle} id="detached-a" style={buttonStyle}>
+          Detached trigger A
+        </Fullscreen.Trigger>
+        <Fullscreen.Trigger handle={detachedHandle} id="detached-b" style={buttonStyle}>
+          Detached trigger B
+        </Fullscreen.Trigger>
+        <button type="button" style={buttonStyle} onClick={() => detachedHandle.open()}>
+          handle.open()
+        </button>
+        <button type="button" style={buttonStyle} onClick={() => detachedHandle.open('detached-a')}>
+          handle.open(&apos;detached-a&apos;)
+        </button>
+        <button type="button" style={buttonStyle} onClick={() => detachedHandle.close()}>
+          handle.close()
+        </button>
+      </div>
+
+      <Fullscreen.Root handle={detachedHandle}>
+        <Fullscreen.Container
+          style={{
+            position: 'relative',
+            width: 320,
+            height: 200,
+            background: 'linear-gradient(135deg, #16a34a, #facc15)',
+            color: '#0f172a',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 8,
+            fontSize: 16,
+          }}
+        >
+          Detached fullscreen container
           <Fullscreen.Close
             style={{
               position: 'absolute',

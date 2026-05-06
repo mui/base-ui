@@ -16,6 +16,7 @@ Doesn't render its own HTML element.
 | defaultOpen  | `boolean`                                                                     | `false`  | Whether the container is initially displayed in fullscreen. The Fullscreen API requires a user gesture to enter fullscreen, so an&#xA;initially open value can only be honored after the user interacts with the&#xA;page. To render a controlled fullscreen, use the `open` prop instead. |
 | open         | `boolean`                                                                     | -        | Whether the container is currently displayed in fullscreen. To render an uncontrolled fullscreen, use the `defaultOpen` prop instead.                                                                                                                                                      |
 | onOpenChange | `((open: boolean, eventDetails: Fullscreen.Root.ChangeEventDetails) => void)` | -        | Event handler called when the container enters or exits fullscreen.                                                                                                                                                                                                                        |
+| handle       | `Fullscreen.Handle`                                                           | -        | A handle to control the fullscreen imperatively or to associate detached&#xA;`<Fullscreen.Trigger>` components with this root. Create one with&#xA;`Fullscreen.createHandle()`.                                                                                                            |
 | navigationUI | `FullscreenNavigationUI`                                                      | `'auto'` | Hint to the browser describing how the navigation UI should be presented&#xA;while the container is in fullscreen. Forwarded to `Element.requestFullscreen()`.                                                                                                                             |
 | disabled     | `boolean`                                                                     | `false`  | Whether the component should ignore user interaction.                                                                                                                                                                                                                                      |
 | children     | `React.ReactNode`                                                             | -        | The content of the fullscreen.                                                                                                                                                                                                                                                             |
@@ -40,7 +41,12 @@ type FullscreenRootState = {
 ### Root.ChangeEventReason
 
 ```typescript
-type FullscreenRootChangeEventReason = 'trigger-press' | 'close-press' | 'escape-key' | 'none';
+type FullscreenRootChangeEventReason =
+  | 'trigger-press'
+  | 'close-press'
+  | 'escape-key'
+  | 'imperative-action'
+  | 'none';
 ```
 
 ### Root.ChangeEventDetails
@@ -50,6 +56,7 @@ type FullscreenRootChangeEventDetails = (
   | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
   | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'escape-key'; event: KeyboardEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -80,7 +87,9 @@ Renders a `<button>` element.
 
 | Prop         | Type                                                                                             | Default | Description                                                                                                                                                                                   |
 | :----------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| handle       | `Fullscreen.Handle`                                                                              | -       | A handle to associate the trigger with a fullscreen root rendered&#xA;elsewhere in the tree. Create one with `Fullscreen.createHandle()`.                                                     |
 | nativeButton | `boolean`                                                                                        | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| id           | `string`                                                                                         | -       | ID of the trigger. Forwarded to the rendered element and used internally&#xA;to identify which trigger activated the fullscreen.                                                              |
 | className    | `string \| ((state: Fullscreen.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: Fullscreen.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: Fullscreen.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -184,6 +193,63 @@ type FullscreenContainerState = {
 };
 ```
 
+### createHandle
+
+Creates a new handle to control a Fullscreen imperatively or to connect a
+`<Fullscreen.Root>` with detached `<Fullscreen.Trigger>` components.
+
+**Return Value:**
+
+```tsx
+type ReturnValue = Fullscreen.Handle;
+```
+
+### Handle
+
+A handle to control a Fullscreen imperatively and to associate detached
+triggers with it.
+
+Pass the handle to `<Fullscreen.Root handle={...}>` and to any detached
+`<Fullscreen.Trigger handle={...}>` rendered outside the root. Calling
+`open()` from a user-gesture handler enters fullscreen the same way a
+trigger press would.
+
+**Constructor Parameters:**
+
+| Parameter | Type              | Default | Description |
+| :-------- | :---------------- | :------ | :---------- |
+| store?    | `FullscreenStore` | -       | -           |
+
+**Properties:**
+
+| Property | Type      | Modifiers | Description                                                 |
+| :------- | :-------- | :-------- | :---------------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Indicates whether the container is currently in fullscreen. |
+
+**Methods:**
+
+```typescript
+function open(triggerId?: string | null | undefined): void;
+```
+
+Enters fullscreen and associates the change with the trigger with the given
+id, if provided.
+
+`requestFullscreen()` requires the document to have transient activation,
+so this method must be called from within a user-gesture event handler
+(click, keydown, etc.) or from a task that still inherits a recent
+activation. Calls outside that window will be rejected by the browser; the
+rejection is caught and reverts state via `onOpenChange(false, { reason: 'none' })`.
+
+```typescript
+function close(): void;
+```
+
+Exits fullscreen.
+
+Unlike `open()`, exiting fullscreen does not require a user gesture and
+can be called at any time.
+
 ## External Types
 
 ### FullscreenNavigationUI
@@ -198,6 +264,8 @@ type FullscreenNavigationUI = 'auto' | 'show' | 'hide';
 - `Fullscreen.Container`: `Fullscreen.Container`, `Fullscreen.Container.State`, `Fullscreen.Container.Props`
 - `Fullscreen.Trigger`: `Fullscreen.Trigger`, `Fullscreen.Trigger.State`, `Fullscreen.Trigger.Props`
 - `Fullscreen.Close`: `Fullscreen.Close`, `Fullscreen.Close.Props`, `Fullscreen.Close.State`
+- `Fullscreen.createHandle`
+- `Fullscreen.Handle`
 - `Default`: `FullscreenRootState`, `FullscreenRootProps`, `FullscreenRootChangeEventReason`, `FullscreenRootChangeEventDetails`, `FullscreenContainerState`, `FullscreenContainerProps`, `FullscreenTriggerState`, `FullscreenTriggerProps`, `FullscreenCloseProps`, `FullscreenCloseState`
 
 ## Canonical Types

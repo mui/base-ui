@@ -94,6 +94,48 @@ const [open, setOpen] = React.useState(false);
 
 If `open` is set to `true` outside the browser's transient-activation window (no recent user gesture, or more than ~5 seconds after one), the browser rejects the request. Base UI catches the rejection, dispatches `onOpenChange(false, { reason: 'none' })` so the controlled state can roll back, and logs a warning in development.
 
+### Detached triggers
+
+A `<Fullscreen.Trigger>` can also live anywhere in the React tree — for example in a global toolbar, away from the element that goes fullscreen. Connect them by creating a handle with `Fullscreen.createHandle()` and passing it to both `<Fullscreen.Root>` and `<Fullscreen.Trigger>`:
+
+```jsx title="Detached trigger"
+const playerFullscreen = Fullscreen.createHandle();
+
+// @highlight
+// @highlight-text "handle={playerFullscreen}"
+<Fullscreen.Trigger handle={playerFullscreen}>Enter fullscreen</Fullscreen.Trigger> {/* @highlight-text "handle={playerFullscreen}" */}
+
+// @highlight
+// @highlight-text "handle={playerFullscreen}"
+<Fullscreen.Root handle={playerFullscreen}>
+  <Fullscreen.Container>{/* ... */}</Fullscreen.Container>
+</Fullscreen.Root>
+```
+
+import { DemoFullscreenDetachedTrigger } from './demos/detached-trigger';
+
+<DemoFullscreenDetachedTrigger />
+
+### Imperative open and close
+
+The handle returned by `Fullscreen.createHandle()` also exposes imperative methods. Calling `handle.open()` from any user-gesture handler (click, keypress, command-palette action, etc.) enters fullscreen the same way a trigger press would:
+
+```tsx title="Imperative control"
+const playerFullscreen = Fullscreen.createHandle();
+
+function onHotkey(event: KeyboardEvent) {
+  if (event.key === 'f') {
+    playerFullscreen.open();
+  }
+}
+
+// `close()` and `isOpen` have no gesture constraints.
+playerFullscreen.close();
+console.log(playerFullscreen.isOpen);
+```
+
+`handle.open()` carries the same user-activation requirement as `<Fullscreen.Trigger>`. If invoked outside the activation window, the browser rejects the request and Base UI dispatches `onOpenChange(false, { reason: 'none' })` to roll the state back.
+
 ### Detecting unsupported browsers
 
 The `supported` state lets you hide or replace the UI when the Fullscreen API is unavailable (for example, on iOS Safari for iPhone):
@@ -133,6 +175,10 @@ import { TypesFullscreen } from './types';
 ### Close
 
 <TypesFullscreen.Close />
+
+### Handle
+
+<TypesFullscreen.Handle />
 
 export const metadata = {
   keywords: [
