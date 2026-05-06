@@ -42,6 +42,7 @@ export function FullscreenRoot(componentProps: FullscreenRoot.Props) {
   const fullscreen = useFullscreenRoot({
     store,
     onOpenChange,
+    target,
   });
 
   useExternalFullscreenTarget(store, target, fullscreen);

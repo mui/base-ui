@@ -20,7 +20,15 @@ import type { FullscreenStore } from '../store/FullscreenStore';
  */
 export type FullscreenTarget = (() => Element | null | undefined) | React.RefObject<Element | null>;
 
-function resolveTarget(target: FullscreenTarget | undefined): Element | null {
+/**
+ * Resolves a `FullscreenTarget` to a DOM element. Returns `null` for callbacks
+ * that return nothing, refs that haven't attached yet, or `undefined` targets.
+ *
+ * Exported so other parts of the runtime (like `useFullscreenRoot`'s open-
+ * effect) can lazy-resolve the target at request time, which is necessary
+ * when the consumer passes a ref to an ancestor DOM node.
+ */
+export function resolveTarget(target: FullscreenTarget | undefined): Element | null {
   if (!target) {
     return null;
   }

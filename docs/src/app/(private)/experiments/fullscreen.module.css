@@ -43,6 +43,16 @@
   border-top: 0;
 }
 
+/* Make it obvious when an arbitrary element (like the experiment section) is
+   being fullscreened. The browser would otherwise paint the element on a black
+   default backdrop with no other styling cue. */
+.Section:fullscreen {
+  background: var(--color-gray-50, #fff);
+  padding: 2.5rem 3rem;
+  gap: 1.25rem;
+  overflow: auto;
+}
+
 .Fieldset {
   display: flex;
   flex-direction: column;

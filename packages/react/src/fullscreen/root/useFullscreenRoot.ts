@@ -15,6 +15,7 @@ import {
   FULLSCREEN_ERROR_EVENTS,
 } from './fullscreenApi';
 import { installFullscreenEscapeBridge } from '../escapeBridge';
+import { resolveTarget, type FullscreenTarget } from './useExternalFullscreenTarget';
 import type { FullscreenStore } from '../store/FullscreenStore';
 
 /**
@@ -31,7 +32,7 @@ import type { FullscreenStore } from '../store/FullscreenStore';
 export function useFullscreenRoot(
   parameters: UseFullscreenRootParameters,
 ): UseFullscreenRootReturnValue {
-  const { store, onOpenChange } = parameters;
+  const { store, onOpenChange, target } = parameters;
 
   // Installed lazily from a layout effect (rather than at module evaluation
   // time) because the package declares `sideEffects: false`; bundlers would
@@ -78,7 +79,27 @@ export function useFullscreenRoot(
   // below so consumers see the request fail through
   // `onOpenChange(false, { reason: 'none' })`.
   useIsoLayoutEffect(() => {
-    const container = containerRef.current;
+    let container = containerRef.current;
+
+    // Lazy-resolve the external `target` prop if `useExternalFullscreenTarget`
+    // could not pin down the element on its initial commit (most commonly
+    // because the consumer passed a ref to an ancestor DOM node — that ref
+    // gets attached after our descendant layout effects fire). By the time
+    // this effect re-runs in response to `open` flipping or another commit,
+    // the parent's ref is guaranteed to be populated.
+    if (!container && target) {
+      const element = resolveTarget(target);
+      if (element) {
+        container = element as HTMLElement;
+        containerRef.current = container;
+        const elementId = (element as HTMLElement).id;
+        const nextContainerId = elementId !== '' ? elementId : undefined;
+        if (store.select('containerId') !== nextContainerId) {
+          store.set('containerId', nextContainerId);
+        }
+      }
+    }
+
     if (container) {
       ownerDocumentRef.current = ownerDocument(container);
     }
@@ -126,7 +147,7 @@ export function useFullscreenRoot(
         });
       }
     }
-  }, [open, navigationUI, store, containerRef]);
+  }, [open, navigationUI, store, containerRef, target]);
 
   // Handles browser-initiated state changes (most commonly the Esc key, but
   // also browser exit affordances or the active element being removed). When
@@ -202,6 +223,13 @@ export interface UseFullscreenRootParameters {
     open: boolean,
     eventDetails: import('./FullscreenRoot').FullscreenRoot.ChangeEventDetails,
   ) => void;
+  /**
+   * Optional external `target` element to fullscreen instead of
+   * `<Fullscreen.Container>`. When provided, the open-effect lazy-resolves
+   * it at request time, which handles refs to ancestor DOM nodes whose
+   * attachment lands after our descendant layout effects fire.
+   */
+  target?: FullscreenTarget | undefined;
 }
 
 export interface UseFullscreenRootReturnValue {

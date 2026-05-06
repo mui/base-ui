@@ -556,6 +556,37 @@ describe('<Fullscreen.Root />', () => {
       expect(stubs.request.mock.instances[0]).toBe(externalTarget);
     });
 
+    it('opens the external element when target is a ref to an ancestor DOM node', async () => {
+      // Reproduces the common case where the consumer hangs the ref on a
+      // parent element of `<Fullscreen.Root>`. React attaches that ref AFTER
+      // the descendant's layout effects fire, so eager resolution would see
+      // a null ref. The lazy resolution inside `useFullscreenRoot`'s open-
+      // effect must pick the element up at request time.
+      function App() {
+        const ancestorRef = React.useRef<HTMLElement | null>(null);
+        return (
+          <section ref={ancestorRef} id="ancestor-section" data-testid="ancestor-section">
+            <Fullscreen.Root target={ancestorRef}>
+              <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+            </Fullscreen.Root>
+          </section>
+        );
+      }
+
+      await render(<App />);
+      const section = screen.getByTestId('ancestor-section');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+
+      expect(stubs.request).toHaveBeenCalledOnce();
+      expect(stubs.request.mock.instances[0]).toBe(section);
+      expect(screen.getByRole('button', { name: 'Toggle' })).toHaveAttribute(
+        'aria-controls',
+        'ancestor-section',
+      );
+    });
+
     it('reconciles state when the browser exits fullscreen via Esc', async () => {
       const handleOpenChange = vi.fn();
 

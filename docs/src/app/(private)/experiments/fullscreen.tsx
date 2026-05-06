@@ -228,11 +228,20 @@ function ExternalTargetSection() {
           </Fullscreen.Close>
         </Fullscreen.Root>
 
-        <Fullscreen.Root target={sectionRef}>
+        <Fullscreen.Root
+          target={sectionRef}
+          onOpenChange={(nextOpen, details) =>
+            setLastEvent({ open: nextOpen, reason: details.reason })
+          }
+        >
           <Fullscreen.Trigger className={styles.Button}>
             <ExpandIcon />
             target=&#123;sectionRef&#125;
           </Fullscreen.Trigger>
+          <Fullscreen.Close className={styles.Button}>
+            <CloseIcon />
+            Close
+          </Fullscreen.Close>
         </Fullscreen.Root>
 
         <button
