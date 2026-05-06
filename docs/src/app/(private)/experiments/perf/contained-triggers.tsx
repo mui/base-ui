@@ -160,7 +160,9 @@ function RowPreviewCard({ rowData }: RowProps) {
       </PreviewCard.Trigger>
       <PreviewCard.Portal>
         <PreviewCard.Positioner sideOffset={8} className={previewCardDemoStyles.Positioner}>
-          <PreviewCard.Popup className={previewCardDemoStyles.Popup}>
+          <PreviewCard.Popup
+            className={`${previewCardDemoStyles.Popup} ${styles.previewCardPopup}`}
+          >
             <PreviewCard.Arrow className={previewCardDemoStyles.Arrow}>
               <PreviewCardArrowSvg />
             </PreviewCard.Arrow>
