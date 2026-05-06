@@ -115,7 +115,26 @@ export default function FullscreenExperiment() {
                 <Dialog.Popup className={styles.DialogPopup} data-testid="dialog-popup">
                   <Dialog.Title>Dialog inside fullscreen</Dialog.Title>
                   <p>Press Escape to close this dialog. Fullscreen should remain active.</p>
-                  <Dialog.Close className={styles.Button}>Close dialog</Dialog.Close>
+                  <p>
+                    With fullscreen <em>off</em>, opening this dialog renders its popup in{' '}
+                    <code className={styles.Code}>document.body</code>. Click{' '}
+                    <strong>Enter fullscreen</strong> below — the popup should reroute into the
+                    fullscreen container automatically.
+                  </p>
+                  <div className={styles.Row}>
+                    <Fullscreen.Trigger
+                      className={styles.Button}
+                      data-testid="dialog-fullscreen-trigger"
+                    >
+                      <ExpandIcon />
+                      Enter fullscreen
+                    </Fullscreen.Trigger>
+                    <Fullscreen.Close className={styles.Button}>
+                      <CloseIcon />
+                      Exit fullscreen
+                    </Fullscreen.Close>
+                    <Dialog.Close className={styles.Button}>Close dialog</Dialog.Close>
+                  </div>
                 </Dialog.Popup>
               </Dialog.Portal>
             </Dialog.Root>
