@@ -14,56 +14,6 @@ import { sitemap } from 'docs/src/app/sitemap';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
-const MIGRATED_PATHS = new Set([
-  // Components
-  'accordion',
-  'alert-dialog',
-  'avatar',
-  'autocomplete',
-  'button',
-  'checkbox',
-  'checkbox-group',
-  'collapsible',
-  'context-menu',
-  'dialog',
-  'drawer',
-  'field',
-  'fieldset',
-  'form',
-  'input',
-  'menu',
-  'menubar',
-  'meter',
-  'navigation-menu',
-  'number-field',
-  'otp-field',
-  'popover',
-  'preview-card',
-  'progress',
-  'radio',
-  'scroll-area',
-  'select',
-  'separator',
-  'slider',
-  'switch',
-  'tabs',
-  'toast',
-  'toggle',
-  'toggle-group',
-  'toolbar',
-  'tooltip',
-
-  // Utils
-  'direction-provider',
-  'merge-props',
-  'use-render',
-]);
-
-function isMigratedPath(href: string) {
-  const match =
-    href.match(/^\/react\/components\/([^/]+)\/?$/) || href.match(/^\/react\/utils\/([^/]+)\/?$/);
-  return match ? MIGRATED_PATHS.has(match[1]) : false;
-}
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
     // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
@@ -120,14 +70,15 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                   const isNewPage = page.tags?.includes('New');
                                   const isPreviewPage = page.tags?.includes('Preview');
                                   const isPrivatePage = page.audience === 'private';
-                                  const href = page.path.startsWith('./')
-                                    ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-                                    : page.path;
 
                                   return (
                                     <SideNav.Item
                                       key={page.title}
-                                      href={href}
+                                      href={
+                                        page.path.startsWith('./')
+                                          ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+                                          : page.path
+                                      }
                                       external={page.tags?.includes('External')}
                                     >
                                       {(page.title && titleMap[page.title]) || page.title}
@@ -135,19 +86,6 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                       {isPreviewPage && <SideNav.Badge>Preview</SideNav.Badge>}
                                       {isNewPage && !isPreviewPage && !isPrivatePage && (
                                         <SideNav.Badge>New</SideNav.Badge>
-                                      )}
-                                      {isMigratedPath(href) && (
-                                        <span
-                                          aria-hidden
-                                          style={{
-                                            width: '0.5rem',
-                                            height: '0.5rem',
-                                            borderRadius: '50%',
-                                            backgroundColor: 'var(--orange-t1)',
-                                            flexShrink: '0',
-                                            marginLeft: '4px',
-                                          }}
-                                        />
                                       )}
                                     </SideNav.Item>
                                   );
