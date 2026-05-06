@@ -5,6 +5,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import {
   getComputedStyle,
@@ -136,6 +137,8 @@ type DismissInteractionControllerSettings = Required<
 export class DismissInteractionController {
   private settings: DismissInteractionControllerSettings;
 
+  private nextSettings: DismissInteractionControllerSettings;
+
   private pressStartedInsideRef = false;
 
   private pressStartPreventedRef = false;
@@ -165,12 +168,21 @@ export class DismissInteractionController {
     public rootStore: FloatingRootContext,
     settings: DismissInteractionControllerParameters,
   ) {
-    this.settings = this.generateSettings(settings);
+    const initialSettings = this.generateSettings(settings);
+    this.settings = initialSettings;
+    this.nextSettings = initialSettings;
   }
 
-  public updateSettings(settings: DismissInteractionControllerParameters) {
-    this.settings = this.generateSettings(settings);
+  public stageSettings(
+    settings: DismissInteractionControllerParameters,
+  ): DismissInteractionControllerSettings {
+    this.nextSettings = this.generateSettings(settings);
+    return this.nextSettings;
   }
+
+  public commitSettings = () => {
+    this.settings = this.nextSettings;
+  };
 
   private generateSettings(
     settings: DismissInteractionControllerParameters,
@@ -620,15 +632,15 @@ export class DismissInteractionController {
     this.addTargetEventListenerOnce(event, this.handleTouchEnd.bind(this));
   };
 
-  public useSetup() {
+  public useSetup(settings: DismissInteractionControllerSettings) {
     const open = this.rootStore.useState('open');
     const floatingElement = this.rootStore.useState('floatingElement');
-    const enabled = this.settings.enabled;
-    const escapeKey = this.settings.escapeKey;
-    const outsidePress = this.settings.outsidePress;
+    const enabled = settings.enabled;
+    const escapeKey = settings.escapeKey;
+    const outsidePress = settings.outsidePress;
     const outsidePressEnabled = outsidePress !== false;
-    const escapeKeyBubbles = this.settings.escapeKeyBubbles;
-    const outsidePressBubbles = this.settings.outsidePressBubbles;
+    const escapeKeyBubbles = settings.escapeKeyBubbles;
+    const outsidePressBubbles = settings.outsidePressBubbles;
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
@@ -700,7 +712,7 @@ export class DismissInteractionController {
     ]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/rules-of-hooks
-    React.useEffect(this.clearInsideReactTree, [outsidePress, this.clearInsideReactTree]);
+    React.useEffect(this.clearInsideReactTree, [outsidePressEnabled, this.clearInsideReactTree]);
   }
 
   public getReferenceProps(
@@ -780,11 +792,13 @@ export class DismissInteractionController {
     };
   }
 
-  public dispose() {
+  public dispose = () => {
     this.cancelDismissOnEndTimeout.clear();
     this.clearInsideReactTreeTimeout.clear();
     this.preventedPressSuppressionTimeout.clear();
-  }
+  };
+
+  public disposeEffect = () => this.dispose;
 }
 
 /**
@@ -811,10 +825,14 @@ export function useDismiss(
   }
 
   const controller = controllerRef.current;
-  controller.updateSettings(controllerParameters);
+  const settings = controller.stageSettings(controllerParameters);
 
-  const enabled = props.enabled ?? true;
-  const referencePressEvent = props.referencePressEvent ?? 'sloppy';
+  useIsoLayoutEffect(() => {
+    controller.commitSettings();
+  });
+
+  const enabled = settings.enabled;
+  const referencePressEvent = settings.referencePressEvent;
 
   const referenceProps = React.useMemo<HTMLProps>(
     () => controller.getReferenceProps(enabled, referencePressEvent),
@@ -825,13 +843,9 @@ export function useDismiss(
     [controller, enabled],
   );
 
-  controller.useSetup();
+  controller.useSetup(settings);
 
-  React.useEffect(() => {
-    return () => {
-      controller.dispose();
-    };
-  }, [controller]);
+  React.useEffect(() => controller.disposeEffect(), [controller]);
 
   return React.useMemo(
     () => ({
