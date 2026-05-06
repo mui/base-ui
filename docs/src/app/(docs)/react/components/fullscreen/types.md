@@ -11,15 +11,16 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop         | Type                                                                          | Default  | Description                                                                                                                                                                                                                                                                                |
-| :----------- | :---------------------------------------------------------------------------- | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultOpen  | `boolean`                                                                     | `false`  | Whether the container is initially displayed in fullscreen. The Fullscreen API requires a user gesture to enter fullscreen, so an&#xA;initially open value can only be honored after the user interacts with the&#xA;page. To render a controlled fullscreen, use the `open` prop instead. |
-| open         | `boolean`                                                                     | -        | Whether the container is currently displayed in fullscreen. To render an uncontrolled fullscreen, use the `defaultOpen` prop instead.                                                                                                                                                      |
-| onOpenChange | `((open: boolean, eventDetails: Fullscreen.Root.ChangeEventDetails) => void)` | -        | Event handler called when the container enters or exits fullscreen.                                                                                                                                                                                                                        |
-| handle       | `Fullscreen.Handle`                                                           | -        | A handle to control the fullscreen imperatively or to associate detached&#xA;`<Fullscreen.Trigger>` components with this root. Create one with&#xA;`Fullscreen.createHandle()`.                                                                                                            |
-| navigationUI | `FullscreenNavigationUI`                                                      | `'auto'` | Hint to the browser describing how the navigation UI should be presented&#xA;while the container is in fullscreen. Forwarded to `Element.requestFullscreen()`.                                                                                                                             |
-| disabled     | `boolean`                                                                     | `false`  | Whether the component should ignore user interaction.                                                                                                                                                                                                                                      |
-| children     | `React.ReactNode`                                                             | -        | The content of the fullscreen.                                                                                                                                                                                                                                                             |
+| Prop         | Type                                                                          | Default  | Description                                                                                                                                                                                                                                                                                                                                                               |
+| :----------- | :---------------------------------------------------------------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| defaultOpen  | `boolean`                                                                     | `false`  | Whether the container is initially displayed in fullscreen. The Fullscreen API requires a user gesture to enter fullscreen, so an&#xA;initially open value can only be honored after the user interacts with the&#xA;page. To render a controlled fullscreen, use the `open` prop instead.                                                                                |
+| open         | `boolean`                                                                     | -        | Whether the container is currently displayed in fullscreen. To render an uncontrolled fullscreen, use the `defaultOpen` prop instead.                                                                                                                                                                                                                                     |
+| onOpenChange | `((open: boolean, eventDetails: Fullscreen.Root.ChangeEventDetails) => void)` | -        | Event handler called when the container enters or exits fullscreen.                                                                                                                                                                                                                                                                                                       |
+| handle       | `Fullscreen.Handle`                                                           | -        | A handle to control the fullscreen imperatively or to associate detached&#xA;`<Fullscreen.Trigger>` components with this root. Create one with&#xA;`Fullscreen.createHandle()`.                                                                                                                                                                                           |
+| navigationUI | `FullscreenNavigationUI`                                                      | `'auto'` | Hint to the browser describing how the navigation UI should be presented&#xA;while the container is in fullscreen. Forwarded to `Element.requestFullscreen()`.                                                                                                                                                                                                            |
+| target       | `FullscreenTarget`                                                            | -        | An external element to present in fullscreen instead of&#xA;`<Fullscreen.Container>`. Useful for fullscreening the entire page&#xA;(`document.documentElement`) or a sibling DOM node. Accepts a callback that returns the element (lazy, SSR-safe) or a&#xA;`React.RefObject` pointing at the element. `<Fullscreen.Container>` must not be used together with `target`. |
+| disabled     | `boolean`                                                                     | `false`  | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                     |
+| children     | `React.ReactNode`                                                             | -        | The content of the fullscreen.                                                                                                                                                                                                                                                                                                                                            |
 
 ### Root.Props
 
@@ -76,6 +77,12 @@ type FullscreenRootChangeEventDetails = (
 
 ```typescript
 type FullscreenRootNavigationUI = 'auto' | 'show' | 'hide';
+```
+
+### Root.Target
+
+```typescript
+type FullscreenRootTarget = (() => Element | null | undefined) | React.RefObject<Element | null>;
 ```
 
 ### Trigger
@@ -238,6 +245,26 @@ Creates a new handle to control a Fullscreen imperatively or to connect a
 type ReturnValue = Fullscreen.Handle;
 ```
 
+### exit
+
+Imperatively exits fullscreen on the given document (defaults to the global
+document).
+
+Returns a promise that resolves once the browser has exited fullscreen, or
+resolves immediately when no element is currently fullscreen.
+
+**Parameters:**
+
+| Parameter | Type       | Default | Description |
+| :-------- | :--------- | :------ | :---------- |
+| doc?      | `Document` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = Promise<void>;
+```
+
 ### Handle
 
 A handle to control a Fullscreen imperatively and to associate detached
@@ -284,6 +311,47 @@ Exits fullscreen.
 Unlike `open()`, exiting fullscreen does not require a user gesture and
 can be called at any time.
 
+### request
+
+Imperatively requests fullscreen for the given element.
+
+Must be called from a user-gesture event handler (or from a task that still
+inherits a recent activation). Returns a promise that resolves once the
+browser enters fullscreen, or rejects if the request was blocked or the
+Fullscreen API is unavailable on the element.
+
+Use this for fire-and-forget cases like fullscreening the entire page.
+Prefer `<Fullscreen.Root>` when you need managed open/close state, triggers,
+or `data-fullscreen` attributes.
+
+**Parameters:**
+
+| Parameter | Type                       | Default | Description                                    |
+| :-------- | :------------------------- | :------ | :--------------------------------------------- |
+| element   | `Element`                  | -       | The element to present in fullscreen.          |
+| options?  | `FullscreenRequestOptions` | -       | Optional options forwarded to the browser API. |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = Promise<void>;
+```
+
+## Additional Types
+
+### FullscreenRequestOptions
+
+```typescript
+type FullscreenRequestOptions = {
+  /**
+   * Hint to the browser describing how the navigation UI should be presented
+   * while the element is in fullscreen. Forwarded to `Element.requestFullscreen()`.
+   * @default 'auto'
+   */
+  navigationUI?: FullscreenNavigationUI;
+};
+```
+
 ## External Types
 
 ### FullscreenNavigationUI
@@ -294,14 +362,16 @@ type FullscreenNavigationUI = 'auto' | 'show' | 'hide';
 
 ## Export Groups
 
-- `Fullscreen.Root`: `Fullscreen.Root`, `Fullscreen.Root.State`, `Fullscreen.Root.Props`, `Fullscreen.Root.ChangeEventReason`, `Fullscreen.Root.ChangeEventDetails`, `Fullscreen.Root.NavigationUI`
+- `Fullscreen.Root`: `Fullscreen.Root`, `Fullscreen.Root.State`, `Fullscreen.Root.Props`, `Fullscreen.Root.ChangeEventReason`, `Fullscreen.Root.ChangeEventDetails`, `Fullscreen.Root.NavigationUI`, `Fullscreen.Root.Target`
 - `Fullscreen.Container`: `Fullscreen.Container`, `Fullscreen.Container.State`, `Fullscreen.Container.Props`
 - `Fullscreen.Trigger`: `Fullscreen.Trigger`, `Fullscreen.Trigger.State`, `Fullscreen.Trigger.Props`
 - `Fullscreen.Close`: `Fullscreen.Close`, `Fullscreen.Close.Props`, `Fullscreen.Close.State`
 - `Fullscreen.Portal`: `Fullscreen.Portal`, `Fullscreen.Portal.Props`, `Fullscreen.Portal.Container`
 - `Fullscreen.createHandle`
 - `Fullscreen.Handle`
-- `Default`: `FullscreenRootState`, `FullscreenRootProps`, `FullscreenRootChangeEventReason`, `FullscreenRootChangeEventDetails`, `FullscreenContainerState`, `FullscreenContainerProps`, `FullscreenTriggerState`, `FullscreenTriggerProps`, `FullscreenCloseProps`, `FullscreenCloseState`, `FullscreenPortalProps`, `FullscreenPortalContainer`
+- `Fullscreen.request`
+- `Fullscreen.exit`
+- `Default`: `FullscreenRootState`, `FullscreenRootProps`, `FullscreenRootChangeEventReason`, `FullscreenRootChangeEventDetails`, `FullscreenContainerState`, `FullscreenContainerProps`, `FullscreenTriggerState`, `FullscreenTriggerProps`, `FullscreenCloseProps`, `FullscreenCloseState`, `FullscreenPortalProps`, `FullscreenPortalContainer`, `FullscreenRequestOptions`
 
 ## Canonical Types
 

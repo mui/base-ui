@@ -175,6 +175,48 @@ Pass `navigationUI` to `<Fullscreen.Root>` to forward the [`FullscreenOptions.na
 <Fullscreen.Root navigationUI="hide">{/* ... */}</Fullscreen.Root>
 ```
 
+### Fullscreen any element
+
+Sometimes the fullscreen target lives outside the React tree — most commonly the entire page (`document.documentElement`). Two complementary entry points cover this case:
+
+- Pass a `target` prop to `<Fullscreen.Root>` for a managed setup that still gives you triggers, closes, controlled state, and `data-fullscreen` reactivity.
+- Call `Fullscreen.request(element)` and `Fullscreen.exit()` directly from a user-gesture handler for fire-and-forget cases that don't need state management.
+
+`target` accepts a callback that returns the element (lazy and SSR-safe) or a `React.RefObject` pointing at the element. `<Fullscreen.Container>` cannot be used together with `target`.
+
+```tsx title="Fullscreen the page with a managed Root"
+<Fullscreen.Root target={() => document.documentElement}>
+  <Fullscreen.Trigger>Fullscreen the page</Fullscreen.Trigger>
+</Fullscreen.Root>
+```
+
+import { DemoFullscreenPage } from './demos/page-fullscreen';
+
+<DemoFullscreenPage />
+
+For one-off cases the imperative utilities are simplest:
+
+```tsx title="Imperative request and exit"
+import { Fullscreen } from '@base-ui/react/fullscreen';
+
+<button
+  type="button"
+  onClick={() => {
+    Fullscreen.request(document.documentElement).catch(() => {
+      // Browser rejected (e.g. no recent user gesture, or unavailable in this iframe).
+    });
+  }}
+>
+  Fullscreen the page
+</button>;
+
+<button type="button" onClick={() => Fullscreen.exit()}>
+  Exit fullscreen
+</button>;
+```
+
+Like `<Fullscreen.Trigger>` and `handle.open()`, `Fullscreen.request()` must run inside a user-gesture handler. The returned promise rejects if the browser refuses or the API isn't available on the element's owner document.
+
 ## API reference
 
 import { TypesFullscreen } from './types';

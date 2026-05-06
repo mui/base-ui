@@ -5,3 +5,4 @@ export type * from './container/FullscreenContainer';
 export type * from './trigger/FullscreenTrigger';
 export type * from './close/FullscreenClose';
 export type * from './portal/FullscreenPortal';
+export type * from './imperative';

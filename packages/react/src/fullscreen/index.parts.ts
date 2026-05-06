@@ -7,3 +7,4 @@ export {
   createFullscreenHandle as createHandle,
   FullscreenHandle as Handle,
 } from './store/FullscreenHandle';
+export { request, exit } from './imperative';

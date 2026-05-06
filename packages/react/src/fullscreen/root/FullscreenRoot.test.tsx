@@ -334,4 +334,126 @@ describe('<Fullscreen.Root />', () => {
       expect(trigger).toHaveAttribute('aria-pressed', 'false');
     });
   });
+
+  describe('target prop', () => {
+    let externalTarget: HTMLElement | null = null;
+
+    beforeEach(() => {
+      externalTarget = document.createElement('section');
+      externalTarget.id = 'external-section';
+      document.body.appendChild(externalTarget);
+    });
+
+    afterEach(() => {
+      if (externalTarget && externalTarget.parentNode) {
+        externalTarget.parentNode.removeChild(externalTarget);
+      }
+      externalTarget = null;
+    });
+
+    it('opens the external element when target is a getter and the trigger is clicked', async () => {
+      await render(
+        <Fullscreen.Root target={() => externalTarget}>
+          <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+        </Fullscreen.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+      expect(trigger).toHaveAttribute('aria-controls', 'external-section');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(stubs.request).toHaveBeenCalledOnce();
+      expect(stubs.request.mock.instances[0]).toBe(externalTarget);
+      expect(trigger).toHaveAttribute('aria-pressed', 'true');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(stubs.exit).toHaveBeenCalledOnce();
+      expect(trigger).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('opens the external element when target is a ref', async () => {
+      function App() {
+        const ref = React.useRef<HTMLElement | null>(null);
+        React.useEffect(() => {
+          ref.current = externalTarget;
+        }, []);
+        return (
+          <Fullscreen.Root target={ref}>
+            <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+          </Fullscreen.Root>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+
+      expect(stubs.request).toHaveBeenCalledOnce();
+      expect(stubs.request.mock.instances[0]).toBe(externalTarget);
+    });
+
+    it('reconciles state when the browser exits fullscreen via Esc', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <Fullscreen.Root target={() => externalTarget} onOpenChange={handleOpenChange}>
+          <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+        </Fullscreen.Root>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+      handleOpenChange.mockClear();
+
+      await act(async () => {
+        stubs.setActiveElement(null);
+        stubs.dispatchChange();
+      });
+      await flushMicrotasks();
+
+      expect(handleOpenChange).toHaveBeenLastCalledWith(
+        false,
+        expect.objectContaining({ reason: REASONS.escapeKey }),
+      );
+      expect(screen.getByRole('button', { name: 'Toggle' })).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      );
+    });
+
+    it('drives the external element from a controlled `open` change', async () => {
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setOpen(true)}>
+              External open
+            </button>
+            <button type="button" onClick={() => setOpen(false)}>
+              External close
+            </button>
+            <Fullscreen.Root open={open} onOpenChange={setOpen} target={() => externalTarget} />
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'External open' }));
+      await flushMicrotasks();
+
+      expect(stubs.request).toHaveBeenCalledOnce();
+      expect(stubs.request.mock.instances[0]).toBe(externalTarget);
+
+      fireEvent.click(screen.getByRole('button', { name: 'External close' }));
+      await flushMicrotasks();
+
+      expect(stubs.exit).toHaveBeenCalledOnce();
+    });
+  });
 });

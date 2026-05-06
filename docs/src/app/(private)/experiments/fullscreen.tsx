@@ -154,8 +154,86 @@ export default function FullscreenExperiment() {
       </section>
 
       <PortalSection />
+
+      <ExternalTargetSection />
     </div>
   );
+}
+
+function ExternalTargetSection() {
+  const [lastEvent, setLastEvent] = React.useState<{
+    open: boolean;
+    reason: Fullscreen.Root.ChangeEventReason;
+  } | null>(null);
+  const sectionRef = React.useRef<HTMLElement | null>(null);
+
+  return (
+    <section ref={sectionRef} className={styles.Section}>
+      <h2 className={styles.SectionTitle}>Fullscreen any element</h2>
+      <p className={styles.Lead}>
+        The <code className={styles.Code}>target</code> prop on{' '}
+        <code className={styles.Code}>&lt;Fullscreen.Root&gt;</code> presents an external element
+        instead of <code className={styles.Code}>&lt;Fullscreen.Container&gt;</code>. The imperative{' '}
+        <code className={styles.Code}>Fullscreen.request()</code> and{' '}
+        <code className={styles.Code}>Fullscreen.exit()</code> utilities cover fire-and-forget
+        cases.
+      </p>
+
+      <div className={styles.Row}>
+        <Fullscreen.Root
+          target={getDocumentElement}
+          onOpenChange={(nextOpen, details) =>
+            setLastEvent({ open: nextOpen, reason: details.reason })
+          }
+        >
+          <Fullscreen.Trigger className={styles.Button}>
+            <ExpandIcon />
+            target=&#123;document.documentElement&#125;
+          </Fullscreen.Trigger>
+          <Fullscreen.Close className={styles.Button}>
+            <CloseIcon />
+            Close
+          </Fullscreen.Close>
+        </Fullscreen.Root>
+
+        <Fullscreen.Root target={sectionRef}>
+          <Fullscreen.Trigger className={styles.Button}>
+            <ExpandIcon />
+            target=&#123;sectionRef&#125;
+          </Fullscreen.Trigger>
+        </Fullscreen.Root>
+
+        <button
+          type="button"
+          className={styles.Button}
+          onClick={() => {
+            Fullscreen.request(document.documentElement).catch(() => undefined);
+          }}
+        >
+          Fullscreen.request(html)
+        </button>
+        <button
+          type="button"
+          className={styles.Button}
+          onClick={() => Fullscreen.exit().catch(() => undefined)}
+        >
+          Fullscreen.exit()
+        </button>
+      </div>
+
+      <p className={styles.Status}>
+        Last managed event:{' '}
+        {lastEvent ? `${lastEvent.open ? 'opened' : 'closed'} (${lastEvent.reason})` : '—'}
+      </p>
+    </section>
+  );
+}
+
+function getDocumentElement() {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  return document.documentElement;
 }
 
 function PortalSection() {

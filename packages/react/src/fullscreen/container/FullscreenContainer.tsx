@@ -42,6 +42,16 @@ export const FullscreenContainer = React.forwardRef(function FullscreenContainer
   const open = store.useState('open');
   const disabled = store.useState('disabled');
   const supported = store.useState('supported');
+  const hasExternalTarget = store.useState('hasExternalTarget');
+
+  if (hasExternalTarget) {
+    throw new Error(
+      'Base UI: <Fullscreen.Container> cannot be used inside a <Fullscreen.Root> that has a `target` prop. ' +
+        'Choose one or the other: render <Fullscreen.Container> for an inline fullscreen element, ' +
+        'or pass `target` to fullscreen an external element. ' +
+        'See https://base-ui.com/react/components/fullscreen',
+    );
+  }
 
   const defaultContainerId = useBaseUiId();
   const containerId = idProp ?? defaultContainerId;

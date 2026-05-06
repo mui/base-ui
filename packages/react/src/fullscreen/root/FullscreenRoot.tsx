@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useFullscreenRoot, type FullscreenNavigationUI } from './useFullscreenRoot';
 import { FullscreenRootContext } from './FullscreenRootContext';
+import { useExternalFullscreenTarget, type FullscreenTarget } from './useExternalFullscreenTarget';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { FullscreenStore } from '../store/FullscreenStore';
@@ -23,6 +24,7 @@ export function FullscreenRoot(componentProps: FullscreenRoot.Props) {
     navigationUI = 'auto',
     onOpenChange: onOpenChangeProp,
     open,
+    target,
   } = componentProps;
 
   const onOpenChange = useStableCallback(onOpenChangeProp);
@@ -41,6 +43,8 @@ export function FullscreenRoot(componentProps: FullscreenRoot.Props) {
     store,
     onOpenChange,
   });
+
+  useExternalFullscreenTarget(store, target, fullscreen);
 
   const contextValue: FullscreenRootContext = React.useMemo(
     () => ({
@@ -110,6 +114,17 @@ export interface FullscreenRootProps {
    */
   handle?: FullscreenHandle | undefined;
   /**
+   * An external element to present in fullscreen instead of
+   * `<Fullscreen.Container>`. Useful for fullscreening the entire page
+   * (`document.documentElement`) or a sibling DOM node.
+   *
+   * Accepts a callback that returns the element (lazy, SSR-safe) or a
+   * `React.RefObject` pointing at the element.
+   *
+   * `<Fullscreen.Container>` must not be used together with `target`.
+   */
+  target?: FullscreenTarget | undefined;
+  /**
    * The content of the fullscreen.
    */
   children?: React.ReactNode | undefined;
@@ -131,4 +146,5 @@ export namespace FullscreenRoot {
   export type ChangeEventReason = FullscreenRootChangeEventReason;
   export type ChangeEventDetails = FullscreenRootChangeEventDetails;
   export type NavigationUI = FullscreenNavigationUI;
+  export type Target = FullscreenTarget;
 }

@@ -1986,6 +1986,7 @@ Presents an element in fullscreen using the browser Fullscreen API.
     - Mount only when open
     - Detecting unsupported browsers
     - Hint to the browser about navigation UI
+    - Fullscreen any element
   - API reference
     - Root
     - Trigger
@@ -1995,7 +1996,7 @@ Presents an element in fullscreen using the browser Fullscreen API.
     - Handle
 - Exports:
   - Fullscreen - Root
-    - Props: children, defaultOpen, disabled, handle, navigationUI, onOpenChange, open
+    - Props: children, defaultOpen, disabled, handle, navigationUI, onOpenChange, open, target
   - Fullscreen - Trigger
     - Props: className, handle, id, nativeButton, render, style
     - Data Attributes: data-fullscreen, data-not-fullscreen
@@ -2008,9 +2009,13 @@ Presents an element in fullscreen using the browser Fullscreen API.
     - Props: className, render, style
     - Data Attributes: data-fullscreen, data-not-fullscreen
   - Fullscreen - createHandle
+  - Fullscreen - exit
+    - Parameters: doc
   - Fullscreen - Handle
     - Parameters: store
-- Types: Fullscreen.Close.Props, Fullscreen.Close.State, Fullscreen.Container.Props, Fullscreen.Container.State, Fullscreen.Portal.Container, Fullscreen.Portal.Props, Fullscreen.Root.ChangeEventDetails, Fullscreen.Root.ChangeEventReason, Fullscreen.Root.NavigationUI, Fullscreen.Root.Props, Fullscreen.Root.State, Fullscreen.Trigger.Props, Fullscreen.Trigger.State
+  - Fullscreen - request
+    - Parameters: element, options
+- Types: Fullscreen.Close.Props, Fullscreen.Close.State, Fullscreen.Container.Props, Fullscreen.Container.State, Fullscreen.Portal.Container, Fullscreen.Portal.Props, Fullscreen.Root.ChangeEventDetails, Fullscreen.Root.ChangeEventReason, Fullscreen.Root.NavigationUI, Fullscreen.Root.Props, Fullscreen.Root.State, Fullscreen.Root.Target, Fullscreen.Trigger.Props, Fullscreen.Trigger.State
 
 </details>
 

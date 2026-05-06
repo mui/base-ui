@@ -58,4 +58,41 @@ describe('<Fullscreen.Container />', () => {
       expect(styleSpy).toHaveBeenLastCalledWith(openState);
     });
   });
+
+  describe('with `target` on Root', () => {
+    it('throws when used inside a <Fullscreen.Root> that has a `target` prop', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      let caught: unknown = null;
+
+      class Boundary extends React.Component<{ children: React.ReactNode }, { error: unknown }> {
+        state = { error: null };
+
+        static getDerivedStateFromError(error: unknown) {
+          caught = error;
+          return { error };
+        }
+
+        render() {
+          return this.state.error ? null : this.props.children;
+        }
+      }
+
+      const externalTarget = document.createElement('section');
+      document.body.appendChild(externalTarget);
+
+      await render(
+        <Boundary>
+          <Fullscreen.Root target={() => externalTarget}>
+            <Fullscreen.Container />
+          </Fullscreen.Root>
+        </Boundary>,
+      );
+
+      expect(caught).toBeInstanceOf(Error);
+      expect((caught as Error).message).toMatch(/<Fullscreen\.Container>/);
+
+      document.body.removeChild(externalTarget);
+      errorSpy.mockRestore();
+    });
+  });
 });

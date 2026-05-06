@@ -45,6 +45,13 @@ export type FullscreenStoreState = {
    * The id of the container element. Used by the trigger's `aria-controls`.
    */
   containerId: string | undefined;
+  /**
+   * Whether the root is using an external `target` element instead of a
+   * `<Fullscreen.Container>`. Set by `useExternalFullscreenTarget` and used by
+   * `<Fullscreen.Container>` to detect the misuse of being rendered alongside a
+   * `target` prop.
+   */
+  hasExternalTarget: boolean;
 };
 
 /**
@@ -81,6 +88,7 @@ const selectors = {
   disabled: createSelector((state: FullscreenStoreState) => state.disabled),
   navigationUI: createSelector((state: FullscreenStoreState) => state.navigationUI),
   containerId: createSelector((state: FullscreenStoreState) => state.containerId),
+  hasExternalTarget: createSelector((state: FullscreenStoreState) => state.hasExternalTarget),
   activeTriggerId: activeTriggerIdSelector,
   activeTriggerElement: createSelector((state: FullscreenStoreState) => state.activeTriggerElement),
   /**
@@ -176,6 +184,7 @@ function createInitialState(
     disabled: false,
     navigationUI: 'auto',
     containerId: undefined,
+    hasExternalTarget: false,
     ...initialState,
   };
 }
