@@ -21,7 +21,6 @@ export default function ExampleFullscreenDetached() {
 
       <Fullscreen.Root handle={playerFullscreen}>
         <Fullscreen.Container className={styles.Container}>
-          <span className={styles.Content}>Live broadcast</span>
           <Fullscreen.Close className={styles.Close}>
             <CloseIcon />
             Close

@@ -335,6 +335,35 @@ describe('<Fullscreen.Root />', () => {
       );
     });
 
+    it('routes a Base UI Dialog portal into the fullscreen container so the popup stays visible', async () => {
+      await render(
+        <Fullscreen.Root>
+          <Fullscreen.Trigger>Toggle</Fullscreen.Trigger>
+          <Fullscreen.Container data-testid="fullscreen-container">
+            <Dialog.Root>
+              <Dialog.Trigger>Open dialog</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Backdrop />
+                <Dialog.Popup>
+                  <Dialog.Title>Dialog title</Dialog.Title>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </Fullscreen.Container>
+        </Fullscreen.Root>,
+      );
+
+      const fullscreenContainer = screen.getByTestId('fullscreen-container');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+      await flushMicrotasks();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Open dialog' }));
+      await flushMicrotasks();
+
+      expect(fullscreenContainer.contains(screen.getByRole('dialog'))).toBe(true);
+    });
+
     it('lets a Base UI Dialog dismiss on Escape without exiting fullscreen', async () => {
       const handleFullscreenOpenChange = vi.fn();
       const handleDialogOpenChange = vi.fn();

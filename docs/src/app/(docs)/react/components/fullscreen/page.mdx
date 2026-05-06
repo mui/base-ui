@@ -18,6 +18,7 @@ import { DemoFullscreenHero } from './demos/hero';
 - **Mobile considerations:** Some mobile browsers ignore `<meta name="viewport">` settings and disable user pinch-zoom while a page is in fullscreen.
 - **Exit affordance:** Users can always exit fullscreen with Esc (or F11). The component listens to the browser's `fullscreenchange` event and reconciles state automatically — `onOpenChange` is fired with `reason: 'escape-key'` in that case.
 - **Esc inside popups:** When a `<Dialog>`, `<Popover>`, `<Menu>`, or any other popup is open inside fullscreen, pressing Esc dismisses the popup first instead of immediately exiting fullscreen. Base UI uses the [Keyboard Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/lock) so the keypress reaches JS handlers; popups (which call `event.preventDefault()` on Esc) keep fullscreen alive, while a "bare" Esc still exits. Keyboard Lock is only implemented in Chromium today — Safari and Firefox keep their native behavior of always exiting fullscreen on Esc.
+- **Portals inside fullscreen:** `<Dialog.Portal>`, `<Popover.Portal>`, `<Menu.Portal>`, `<Tooltip.Portal>`, and every other Base UI portal default to `document.body`, which the browser hides while a child element is fullscreen. Base UI detects this and reroutes the portal into the active fullscreen element so popups, menus, and overlays stay visible. Portals with an explicit `container` prop are respected as-is.
 
 ## Anatomy
 
