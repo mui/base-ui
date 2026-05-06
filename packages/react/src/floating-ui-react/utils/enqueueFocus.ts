@@ -5,15 +5,21 @@ interface Options {
   preventScroll?: boolean | undefined;
   cancelPrevious?: boolean | undefined;
   sync?: boolean | undefined;
+  guard?: (() => boolean) | undefined;
 }
 
 let rafId = 0;
 export function enqueueFocus(el: FocusableElement | null, options: Options = {}) {
-  const { preventScroll = false, cancelPrevious = true, sync = false } = options;
+  const { preventScroll = false, cancelPrevious = true, sync = false, guard } = options;
   if (cancelPrevious) {
     cancelAnimationFrame(rafId);
   }
-  const exec = () => el?.focus({ preventScroll });
+  const exec = () => {
+    if (guard && !guard()) {
+      return;
+    }
+    el?.focus({ preventScroll });
+  };
   if (sync) {
     exec();
     return NOOP;
