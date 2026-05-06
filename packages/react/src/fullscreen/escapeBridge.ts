@@ -13,11 +13,36 @@ interface KeyboardLockAPI {
   lock: (keyCodes?: string[]) => Promise<void>;
   unlock: () => void;
 }
+
+/**
+ * Resolves the Keyboard Lock API on the current `navigator` if it's actually
+ * usable. Returns `undefined` when:
+ *
+ * - we're on the server (`navigator` is `undefined`);
+ * - the browser doesn't ship `navigator.keyboard` (Safari, Firefox);
+ * - the browser exposes `navigator.keyboard` but doesn't implement both
+ *   `lock` and `unlock` as functions (defensive check against future
+ *   extensions, partial polyfills, or vendor stubs).
+ *
+ * Verifying the shape — not just the presence of `navigator.keyboard` — keeps
+ * the bridge from crashing with a synchronous `TypeError` when one of the
+ * methods is missing, which a `.catch()` on the promise can't recover from.
+ */
 function getKeyboardLock(): KeyboardLockAPI | undefined {
   if (typeof navigator === 'undefined') {
     return undefined;
   }
-  return (navigator as Navigator & { keyboard?: KeyboardLockAPI | undefined }).keyboard;
+  const keyboard = (navigator as Navigator & { keyboard?: unknown }).keyboard as
+    | Partial<KeyboardLockAPI>
+    | undefined;
+  if (
+    keyboard != null &&
+    typeof keyboard.lock === 'function' &&
+    typeof keyboard.unlock === 'function'
+  ) {
+    return keyboard as KeyboardLockAPI;
+  }
+  return undefined;
 }
 
 let installed = false;
