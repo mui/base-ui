@@ -98,7 +98,6 @@ export default function FullscreenExperiment() {
           navigationUI={navigationUI}
         >
           <Fullscreen.Container className={styles.Container}>
-            <span className={styles.ContainerLabel}>Live broadcast</span>
             <Fullscreen.Trigger className={`${styles.Button} ${styles.CornerTrigger}`}>
               <ExpandIcon />
               Enter fullscreen
