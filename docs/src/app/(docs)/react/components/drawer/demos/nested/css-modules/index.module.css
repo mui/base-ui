@@ -36,39 +36,6 @@
   }
 }
 
-.GhostButton {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 2rem;
-  padding: 0 0.75rem;
-  margin: 0;
-  font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.25rem;
-  background-color: light-dark(var(--color-neutral-50), var(--color-neutral-900));
-  color: light-dark(var(--color-neutral-950), white);
-  border: 0;
-  outline: 0;
-
-  @media (hover: hover) {
-    &:hover {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
-    }
-  }
-
-  &:active {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue-800);
-    outline-offset: -2px;
-  }
-}
-
 .Backdrop {
   --backdrop-opacity: 0.2;
   --bleed: 3rem;
