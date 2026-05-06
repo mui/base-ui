@@ -47,11 +47,13 @@ export class ReactStore<
     value: Value,
   ) {
     React.useDebugValue(key);
+    // eslint-disable-next-line consistent-this
+    const store = this;
     useIsoLayoutEffect(() => {
-      if (this.state[key] !== value) {
-        this.set(key, value);
+      if (store.state[key] !== value) {
+        store.set(key, value);
       }
-    }, [key, value]);
+    }, [store, key, value]);
   }
 
   /**

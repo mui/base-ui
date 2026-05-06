@@ -106,6 +106,23 @@ describe('ReactStore', () => {
     expect(store.state.value).toBe(2);
   });
 
+  it('useProp syncs the same value when the store changes', () => {
+    const firstStore = new ReactStore<TestState>({ value: 0, label: '' });
+    const secondStore = new ReactStore<TestState>({ value: 0, label: '' });
+
+    function Test({ store }: { store: ReactStore<TestState> }) {
+      store.useSyncedValue('value', 1);
+      return null;
+    }
+
+    const { setProps } = render(<Test store={firstStore} />);
+    expect(firstStore.state.value).toBe(1);
+    expect(secondStore.state.value).toBe(0);
+
+    act(() => setProps({ store: secondStore }));
+    expect(secondStore.state.value).toBe(1);
+  });
+
   it('useProps applies multiple keys from a props object', () => {
     let store!: ReactStore<TestState>;
 

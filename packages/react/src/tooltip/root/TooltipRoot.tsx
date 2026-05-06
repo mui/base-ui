@@ -13,6 +13,7 @@ import {
   FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
+  usePopupInteractionProps,
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
@@ -278,7 +279,7 @@ function TooltipInteractions<Payload>({
     [clientPoint.floating, dismiss.floating],
   );
 
-  store.useSyncedValues({
+  usePopupInteractionProps(store, {
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,

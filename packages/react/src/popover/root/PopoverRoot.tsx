@@ -15,6 +15,7 @@ import {
   FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
+  usePopupInteractionProps,
   usePopupRootSync,
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
@@ -247,7 +248,7 @@ function PopoverInteractions({
     [dismiss.floating],
   );
 
-  store.useSyncedValues({
+  usePopupInteractionProps(store, {
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,

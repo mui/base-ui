@@ -39,6 +39,7 @@ import {
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
+  usePopupInteractionProps,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
@@ -512,7 +513,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
-  store.useSyncedValues({
+  usePopupInteractionProps(store, {
     floatingRootContext,
     activeTriggerProps,
     inactiveTriggerProps,

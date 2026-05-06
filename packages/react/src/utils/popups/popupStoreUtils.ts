@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -285,6 +286,25 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   });
 
   return { forceUnmount, transitionStatus };
+}
+
+export function usePopupInteractionProps<State extends PopupStoreState<unknown>>(
+  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  statePart: Partial<State> &
+    Pick<State, 'activeTriggerProps' | 'inactiveTriggerProps' | 'popupProps'>,
+) {
+  store.useSyncedValues(statePart);
+
+  useIsoLayoutEffect(
+    () => () => {
+      store.update({
+        activeTriggerProps: EMPTY_OBJECT,
+        inactiveTriggerProps: EMPTY_OBJECT,
+        popupProps: EMPTY_OBJECT,
+      } as Partial<State>);
+    },
+    [store],
+  );
 }
 
 export function usePopupRootSync<

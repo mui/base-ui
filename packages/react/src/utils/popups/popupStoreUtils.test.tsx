@@ -11,6 +11,7 @@ import {
   PopupTriggerMap,
   popupStoreSelectors,
   useImplicitActiveTrigger,
+  usePopupInteractionProps,
   useTriggerRegistration,
 } from './';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
@@ -80,6 +81,26 @@ function ImplicitActiveTriggerTest({
   store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
 }) {
   useImplicitActiveTrigger(store);
+  return null;
+}
+
+function PopupInteractionPropsTest({
+  store,
+  activeTriggerProps,
+  inactiveTriggerProps,
+  popupProps,
+}: {
+  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  activeTriggerProps: PopupStoreState<unknown>['activeTriggerProps'];
+  inactiveTriggerProps: PopupStoreState<unknown>['inactiveTriggerProps'];
+  popupProps: PopupStoreState<unknown>['popupProps'];
+}) {
+  usePopupInteractionProps(store, {
+    activeTriggerProps,
+    inactiveTriggerProps,
+    popupProps,
+  });
+
   return null;
 }
 
@@ -264,5 +285,36 @@ describe('popupId selector', () => {
     });
 
     expect(store.select('popupId')).toBe('explicit-popup-id');
+  });
+});
+
+describe('usePopupInteractionProps', () => {
+  it('clears stored interaction props when unmounting', () => {
+    const store = createStore();
+    const activeTriggerProps = { onClick: vi.fn() };
+    const inactiveTriggerProps = { onKeyDown: vi.fn() };
+    const popupProps = { onPointerDown: vi.fn() };
+
+    const { unmount } = render(
+      <PopupInteractionPropsTest
+        store={store}
+        activeTriggerProps={activeTriggerProps}
+        inactiveTriggerProps={inactiveTriggerProps}
+        popupProps={popupProps}
+      />,
+    );
+
+    expect(store.state.activeTriggerProps).toBe(activeTriggerProps);
+    expect(store.state.inactiveTriggerProps).toBe(inactiveTriggerProps);
+    expect(store.state.popupProps).toBe(popupProps);
+
+    unmount();
+
+    expect(store.state.activeTriggerProps).not.toBe(activeTriggerProps);
+    expect(store.state.activeTriggerProps).toEqual({});
+    expect(store.state.inactiveTriggerProps).not.toBe(inactiveTriggerProps);
+    expect(store.state.inactiveTriggerProps).toEqual({});
+    expect(store.state.popupProps).not.toBe(popupProps);
+    expect(store.state.popupProps).toEqual({});
   });
 });

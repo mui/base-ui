@@ -13,6 +13,7 @@ import {
   FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
+  usePopupInteractionProps,
   usePopupRootSync,
 } from '../../utils/popups';
 
@@ -156,7 +157,7 @@ export function DialogInteractions({
     [dismiss.floating],
   );
 
-  store.useSyncedValues({
+  usePopupInteractionProps(store, {
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,

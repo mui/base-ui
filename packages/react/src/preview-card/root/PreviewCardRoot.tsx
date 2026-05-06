@@ -17,6 +17,7 @@ import {
   PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
+  usePopupInteractionProps,
 } from '../../utils/popups';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
 import { mergeProps } from '../../merge-props';
@@ -104,7 +105,7 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
     [dismiss.floating],
   );
 
-  store.useSyncedValues({
+  usePopupInteractionProps(store, {
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,
