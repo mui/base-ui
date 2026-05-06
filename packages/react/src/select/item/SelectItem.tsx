@@ -52,7 +52,7 @@ export const SelectItem = React.memo(
 
     const {
       store,
-      getItemProps,
+      itemProps,
       setOpen,
       setValue,
       selectionRef,
@@ -120,9 +120,6 @@ export const SelectItem = React.memo(
       native: nativeButton,
       composite: true,
     });
-
-    const rootProps = getItemProps({ active: highlighted, selected });
-    rootProps.id = undefined;
 
     const state: SelectItemState = {
       disabled,
@@ -217,7 +214,7 @@ export const SelectItem = React.memo(
     const element = useRenderElement('div', componentProps, {
       ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
       state,
-      props: [rootProps, defaultProps, elementProps, getButtonProps],
+      props: [itemProps, defaultProps, elementProps, getButtonProps],
     });
 
     const contextValue: SelectItemContext = React.useMemo(
