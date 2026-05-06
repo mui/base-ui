@@ -1,53 +1,36 @@
-.Container {
-  position: relative;
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 30% 30%, var(--color-blue) 0%, transparent 60%),
-    radial-gradient(circle at 70% 70%, var(--color-gray-400) 0%, transparent 60%),
-    var(--color-gray-100);
-  color: var(--color-gray-900);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-}
-
-.Text {
-  margin: 0;
-}
-
 .Trigger,
 .Close {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
+  height: 2rem;
   margin: 0;
-  border: 0;
-  outline: 0;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  background-color: var(--color-gray-100);
+  padding: 0 0.625rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
   color: var(--color-gray-900);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   line-height: 1.25rem;
-  font-weight: 400;
+  font-weight: 500;
   cursor: pointer;
+  user-select: none;
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-200);
+      background-color: var(--color-gray-100);
     }
   }
 
   &:active {
-    background-color: var(--color-gray-200);
+    background-color: var(--color-gray-100);
   }
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
   }
 
   &[data-disabled] {
@@ -56,9 +39,37 @@
   }
 }
 
+.Container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--color-gray-50);
+  background-image: radial-gradient(circle at 50% 30%, var(--color-gray-100) 0%, transparent 70%);
+  color: var(--color-gray-900);
+}
+
+.Title {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.Description {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5rem;
+  color: var(--color-gray-600);
+}
+
 .Close {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background-color: rgb(255 255 255 / 0.85);
+  top: 1rem;
+  right: 1rem;
 }

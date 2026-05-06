@@ -9,16 +9,21 @@ export default function ExampleFullscreenDetached() {
   return (
     <div className={styles.Layout}>
       <header className={styles.Header}>
+        <p className={styles.Label}>
+          <span className={styles.LabelDot} aria-hidden="true" />
+          Camera 01
+        </p>
         <Fullscreen.Trigger className={styles.Trigger} handle={playerFullscreen}>
-          <ExpandIcon className={styles.Icon} />
+          <ExpandIcon />
           Enter fullscreen
         </Fullscreen.Trigger>
       </header>
 
       <Fullscreen.Root handle={playerFullscreen}>
         <Fullscreen.Container className={styles.Container}>
+          <span className={styles.Content}>Live broadcast</span>
           <Fullscreen.Close className={styles.Close}>
-            <CloseIcon className={styles.Icon} />
+            <CloseIcon />
             Close
           </Fullscreen.Close>
         </Fullscreen.Container>
@@ -29,7 +34,7 @@ export default function ExampleFullscreenDetached() {
 
 function ExpandIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" {...props}>
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" {...props}>
       <path d="M2 5V2H5M10 7V10H7M5 10H2V7M7 2H10V5" stroke="currentColor" strokeWidth="1.25" />
     </svg>
   );
@@ -37,7 +42,7 @@ function ExpandIcon(props: React.ComponentProps<'svg'>) {
 
 function CloseIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" {...props}>
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" {...props}>
       <path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.25" />
     </svg>
   );

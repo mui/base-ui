@@ -6,14 +6,15 @@ export default function ExampleFullscreenPortal() {
   return (
     <Fullscreen.Root>
       <Fullscreen.Trigger className={styles.Trigger}>
-        <ExpandIcon className={styles.Icon} />
+        <ExpandIcon />
         Open fullscreen
       </Fullscreen.Trigger>
       <Fullscreen.Portal>
         <Fullscreen.Container className={styles.Container}>
-          <p className={styles.Text}>This content is only mounted while in fullscreen.</p>
+          <h2 className={styles.Title}>Mounted only when open</h2>
+          <p className={styles.Description}>This content is only mounted while in fullscreen.</p>
           <Fullscreen.Close className={styles.Close}>
-            <CloseIcon className={styles.Icon} />
+            <CloseIcon />
             Close
           </Fullscreen.Close>
         </Fullscreen.Container>
@@ -24,7 +25,7 @@ export default function ExampleFullscreenPortal() {
 
 function ExpandIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" {...props}>
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" {...props}>
       <path d="M2 5V2H5M10 7V10H7M5 10H2V7M7 2H10V5" stroke="currentColor" strokeWidth="1.25" />
     </svg>
   );
@@ -32,7 +33,7 @@ function ExpandIcon(props: React.ComponentProps<'svg'>) {
 
 function CloseIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" {...props}>
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" {...props}>
       <path d="M3 3L9 9M9 3L3 9" stroke="currentColor" strokeWidth="1.25" />
     </svg>
   );

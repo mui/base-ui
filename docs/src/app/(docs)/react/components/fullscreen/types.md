@@ -129,34 +129,17 @@ enters fullscreen.
 
 Doesn't render its own HTML element.
 
-**Parameters:**
+**Portal Props:**
 
-| Parameter | Type                      | Default | Description |
-| :-------- | :------------------------ | :------ | :---------- |
-| props     | `Fullscreen.Portal.Props` | -       | -           |
-
-**Return Value:**
-
-```tsx
-type ReturnValue = React.ReactPortal | null;
-```
+| Prop        | Type                          | Default | Description                                                                                   |
+| :---------- | :---------------------------- | :------ | :-------------------------------------------------------------------------------------------- |
+| container   | `Fullscreen.Portal.Container` | -       | The element to portal into. Defaults to `document.body`.                                      |
+| children    | `React.ReactNode`             | -       | The content of the portal.                                                                    |
+| keepMounted | `boolean`                     | `false` | Whether to keep the contents mounted in the DOM while the container is&#xA;not in fullscreen. |
 
 ### Portal.Props
 
-```typescript
-type FullscreenPortalProps = {
-  /**
-   * Whether to keep the contents mounted in the DOM while the container is
-   * not in fullscreen.
-   * @default false
-   */
-  keepMounted?: boolean;
-  /** The element to portal into. Defaults to `document.body`. */
-  container?: Fullscreen.Portal.Container;
-  /** The content of the portal. */
-  children?: React.ReactNode;
-};
-```
+Re-export of [Portal](#portal) props.
 
 ### Portal.Container
 
