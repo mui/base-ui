@@ -213,6 +213,76 @@ export default function FullscreenExperiment() {
           </Fullscreen.Close>
         </Fullscreen.Container>
       </Fullscreen.Root>
+
+      <hr style={{ width: '100%', border: 0, borderTop: '1px solid #d1d5db', margin: '8px 0' }} />
+
+      <PortalSection />
     </div>
+  );
+}
+
+function PortalSection() {
+  const [keepMounted, setKeepMounted] = React.useState(false);
+
+  return (
+    <React.Fragment>
+      <h2 style={{ margin: 0 }}>Mount on open</h2>
+      <p style={{ margin: 0 }}>
+        Wrapping <code>&lt;Fullscreen.Container&gt;</code> in <code>&lt;Fullscreen.Portal&gt;</code>{' '}
+        keeps the fullscreen content out of the DOM until the user enters fullscreen, mirroring the{' '}
+        <code>&lt;Dialog.Portal&gt;</code> shape. Toggle <code>keepMounted</code> below to compare
+        the two behaviors. Open your devtools and inspect <code>&lt;body&gt;</code> to see the
+        children appear and disappear.
+      </p>
+
+      <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <input
+          type="checkbox"
+          checked={keepMounted}
+          onChange={(event) => setKeepMounted(event.target.checked)}
+        />
+        <span>
+          <code>keepMounted</code>
+        </span>
+      </label>
+
+      <Fullscreen.Root>
+        <Fullscreen.Trigger style={buttonStyle}>Open portaled fullscreen</Fullscreen.Trigger>
+        <Fullscreen.Portal keepMounted={keepMounted}>
+          <Fullscreen.Container
+            style={{
+              position: 'relative',
+              width: '100vw',
+              height: '100vh',
+              background: 'linear-gradient(135deg, #6366f1, #ec4899)',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 18,
+            }}
+          >
+            <p style={{ margin: 0 }}>
+              This content lives in <code>document.body</code> only while in fullscreen.
+            </p>
+            <Fullscreen.Close
+              style={{
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                padding: '4px 10px',
+                borderRadius: 4,
+                border: 'none',
+                background: 'rgba(255, 255, 255, 0.85)',
+                color: '#111',
+                cursor: 'pointer',
+              }}
+            >
+              Exit
+            </Fullscreen.Close>
+          </Fullscreen.Container>
+        </Fullscreen.Portal>
+      </Fullscreen.Root>
+    </React.Fragment>
   );
 }

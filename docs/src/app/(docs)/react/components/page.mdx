@@ -1983,6 +1983,7 @@ Presents an element in fullscreen using the browser Fullscreen API.
     - Controlled state
     - Detached triggers
     - Imperative open and close
+    - Mount only when open
     - Detecting unsupported browsers
     - Hint to the browser about navigation UI
   - API reference
@@ -1990,6 +1991,7 @@ Presents an element in fullscreen using the browser Fullscreen API.
     - Trigger
     - Container
     - Close
+    - Portal
     - Handle
 - Exports:
   - Fullscreen - Root
@@ -1997,6 +1999,8 @@ Presents an element in fullscreen using the browser Fullscreen API.
   - Fullscreen - Trigger
     - Props: className, handle, id, nativeButton, render, style
     - Data Attributes: data-fullscreen, data-not-fullscreen
+  - Fullscreen - Portal
+    - Parameters: props
   - Fullscreen - Close
     - Props: className, nativeButton, render, style
     - Data Attributes: data-fullscreen, data-not-fullscreen
@@ -2006,7 +2010,7 @@ Presents an element in fullscreen using the browser Fullscreen API.
   - Fullscreen - createHandle
   - Fullscreen - Handle
     - Parameters: store
-- Types: Fullscreen.Close.Props, Fullscreen.Close.State, Fullscreen.Container.Props, Fullscreen.Container.State, Fullscreen.Root.ChangeEventDetails, Fullscreen.Root.ChangeEventReason, Fullscreen.Root.NavigationUI, Fullscreen.Root.Props, Fullscreen.Root.State, Fullscreen.Trigger.Props, Fullscreen.Trigger.State
+- Types: Fullscreen.Close.Props, Fullscreen.Close.State, Fullscreen.Container.Props, Fullscreen.Container.State, Fullscreen.Portal.Container, Fullscreen.Portal.Props, Fullscreen.Root.ChangeEventDetails, Fullscreen.Root.ChangeEventReason, Fullscreen.Root.NavigationUI, Fullscreen.Root.Props, Fullscreen.Root.State, Fullscreen.Trigger.Props, Fullscreen.Trigger.State
 
 </details>
 

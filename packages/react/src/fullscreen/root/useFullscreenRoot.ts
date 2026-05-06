@@ -43,6 +43,13 @@ export function useFullscreenRoot(
   // (e.g. the user toggled twice in quick succession).
   const requestPromiseRef = React.useRef<Promise<void> | null>(null);
 
+  // Tracks the owner document we last observed a container in. Used when
+  // closing a fullscreen view whose container has already been unmounted (for
+  // example because `<Fullscreen.Portal>` returned `null` on the same commit
+  // that flipped `open` to `false`); we still need to call `exitFullscreen()`
+  // on the right document.
+  const ownerDocumentRef = React.useRef<Document | null>(null);
+
   // Reactive bridge between the store's `open` and the browser Fullscreen API.
   //
   // Running this as a layout effect (instead of a plain `useEffect`) is what
@@ -62,13 +69,22 @@ export function useFullscreenRoot(
   // `onOpenChange(false, { reason: 'none' })`.
   useIsoLayoutEffect(() => {
     const container = containerRef.current;
-    if (!container) {
-      return;
+    if (container) {
+      ownerDocumentRef.current = ownerDocument(container);
     }
-    const doc = ownerDocument(container);
-    const isInFullscreen = getFullscreenElement(doc) === container;
+    const doc = ownerDocumentRef.current;
 
-    if (open && !isInFullscreen) {
+    if (open) {
+      // Need a live container to enter fullscreen. If `<Fullscreen.Portal>`
+      // hasn't mounted it yet (or it was conditionally rendered out), bail
+      // and let the next commit (with the container present) drive the call.
+      if (!container) {
+        return;
+      }
+      const isInFullscreen = doc ? getFullscreenElement(doc) === container : false;
+      if (isInFullscreen) {
+        return;
+      }
       const promise = requestElementFullscreen(container, navigationUI);
       requestPromiseRef.current = promise;
       if (promise) {
@@ -86,7 +102,11 @@ export function useFullscreenRoot(
           store.setOpen(false, createChangeEventDetails(REASONS.none));
         });
       }
-    } else if (!open && isInFullscreen) {
+    } else if (doc && getFullscreenElement(doc)) {
+      // Exiting only depends on the document, not the container. This lets
+      // us close cleanly even when the container has just unmounted (e.g.
+      // because `<Fullscreen.Portal>` re-rendered to `null` on the same
+      // commit that flipped `open` to `false`).
       const promise = exitDocumentFullscreen(doc);
       requestPromiseRef.current = promise;
       if (promise) {

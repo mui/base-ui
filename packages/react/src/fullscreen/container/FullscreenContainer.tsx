@@ -11,6 +11,7 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useFullscreenRootContext } from '../root/FullscreenRootContext';
 import type { FullscreenRootState } from '../root/FullscreenRoot';
 import { fullscreenStateMapping } from '../root/stateAttributesMapping';
+import { FullscreenPortalContext } from '../portal/FullscreenPortalContext';
 import {
   FULLSCREEN_CHANGE_EVENTS,
   FULLSCREEN_ERROR_EVENTS,
@@ -31,6 +32,12 @@ export const FullscreenContainer = React.forwardRef(function FullscreenContainer
 
   const { store, handleContainerUnmount, handleFullscreenChange, handleFullscreenError } =
     useFullscreenRootContext();
+
+  // When the container is mounted inside `<Fullscreen.Portal>` (typically with
+  // `keepMounted`), it should be hidden from the page while not in fullscreen
+  // — matching how `<Dialog.Popup>` behaves inside `<Dialog.Portal>`. Outside
+  // a portal, this context is `undefined` and the container stays visible.
+  const inPortal = React.useContext(FullscreenPortalContext) !== undefined;
 
   const open = store.useState('open');
   const disabled = store.useState('disabled');
@@ -69,7 +76,14 @@ export const FullscreenContainer = React.forwardRef(function FullscreenContainer
     const cleanup = mergeCleanups(...cleanups);
     return () => {
       cleanup();
-      handleContainerUnmount();
+      // Only fire the unmount handler if this is a real unmount (the DOM node
+      // is no longer connected). React's strict-mode dev-only effect double-
+      // invocation tears down and re-runs effects without unmounting the DOM
+      // node; we don't want that to be observed as a "container removed"
+      // signal that resets `open` back to false.
+      if (!container.isConnected) {
+        handleContainerUnmount();
+      }
     };
   }, [store, handleContainerUnmount, handleFullscreenChange, handleFullscreenError]);
 
@@ -81,7 +95,18 @@ export const FullscreenContainer = React.forwardRef(function FullscreenContainer
   return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, setContainer],
-    props: [{ id: containerId }, elementProps],
+    props: [
+      {
+        id: containerId,
+        // Hide the container while it sits in a portal but not in fullscreen
+        // so consumer styles (e.g. `width: 100vw`) do not leak into the page.
+        // The attribute is dropped on the same React commit that flips `open`
+        // to true, so it is gone before the layout effect calls
+        // `requestFullscreen()` on this element.
+        hidden: inPortal && !open ? true : undefined,
+      },
+      elementProps,
+    ],
     stateAttributesMapping: fullscreenStateMapping,
   });
 });

@@ -136,6 +136,25 @@ console.log(playerFullscreen.isOpen);
 
 `handle.open()` carries the same user-activation requirement as `<Fullscreen.Trigger>`. If invoked outside the activation window, the browser rejects the request and Base UI dispatches `onOpenChange(false, { reason: 'none' })` to roll the state back.
 
+### Mount only when open
+
+Wrap the `<Fullscreen.Container>` in a `<Fullscreen.Portal>` to keep the fullscreen content out of the DOM until the user enters fullscreen. By default the portal renders into `document.body` and tears its children down again when the user exits.
+
+```jsx title="Mount only when open"
+<Fullscreen.Root>
+  <Fullscreen.Trigger>Open fullscreen</Fullscreen.Trigger>
+  <Fullscreen.Portal>
+    <Fullscreen.Container>{/* ... */}</Fullscreen.Container>
+  </Fullscreen.Portal>
+</Fullscreen.Root>
+```
+
+The user-activation chain is preserved: pressing the trigger flips `open`, the portal mounts the container synchronously, and `requestFullscreen()` runs in the same task. Pass `keepMounted` to keep the children in the DOM even when not in fullscreen — they are hidden via the `hidden` attribute (matching `<Dialog.Portal>`) so consumer styles such as `width: 100vw` don't leak into the page. Pass `container` to portal into a custom node.
+
+import { DemoFullscreenPortal } from './demos/portal';
+
+<DemoFullscreenPortal />
+
 ### Detecting unsupported browsers
 
 The `supported` state lets you hide or replace the UI when the Fullscreen API is unavailable (for example, on iOS Safari for iPhone):
@@ -175,6 +194,10 @@ import { TypesFullscreen } from './types';
 ### Close
 
 <TypesFullscreen.Close />
+
+### Portal
+
+<TypesFullscreen.Portal />
 
 ### Handle
 

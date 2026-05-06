@@ -118,6 +118,57 @@ type FullscreenTriggerState = {
 };
 ```
 
+### Portal
+
+A portal that mounts its children outside the regular React tree (by default
+into `<body>`) only while the container is in fullscreen.
+
+Useful for "dialog-like" fullscreen UI: the trigger lives in the regular
+page, and the fullscreen content is absent from the DOM until the user
+enters fullscreen.
+
+Doesn't render its own HTML element.
+
+**Parameters:**
+
+| Parameter | Type                      | Default | Description |
+| :-------- | :------------------------ | :------ | :---------- |
+| props     | `Fullscreen.Portal.Props` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = React.ReactPortal | null;
+```
+
+### Portal.Props
+
+```typescript
+type FullscreenPortalProps = {
+  /**
+   * Whether to keep the contents mounted in the DOM while the container is
+   * not in fullscreen.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /** The element to portal into. Defaults to `document.body`. */
+  container?: Fullscreen.Portal.Container;
+  /** The content of the portal. */
+  children?: React.ReactNode;
+};
+```
+
+### Portal.Container
+
+```typescript
+type FullscreenPortalContainer =
+  | Element
+  | DocumentFragment
+  | React.RefObject<Element | DocumentFragment | null>
+  | (() => Element | DocumentFragment | null)
+  | null;
+```
+
 ### Close
 
 A button that exits the fullscreen container.
@@ -264,9 +315,10 @@ type FullscreenNavigationUI = 'auto' | 'show' | 'hide';
 - `Fullscreen.Container`: `Fullscreen.Container`, `Fullscreen.Container.State`, `Fullscreen.Container.Props`
 - `Fullscreen.Trigger`: `Fullscreen.Trigger`, `Fullscreen.Trigger.State`, `Fullscreen.Trigger.Props`
 - `Fullscreen.Close`: `Fullscreen.Close`, `Fullscreen.Close.Props`, `Fullscreen.Close.State`
+- `Fullscreen.Portal`: `Fullscreen.Portal`, `Fullscreen.Portal.Props`, `Fullscreen.Portal.Container`
 - `Fullscreen.createHandle`
 - `Fullscreen.Handle`
-- `Default`: `FullscreenRootState`, `FullscreenRootProps`, `FullscreenRootChangeEventReason`, `FullscreenRootChangeEventDetails`, `FullscreenContainerState`, `FullscreenContainerProps`, `FullscreenTriggerState`, `FullscreenTriggerProps`, `FullscreenCloseProps`, `FullscreenCloseState`
+- `Default`: `FullscreenRootState`, `FullscreenRootProps`, `FullscreenRootChangeEventReason`, `FullscreenRootChangeEventDetails`, `FullscreenContainerState`, `FullscreenContainerProps`, `FullscreenTriggerState`, `FullscreenTriggerProps`, `FullscreenCloseProps`, `FullscreenCloseState`, `FullscreenPortalProps`, `FullscreenPortalContainer`
 
 ## Canonical Types
 
@@ -282,3 +334,5 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Fullscreen.Trigger.Props`: `FullscreenTriggerProps`
 - `Fullscreen.Close.Props`: `FullscreenCloseProps`
 - `Fullscreen.Close.State`: `FullscreenCloseState`
+- `Fullscreen.Portal.Props`: `FullscreenPortalProps`
+- `Fullscreen.Portal.Container`: `FullscreenPortalContainer`
