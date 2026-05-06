@@ -27,7 +27,7 @@ export default function OTPFieldFocusedPlaceholderDemo() {
           />
         ))}
       </OTPField.Root>
-      <p id={descriptionId} className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+      <p id={descriptionId} className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
         Placeholder hints can stay visible until the active slot is focused.
       </p>
     </div>

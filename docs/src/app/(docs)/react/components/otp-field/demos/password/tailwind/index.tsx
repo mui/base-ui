@@ -27,7 +27,7 @@ export default function OTPFieldPasswordDemo() {
           />
         ))}
       </OTPField.Root>
-      <p id={descriptionId} className="m-0 text-sm text-neutral-500 dark:text-neutral-400">
+      <p id={descriptionId} className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
         Use <code className="font-mono">mask</code> to obscure the code on shared screens.
       </p>
     </div>

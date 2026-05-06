@@ -13,7 +13,7 @@ export default function ExampleField() {
         Please enter your name
       </Field.Error>
 
-      <Field.Description className="text-sm text-neutral-500 dark:text-neutral-400">
+      <Field.Description className="text-sm text-neutral-600 dark:text-neutral-400">
         Visible on your profile
       </Field.Description>
     </Field.Root>
