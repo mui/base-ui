@@ -17,8 +17,8 @@ import { DemoFullscreenHero } from './demos/hero';
 - **Inside iframes:** The hosting `<iframe>` must include the `allowfullscreen` attribute (or `allow="fullscreen"`) and any [Permissions Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Permissions_Policy) must permit the `fullscreen` feature for the document. Without these, requests are rejected with a `TypeError`.
 - **Mobile considerations:** Some mobile browsers ignore `<meta name="viewport">` settings and disable user pinch-zoom while a page is in fullscreen.
 - **Exit affordance:** Users can always exit fullscreen with Esc (or F11). The component listens to the browser's `fullscreenchange` event and reconciles state automatically — `onOpenChange` is fired with `reason: 'escape-key'` in that case.
-- **Esc inside popups:** When a `<Dialog>`, `<Popover>`, `<Menu>`, or any other popup is open inside fullscreen, pressing Esc dismisses the popup first instead of immediately exiting fullscreen. Base UI uses the [Keyboard Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/lock) so the keypress reaches JS handlers; popups (which call `event.preventDefault()` on Esc) keep fullscreen alive, while a "bare" Esc still exits. Keyboard Lock is only implemented in Chromium today — Safari and Firefox keep their native behavior of always exiting fullscreen on Esc.
-- **Portals inside fullscreen:** `<Dialog.Portal>`, `<Popover.Portal>`, `<Menu.Portal>`, `<Tooltip.Portal>`, and every other Base UI portal default to `document.body`, which the browser hides while a child element is fullscreen. Base UI detects this and reroutes the portal into the active fullscreen element so popups, menus, and overlays stay visible. Portals with an explicit `container` prop are respected as-is.
+- **Esc inside popups:** When a `<Dialog>`, `<Popover>`, `<Menu>`, or any other popup is open inside fullscreen, pressing Esc dismisses the popup first instead of immediately exiting fullscreen. Base UI uses the [Keyboard Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/lock) so the keypress reaches JavaScript handlers; popups (which call `event.preventDefault()` on Esc) keep fullscreen alive, while a "bare" Esc still exits. Keyboard Lock is only implemented in Chromium today — Safari and Firefox keep their native behavior of always exiting fullscreen on Esc.
+- **Portals inside fullscreen:** `<Dialog.Portal>`, `<Popover.Portal>`, `<Menu.Portal>`, `<Tooltip.Portal>`, and every other Base UI portal default to `document.body`, which the browser hides while a child element is fullscreen. Base UI detects this and reroutes the portal into the active fullscreen element so popups, menus, and overlays stay visible. Portals with an explicit `container` prop are respected as-is.
 
 ## Anatomy
 
@@ -94,7 +94,7 @@ const [open, setOpen] = React.useState(false);
 </Fullscreen.Root>
 ```
 
-If `open` is set to `true` outside the browser's transient-activation window (no recent user gesture, or more than ~5 seconds after one), the browser rejects the request. Base UI catches the rejection, dispatches `onOpenChange(false, { reason: 'none' })` so the controlled state can roll back, and logs a warning in development.
+If `open` is set to `true` outside the browser's transient-activation window (no recent user gesture, or more than ~5 seconds after one), the browser rejects the request. Base UI catches the rejection, dispatches `onOpenChange(false, { reason: 'none' })` so the controlled state can roll back, and logs a warning in development.
 
 ### Detached triggers
 
@@ -136,7 +136,7 @@ playerFullscreen.close();
 console.log(playerFullscreen.isOpen);
 ```
 
-`handle.open()` carries the same user-activation requirement as `<Fullscreen.Trigger>`. If invoked outside the activation window, the browser rejects the request and Base UI dispatches `onOpenChange(false, { reason: 'none' })` to roll the state back.
+`handle.open()` carries the same user-activation requirement as `<Fullscreen.Trigger>`. If invoked outside the activation window, the browser rejects the request and Base UI dispatches `onOpenChange(false, { reason: 'none' })` to roll the state back.
 
 ### Mount only when open
 
@@ -254,6 +254,6 @@ export const metadata = {
     'Fullscreen API',
     'Toggle Fullscreen Button',
     'Headless React Components',
-    'Base UI',
+    'Base UI',
   ],
 };
