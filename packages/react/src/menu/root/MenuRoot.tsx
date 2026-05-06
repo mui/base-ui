@@ -5,7 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
   FloatingTree,
@@ -22,7 +22,6 @@ import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -40,6 +39,7 @@ import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
+  usePopupRootSync,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
@@ -133,6 +133,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   const open = store.useState('open');
+  const mounted = store.useState('mounted');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
@@ -160,15 +161,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     }
   }
 
-  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
-
   store.useSyncedValues({
     disabled: disabledProp,
     modal: parent.type === undefined ? modalProp : undefined,
-    openMethod,
     rootId,
   });
 
+  usePopupRootSync(store, open);
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
     store.update({ allowMouseEnter: false, stickIfOpen: true });
@@ -385,6 +384,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
+  const shouldSyncPopupProps = open || mounted;
+
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
     bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
@@ -458,19 +459,15 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   ]);
 
   const activeTriggerProps = React.useMemo(() => {
-    const mergedProps = mergeProps(
-      getReferenceProps(),
-      {
-        onMouseMove() {
-          store.set('allowMouseEnter', true);
-        },
+    const mergedProps = mergeProps(getReferenceProps(), {
+      onMouseMove() {
+        store.set('allowMouseEnter', true);
       },
-      interactionTypeProps,
-    );
+    });
 
     delete mergedProps.role;
     return mergedProps;
-  }, [getReferenceProps, store, interactionTypeProps]);
+  }, [getReferenceProps, store]);
 
   const inactiveTriggerProps = React.useMemo(() => {
     const triggerProps = getTriggerProps();
@@ -478,40 +475,45 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       return triggerProps;
     }
 
-    const mergedProps = mergeProps(triggerProps, interactionTypeProps);
+    const mergedProps = { ...triggerProps };
     delete mergedProps.role;
     delete mergedProps['aria-controls'];
     return mergedProps;
-  }, [getTriggerProps, interactionTypeProps]);
+  }, [getTriggerProps]);
 
   const popupProps = React.useMemo(
     () =>
-      getFloatingProps({
-        onMouseMove() {
-          store.set('allowMouseEnter', true);
-          if (parent.type === 'menu') {
-            store.set('hoverEnabled', false);
-          }
-        },
-        onClick() {
-          if (store.select('hoverEnabled')) {
-            store.set('hoverEnabled', false);
-          }
-        },
-        onKeyDown(event) {
-          // The Menubar's CompositeRoot captures keyboard events via
-          // event delegation. This works well when Menu.Root is nested inside Menubar,
-          // but with detached triggers we need to manually forward the event to the CompositeRoot.
-          const relay = store.select('keyboardEventRelay');
-          if (relay && !event.isPropagationStopped()) {
-            relay(event);
-          }
-        },
-      }),
-    [getFloatingProps, parent.type, store],
+      shouldSyncPopupProps
+        ? getFloatingProps({
+            onMouseMove() {
+              store.set('allowMouseEnter', true);
+              if (parent.type === 'menu') {
+                store.set('hoverEnabled', false);
+              }
+            },
+            onClick() {
+              if (store.select('hoverEnabled')) {
+                store.set('hoverEnabled', false);
+              }
+            },
+            onKeyDown(event) {
+              // The Menubar's CompositeRoot captures keyboard events via
+              // event delegation. This works well when Menu.Root is nested inside Menubar,
+              // but with detached triggers we need to manually forward the event to the CompositeRoot.
+              const relay = store.select('keyboardEventRelay');
+              if (relay && !event.isPropagationStopped()) {
+                relay(event);
+              }
+            },
+          })
+        : EMPTY_OBJECT,
+    [getFloatingProps, parent.type, shouldSyncPopupProps, store],
   );
 
-  const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
+  const itemProps = React.useMemo(
+    () => (shouldSyncPopupProps ? getItemProps() : EMPTY_OBJECT),
+    [getItemProps, shouldSyncPopupProps],
+  );
 
   usePopupInteractionProps(store, {
     floatingRootContext,

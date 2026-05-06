@@ -38,6 +38,7 @@ import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
+import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -214,6 +215,12 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const localInteractionProps = useInteractions([click, focus]);
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const interactionTypeProps = useOpenMethodTriggerProps(
+    () => store.select('open'),
+    (interactionType) => {
+      store.set('openMethod', interactionType);
+    },
+  );
 
   const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
     useTriggerFocusGuards(store, triggerElementRef);
@@ -228,6 +235,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     localInteractionProps.getReferenceProps(),
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
+    interactionTypeProps,
     {
       'aria-haspopup': 'menu' as const,
       id: thisTriggerId,
