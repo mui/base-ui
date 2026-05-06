@@ -140,7 +140,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   // Local copy so it can be cleared on mouseLeave without resetting the hover hook's own pointerType.
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
 
-  const getOpenDelay = () => {
+  function getOpenDelay() {
     const providerDelay = providerContext?.delay;
     const groupOpenValue = typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
 
@@ -154,9 +154,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     }
 
     return computedOpenDelay;
-  };
+  }
 
-  const isEnabledNestedTriggerTarget = (target: Element | null) => {
+  function isEnabledNestedTriggerTarget(target: Element | null) {
     const triggerEl = triggerElementRef.current;
     if (!triggerEl || !target) {
       return false;
@@ -166,9 +166,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     return (
       nearestTrigger !== null && nearestTrigger !== triggerEl && contains(triggerEl, nearestTrigger)
     );
-  };
+  }
 
-  const detectNestedTriggerHover = (target: Element | null) => {
+  function detectNestedTriggerHover(target: Element | null) {
     const nestedTriggerHovered = isEnabledNestedTriggerTarget(target);
 
     isNestedTriggerHoveredRef.current = nestedTriggerHovered;
@@ -179,7 +179,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
       nestedTriggerOpenTimeout.clear();
     }
     return nestedTriggerHovered;
-  };
+  }
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled: !disabled,
@@ -242,6 +242,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
           store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerEl));
         }
       };
+
       const openDelay = getOpenDelay();
 
       // With `move: false`, the hover hook only listens to mouseenter/mouseleave
