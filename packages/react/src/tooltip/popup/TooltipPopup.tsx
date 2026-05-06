@@ -41,8 +41,6 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const disabled = store.useState('disabled');
   const closeDelay = store.useState('closeDelay');
   const floatingId = floatingContext.useState('floatingId');
-  const disabled = store.useState('disabled');
-  const closeDelay = store.useState('closeDelay');
 
   const popupId = elementProps.id ?? floatingId;
 

@@ -12,7 +12,6 @@ import {
   PopupStoreSelectors,
   PopupTriggerMap,
   popupStoreSelectors,
-  shouldCurrentTriggerOwnOpenPopup,
   useImplicitActiveTrigger,
   usePopupInteractionProps,
   usePopupRootSync,

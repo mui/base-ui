@@ -101,7 +101,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             setOpen(true);
           },
         });
-        const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context)]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([useDismiss(context)]);
 
         return (
           <React.Fragment>
