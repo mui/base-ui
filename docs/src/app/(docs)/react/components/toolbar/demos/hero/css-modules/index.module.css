@@ -64,7 +64,7 @@
   &[role='combobox'] {
     min-width: 8rem;
     justify-content: space-between;
-    padding: 0 0.75rem;
+    padding: 0 0.5rem;
   }
 
   &:focus-visible {

@@ -78,16 +78,16 @@ export default function AnimatedSelectMotionDemo() {
 function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="8"
+      width="12"
       height="12"
-      viewBox="0 0 8 12"
+      viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.5"
+      strokeWidth="2"
       {...props}
     >
-      <path d="M0.5 4.5L4 1.5L7.5 4.5" />
-      <path d="M0.5 7.5L4 10.5L7.5 7.5" />
+      <path d="m7 15 5 5 5-5" />
+      <path d="m7 9 5-5 5 5" />
     </svg>
   );
 }
