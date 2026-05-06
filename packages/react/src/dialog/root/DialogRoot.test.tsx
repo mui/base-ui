@@ -731,7 +731,7 @@ describe('<Dialog.Root />', () => {
       const nestedButton2 = screen.getByRole('button', { name: 'Open nested 2' });
       fireEvent.click(nestedButton2);
 
-      const backdrops = Array.from(document.querySelectorAll('[role="presentation"]'));
+      const backdrops = Array.from(document.querySelectorAll('[role="none"]'));
       fireEvent.click(backdrops[backdrops.length - 1]);
 
       await waitFor(() => {

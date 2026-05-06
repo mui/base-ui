@@ -882,7 +882,7 @@ describe('<Popover.Root />', () => {
           />,
         );
 
-        const internalBackdrop = document.querySelector('[role="presentation"]') as HTMLElement;
+        const internalBackdrop = document.querySelector('[role="none"]') as HTMLElement;
 
         fireEvent.mouseDown(internalBackdrop);
         expect(screen.queryByRole('dialog')).not.toBe(null);
