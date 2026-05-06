@@ -93,7 +93,7 @@ export function useSyncedFloatingRootContext<
     store.update(valuesToSync);
   }, [open, floatingId, referenceElement, floatingElement, store]);
 
-  // TODO: When `setOpen` is a part of the PopupStore API, we don't need to sync it.
+  // Keep non-reactive context values fresh for interactions that call `store.setOpen`.
   store.context.onOpenChange = handleOpenChange;
   store.context.nested = nested;
 

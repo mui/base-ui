@@ -32,6 +32,42 @@ describe('<Dialog.Root />', () => {
     expectedPopupRole: 'dialog',
   });
 
+  it('keeps trigger ownership when another trigger mounts while open', async () => {
+    function Test() {
+      const [showSecondTrigger, setShowSecondTrigger] = React.useState(false);
+
+      return (
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger id="trigger-1">Trigger 1</Dialog.Trigger>
+          {showSecondTrigger && <Dialog.Trigger id="trigger-2">Trigger 2</Dialog.Trigger>}
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <button onClick={() => setShowSecondTrigger(true)}>Mount trigger 2</button>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
+
+    const { user } = await render(<Test />);
+    const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+    await user.click(trigger1);
+
+    const popup = await screen.findByRole('dialog');
+    const trigger1Controls = trigger1.getAttribute('aria-controls');
+
+    expect(trigger1Controls).toBe(popup.getAttribute('id'));
+
+    await user.click(screen.getByRole('button', { name: 'Mount trigger 2' }));
+
+    const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+    expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger1.getAttribute('aria-controls')).toBe(trigger1Controls);
+    expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger2).not.toHaveAttribute('aria-controls');
+  });
+
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerDialog },
     { name: 'detached triggers', Component: DetachedTriggerDialog },

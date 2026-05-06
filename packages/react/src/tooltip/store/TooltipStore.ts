@@ -11,6 +11,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  setOpenTriggerState,
   usePopupStore,
 } from '../../utils/popups';
 
@@ -103,13 +104,7 @@ export class TooltipStore<Payload> extends ReactStore<
         updatedState.instantType = undefined;
       }
 
-      // If a popup is closing, the `trigger` may be null.
-      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-      const newTriggerId = eventDetails.trigger?.id ?? null;
-      if (newTriggerId || nextOpen) {
-        updatedState.activeTriggerId = newTriggerId;
-        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-      }
+      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
 
       this.update(updatedState);
     };

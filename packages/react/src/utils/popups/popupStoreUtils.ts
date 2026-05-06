@@ -135,7 +135,7 @@ export function setOpenTriggerState(
  * Sets up trigger data forwarding to the store.
  *
  * @param triggerId Id of the trigger.
- * @param triggerElement The trigger DOM element.
+ * @param triggerElementRef Ref for the trigger DOM element.
  * @param store The Store instance managing the popup state.
  * @param stateUpdates An object with state updates to apply when the trigger is active.
  */
@@ -198,8 +198,8 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
 
 /**
  * Ensures that when there's only one trigger element registered, it is set as the active trigger.
- * This allows controlled popups to work correctly without an explicit triggerId, maintaining compatibility
- * with the contained triggers.
+ * This keeps triggerCount reactive while open and allows controlled popups to work correctly without
+ * an explicit triggerId, maintaining compatibility with contained triggers.
  *
  * This should be called on the Root part.
  *
