@@ -54,10 +54,20 @@
 }
 
 .Icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.75rem;
+  height: 0.75rem;
   transition: transform 150ms ease;
 
   &[data-popup-open] {
     transform: rotate(180deg);
+  }
+
+  & svg {
+    width: 100%;
+    height: 100%;
   }
 }
 

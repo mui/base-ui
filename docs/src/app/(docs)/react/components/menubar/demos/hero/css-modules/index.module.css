@@ -121,6 +121,11 @@
   &[data-highlighted][data-popup-open]::before {
     background-color: light-dark(var(--color-neutral-950), white);
   }
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
 }
 
 .MenuSeparator {

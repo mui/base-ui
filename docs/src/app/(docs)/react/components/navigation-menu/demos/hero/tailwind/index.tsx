@@ -9,7 +9,7 @@ export default function ExampleNavigationMenu() {
           <NavigationMenu.Trigger className={triggerClassName}>
             Overview
             <NavigationMenu.Icon className="transition-transform duration-150 ease-[ease] data-popup-open:rotate-180">
-              <ChevronDownIcon />
+              <ChevronDownIcon className="size-3" />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
 
@@ -33,7 +33,7 @@ export default function ExampleNavigationMenu() {
           <NavigationMenu.Trigger className={triggerClassName}>
             Handbook
             <NavigationMenu.Icon className="transition-transform duration-150 ease-[ease] data-popup-open:rotate-180">
-              <ChevronDownIcon />
+              <ChevronDownIcon className="size-3" />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
 
@@ -97,7 +97,7 @@ function Link(props: NavigationMenu.Link.Props) {
 
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
+    <svg viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
       <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
     </svg>
   );

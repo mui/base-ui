@@ -21,7 +21,7 @@ export default function ExampleToggleGroup() {
 
 function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" {...props}>
+    <svg viewBox="0 0 16 16" stroke="currentColor" {...props}>
       <path d="M2.5 3.5H13.5" />
       <path d="M2.5 9.5H13.5" />
       <path d="M2.5 6.5H10.5" />
@@ -32,7 +32,7 @@ function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
 
 function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" {...props}>
+    <svg viewBox="0 0 16 16" stroke="currentColor" {...props}>
       <path d="M3 3.5H14" />
       <path d="M3 9.5H14" />
       <path d="M4.5 6.5H12.5" />
@@ -43,7 +43,7 @@ function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
 
 function AlignRightIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" {...props}>
+    <svg viewBox="0 0 16 16" stroke="currentColor" {...props}>
       <path d="M2.5 3.5H13.5" />
       <path d="M2.5 9.5H13.5" />
       <path d="M5.5 6.5H13.5" />

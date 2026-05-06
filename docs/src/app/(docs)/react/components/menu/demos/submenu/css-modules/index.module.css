@@ -44,6 +44,8 @@
 }
 
 .ButtonIcon {
+  width: 0.75rem;
+  height: 0.75rem;
   margin-right: -0.25rem;
 }
 
@@ -173,6 +175,11 @@
   justify-content: space-between;
   gap: 1rem;
   padding-right: 1rem;
+
+  & svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
 }
 
 .Separator {

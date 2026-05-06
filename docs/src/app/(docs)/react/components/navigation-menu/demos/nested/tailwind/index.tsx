@@ -9,7 +9,7 @@ export default function ExampleNavigationMenu() {
           <NavigationMenu.Trigger className={triggerClassName}>
             Overview
             <NavigationMenu.Icon className="transition-transform duration-150 ease-[ease] data-popup-open:rotate-180">
-              <ChevronDownIcon />
+              <ChevronDownIcon className="size-3" />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
 
@@ -34,7 +34,7 @@ export default function ExampleNavigationMenu() {
                         How to use Base UI effectively.
                       </p>
                       <NavigationMenu.Icon className="absolute top-1/2 right-2.5 flex h-2.5 w-2.5 -translate-y-1/2 items-center justify-center transition-transform duration-200 ease-in-out data-popup-open:rotate-180">
-                        <ChevronRightIcon />
+                        <ChevronRightIcon className="size-2.5" />
                       </NavigationMenu.Icon>
                     </NavigationMenu.Trigger>
                     <NavigationMenu.Content className={contentClassName}>
@@ -115,7 +115,7 @@ function Link(props: NavigationMenu.Link.Props) {
 
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
+    <svg viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
       <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -123,7 +123,7 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 
 function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
+    <svg viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
       <path d="M3.5 1L7.5 5L3.5 9" stroke="currentColor" strokeWidth="1" />
     </svg>
   );

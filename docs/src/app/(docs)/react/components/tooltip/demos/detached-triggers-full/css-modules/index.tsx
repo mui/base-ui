@@ -56,12 +56,11 @@ function AlertContent() {
 function InfoIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="20"
-      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth={1}
+      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
     >
@@ -75,12 +74,11 @@ function InfoIcon(props: React.ComponentProps<'svg'>) {
 function HelpIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="20"
-      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth={1}
+      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
     >
@@ -94,12 +92,11 @@ function HelpIcon(props: React.ComponentProps<'svg'>) {
 function AlertIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="20"
-      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth={1}
+      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
     >

@@ -34,15 +34,7 @@ export default function MenuDetachedTriggersSimpleDemo() {
 
 function DotsIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1}
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1} {...props}>
       <circle cx="5" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />
       <circle cx="12" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />
       <circle cx="19" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />

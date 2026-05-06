@@ -8,7 +8,7 @@ export default function ExampleMenu() {
   return (
     <Menu.Root>
       <Menu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white px-3 text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-popup-open:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
-        Song <ChevronDownIcon className="-mr-1" />
+        Song <ChevronDownIcon className="size-3 -mr-1" />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner className="outline-hidden" sideOffset={8}>
@@ -31,7 +31,7 @@ export default function ExampleMenu() {
 
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
+    <svg viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
       <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
     </svg>
   );

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
-import { X } from 'lucide-react';
 
 function Toasts() {
   const { toasts } = Toast.useToastManager();
@@ -21,10 +20,10 @@ function Toasts() {
           <pre className="whitespace-pre-wrap">{JSON.stringify(toast.data, null, 2)}</pre>
         </div>
         <Toast.Close
-          className="absolute top-2 right-2 flex size-5 items-center justify-center border-0 bg-transparent p-0 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+          className="absolute top-2 right-2 flex size-6 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700"
           aria-label="Close"
         >
-          <X className="size-4" />
+          <XIcon className="size-5" />
         </Toast.Close>
       </Toast.Content>
     </Toast.Root>
@@ -45,3 +44,12 @@ export function ToastProvider(props: { children: React.ReactNode }) {
 }
 
 export const useToastManager = Toast.useToastManager;
+
+function XIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+      <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
+      <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}

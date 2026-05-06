@@ -22,7 +22,7 @@ export default function ExampleSelect() {
             placeholder="Select apple"
           />
           <Select.Icon className="flex">
-            <ChevronUpDownIcon />
+            <ChevronUpDownIcon className="size-3" />
           </Select.Icon>
         </Select.Trigger>
         <Select.Portal>
@@ -58,32 +58,16 @@ export default function ExampleSelect() {
 
 function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      {...props}
-    >
-      <path d="m7 15 5 5 5-5" />
-      <path d="m7 9 5-5 5 5" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+      <path d="m7 15 5 5 5-5" vectorEffect="non-scaling-stroke" />
+      <path d="m7 9 5-5 5 5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1"
-      {...props}
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

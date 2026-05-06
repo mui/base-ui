@@ -31,7 +31,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
       <div className="flex gap-2 flex-wrap justify-center">
         <div className="flex">
           <Tooltip.Trigger className={iconButtonClass} handle={demoTooltip} id="trigger-1">
-            <InfoIcon aria-label="Controlled tooltip" />
+            <InfoIcon className="size-5" aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger
@@ -39,7 +39,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
             handle={demoTooltip}
             id="trigger-2"
           >
-            <InfoIcon aria-label="Controlled tooltip" />
+            <InfoIcon className="size-5" aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger
@@ -47,7 +47,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
             handle={demoTooltip}
             id="trigger-3"
           >
-            <InfoIcon aria-label="Controlled tooltip" />
+            <InfoIcon className="size-5" aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
         </div>
 

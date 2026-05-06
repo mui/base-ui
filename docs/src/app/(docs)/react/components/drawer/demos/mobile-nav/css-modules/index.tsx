@@ -67,17 +67,7 @@ export default function ExampleDrawerMobileNav() {
                       <div aria-hidden className={styles.HeaderSpacer} />
                       <div className={styles.Handle} />
                       <Drawer.Close aria-label="Close menu" className={styles.CloseButton}>
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 12 12"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1"
-                        >
-                          <path d="M6 0.5V11.5" transform="rotate(45 6 6)" />
-                          <path d="M0.5 6H11.5" transform="rotate(45 6 6)" />
-                        </svg>
+                        <XIcon className={styles.CloseIcon} />
                       </Drawer.Close>
                     </div>
 
@@ -120,5 +110,14 @@ export default function ExampleDrawerMobileNav() {
         </Drawer.Viewport>
       </Drawer.Portal>
     </Drawer.Root>
+  );
+}
+
+function XIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+      <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
+      <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
+    </svg>
   );
 }

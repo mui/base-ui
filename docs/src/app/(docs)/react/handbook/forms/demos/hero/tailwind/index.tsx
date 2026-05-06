@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
 import { Button } from '../../components/button';
 import { CheckboxGroup } from '../../components/checkbox-group';
 import { Form } from '../../components/form';
@@ -66,7 +65,7 @@ function ExampleForm() {
                     return (
                       <Combobox.Item key={region} value={region}>
                         <Combobox.ItemIndicator>
-                          <Check className="size-3" />
+                          <CheckIcon className="size-3" />
                         </Combobox.ItemIndicator>
                         <span className="col-start-2">{region}</span>
                       </Combobox.Item>
@@ -119,7 +118,7 @@ function ExampleForm() {
             <Select.Trigger className="w-48">
               <Select.Value />
               <Select.Icon>
-                <ChevronsUpDown className="size-3" />
+                <ChevronUpDownIcon className="size-3" />
               </Select.Icon>
             </Select.Trigger>
           </div>
@@ -132,7 +131,7 @@ function ExampleForm() {
                     return (
                       <Select.Item key={value} value={value}>
                         <Select.ItemIndicator>
-                          <Check className="size-3" />
+                          <CheckIcon className="size-3" />
                         </Select.ItemIndicator>
                         <Select.ItemText>{label}</Select.ItemText>
                       </Select.Item>
@@ -152,11 +151,11 @@ function ExampleForm() {
           <Field.Label>Number of instances</Field.Label>
           <NumberField.Group>
             <NumberField.Decrement>
-              <Minus className="size-3" />
+              <MinusIcon className="size-3" />
             </NumberField.Decrement>
             <NumberField.Input />
             <NumberField.Increment>
-              <Plus className="size-3" />
+              <PlusIcon className="size-3" />
             </NumberField.Increment>
           </NumberField.Group>
         </NumberField.Root>
@@ -234,7 +233,7 @@ function ExampleForm() {
                   <Field.Label className="uppercase">
                     <Checkbox.Root value={val}>
                       <Checkbox.Indicator>
-                        <Check className="size-3" />
+                        <CheckIcon className="size-3" />
                       </Checkbox.Indicator>
                     </Checkbox.Root>
                     {val}
@@ -258,6 +257,40 @@ export default function App() {
     <ToastProvider>
       <ExampleForm />
     </ToastProvider>
+  );
+}
+
+function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+      <path d="m7 15 5 5 5-5" vectorEffect="non-scaling-stroke" />
+      <path d="m7 9 5-5 5 5" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
+function CheckIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+      <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
+function PlusIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentcolor" strokeWidth="1" {...props}>
+      <path d="M6 0.5V11.5" vectorEffect="non-scaling-stroke" />
+      <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
+function MinusIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentcolor" strokeWidth="1" {...props}>
+      <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
+    </svg>
   );
 }
 

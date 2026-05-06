@@ -22,7 +22,7 @@ export default function PopoverDetachedTriggersSimpleDemo() {
           handle={demoPopover}
           id="trigger-1"
         >
-          <BellIcon aria-label="Notifications" />
+          <BellIcon aria-label="Notifications" className="size-5" />
         </Popover.Trigger>
 
         <Popover.Trigger
@@ -30,7 +30,7 @@ export default function PopoverDetachedTriggersSimpleDemo() {
           handle={demoPopover}
           id="trigger-2"
         >
-          <BellIcon aria-label="Notifications" />
+          <BellIcon aria-label="Notifications" className="size-5" />
         </Popover.Trigger>
 
         <Popover.Trigger
@@ -38,7 +38,7 @@ export default function PopoverDetachedTriggersSimpleDemo() {
           handle={demoPopover}
           id="trigger-3"
         >
-          <BellIcon aria-label="Notifications" />
+          <BellIcon aria-label="Notifications" className="size-5" />
         </Popover.Trigger>
 
         <button
