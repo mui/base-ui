@@ -261,7 +261,7 @@ describe('ReactStore', () => {
 
   it('supports nested stores as state values', async () => {
     type ParentState = { count: number };
-    type ChildState = { count: number; parent?: ReactStore<ParentState> };
+    type ChildState = { count: number; parent?: ReactStore<ParentState, any, any> };
 
     const parentSelectors = { count: (state: ParentState) => state.count };
     const childSelectors = {
