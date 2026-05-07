@@ -34,10 +34,32 @@ import { Tabs } from '@base-ui/react/tabs';
 
 Use the `<Tabs.LinkTab>` part to render tabs as anchor elements.
 
-When rendering a router link, control `<Tabs.Root>` from the current route.
-The router is the source of truth for navigation, so deriving the selected value from the URL keeps the active tab synchronized with clicks, back/forward navigation, redirects, and route changes that happen outside the tab list.
-
 <DemoTabsLinks />
+
+When rendering with a router link component (such as React Router's or Next.js `Link`), control the `value` prop on `<Tabs.Root>` from the current route.
+Router links intercept the click to navigate client-side, so the selected tab does not update on its own.
+Deriving `value` from the URL keeps the indicator in sync with clicks, browser back/forward, redirects, and route changes that happen outside the tab list.
+
+```jsx title="Router-driven tabs"
+import { Link, useLocation } from 'react-router';
+import { Tabs } from '@base-ui/react/tabs';
+
+function NavTabs() {
+  const location = useLocation();
+  return (
+    <Tabs.Root value={location.pathname}>
+      <Tabs.List>
+        <Tabs.LinkTab value="/overview" render={<Link to="/overview" />}>
+          Overview
+        </Tabs.LinkTab>
+        <Tabs.LinkTab value="/projects" render={<Link to="/projects" />}>
+          Projects
+        </Tabs.LinkTab>
+      </Tabs.List>
+    </Tabs.Root>
+  );
+}
+```
 
 ## API reference
 
