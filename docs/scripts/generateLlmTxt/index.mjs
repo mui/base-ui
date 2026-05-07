@@ -36,6 +36,10 @@ function incrementHeaders(increment = 1) {
   };
 }
 
+function inlineCodeHtmlTags(text) {
+  return text.replace(/<\/?[a-zA-Z][^>]*>/g, '`$&`');
+}
+
 function githubSlugify(text) {
   return text
     .trim()
@@ -216,11 +220,11 @@ async function generateLlmsTxt() {
     // Page rendering functions - focused only on their unique logic
     const renderPageAsLink = (page) => {
       const resolvedUrl = resolveUrl(page.mdUrlPath, BASE_URL);
-      return [`- [${page.title}](${resolvedUrl}): ${page.description}`];
+      return [`- [${page.title}](${resolvedUrl}): ${inlineCodeHtmlTags(page.description)}`];
     };
     const renderPageAsRelativeLink = (page) => {
       const relativeUrl = `.${page.mdUrlPath}`;
-      return [`- [${page.title}](${relativeUrl}): ${page.description}`];
+      return [`- [${page.title}](${relativeUrl}): ${inlineCodeHtmlTags(page.description)}`];
     };
     const renderPageAsInline = async (page) => {
       const content = await prepareForInlineMarkdown(page.fullMarkdown, 2, metadataByUrl);
