@@ -199,7 +199,7 @@
     --color-foreground: var(--gray-t2);
     --color-popup: white;
     --color-gridline: var(--gray-c3);
-    --color-selection: oklch(80% 28% 264deg / 50%);
+    --color-selection: hsl(0deg 0% 92%);
     --color-line-highlight: oklch(80% 28% 264deg / 20%);
     --color-line-highlight-strong: oklch(80% 28% 264deg / 35%);
     --color-line-highlight-strong-mark: oklch(80% 28% 264deg / 50%);
@@ -315,7 +315,7 @@
       --color-background: black;
       --color-popup: var(--gray-s1);
       --color-gridline: var(--gray-c1);
-      --color-selection: oklch(50% 50% 264deg / 40%);
+      --color-selection: hsl(0deg 0% 18%);
       --color-line-highlight: oklch(50% 50% 264deg / 20%);
       --color-line-highlight-strong: oklch(50% 50% 264deg / 35%);
       --color-line-highlight-strong-mark: oklch(50% 50% 264deg / 50%);
@@ -445,6 +445,10 @@
     font-feature-settings:
       'ss02' 1,
       'zero' 1;
+  }
+
+  ::selection {
+    background-color: var(--color-selection);
   }
 
   /* Debugging red text? You just forgot to set or inherit color in your demo. */
