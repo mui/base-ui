@@ -16,7 +16,6 @@ export default function ExampleMenu() {
       <Menu.Portal>
         <Menu.Positioner className={styles.Positioner} sideOffset={8}>
           <Menu.Popup className={styles.Popup}>
-            <Menu.Arrow className={styles.Arrow} />
             <Menu.CheckboxItem
               checked={showMinimap}
               onCheckedChange={setShowMinimap}

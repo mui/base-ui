@@ -13,7 +13,6 @@ export default function ExampleMenu() {
       <Menu.Portal>
         <Menu.Positioner className={styles.Positioner} sideOffset={8}>
           <Menu.Popup className={styles.Popup}>
-            <Menu.Arrow className={styles.Arrow} />
             <Menu.RadioGroup value={value} onValueChange={setValue}>
               <Menu.RadioItem className={styles.RadioItem} value="date">
                 <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>

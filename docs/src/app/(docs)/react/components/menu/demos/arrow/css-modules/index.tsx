@@ -1,16 +1,21 @@
+'use client';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import styles from './index.module.css';
 
-export default function ExampleMenu() {
+export default function MenuArrowDemo() {
   return (
     <Menu.Root>
       <Menu.Trigger className={styles.Button}>
         Song <ChevronDownIcon className={styles.ButtonIcon} />
       </Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner className={styles.Positioner} sideOffset={8}>
+        <Menu.Positioner
+          className={styles.Positioner}
+          sideOffset={({ side }) => (side === 'top' ? 12 : 8)}
+        >
           <Menu.Popup className={styles.Popup}>
+            <Menu.Arrow className={styles.Arrow} />
             <Menu.Item className={styles.Item}>Add to Library</Menu.Item>
             <Menu.Item className={styles.Item}>Add to Playlist</Menu.Item>
             <Menu.Separator className={styles.Separator} />

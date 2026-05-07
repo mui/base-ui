@@ -58,8 +58,6 @@ export default function MenuDetachedTriggersFullDemo() {
               className={`${styles.Positioner} ${transitionStyles.Positioner}`}
             >
               <Menu.Popup className={`${styles.Popup} ${transitionStyles.Popup}`}>
-                <Menu.Arrow className={`${styles.Arrow} ${transitionStyles.Arrow}`} />
-
                 <Menu.Viewport className={transitionStyles.Viewport}>
                   {payload &&
                     MENUS[payload].groups.map((group, groupIndex) => (

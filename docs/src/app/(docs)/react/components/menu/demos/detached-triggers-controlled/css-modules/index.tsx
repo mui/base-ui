@@ -87,8 +87,6 @@ export default function MenuDetachedTriggersControlledDemo() {
           <Menu.Portal>
             <Menu.Positioner className={styles.Positioner} sideOffset={8}>
               <Menu.Popup className={styles.Popup}>
-                <Menu.Arrow className={styles.Arrow} />
-
                 {payload &&
                   itemGroups[payload].map((item, index) => (
                     <Menu.Item key={index} className={styles.Item} onClick={item.onClick}>

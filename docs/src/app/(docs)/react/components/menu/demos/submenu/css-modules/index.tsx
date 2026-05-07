@@ -12,7 +12,6 @@ export default function ExampleMenu() {
       <Menu.Portal>
         <Menu.Positioner className={styles.Positioner} sideOffset={8}>
           <Menu.Popup className={styles.Popup}>
-            <Menu.Arrow className={styles.Arrow} />
             <Menu.Item className={styles.Item}>Add to Library</Menu.Item>
 
             <Menu.SubmenuRoot>

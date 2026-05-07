@@ -79,48 +79,6 @@
   }
 }
 
-.Arrow {
-  display: block;
-  position: relative;
-  width: 12px;
-  height: 6px;
-  overflow: clip;
-
-  &[data-side='top'] {
-    bottom: -6px;
-    rotate: 180deg;
-  }
-
-  &[data-side='bottom'] {
-    top: -6px;
-    rotate: 0deg;
-  }
-
-  &[data-side='left'] {
-    right: -9px;
-    rotate: 90deg;
-  }
-
-  &[data-side='right'] {
-    left: -9px;
-    rotate: -90deg;
-  }
-
-  &::before {
-    content: '';
-    display: block;
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    box-sizing: border-box;
-    width: calc(6px * sqrt(2));
-    height: calc(6px * sqrt(2));
-    background-color: light-dark(white, var(--color-neutral-950));
-    border: 1px solid light-dark(var(--color-neutral-950), white);
-    transform: translate(-50%, 50%) rotate(45deg);
-  }
-}
-
 .CheckboxItem {
   outline: 0;
   cursor: default;
