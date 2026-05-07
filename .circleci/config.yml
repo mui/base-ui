@@ -53,7 +53,7 @@ commands:
           command: pnpm -F "./packages/*" add react-compiler-runtime
       - run:
           name: Build with compiler
-          command: pnpm -F "./packages/*" build --enableReactCompiler
+          command: pnpm release:build --enableReactCompiler
           environment:
             MUI_REACT_COMPILER_MODE: 'infer'
 
