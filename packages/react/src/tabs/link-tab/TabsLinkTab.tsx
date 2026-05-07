@@ -36,9 +36,9 @@ export const TabsLinkTab = React.forwardRef(function TabsLinkTab(
 
   const linkTabState: TabsLinkTabState = state;
   const linkTabProps = {
-    onClick(event: React.MouseEvent<HTMLAnchorElement>) {
+    onClick(event: BaseUIEvent<React.MouseEvent<HTMLAnchorElement>>) {
       if (shouldSkipTabActivationForClick(event)) {
-        (event as BaseUIEvent<typeof event>).preventBaseUIHandler();
+        event.preventBaseUIHandler();
       }
     },
   };
@@ -88,11 +88,11 @@ export interface TabsLinkTabProps extends Omit<
   /**
    * Whether the LinkTab is disabled.
    *
-   * If a first LinkTab on a `<Tabs.List>` is disabled, it won't initially be selected.
-   * Instead, the next enabled Tab will be selected.
+   * If the first LinkTab in a `<Tabs.List>` is disabled, it won't initially be selected.
+   * Instead, the next enabled LinkTab will be selected.
    * However, it does not work like this during server-side rendering, as it is not known
-   * during pre-rendering which Tabs are disabled.
-   * To work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.
+   * during pre-rendering which LinkTabs are disabled.
+   * To work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled LinkTab's value.
    */
   disabled?: boolean | undefined;
 }
