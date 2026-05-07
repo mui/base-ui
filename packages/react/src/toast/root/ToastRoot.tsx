@@ -134,7 +134,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const isFirstPointerMoveRef = React.useRef(false);
   const dragOffsetRef = React.useRef({ x: 0, y: 0 });
   const activePointerIdRef = React.useRef<number | null>(null);
-  const cleanupDocumentPointerListenersRef = React.useRef<(() => void) | null>(null);
+  const dragAbortControllerRef = React.useRef<AbortController | null>(null);
 
   const domIndex = store.useState('toastIndex', toast.id);
   const visibleIndex = store.useState('toastVisibleIndex', toast.id);
@@ -189,7 +189,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   useIsoLayoutEffect(() => {
     return () => {
-      cleanupDocumentPointerListenersRef.current?.();
+      dragAbortControllerRef.current?.abort();
     };
   }, []);
 
@@ -270,11 +270,17 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     setLockedDirection(null);
     isFirstPointerMoveRef.current = true;
 
-    addDocumentPointerListeners();
-    try {
-      rootRef.current?.setPointerCapture?.(event.pointerId);
-    } catch {
-      // The document listener still cleans up if pointer capture is unavailable.
+    const element = rootRef.current;
+    if (element) {
+      dragAbortControllerRef.current?.abort();
+      const dragAbortController = new AbortController();
+      dragAbortControllerRef.current = dragAbortController;
+
+      const doc = ownerDocument(element);
+      doc.addEventListener('pointerup', handleSwipeEnd, { signal: dragAbortController.signal });
+      doc.addEventListener('pointercancel', handleSwipeEnd, { signal: dragAbortController.signal });
+
+      element.setPointerCapture?.(event.pointerId);
     }
   }
 
@@ -402,14 +408,15 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     activePointerIdRef.current = null;
-    cleanupDocumentPointerListenersRef.current?.();
+    dragAbortControllerRef.current?.abort();
+    dragAbortControllerRef.current = null;
     setIsSwiping(false);
     setIsRealSwipe(false);
     setLockedDirection(null);
 
     const resolvedInitialTransform = initialTransformRef.current;
 
-    if (cancelledSwipeRef.current) {
+    if (event.type === 'pointercancel' || cancelledSwipeRef.current) {
       setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
       setCurrentSwipeDirection(undefined);
       return;
@@ -464,40 +471,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       setCurrentSwipeDirection(undefined);
     }
   });
-
-  const handleSwipeCancel = useStableCallback((event: React.PointerEvent | PointerEvent) => {
-    if (event.pointerId !== activePointerIdRef.current) {
-      return;
-    }
-
-    activePointerIdRef.current = null;
-    cleanupDocumentPointerListenersRef.current?.();
-    setIsSwiping(false);
-    setIsRealSwipe(false);
-    setLockedDirection(null);
-    const resolvedInitialTransform = initialTransformRef.current;
-    setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
-    setCurrentSwipeDirection(undefined);
-  });
-
-  function addDocumentPointerListeners() {
-    const element = rootRef.current;
-    if (!element) {
-      return;
-    }
-
-    cleanupDocumentPointerListenersRef.current?.();
-
-    const doc = ownerDocument(element);
-    const cleanupPointerUp = addEventListener(doc, 'pointerup', handleSwipeEnd);
-    const cleanupPointerCancel = addEventListener(doc, 'pointercancel', handleSwipeCancel);
-
-    cleanupDocumentPointerListenersRef.current = () => {
-      cleanupPointerUp();
-      cleanupPointerCancel();
-      cleanupDocumentPointerListenersRef.current = null;
-    };
-  }
 
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Escape') {
@@ -570,7 +543,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
     onPointerUp: swipeEnabled ? handleSwipeEnd : undefined,
-    onPointerCancel: swipeEnabled ? handleSwipeCancel : undefined,
+    onPointerCancel: swipeEnabled ? handleSwipeEnd : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {

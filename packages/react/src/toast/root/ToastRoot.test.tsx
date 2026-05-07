@@ -18,6 +18,7 @@ function simulateSwipe(
   endX: number,
   endY: number,
   releaseTarget: HTMLElement | Document = element,
+  releaseType: 'pointerup' | 'pointercancel' = 'pointerup',
 ) {
   fireEvent.pointerDown(element, {
     clientX: startX,
@@ -57,12 +58,18 @@ function simulateSwipe(
     bubbles: true,
     pointerId: 1,
   });
-  fireEvent.pointerUp(releaseTarget, {
+  const releaseEvent = {
     clientX: endX,
     clientY: endY,
     bubbles: true,
     pointerId: 1,
-  });
+  };
+
+  if (releaseType === 'pointercancel') {
+    fireEvent.pointerCancel(releaseTarget, releaseEvent);
+  } else {
+    fireEvent.pointerUp(releaseTarget, releaseEvent);
+  }
 }
 
 describe('<Toast.Root />', () => {
@@ -672,6 +679,36 @@ describe('<Toast.Root />', () => {
       // direction path. Release on the document to cover browsers that don't deliver the final
       // pointer event back to the toast root.
       simulateSwipe(toastElement, 300, 100, -5000, 100, document);
+
+      expect(toastElement).not.toHaveAttribute('data-swiping');
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-y')).toBe('0px');
+      expect(toastElement.style.transition).toBe('');
+      expect(toastElement.style.transform).toBe('');
+
+      simulateSwipe(toastElement, 100, 100, 150, 100);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('toast-root')).toBe(null);
+      });
+    });
+
+    it('resets drag state after a document pointercancel', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <DragList />
+          </Toast.Viewport>
+          <DragButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      simulateSwipe(toastElement, 300, 100, -5000, 100, document, 'pointercancel');
 
       expect(toastElement).not.toHaveAttribute('data-swiping');
       expect(toastElement).not.toHaveAttribute('data-swipe-direction');
