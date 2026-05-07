@@ -1163,7 +1163,7 @@ describe('<Popover.Root />', () => {
 
         const positioner = screen.getByTestId('positioner');
 
-        expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
+        expect(positioner.previousElementSibling).toHaveAttribute('role', 'none');
       });
 
       it('should only render focus guards inside the popup when `true`', async () => {
@@ -1271,7 +1271,7 @@ describe('<Popover.Root />', () => {
 
           await flushMicrotasks();
 
-          expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
+          expect(positioner.previousElementSibling).toHaveAttribute('role', 'none');
         });
 
         it('reopens on hover after an impatient click is followed by a close button press', async () => {
