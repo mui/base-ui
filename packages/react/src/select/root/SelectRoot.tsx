@@ -122,6 +122,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
+    dragY: 0,
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
