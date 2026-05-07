@@ -83,7 +83,14 @@ export class PreviewCardStore<Payload> extends ReactStore<
     }
 
     const event = eventDetails.event;
-    if (nextOpen && isHover && eventDetails.trigger && 'clientX' in event && 'clientY' in event) {
+    if (
+      nextOpen &&
+      isHover &&
+      eventDetails.trigger &&
+      'clientX' in event &&
+      'clientY' in event &&
+      this.context.inlineRectCoordsRef.current?.element !== eventDetails.trigger
+    ) {
       updateInlineRectCoords(
         this.context.inlineRectCoordsRef,
         eventDetails.trigger,
