@@ -28,7 +28,6 @@ import type { Side } from '../../utils/useAnchorPositioning';
 
 const BOUNDARY_OFFSET = 2;
 const SELECTED_DELAY = 400;
-const UNSELECTED_DELAY = 200;
 
 const stateAttributesMapping: StateAttributesMapping<SelectTriggerState> = {
   ...pressableTriggerOpenStateMapping,
@@ -89,8 +88,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const rootId = useStore(store, selectors.id);
   const selectLabelId = useStore(store, selectors.labelId);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
-  const shouldCheckNullItemLabel = !hasSelectedValue && open;
-  const hasNullItemLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
 
   const id = idProp ?? rootId;
@@ -121,56 +118,33 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
   const selectedDelayTimeout = useTimeout();
-  const unselectedDelayTimeout = useTimeout();
 
   React.useEffect(() => {
     if (open) {
-      const hasSelectedItemInList = hasSelectedValue || hasNullItemLabel;
-      const shouldDelayUnselectedMouseUpLonger = !hasSelectedItemInList;
-
-      // When there is no selected item in the list (placeholder-only selects), a mousedown
-      // on the trigger followed by a quick mouseup over the first option can accidentally select
-      // within 200ms. Delay unselected mouseup to match the safer 400ms window.
-      if (shouldDelayUnselectedMouseUpLonger) {
-        selectedDelayTimeout.start(SELECTED_DELAY, () => {
-          selectionRef.current.allowUnselectedMouseUp = true;
-          selectionRef.current.allowSelectedMouseUp = true;
-        });
-      } else {
-        // mousedown -> move to unselected item -> mouseup should not select within 200ms.
-        unselectedDelayTimeout.start(UNSELECTED_DELAY, () => {
-          selectionRef.current.allowUnselectedMouseUp = true;
-
-          // mousedown -> mouseup on selected item should not select within 400ms.
-          selectedDelayTimeout.start(UNSELECTED_DELAY, () => {
-            selectionRef.current.allowSelectedMouseUp = true;
-          });
-        });
-      }
+      // A mousedown on the trigger can open the popup under the cursor. Keep mouseup selection
+      // disabled briefly so releasing over either the selected item or a neighboring item doesn't
+      // commit an accidental selection. SelectItem can still opt into unselected mouseup sooner
+      // after a real drag over the item.
+      selectedDelayTimeout.start(SELECTED_DELAY, () => {
+        selectionRef.current.allowUnselectedMouseUp = true;
+        selectionRef.current.allowSelectedMouseUp = true;
+      });
 
       return () => {
         selectedDelayTimeout.clear();
-        unselectedDelayTimeout.clear();
       };
     }
 
     selectionRef.current = {
       allowSelectedMouseUp: false,
       allowUnselectedMouseUp: false,
+      dragY: 0,
     };
 
     timeoutMouseDown.clear();
 
     return undefined;
-  }, [
-    open,
-    hasSelectedValue,
-    hasNullItemLabel,
-    selectionRef,
-    timeoutMouseDown,
-    selectedDelayTimeout,
-    unselectedDelayTimeout,
-  ]);
+  }, [open, selectionRef, timeoutMouseDown, selectedDelayTimeout]);
 
   const props: HTMLProps = mergeProps<'button'>(
     triggerProps,
