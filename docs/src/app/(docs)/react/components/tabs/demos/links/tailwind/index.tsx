@@ -1,5 +1,25 @@
+'use client';
 import * as React from 'react';
+import { Link, MemoryRouter, useLocation } from 'react-router';
 import { Tabs } from '@base-ui/react/tabs';
+
+const routes = [
+  {
+    path: '/overview',
+    label: 'Overview',
+    description: 'Review the latest activity and key project updates.',
+  },
+  {
+    path: '/projects',
+    label: 'Projects',
+    description: 'Track milestones, assignments, and project health.',
+  },
+  {
+    path: '/account',
+    label: 'Account',
+    description: 'Manage profile details, permissions, and preferences.',
+  },
+] as const;
 
 const linkTabClassName = `
   flex h-8 items-center justify-center px-2
@@ -27,34 +47,44 @@ const panelClassName = `
 
 export default function ExampleTabsLinks() {
   return (
-    <Tabs.Root className="rounded-md border border-gray-200" defaultValue="overview">
+    <MemoryRouter initialEntries={[routes[0].path]}>
+      <RouterTabs />
+    </MemoryRouter>
+  );
+}
+
+function RouterTabs() {
+  const location = useLocation();
+  const activeRoute = routes.find((route) => route.path === location.pathname) ?? routes[0];
+
+  return (
+    <Tabs.Root className="rounded-md border border-gray-200" value={activeRoute.path}>
+      <div className="flex items-center gap-2 border-b border-gray-200 px-3 py-2 text-xs text-gray-500">
+        <span>Current route</span>
+        <code className="rounded-sm bg-gray-100 px-1 py-0.5 font-mono text-xs leading-4 text-gray-900">
+          {location.pathname}
+        </code>
+      </div>
       <Tabs.List className="relative z-0 flex gap-1 px-1 shadow-[inset_0_-1px] shadow-gray-200">
-        <Tabs.LinkTab className={linkTabClassName} href="#overview" value="overview">
-          Overview
-        </Tabs.LinkTab>
-        <Tabs.LinkTab className={linkTabClassName} href="#projects" value="projects">
-          Projects
-        </Tabs.LinkTab>
-        <Tabs.LinkTab className={linkTabClassName} href="#account" value="account">
-          Account
-        </Tabs.LinkTab>
+        {routes.map((route) => (
+          <Tabs.LinkTab
+            key={route.path}
+            className={linkTabClassName}
+            render={<Link to={route.path} />}
+            value={route.path}
+          >
+            {route.label}
+          </Tabs.LinkTab>
+        ))}
         <Tabs.Indicator className={indicatorClassName} />
       </Tabs.List>
-      <Tabs.Panel className={panelClassName} value="overview">
-        <p className="m-0 max-w-80 text-[0.9375rem] leading-6 text-gray-700">
-          Review the latest activity and key project updates.
-        </p>
-      </Tabs.Panel>
-      <Tabs.Panel className={panelClassName} value="projects">
-        <p className="m-0 max-w-80 text-[0.9375rem] leading-6 text-gray-700">
-          Track milestones, assignments, and project health.
-        </p>
-      </Tabs.Panel>
-      <Tabs.Panel className={panelClassName} value="account">
-        <p className="m-0 max-w-80 text-[0.9375rem] leading-6 text-gray-700">
-          Manage profile details, permissions, and preferences.
-        </p>
-      </Tabs.Panel>
+      {routes.map((route) => (
+        <Tabs.Panel key={route.path} className={panelClassName} value={route.path}>
+          <p className="m-0 max-w-80 text-[0.9375rem] leading-6 text-gray-700">
+            {route.description}
+          </p>
+        </Tabs.Panel>
+      ))}
     </Tabs.Root>
   );
 }

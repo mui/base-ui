@@ -119,6 +119,55 @@ describe('<Tabs.LinkTab />', () => {
     expect(disabledTab).toHaveAttribute('aria-selected', 'false');
   });
 
+  it('supports controlling router link selection from the current route', async () => {
+    function RoutedTabs() {
+      const location = useLocation();
+
+      return (
+        <React.Fragment>
+          <Routes>
+            <Route path="/" element={<div>page one</div>} />
+            <Route path="/two" element={<div>page two</div>} />
+          </Routes>
+
+          <LocationDisplay />
+
+          <Tabs.Root value={location.pathname}>
+            <Tabs.List>
+              <Tabs.LinkTab render={<Link to="/" />} value="/">
+                link 1
+              </Tabs.LinkTab>
+              <Tabs.LinkTab render={<Link to="/two" />} value="/two">
+                link 2
+              </Tabs.LinkTab>
+            </Tabs.List>
+          </Tabs.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(
+      <HashRouter>
+        <RoutedTabs />
+      </HashRouter>,
+    );
+
+    const link1 = screen.getByRole('tab', { name: 'link 1' });
+    const link2 = screen.getByRole('tab', { name: 'link 2' });
+
+    expect(link1).toHaveAttribute('aria-selected', 'true');
+    expect(link2).toHaveAttribute('aria-selected', 'false');
+
+    await user.click(link2);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location')).toHaveTextContent('/two');
+    });
+
+    expect(link1).toHaveAttribute('aria-selected', 'false');
+    expect(link2).toHaveAttribute('aria-selected', 'true');
+  });
+
   it('does not select the corresponding panel when disabled', async () => {
     const { user } = await render(
       <Tabs.Root defaultValue="overview">

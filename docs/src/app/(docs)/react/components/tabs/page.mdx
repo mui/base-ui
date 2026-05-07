@@ -34,9 +34,8 @@ import { Tabs } from '@base-ui/react/tabs';
 
 Use the `<Tabs.LinkTab>` part to render tabs as anchor elements.
 
-The selected tab updates only when activation stays within the current page.
-Modified clicks (Cmd/Ctrl/Shift/Alt or non-primary buttons), `target="_blank"`, and `download` links keep their default browser behavior and do not change the selection.
-To set `target` or `download` on the underlying anchor, pass them through the `render` prop (for example, `render={<a target="_blank" />}`).
+When rendering a router link, control `<Tabs.Root>` from the current route.
+The router is the source of truth for navigation, so deriving the selected value from the URL keeps the active tab synchronized with clicks, back/forward navigation, redirects, and route changes that happen outside the tab list.
 
 <DemoTabsLinks />
 
