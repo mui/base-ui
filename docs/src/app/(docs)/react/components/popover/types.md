@@ -310,7 +310,7 @@ Renders a `<div>` element.
 | data-open           | -                                                                          | Present when the popup is open.                                       |
 | data-closed         | -                                                                          | Present when the popup is closed.                                     |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-instant        | `'click' \| 'dismiss'`                                                     | Present if animations should be instant.                              |
+| data-instant        | `'click' \| 'dismiss' \| 'focus' \| 'trigger-change'`                      | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-starting-style | -                                                                          | Present when the popup is animating in.                               |
 | data-ending-style   | -                                                                          | Present when the popup is animating out.                              |
@@ -339,7 +339,7 @@ type PopoverPopupState = {
   /** The transition status of the component. */
   transitionStatus: TransitionStatus;
   /** Whether transitions should be skipped. */
-  instant: 'dismiss' | 'click' | undefined;
+  instant: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
 };
 ```
 
@@ -473,13 +473,13 @@ Renders a `<div>` element.
 
 **Viewport Data Attributes:**
 
-| Attribute                 | Type                                             | Description                                                                                                                                                                                                                        |
-| :------------------------ | :----------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-activation-direction | `` `${'left' \| 'right'} {'top' \| 'bottom'}` `` | Indicates the direction from which the popup was activated.&#xA;This can be used to create directional animations based on how the popup was triggered.&#xA;Contains space-separated values for both horizontal and vertical axes. |
-| data-current              | -                                                | Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.                                                                                                                 |
-| data-instant              | `'dismiss' \| 'click'`                           | Present if animations should be instant.                                                                                                                                                                                           |
-| data-previous             | -                                                | Applied to the direct child of the viewport that contains the exiting content when transitions are present.                                                                                                                        |
-| data-transitioning        | -                                                | Indicates that the viewport is currently transitioning between old and new content.                                                                                                                                                |
+| Attribute                 | Type                                                  | Description                                                                                                                                                                                                                        |
+| :------------------------ | :---------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data-activation-direction | `` `${'left' \| 'right'} {'top' \| 'bottom'}` ``      | Indicates the direction from which the popup was activated.&#xA;This can be used to create directional animations based on how the popup was triggered.&#xA;Contains space-separated values for both horizontal and vertical axes. |
+| data-current              | -                                                     | Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.                                                                                                                 |
+| data-instant              | `'click' \| 'dismiss' \| 'focus' \| 'trigger-change'` | Present if animations should be instant.                                                                                                                                                                                           |
+| data-previous             | -                                                     | Applied to the direct child of the viewport that contains the exiting content when transitions are present.                                                                                                                        |
+| data-transitioning        | -                                                     | Indicates that the viewport is currently transitioning between old and new content.                                                                                                                                                |
 
 **Viewport CSS Variables:**
 
@@ -501,7 +501,7 @@ type PopoverViewportState = {
   /** Whether the viewport is currently transitioning between contents. */
   transitioning: boolean;
   /** Present if animations should be instant. */
-  instant: 'dismiss' | 'click' | undefined;
+  instant: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
 };
 ```
 

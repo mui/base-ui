@@ -34,7 +34,9 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const [localDomReference, setLocalDomReference] = React.useState<
     NarrowedElement<ReferenceType> | null | undefined
   >(undefined);
-  const [localFloatingElement, setLocalFloatingElement] = React.useState<HTMLElement | null>(null);
+  const [localFloatingElement, setLocalFloatingElement] = React.useState<
+    HTMLElement | null | undefined
+  >(undefined);
 
   const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);
 
@@ -61,12 +63,15 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     ? (localDomReference as Element)
     : null;
 
+  const syncedFloatingElement =
+    localFloatingElement === undefined ? store.state.floatingElement : localFloatingElement;
+
   store.useSyncedValue('referenceElement', localDomReference ?? null);
   store.useSyncedValue(
     'domReferenceElement',
     localDomReference === undefined ? domReferenceElement : localDomReferenceElement,
   );
-  store.useSyncedValue('floatingElement', localFloatingElement);
+  store.useSyncedValue('floatingElement', syncedFloatingElement);
 
   const setPositionReference = React.useCallback(
     (node: ReferenceType | null) => {
