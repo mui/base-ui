@@ -218,6 +218,10 @@ async function generateLlmsTxt() {
       const resolvedUrl = resolveUrl(page.mdUrlPath, BASE_URL);
       return [`- [${page.title}](${resolvedUrl}): ${page.description}`];
     };
+    const renderPageAsRelativeLink = (page) => {
+      const relativeUrl = `.${page.mdUrlPath}`;
+      return [`- [${page.title}](${relativeUrl}): ${page.description}`];
+    };
     const renderPageAsInline = async (page) => {
       const content = await prepareForInlineMarkdown(page.fullMarkdown, 2, metadataByUrl);
       return [content];
@@ -300,9 +304,12 @@ async function generateLlmsTxt() {
     await Promise.all([
       createFile('llms.txt', renderPageAsLink),
       createFile('llms-full.txt', renderPageAsInline),
+      createFile('index.md', renderPageAsRelativeLink),
     ]);
 
-    console.log(`Successfully generated ${totalFiles} markdown files, llms.txt, and llms-full.txt`);
+    console.log(
+      `Successfully generated ${totalFiles} markdown files, llms.txt, llms-full.txt, and index.md`,
+    );
   } catch (error) {
     console.error('Error generating llms.txt:', error);
     process.exit(1);
