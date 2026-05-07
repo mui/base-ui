@@ -370,7 +370,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       return addEventListener(element, 'wheel', handleWheel);
     },
-    [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
+    [allowWheelScrub, incrementValue, disabled, readOnly, getStepAmount],
   );
 
   const state: NumberFieldRootState = React.useMemo(

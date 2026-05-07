@@ -60,6 +60,37 @@ describe('<Popover.Root />', () => {
 
         expect(screen.queryByText('Content')).toBe(null);
       });
+
+      it('rewires dismiss interactions after closing and reopening', async () => {
+        const { user } = await render(
+          <TestPopover
+            rootProps={{ modal: false }}
+            popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
+          />,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        await user.keyboard('{Escape}');
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        fireEvent.click(document.body);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+      });
     });
 
     describe('controlled open', () => {
@@ -394,6 +425,40 @@ describe('<Popover.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('onOpenChange cancel() prevents closing from a close press without changing the trigger', async () => {
+        let closePressTriggerId: string | undefined;
+
+        await render(
+          <TestPopover
+            triggerProps={{ id: 'trigger-1' }}
+            rootProps={{
+              onOpenChange: (nextOpen, eventDetails) => {
+                if (!nextOpen && eventDetails.reason === REASONS.closePress) {
+                  closePressTriggerId = eventDetails.trigger?.id;
+                  eventDetails.cancel();
+                }
+              },
+            }}
+            popupProps={{
+              children: (
+                <Popover.Close data-testid="close" id="close-button">
+                  Close
+                </Popover.Close>
+              ),
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+
+        fireEvent.click(screen.getByTestId('close'));
+
+        expect(closePressTriggerId).toBe('trigger-1');
+        expect(screen.queryByTestId('close')).not.toBe(null);
       });
     });
 
@@ -860,6 +925,7 @@ describe('<Popover.Root />', () => {
 
           expect(handleOpenChange.mock.calls.length).toBe(1);
           expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
         } finally {
           await act(async () => {
             host.remove();
@@ -892,6 +958,7 @@ describe('<Popover.Root />', () => {
 
           expect(handleOpenChange.mock.calls.length).toBe(1);
           expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.outsidePress);
+          expect(handleOpenChange.mock.calls[0][1].trigger).toBe(undefined);
         } finally {
           await act(async () => {
             host.remove();

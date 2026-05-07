@@ -2,16 +2,21 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
 import { NOOP } from '../../internals/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  NonNativeButtonProps,
+} from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button/useButton';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -53,7 +58,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     indeterminate = false,
     inputRef: inputRefProp,
     name: nameProp,
-    onCheckedChange: onCheckedChangeProp,
+    onCheckedChange,
     parent = false,
     readOnly = false,
     render,
@@ -110,8 +115,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }
 
-  const onCheckedChange = useStableCallback(onCheckedChangeProp);
-
   const {
     checked: groupChecked = checkedProp,
     indeterminate: groupIndeterminate = indeterminate,
@@ -152,7 +155,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     registerControlId(controlSourceRef.current, inputId);
 
     return undefined;
-  }, [inputId, groupContext, registerControlId, parent, controlSourceRef]);
+  }, [inputId, registerControlId, controlSourceRef]);
 
   React.useEffect(() => {
     const controlSource = controlSourceRef.current;
@@ -167,11 +170,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     };
   }, [registerControlId, controlSourceRef]);
 
-  useRegisterFieldControl(controlRef, {
-    enabled: !groupContext,
-    id,
-    value: checked,
-  });
+  useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
@@ -239,7 +238,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         groupOnChange?.(nextChecked, details);
-        onCheckedChange(nextChecked, details);
+        onCheckedChange?.(nextChecked, details);
 
         if (details.isCanceled) {
           return;
@@ -328,6 +327,49 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
             validation.commit(groupContext ? groupValue : inputEl.checked);
           }
         },
+        onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+          if (event.key !== 'Enter') {
+            return;
+          }
+
+          // Let consumer `preventDefault()` handlers opt out while defensively stopping
+          // any remaining Base UI Enter handling from treating the checkbox as a button.
+          event.preventBaseUIHandler();
+
+          if (event.defaultPrevented) {
+            return;
+          }
+
+          const formToSubmit = inputRef.current?.form ?? null;
+          const currentTarget = event.currentTarget;
+          const nativeEvent = event.nativeEvent;
+          const originalPreventDefault = event.preventDefault;
+          const originalNativePreventDefault = nativeEvent.preventDefault;
+          let preventDefaultCalledAfterPropagation = false;
+
+          event.preventDefault = () => {
+            preventDefaultCalledAfterPropagation = true;
+            originalPreventDefault.call(event);
+          };
+          nativeEvent.preventDefault = () => {
+            preventDefaultCalledAfterPropagation = true;
+            originalNativePreventDefault.call(nativeEvent);
+          };
+
+          // Enter should not activate/toggle the checkbox. Cancel the native button behavior
+          // without setting React's synthetic `defaultPrevented`, so ancestor React handlers
+          // can still opt out by calling `preventDefault()` during propagation.
+          originalNativePreventDefault.call(nativeEvent);
+
+          ownerWindow(currentTarget).queueMicrotask(() => {
+            event.preventDefault = originalPreventDefault;
+            nativeEvent.preventDefault = originalNativePreventDefault;
+
+            if (!preventDefaultCalledAfterPropagation) {
+              getDefaultFormSubmitter(formToSubmit)?.click();
+            }
+          });
+        },
         onClick(event: React.MouseEvent) {
           if (readOnly || disabled) {
             return;
@@ -335,8 +377,13 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
           event.preventDefault();
 
-          inputRef.current?.dispatchEvent(
-            new PointerEvent('click', {
+          const input = inputRef.current;
+          if (!input) {
+            return;
+          }
+
+          input.dispatchEvent(
+            new (ownerWindow(input).PointerEvent)('click', {
               bubbles: true,
               shiftKey: event.shiftKey,
               ctrlKey: event.ctrlKey,

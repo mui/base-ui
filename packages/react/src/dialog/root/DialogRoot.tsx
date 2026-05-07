@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDialogRoot } from './useDialogRoot';
+import { useDialogRoot, DialogInteractions } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -63,22 +63,25 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
-  useDialogRoot({
+  const dialogRoot = useDialogRoot({
     store,
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
     isDrawer,
-    onOpenChange,
-    triggerIdProp,
   });
+
+  const shouldRenderInteractions = open || mounted;
 
   const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
 
   return (
     <IsDrawerContext.Provider value={false}>
       <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+        {shouldRenderInteractions && <DialogInteractions store={store} dialogRoot={dialogRoot} />}
         {typeof children === 'function' ? children({ payload }) : children}
       </DialogRootContext.Provider>
     </IsDrawerContext.Provider>
@@ -145,7 +148,7 @@ export interface DialogRootProps<Payload = unknown> {
   /**
    * ID of the trigger that the dialog is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled dialog.
-   * There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).
+   * There's no need to specify this prop when the dialog is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: string | null | undefined;
   /**

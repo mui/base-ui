@@ -43,7 +43,7 @@ export interface FieldRootContext {
   validation: UseFieldValidationReturnValue;
 }
 
-export const FieldRootContext = React.createContext<FieldRootContext>({
+export const DEFAULT_FIELD_ROOT_CONTEXT: FieldRootContext = {
   invalid: undefined,
   name: undefined,
   validityData: {
@@ -76,7 +76,9 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
     inputRef: { current: null },
     commit: async () => {},
   },
-});
+};
+
+export const FieldRootContext = React.createContext<FieldRootContext>(DEFAULT_FIELD_ROOT_CONTEXT);
 
 export function useFieldRootContext(optional = true) {
   const context = React.useContext(FieldRootContext);

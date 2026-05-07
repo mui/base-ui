@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/3feee347096f50b441cad3087743bd1c5aef8651/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/f2b7a9f6b2db57a03f2e16a5bb351f02a55c3e17/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -83,7 +83,9 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps
-      - code-infra/run-linters
+      - code-infra/eslint
+      - code-infra/stylelint
+      - code-infra/valelint
   test_static:
     <<: *default-job
     steps:

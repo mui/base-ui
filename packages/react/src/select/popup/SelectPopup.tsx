@@ -31,7 +31,7 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { clamp } from '../../internals/clamp';
 import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scrollEdges';
-import { useCSPContext } from '../../csp-provider/CSPContext';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
@@ -57,6 +57,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     onOpenChangeComplete,
     setOpen,
     valueRef,
+    firstItemTextRef,
     selectedItemTextRef,
     keyboardActiveRef,
     multiple,
@@ -285,7 +286,16 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     popupElement.style.removeProperty('--transform-origin');
 
     try {
-      const textElement = selectedItemTextRef.current;
+      let textElement = selectedItemTextRef.current;
+
+      if (!textElement?.isConnected) {
+        const hasSelectedValue = selectors.hasSelectedValue(store.state);
+        textElement =
+          !hasSelectedValue && firstItemTextRef.current?.isConnected
+            ? firstItemTextRef.current
+            : null;
+      }
+
       const valueElement = valueRef.current;
 
       const positionerStyles = getComputedStyle(positionerElement);
@@ -425,6 +435,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     positionerElement,
     triggerElement,
     valueRef,
+    firstItemTextRef,
     selectedItemTextRef,
     popupRef,
     handleScrollArrowVisibility,

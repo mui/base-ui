@@ -44,7 +44,7 @@ describe('<Menu.Root />', () => {
   });
 
   // All these tests run for contained and detached triggers.
-  // The rendered menubar has the same structure in most cases.
+  // The rendered menu has the same structure in most cases.
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerMenu },
     { name: 'detached triggers', Component: DetachedTriggerMenu },
@@ -1639,6 +1639,48 @@ describe('<Menu.Root />', () => {
         } finally {
           document.body.style.pointerEvents = previousBodyPointerEvents;
         }
+      });
+
+      it('scopes submenu safePolygon pointer events to the parent menu with keepMounted portal', async () => {
+        await render(
+          <TestMenu
+            rootProps={{ defaultOpen: true }}
+            popupProps={{
+              children: (
+                <React.Fragment>
+                  <Menu.Item data-testid="item-1">Item 1</Menu.Item>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger data-testid="submenu-trigger" delay={0}>
+                      Item 2
+                    </Menu.SubmenuTrigger>
+                    <Menu.Portal keepMounted>
+                      <Menu.Positioner data-testid="submenu-positioner">
+                        <Menu.Popup data-testid="submenu">
+                          <Menu.Item>Item 2.1</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                  <Menu.Item data-testid="item-3">Item 3</Menu.Item>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+        await userEvent.hover(submenuTrigger);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('submenu')).not.toBe(null);
+        });
+
+        const menu = screen.getByTestId('menu');
+        const submenuPositioner = screen.getByTestId('submenu-positioner');
+
+        expect(menu.style.pointerEvents).toBe('none');
+        expect(submenuPositioner.style.pointerEvents).toBe('auto');
+        expect(screen.getByTestId('item-3').style.pointerEvents).toBe('');
       });
 
       it('should not close when submenu is hovered after root menu is hovered', async () => {

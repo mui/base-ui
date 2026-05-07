@@ -124,10 +124,12 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     getRegisteredFieldId,
   });
 
+  const validityValue = validityData.value;
+
   const handleImperativeValidate = React.useCallback(() => {
     markedDirtyRef.current = true;
-    validation.commit(validityData.value);
-  }, [validation, validityData]);
+    validation.commit(validityValue);
+  }, [validation, validityValue]);
 
   const registerFieldControl = useFieldControlRegistration({
     commit: validation.commit,

@@ -53,7 +53,7 @@ export class TooltipHandle<Payload> {
    * Indicates whether the tooltip is currently open.
    */
   get isOpen() {
-    return this.store.state.open;
+    return this.store.select('open');
   }
 }
 

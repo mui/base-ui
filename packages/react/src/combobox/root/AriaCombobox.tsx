@@ -395,6 +395,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         popupSide: null,
         openMethod: null,
         inputInsidePopup: true,
+        // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
+        // until after hydration, so the hidden input takes over then if needed.
+        inputOwnsFormValue: selectionMode === 'none',
         onOpenChangeComplete: onOpenChangeCompleteProp || NOOP,
         // Placeholder callbacks replaced on first render
         setOpen: NOOP,
@@ -432,18 +435,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
+  const inputOwnsFormValue = useStore(store, selectors.inputOwnsFormValue);
 
   const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
-  const getFieldValue = useStableCallback(() => fieldStringValue);
 
-  useRegisterFieldControl(inputInsidePopup ? triggerRef : inputRef, {
+  const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
+
+  useRegisterFieldControl(
+    inputInsidePopup ? triggerRef : inputRef,
     id,
-    value: fieldRawValue,
-    getValue: getFieldValue,
-  });
+    fieldRawValue,
+    getStringifiedValueForForm,
+  );
 
   const forceMount = useStableCallback(() => {
     if (items) {
@@ -556,6 +562,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
+      // If reopening interrupts the close animation, handleUnmount won't run to clear the
+      // frozen closeQuery and pending popup input.
+      if (nextOpen && multiple && inputInsidePopup && !inline && closeQuery !== null) {
+        setQueryChangedAfterOpen(false);
+        setCloseQuery(null);
+
+        if (inputValue !== '') {
+          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+        }
+      }
+
       if (!nextOpen && queryChangedAfterOpen) {
         if (single) {
           if (!inline) {
@@ -566,15 +583,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             setQueryChangedAfterOpen(false);
           }
         } else if (multiple) {
-          if (inline || inputInsidePopup) {
-            setIndices({ activeIndex: null });
-          } else {
+          if (!inline) {
             // Freeze the current query so filtering remains stable while exiting.
             setCloseQuery(query);
           }
+
+          if (inputInsidePopup) {
+            setIndices({ activeIndex: null });
+          }
+
           // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
-          // if the input is outside the popup.
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          // if the input is outside the popup. When the input is inside the popup, defer the clear until
+          // unmount so the filtered list doesn't flash to unfiltered during the exit animation.
+          if (!inputInsidePopup || inline) {
+            setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          }
         }
       }
 
@@ -1125,6 +1148,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       submitOnItemClick,
       hasInputValue,
       requestSubmit,
+      inputOwnsFormValue: selectionMode === 'none' && (inlineProp || !store.state.inputInsidePopup),
     });
   }, [
     store,
@@ -1181,7 +1205,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [fieldRawValue, itemToStringValue]);
 
   const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
-  const hiddenInputName = multiple || selectionMode === 'none' ? undefined : name;
+  const hiddenInputName =
+    multiple || (selectionMode === 'none' && inputOwnsFormValue) ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {

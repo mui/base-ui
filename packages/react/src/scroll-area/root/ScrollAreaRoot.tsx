@@ -13,7 +13,7 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
 import { contains } from '../../floating-ui-react/utils';
-import { useCSPContext } from '../../csp-provider/CSPContext';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
 
 const DEFAULT_COORDS = { x: 0, y: 0 };
 const DEFAULT_SIZE = { width: 0, height: 0 };
@@ -49,6 +49,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const scrollYTimeout = useTimeout();
   const scrollXTimeout = useTimeout();
+
   const { nonce, disableStyleElements } = useCSPContext();
 
   const [hovering, setHovering] = React.useState(false);

@@ -77,6 +77,54 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       await flushMicrotasks();
     });
 
+    test('calls preventDefault on escape key dismiss', async () => {
+      render(<App />);
+      const event = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      });
+      await act(async () => {
+        document.body.dispatchEvent(event);
+      });
+      expect(event.defaultPrevented).toBe(true);
+      await flushMicrotasks();
+    });
+
+    test('does not call preventDefault on escape key if close is canceled', async () => {
+      function CancelApp() {
+        const [open, setOpen] = React.useState(true);
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange(openArg, data) {
+            data?.cancel();
+            setOpen(true);
+          },
+        });
+        const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context)]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
+          </React.Fragment>
+        );
+      }
+
+      render(<CancelApp />);
+      const event = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      });
+      await act(async () => {
+        document.body.dispatchEvent(event);
+      });
+      expect(event.defaultPrevented).toBe(false);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await flushMicrotasks();
+    });
+
     test('does not dismiss with escape key if IME is active', async () => {
       const onClose = vi.fn();
 

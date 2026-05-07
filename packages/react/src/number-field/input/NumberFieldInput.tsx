@@ -94,10 +94,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
-  useRegisterFieldControl(inputRef, {
-    id,
-    value,
-  });
+  useRegisterFieldControl(inputRef, id, value);
 
   useValueChanged(value, (previousValue) => {
     const validateOnChange = shouldValidateOnChange();
@@ -338,6 +335,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const isAsciiDigit = event.key >= '0' && event.key <= '9';
       const isArabicNumeral = ARABIC_DETECT_RE.test(event.key);
       const isHanNumeral = HAN_DETECT_RE.test(event.key);
+      const isPersianNumeral = PERSIAN_DETECT_RE.test(event.key);
       const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
 
@@ -354,6 +352,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         isArabicNumeral ||
         isFullwidthNumeral ||
         isHanNumeral ||
+        isPersianNumeral ||
         isNavigateKey
       ) {
         return;

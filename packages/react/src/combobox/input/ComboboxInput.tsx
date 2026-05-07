@@ -14,7 +14,11 @@ import {
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import type { FieldRootState } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import {
+  DEFAULT_FIELD_ROOT_CONTEXT,
+  FieldRootContext,
+  useFieldRootContext,
+} from '../../internals/field-root-context/FieldRootContext';
 import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../internals/field-constants/constants';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
@@ -99,6 +103,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const lastActiveIndexRef = React.useRef<number | null>(null);
   const shouldRestoreActiveIndexRef = React.useRef(false);
 
+  const inputOwnsFormValue = selectionMode === 'none' && !hasPositionerParent;
+
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
     const nextIsInsidePopup = hasPositionerParent || store.state.inline;
 
@@ -109,6 +115,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     store.update({
       inputElement: element,
       inputInsidePopup: nextIsInsidePopup,
+      inputOwnsFormValue,
     });
   });
 
@@ -199,7 +206,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         readOnly,
         required: selectionMode === 'none' ? required : undefined,
         form,
-        ...(selectionMode === 'none' && name && { name }),
+        ...(inputOwnsFormValue && name && { name }),
         id,
         onFocus() {
           setFocused(true);
@@ -484,12 +491,20 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     stateAttributesMapping: triggerStateAttributesMapping,
   });
 
+  const renderedInput = hasPositionerParent ? (
+    <FieldRootContext.Provider value={DEFAULT_FIELD_ROOT_CONTEXT}>
+      {element}
+    </FieldRootContext.Provider>
+  ) : (
+    element
+  );
+
   return (
     <React.Fragment>
       {open && focusManagerModal && (
         <ComboboxInternalDismissButton ref={store.state.startDismissRef} />
       )}
-      {element}
+      {renderedInput}
     </React.Fragment>
   );
 });

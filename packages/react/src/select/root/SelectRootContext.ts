@@ -32,8 +32,10 @@ export interface SelectRootContext {
   selectionRef: React.RefObject<{
     allowUnselectedMouseUp: boolean;
     allowSelectedMouseUp: boolean;
+    dragY: number;
   }>;
-  selectedItemTextRef: React.RefObject<HTMLSpanElement | null>;
+  firstItemTextRef: React.RefObject<HTMLElement | null>;
+  selectedItemTextRef: React.RefObject<HTMLElement | null>;
   validation: UseFieldValidationReturnValue;
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   keyboardActiveRef: React.RefObject<boolean>;

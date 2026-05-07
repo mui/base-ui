@@ -160,11 +160,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     });
   }
 
-  useRegisterFieldControl(firstInputRef, {
-    id,
-    getValue: () => valueRef.current,
-    value,
-  });
+  useRegisterFieldControl(firstInputRef, id, value);
 
   const focusInput = useStableCallback((index: number) => {
     const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
@@ -192,6 +188,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     }
   }
 
+  function completeValue(completedValue: string, eventDetails: OTPFieldRoot.CompleteEventDetails) {
+    onValueCompleteProp?.(completedValue, eventDetails);
+
+    if (autoSubmit) {
+      requestSubmit();
+    }
+  }
+
   useValueChanged(value, () => {
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
@@ -208,11 +212,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       pendingCompleteValueRef.current = null;
 
       if (pendingCompleteValue.value === value) {
-        onValueCompleteProp?.(value, pendingCompleteValue.eventDetails);
-
-        if (autoSubmit) {
-          requestSubmit();
-        }
+        completeValue(value, pendingCompleteValue.eventDetails);
       }
     }
 
@@ -230,8 +230,17 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const setValue = useStableCallback(
     (nextValue: string, details: OTPFieldRoot.ChangeEventDetails) => {
       const normalizedValue = normalizeOTPValue(nextValue, length, validationType, sanitizeValue);
+      const completeEventDetails =
+        normalizedValue.length === length &&
+        (valueRef.current.length !== length || details.reason === REASONS.inputPaste)
+          ? getCompleteEventDetails(details)
+          : null;
 
       if (normalizedValue === valueRef.current) {
+        if (completeEventDetails != null) {
+          completeValue(normalizedValue, completeEventDetails);
+        }
+
         return null;
       }
 
@@ -242,10 +251,10 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       }
 
       setValueUnwrapped(normalizedValue);
-      if (normalizedValue.length === length && valueRef.current.length !== length) {
+      if (completeEventDetails != null) {
         pendingCompleteValueRef.current = {
           value: normalizedValue,
-          eventDetails: createGenericEventDetails(details.reason, details.event),
+          eventDetails: completeEventDetails,
         };
       } else if (normalizedValue.length !== length) {
         pendingCompleteValueRef.current = null;
@@ -451,6 +460,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   );
 });
 
+function getCompleteEventDetails(details: OTPFieldRoot.ChangeEventDetails) {
+  if (details.reason === REASONS.inputChange || details.reason === REASONS.inputPaste) {
+    return createGenericEventDetails(details.reason, details.event);
+  }
+
+  return null;
+}
+
 export interface OTPFieldRootProps extends Omit<
   BaseUIComponentProps<'div', OTPFieldRootState>,
   'onChange'
@@ -553,9 +570,11 @@ export interface OTPFieldRootProps extends Omit<
     | ((value: string, eventDetails: OTPFieldRoot.InvalidEventDetails) => void)
     | undefined;
   /**
-   * Callback function that is fired when the OTP value becomes complete.
+   * Callback function that is fired when the OTP value becomes complete, or when a complete value
+   * is pasted while the OTP is already complete.
    *
-   * It runs later than `onValueChange`, after the internal value update is applied.
+   * When the value changes, it runs later than `onValueChange`, after the internal value update is
+   * applied. If a complete pasted value matches the current value, `onValueChange` does not fire.
    *
    * If `autoSubmit` is enabled, it runs immediately before the owning form is submitted.
    */
