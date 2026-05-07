@@ -41,7 +41,7 @@ export const createSelectorMemoizedWithOptions =
 
       let fn = cache.get(cacheKey);
       if (!fn) {
-        const selectors = inputs.length === 1 ? [((x: any) => x), combiner] : inputs;
+        const selectors = inputs.length === 1 ? [(x: any) => x, combiner] : inputs;
         let reselectArgs: Array<Selector<any> | (() => unknown) | typeof combiner> = selectors;
         const selectorArgs = [undefined, undefined, undefined];
         switch (argsLength) {
@@ -86,9 +86,12 @@ export const createSelectorMemoizedWithOptions =
       /* eslint-disable no-fallthrough */
 
       switch (argsLength) {
-        case 3: fn.selectorArgs[2] = a3;
-        case 2: fn.selectorArgs[1] = a2;
-        case 1: fn.selectorArgs[0] = a1;
+        case 3:
+          fn.selectorArgs[2] = a3;
+        case 2:
+          fn.selectorArgs[1] = a2;
+        case 1:
+          fn.selectorArgs[0] = a1;
         case 0:
         default:
       }
