@@ -83,6 +83,8 @@ export const createSelector = ((
   d?: Function,
   e?: Function,
   f?: Function,
+  g?: Function,
+  h?: Function,
   ...other: any[]
 ) => {
   if (other.length > 0) {
@@ -91,7 +93,28 @@ export const createSelector = ((
 
   let selector: any;
 
-  if (a && b && c && d && e && f) {
+  if (a && b && c && d && e && f && g && h) {
+    selector = (state: any, a1: any, a2: any, a3: any) => {
+      const va = a(state, a1, a2, a3);
+      const vb = b(state, a1, a2, a3);
+      const vc = c(state, a1, a2, a3);
+      const vd = d(state, a1, a2, a3);
+      const ve = e(state, a1, a2, a3);
+      const vf = f(state, a1, a2, a3);
+      const vg = g(state, a1, a2, a3);
+      return h(va, vb, vc, vd, ve, vf, vg, a1, a2, a3);
+    };
+  } else if (a && b && c && d && e && f && g) {
+    selector = (state: any, a1: any, a2: any, a3: any) => {
+      const va = a(state, a1, a2, a3);
+      const vb = b(state, a1, a2, a3);
+      const vc = c(state, a1, a2, a3);
+      const vd = d(state, a1, a2, a3);
+      const ve = e(state, a1, a2, a3);
+      const vf = f(state, a1, a2, a3);
+      return g(va, vb, vc, vd, ve, vf, a1, a2, a3);
+    };
+  } else if (a && b && c && d && e && f) {
     selector = (state: any, a1: any, a2: any, a3: any) => {
       const va = a(state, a1, a2, a3);
       const vb = b(state, a1, a2, a3);
