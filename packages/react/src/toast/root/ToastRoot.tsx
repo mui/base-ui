@@ -186,6 +186,76 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     return { x: newDeltaX, y: newDeltaY };
   }
 
+  const handleSwipeEnd = useStableCallback((event: React.PointerEvent | PointerEvent) => {
+    if (event.pointerId !== activePointerIdRef.current) {
+      return;
+    }
+
+    activePointerIdRef.current = null;
+    dragAbortControllerRef.current?.abort();
+    dragAbortControllerRef.current = null;
+    setIsSwiping(false);
+    setIsRealSwipe(false);
+    setLockedDirection(null);
+
+    const resolvedInitialTransform = initialTransformRef.current;
+
+    if (event.type === 'pointercancel' || cancelledSwipeRef.current) {
+      setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
+      setCurrentSwipeDirection(undefined);
+      return;
+    }
+
+    let shouldClose = false;
+    const resolvedDragOffset = dragOffsetRef.current;
+    const deltaX = resolvedDragOffset.x - resolvedInitialTransform.x;
+    const deltaY = resolvedDragOffset.y - resolvedInitialTransform.y;
+    let dismissDirection: 'up' | 'down' | 'left' | 'right' | undefined;
+
+    for (const direction of swipeDirections) {
+      switch (direction) {
+        case 'right':
+          if (deltaX > SWIPE_THRESHOLD) {
+            shouldClose = true;
+            dismissDirection = 'right';
+          }
+          break;
+        case 'left':
+          if (deltaX < -SWIPE_THRESHOLD) {
+            shouldClose = true;
+            dismissDirection = 'left';
+          }
+          break;
+        case 'down':
+          if (deltaY > SWIPE_THRESHOLD) {
+            shouldClose = true;
+            dismissDirection = 'down';
+          }
+          break;
+        case 'up':
+          if (deltaY < -SWIPE_THRESHOLD) {
+            shouldClose = true;
+            dismissDirection = 'up';
+          }
+          break;
+        default:
+          break;
+      }
+      if (shouldClose) {
+        break;
+      }
+    }
+
+    if (shouldClose) {
+      setCurrentSwipeDirection(dismissDirection);
+      setDragDismissed(true);
+      store.closeToast(toast.id);
+    } else {
+      setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
+      setCurrentSwipeDirection(undefined);
+    }
+  });
+
   function handlePointerDown(event: React.PointerEvent) {
     if (event.button !== 0) {
       return;
@@ -359,76 +429,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
     setResolvedDragOffset({ x: newOffsetX, y: newOffsetY });
   }
-
-  const handleSwipeEnd = useStableCallback((event: React.PointerEvent | PointerEvent) => {
-    if (event.pointerId !== activePointerIdRef.current) {
-      return;
-    }
-
-    activePointerIdRef.current = null;
-    dragAbortControllerRef.current?.abort();
-    dragAbortControllerRef.current = null;
-    setIsSwiping(false);
-    setIsRealSwipe(false);
-    setLockedDirection(null);
-
-    const resolvedInitialTransform = initialTransformRef.current;
-
-    if (event.type === 'pointercancel' || cancelledSwipeRef.current) {
-      setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
-      setCurrentSwipeDirection(undefined);
-      return;
-    }
-
-    let shouldClose = false;
-    const resolvedDragOffset = dragOffsetRef.current;
-    const deltaX = resolvedDragOffset.x - resolvedInitialTransform.x;
-    const deltaY = resolvedDragOffset.y - resolvedInitialTransform.y;
-    let dismissDirection: 'up' | 'down' | 'left' | 'right' | undefined;
-
-    for (const direction of swipeDirections) {
-      switch (direction) {
-        case 'right':
-          if (deltaX > SWIPE_THRESHOLD) {
-            shouldClose = true;
-            dismissDirection = 'right';
-          }
-          break;
-        case 'left':
-          if (deltaX < -SWIPE_THRESHOLD) {
-            shouldClose = true;
-            dismissDirection = 'left';
-          }
-          break;
-        case 'down':
-          if (deltaY > SWIPE_THRESHOLD) {
-            shouldClose = true;
-            dismissDirection = 'down';
-          }
-          break;
-        case 'up':
-          if (deltaY < -SWIPE_THRESHOLD) {
-            shouldClose = true;
-            dismissDirection = 'up';
-          }
-          break;
-        default:
-          break;
-      }
-      if (shouldClose) {
-        break;
-      }
-    }
-
-    if (shouldClose) {
-      setCurrentSwipeDirection(dismissDirection);
-      setDragDismissed(true);
-      store.closeToast(toast.id);
-    } else {
-      setResolvedDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
-      setCurrentSwipeDirection(undefined);
-    }
-  });
 
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Escape') {
