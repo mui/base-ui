@@ -18,9 +18,7 @@ for await (const entry of fs.glob('**/*.md', { cwd: DOCS_PUBLIC })) {
 }
 
 if (count === 0) {
-  throw new Error(
-    'No markdown files found in docs/public/. Run "pnpm docs:generate-llms" first.',
-  );
+  throw new Error('No markdown files found in docs/public/. Run "pnpm docs:generate-llms" first.');
 }
 
 console.log(`[stage-docs] Staged ${count} markdown files into published-docs/.`);
