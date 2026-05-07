@@ -137,8 +137,12 @@
 /* Undo `tailwindcss/preflight` in non-Tailwind demos. */
 
 @layer base {
-  /* Undo Die Grotesk OpenType features in demos and regression tests */
+  /*
+   * Disable Die Grotesk OpenType features in demos and regression tests.
+   * We disable it also on all portal elements because popups from demos are rendered outside [data-demo].
+   */
   [data-demo],
+  [data-base-ui-portal],
   [data-testid='testcase'] {
     font-feature-settings: normal;
   }
