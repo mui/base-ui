@@ -8,6 +8,13 @@ async function main() {
     ignoredPaths: [],
     // CSS selectors for content to ignore during link checking
     ignoredContent: [],
+    ignores: [
+      {
+        // React Router demo for Tabs component
+        path: '/react/components/tabs',
+        href: ['/overview', '/projects', '/account', '#overview', '#projects', '#account'],
+      },
+    ],
   });
 
   process.exit(issues.length);
