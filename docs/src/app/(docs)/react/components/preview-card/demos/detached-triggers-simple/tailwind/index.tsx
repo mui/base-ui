@@ -31,7 +31,7 @@ export default function PreviewCardDetachedTriggersSimpleDemo() {
                   src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
                   alt="Station Hofplein signage in Rotterdam, Netherlands"
                 />
-                <p className="m-0 text-sm text-neutral-600 text-pretty dark:text-neutral-400">
+                <p className="m-0 text-sm text-pretty">
                   <strong>Typography</strong> is the art and science of arranging type to make
                   written language clear, visually appealing, and effective in communication.
                 </p>
