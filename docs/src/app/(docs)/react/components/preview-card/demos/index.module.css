@@ -149,6 +149,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   height: 2.5rem;
   padding: 0 0.875rem;
   margin: 0;
@@ -157,7 +158,8 @@
   font-family: inherit;
   font-size: 1rem;
   font-weight: 400;
-  line-height: 1.5rem;
+  line-height: 1;
+  white-space: nowrap;
   color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 

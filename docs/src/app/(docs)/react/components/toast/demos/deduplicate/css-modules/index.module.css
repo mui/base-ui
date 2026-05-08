@@ -152,6 +152,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   height: 2rem;
   padding: 0 0.75rem;
   border: 1px solid light-dark(var(--color-neutral-950), white);
@@ -190,6 +191,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   height: 2rem;
   padding: 0 0.75rem;
   margin: 0;

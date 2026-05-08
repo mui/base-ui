@@ -18,6 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   min-width: 2rem;
   height: 2rem;
   padding: 0;
@@ -29,7 +30,8 @@
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.25rem;
+  line-height: 1;
+  white-space: nowrap;
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
