@@ -31,6 +31,7 @@ export const TabsLinkTab = React.forwardRef(function TabsLinkTab(
     disabled,
     id: idProp,
     nativeButton: false,
+    shouldSkipActivationOnPointerDown: shouldSkipTabActivationForPointerDown,
     value,
   });
 
@@ -52,26 +53,39 @@ export const TabsLinkTab = React.forwardRef(function TabsLinkTab(
 });
 
 function shouldSkipTabActivationForClick(event: React.MouseEvent<HTMLAnchorElement>) {
-  const win = ownerWindow(event.currentTarget);
-
-  // Keyboard activation also dispatches click handlers, but it should still select the tab.
-  // Only mouse clicks need the link-navigation guard below.
-  if (!(event.nativeEvent instanceof win.MouseEvent)) {
+  if (!isMouseEvent(event)) {
     return false;
   }
+
+  return shouldSkipTabActivationForMouseEvent(event);
+}
+
+function shouldSkipTabActivationForPointerDown(event: React.PointerEvent<HTMLElement>) {
+  return shouldSkipTabActivationForMouseEvent(event);
+}
+
+function shouldSkipTabActivationForMouseEvent(
+  event: React.MouseEvent<HTMLElement> | React.PointerEvent<HTMLElement>,
+) {
+  const element = event.currentTarget as HTMLAnchorElement;
 
   // Let normal link behavior win when the click does not navigate in the current page:
   // new-window/download links and modified or non-primary clicks should not update
   // the selected tab in this browsing context.
   return (
-    (event.currentTarget.target !== '' && event.currentTarget.target !== '_self') ||
-    event.currentTarget.hasAttribute('download') ||
+    (element.target !== '' && element.target !== '_self') ||
+    element.hasAttribute('download') ||
     event.button !== 0 ||
     event.metaKey ||
     event.ctrlKey ||
     event.shiftKey ||
     event.altKey
   );
+}
+
+function isMouseEvent(event: React.MouseEvent<HTMLElement>) {
+  const win = ownerWindow(event.currentTarget);
+  return event.nativeEvent instanceof win.MouseEvent;
 }
 
 export interface TabsLinkTabState extends TabsTab.State {}

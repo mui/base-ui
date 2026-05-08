@@ -102,6 +102,7 @@ export function useTabsTab(params: UseTabsTabParameters): UseTabsTabReturnValue 
 
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
+  const skipActivationOnFocusRef = React.useRef(false);
 
   function onClick(event: React.SyntheticEvent<HTMLElement>) {
     if (disabled) {
@@ -137,6 +138,7 @@ export function useTabsTab(params: UseTabsTabParameters): UseTabsTabReturnValue 
 
     if (
       activateOnFocus &&
+      !skipActivationOnFocusRef.current &&
       (!isPressingRef.current || // keyboard or touch focus
         (isPressingRef.current && isMainButtonRef.current)) // mouse focus
     ) {
@@ -156,10 +158,12 @@ export function useTabsTab(params: UseTabsTabParameters): UseTabsTabReturnValue 
 
     isPressingRef.current = true;
     isMainButtonRef.current = event.button === 0;
+    skipActivationOnFocusRef.current = params.shouldSkipActivationOnPointerDown?.(event) ?? false;
 
     function handlePointerUp() {
       isPressingRef.current = false;
       isMainButtonRef.current = false;
+      skipActivationOnFocusRef.current = false;
     }
 
     const doc = ownerDocument(event.currentTarget);
@@ -205,6 +209,9 @@ export interface UseTabsTabParameters {
   disabled: boolean;
   id: string | undefined;
   nativeButton: boolean;
+  shouldSkipActivationOnPointerDown?:
+    | ((event: React.PointerEvent<HTMLElement>) => boolean)
+    | undefined;
   value: TabsTab.Value;
 }
 

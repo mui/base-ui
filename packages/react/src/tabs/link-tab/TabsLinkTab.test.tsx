@@ -320,6 +320,43 @@ describe('<Tabs.LinkTab />', () => {
     expect(downloadTab).toHaveAttribute('aria-selected', 'false');
   });
 
+  it('does not activate links that open outside the current page on focus', async () => {
+    await render(
+      <Tabs.Root defaultValue="overview">
+        <Tabs.List activateOnFocus>
+          <Tabs.LinkTab href="#overview" value="overview">
+            Overview
+          </Tabs.LinkTab>
+          <Tabs.LinkTab href="#target" render={<a target="_blank" />} value="target">
+            Target
+          </Tabs.LinkTab>
+          <Tabs.LinkTab href="#download" render={<a download="" />} value="download">
+            Download
+          </Tabs.LinkTab>
+          <Tabs.LinkTab href="#modified" value="modified">
+            Modified
+          </Tabs.LinkTab>
+        </Tabs.List>
+      </Tabs.Root>,
+    );
+
+    const overviewTab = screen.getByRole('tab', { name: 'Overview' });
+
+    for (const [tab, eventInit] of [
+      [screen.getByRole('tab', { name: 'Target' }), {}],
+      [screen.getByRole('tab', { name: 'Download' }), {}],
+      [screen.getByRole('tab', { name: 'Modified' }), { ctrlKey: true }],
+    ] as const) {
+      fireEvent.pointerDown(tab, eventInit);
+      fireEvent.focus(tab);
+      fireEvent.pointerUp(document.body, eventInit);
+      fireEvent.click(tab, eventInit);
+
+      expect(overviewTab).toHaveAttribute('aria-selected', 'true');
+      expect(tab).toHaveAttribute('aria-selected', 'false');
+    }
+  });
+
   it('supports keyboard navigation across link tabs', async () => {
     await render(
       <Tabs.Root defaultValue="overview">
