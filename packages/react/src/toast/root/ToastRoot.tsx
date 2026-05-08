@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -21,7 +21,7 @@ import {
   BASE_UI_SWIPE_IGNORE_SELECTOR,
   LEGACY_SWIPE_IGNORE_SELECTOR,
 } from '../../internals/constants';
-import { getDisplacement } from '../../utils/useSwipeDismiss';
+import { getDisplacement, getElementTransform } from '../../utils/useSwipeDismiss';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,
@@ -35,30 +35,6 @@ const REVERSE_CANCEL_THRESHOLD = 10;
 const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
 const MIN_DRAG_THRESHOLD = 1;
 const TOAST_SWIPE_IGNORE_SELECTOR = `${BASE_UI_SWIPE_IGNORE_SELECTOR},${LEGACY_SWIPE_IGNORE_SELECTOR}`;
-
-function getElementTransform(element: HTMLElement) {
-  const computedStyle = ownerWindow(element).getComputedStyle(element);
-  const transform = computedStyle.transform;
-  let translateX = 0;
-  let translateY = 0;
-  let scale = 1;
-  if (transform && transform !== 'none') {
-    const matrix = transform.match(/matrix(?:3d)?\(([^)]+)\)/);
-    if (matrix) {
-      const values = matrix[1].split(', ').map(parseFloat);
-      if (values.length === 6) {
-        translateX = values[4];
-        translateY = values[5];
-        scale = Math.sqrt(values[0] * values[0] + values[1] * values[1]);
-      } else if (values.length === 16) {
-        translateX = values[12];
-        translateY = values[13];
-        scale = values[0];
-      }
-    }
-  }
-  return { x: translateX, y: translateY, scale };
-}
 
 /**
  * Groups all parts of an individual toast.

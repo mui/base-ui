@@ -1,6 +1,7 @@
 import { createSelector } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FloatingRootContext } from '../../floating-ui-react';
+import { FloatingRootStore } from '../../floating-ui-react/components/FloatingRootStore';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { TransitionStatus } from '../../internals/useTransitionStatus';
 import { PopupTriggerMap } from './popupTriggerMap';
@@ -29,9 +30,14 @@ export type PopupStoreState<Payload> = {
   transitionStatus: TransitionStatus;
 
   floatingRootContext: FloatingRootContext;
+  floatingId: string | undefined;
+  /**
+   * Number of trigger elements currently registered for this popup.
+   */
+  triggerCount: number;
   /**
    * Whether to prevent unmounting the popup when closed.
-   * Useful for interactling with JS animation libraries that control unmounting themselves.
+   * Useful for interacting with JS animation libraries that control unmounting themselves.
    */
   preventUnmountingOnClose: boolean;
 
@@ -82,6 +88,8 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     mounted: false,
     transitionStatus: undefined,
     floatingRootContext: getEmptyRootContext(),
+    floatingId: undefined,
+    triggerCount: 0,
     preventUnmountingOnClose: false,
     payload: undefined,
     activeTriggerId: null,
@@ -93,6 +101,24 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
   };
+}
+
+export function createPopupFloatingRootContext(
+  triggerElements: PopupTriggerMap,
+  floatingId?: string | undefined,
+  nested = false,
+) {
+  return new FloatingRootStore({
+    open: false,
+    transitionStatus: undefined,
+    floatingElement: null,
+    referenceElement: null,
+    triggerElements,
+    floatingId,
+    syncOnly: true,
+    nested,
+    onOpenChange: undefined,
+  });
 }
 
 export type PopupStoreContext<ChangeEventDetails> = {
@@ -120,15 +146,38 @@ const activeTriggerIdSelector = createSelector(
   (state: S) => state.triggerIdProp ?? state.activeTriggerId,
 );
 
-function getOpen(state: S) {
-  return state.openProp ?? state.open;
+const openSelector = createSelector((state: S) => state.openProp ?? state.open);
+
+const popupIdSelector = createSelector((state: S) => {
+  const popupId = state.popupElement?.id ?? state.floatingId;
+  return popupId || undefined;
+});
+
+function triggerOwnsOpenPopup(state: S, triggerId: string | undefined) {
+  return (
+    triggerId !== undefined && openSelector(state) && activeTriggerIdSelector(state) === triggerId
+  );
+}
+
+function triggerOwnsOpenPopupOrIsOnlyTrigger(state: S, triggerId: string | undefined) {
+  if (triggerOwnsOpenPopup(state, triggerId)) {
+    return true;
+  }
+
+  return (
+    triggerId !== undefined &&
+    openSelector(state) &&
+    activeTriggerIdSelector(state) == null &&
+    state.triggerCount === 1
+  );
 }
 
 export const popupStoreSelectors = {
-  open: createSelector(getOpen),
+  open: openSelector,
   mounted: createSelector((state: S) => state.mounted),
   transitionStatus: createSelector((state: S) => state.transitionStatus),
   floatingRootContext: createSelector((state: S) => state.floatingRootContext),
+  triggerCount: createSelector((state: S) => state.triggerCount),
   preventUnmountingOnClose: createSelector((state: S) => state.preventUnmountingOnClose),
   payload: createSelector((state: S) => state.payload),
 
@@ -136,6 +185,7 @@ export const popupStoreSelectors = {
   activeTriggerElement: createSelector((state: S) =>
     state.mounted ? state.activeTriggerElement : null,
   ),
+  popupId: popupIdSelector,
   /**
    * Whether the trigger with the given ID was used to open the popup.
    */
@@ -146,9 +196,8 @@ export const popupStoreSelectors = {
   /**
    * Whether the popup is open and was activated by a trigger with the given ID.
    */
-  isOpenedByTrigger: createSelector(
-    (state: S, triggerId: string | undefined) =>
-      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && getOpen(state),
+  isOpenedByTrigger: createSelector((state: S, triggerId: string | undefined) =>
+    triggerOwnsOpenPopup(state, triggerId),
   ),
   /**
    * Whether the popup is mounted and was activated by a trigger with the given ID.
@@ -157,9 +206,14 @@ export const popupStoreSelectors = {
     (state: S, triggerId: string | undefined) =>
       triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.mounted,
   ),
-
   triggerProps: createSelector((state: S, isActive: boolean) =>
     isActive ? state.activeTriggerProps : state.inactiveTriggerProps,
+  ),
+  /**
+   * Popup id for the trigger that currently owns the open popup.
+   */
+  triggerPopupId: createSelector((state: S, triggerId: string | undefined) =>
+    triggerOwnsOpenPopupOrIsOnlyTrigger(state, triggerId) ? popupIdSelector(state) : undefined,
   ),
   popupProps: createSelector((state: S) => state.popupProps),
 

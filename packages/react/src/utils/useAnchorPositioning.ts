@@ -134,6 +134,7 @@ export function useAnchorPositioning(
     sticky = false,
     arrowPadding = 5,
     disableAnchorTracking = false,
+    inline: inlineMiddleware,
     // Private parameters
     keepMounted = false,
     floatingRootContext,
@@ -228,7 +229,13 @@ export function useAnchorPositioning(
   const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
   const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
 
-  const middleware: UseFloatingOptions['middleware'] = [
+  const middleware: UseFloatingOptions['middleware'] = [];
+
+  if (inlineMiddleware) {
+    middleware.push(inlineMiddleware);
+  }
+
+  middleware.push(
     offset(
       (state) => {
         const data = getOffsetData(state, sideParam, isRtl);
@@ -250,7 +257,7 @@ export function useAnchorPositioning(
       },
       [sideOffsetDep, alignOffsetDep, isRtl, sideParam],
     ),
-  ];
+  );
 
   const shiftDisabled = collisionAvoidanceAlign === 'none' && collisionAvoidanceSide !== 'shift';
   const crossAxisShiftEnabled =
@@ -725,6 +732,11 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   shiftCrossAxis?: boolean | undefined;
   lazyFlip?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
+  /**
+   * Optional middleware that can replace the measured reference rect before offsets and collision
+   * middleware run. Used by Preview Card to position against a specific inline line box.
+   */
+  inline?: Middleware | undefined;
 }
 
 export interface UseAnchorPositioningReturnValue {

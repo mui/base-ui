@@ -1,10 +1,12 @@
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import * as React from 'react';
 import type { Coords } from '@floating-ui/react-dom';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { PopupTriggerMap } from '../../utils/popups';
+import { FloatingRootStore } from '../components/FloatingRootStore';
 import { useClientPoint, useFloating, useInteractions } from '../index';
 
 function expectLocation({ x, y }: Coords) {
@@ -19,6 +21,20 @@ function expectRect({ x, y, width, height }: DOMRectInit) {
   expect(Number(screen.getByTestId('y')?.textContent)).toBe(y);
   expect(Number(screen.getByTestId('width')?.textContent)).toBe(width);
   expect(Number(screen.getByTestId('height')?.textContent)).toBe(height);
+}
+
+function createRootStore(referenceElement: HTMLElement) {
+  return new FloatingRootStore({
+    open: false,
+    transitionStatus: undefined,
+    referenceElement,
+    floatingElement: document.createElement('div'),
+    triggerElements: new PopupTriggerMap(),
+    floatingId: undefined,
+    syncOnly: false,
+    nested: false,
+    onOpenChange: vi.fn(),
+  });
 }
 
 function App({
@@ -84,6 +100,17 @@ function App({
       <span data-testid="height">{rect?.height}</span>
     </React.Fragment>
   );
+}
+
+function ClientPointStoreTest({
+  store,
+  enabled = true,
+}: {
+  store: FloatingRootStore;
+  enabled?: boolean;
+}) {
+  useClientPoint(store, { enabled });
+  return null;
 }
 
 test('updates position from trigger props', async () => {
@@ -261,7 +288,29 @@ test('cleans up window listener when closing or disabling', async () => {
   );
   await flushMicrotasks();
 
-  expectLocation({ x: 500, y: 500 });
+  expectRect({ x: 0, y: 0, width: 0, height: 0 });
+});
+
+test('clears virtual references on unmount without retaining a stale DOM reference', async () => {
+  const reference = document.createElement('button');
+  const store = createRootStore(reference);
+  const virtualReference = {
+    getBoundingClientRect: () => reference.getBoundingClientRect(),
+  };
+
+  store.set('positionReference', virtualReference);
+
+  const { rerender, unmount } = render(<ClientPointStoreTest store={store} />);
+
+  rerender(<ClientPointStoreTest store={store} enabled={false} />);
+  await flushMicrotasks();
+
+  expect(store.state.positionReference).toBe(reference);
+
+  store.set('positionReference', virtualReference);
+  unmount();
+
+  expect(store.state.positionReference).toBe(null);
 });
 
 test('axis x', async () => {

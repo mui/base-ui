@@ -32,6 +32,7 @@ export interface SelectRootContext {
   selectionRef: React.RefObject<{
     allowUnselectedMouseUp: boolean;
     allowSelectedMouseUp: boolean;
+    dragY: number;
   }>;
   firstItemTextRef: React.RefObject<HTMLElement | null>;
   selectedItemTextRef: React.RefObject<HTMLElement | null>;

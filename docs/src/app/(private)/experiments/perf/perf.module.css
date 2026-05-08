@@ -164,3 +164,7 @@
     transform: none !important;
   }
 }
+
+.previewCardPopup {
+  width: 200px;
+}
