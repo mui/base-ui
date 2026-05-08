@@ -150,13 +150,13 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  height: 2.5rem;
-  padding: 0 0.875rem;
+  height: 2rem;
+  padding: 0 0.75rem;
   margin: 0;
   border: 1px solid light-dark(var(--color-neutral-950), white);
   background-color: light-dark(white, var(--color-neutral-950));
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 400;
   line-height: 1;
   white-space: nowrap;
