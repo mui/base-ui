@@ -52,7 +52,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
       return unsubscribe;
     },
-    [store, timeout, toastManager],
+    [store, toastManager],
   );
 
   store.useSyncedValues({ timeout, limit });

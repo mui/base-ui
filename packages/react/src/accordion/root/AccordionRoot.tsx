@@ -4,16 +4,16 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { BaseUIComponentProps, Orientation } from '../../utils/types';
-import { CompositeList } from '../../composite/list/CompositeList';
-import { useDirection } from '../../direction-provider/DirectionContext';
+import { BaseUIComponentProps, Orientation } from '../../internals/types';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { AccordionRootContext } from './AccordionRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 const rootStateAttributesMapping = {
   value: () => null,
@@ -36,11 +36,12 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     hiddenUntilFound: hiddenUntilFoundProp,
     keepMounted: keepMountedProp,
     loopFocus = true,
-    onValueChange: onValueChangeProp,
+    onValueChange,
     multiple = false,
     orientation = 'vertical',
     value: valueProp,
     defaultValue: defaultValueProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -51,7 +52,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     useIsoLayoutEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
-          'The `keepMounted={false}` prop on a Accordion.Root will be ignored when using `hiddenUntilFound` since it requires Panels to remain mounted when closed.',
+          'The `keepMounted={false}` prop on `Accordion.Root` is ignored when `hiddenUntilFound` is enabled, since panels must remain mounted while closed.',
         );
       }
     }, [hiddenUntilFoundProp, keepMountedProp]);
@@ -67,8 +68,6 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     return undefined;
   }, [valueProp, defaultValueProp]);
 
-  const onValueChange = useStableCallback(onValueChangeProp);
-
   const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   const [value, setValue] = useControlled({
@@ -83,7 +82,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
       const details = createChangeEventDetails(REASONS.none);
       if (!multiple) {
         const nextValue = value[0] === newValue ? [] : [newValue];
-        onValueChange(nextValue, details);
+        onValueChange?.(nextValue, details);
         if (details.isCanceled) {
           return;
         }
@@ -91,14 +90,14 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
       } else if (nextOpen) {
         const nextOpenValues = value.slice();
         nextOpenValues.push(newValue);
-        onValueChange(nextOpenValues, details);
+        onValueChange?.(nextOpenValues, details);
         if (details.isCanceled) {
           return;
         }
         setValue(nextOpenValues);
       } else {
         const nextOpenValues = value.filter((v) => v !== newValue);
-        onValueChange(nextOpenValues, details);
+        onValueChange?.(nextOpenValues, details);
         if (details.isCanceled) {
           return;
         }
@@ -203,7 +202,7 @@ export interface AccordionRootProps<Value = any> extends BaseUIComponentProps<
    */
   disabled?: boolean | undefined;
   /**
-   * Allows the browser’s built-in page search to find and expand the panel contents.
+   * Allows the browser's built-in page search to find and expand the panel contents.
    *
    * Overrides the `keepMounted` prop and uses `hidden="until-found"`
    * to hide the element without removing it from the DOM.

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { Orientation } from '../../utils/types';
+import type { Orientation } from '../../internals/types';
 import type { TextDirection } from '../../direction-provider';
 import type { AccordionRoot } from './AccordionRoot';
 

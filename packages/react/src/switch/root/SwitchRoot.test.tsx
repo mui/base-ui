@@ -233,6 +233,25 @@ describe('<Switch.Root />', () => {
 
       expect(switchElement).toHaveAttribute('aria-checked', 'false');
     });
+
+    it('should not change its state when its label is clicked', async () => {
+      await render(
+        <label data-testid="label">
+          <Switch.Root readOnly />
+        </label>,
+      );
+      const switchElement = screen.getByRole('switch');
+
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
+
+      const labelElement = screen.getByTestId('label');
+
+      await act(async () => {
+        labelElement.click();
+      });
+
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
+    });
   });
 
   describe('prop: required', () => {
@@ -407,6 +426,51 @@ describe('<Switch.Root />', () => {
         expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
       },
     );
+
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-switch');
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Switch.Root name="test-switch" form="external-form" />
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('switch'));
+      await user.click(screen.getByRole('button'));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
+    });
+
+    it.skipIf(isJSDOM)('submits uncheckedValue to an external form when off', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-switch');
+      });
+
+      await render(
+        <React.Fragment>
+          <form id="external-form" onSubmit={submitSpy}>
+            <button type="submit">Submit</button>
+          </form>
+          <Switch.Root name="test-switch" form="external-form" uncheckedValue="off" />
+        </React.Fragment>,
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe('off');
+    });
 
     it.skipIf(isJSDOM)('matches native checkbox form submission behavior', async () => {
       const nativeSubmitSpy = vi.fn((event) => {

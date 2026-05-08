@@ -100,7 +100,8 @@ function createMockStore(
 
   return {
     context: {
-      isPopupEffectivelyOpen: options.controlledOpen != null ? () => options.controlledOpen : undefined,
+      isPopupEffectivelyOpen:
+        options.controlledOpen != null ? () => options.controlledOpen : undefined,
     },
     select(key: string) {
       if (key === 'open') {

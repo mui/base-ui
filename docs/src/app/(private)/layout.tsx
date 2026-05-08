@@ -1,35 +1,10 @@
 import * as React from 'react';
 import { Metadata, Viewport } from 'next';
-import 'docs/src/css/index.css';
-import './layout.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
     // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
     <html lang="en">
-      <head>
-        <link
-          rel="preload"
-          href={new URL('../../css/fonts/regular.woff2', import.meta.url).toString()}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href={new URL('../../css/fonts/medium.woff2', import.meta.url).toString()}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href={new URL('../../css/fonts/bold.woff2', import.meta.url).toString()}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
   );
@@ -59,6 +34,7 @@ export const metadata: Metadata = {
     ttl: 604800,
   },
   icons: {
+    // Based on https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs
     icon: [
       {
         rel: 'icon',

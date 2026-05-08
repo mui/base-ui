@@ -9,6 +9,7 @@ import {
 import { defineConfig, globalIgnores } from 'eslint/config';
 import * as path from 'node:path';
 import { fileURLToPath } from 'url';
+import remarkConfig from './.remarkrc.mjs';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -21,7 +22,7 @@ const OneLevelImportMessage = [
 
 const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
   {
-    group: ['@base-ui/react/*/*'],
+    regex: '@base-ui/react/(?:(?!internals/).+|internals/.+)/.+',
     message: OneLevelImportMessage,
   },
 ];
@@ -35,7 +36,13 @@ export default defineConfig(
   globalIgnores(['./examples', './playground/vite-app/dist']),
   createBaseConfig({
     baseDirectory: dirname,
+    markdown: true,
   }),
+  // eslint-plugin-mdx loads `.remarkrc.mjs` itself, but ESLint doesn't know
+  // that file is a config dependency, so `--cache` doesn't invalidate when
+  // it changes. Embedding the imported value in a setting puts its content
+  // into the resolved-config hash, forcing cache invalidation on edits.
+  { settings: { remarkConfig } },
   {
     name: 'Playground Vite app overrides',
     files: ['playground/vite-app/**/*.{ts,tsx}'],
@@ -57,6 +64,9 @@ export default defineConfig(
         typescript: {
           project: ['tsconfig.json'],
         },
+      },
+      next: {
+        rootDir: 'docs',
       },
     },
     /**
@@ -91,10 +101,14 @@ export default defineConfig(
       // This rule doesn't recognise <label> wrapped around custom controls
       'jsx-a11y/label-has-associated-control': 'off',
       // Turn off new eslint-plugin-react-hooks rules till we can fix all warnings
+      'react-hooks/error-boundaries': 'off',
       'react-hooks/globals': 'off',
       'react-hooks/immutability': 'off',
       'react-hooks/incompatible-library': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
       'react-hooks/refs': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/use-memo': 'off',
     },
   },
   {

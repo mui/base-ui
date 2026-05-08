@@ -3,8 +3,8 @@ import * as ReactDOM from 'react-dom';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 import type {
   ContextData,
@@ -12,7 +12,7 @@ import type {
   FloatingTreeType,
   SafePolygonOptions,
 } from '../types';
-import { isInteractiveElement } from '../utils';
+import { isInteractiveElement } from '../utils/element';
 
 /**
  * Sentinel value for `lastHoverCloseTime` indicating that no hover-close has
@@ -103,14 +103,25 @@ type PointerEventsMutationState = Pick<
   | 'pointerEventsFloatingElement'
 >;
 
+const pointerEventsMutationOwnerByScopeElement = new WeakMap<
+  HTMLElement | SVGSVGElement,
+  PointerEventsMutationState
+>();
+
 export function clearSafePolygonPointerEventsMutation(instance: PointerEventsMutationState) {
   if (!instance.performedPointerEventsMutation) {
     return;
   }
 
-  instance.pointerEventsScopeElement?.style.removeProperty('pointer-events');
-  instance.pointerEventsReferenceElement?.style.removeProperty('pointer-events');
-  instance.pointerEventsFloatingElement?.style.removeProperty('pointer-events');
+  const scopeElement = instance.pointerEventsScopeElement;
+
+  if (scopeElement && pointerEventsMutationOwnerByScopeElement.get(scopeElement) === instance) {
+    instance.pointerEventsScopeElement?.style.removeProperty('pointer-events');
+    instance.pointerEventsReferenceElement?.style.removeProperty('pointer-events');
+    instance.pointerEventsFloatingElement?.style.removeProperty('pointer-events');
+    pointerEventsMutationOwnerByScopeElement.delete(scopeElement);
+  }
+
   instance.performedPointerEventsMutation = false;
   instance.pointerEventsScopeElement = null;
   instance.pointerEventsReferenceElement = null;
@@ -127,11 +138,17 @@ export function applySafePolygonPointerEventsMutation(
 ) {
   const { scopeElement, referenceElement, floatingElement } = options;
 
+  const existingOwner = pointerEventsMutationOwnerByScopeElement.get(scopeElement);
+  if (existingOwner && existingOwner !== instance) {
+    clearSafePolygonPointerEventsMutation(existingOwner);
+  }
+
   clearSafePolygonPointerEventsMutation(instance);
   instance.performedPointerEventsMutation = true;
   instance.pointerEventsScopeElement = scopeElement;
   instance.pointerEventsReferenceElement = referenceElement;
   instance.pointerEventsFloatingElement = floatingElement;
+  pointerEventsMutationOwnerByScopeElement.set(scopeElement, instance);
 
   scopeElement.style.pointerEvents = 'none';
   referenceElement.style.pointerEvents = 'auto';
@@ -143,9 +160,11 @@ type HoverContextData = ContextData & {
 };
 
 export function useHoverInteractionSharedState(store: FloatingRootContext): HoverInteraction {
-  const instance = useRefWithInit(HoverInteraction.create).current;
-
   const data = store.context.dataRef.current as HoverContextData;
+  const instance = useRefWithInit(
+    () => data.hoverInteractionState ?? HoverInteraction.create(),
+  ).current;
+
   if (!data.hoverInteractionState) {
     data.hoverInteractionState = instance;
   }

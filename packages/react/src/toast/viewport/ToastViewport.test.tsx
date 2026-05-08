@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
@@ -145,6 +145,166 @@ describe('<Toast.Viewport />', () => {
     expect(viewport).toHaveAttribute('data-expanded');
   });
 
+  it('keeps expanded during an active touch swipe even if mouseleave fires', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const root = await screen.findByTestId('root');
+    const viewport = screen.getByTestId('viewport');
+
+    Object.defineProperty(root, 'setPointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+    Object.defineProperty(root, 'releasePointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+
+    fireEvent.pointerDown(root, {
+      clientX: 100,
+      clientY: 100,
+      button: 0,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+    fireEvent.pointerMove(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(viewport).toHaveAttribute('data-expanded');
+
+    fireEvent.mouseLeave(viewport);
+
+    expect(viewport).toHaveAttribute('data-expanded');
+
+    fireEvent.pointerUp(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(viewport).not.toHaveAttribute('data-expanded');
+  });
+
+  it('keeps expanded when a touch swipe is canceled without leaving the viewport', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const root = await screen.findByTestId('root');
+    const viewport = screen.getByTestId('viewport');
+
+    Object.defineProperty(root, 'setPointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+
+    fireEvent.pointerDown(root, {
+      clientX: 100,
+      clientY: 100,
+      button: 0,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+    fireEvent.pointerMove(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(root).toHaveAttribute('data-swiping');
+    expect(viewport).toHaveAttribute('data-expanded');
+
+    fireEvent.pointerCancel(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(root).not.toHaveAttribute('data-swiping');
+    expect(viewport).toHaveAttribute('data-expanded');
+  });
+
+  it('collapses after a touch swipe is canceled if mouseleave already fired', async () => {
+    const { user } = await render(
+      <Toast.Provider>
+        <Toast.Viewport data-testid="viewport">
+          <List />
+        </Toast.Viewport>
+        <Button />
+      </Toast.Provider>,
+    );
+
+    const button = screen.getByRole('button', { name: 'add' });
+    await user.click(button);
+
+    const root = await screen.findByTestId('root');
+    const viewport = screen.getByTestId('viewport');
+
+    Object.defineProperty(root, 'setPointerCapture', {
+      value: () => {},
+      configurable: true,
+    });
+
+    fireEvent.pointerDown(root, {
+      clientX: 100,
+      clientY: 100,
+      button: 0,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+    fireEvent.pointerMove(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    fireEvent.mouseLeave(viewport);
+    fireEvent.pointerCancel(root, {
+      clientX: 100,
+      clientY: 120,
+      bubbles: true,
+      pointerId: 1,
+      pointerType: 'touch',
+    });
+
+    expect(root).not.toHaveAttribute('data-swiping');
+    expect(viewport).not.toHaveAttribute('data-expanded');
+  });
+
   describe('timers', () => {
     const { render: renderFakeTimers, clock } = createRenderer();
 
@@ -238,6 +398,74 @@ describe('<Toast.Viewport />', () => {
       await act(async () => button.focus());
 
       clock.tick(5001);
+
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it.skipIf(!isJSDOM)('resumes timers when the window regains focus', async () => {
+      const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+
+      await renderFakeTimers(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+
+      fireEvent.click(button);
+
+      expect(screen.queryByTestId('root')).not.toBe(null);
+      const addEventListenerCalls = [...addEventListenerSpy.mock.calls].reverse();
+
+      const blurListener = addEventListenerCalls.find((call) => call[0] === 'blur')?.[1] as
+        | EventListener
+        | undefined;
+      const focusListener = addEventListenerCalls.find((call) => call[0] === 'focus')?.[1] as
+        | EventListener
+        | undefined;
+
+      addEventListenerSpy.mockRestore();
+
+      expect(blurListener).toBeDefined();
+      expect(focusListener).toBeDefined();
+
+      if (!blurListener || !focusListener) {
+        throw new Error('Expected window focus and blur listeners to be registered.');
+      }
+
+      const blurEvent = new FocusEvent('blur');
+      Object.defineProperty(blurEvent, 'composedPath', {
+        value: () => [window],
+      });
+
+      const focusEvent = new FocusEvent('focus');
+      Object.defineProperty(focusEvent, 'composedPath', {
+        value: () => [window],
+      });
+
+      clock.tick(1000);
+
+      await act(async () => {
+        blurListener(blurEvent);
+      });
+
+      clock.tick(5000);
+
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      await act(async () => {
+        focusListener(focusEvent);
+      });
+
+      clock.tick(3999);
+
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      clock.tick(2);
 
       expect(screen.queryByTestId('root')).toBe(null);
     });

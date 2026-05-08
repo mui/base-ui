@@ -33,6 +33,7 @@ export function ClosePartProvider(props: {
   children: React.ReactNode;
 }) {
   const { value, children } = props;
+
   return <ClosePartContext.Provider value={value}>{children}</ClosePartContext.Provider>;
 }
 

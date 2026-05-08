@@ -1,26 +1,61 @@
-import { Mock, vi, expect } from 'vitest';
+import { expect } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
-import { useImageLoadingStatus } from './useImageLoadingStatus';
 
-vi.mock('./useImageLoadingStatus');
+/**
+ * Replaces `window.Image` with a constructor that simulates a browser's
+ * cached-image behavior: setting `.src` immediately makes `.complete = true`
+ * and `.naturalWidth > 0`, but the async `onload` callback has not yet fired
+ * (it would be queued as a task in a real browser).
+ *
+ * This is the exact state the fix targets — without the `image.complete`
+ * fast-path, the hook would be stuck at `'loading'` until `onload` fires.
+ */
+function mockCachedImageLoading({ naturalWidth = 100 } = {}) {
+  const OriginalImage = window.Image;
+
+  window.Image = function MockImage() {
+    let srcValue = '';
+    const obj = {
+      complete: false,
+      naturalWidth: 0,
+      onload: null as (() => void) | null,
+      onerror: null as (() => void) | null,
+      referrerPolicy: '',
+      crossOrigin: null as string | null,
+      get src() {
+        return srcValue;
+      },
+      set src(value: string) {
+        srcValue = value;
+        obj.complete = true;
+        obj.naturalWidth = naturalWidth;
+      },
+    };
+    return obj;
+  } as unknown as typeof window.Image;
+
+  return () => {
+    window.Image = OriginalImage;
+  };
+}
 
 describe('<Avatar.Image />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
-  const useImageLoadingStatusMock = useImageLoadingStatus as Mock;
+  let restoreImage: () => void;
 
   beforeEach(() => {
-    useImageLoadingStatusMock.mockReturnValue('loaded');
+    restoreImage = mockCachedImageLoading();
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    restoreImage();
   });
 
-  describeConformance(<Avatar.Image />, () => ({
+  describeConformance(<Avatar.Image src="test.png" />, () => ({
     render: (node) => {
       return render(<Avatar.Root>{node}</Avatar.Root>);
     },
@@ -34,8 +69,6 @@ describe('<Avatar.Image />', () => {
 
     it('triggers enter animation via data-starting-style when mounting', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      useImageLoadingStatusMock.mockImplementation((src) => (src ? 'loaded' : 'idle'));
 
       let transitionFinished = false;
       function notifyTransitionFinished() {
@@ -92,8 +125,6 @@ describe('<Avatar.Image />', () => {
     it('applies data-ending-style before unmount', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      useImageLoadingStatusMock.mockImplementation((src) => (src ? 'loaded' : 'idle'));
-
       const style = `
         @keyframes test-anim {
           to {
@@ -144,5 +175,58 @@ describe('<Avatar.Image />', () => {
         expect(screen.queryByTestId('image')).toBe(null);
       });
     });
+  });
+
+  describe.skipIf(isJSDOM)('cached images', () => {
+    // 1x1 transparent PNG
+    const DATA_URI =
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+    it('does not flash fallback for a cached image during SSR hydration', async () => {
+      // Restore real Image so this test exercises actual browser caching
+      restoreImage();
+
+      // Pre-load so the browser cache has the decoded image
+      await new Promise<void>((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Failed to preload test image'));
+        img.src = DATA_URI;
+      });
+
+      // Server render: layout effects don't run, so fallback is in the HTML
+      const { hydrate } = renderToString(
+        <Avatar.Root>
+          <Avatar.Image src={DATA_URI} alt="Jane Doe" />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      expect(screen.getByText('JD')).toBeVisible();
+      expect(screen.queryByRole('img')).toBe(null);
+
+      // After hydration, the layout effect fires synchronously before paint.
+      // For cached images, image.complete is true so status resolves to 'loaded'
+      // immediately — no fallback flash.
+      //
+      // Assert synchronously (no waitFor) to verify the image is available on
+      // the first post-hydration render, not after a delayed onload callback.
+      hydrate();
+
+      expect(screen.getByRole('img')).toHaveAttribute('src', DATA_URI);
+      expect(screen.queryByText('JD')).toBe(null);
+    });
+  });
+
+  it.skipIf(!isJSDOM)('shows the image immediately for a cached src', async () => {
+    await render(
+      <Avatar.Root>
+        <Avatar.Image src="https://example.com/cached-avatar.png" alt="Jane Doe" />
+        <Avatar.Fallback>JD</Avatar.Fallback>
+      </Avatar.Root>,
+    );
+
+    expect(screen.getByRole('img')).toHaveAttribute('src', 'https://example.com/cached-avatar.png');
+    expect(screen.queryByText('JD')).toBe(null);
   });
 });

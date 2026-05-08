@@ -1,10 +1,158 @@
 # Versions
 
+## v1.4.1
+
+_Apr 20, 2026_
+
+### General changes
+
+- Clear highlight on pointer leave when item is clipped by scroll container (#4604) by @atomiks
+- Fix `display: contents` tabbability (#4642) by @atomiks
+- Fix multi-argument event handler forwarding in `mergeProps` (#4598) by @atomiks
+- Mark `date-fns` peer dependencies as optional (#4639) by @LukasTy
+
+### Navigation Menu
+
+- Fix stale popup size on rapid trigger hover (#4646) by @atomiks
+
+All contributors of this release in alphabetical order: @atomiks, @LukasTy
+
+## v1.4.0
+
+_Apr 13, 2026_
+
+### General changes
+
+- Improve `render` prop warning accuracy (#4324, #4363) by @atomiks
+- Fix `preventBaseUIHandler` runtime wrapping (#4330) by @atomiks
+- Fix Uncaught TypeError: Converting circular structure to JSON (#4452) by @Profesor08
+- Expose `form` prop on hidden inputs (#4352) by @atomiks
+- Add `suppressHydrationWarning` to hidden inputs (#4482) by @devxoul
+- Fix outside-press dismissal in a shared shadow root (#4333) by @atomiks
+- Fix `Positioner` not repositioning to a different trigger when reopened with `keepMounted` (#4407) by @mdm317
+- Lock scroll of full-width anchored `modal` popups with touch input (#3100) by @atomiks
+
+### Alert Dialog
+
+- Fix detached trigger HMR with recreated handles (#4472) by @atomiks
+
+### Autocomplete
+
+- Fix initial live region announcements (#4286) by @atomiks
+
+### Avatar
+
+- Fix flash when image is cached (#4469) by @mj12albert
+
+### Checkbox
+
+- Fix uncontrolled default initialization (#4535) by @atomiks
+- Prevent input state changes in `readOnly` mode (#4551) by @tsbehlman
+
+### Collapsible
+
+- Fix open state when `keepMounted` has no transitions (#4555) by @mj12albert
+
+### Combobox
+
+- Fix clicks in `Chips`/`InputGroup` areas not focusing the input or opening the popup (#4296) by @CiscoFran10
+- Fix iOS viewport settling (#4351) by @atomiks
+- Fix initial live region announcements (#4286) by @atomiks
+- Prevent scroll lock when a controlled value triggers a re-render (#4507) by @ryanrhee
+- Fix browser autofill with object values when autofill uses the label (#4560) by @mattrothenberg
+- Prevent item taps from blurring the input (#4578) by @atomiks
+- Respect rendered chips for keyboard navigation (#4572) by @atomiks
+
+### Dialog
+
+- Fix detached trigger HMR with recreated handles (#4472) by @atomiks
+
+### Drawer
+
+- Fix touch scroll in portaled popups (#4382) by @atomiks
+- Fix nested swipe cancel state (#4410) by @atomiks
+- Fix interrupted swipe dismiss cleanup (#4467) by @lunaxislu
+- Warn when a popup is missing `Viewport` (#4495) by @atomiks
+- Prevent dialogs from affecting nested drawer stack (#4493) by @atomiks
+
+### Field
+
+- Fix form error matching in `<Field.Error>` (#4494) by @atomiks
+
+### Menu
+
+- Fix `SubmenuTrigger` not respecting disabled state from `render` (#3858) by @CiscoFran10
+- Preserve dialog focus on pointer leave (#4581) by @atomiks
+
+### Navigation Menu
+
+- Remove invalid `aria-orientation` attribute (#4355) by @atomiks
+- Add generic `Value` typing (#4328) by @atomiks
+- Fix initial trigger switch size snap (#4327) by @atomiks
+- Fix top-level trigger pointer events blocking (#4362) by @atomiks
+- Fix reverse <kbd>Shift</kbd>+<kbd>Tab</kbd> submenu re-entry (#4464) by @atomiks
+- Fix nested inline submenu hover handoff (#4413) by @atomiks
+- Fix transition width when reopening (#4587) by @mdm317
+
+### Number Field
+
+- Fix format rounding error on blur (#4557) by @atomiks
+
+### OTP Field
+
+- Add preview `OTPField` component for one-time password and verification code entry (#4365) by @atomiks
+
+### Popover
+
+- Remove stray focus guards around trigger when `modal` (#4350) by @atomiks
+- Sync hover open event state (#4526) by @atomiks
+
+### Preview Card
+
+- Fix hover reopen race conditions across close transitions (#4446) by @arturbien
+
+### Select
+
+- Fix browser autofill with object values when autofill uses the label (#4560) by @mattrothenberg
+- Preserve touch exit animations (#4325) by @atomiks
+- Fix touch reopen highlight (#4356) by @atomiks
+- Fix scroll arrows stopping short of the edges (#4447) by @atomiks
+- Fix RTL-aligned popup positioning with `alignItemWithTrigger` (#4531) by @atomiks
+
+### Slider
+
+- Fix edge thumb alignment after reveal (#4354) by @atomiks
+- Remove extra TalkBack focus targets (#4242) by @atomiks
+- Fix keyboard floating-point rounding (#4548) by @atomiks
+- Skip client-only prehydration scripts (#4530) by @atomiks
+
+### Switch
+
+- Prevent input state changes in `readOnly` mode (#4551) by @tsbehlman
+
+### Tabs
+
+- Fix `activationDirection` not updating on programmatic value changes (#4347) by @LukasTy
+- Fix activation direction on first render (#4532) by @atomiks
+- Skip client-only prehydration scripts (#4530) by @atomiks
+
+### Toast
+
+- Keep viewport expanded while touch swiping (#4411) by @atomiks
+- Add upsert support to `add` method (#4440) by @atomiks
+- Fix timers not resuming after window regains focus (#4438) by @kyrregjerstad
+
+### Toggle Group
+
+- Fix incorrect keyboard nav on cross axis (#4488) by @mj12albert
+
+All contributors of this release in alphabetical order: @arturbien, @atomiks, @CiscoFran10, @devxoul, @flaviendelangle, @kyrregjerstad, @LukasTy, @lunaxislu, @mattrothenberg, @mdm317, @michaldudak, @mj12albert, @Profesor08, @ryanrhee, @sai6855, @tsbehlman
+
 ## v1.3.0
 
 _Mar 12, 2026_
 
-### General Changes
+### General changes
 
 - Warn when a component function is rendered directly (#4077) by @atomiks
 - Reset `openMethod` after close transition (#4128) by @atomiks
@@ -145,7 +293,7 @@ _Mar 12, 2026_
 
 - Add `closeOnClick` prop (#4140) by @atomiks
 
-All contributors of this release in alphabetical order : @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
 
 ## v1.2.0
 
@@ -318,7 +466,7 @@ _Feb 12, 2026_
 - Fix broken scale transition with detached triggers (#3810) by @michaldudak
 - Fix disabled prop on Triggers (#4049) by @michaldudak
 
-All contributors of this release in alphabetical order : @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
+All contributors of this release in alphabetical order: @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
 
 ## v1.1.0
 
@@ -1951,7 +2099,7 @@ _Mar 20, 2025_
 - Mention Progress.Value in API reference (#1429) @aarongarciah
 - Update release instructions (#1417) @michaldudak
 
-### Core
+### Internal
 
 - [code-infra] Polish VS Code DX (#1238) @oliviertassinari
 - [code-infra] Fix build:types not copying on some setups (#1482) @Janpot

@@ -340,6 +340,151 @@ describe('<Drawer.SwipeArea />', () => {
     expect(swipeArea).toHaveAttribute('data-closed', '');
   });
 
+  it('re-enables outside press dismissal after an interrupted swipe-open gesture', async () => {
+    await render(
+      <Drawer.Root>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    fireEvent.pointerDown(swipeArea, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      pointerType: 'mouse',
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 119,
+      buttons: 1,
+      pointerType: 'mouse',
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 80,
+      buttons: 1,
+      pointerType: 'mouse',
+    });
+
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+    expect(swipeArea).toHaveAttribute('data-open', '');
+
+    fireEvent.pointerMove(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 60,
+      buttons: 2,
+      pointerType: 'mouse',
+    });
+
+    await flushMicrotasks();
+
+    await act(async () => {
+      await nextMacrotask();
+    });
+
+    fireEvent.click(document.body);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+
+    expect(swipeArea).toHaveAttribute('data-closed', '');
+  });
+
+  it('re-enables outside press dismissal after a context menu interrupts swipe-open', async () => {
+    await render(
+      <Drawer.Root>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    fireEvent.pointerDown(swipeArea, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      pointerType: 'mouse',
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 119,
+      buttons: 1,
+      pointerType: 'mouse',
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 80,
+      buttons: 1,
+      pointerType: 'mouse',
+    });
+
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+
+    fireEvent.pointerMove(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 60,
+      buttons: 2,
+      pointerType: 'mouse',
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.contextMenu(swipeArea, {
+      button: 2,
+      clientX: 10,
+      clientY: 60,
+    });
+
+    await act(async () => {
+      await nextMacrotask();
+    });
+
+    fireEvent.click(document.body);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+  });
+
   it.skipIf(isJSDOM)('uses a size-based swipe threshold by default', async () => {
     await render(
       <Drawer.Root>

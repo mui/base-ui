@@ -1,5 +1,7 @@
-import { isMouseLikePointerType } from '../utils';
+import { isMouseLikePointerType } from '../utils/event';
 import type { ExtendedElements, FloatingTreeType, Placement } from '../types';
+
+export { isTargetInsideEnabledTrigger as isInsideEnabledTrigger } from '../utils/element';
 
 export interface HandleCloseOptions {
   blockPointerEvents?: boolean | undefined;
@@ -68,6 +70,6 @@ export function isClickLikeOpenEvent(openEventType: string | undefined, interact
 /**
  * Returns whether the popup was opened by a hover interaction.
  */
-export function isHoverOpen(openEventType: string | undefined) {
+export function isHoverOpenEvent(openEventType: string | undefined) {
   return openEventType?.includes('mouse') === true && openEventType !== 'mousedown';
 }

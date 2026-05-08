@@ -122,7 +122,7 @@ export default function ExampleCreatableCombobox() {
         }}
       >
         <div className="max-w-112 flex flex-col gap-1">
-          <label className="text-sm leading-5 font-medium text-gray-900" htmlFor={id}>
+          <label className="text-sm leading-5 font-bold text-gray-900" htmlFor={id}>
             Labels
           </label>
           <Combobox.InputGroup className="w-64 cursor-text rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]">
@@ -139,7 +139,7 @@ export default function ExampleCreatableCombobox() {
                         {label.value}
                         <Combobox.ChipRemove
                           className="rounded-md p-1 text-inherit hover:bg-gray-200"
-                          aria-label="Remove"
+                          aria-label={`Remove ${label.value}`}
                         >
                           <XIcon />
                         </Combobox.ChipRemove>
@@ -149,7 +149,7 @@ export default function ExampleCreatableCombobox() {
                       ref={comboboxInputRef}
                       id={id}
                       placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                      className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base text-gray-900 outline-none"
+                      className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base font-normal text-gray-900 outline-none"
                       onKeyDown={handleInputKeyDown}
                     />
                   </React.Fragment>
@@ -162,8 +162,10 @@ export default function ExampleCreatableCombobox() {
         <Combobox.Portal>
           <Combobox.Positioner className="z-50 outline-none" sideOffset={4}>
             <Combobox.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),24rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-lg bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-              <Combobox.Empty className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
-                No labels found.
+              <Combobox.Empty>
+                <div className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600">
+                  No labels found.
+                </div>
               </Combobox.Empty>
               <Combobox.List>
                 {(item: LabelItem) =>
@@ -176,7 +178,7 @@ export default function ExampleCreatableCombobox() {
                       <span className="col-start-1">
                         <PlusIcon className="size-3" />
                       </span>
-                      <div className="col-start-2">Create "{item.creatable}"</div>
+                      <span className="col-start-2">Create "{item.creatable}"</span>
                     </Combobox.Item>
                   ) : (
                     <Combobox.Item
@@ -187,7 +189,7 @@ export default function ExampleCreatableCombobox() {
                       <Combobox.ItemIndicator className="col-start-1">
                         <CheckIcon className="size-3" />
                       </Combobox.ItemIndicator>
-                      <div className="col-start-2">{item.value}</div>
+                      <span className="col-start-2">{item.value}</span>
                     </Combobox.Item>
                   )
                 }
@@ -204,7 +206,7 @@ export default function ExampleCreatableCombobox() {
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-2rem] w-[24rem] max-w-[calc(100vw-3rem)] rounded-lg bg-[canvas] p-6 text-gray-900 outline-1 outline-gray-200 transition-all data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:scale-90 dark:-outline-offset-1 dark:outline-gray-300"
             initialFocus={createInputRef}
           >
-            <Dialog.Title className="-mt-1.5 mb-1 text-lg leading-7 tracking-[-0.0025em] font-medium">
+            <Dialog.Title className="-mt-1.5 mb-1 text-lg leading-7 tracking-[-0.0025em] font-bold">
               Create new label
             </Dialog.Title>
             <Dialog.Description className="mb-4 text-base leading-6 text-gray-600">
@@ -213,17 +215,17 @@ export default function ExampleCreatableCombobox() {
             <form onSubmit={handleCreateSubmit}>
               <input
                 ref={createInputRef}
-                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 font-normal"
                 placeholder="Label name"
                 defaultValue={pendingQueryRef.current}
               />
               <div className="mt-4 flex justify-end gap-4">
-                <Dialog.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+                <Dialog.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 font-normal">
                   Cancel
                 </Dialog.Close>
                 <button
                   type="submit"
-                  className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
+                  className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100"
                 >
                   Create
                 </button>
@@ -238,7 +240,7 @@ export default function ExampleCreatableCombobox() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+    <svg fill="currentColor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
   );
@@ -266,7 +268,6 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width={16}
       height={16}
       viewBox="0 0 24 24"

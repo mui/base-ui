@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import type { UserEvent } from '@testing-library/user-event';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
@@ -153,6 +154,28 @@ describe('<Dialog.Root />', () => {
       expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
 
+    it('synchronizes ARIA attributes in controlled mode', async () => {
+      await render(
+        <Dialog.Root open triggerId="trigger-2">
+          <Dialog.Trigger id="trigger-1">Trigger 1</Dialog.Trigger>
+          <Dialog.Trigger id="trigger-2">Trigger 2</Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Popup>Dialog Content</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger1 = screen.getByText('Trigger 1');
+      const trigger2 = screen.getByText('Trigger 2');
+      const dialog = await screen.findByRole('dialog');
+
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger1).not.toHaveAttribute('aria-controls');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger2.getAttribute('aria-controls')).toBe(dialog.getAttribute('id'));
+    });
+
     it('sets the payload when opening programmatically with a controlled triggerId', async () => {
       function App() {
         const [open, setOpen] = React.useState(false);
@@ -252,6 +275,73 @@ describe('<Dialog.Root />', () => {
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = { payload: number | undefined };
 
+    function TriggerWithNesting({
+      handle,
+      nesting,
+    }: {
+      handle: ReturnType<typeof Dialog.createHandle>;
+      nesting: 0 | 1 | 2 | 3;
+    }) {
+      const trigger = <Dialog.Trigger handle={handle}>Trigger</Dialog.Trigger>;
+
+      if (nesting === 0) {
+        return trigger;
+      }
+
+      if (nesting === 1) {
+        return <div>{trigger}</div>;
+      }
+
+      if (nesting === 2) {
+        return (
+          <div>
+            <div>{trigger}</div>
+          </div>
+        );
+      }
+
+      return (
+        <div>
+          <div>
+            <div>{trigger}</div>
+          </div>
+        </div>
+      );
+    }
+
+    function DetachedTriggerReparentingTest({
+      handle,
+      nesting,
+    }: {
+      handle: ReturnType<typeof Dialog.createHandle>;
+      nesting: 0 | 1 | 2 | 3;
+    }) {
+      return (
+        <React.Fragment>
+          <TriggerWithNesting handle={handle} nesting={nesting} />
+          <Dialog.Root handle={handle}>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                Dialog Content
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>
+      );
+    }
+
+    async function openAndCloseDialog(user: UserEvent) {
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).toBe(null);
+      });
+    }
+
     it('opens the dialog with any trigger', async () => {
       const testDialog = Dialog.createHandle();
       const { user } = await render(
@@ -299,6 +389,124 @@ describe('<Dialog.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByText('Dialog Content')).not.toBe(null);
       });
+    });
+
+    it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {
+      const testDialog = Dialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={testDialog} nesting={3} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 0 });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable when reparented (add wrappers)', async () => {
+      const testDialog = Dialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={testDialog} nesting={0} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 3 });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable during Fast Refresh-like handle recreation', async () => {
+      function DetachedTriggerTest({ handle }: { handle: ReturnType<typeof Dialog.createHandle> }) {
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={handle}>Trigger</Dialog.Trigger>
+            <Dialog.Root handle={handle}>
+              <Dialog.Portal>
+                <Dialog.Popup>
+                  Dialog Content
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const handleA = Dialog.createHandle();
+      const { user, setProps } = await render(<DetachedTriggerTest handle={handleA} />);
+
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle() });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle() });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps ARIA controls in sync when a detached handle is recreated while open', async () => {
+      function DetachedTriggerTest({ handle }: { handle: ReturnType<typeof Dialog.createHandle> }) {
+        return (
+          <React.Fragment>
+            <Dialog.Trigger id="trigger" handle={handle}>
+              Trigger
+            </Dialog.Trigger>
+            <Dialog.Root handle={handle} open triggerId="trigger" modal={false}>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="popup">Dialog Content</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<DetachedTriggerTest handle={Dialog.createHandle()} />);
+
+      let trigger = screen.getByRole('button', { name: 'Trigger' });
+      let popup = await screen.findByTestId('popup');
+
+      await waitFor(() => {
+        expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+      });
+
+      await setProps({ handle: Dialog.createHandle() });
+
+      trigger = screen.getByRole('button', { name: 'Trigger' });
+      popup = await screen.findByTestId('popup');
+
+      await waitFor(() => {
+        expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+      });
+    });
+
+    it('keeps detached triggers clickable when reparented during Fast Refresh-like handle recreation', async () => {
+      const handleA = Dialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={handleA} nesting={3} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle(), nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle(), nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: Dialog.createHandle(), nesting: 0 });
+      await openAndCloseDialog(user);
     });
 
     it('sets the payload and renders content based on its value', async () => {
@@ -425,6 +633,34 @@ describe('<Dialog.Root />', () => {
       await user.click(updateButton);
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('8');
+      });
+    });
+
+    it('closes a non-modal dialog with Escape from an inactive detached trigger', async () => {
+      const testDialog = Dialog.createHandle();
+      const { user } = await render(
+        <React.Fragment>
+          <Dialog.Trigger handle={testDialog}>Trigger 1</Dialog.Trigger>
+          <Dialog.Trigger handle={testDialog}>Trigger 2</Dialog.Trigger>
+          <Dialog.Root handle={testDialog} modal={false}>
+            <Dialog.Portal>
+              <Dialog.Popup>Dialog Content</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+
+      const inactiveTrigger = screen.getByRole('button', { name: 'Trigger 2' });
+      await act(async () => inactiveTrigger.focus());
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(screen.queryByText('Dialog Content')).toBe(null);
       });
     });
   });

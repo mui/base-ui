@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { valueToPercent } from '../../utils/valueToPercent';
 import type { ProgressRootState } from '../root/ProgressRoot';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
  * Visualizes the completion status of the task.
@@ -17,31 +17,28 @@ export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   componentProps: ProgressIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { max, min, value, state } = useProgressRootContext();
 
   const percentageValue =
     Number.isFinite(value) && value !== null ? valueToPercent(value, min, max) : null;
 
-  const getStyles = React.useCallback(() => {
-    if (percentageValue == null) {
-      return {};
-    }
-
-    return {
-      insetInlineStart: 0,
-      height: 'inherit',
-      width: `${percentageValue}%`,
-    };
-  }, [percentageValue]);
+  const indicatorStyle: React.CSSProperties =
+    percentageValue == null
+      ? {}
+      : {
+          insetInlineStart: 0,
+          height: 'inherit',
+          width: `${percentageValue}%`,
+        };
 
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
     props: [
       {
-        style: getStyles(),
+        style: indicatorStyle,
       },
       elementProps,
     ],

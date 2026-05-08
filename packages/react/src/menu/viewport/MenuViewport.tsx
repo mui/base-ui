@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { usePopupViewport } from '../../utils/usePopupViewport';
 import { MenuViewportCssVars } from './MenuViewportCssVars';
 
@@ -19,8 +19,8 @@ const stateAttributesMapping: StateAttributesMapping<MenuViewport.State> = {
 
 /**
  * A viewport for displaying content transitions.
- * This component is only required if one popup can be opened by multiple triggers, its content change based on the trigger
- * and switching between them is animated.
+ * This component is only required if one popup can be opened by multiple triggers, its content
+ * changes based on the trigger, and switching between them is animated.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
@@ -29,7 +29,7 @@ export const MenuViewport = React.forwardRef(function MenuViewport(
   componentProps: MenuViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
   const { side } = useMenuPositionerContext();

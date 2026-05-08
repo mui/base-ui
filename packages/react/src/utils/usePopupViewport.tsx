@@ -6,8 +6,9 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
 import type { ReactStore } from '@base-ui/utils/store';
-import { useAnimationsFinished } from './useAnimationsFinished';
+import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from './useAnchorPositioning';
@@ -187,7 +188,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       return;
     }
 
-    const wrapper = document.createElement('div');
+    const wrapper = ownerDocument(source).createElement('div');
     for (const child of Array.from(source.childNodes)) {
       wrapper.appendChild(child.cloneNode(true));
     }

@@ -2,12 +2,12 @@
 import * as React from 'react';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { fieldValidityMapping } from '../../field/utils/constants';
-import { useField } from '../../field/useField';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { DEFAULT_STEP } from '../utils/constants';
 import {
   ARABIC_DETECT_RE,
@@ -23,14 +23,14 @@ import {
 } from '../utils/parse';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
+} from '../../internals/createBaseUIEventDetails';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
-import { useValueChanged } from '../../utils/useValueChanged';
-import { REASONS } from '../../utils/reasons';
+import { useValueChanged } from '../../internals/useValueChanged';
+import { REASONS } from '../../internals/reasons';
 
 const stateAttributesMapping = {
   ...fieldValidityMapping,
@@ -57,7 +57,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   componentProps: NumberFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const {
     allowInputSyncRef,
@@ -94,14 +94,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
-  useField({
-    id,
-    commit: validation.commit,
-    value,
-    controlRef: inputRef,
-    name,
-    getValue: () => value ?? null,
-  });
+  useRegisterFieldControl(inputRef, id, value);
 
   useValueChanged(value, (previousValue) => {
     const validateOnChange = shouldValidateOnChange();
@@ -216,9 +209,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       // Normalize only the displayed text
       const canonicalText = formatNumber(committed, locale, formatOptions);
-      const maxPrecisionText = formatNumberMaxPrecision(parsedValue, locale, formatOptions);
       const shouldPreserveFullPrecision =
-        !hasExplicitPrecision && parsedValue === value && inputValue === maxPrecisionText;
+        !hasExplicitPrecision &&
+        parsedValue === value &&
+        inputValue === formatNumberMaxPrecision(parsedValue, locale, formatOptions);
 
       if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
         setInputValue(canonicalText);
@@ -231,7 +225,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       }
 
       allowInputSyncRef.current = false;
-      const targetValue = event.target.value;
+      const targetValue = event.currentTarget.value;
 
       if (targetValue.trim() === '') {
         setInputValue(targetValue);
@@ -341,6 +335,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const isAsciiDigit = event.key >= '0' && event.key <= '9';
       const isArabicNumeral = ARABIC_DETECT_RE.test(event.key);
       const isHanNumeral = HAN_DETECT_RE.test(event.key);
+      const isPersianNumeral = PERSIAN_DETECT_RE.test(event.key);
       const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
 
@@ -357,6 +352,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         isArabicNumeral ||
         isFullwidthNumeral ||
         isHanNumeral ||
+        isPersianNumeral ||
         isNavigateKey
       ) {
         return;

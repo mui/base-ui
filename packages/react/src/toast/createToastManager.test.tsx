@@ -58,6 +58,72 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
 
       expect(toastId).toBeTypeOf('string');
     });
+
+    it('upserts a toast when adding with an existing id', async () => {
+      const toastManager = Toast.createToastManager();
+      let firstToastId = '';
+      let secondToastId = '';
+
+      function Buttons() {
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => {
+                firstToastId = toastManager.add({
+                  id: 'save',
+                  title: 'Saving...',
+                  timeout: 1000,
+                });
+              }}
+            >
+              add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                secondToastId = toastManager.add({
+                  id: 'save',
+                  title: 'Saved',
+                  timeout: 1000,
+                });
+              }}
+            >
+              upsert
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      expect(screen.getByTestId('title')).toHaveTextContent('Saving...');
+      expect(screen.queryAllByTestId('root')).toHaveLength(1);
+
+      await clock.tickAsync(900);
+
+      fireEvent.click(screen.getByRole('button', { name: 'upsert' }));
+
+      expect(firstToastId).toBe('save');
+      expect(secondToastId).toBe(firstToastId);
+      expect(screen.getByTestId('title')).toHaveTextContent('Saved');
+      expect(screen.queryAllByTestId('root')).toHaveLength(1);
+
+      await clock.tickAsync(200);
+      expect(screen.queryByTestId('title')).not.toBe(null);
+
+      await clock.tickAsync(800);
+      expect(screen.queryByTestId('title')).toBe(null);
+    });
   });
 
   describe('promise', () => {

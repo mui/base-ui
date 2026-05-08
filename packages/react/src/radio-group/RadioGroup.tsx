@@ -2,22 +2,22 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
-import { useBaseUiId } from '../utils/useBaseUiId';
+import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
+import { useBaseUiId } from '../internals/useBaseUiId';
 import { contains } from '../floating-ui-react/utils';
-import { SHIFT } from '../composite/composite';
-import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useField } from '../field/useField';
-import { useFieldRootContext } from '../field/root/FieldRootContext';
-import { fieldValidityMapping } from '../field/utils/constants';
+import { SHIFT } from '../internals/composite/composite';
+import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
+import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
+import { fieldValidityMapping } from '../internals/field-constants/constants';
 import type { FieldRootState } from '../field/root/FieldRoot';
 import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
-import { useFormContext } from '../form/FormContext';
-import { useLabelableContext } from '../labelable-provider/LabelableContext';
-import { useValueChanged } from '../utils/useValueChanged';
+import { useFormContext } from '../internals/form-context/FormContext';
+import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
+import { useValueChanged } from '../internals/useValueChanged';
 import { RadioGroupContext } from './RadioGroupContext';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
-import { REASONS } from '../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { REASONS } from '../internals/reasons';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -40,9 +40,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     onValueChange: onValueChangeProp,
     value: externalValue,
     defaultValue,
+    form,
     name: nameProp,
     inputRef: inputRefProp,
     id: idProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -73,12 +75,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     name: 'RadioGroup',
     state: 'value',
   });
-
-  const onValueChange = useStableCallback(onValueChangeProp);
+  const [touched, setTouched] = React.useState(false);
 
   const setCheckedValue = useStableCallback(
     (value: Value, eventDetails: RadioGroup.ChangeEventDetails) => {
-      onValueChange(value, eventDetails);
+      onValueChangeProp?.(value, eventDetails);
 
       if (eventDetails.isCanceled) {
         return;
@@ -145,14 +146,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return undefined;
   });
 
-  useField({
-    id,
-    commit: validation.commit,
-    value: checkedValue,
-    controlRef,
-    name,
-    getValue: () => checkedValue ?? null,
-  });
+  useRegisterFieldControl(controlRef, id, checkedValue ?? null);
 
   useValueChanged(checkedValue, () => {
     clearErrors(name);
@@ -172,8 +166,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
   });
 
-  const [touched, setTouched] = React.useState(false);
-
   const ariaLabelledby = elementProps['aria-labelledby'] ?? labelId ?? fieldsetContext?.legendId;
 
   const state: RadioGroupState = {
@@ -188,9 +180,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       ...fieldState,
       checkedValue,
       disabled,
+      form,
       validation,
       name,
-      onValueChange,
       readOnly,
       registerControlRef,
       registerInputRef,
@@ -202,10 +194,10 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     [
       checkedValue,
       disabled,
+      form,
       validation,
       fieldState,
       name,
-      onValueChange,
       readOnly,
       registerControlRef,
       registerInputRef,
@@ -249,6 +241,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         props={[defaultProps, validation.getValidationProps, elementProps]}
         refs={[forwardedRef]}
@@ -296,6 +289,11 @@ export interface RadioGroupProps<Value = any> extends Omit<
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the radio inputs.
+   * Useful when the radio group is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * The controlled value of the radio item that should be currently selected.
    *

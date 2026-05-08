@@ -1,18 +1,17 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/stateAttributesMapping';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * A menu item that works like a radio button in a given group.
@@ -33,6 +32,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     disabled: disabledProp = false,
     closeOnClick = false,
     value,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -60,7 +60,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
@@ -73,13 +73,13 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     [disabled, highlighted, checked],
   );
 
-  const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = {
-      ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
-      preventUnmountOnClose: () => {},
-    };
+  function handleClick(event: React.MouseEvent) {
+    const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
+      preventUnmountOnClose() {},
+    });
+
     setSelectedValue(value, details);
-  });
+  }
 
   const element = useRenderElement('div', componentProps, {
     state,

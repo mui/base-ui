@@ -64,7 +64,9 @@ export default function ExampleEmojiPicker() {
                 <div className={styles.InputContainer}>
                   <Autocomplete.Input placeholder="Search emojis…" className={styles.Input} />
                 </div>
-                <Autocomplete.Empty className={styles.Empty}>No emojis found</Autocomplete.Empty>
+                <Autocomplete.Empty>
+                  <div className={styles.Empty}>No emojis found</div>
+                </Autocomplete.Empty>
                 <Autocomplete.List
                   className={styles.List}
                   style={{ '--cols': COLUMNS } as React.CSSProperties}

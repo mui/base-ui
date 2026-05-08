@@ -19,7 +19,7 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { LabelableProvider } from '../../labelable-provider';
+import { LabelableProvider } from '../../internals/labelable-provider';
 
 describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();
@@ -542,6 +542,94 @@ describe('<Field.Root />', () => {
       expect(validateSpy.mock.lastCall?.[1]).toEqual({
         input2: 'two',
       });
+    });
+
+    it('submits the replacement control value when swapping field-aware controls', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [showSlider, setShowSlider] = React.useState(false);
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="value">
+              {showSlider ? (
+                <Slider.Root defaultValue={12}>
+                  <Slider.Control />
+                </Slider.Root>
+              ) : (
+                <Select.Root defaultValue="sans">
+                  <Select.Trigger />
+                  <Select.Portal>
+                    <Select.Positioner>
+                      <Select.Popup>
+                        <Select.Item value="sans" />
+                      </Select.Popup>
+                    </Select.Positioner>
+                  </Select.Portal>
+                </Select.Root>
+              )}
+            </Field.Root>
+            <button type="button" onClick={() => setShowSlider(true)}>
+              Toggle
+            </button>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ value: 'sans' });
+
+      fireEvent.click(screen.getByText('Toggle'));
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(handleSubmit).toHaveBeenCalledTimes(2);
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ value: 12 });
+    });
+
+    it('excludes registration-gated controls from onFormSubmit when their field name is removed', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [name, setName] = React.useState<string | undefined>('fruits');
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name={name}>
+              <CheckboxGroup defaultValue={['apple']}>
+                <Field.Item>
+                  <Checkbox.Root value="apple" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="banana" />
+                </Field.Item>
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setName(undefined)}>
+              Clear name
+            </button>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+
+      fireEvent.click(screen.getByText('Clear name'));
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(handleSubmit).toHaveBeenCalledTimes(2);
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
     });
   });
 

@@ -1,22 +1,27 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
-import { BASE_UI_SWIPE_IGNORE_SELECTOR, LEGACY_SWIPE_IGNORE_SELECTOR } from '../../utils/constants';
+import {
+  BASE_UI_SWIPE_IGNORE_SELECTOR,
+  LEGACY_SWIPE_IGNORE_SELECTOR,
+} from '../../internals/constants';
+import { getDisplacement, getElementTransform } from '../../utils/useSwipeDismiss';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRootState> = {
   ...transitionStatusMapping,
@@ -30,49 +35,6 @@ const REVERSE_CANCEL_THRESHOLD = 10;
 const OPPOSITE_DIRECTION_DAMPING_FACTOR = 0.5;
 const MIN_DRAG_THRESHOLD = 1;
 const TOAST_SWIPE_IGNORE_SELECTOR = `${BASE_UI_SWIPE_IGNORE_SELECTOR},${LEGACY_SWIPE_IGNORE_SELECTOR}`;
-
-function getDisplacement(
-  direction: 'up' | 'down' | 'left' | 'right',
-  deltaX: number,
-  deltaY: number,
-) {
-  switch (direction) {
-    case 'up':
-      return -deltaY;
-    case 'down':
-      return deltaY;
-    case 'left':
-      return -deltaX;
-    case 'right':
-      return deltaX;
-    default:
-      return 0;
-  }
-}
-
-function getElementTransform(element: HTMLElement) {
-  const computedStyle = window.getComputedStyle(element);
-  const transform = computedStyle.transform;
-  let translateX = 0;
-  let translateY = 0;
-  let scale = 1;
-  if (transform && transform !== 'none') {
-    const matrix = transform.match(/matrix(?:3d)?\(([^)]+)\)/);
-    if (matrix) {
-      const values = matrix[1].split(', ').map(parseFloat);
-      if (values.length === 6) {
-        translateX = values[4];
-        translateY = values[5];
-        scale = Math.sqrt(values[0] * values[0] + values[1] * values[1]);
-      } else if (values.length === 16) {
-        translateX = values[12];
-        translateY = values[13];
-        scale = values[0];
-      }
-    }
-  }
-  return { x: translateX, y: translateY, scale };
-}
 
 /**
  * Groups all parts of an individual toast.
@@ -89,6 +51,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     render,
     className,
     swipeDirection = ['down', 'right'],
+    style,
     ...elementProps
   } = componentProps;
 
@@ -144,11 +107,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     },
   });
 
-  /**
-   * Recalculates the natural height of the toast and updates it in the toast manager.
-   * @param flushSync Whether to flush the update synchronously. Use in observer
-   * callbacks to avoid visual flickers.
-   */
+  // Recalculates the natural height of the toast and updates it in the toast manager.
+  // `flushSync` avoids visual flickers when called from observer callbacks.
   const recalculateHeight = useStableCallback((flushSync: boolean = false) => {
     const element = rootRef.current;
     if (!element) {
@@ -440,6 +400,18 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   }
 
+  function handlePointerCancel() {
+    if (!isSwiping) {
+      return;
+    }
+
+    setIsSwiping(false);
+    setIsRealSwipe(false);
+    setLockedDirection(null);
+    setDragOffset({ x: initialTransform.x, y: initialTransform.y });
+    setCurrentSwipeDirection(undefined);
+  }
+
   function handleKeyDown(event: React.KeyboardEvent) {
     if (event.key === 'Escape') {
       if (
@@ -463,15 +435,12 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     function preventDefaultTouchStart(event: TouchEvent) {
-      if (contains(element, event.target as HTMLElement | null)) {
+      if (contains(element, getTarget(event) as HTMLElement | null)) {
         event.preventDefault();
       }
     }
 
-    element.addEventListener('touchmove', preventDefaultTouchStart, { passive: false });
-    return () => {
-      element.removeEventListener('touchmove', preventDefaultTouchStart);
-    };
+    return addEventListener(element, 'touchmove', preventDefaultTouchStart, { passive: false });
   }, [swipeEnabled]);
 
   function getDragStyles() {
@@ -514,6 +483,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     onPointerDown: swipeEnabled ? handlePointerDown : undefined,
     onPointerMove: swipeEnabled ? handlePointerMove : undefined,
     onPointerUp: swipeEnabled ? handlePointerUp : undefined,
+    onPointerCancel: swipeEnabled ? handlePointerCancel : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {
@@ -583,7 +553,7 @@ export interface ToastRootState {
    */
   expanded: boolean;
   /**
-   * Whether the toast was removed due to exceeding the limit.
+   * Whether the toast was limited because the toast limit was exceeded.
    */
   limited: boolean;
   /**

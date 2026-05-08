@@ -3,13 +3,13 @@ import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { mergeProps } from '../../merge-props';
-import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import { useFormContext } from '../../form/FormContext';
+import { DEFAULT_VALIDITY_STATE } from '../../internals/field-constants/constants';
+import { useFormContext } from '../../internals/form-context/FormContext';
 import type { Form } from '../../form';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
-import type { HTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../internals/types';
 import type { FieldValidityData, FieldRootState } from './FieldRoot';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
@@ -51,6 +51,7 @@ export function useFieldValidation(
     state,
     name,
     shouldValidateOnChange,
+    getRegisteredFieldId,
   } = params;
 
   const { controlId, getDescriptionProps } = useLabelableContext();
@@ -62,6 +63,31 @@ export function useFieldValidation(
     const element = inputRef.current;
     if (!element) {
       return;
+    }
+
+    function updateRegisteredFieldValidity(
+      nextValidityData: FieldValidityData,
+      externalInvalid = invalid,
+    ) {
+      const fieldId = getRegisteredFieldId() ?? controlId;
+      if (fieldId == null) {
+        return;
+      }
+
+      const currentFieldData = formRef.current.fields.get(fieldId);
+      if (!currentFieldData) {
+        return;
+      }
+
+      const validityDataWithFormErrors = getCombinedFieldValidityData(
+        nextValidityData,
+        externalInvalid,
+      );
+
+      formRef.current.fields.set(fieldId, {
+        ...currentFieldData,
+        validityData: validityDataWithFormErrors,
+      });
     }
 
     if (revalidate) {
@@ -84,15 +110,8 @@ export function useFieldValidation(
         };
         element.setCustomValidity('');
 
-        if (controlId) {
-          const currentFieldData = formRef.current.fields.get(controlId);
-          if (currentFieldData) {
-            formRef.current.fields.set(controlId, {
-              ...currentFieldData,
-              ...getCombinedFieldValidityData(nextValidityData, false), // invalid = false
-            });
-          }
-        }
+        // The required value is now present; ignore stale external invalid state for this pass.
+        updateRegisteredFieldValidity(nextValidityData, false);
         setValidityData(nextValidityData);
         return;
       }
@@ -219,16 +238,8 @@ export function useFieldValidation(
       initialValue: validityData.initialValue,
     };
 
-    if (controlId) {
-      const currentFieldData = formRef.current.fields.get(controlId);
-      if (currentFieldData) {
-        formRef.current.fields.set(controlId, {
-          ...currentFieldData,
-          // Keep Form-level errors part of overall field validity for submit blocking/focus logic.
-          ...getCombinedFieldValidityData(nextValidityData, invalid),
-        });
-      }
-    }
+    // Keep Form-level errors part of overall field validity for submit blocking/focus logic.
+    updateRegisteredFieldValidity(nextValidityData);
 
     setValidityData(nextValidityData);
   });
@@ -318,6 +329,7 @@ export interface UseFieldValidationParameters {
   state: FieldRootState;
   name: string | undefined;
   shouldValidateOnChange: () => boolean;
+  getRegisteredFieldId: () => string | undefined;
 }
 
 export interface UseFieldValidationReturnValue {

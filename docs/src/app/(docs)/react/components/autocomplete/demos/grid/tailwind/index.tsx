@@ -66,16 +66,18 @@ export default function ExampleEmojiPicker() {
                 <div className="mx-1 flex h-[var(--input-container-height)] w-64 items-center justify-center bg-[canvas] text-center">
                   <Autocomplete.Input
                     placeholder="Search emojis…"
-                    className="h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                    className="h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
                   />
                 </div>
-                <Autocomplete.Empty className="px-4 pb-4 pt-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
-                  No emojis found
+                <Autocomplete.Empty>
+                  <div className="px-4 pb-4 pt-2 text-[0.925rem] leading-4 text-gray-600">
+                    No emojis found
+                  </div>
                 </Autocomplete.Empty>
                 <Autocomplete.List className="max-h-[min(calc(20.5rem-var(--input-container-height)),calc(var(--available-height)-var(--input-container-height)))] overflow-auto scroll-pt-10 scroll-pb-[0.35rem] overscroll-contain">
                   {(group: EmojiGroup) => (
                     <Autocomplete.Group key={group.value} items={group.items} className="block">
-                      <Autocomplete.GroupLabel className="sticky top-0 z-[1] m-0 w-full border-b border-gray-100 bg-[canvas] px-4 pb-1 pt-2 text-[0.75rem] font-semibold uppercase tracking-wide text-gray-600">
+                      <Autocomplete.GroupLabel className="sticky top-0 z-[1] m-0 w-full border-b border-gray-100 bg-[canvas] px-4 pb-1 pt-2 text-[0.75rem] font-bold uppercase tracking-wide text-gray-600">
                         {group.label}
                       </Autocomplete.GroupLabel>
                       <div className="p-1" role="presentation">

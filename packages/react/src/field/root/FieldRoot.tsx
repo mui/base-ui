@@ -1,15 +1,19 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { FieldRootContext } from './FieldRootContext';
-import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
+import { FieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import {
+  DEFAULT_VALIDITY_STATE,
+  fieldValidityMapping,
+} from '../../internals/field-constants/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
 import type { Form } from '../../form';
-import { useFormContext } from '../../form/FormContext';
-import { LabelableProvider } from '../../labelable-provider';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { LabelableProvider } from '../../internals/labelable-provider';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useFieldValidation } from './useFieldValidation';
+import { useFieldControlRegistration } from '../../internals/field-register-control/useFieldControlRegistration';
 
 /**
  * @internal
@@ -32,6 +36,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     dirty: dirtyProp,
     touched: touchedProp,
     actionsRef,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -50,6 +55,12 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const touched = touchedProp ?? touchedState;
 
   const markedDirtyRef = React.useRef(false);
+  const registeredFieldIdRef = React.useRef<string | undefined>(undefined);
+
+  const getRegisteredFieldId = React.useCallback(() => registeredFieldIdRef.current, []);
+  const setRegisteredFieldId = React.useCallback((id: string | undefined) => {
+    registeredFieldIdRef.current = id;
+  }, []);
 
   const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {
@@ -110,12 +121,25 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     state,
     name,
     shouldValidateOnChange,
+    getRegisteredFieldId,
   });
+
+  const validityValue = validityData.value;
 
   const handleImperativeValidate = React.useCallback(() => {
     markedDirtyRef.current = true;
-    validation.commit(validityData.value);
-  }, [validation, validityData]);
+    validation.commit(validityValue);
+  }, [validation, validityValue]);
+
+  const registerFieldControl = useFieldControlRegistration({
+    commit: validation.commit,
+    invalid,
+    markedDirtyRef,
+    name,
+    setRegisteredFieldId,
+    setValidityData,
+    validityData,
+  });
 
   React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
     handleImperativeValidate,
@@ -142,6 +166,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       shouldValidateOnChange,
       state,
       markedDirtyRef,
+      registerFieldControl,
       validation,
     }),
     [
@@ -162,6 +187,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       validationDebounceTime,
       shouldValidateOnChange,
       state,
+      registerFieldControl,
       validation,
     ],
   );

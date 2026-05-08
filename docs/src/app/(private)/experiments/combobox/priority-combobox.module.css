@@ -9,9 +9,8 @@
   background: canvas;
   background-clip: padding-box;
   padding: 0 0.75rem;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
-  letter-spacing: var(--text-sm--letter-spacing);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--color-gray-900);
   user-select: none;
 }
@@ -22,7 +21,7 @@
 }
 
 .Trigger:focus-visible {
-  outline: 2px solid var(--color-blue-800);
+  outline: 2px solid var(--color-blue);
   outline-offset: -1px;
 }
 
@@ -79,9 +78,8 @@
   width: 100%;
   height: 2rem;
   padding-left: 0.875rem;
-  font-size: var(--text-sm);
-  line-height: var(--text-sm--line-height);
-  letter-spacing: var(--text-sm--letter-spacing);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 400;
   color: var(--color-gray-900);
 }
@@ -143,7 +141,7 @@
   gap: 0.5rem;
   cursor: default;
   padding: 0.5rem 1rem;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   line-height: 1rem;
   user-select: none;
   outline: none;

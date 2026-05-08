@@ -77,7 +77,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
             border border-gray-200 rounded-md
             bg-gray-50
             px-3.5
-            text-base font-medium text-gray-900
+            text-base font-normal text-gray-900
             select-none
             focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800
             hover:bg-gray-100

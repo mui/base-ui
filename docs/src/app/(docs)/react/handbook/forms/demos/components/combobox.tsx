@@ -71,12 +71,15 @@ export function Popup({ className, ...props }: Combobox.Popup.Props) {
   );
 }
 
-export function Empty({ className, ...props }: Combobox.Empty.Props) {
+export function Empty({ className, children, ...props }: Combobox.Empty.Props) {
   return (
-    <Combobox.Empty
-      className={clsx('p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0', className)}
-      {...props}
-    />
+    <Combobox.Empty {...props}>
+      {children ? (
+        <div className={clsx('p-4 text-[0.925rem] leading-4 text-gray-600', className)}>
+          {children}
+        </div>
+      ) : null}
+    </Combobox.Empty>
   );
 }
 

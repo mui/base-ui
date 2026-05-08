@@ -84,6 +84,50 @@ describe('useCheckboxGroupParent', () => {
     expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'mixed');
   });
 
+  it('updates uncontrolled parent-enabled groups from child clicks without duplicate callbacks', () => {
+    const handleValueChange = vi.fn();
+
+    render(
+      <CheckboxGroup allValues={allValues} onValueChange={handleValueChange}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root value="a" data-testid="checkboxA" />
+        <Checkbox.Root value="b" data-testid="checkboxB" />
+        <Checkbox.Root value="c" data-testid="checkboxC" />
+      </CheckboxGroup>,
+    );
+
+    const parent = screen.getByTestId('parent');
+    const checkboxA = screen.getByTestId('checkboxA');
+    const checkboxB = screen.getByTestId('checkboxB');
+    const checkboxC = screen.getByTestId('checkboxC');
+
+    fireEvent.click(checkboxA);
+
+    expect(handleValueChange.mock.calls.length).toBe(1);
+    expect(handleValueChange.mock.calls[0][0]).toEqual(['a']);
+    expect(parent).toHaveAttribute('aria-checked', 'mixed');
+    expect(checkboxA).toHaveAttribute('aria-checked', 'true');
+    expect(checkboxB).toHaveAttribute('aria-checked', 'false');
+
+    fireEvent.click(parent);
+
+    expect(handleValueChange.mock.calls.length).toBe(2);
+    expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'b', 'c']);
+    expect(parent).toHaveAttribute('aria-checked', 'true');
+    expect(checkboxA).toHaveAttribute('aria-checked', 'true');
+    expect(checkboxB).toHaveAttribute('aria-checked', 'true');
+    expect(checkboxC).toHaveAttribute('aria-checked', 'true');
+
+    fireEvent.click(parent);
+
+    expect(handleValueChange.mock.calls.length).toBe(3);
+    expect(handleValueChange.mock.calls[2][0]).toEqual([]);
+    expect(parent).toHaveAttribute('aria-checked', 'false');
+    expect(checkboxA).toHaveAttribute('aria-checked', 'false');
+    expect(checkboxB).toHaveAttribute('aria-checked', 'false');
+    expect(checkboxC).toHaveAttribute('aria-checked', 'false');
+  });
+
   it('should correctly initialize the values array', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>(['a']);

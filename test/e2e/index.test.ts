@@ -1,4 +1,4 @@
-import { describe, it, beforeAll, afterAll, expect } from 'vitest';
+import { describe, it, beforeAll, afterAll } from 'vitest';
 import { chromium, expect, Page, Browser } from '@playwright/test';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
@@ -254,18 +254,22 @@ describe('e2e', () => {
         await expect(page.getByTestId('test-page')).toHaveText('Page two');
       });
 
-      it('navigates on Enter key press', async () => {
-        await renderFixture('menu/LinkItemNavigation');
+      it(
+        'navigates on Enter key press',
+        { timeout: process.env.CIRCLECI === 'true' ? 8000 : 4000 },
+        async () => {
+          await renderFixture('menu/LinkItemNavigation');
 
-        await page.keyboard.press('Tab');
-        await page.keyboard.press('Enter');
-        // first item (page one) is initially highlighted
-        await page.keyboard.press('ArrowDown');
-        await page.keyboard.press('Enter');
+          await page.keyboard.press('Tab');
+          await page.keyboard.press('Enter');
+          // first item (page one) is initially highlighted
+          await page.keyboard.press('ArrowDown');
+          await page.keyboard.press('Enter');
 
-        await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageTwo/);
-        await expect(page.getByTestId('test-page')).toHaveText('Page two');
-      });
+          await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageTwo/);
+          await expect(page.getByTestId('test-page')).toHaveText('Page two');
+        },
+      );
 
       it('navigates when rendering React Router Link component', async () => {
         await renderFixture('menu/ReactRouterLinkItemNavigation');
@@ -292,5 +296,52 @@ describe('e2e', () => {
         await expect(page.getByTestId('test-page')).toHaveText('Page two');
       });
     });
+  });
+
+  describe('<NavigationMenu />', () => {
+    it('keeps the inline branch open while moving across the submenu gap into the popup', async () => {
+      await renderFixture('navigation-menu/InlineSubmenuHoverHandoff');
+
+      const productTrigger = page.getByTestId('trigger-product');
+      const contentProduct = page.getByTestId('content-product');
+      const contentDevelopers = page.getByTestId('content-developers');
+      const compositionTrigger = page.getByTestId('trigger-composition');
+
+      await productTrigger.hover();
+      await expect(contentProduct).toBeVisible();
+      await expect(contentDevelopers).toBeVisible();
+
+      const triggerBox = await compositionTrigger.boundingBox();
+      if (triggerBox == null) {
+        throw new Error('Could not measure the Composition trigger.');
+      }
+
+      await page.mouse.move(
+        triggerBox.x + triggerBox.width / 2,
+        triggerBox.y + triggerBox.height / 2,
+      );
+
+      const compositionPopup = page.getByTestId('content-composition');
+      const compositionPositioner = page.getByTestId('positioner-composition');
+
+      await expect(compositionPopup).toBeVisible();
+
+      const positionerBox = await compositionPositioner.boundingBox();
+      if (positionerBox == null) {
+        throw new Error('Could not measure the Composition popup positioner.');
+      }
+
+      await page.mouse.move(
+        triggerBox.x + triggerBox.width - 2,
+        triggerBox.y + triggerBox.height / 2,
+      );
+      await page.mouse.move(positionerBox.x + 8, positionerBox.y + positionerBox.height / 2, {
+        steps: 24,
+      });
+
+      await expect(contentProduct).toBeVisible();
+      await expect(contentDevelopers).toBeVisible();
+      await expect(compositionPopup).toBeVisible();
+    }, 10000);
   });
 });

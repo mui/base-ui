@@ -18,7 +18,7 @@ export default function ExampleNavigationMenu() {
               {overviewLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
-                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">{item.title}</h3>
+                    <h3 className="m-0 mb-1 text-base leading-5 font-normal">{item.title}</h3>
                     <p className="m-0 text-sm leading-5 text-gray-500">{item.description}</p>
                   </Link>
                 </li>
@@ -40,7 +40,7 @@ export default function ExampleNavigationMenu() {
               {handbookLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
-                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">{item.title}</h3>
+                    <h3 className="m-0 mb-1 text-base leading-5 font-normal">{item.title}</h3>
                     <p className="m-0 text-sm leading-5 text-gray-500">{item.description}</p>
                   </Link>
                 </li>
@@ -122,7 +122,7 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 
 const triggerClassName =
   'box-border flex items-center justify-center gap-1.5 h-10 ' +
-  'px-2 [@media(min-width:32rem)]:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium ' +
+  'px-2 [@media(min-width:32rem)]:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-normal ' +
   'text-[0.925rem] [@media(min-width:32rem)]:text-base leading-6 select-none no-underline ' +
   'hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 ' +
   'focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative';

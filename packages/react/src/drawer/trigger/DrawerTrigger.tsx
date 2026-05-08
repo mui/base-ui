@@ -2,7 +2,7 @@
 import type * as React from 'react';
 import { DialogTrigger } from '../../dialog/trigger/DialogTrigger';
 import type { DialogHandle as DrawerHandle } from '../../dialog/store/DialogHandle';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 
 /**
  * A button that opens the drawer.

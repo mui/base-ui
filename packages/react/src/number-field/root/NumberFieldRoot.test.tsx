@@ -5,7 +5,7 @@ import { NumberField as NumberFieldBase } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 describe('<NumberField />', () => {
   const { render } = createRenderer();
@@ -1165,6 +1165,32 @@ describe('<NumberField />', () => {
       expect(fieldValue).toBe('54.5');
     });
 
+    it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
+      let fieldValue = '';
+
+      await render(
+        <React.Fragment>
+          <form
+            id="external-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              fieldValue = formData.get('test') as string;
+            }}
+          >
+            <button type="submit">Submit</button>
+          </form>
+          <NumberFieldBase.Root name="test" form="external-form" defaultValue={54.5}>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </React.Fragment>,
+      );
+
+      await act(async () => screen.getByText('Submit').click());
+
+      expect(fieldValue).toBe('54.5');
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>
@@ -1743,6 +1769,28 @@ describe('<NumberField />', () => {
   });
 
   describe('integration: exotic inputs and IME', () => {
+    it('accepts Persian digit keyboard input', async () => {
+      const onValueChange = vi.fn();
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <NumberField
+            value={value}
+            onValueChange={(v) => {
+              onValueChange(v);
+              setValue(v);
+            }}
+          />
+        );
+      }
+      const { user } = await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      await user.type(input, '۱۲۳');
+
+      expect(onValueChange.mock.calls.at(-1)?.[0]).toBe(123);
+    });
+
     it('parses Persian digits and separators via change events', async () => {
       const onValueChange = vi.fn();
       function App() {

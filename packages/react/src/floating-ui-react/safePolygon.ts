@@ -443,6 +443,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
 
   // eslint-disable-next-line no-underscore-dangle
   fn.__options = {
+    ...options,
     blockPointerEvents,
   };
 

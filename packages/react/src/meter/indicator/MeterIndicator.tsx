@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps } from '../../internals/types';
 import { valueToPercent } from '../../utils/valueToPercent';
 import type { MeterRootState } from '../root/MeterRoot';
 import { useMeterRootContext } from '../root/MeterRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * Visualizes the position of the value along the range.
@@ -16,7 +16,7 @@ export const MeterIndicator = React.forwardRef(function MeterIndicator(
   componentProps: MeterIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const context = useMeterRootContext();
 

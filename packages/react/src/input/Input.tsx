@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../utils/types';
+import type { BaseUIComponentProps } from '../internals/types';
 import { Field, type FieldControlState } from '../field';
 
 /**
@@ -20,7 +20,7 @@ export interface InputProps extends BaseUIComponentProps<'input', InputState> {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
-  onValueChange?: Field.Control.Props['onValueChange'] | undefined;
+  onValueChange?: ((value: string, eventDetails: Input.ChangeEventDetails) => void) | undefined;
   /**
    * The default value of the input. Use when uncontrolled.
    */

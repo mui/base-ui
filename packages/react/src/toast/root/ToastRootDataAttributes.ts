@@ -1,4 +1,4 @@
-import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 
 export enum ToastRootDataAttributes {
   /**
@@ -7,7 +7,7 @@ export enum ToastRootDataAttributes {
    */
   expanded = 'data-expanded',
   /**
-   * Present when the toast was removed due to exceeding the limit.
+   * Present when the toast was limited because the toast limit was exceeded.
    * @type {boolean}
    */
   limited = 'data-limited',

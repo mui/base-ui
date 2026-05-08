@@ -39,7 +39,9 @@ export default function ExampleVirtualizedAutocomplete() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
           <Autocomplete.Popup className={styles.Popup}>
-            <Autocomplete.Empty className={styles.Empty}>No items found.</Autocomplete.Empty>
+            <Autocomplete.Empty>
+              <div className={styles.Empty}>No items found.</div>
+            </Autocomplete.Empty>
             <Autocomplete.List className={styles.List}>
               <VirtualizedList virtualizerRef={virtualizerRef} />
             </Autocomplete.List>

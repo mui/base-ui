@@ -242,6 +242,25 @@ describe('<Accordion.Root />', () => {
     });
   });
 
+  it('allows onMouseUp to call preventBaseUIHandler on the trigger', async () => {
+    await render(
+      <Accordion.Root>
+        <Accordion.Item value={0}>
+          <Accordion.Header>
+            <Accordion.Trigger onMouseUp={(event) => event.preventBaseUIHandler()}>
+              Trigger 1
+            </Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+
+    expect(() => fireEvent.mouseUp(trigger)).not.toThrow();
+  });
+
   describe.skipIf(isJSDOM)('keyboard interactions', () => {
     [true, false].forEach((isNativeButton) => {
       describe(`rendering ${isNativeButton ? 'interactive' : 'non-interactive'} triggers`, () => {

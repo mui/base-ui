@@ -290,6 +290,36 @@ describe('<Menu.CheckboxItem />', () => {
       expect(onCheckedChange.mock.lastCall?.[0]).toBe(false);
     });
 
+    it('does not toggle when `onCheckedChange` cancels the event', async () => {
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger>Open</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.CheckboxItem
+                  onCheckedChange={(_, eventDetails) => {
+                    eventDetails.cancel();
+                  }}
+                >
+                  Item
+                </Menu.CheckboxItem>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      const item = screen.getByRole('menuitemcheckbox');
+      await user.click(item);
+
+      expect(item).toHaveAttribute('aria-checked', 'false');
+      expect(item).not.toHaveAttribute('data-checked');
+    });
+
     it('keeps the state when closed and reopened', async () => {
       const { user } = await render(
         <Menu.Root modal={false}>

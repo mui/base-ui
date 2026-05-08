@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { CompositeList } from '../../src/composite/list/CompositeList';
-import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
+import { CompositeList } from '../../src/internals/composite/list/CompositeList';
+import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
 import {
   useFloating,
   useInteractions,

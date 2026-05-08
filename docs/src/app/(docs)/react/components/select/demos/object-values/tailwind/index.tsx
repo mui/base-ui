@@ -6,7 +6,7 @@ export default function ObjectValueSelect() {
   return (
     <div className="flex flex-col gap-1">
       <Select.Root defaultValue={shippingMethods[0]} itemToStringValue={(item) => item.id}>
-        <Select.Label className="cursor-default text-sm leading-5 font-medium text-gray-900">
+        <Select.Label className="cursor-default text-sm leading-5 font-bold text-gray-900">
           Shipping method
         </Select.Label>
         <Select.Trigger className="flex min-h-10 min-w-[16rem] items-start justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 py-2 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
@@ -63,7 +63,7 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
       height="12"
       viewBox="0 0 8 12"
       fill="none"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeWidth="1.5"
       {...props}
     >
@@ -75,7 +75,7 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+    <svg fill="currentColor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
   );

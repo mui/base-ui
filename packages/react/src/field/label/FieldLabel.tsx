@@ -3,12 +3,12 @@ import * as React from 'react';
 import { error } from '@base-ui/utils/error';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import type { FieldRootState } from '../root/FieldRoot';
-import { useFieldRootContext } from '../root/FieldRootContext';
-import { fieldValidityMapping } from '../utils/constants';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useLabel } from '../../labelable-provider/useLabel';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useLabel } from '../../internals/labelable-provider/useLabel';
 
 /**
  * An accessible label that is automatically associated with the field control.
@@ -20,7 +20,14 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   componentProps: FieldLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, id: idProp, nativeLabel = true, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    id: idProp,
+    nativeLabel = true,
+    ...elementProps
+  } = componentProps;
 
   const fieldRootContext = useFieldRootContext(false);
   const { labelId } = useLabelableContext();
@@ -76,7 +83,7 @@ export interface FieldLabelState extends FieldRootState {}
 export interface FieldLabelProps extends BaseUIComponentProps<'label', FieldLabelState> {
   /**
    * Whether the component renders a native `<label>` element when replacing it via the `render` prop.
-   * Set to `false` if the rendered element is not a label (e.g. `<div>`).
+   * Set to `false` if the rendered element is not a label (for example, `<div>`).
    *
    * This is useful to avoid inheriting label behaviors on `<button>` controls (such as `<Select.Trigger>` and `<Combobox.Trigger>`), including avoiding `:hover` on the button when hovering the label, and preventing clicks on the label from firing on the button.
    * @default true

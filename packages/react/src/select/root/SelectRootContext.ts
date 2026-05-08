@@ -3,7 +3,7 @@ import * as React from 'react';
 import { type FloatingEvents, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
-import type { HTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../internals/types';
 import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
@@ -32,8 +32,10 @@ export interface SelectRootContext {
   selectionRef: React.RefObject<{
     allowUnselectedMouseUp: boolean;
     allowSelectedMouseUp: boolean;
+    dragY: number;
   }>;
-  selectedItemTextRef: React.RefObject<HTMLSpanElement | null>;
+  firstItemTextRef: React.RefObject<HTMLElement | null>;
+  selectedItemTextRef: React.RefObject<HTMLElement | null>;
   validation: UseFieldValidationReturnValue;
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   keyboardActiveRef: React.RefObject<boolean>;

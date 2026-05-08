@@ -1,9 +1,10 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import type { UserEvent } from '@testing-library/user-event';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 describe('<AlertDialog.Root />', () => {
   const { render } = createRenderer();
@@ -50,6 +51,27 @@ describe('<AlertDialog.Root />', () => {
     expect(screen.getByText('description text').getAttribute('id')).toBe(
       popup?.getAttribute('aria-describedby'),
     );
+  });
+
+  it('synchronizes trigger ARIA attributes in controlled mode', async () => {
+    await render(
+      <AlertDialog.Root open triggerId="trigger-2">
+        <AlertDialog.Trigger id="trigger-1">Trigger 1</AlertDialog.Trigger>
+        <AlertDialog.Trigger id="trigger-2">Trigger 2</AlertDialog.Trigger>
+        <AlertDialog.Portal>
+          <AlertDialog.Popup>Dialog</AlertDialog.Popup>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>,
+    );
+
+    const trigger1 = screen.getByText('Trigger 1');
+    const trigger2 = screen.getByText('Trigger 2');
+    const popup = screen.getByRole('alertdialog');
+
+    expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger1).not.toHaveAttribute('aria-controls');
+    expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger2.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
   });
 
   describe('prop: onOpenChange', () => {
@@ -147,6 +169,49 @@ describe('<AlertDialog.Root />', () => {
 
       expect(handleOpenChange.mock.calls.length).toBe(0);
       expect(screen.queryByRole('alertdialog')).not.toBe(null);
+    });
+
+    it('keeps the trigger data-popup-open attribute and handle.isOpen when a controlled close is vetoed', async () => {
+      const handle = AlertDialog.createHandle();
+
+      function TestCase() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <AlertDialog.Root
+            handle={handle}
+            open={open}
+            onOpenChange={(nextOpen) => {
+              if (nextOpen) {
+                setOpen(true);
+              }
+            }}
+          >
+            <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                <AlertDialog.Title>Confirm</AlertDialog.Title>
+                <AlertDialog.Close>Cancel</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        );
+      }
+
+      const { user } = await render(<TestCase />);
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+
+      await screen.findByRole('alertdialog');
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(handle.isOpen).toBe(true);
+
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(screen.getByRole('alertdialog')).toHaveAttribute('data-open');
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(handle.isOpen).toBe(true);
     });
   });
 
@@ -340,6 +405,73 @@ describe('<AlertDialog.Root />', () => {
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = { payload: number | undefined };
 
+    function TriggerWithNesting({
+      handle,
+      nesting,
+    }: {
+      handle: ReturnType<typeof AlertDialog.createHandle>;
+      nesting: 0 | 1 | 2 | 3;
+    }) {
+      const trigger = <AlertDialog.Trigger handle={handle}>Trigger</AlertDialog.Trigger>;
+
+      if (nesting === 0) {
+        return trigger;
+      }
+
+      if (nesting === 1) {
+        return <div>{trigger}</div>;
+      }
+
+      if (nesting === 2) {
+        return (
+          <div>
+            <div>{trigger}</div>
+          </div>
+        );
+      }
+
+      return (
+        <div>
+          <div>
+            <div>{trigger}</div>
+          </div>
+        </div>
+      );
+    }
+
+    function DetachedTriggerReparentingTest({
+      handle,
+      nesting,
+    }: {
+      handle: ReturnType<typeof AlertDialog.createHandle>;
+      nesting: 0 | 1 | 2 | 3;
+    }) {
+      return (
+        <React.Fragment>
+          <TriggerWithNesting handle={handle} nesting={nesting} />
+          <AlertDialog.Root handle={handle}>
+            <AlertDialog.Portal>
+              <AlertDialog.Popup>
+                Alert dialog content
+                <AlertDialog.Close>Close</AlertDialog.Close>
+              </AlertDialog.Popup>
+            </AlertDialog.Portal>
+          </AlertDialog.Root>
+        </React.Fragment>
+      );
+    }
+
+    async function openAndCloseDialog(user: UserEvent) {
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await waitFor(() => {
+        expect(screen.getByText('Alert dialog content')).toBeVisible();
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Alert dialog content')).toBe(null);
+      });
+    }
+
     it('opens the alert dialog with any trigger', async () => {
       const testDialog = AlertDialog.createHandle();
       const { user } = await render(
@@ -387,6 +519,93 @@ describe('<AlertDialog.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByText('Alert dialog content')).not.toBe(null);
       });
+    });
+
+    it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {
+      const testDialog = AlertDialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={testDialog} nesting={3} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 0 });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable when reparented (add wrappers)', async () => {
+      const testDialog = AlertDialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={testDialog} nesting={0} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ nesting: 3 });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable during Fast Refresh-like handle recreation', async () => {
+      function DetachedTriggerTest({
+        handle,
+      }: {
+        handle: ReturnType<typeof AlertDialog.createHandle>;
+      }) {
+        return (
+          <React.Fragment>
+            <AlertDialog.Trigger handle={handle}>Trigger</AlertDialog.Trigger>
+            <AlertDialog.Root handle={handle}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup>
+                  Alert dialog content
+                  <AlertDialog.Close>Close</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const handleA = AlertDialog.createHandle();
+      const { user, setProps } = await render(<DetachedTriggerTest handle={handleA} />);
+
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: AlertDialog.createHandle() });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: AlertDialog.createHandle() });
+      await openAndCloseDialog(user);
+    });
+
+    it('keeps detached triggers clickable when reparented during Fast Refresh-like handle recreation', async () => {
+      const handleA = AlertDialog.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={handleA} nesting={3} />,
+      );
+
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: AlertDialog.createHandle(), nesting: 2 });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: AlertDialog.createHandle(), nesting: 1 });
+      await openAndCloseDialog(user);
+
+      await setProps({ handle: AlertDialog.createHandle(), nesting: 0 });
+      await openAndCloseDialog(user);
     });
 
     it('sets the payload and renders content based on its value', async () => {

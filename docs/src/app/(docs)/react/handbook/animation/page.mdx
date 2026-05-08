@@ -15,7 +15,7 @@ Use the following Base UI attributes for creating transitions when a component 
 Transitions are recommended over CSS animations, because a transition can be smoothly cancelled midway.
 For example, if the user closes a popup before it finishes opening, with CSS transitions it will smoothly animate to its closed state without any abrupt changes.
 
-```css title="popover.css" {10-14}
+```css title="popover.css"
 .Popup {
   box-sizing: border-box;
   padding: 1rem 1.5rem;
@@ -25,11 +25,13 @@ For example, if the user closes a popup before it finishes opening, with CSS tra
     transform 150ms,
     opacity 150ms;
 
+  /* @highlight-start */
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
     transform: scale(0.9);
   }
+  /* @highlight-end */
 }
 ```
 
@@ -90,7 +92,7 @@ import { DemoAnimatedPopoverMotionKeepMountedFalse } from './demos/animated-popo
 
 <DemoAnimatedPopoverMotionKeepMountedFalse compact showExtraPlaygroundLink />
 
-```jsx title="animated-popover.tsx" {12-18} "keepMounted"
+```jsx title="animated-popover.tsx"
 function App() {
   const [open, setOpen] = React.useState(false);
 
@@ -99,9 +101,10 @@ function App() {
       <Popover.Trigger>Trigger</Popover.Trigger>
       <AnimatePresence>
         {open && (
-          <Popover.Portal keepMounted>
+          <Popover.Portal keepMounted> {/* @highlight-text "keepMounted" */}
             <Popover.Positioner>
               <Popover.Popup
+                {/* @highlight-start */}
                 render={
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -109,6 +112,7 @@ function App() {
                     exit={{ opacity: 0, scale: 0.8 }}
                   />
                 }
+                {/* @highlight-end */}
               >
                 Popup
               </Popover.Popup>
@@ -132,14 +136,15 @@ import { DemoAnimatedPopoverMotionKeepMountedTrue } from './demos/animated-popov
 
 <DemoAnimatedPopoverMotionKeepMountedTrue compact showExtraPlaygroundLink />
 
-```jsx title="animated-popover.tsx" {8-17} "keepMounted"
+```jsx title="animated-popover.tsx"
 function App() {
   return (
     <Popover.Root>
       <Popover.Trigger>Trigger</Popover.Trigger>
-      <Popover.Portal keepMounted>
+      <Popover.Portal keepMounted> {/* @highlight-text "keepMounted" */}
         <Popover.Positioner>
           <Popover.Popup
+            // @highlight-start
             render={(props, state) => (
               <motion.div
                 {...(props as HTMLMotionProps<'div'>)}
@@ -150,6 +155,7 @@ function App() {
                 }}
               />
             )}
+            {/* @highlight-end */}
           >
             Popup
           </Popover.Popup>
@@ -172,12 +178,13 @@ import { DemoAnimatedSelectMotion } from './demos/animated-select-motion';
 
 For full control, you can manually unmount the component when it's closed once animations have finished using an `actionsRef` passed to the `<Root>`:
 
-```jsx title="manual-unmount.tsx" "actionsRef"
+```jsx title="manual-unmount.tsx"
 function App() {
   const [open, setOpen] = React.useState(false);
-  const actionsRef = React.useRef(null);
+  const actionsRef = React.useRef(null); // @highlight-text "actionsRef"
 
   return (
+    {/* @highlight-text "actionsRef" */}
     <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>
       <Popover.Trigger>Trigger</Popover.Trigger>
       <AnimatePresence>
@@ -192,7 +199,7 @@ function App() {
                     exit={{ scale: 0 }}
                     onAnimationComplete={() => {
                       if (!open) {
-                        actionsRef.current.unmount();
+                        actionsRef.current.unmount(); // @highlight-text "actionsRef"
                       }
                     }}
                   />

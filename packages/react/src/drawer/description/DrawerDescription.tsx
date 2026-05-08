@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import { DialogDescription } from '../../dialog/description/DialogDescription';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 /**
  * A paragraph with additional information about the drawer.

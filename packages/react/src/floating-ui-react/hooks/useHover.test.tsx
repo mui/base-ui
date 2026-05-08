@@ -7,7 +7,7 @@ import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useFloating, useHover, useInteractions } from '../index';
 import type { UseHoverProps } from './useHover';
 import { Popover } from '../../../test/floating-ui-tests/Popover';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 function App({ showReference = true, ...props }: UseHoverProps & { showReference?: boolean }) {
   const [open, setOpen] = React.useState(false);
@@ -273,6 +273,50 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     fireEvent.mouseEnter(button);
     await flushMicrotasks();
     fireEvent.mouseLeave(button);
+  });
+
+  test('does not treat a synthetic child target as inactive when the native path differs', async () => {
+    const onOpenChange = vi.fn();
+
+    function App() {
+      const [open, setOpen] = React.useState(true);
+      const { refs, context } = useFloating({
+        open,
+        onOpenChange(nextOpen, details) {
+          onOpenChange(nextOpen, details);
+          setOpen(nextOpen);
+        },
+      });
+      const { getReferenceProps, getFloatingProps } = useInteractions([useHover(context)]);
+
+      return (
+        <React.Fragment>
+          <button ref={refs.setReference} {...getReferenceProps()}>
+            <span data-testid="child" />
+          </button>
+          {open && <div role="tooltip" ref={refs.setFloating} {...getFloatingProps()} />}
+        </React.Fragment>
+      );
+    }
+
+    render(<App />);
+
+    const child = screen.getByTestId('child');
+    const event = new MouseEvent('mousemove', { bubbles: true });
+
+    // Deliberately skew the native path so `getTarget(nativeEvent)` resolves
+    // outside the trigger while React's synthetic `event.target` remains `child`.
+    Object.defineProperty(event, 'composedPath', {
+      configurable: true,
+      value: () => [document.body, child.parentElement, child],
+    });
+
+    fireEvent(child, event);
+
+    await flushMicrotasks();
+
+    expect(onOpenChange).toHaveBeenCalledTimes(0);
+    expect(screen.queryByRole('tooltip')).not.toBe(null);
   });
 
   test('cleans up blockPointerEvents if trigger changes', async () => {

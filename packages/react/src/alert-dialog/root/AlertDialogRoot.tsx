@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useDialogRoot } from '../../dialog/root/useDialogRoot';
+import { IsDrawerContext } from '../../dialog/root/DialogRoot';
+import { useDialogRoot, DialogInteractions } from '../../dialog/root/useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { DialogStore } from '../../dialog/store/DialogStore';
 import { DialogHandle } from '../../dialog/store/DialogHandle';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
 
 /**
  * Groups all parts of the alert dialog.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
@@ -27,24 +27,19 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     defaultTriggerId: defaultTriggerIdProp = null,
   } = props;
 
-  const parentDialogRootContext = useDialogRootContext();
+  const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => {
-    return (
-      handle?.store ??
-      new DialogStore<Payload>({
-        open: defaultOpen,
-        openProp,
-        activeTriggerId: defaultTriggerIdProp,
-        triggerIdProp,
-        modal: true,
-        disablePointerDismissal: true,
-        nested,
-        role: 'alertdialog',
-      })
-    );
-  }).current;
+  const store = DialogStore.useStore(handle?.store, {
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
+    modal: true,
+    disablePointerDismissal: true,
+    nested,
+    role: 'alertdialog',
+  });
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -52,22 +47,28 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
-  useDialogRoot({
+  const dialogRoot = useDialogRoot({
     store,
     actionsRef,
     parentContext: parentDialogRootContext?.store.context,
-    onOpenChange,
-    triggerIdProp,
+    isDrawer: false,
   });
+
+  const shouldRenderInteractions = open || mounted;
 
   const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
 
   return (
-    <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-      {typeof children === 'function' ? children({ payload }) : children}
-    </DialogRootContext.Provider>
+    <IsDrawerContext.Provider value={false}>
+      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
+        {shouldRenderInteractions && <DialogInteractions store={store} dialogRoot={dialogRoot} />}
+        {typeof children === 'function' ? children({ payload }) : children}
+      </DialogRootContext.Provider>
+    </IsDrawerContext.Provider>
   );
 }
 

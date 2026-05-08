@@ -59,8 +59,21 @@ test('getNodeChildren handles deep parent structures correctly (onlyOpenChildren
 
   expect(getNodeChildren(nodes, '0', true)).toEqual([
     { id: '1', parentId: '0', context: contextOpen },
+    { id: '3', parentId: '2', context: contextOpen },
     { id: '5', parentId: '0', context: contextOpen },
     { id: '6', parentId: '5', context: contextOpen },
+  ]);
+});
+
+test('getNodeChildren includes open descendants behind contextless intermediary nodes', () => {
+  const nodes = [
+    { id: '0', parentId: null, context: contextOpen },
+    { id: '1', parentId: '0' },
+    { id: '2', parentId: '1', context: contextOpen },
+  ];
+
+  expect(getNodeChildren(nodes, '0', true)).toEqual([
+    { id: '2', parentId: '1', context: contextOpen },
   ]);
 });
 

@@ -7,7 +7,7 @@ import { Slider } from '@base-ui/react/slider';
 import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import {
   ARROW_RIGHT,
   ARROW_LEFT,
@@ -15,8 +15,8 @@ import {
   ARROW_DOWN,
   HOME,
   END,
-} from '../../composite/composite';
-import type { Orientation } from '../../utils/types';
+} from '../../internals/composite/composite';
+import type { Orientation } from '../../internals/types';
 import type { SliderRoot } from './SliderRoot';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
@@ -1154,6 +1154,41 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(details.reason).toBe('keyboard');
     });
 
+    it.skipIf(isJSDOM || isWebKit)(
+      'shows :focus-visible after keyboard interaction following a pointer press',
+      async () => {
+        await render(<TestSlider defaultValue={40} />);
+
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+
+        const slider = screen.getByRole('slider');
+
+        fireEvent.pointerDown(sliderControl, {
+          pointerId: 1,
+          pointerType: 'mouse',
+          button: 0,
+          buttons: 1,
+          clientX: 40,
+          clientY: 0,
+        });
+
+        await waitFor(() => {
+          expect(slider).toHaveFocus();
+        });
+
+        expect(slider.matches(':focus-visible')).toBe(false);
+
+        fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+
+        await waitFor(() => {
+          expect(slider.matches(':focus-visible')).toBe(true);
+        });
+      },
+    );
+
     it('provides the change reason for track presses', async () => {
       const handleValueChange = vi.fn();
       await render(<TestSlider defaultValue={0} onValueChange={handleValueChange} />);
@@ -1615,6 +1650,41 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
               expect(input).toHaveAttribute('aria-valuenow', '21');
             });
 
+            it(`key: ${key} rounds fractional values to the configured step`, async () => {
+              const handleValueChange = vi.fn();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={0.2}
+                      min={0}
+                      max={1}
+                      step={0.1}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const input = screen.getByRole('slider');
+
+              await user.keyboard('[Tab]');
+              expect(input).toHaveFocus();
+
+              await user.keyboard(`[${key}]`);
+              expect(handleValueChange.mock.calls.length).toBe(1);
+              expect(handleValueChange.mock.calls[0][0]).toEqual(0.3);
+              expect(input).toHaveAttribute('aria-valuenow', '0.3');
+            });
+
             it(`key: ${key} increments the value by largeStep when Shift is pressed`, async () => {
               const handleValueChange = vi.fn();
               const { user } = await render(
@@ -1837,6 +1907,40 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
                     <Slider.Root
                       orientation={orientation}
                       defaultValue={20}
+                      largeStep={5}
+                      onValueChange={handleValueChange}
+                    >
+                      <Slider.Control>
+                        <Slider.Track>
+                          <Slider.Indicator />
+                          <Slider.Thumb data-testid="thumb" />
+                        </Slider.Track>
+                      </Slider.Control>
+                    </Slider.Root>
+                  </DirectionProvider>
+                </div>,
+              );
+
+              const input = screen.getByRole('slider');
+
+              await user.keyboard('[Tab]');
+              expect(input).toHaveFocus();
+
+              await user.keyboard('[PageUp]');
+              expect(handleValueChange.mock.calls.length).toBe(1);
+              expect(handleValueChange.mock.calls[0][0]).toEqual(25);
+              expect(input).toHaveAttribute('aria-valuenow', '25');
+            });
+
+            it('preserves largeStep increments when step uses a different grid', async () => {
+              const handleValueChange = vi.fn();
+              const { user } = await render(
+                <div dir={direction}>
+                  <DirectionProvider direction={direction}>
+                    <Slider.Root
+                      orientation={orientation}
+                      defaultValue={20}
+                      step={2}
                       largeStep={5}
                       onValueChange={handleValueChange}
                     >
@@ -2131,6 +2235,34 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
         const submit = screen.getByRole('button');
         fireEvent.click(submit);
+      });
+
+      it('submits to an external form when `form` is provided', async () => {
+        let submitValue: FormDataEntryValue | null = null;
+
+        await render(
+          <React.Fragment>
+            <form
+              id="external-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const formData = new FormData(event.currentTarget);
+                submitValue = formData.get('slider');
+              }}
+            >
+              <button type="submit">Submit</button>
+            </form>
+            <Slider.Root name="slider" form="external-form" defaultValue={25}>
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </React.Fragment>,
+        );
+
+        fireEvent.click(screen.getByRole('button'));
+
+        expect(submitValue).toBe('25');
       });
     });
   });

@@ -11,7 +11,9 @@ export default function ExampleAvatar() {
           height="48"
           className={styles.Image}
         />
-        <Avatar.Fallback className={styles.Fallback}>LT</Avatar.Fallback>
+        <Avatar.Fallback delay={600} className={styles.Fallback}>
+          LT
+        </Avatar.Fallback>
       </Avatar.Root>
       <Avatar.Root className={styles.Root}>LT</Avatar.Root>
     </div>

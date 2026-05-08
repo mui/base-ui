@@ -58,7 +58,6 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
           {i !== arr.length - 1 && (
             <svg
               className="SearchBreadcrumbSeparator"
-              xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
               fill="none"
@@ -82,7 +81,7 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
 });
 
 const EmptyState = React.memo(function EmptyState() {
-  return <div className="SearchEmptyState">No results found.</div>;
+  return <Autocomplete.Status className="SearchEmptyState">No results found.</Autocomplete.Status>;
 });
 
 export function SearchBar({
@@ -439,6 +438,7 @@ export function SearchBar({
                     </div>
                   </div>
                 </Autocomplete.Root>
+                <Dialog.Close className="SearchClose">Close</Dialog.Close>
               </Dialog.Popup>
             </Dialog.Viewport>
           ) : (
@@ -477,6 +477,7 @@ export function SearchBar({
                           )}
                         </div>
                       </Autocomplete.Root>
+                      <Dialog.Close className="SearchClose">Close</Dialog.Close>
                     </Dialog.Popup>
                   </ScrollArea.Content>
                 </ScrollArea.Viewport>

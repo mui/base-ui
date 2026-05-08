@@ -99,7 +99,7 @@ describe('<NavigationMenu.Root /> (Safari)', () => {
 
   clock.withFakeTimers();
 
-  it('does not mutate top-level pointer events for hover-open menus', async () => {
+  it('blocks top-level pointer events for hover-open menus', async () => {
     await render(<TestNavigationMenu />);
     const trigger = screen.getByTestId('trigger-1');
 
@@ -111,7 +111,7 @@ describe('<NavigationMenu.Root /> (Safari)', () => {
     const topLevelList = screen.getByTestId('top-level-list');
 
     expect(screen.queryByTestId('popup-1')).not.toBe(null);
-    expect(topLevelList.style.pointerEvents).toBe('');
+    expect(topLevelList.style.pointerEvents).toBe('none');
     expect(document.body.style.pointerEvents).toBe('');
   });
 

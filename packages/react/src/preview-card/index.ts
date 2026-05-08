@@ -6,4 +6,5 @@ export type * from './portal/PreviewCardPortal';
 export type * from './positioner/PreviewCardPositioner';
 export type * from './popup/PreviewCardPopup';
 export type * from './arrow/PreviewCardArrow';
+export type * from './viewport/PreviewCardViewport';
 export type * from './backdrop/PreviewCardBackdrop';

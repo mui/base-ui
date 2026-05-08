@@ -3,7 +3,7 @@ import { Drawer } from '@base-ui/react/drawer';
 export default function ExampleDrawer() {
   return (
     <Drawer.Root>
-      <Drawer.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+      <Drawer.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
         Open bottom drawer
       </Drawer.Trigger>
       <Drawer.Portal>
@@ -12,14 +12,14 @@ export default function ExampleDrawer() {
           <Drawer.Popup className="-mb-[3rem] w-full max-h-[calc(80vh+3rem)] rounded-t-2xl bg-gray-50 px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px)+3rem)] pt-4 text-gray-900 outline outline-1 outline-gray-200 overflow-y-auto overscroll-contain touch-auto [transform:translateY(var(--drawer-swipe-movement-y))] transition-transform duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-[swiping]:select-none data-[ending-style]:[transform:translateY(calc(100%-3rem+2px))] data-[starting-style]:[transform:translateY(calc(100%-3rem+2px))] data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)] dark:outline-gray-300">
             <div className="w-12 h-1 mx-auto mb-4 rounded-full bg-gray-300" />
             <Drawer.Content className="mx-auto w-full max-w-[32rem]">
-              <Drawer.Title className="mb-1 text-lg font-medium text-center">
+              <Drawer.Title className="mb-1 text-lg font-bold text-center">
                 Notifications
               </Drawer.Title>
               <Drawer.Description className="mb-6 text-base text-gray-600 text-center">
                 You are all caught up. Good job!
               </Drawer.Description>
               <div className="flex justify-center gap-4">
-                <Drawer.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+                <Drawer.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
                   Close
                 </Drawer.Close>
               </div>

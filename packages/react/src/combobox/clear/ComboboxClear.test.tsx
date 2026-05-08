@@ -107,6 +107,46 @@ describe('<Combobox.Clear />', () => {
     expect(screen.getByTestId('clear')).not.toBe(null);
   });
 
+  it('exposes visible state to Combobox.Clear render props when rendered inside the popup', async () => {
+    const { user } = await render(
+      <Combobox.Root defaultValue="a">
+        <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner data-testid="positioner">
+            <Combobox.Popup>
+              <Combobox.Input />
+              <Combobox.Clear
+                keepMounted
+                data-testid="clear"
+                className={(state) => (state.visible ? 'visible' : 'hidden')}
+              />
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.click(screen.getByTestId('trigger'));
+
+    const clear = await screen.findByTestId('clear');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('positioner')).toHaveAttribute('data-open', '');
+    });
+    expect(clear).toHaveClass('visible');
+    expect(clear).toHaveAttribute('data-visible', '');
+
+    await user.click(clear);
+
+    await waitFor(() => {
+      expect(clear).toHaveClass('hidden');
+      expect(clear).not.toHaveAttribute('data-visible');
+    });
+  });
+
   describe.skipIf(isJSDOM)('animations', () => {
     it('triggers enter animation via data-starting-style when becoming visible', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;

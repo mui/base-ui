@@ -13,6 +13,13 @@ import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<Omit<ToastObject<Data>, 'id'>>;
+type UpdateToastBehavior = {
+  resetTimer?: boolean | undefined;
+  markUpdated?: boolean | undefined;
+};
+type RemoveToastBehavior = {
+  skipOnRemove?: boolean | undefined;
+};
 
 export type State = {
   toasts: ToastObject<any>[];
@@ -116,14 +123,16 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     };
   };
 
-  removeToast(toastId: string) {
+  removeToast(toastId: string, behavior: RemoveToastBehavior = {}) {
     const index = selectors.toastIndex(this.state, toastId);
     if (index === -1) {
       return;
     }
 
     const toast = this.state.toasts[index];
-    toast?.onRemove?.();
+    if (!behavior.skipOnRemove) {
+      toast?.onRemove?.();
+    }
 
     const newToasts = [...this.state.toasts];
     newToasts.splice(index, 1);
@@ -131,15 +140,34 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   addToast = <Data extends object>(toast: ToastManagerAddOptions<Data>): string => {
-    const { toasts, timeout, limit } = this.state;
+    const { timeout, limit } = this.state;
     const id = toast.id || generateId('toast');
+
+    if (toast.id) {
+      const existingToast = selectors.toast(this.state, toast.id);
+
+      if (existingToast) {
+        if (existingToast.transitionStatus === 'ending') {
+          this.removeToast(toast.id, { skipOnRemove: true });
+        } else {
+          const { id: ignoredId, transitionStatus: ignoredTransitionStatus, ...updates } = toast;
+          this.updateToastInternal(toast.id, updates, {
+            resetTimer: true,
+            markUpdated: true,
+          });
+          return toast.id;
+        }
+      }
+    }
+
     const toastToAdd: ToastObject<Data> = {
       ...toast,
       id,
+      updateKey: 0,
       transitionStatus: 'starting',
     };
 
-    const updatedToasts = [toastToAdd, ...toasts];
+    const updatedToasts = [toastToAdd, ...this.state.toasts];
     const activeToasts = updatedToasts.filter((t) => t.transitionStatus !== 'ending');
 
     // Mark oldest toasts for removal when over limit
@@ -174,12 +202,13 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   };
 
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    this.updateToastInternal(id, updates);
+    this.updateToastInternal(id, updates, { markUpdated: true });
   };
 
   updateToastInternal = <Data extends object>(
     id: string,
     updates: ToastInternalUpdateOptions<Data>,
+    behavior: UpdateToastBehavior = {},
   ) => {
     const { timeout, toasts } = this.state;
     const prevToast = selectors.toast(this.state, id) ?? null;
@@ -194,9 +223,15 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
-    const nextToast = { ...prevToast, ...updates };
+    const nextToast: ToastObject<Data> = {
+      ...prevToast,
+      ...updates,
+      ...(behavior.markUpdated && {
+        updateKey: (prevToast.updateKey ?? 0) + 1,
+      }),
+    };
 
-    this.setToasts(toasts.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)));
+    this.setToasts(toasts.map((toast) => (toast.id === id ? nextToast : toast)));
 
     const nextTimeout = nextToast.timeout ?? timeout;
     const prevTimeout = prevToast?.timeout ?? timeout;
@@ -218,7 +253,10 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     }
 
     // Schedule or reschedule timer if needed
-    if (shouldHaveTimer && (!hasTimer || timeoutChanged || timeoutUpdated || wasLoading)) {
+    if (
+      shouldHaveTimer &&
+      (!hasTimer || timeoutChanged || timeoutUpdated || wasLoading || behavior.resetTimer)
+    ) {
       const timer = this.timers.get(id);
       if (timer) {
         timer.timeout?.clear();

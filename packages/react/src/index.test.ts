@@ -18,6 +18,23 @@ describe('@base-ui/react', () => {
     });
   });
 
+  it.skipIf(!isJSDOM)('should resolve internals and auxiliary exports', async () => {
+    const packageJson = await import('../package.json');
+    const subpathExports = packageJson.exports;
+
+    const internalKeys = Object.keys(subpathExports).filter((key) =>
+      key.startsWith('./internals/'),
+    );
+
+    await Promise.all(
+      internalKeys.map(async (subpath) => {
+        const importSpecifier = `@base-ui/react/${subpath.replace('./', '')}`;
+        const module = await import(/* @vite-ignore */ importSpecifier);
+        expect(module, `${subpath} failed to resolve`).toBeDefined();
+      }),
+    );
+  });
+
   it.skipIf(!isJSDOM)('should have the correct root exports', async () => {
     const packageJson = await import('../package.json');
     const subpathExports = packageJson.exports;
@@ -26,13 +43,9 @@ describe('@base-ui/react', () => {
       Object.keys(subpathExports)
         .filter(
           (key) =>
-            ![
-              '.',
-              './utils',
-              './temporal-adapter-luxon',
-              './temporal-adapter-date-fns',
-              './types',
-            ].includes(key) && !key.startsWith('./unstable-'),
+            !['.', './utils', './types'].includes(key) &&
+            !key.startsWith('./unstable-') &&
+            !key.startsWith('./internals/'),
         )
         .map(async (subpath) => {
           const importSpecifier = `@base-ui/react/${subpath.replace('./', '')}`;

@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { contains, getTarget } from '../floating-ui-react/utils';
 import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
-import { clamp } from './clamp';
+import { clamp } from '../internals/clamp';
 import { getElementAtPoint } from './getElementAtPoint';
 
 export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
@@ -43,7 +43,7 @@ export function getDisplacement(direction: SwipeDirection, deltaX: number, delta
 }
 
 export function getElementTransform(element: HTMLElement) {
-  const computedStyle = window.getComputedStyle(element);
+  const computedStyle = ownerWindow(element).getComputedStyle(element);
   const transform = computedStyle.transform;
   let translateX = 0;
   let translateY = 0;
@@ -108,6 +108,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     swipeThreshold: swipeThresholdProp,
     onDismiss,
     onProgress,
+    onCancel,
     onSwipeStart,
     onRelease,
     onSwipingChange,
@@ -440,6 +441,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       deltaY: 0,
       direction: undefined,
     });
+
+    onCancel?.(event.nativeEvent);
   }
 
   function applyDirectionalDamping(deltaX: number, deltaY: number) {
@@ -1095,6 +1098,7 @@ export interface UseSwipeDismissOptions {
   trackDrag?: boolean | undefined;
   onSwipeStart?: ((event: PointerEvent | TouchEvent) => void) | undefined;
   onProgress?: ((progress: number, details?: UseSwipeDismissProgressDetails) => void) | undefined;
+  onCancel?: ((event: PointerEvent | TouchEvent) => void) | undefined;
   /**
    * Called when the swipe interaction starts or ends.
    */

@@ -10,6 +10,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore, Store } from '@base-ui/utils/store';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   useClick,
   useDismiss,
@@ -19,28 +20,28 @@ import {
   useTypeahead,
 } from '../../floating-ui-react';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { selectors, type State as StoreState } from '../store';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useFormContext } from '../../form/FormContext';
-import { useField } from '../../field/useField';
-import { type Group, stringifyAsValue } from '../../utils/resolveValueLabel';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
-import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
-import { useValueChanged } from '../../utils/useValueChanged';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
+import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { mergeProps } from '../../merge-props';
 
 /**
  * Groups all parts of the select.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
@@ -56,6 +57,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     defaultOpen = false,
     onOpenChange,
     name: nameProp,
+    form,
     autoComplete,
     disabled: disabledProp = false,
     readOnly = false,
@@ -115,10 +117,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
   const keyboardActiveRef = React.useRef(false);
-  const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
+  const firstItemTextRef = React.useRef<HTMLElement | null>(null);
+  const selectedItemTextRef = React.useRef<HTMLElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
+    dragY: 0,
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
@@ -149,6 +153,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         triggerElement: null,
         positionerElement: null,
         listElement: null,
+        popupSide: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
         hasScrollArrows: false,
@@ -178,17 +183,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [multiple, value, itemToStringValue]);
 
   const controlRef = useValueAsRef(store.state.triggerElement);
+  const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
-  useField({
-    id: generatedId,
-    commit: validation.commit,
-    value,
-    controlRef,
-    name,
-    getValue: () => fieldStringValue,
-  });
+  useRegisterFieldControl(controlRef, generatedId, value, getStringifiedValueForForm);
 
   const initialValueRef = React.useRef(value);
+  const hasSelectedValue = multiple ? Array.isArray(value) && value.length > 0 : value != null;
+
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (value !== initialValueRef.current) {
@@ -197,34 +198,48 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [store, value]);
 
   useIsoLayoutEffect(() => {
-    setFilled(multiple ? Array.isArray(value) && value.length > 0 : value != null);
-  }, [multiple, value, setFilled]);
+    setFilled(hasSelectedValue);
+  }, [hasSelectedValue, setFilled]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
-      if (open) {
-        return;
-      }
-
       const registry = valuesRef.current;
+      let nextIndex: number | null;
 
       if (multiple) {
         const currentValue = Array.isArray(value) ? value : [];
         if (currentValue.length === 0) {
-          store.set('selectedIndex', null);
-          return;
+          nextIndex = null;
+        } else {
+          const lastValue = currentValue[currentValue.length - 1];
+          const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
+          nextIndex = lastIndex === -1 ? null : lastIndex;
         }
+      } else {
+        const index = findItemIndex(registry, value as Value, isItemEqualToValue);
+        nextIndex = index === -1 ? null : index;
+      }
 
-        const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-        store.set('selectedIndex', lastIndex === -1 ? null : lastIndex);
+      if (nextIndex === null) {
+        selectedItemTextRef.current = null;
+      }
+
+      if (open) {
         return;
       }
 
-      const index = findItemIndex(registry, value as Value, isItemEqualToValue);
-      store.set('selectedIndex', index === -1 ? null : index);
+      store.set('selectedIndex', nextIndex);
     },
-    [multiple, open, value, valuesRef, isItemEqualToValue, store],
+    [
+      hasSelectedValue,
+      multiple,
+      open,
+      value,
+      valuesRef,
+      isItemEqualToValue,
+      store,
+      selectedItemTextRef,
+    ],
   );
 
   useValueChanged(value, () => {
@@ -313,10 +328,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       return;
     }
 
-    const viewportTop = scroller.scrollTop;
-    const viewportBottom = scroller.scrollTop + scroller.clientHeight;
-    const shouldShowUp = viewportTop > 1;
-    const shouldShowDown = viewportBottom < scroller.scrollHeight - 1;
+    const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
+    const scrollTop = normalizeScrollOffset(scroller.scrollTop, maxScrollTop);
+    const shouldShowUp = scrollTop > 0;
+    const shouldShowDown = scrollTop < maxScrollTop;
 
     if (store.state.scrollUpArrowVisible !== shouldShowUp) {
       store.set('scrollUpArrowVisible', shouldShowUp);
@@ -358,9 +373,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
       store.set('activeIndex', nextActiveIndex);
     },
-    // Implement our own listeners since `onPointerLeave` on each option fires while scrolling with
-    // the `alignItemWithTrigger=true`, causing a performance issue on Chrome.
-    focusItemOnHover: false,
+    focusItemOnHover: highlightItemOnHover,
   });
 
   const typeahead = useTypeahead(floatingContext, {
@@ -375,7 +388,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         setValue(valuesRef.current[index], createChangeEventDetails('none'));
       }
     },
-    onTypingChange(typing) {
+    onTyping(typing) {
       typingRef.current = typing;
     },
   });
@@ -445,8 +458,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       disabled,
       readOnly,
       multiple,
-      itemToStringLabel,
-      itemToStringValue,
       highlightItemOnHover,
       setValue,
       setOpen,
@@ -462,6 +473,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       labelsRef,
       typingRef,
       selectionRef,
+      firstItemTextRef,
       selectedItemTextRef,
       validation,
       onOpenChangeComplete,
@@ -476,8 +488,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       disabled,
       readOnly,
       multiple,
-      itemToStringLabel,
-      itemToStringValue,
       highlightItemOnHover,
       setValue,
       setOpen,
@@ -505,12 +515,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         <input
           key={currentSerializedValue}
           type="hidden"
+          form={form}
           name={name}
           value={currentSerializedValue}
         />
       );
     });
-  }, [multiple, value, name, itemToStringValue]);
+  }, [multiple, value, form, name, itemToStringValue]);
 
   return (
     <SelectRootContext.Provider value={contextValue}>
@@ -522,7 +533,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus({
                 // Supported in Chrome from 144 (January 2026)
-                // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
                 focusVisible: true,
               });
             },
@@ -533,7 +543,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 return;
               }
 
-              const nextValue = event.target.value;
+              const nextValue = event.currentTarget.value;
               const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
               function handleChange() {
@@ -544,8 +554,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
                 // Handle single selection: match against registered values using serialization
                 const matchingValue = valuesRef.current.find((v) => {
-                  const candidate = stringifyAsValue(v, itemToStringValue);
-                  if (candidate.toLowerCase() === nextValue.toLowerCase()) {
+                  // Try matching by value first (e.g., "US" for country code)
+                  const candidateValue = stringifyAsValue(v, itemToStringValue);
+                  if (candidateValue.toLowerCase() === nextValue.toLowerCase()) {
+                    return true;
+                  }
+                  // Also try matching by label for browser autofill compatibility
+                  // (browsers autofill with displayed text like "United States", not the underlying value)
+                  const candidateLabel = stringifyAsLabel(v, itemToStringLabel);
+                  if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
                     return true;
                   }
                   return false;
@@ -566,6 +583,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             },
           })}
           id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
+          form={form}
           name={hiddenInputName}
           autoComplete={autoComplete}
           value={serializedValue}
@@ -576,6 +594,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           style={name ? visuallyHiddenInput : visuallyHidden}
           tabIndex={-1}
           aria-hidden
+          suppressHydrationWarning
         />
         {hiddenInputs}
       </SelectFloatingContext.Provider>
@@ -597,6 +616,11 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Identifies the field when a form is submitted.
    */
   name?: string | undefined;
+  /**
+   * Identifies the form that owns the hidden input.
+   * Useful when the select is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * Provides a hint to the browser for autofill.
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
@@ -700,7 +724,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    */
   isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
   /**
-   * The uncontrolled value of the select when it’s initially rendered.
+   * The uncontrolled value of the select when it's initially rendered.
    *
    * To render a controlled select, use the `value` prop instead.
    */

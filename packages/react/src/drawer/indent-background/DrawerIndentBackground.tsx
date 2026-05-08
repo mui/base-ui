@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 
 const stateAttributesMapping: StateAttributesMapping<DrawerIndentBackgroundState> = {
@@ -24,7 +24,7 @@ export const DrawerIndentBackground = React.forwardRef(function DrawerIndentBack
   componentProps: DrawerIndentBackground.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const providerContext = useDrawerProviderContext(true);
   const active = providerContext?.active ?? false;

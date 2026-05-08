@@ -84,7 +84,7 @@ describe('<Menubar />', () => {
 
         await screen.findByTestId('file-menu');
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'true');
+          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         // Now hover over the edit trigger, it should open because a submenu is already open
@@ -126,7 +126,7 @@ describe('<Menubar />', () => {
           expect(screen.getByTestId('file-menu')).not.toBe(null);
         });
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'true');
+          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         await wait(50);
@@ -155,7 +155,7 @@ describe('<Menubar />', () => {
           expect(screen.getByTestId('file-menu')).not.toBe(null);
         });
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'true');
+          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         // Now hover over the share submenu trigger
@@ -664,6 +664,137 @@ describe('<Menubar />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('scroll locking', () => {
+      it('applies scroll lock when a touch-opened submenu covers the viewport width', async () => {
+        await render(
+          <Menubar modal style={{ display: 'flex' }}>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu" style={{ width: 'calc(100vw - 10px)' }}>
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const trigger = screen.getByTestId('file-trigger');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        const menu = await screen.findByRole('menu');
+        const doc = menu.ownerDocument;
+
+        await waitFor(() => {
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
+      });
+
+      it('does not apply scroll lock when a touch-opened submenu is narrower than the viewport', async () => {
+        await render(
+          <Menubar modal style={{ display: 'flex' }}>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu" style={{ width: '240px' }}>
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const trigger = screen.getByTestId('file-trigger');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        const menu = await screen.findByRole('menu');
+        const doc = menu.ownerDocument;
+
+        const isScrollLocked =
+          doc.documentElement.style.overflow === 'hidden' ||
+          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          doc.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).toBe(false);
+      });
+
+      it('updates scroll lock when handing off between top-level touch-opened menus', async () => {
+        await render(
+          <Menubar modal style={{ display: 'flex' }}>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu" style={{ width: 'calc(100vw - 10px)' }}>
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Root>
+              <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="edit-menu" style={{ width: '240px' }}>
+                  <Menu.Popup>
+                    <Menu.Item>Copy</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const fileTrigger = screen.getByTestId('file-trigger');
+        const editTrigger = screen.getByTestId('edit-trigger');
+        const doc = fileTrigger.ownerDocument;
+
+        fireEvent.pointerDown(fileTrigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(fileTrigger);
+
+        await screen.findByTestId('file-menu');
+
+        await waitFor(() => {
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
+
+        fireEvent.pointerDown(editTrigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(editTrigger);
+
+        await screen.findByTestId('edit-menu');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('file-menu')).toBe(null);
+        });
+
+        await waitFor(() => {
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(false);
+        });
+      });
+    });
+
     describe.skipIf(!isJSDOM)('prop: loopFocus', () => {
       describe('when loopFocus == true', () => {
         it('should loop around to the first item after the last one', async () => {
@@ -778,7 +909,7 @@ describe('<Menubar />', () => {
           expect(screen.queryByTestId('file-menu')).not.toBe(null);
         });
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'true');
+          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         await user.hover(editTrigger);
@@ -793,7 +924,7 @@ describe('<Menubar />', () => {
           expect(screen.queryByTestId('edit-menu')).toBe(null);
         });
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'false');
+          expect(screen.getByRole('menubar')).not.toHaveAttribute('data-has-submenu-open');
         });
 
         await user.click(fileTrigger);
@@ -802,7 +933,7 @@ describe('<Menubar />', () => {
           expect(screen.queryByTestId('file-menu')).not.toBe(null);
         });
         await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open', 'true');
+          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         await user.hover(editTrigger);

@@ -8,7 +8,6 @@
     "module": "ESNext",
     "types": ["vite/client", "node"],
     "skipLibCheck": true,
-    "baseUrl": ".",
     "paths": {
       "@base-ui/react": ["../../packages/react/src/index.ts"],
       "@base-ui/react/*": ["../../packages/react/src/*"],
