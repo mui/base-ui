@@ -144,7 +144,8 @@
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.25rem;
+  line-height: 1;
+  white-space: nowrap;
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
@@ -181,7 +182,8 @@
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.25rem;
+  line-height: 1;
+  white-space: nowrap;
   color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 

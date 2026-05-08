@@ -12,7 +12,8 @@
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.25rem;
+  line-height: 1;
+  white-space: nowrap;
   color: light-dark(var(--color-neutral-950), white);
   user-select: none;
 
@@ -239,6 +240,7 @@
     background-color: light-dark(var(--color-neutral-200), var(--color-neutral-800));
     font-size: 0.875rem;
     line-height: 1;
+    white-space: nowrap;
     overflow: hidden;
     height: 3rem;
     width: 3rem;

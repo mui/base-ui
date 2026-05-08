@@ -32,7 +32,8 @@
   background-color: light-dark(white, var(--color-neutral-950));
   font-family: inherit;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1;
+  white-space: nowrap;
   font-weight: 400;
   color: light-dark(var(--color-neutral-950), white);
   user-select: none;

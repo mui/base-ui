@@ -19,7 +19,8 @@
   border: 1px solid light-dark(var(--color-neutral-950), white);
   font-family: inherit;
   font-size: 0.875rem;
-  line-height: 1.25rem;
+  line-height: 1;
+  white-space: nowrap;
   font-weight: 400;
   color: light-dark(var(--color-neutral-950), white);
   cursor: default;
