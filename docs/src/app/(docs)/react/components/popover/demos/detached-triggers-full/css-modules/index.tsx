@@ -46,12 +46,12 @@ export default function PopoverDetachedTriggersFullDemo() {
 
 function NotificationsPanel() {
   return (
-    <React.Fragment>
+    <div className={styles.Stack}>
       <Popover.Title className={styles.Title}>Notifications</Popover.Title>
       <Popover.Description className={styles.Description}>
         You are all caught up. Good job!
       </Popover.Description>
-    </React.Fragment>
+    </div>
   );
 }
 
@@ -78,12 +78,12 @@ function ProfilePanel() {
 
 function ActivityPanel() {
   return (
-    <React.Fragment>
+    <div className={styles.Stack}>
       <Popover.Title className={styles.Title}>Activity</Popover.Title>
       <Popover.Description className={styles.Description}>
         Nothing interesting happened recently.
       </Popover.Description>
-    </React.Fragment>
+    </div>
   );
 }
 

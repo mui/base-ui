@@ -40,7 +40,7 @@ export default function PopoverDetachedTriggersFullDemo() {
               sideOffset={8}
               className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-instant:transition-none"
             >
-              <Popover.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] max-w-[31.25rem] origin-[var(--transform-origin)] bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white drop-shadow-[0.25rem_0.25rem_0] drop-shadow-black/12 dark:drop-shadow-none transition-[width,height,opacity,scale] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-ending-style:scale-90 data-ending-style:opacity-0 data-instant:transition-none data-starting-style:scale-90 data-starting-style:opacity-0">
+              <Popover.Popup className="relative flex h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] max-w-[31.25rem] flex-col gap-1 origin-[var(--transform-origin)] bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white drop-shadow-[0.25rem_0.25rem_0] drop-shadow-black/12 dark:drop-shadow-none transition-[width,height,opacity,scale] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-ending-style:scale-90 data-ending-style:opacity-0 data-instant:transition-none data-starting-style:scale-90 data-starting-style:opacity-0">
                 <Popover.Arrow className="relative block w-3 h-1.5 overflow-clip transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]" />
 
                 <Popover.Viewport
@@ -80,19 +80,19 @@ export default function PopoverDetachedTriggersFullDemo() {
 
 function NotificationsPanel() {
   return (
-    <React.Fragment>
-      <Popover.Title className="m-0 text-sm font-bold">Notifications</Popover.Title>
-      <Popover.Description className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+    <div className="flex flex-col gap-1">
+      <Popover.Title className="text-sm font-bold">Notifications</Popover.Title>
+      <Popover.Description className="text-sm text-neutral-600 dark:text-neutral-400">
         You are all caught up. Good job!
       </Popover.Description>
-    </React.Fragment>
+    </div>
   );
 }
 
 function ProfilePanel() {
   return (
     <div className="grid w-max grid-cols-[auto_auto] gap-x-2">
-      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 m-0 text-sm font-bold">
+      <Popover.Title className="col-start-2 col-end-3 row-start-1 row-end-2 text-sm font-bold">
         Jason Eventon
       </Popover.Title>
       <Avatar.Root className="col-start-1 col-end-2 row-start-1 row-end-3 inline-flex h-12 w-12 items-center justify-center overflow-hidden bg-neutral-200 dark:bg-neutral-800 align-middle text-sm leading-none font-bold text-neutral-950 dark:text-white select-none">
@@ -126,11 +126,11 @@ function ProfilePanel() {
 
 function ActivityPanel() {
   return (
-    <React.Fragment>
-      <Popover.Title className="m-0 text-sm font-bold">Activity</Popover.Title>
-      <Popover.Description className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+    <div className="flex flex-col gap-1">
+      <Popover.Title className="text-sm font-bold">Activity</Popover.Title>
+      <Popover.Description className="text-sm text-neutral-600 dark:text-neutral-400">
         Nothing interesting happened recently.
       </Popover.Description>
-    </React.Fragment>
+    </div>
   );
 }

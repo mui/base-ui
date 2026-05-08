@@ -56,6 +56,9 @@
 .Popup {
   box-sizing: border-box;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   padding: 0.75rem;
   border: 1px solid light-dark(var(--color-neutral-950), white);
   background-color: light-dark(white, var(--color-neutral-950));

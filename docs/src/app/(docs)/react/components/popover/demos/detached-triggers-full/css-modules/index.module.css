@@ -188,6 +188,12 @@
   }
 }
 
+.Stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .Title {
   margin: 0;
   font-size: 0.875rem;
