@@ -71,14 +71,16 @@ export default function AlertDialogDetachedTriggersControlledDemo() {
         {({ payload }) => (
           <AlertDialog.Portal>
             <AlertDialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-20 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:opacity-50 supports-[-webkit-touch-callout:none]:absolute" />
-            <AlertDialog.Popup className="fixed top-1/2 left-1/2 -mt-8 w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-neutral-950 p-3 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
-              <AlertDialog.Title className="text-sm font-bold">
-                {payload?.message ?? 'Are you sure?'}
-              </AlertDialog.Title>
-              <AlertDialog.Description className="text-sm text-neutral-600 dark:text-neutral-400">
-                This action cannot be undone.
-              </AlertDialog.Description>
-              <div className="flex justify-end gap-3 mt-4">
+            <AlertDialog.Popup className="fixed top-1/2 left-1/2 -mt-8 flex w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-4 bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0">
+              <div className="flex flex-col gap-1">
+                <AlertDialog.Title className="text-base font-bold">
+                  {payload?.message ?? 'Are you sure?'}
+                </AlertDialog.Title>
+                <AlertDialog.Description className="text-sm text-neutral-600 dark:text-neutral-400">
+                  This action cannot be undone.
+                </AlertDialog.Description>
+              </div>
+              <div className="flex justify-end gap-3">
                 <AlertDialog.Close className={buttonClasses}>Cancel</AlertDialog.Close>
                 <AlertDialog.Close className={dangerButtonClasses}>Confirm</AlertDialog.Close>
               </div>
