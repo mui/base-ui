@@ -158,7 +158,6 @@
 
 .GroupLabel {
   outline: 0;
-  cursor: default;
   user-select: none;
   display: flex;
   align-items: center;

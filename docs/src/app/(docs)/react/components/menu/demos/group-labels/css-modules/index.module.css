@@ -140,15 +140,11 @@
 }
 
 .GroupLabel {
-  cursor: default;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1.875rem;
   padding-right: 2rem;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.875rem;
   line-height: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
 }

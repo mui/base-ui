@@ -84,7 +84,7 @@ export default function ExampleEmojiPicker() {
                       items={group.items}
                       className="block pb-2"
                     >
-                      <Autocomplete.GroupLabel className="p-2 text-xs font-bold text-neutral-500 uppercase tracking-wider dark:text-neutral-400">
+                      <Autocomplete.GroupLabel className="p-2 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
                         {group.label}
                       </Autocomplete.GroupLabel>
                       <div className="px-2 pb-1 pt-0" role="presentation">

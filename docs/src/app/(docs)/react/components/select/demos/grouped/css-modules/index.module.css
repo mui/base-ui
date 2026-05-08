@@ -128,12 +128,12 @@
 
 .GroupLabel {
   box-sizing: border-box;
-  padding: 0.5rem 0.5rem 0.25rem calc(0.625rem + 0.75rem + 0.5rem);
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  padding-block: 0.375rem;
+  padding-left: calc(0.625rem + 0.75rem + 0.5rem);
+  padding-right: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  user-select: none;
   color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
 }
 

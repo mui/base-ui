@@ -52,7 +52,7 @@ export default function ExampleAutocompleteCommandPalette() {
                           items={group.items}
                           className="not-last:mb-1"
                         >
-                          <Autocomplete.GroupLabel className="m-0 flex min-h-8 cursor-default items-center pr-6 pl-4 text-sm leading-none font-normal text-neutral-500 select-none outline-none dark:text-neutral-400">
+                          <Autocomplete.GroupLabel className="m-0 flex min-h-8 items-center pr-6 pl-4 text-sm leading-none font-normal text-neutral-500 select-none outline-none dark:text-neutral-400">
                             {group.value}
                           </Autocomplete.GroupLabel>
                           <Autocomplete.Collection>

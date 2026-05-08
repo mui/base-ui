@@ -133,13 +133,11 @@
 
 .GroupLabel {
   box-sizing: border-box;
-  padding: 0.5rem 0.5rem 0.25rem 1.75rem;
-  font-size: 0.75rem;
-  font-weight: 700;
+  user-select: none;
+  padding: 0.5rem 0.5rem 0.5rem 1.75rem;
+  font-size: 0.875rem;
   line-height: 1rem;
   color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .Item {

@@ -125,7 +125,7 @@ export default function MenuDetachedTriggersFullDemo() {
                       <React.Fragment key={groupIndex}>
                         <Menu.Group>
                           {groupIndex === 0 && (
-                            <Menu.GroupLabel className="px-4 py-2 text-xs tracking-[0.05em] text-neutral-600 uppercase dark:text-neutral-400">
+                            <Menu.GroupLabel className="px-4 py-2 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
                               {MENUS[payload].heading}
                             </Menu.GroupLabel>
                           )}
