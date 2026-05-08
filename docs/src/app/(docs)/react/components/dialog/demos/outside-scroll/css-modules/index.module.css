@@ -115,6 +115,9 @@
 .Popup {
   box-sizing: border-box;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   width: min(40rem, calc(100vw - 2rem));
   padding: 1rem;
   margin: 4rem auto;
@@ -145,11 +148,11 @@
 }
 
 .PopupHeader {
+  position: relative;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.25rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-right: 2rem;
 }
 
 .Title {
@@ -160,7 +163,7 @@
 }
 
 .Description {
-  margin: 0 0 1rem;
+  margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
@@ -168,11 +171,11 @@
 
 .Close {
   box-sizing: border-box;
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
   display: inline-flex;
   align-items: center;
-  position: relative;
-  right: -0.25rem;
-  top: -0.25rem;
   justify-content: center;
   width: 2rem;
   height: 2rem;
@@ -206,11 +209,17 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 1rem;
+}
+
+.Section {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .SectionTitle {
-  margin: 0 0 0.25rem;
+  margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;

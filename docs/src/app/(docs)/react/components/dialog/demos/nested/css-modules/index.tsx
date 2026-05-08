@@ -8,19 +8,23 @@ export default function ExampleDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup}>
-          <Dialog.Title className={styles.Title}>Notifications</Dialog.Title>
-          <Dialog.Description className={styles.Description}>
-            You are all caught up. Good job!
-          </Dialog.Description>
+          <div className={styles.Intro}>
+            <Dialog.Title className={styles.Title}>Notifications</Dialog.Title>
+            <Dialog.Description className={styles.Description}>
+              You are all caught up. Good job!
+            </Dialog.Description>
+          </div>
           <div className={styles.Actions}>
             <Dialog.Root>
               <Dialog.Trigger className={styles.Button}>Customize</Dialog.Trigger>
               <Dialog.Portal>
                 <Dialog.Popup className={styles.Popup}>
-                  <Dialog.Title className={styles.Title}>Customize notifications</Dialog.Title>
-                  <Dialog.Description className={styles.Description}>
-                    Review your settings here.
-                  </Dialog.Description>
+                  <div className={styles.Intro}>
+                    <Dialog.Title className={styles.Title}>Customize notifications</Dialog.Title>
+                    <Dialog.Description className={styles.Description}>
+                      Review your settings here.
+                    </Dialog.Description>
+                  </div>
                   <div className={styles.EndActions}>
                     <Dialog.Close className={styles.Button}>Close</Dialog.Close>
                   </div>

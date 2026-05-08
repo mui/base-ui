@@ -11,7 +11,7 @@ export default function InsideScrollDialog() {
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Viewport className={styles.Viewport}>
           <Dialog.Popup className={styles.Popup}>
-            <div className={styles.PopupHeader}>
+            <div className={styles.Header}>
               <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
               <Dialog.Description className={styles.Description}>
                 This layout keeps the popup fully on screen while allowing its content to scroll.

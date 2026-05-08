@@ -18,19 +18,18 @@ export default function OutsideScrollDialog() {
                 <Dialog.Popup ref={popupRef} className={styles.Popup} initialFocus={popupRef}>
                   <div className={styles.PopupHeader}>
                     <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
+                    <Dialog.Description className={styles.Description}>
+                      This layout keeps an outer container scrollable while the dialog can extend
+                      past the bottom edge.
+                    </Dialog.Description>
                     <Dialog.Close className={styles.Close} aria-label="Close">
                       <XIcon className={styles.CloseIcon} />
                     </Dialog.Close>
                   </div>
 
-                  <Dialog.Description className={styles.Description}>
-                    This layout keeps an outer container scrollable while the dialog can extend past
-                    the bottom edge.
-                  </Dialog.Description>
-
                   <div className={styles.Body}>
                     {CONTENT_SECTIONS.map((item) => (
-                      <section key={item.title}>
+                      <section className={styles.Section} key={item.title}>
                         <h3 className={styles.SectionTitle}>{item.title}</h3>
                         <p className={styles.SectionBody}>{item.body}</p>
                       </section>

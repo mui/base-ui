@@ -147,12 +147,15 @@
   }
 }
 
-.PopupHeader {
-  padding: 1rem 1rem 0.75rem;
+.Header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
 }
 
 .Title {
-  margin: 0 0 0.25rem;
+  margin: 0;
   font-size: 1rem;
   line-height: 1.5rem;
   font-weight: 700;
@@ -192,11 +195,15 @@
 }
 
 .Section {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   padding: 1rem;
 }
 
 .SectionTitle {
-  margin: 0 0 0.25rem;
+  margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;

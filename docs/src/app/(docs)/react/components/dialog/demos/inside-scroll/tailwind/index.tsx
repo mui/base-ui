@@ -12,9 +12,9 @@ export default function InsideScrollDialog() {
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0 dark:opacity-50 supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 flex items-center justify-center overflow-hidden py-6 [@media(min-height:600px)]:pb-12 [@media(min-height:600px)]:pt-8">
           <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-starting-style:scale-[0.98] data-starting-style:opacity-0 data-ending-style:scale-[0.98] data-ending-style:opacity-0">
-            <div className="px-4 pt-4 pb-3">
-              <Dialog.Title className="m-0 mb-1 text-base font-bold">Dialog</Dialog.Title>
-              <Dialog.Description className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+            <div className="flex flex-col gap-1 p-4">
+              <Dialog.Title className="text-base font-bold">Dialog</Dialog.Title>
+              <Dialog.Description className="text-sm text-neutral-600 dark:text-neutral-400">
                 This layout keeps the popup fully on screen while allowing its content to scroll.
               </Dialog.Description>
             </div>
@@ -22,9 +22,9 @@ export default function InsideScrollDialog() {
               <ScrollArea.Viewport className="flex-auto min-h-0 overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
                 <ScrollArea.Content className="flex flex-col">
                   {CONTENT_SECTIONS.map((item) => (
-                    <section className="p-4" key={item.title}>
-                      <h3 className="mb-1 text-sm font-bold">{item.title}</h3>
-                      <p className="m-0 text-sm text-neutral-700 dark:text-neutral-300">
+                    <section className="flex flex-col gap-1 p-4" key={item.title}>
+                      <h3 className="text-sm font-bold">{item.title}</h3>
+                      <p className="text-sm text-neutral-700 dark:text-neutral-300">
                         {item.body}
                       </p>
                     </section>

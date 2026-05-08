@@ -63,6 +63,9 @@
 
 .Popup {
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -70,7 +73,7 @@
   width: 24rem;
   max-width: calc(100vw - 3rem);
   margin-top: -2rem;
-  padding: 0.75rem;
+  padding: 1rem;
   border: 1px solid light-dark(var(--color-neutral-950), white);
   background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
@@ -90,10 +93,16 @@
   }
 }
 
+.Intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .Title {
   margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
   font-weight: 700;
 }
 
@@ -108,5 +117,4 @@
   display: flex;
   justify-content: end;
   gap: 0.75rem;
-  margin-top: 1rem;
 }
