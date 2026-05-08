@@ -28,11 +28,11 @@ export default function ExampleSelectGrouped() {
               <Select.ScrollUpArrow className="top-0 z-[2] flex h-4 w-full cursor-default items-center justify-center bg-white text-center text-xs before:absolute data-[side=none]:before:top-[-100%] before:left-0 before:h-full before:w-full before:content-[''] dark:bg-neutral-950">
                 ⏶
               </Select.ScrollUpArrow>
-              <Select.List className="relative py-1 scroll-pt-[2.25rem] scroll-pb-6 overflow-y-auto max-h-[var(--available-height)]">
+              <Select.List className="relative py-1 scroll-pt-6 scroll-pb-6 overflow-y-auto max-h-[var(--available-height)]">
                 {groupedProduce.map((group, index) => (
                   <React.Fragment key={group.value}>
                     <Select.Group className="block pb-0.5">
-                      <Select.GroupLabel className="sticky top-0 z-[1] bg-white mr-2 pr-2 pb-1 pl-[1.875rem] pt-2 text-xs font-bold text-neutral-500 uppercase tracking-wider dark:bg-neutral-950 dark:text-neutral-400">
+                      <Select.GroupLabel className="pr-2 pb-1 pl-[1.875rem] pt-2 text-xs font-bold text-neutral-500 uppercase tracking-wider dark:text-neutral-400">
                         {group.value}
                       </Select.GroupLabel>
                       {group.items.map((item) => (

@@ -52,12 +52,11 @@
 .List {
   box-sizing: border-box;
   overflow-y: auto;
-  scroll-padding-top: 2.25rem;
+  scroll-padding-top: 0.5rem;
   scroll-padding-bottom: 0.5rem;
   overscroll-behavior: contain;
   max-height: min(22.5rem, var(--available-height));
   outline: 0;
-  isolation: isolate; /* Prevent overlap with iOS overlay scrollbars. */
 
   &[data-empty] {
     padding: 0;
@@ -71,9 +70,6 @@
 
 .GroupLabel {
   box-sizing: border-box;
-  position: sticky;
-  z-index: 1;
-  top: 0;
   padding: 0.5rem 0.5rem 0.25rem;
   font-size: 0.75rem;
   font-weight: 700;
@@ -81,7 +77,6 @@
   color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background-color: light-dark(white, var(--color-neutral-950));
 }
 
 .Item {

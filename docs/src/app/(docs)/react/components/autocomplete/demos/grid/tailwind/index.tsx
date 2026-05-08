@@ -77,14 +77,14 @@ export default function ExampleEmojiPicker() {
                     No emojis found
                   </div>
                 </Autocomplete.Empty>
-                <Autocomplete.List className="max-h-[min(calc(20.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto scroll-pt-10 scroll-pb-[0.35rem] overscroll-contain empty:p-0">
+                <Autocomplete.List className="max-h-[min(calc(20.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto scroll-pt-2 scroll-pb-[0.35rem] overscroll-contain empty:p-0">
                   {(group: EmojiGroup) => (
                     <Autocomplete.Group
                       key={group.value}
                       items={group.items}
                       className="block pb-2"
                     >
-                      <Autocomplete.GroupLabel className="sticky top-0 z-[1] bg-white p-2 mr-2 text-xs font-bold text-neutral-500 uppercase tracking-wider dark:bg-neutral-950 dark:text-neutral-400">
+                      <Autocomplete.GroupLabel className="p-2 text-xs font-bold text-neutral-500 uppercase tracking-wider dark:text-neutral-400">
                         {group.label}
                       </Autocomplete.GroupLabel>
                       <div className="px-2 pb-1 pt-0" role="presentation">
