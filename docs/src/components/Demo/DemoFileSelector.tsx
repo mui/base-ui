@@ -12,8 +12,8 @@ interface DemoFileSelectorProps {
 
 type Tab = { id: string; name: string; slug?: string };
 
-function isModifiedClick(event: React.MouseEvent | React.PointerEvent) {
-  return event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0;
+function shouldPreventNavigation(event: React.MouseEvent) {
+  return event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey;
 }
 
 export function DemoFileSelector({
@@ -27,36 +27,17 @@ export function DemoFileSelector({
     [files],
   );
 
-  const modifierKeysRef = React.useRef(false);
-
   const onValueChange = React.useCallback(
     (value: string) => {
-      // Don't change tab if modifier keys were pressed (user is opening in new tab)
-      if (modifierKeysRef.current) {
-        return;
-      }
-
       selectFileName(value);
       onTabChange?.();
     },
     [selectFileName, onTabChange],
   );
 
-  const onTabPointerDown = React.useCallback((event: React.PointerEvent) => {
-    // Track modifier keys before focus event fires
-    modifierKeysRef.current = isModifiedClick(event);
-  }, []);
-
   const onTabClick = React.useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (isModifiedClick(event)) {
-      // Let modified clicks preserve the link's native behavior.
-      queueMicrotask(() => {
-        modifierKeysRef.current = false;
-      });
-    } else {
-      // Prevent scroll jump to anchor
+    if (shouldPreventNavigation(event)) {
       event.preventDefault();
-      modifierKeysRef.current = false;
     }
   }, []);
 
@@ -78,7 +59,6 @@ export function DemoFileSelector({
             value={tab.id}
             key={tab.id}
             onClick={onTabClick}
-            onPointerDown={onTabPointerDown}
           >
             {tab.name}
           </Tabs.LinkTab>

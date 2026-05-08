@@ -34,14 +34,12 @@ export const TabsTab = React.forwardRef(function TabsTab(
     value,
   });
 
-  const element = useRenderElement('button', componentProps, {
+  return useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, ...refs],
     props: [elementProps, getTabProps],
     stateAttributesMapping: tabsStateAttributesMapping,
   });
-
-  return element;
 });
 
 export type TabsTabValue = any | null;

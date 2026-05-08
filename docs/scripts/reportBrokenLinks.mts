@@ -12,7 +12,7 @@ async function main() {
       {
         // React Router demo for Tabs component
         path: '/react/components/tabs',
-        href: ['/overview', '/projects', '/account', '#overview', '#projects', '#account'],
+        href: ['/overview', '/projects', '/account'],
       },
     ],
   });
