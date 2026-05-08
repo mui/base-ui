@@ -38,7 +38,11 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
+import {
+  createCollatorItemFilter,
+  createSingleSelectionCollatorFilter,
+  stringifyComboboxItemLabel,
+} from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -47,7 +51,7 @@ import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
 import {
   inferItemValue,
-  resolveSelectedLabelString,
+  resolveSelectedLabel,
   stringifyAsLabel,
   stringifyAsValue,
   Group,
@@ -185,7 +189,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return '';
     }
 
-    return resolveSelectedLabelString(selectedValue, items, itemToStringLabel, isItemEqualToValue);
+    return resolveLabelString(selectedValue, items, itemToStringLabel, isItemEqualToValue);
   }, [single, selectedValue, items, itemToStringLabel, isItemEqualToValue]);
 
   const filter = React.useMemo(() => {
@@ -312,10 +316,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (filterQuery === '') {
       return limit > -1
         ? flatItems.slice(0, limit)
-        : // The cast here is done as `flatItems` is readonly.
-          // This branch is only reached when the `items` prop is provided; item
-          // registration copies it before writing to mutable refs, so the readonly
-          // array is not mutated.
+        : // This branch is only reached when the `items` prop is provided.
+          // `flatItemValues` is a mutable copy used by list navigation refs, while
+          // `flatItems` remains the source list used for filtering and rendering.
           (flatItems as Value[]);
     }
 
@@ -479,7 +482,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
-        stringifyAsLabel(item, itemToStringLabel),
+        stringifyComboboxItemLabel(item, itemToStringLabel),
       );
       valuesRef.current = flatFilteredItemValues.slice();
 
@@ -660,7 +663,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (shouldFillInput) {
         setInputValue(
-          resolveSelectedLabelString(nextValue, items, itemToStringLabel, isItemEqualToValue),
+          resolveLabelString(nextValue, items, itemToStringLabel, isItemEqualToValue),
           createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
@@ -1315,7 +1318,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 // Also try matching by label for browser autofill compatibility
                 // (browsers autofill with displayed text like "United States", not the underlying value)
                 const labelSource = items ? flatFilteredItems[index] : v;
-                const candidateLabel = stringifyAsLabel(labelSource, itemToStringLabel);
+                const candidateLabel = stringifyComboboxItemLabel(labelSource, itemToStringLabel);
                 if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
                   return true;
                 }
@@ -1370,6 +1373,23 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
+}
+
+function resolveLabelString(
+  value: any,
+  items: readonly any[] | readonly Group<any>[] | undefined,
+  itemToStringLabel: ((item: any) => string) | undefined,
+  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean,
+) {
+  const label = resolveSelectedLabel(value, items, itemToStringLabel, isItemEqualToValue);
+
+  if (typeof label === 'string' || typeof label === 'number') {
+    return String(label);
+  }
+
+  return label == null || typeof label === 'boolean'
+    ? ''
+    : stringifyAsLabel(value, typeof value === 'object' ? itemToStringLabel : undefined);
 }
 
 type SelectionMode = 'single' | 'multiple' | 'none';

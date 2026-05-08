@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import type { ItemEqualityComparer } from './itemEquality';
 import { serializeValue } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
@@ -92,7 +91,7 @@ export function resolveSelectedLabel(
   value: any,
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
-  isItemEqualToValue?: ItemEqualityComparer<any, any>,
+  isItemEqualToValue?: (itemValue: any, value: any) => boolean,
 ): React.ReactNode {
   function fallback() {
     return stringifyAsLabel(value, itemToStringLabel);
@@ -157,33 +156,11 @@ export function resolveSelectedLabel(
   return fallback();
 }
 
-export function resolveSelectedLabelString(
-  value: any,
-  items: ItemsInput,
-  itemToStringLabel?: (item: any) => string,
-  isItemEqualToValue?: ItemEqualityComparer<any, any>,
-): string {
-  const label = resolveSelectedLabel(value, items, itemToStringLabel, isItemEqualToValue);
-
-  if (label == null || typeof label === 'boolean') {
-    return '';
-  }
-
-  if (typeof label === 'string' || typeof label === 'number') {
-    return String(label);
-  }
-
-  return stringifyAsLabel(
-    value,
-    value != null && typeof value === 'object' ? itemToStringLabel : undefined,
-  );
-}
-
 export function resolveMultipleLabels(
   values: any[],
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
-  isItemEqualToValue?: ItemEqualityComparer<any, any>,
+  isItemEqualToValue?: (itemValue: any, value: any) => boolean,
 ): React.ReactNode {
   return values.reduce((acc, value, index) => {
     if (index > 0) {

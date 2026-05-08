@@ -3,7 +3,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../utils/useAnchorPositioning';
-import { compareItemEquality, findItemIndex } from '../internals/itemEquality';
+import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel, inferItemValue } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
@@ -203,18 +203,24 @@ export function findMatchingItemIndex(
   selectedValue: any,
   isItemEqualToValue: State['isItemEqualToValue'],
 ) {
-  if (selectedValue != null && typeof selectedValue === 'object') {
-    return findItemIndex(itemValues, selectedValue, isItemEqualToValue);
-  }
-
-  if (itemValues.length === 0) {
-    return -1;
-  }
-
+  const selectedValueIsObject = selectedValue != null && typeof selectedValue === 'object';
   return itemValues.findIndex((itemValue) => {
     if (itemValue === undefined) {
       return false;
     }
-    return compareItemEquality(inferItemValue(itemValue), selectedValue, isItemEqualToValue);
+
+    const candidateValue = selectedValueIsObject ? itemValue : inferItemValue(itemValue);
+    return compareItemEquality(candidateValue, selectedValue, isItemEqualToValue);
   });
+}
+
+export function writeItemValues(store: ComboboxStore, hasItems: boolean, itemValues: any[]) {
+  if (hasItems) {
+    store.set('itemValues', itemValues);
+  } else {
+    store.update({
+      itemValues,
+      allItemValues: itemValues,
+    });
+  }
 }

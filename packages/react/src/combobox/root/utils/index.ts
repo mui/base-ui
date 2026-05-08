@@ -15,7 +15,7 @@ export function createCollatorItemFilter(
     if (item == null) {
       return false;
     }
-    const itemString = stringifyAsLabel(item, itemToStringLabel);
+    const itemString = stringifyComboboxItemLabel(item, itemToStringLabel);
     return collatorFilter.contains(itemString, query);
   };
 }
@@ -42,7 +42,7 @@ export function createSingleSelectionCollatorFilter(
       return true;
     }
 
-    const itemString = stringifyAsLabel(item, itemToStringLabel);
+    const itemString = stringifyComboboxItemLabel(item, itemToStringLabel);
 
     // Handle case-insensitive matching consistently
     if (
@@ -55,4 +55,12 @@ export function createSingleSelectionCollatorFilter(
 
     return collatorFilter.contains(itemString, query);
   };
+}
+
+export function stringifyComboboxItemLabel(item: any, itemToStringLabel?: (item: any) => string) {
+  if (item && typeof item === 'object' && 'value' in item && 'label' in item) {
+    return String(item.label ?? '');
+  }
+
+  return stringifyAsLabel(item, itemToStringLabel);
 }

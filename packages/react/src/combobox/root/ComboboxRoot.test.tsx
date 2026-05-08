@@ -2859,6 +2859,22 @@ describe('<Combobox.Root />', () => {
       expect(itemToStringLabel).not.toHaveBeenCalled();
     });
 
+    it('does not call a primitive itemToStringLabel with object items while filtering', async () => {
+      const itemToStringLabel = vi.fn((item: string) => item.toUpperCase());
+
+      const { user } = await render(
+        <Combobox.Root<string> items={items} itemToStringLabel={itemToStringLabel}>
+          <Combobox.Input />
+          <FruitList />
+        </Combobox.Root>,
+      );
+
+      await user.type(screen.getByRole('combobox'), 'ba');
+
+      expect(await screen.findByRole('option', { name: 'Banana' })).not.toBe(null);
+      expect(itemToStringLabel).not.toHaveBeenCalled();
+    });
+
     it('derives the selected index from item value properties while closed', async () => {
       await render(
         <Combobox.Root items={items} defaultValue="banana">

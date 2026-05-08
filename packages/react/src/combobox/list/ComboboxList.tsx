@@ -11,7 +11,7 @@ import {
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
-import { selectors } from '../store';
+import { selectors, writeItemValues } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
@@ -74,15 +74,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
       });
 
       store.state.valuesRef.current = itemValues;
-
-      if (hasItems) {
-        store.set('itemValues', itemValues);
-      } else {
-        store.update({
-          itemValues,
-          allItemValues: itemValues,
-        });
-      }
+      writeItemValues(store, hasItems, itemValues);
     },
   );
 

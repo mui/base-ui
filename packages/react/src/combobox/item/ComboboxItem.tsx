@@ -14,7 +14,7 @@ import {
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
-import { findMatchingItemIndex, selectors } from '../store';
+import { findMatchingItemIndex, selectors, writeItemValues } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { findItemIndex } from '../../internals/itemEquality';
@@ -57,19 +57,16 @@ export const ComboboxItem = React.memo(
     const keepPortalMounted = React.useContext(ComboboxPortalContext);
     const { flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
 
-    const open = useStore(store, selectors.open);
     const selectionMode = useStore(store, selectors.selectionMode);
     const readOnly = useStore(store, selectors.readOnly);
     const virtualized = useStore(store, selectors.virtualized);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
-    let index = indexProp ?? listItem.index;
-    if (indexProp == null && virtualized) {
-      index = hasItems
-        ? findMatchingItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
-        : findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue);
-    }
+    const index =
+      indexProp == null && virtualized
+        ? resolveVirtualIndex(hasItems, flatFilteredItems, itemValue, isItemEqualToValue)
+        : (indexProp ?? listItem.index);
     const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);
@@ -82,44 +79,31 @@ export const ComboboxItem = React.memo(
     const selected = matchesSelectedValue && selectable;
 
     useIsoLayoutEffect(() => {
-      const shouldRun = hasRegistered && (virtualized || indexProp != null);
-      if (!shouldRun) {
+      if (!hasRegistered || (!virtualized && indexProp == null)) {
         return undefined;
       }
 
       const list = store.state.listRef.current;
       const visibleMap = store.state.valuesRef.current;
       list[index] = itemRef.current;
-      visibleMap[index] = itemValue;
 
-      const itemValues = visibleMap.slice();
-      if (hasItems) {
-        store.set('itemValues', itemValues);
-      } else {
-        store.update({
-          itemValues,
-          allItemValues: itemValues,
-        });
+      if (virtualized) {
+        visibleMap[index] = itemValue;
+        writeItemValues(store, hasItems, visibleMap.slice());
       }
 
       return () => {
         delete list[index];
-        const registryActive =
-          store.state.inline || store.state.open || keepPortalMounted || store.state.forceMounted;
+        if (virtualized) {
+          const registryActive =
+            store.state.inline || store.state.open || keepPortalMounted || store.state.forceMounted;
 
-        if (!registryActive) {
-          return;
-        }
+          if (!registryActive) {
+            return;
+          }
 
-        delete visibleMap[index];
-        const nextItemValues = visibleMap.slice();
-        if (hasItems) {
-          store.set('itemValues', nextItemValues);
-        } else {
-          store.update({
-            itemValues: nextItemValues,
-            allItemValues: nextItemValues,
-          });
+          delete visibleMap[index];
+          writeItemValues(store, hasItems, visibleMap.slice());
         }
       };
     }, [
@@ -132,12 +116,6 @@ export const ComboboxItem = React.memo(
       keepPortalMounted,
       store,
     ]);
-
-    React.useEffect(() => {
-      if (!open) {
-        didPointerDownRef.current = false;
-      }
-    }, [open]);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
@@ -224,6 +202,17 @@ export const ComboboxItem = React.memo(
     );
   }),
 );
+
+function resolveVirtualIndex(
+  hasItems: boolean,
+  flatFilteredItems: readonly any[],
+  itemValue: any,
+  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean,
+) {
+  return hasItems
+    ? findMatchingItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
+    : findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue);
+}
 
 export interface ComboboxItemState {
   /**
