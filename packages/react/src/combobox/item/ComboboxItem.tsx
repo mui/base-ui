@@ -14,10 +14,11 @@ import {
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
-import { selectors } from '../store';
+import { findMatchingItemIndex, selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { findItemIndex } from '../../internals/itemEquality';
+import { ComboboxPortalContext } from '../portal/ComboboxPortalContext';
 
 /**
  * An individual item in the list.
@@ -43,14 +44,17 @@ export const ComboboxItem = React.memo(
 
     const didPointerDownRef = React.useRef(false);
     const textRef = React.useRef<HTMLElement | null>(null);
+    const itemMetadata = React.useMemo(() => ({ value: itemValue }), [itemValue]);
     const listItem = useCompositeListItem({
       index: indexProp,
+      metadata: itemMetadata,
       textRef,
       indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
     const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
+    const keepPortalMounted = React.useContext(ComboboxPortalContext);
     const { flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
 
     const open = useStore(store, selectors.open);
@@ -60,11 +64,12 @@ export const ComboboxItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
-    const index =
-      indexProp ??
-      (virtualized
-        ? findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
-        : listItem.index);
+    let index = indexProp ?? listItem.index;
+    if (indexProp == null && virtualized) {
+      index = hasItems
+        ? findMatchingItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
+        : findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue);
+    }
     const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);
@@ -73,7 +78,6 @@ export const ComboboxItem = React.memo(
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-
     const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
     const selected = matchesSelectedValue && selectable;
 
@@ -84,52 +88,56 @@ export const ComboboxItem = React.memo(
       }
 
       const list = store.state.listRef.current;
+      const visibleMap = store.state.valuesRef.current;
       list[index] = itemRef.current;
+      visibleMap[index] = itemValue;
+
+      const itemValues = visibleMap.slice();
+      if (hasItems) {
+        store.set('itemValues', itemValues);
+      } else {
+        store.update({
+          itemValues,
+          allItemValues: itemValues,
+        });
+      }
 
       return () => {
         delete list[index];
-      };
-    }, [hasRegistered, virtualized, index, indexProp, store]);
+        const registryActive =
+          store.state.inline || store.state.open || keepPortalMounted || store.state.forceMounted;
 
-    useIsoLayoutEffect(() => {
-      if (!hasRegistered || hasItems) {
-        return undefined;
-      }
+        if (!registryActive) {
+          return;
+        }
 
-      const visibleMap = store.state.valuesRef.current;
-      visibleMap[index] = itemValue;
-
-      // Stable registry that doesn't depend on filtering. Assume that no
-      // filtering had occurred at this point; otherwise, an `items` prop is
-      // required.
-      if (selectionMode !== 'none') {
-        store.state.allValuesRef.current.push(itemValue);
-      }
-
-      return () => {
         delete visibleMap[index];
+        const nextItemValues = visibleMap.slice();
+        if (hasItems) {
+          store.set('itemValues', nextItemValues);
+        } else {
+          store.update({
+            itemValues: nextItemValues,
+            allItemValues: nextItemValues,
+          });
+        }
       };
-    }, [hasRegistered, hasItems, index, itemValue, store, selectionMode]);
+    }, [
+      hasRegistered,
+      hasItems,
+      virtualized,
+      index,
+      indexProp,
+      itemValue,
+      keepPortalMounted,
+      store,
+    ]);
 
-    useIsoLayoutEffect(() => {
+    React.useEffect(() => {
       if (!open) {
         didPointerDownRef.current = false;
-        return;
       }
-
-      if (!hasRegistered || hasItems) {
-        return;
-      }
-
-      const selectedValue = store.state.selectedValue;
-      const lastSelectedValue = Array.isArray(selectedValue)
-        ? selectedValue[selectedValue.length - 1]
-        : selectedValue;
-
-      if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
-        store.set('selectedIndex', index);
-      }
-    }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
+    }, [open]);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,

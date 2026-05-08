@@ -165,7 +165,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             : highlightedChipIndex;
         // If the computed index is negative, treat it as no highlight.
         nextIndex = computedNextIndex >= 0 ? computedNextIndex : undefined;
-        store.state.setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
+        store.state.setIndices({ activeIndex: null, type: 'keyboard' });
       }
       return nextIndex;
     }
@@ -183,7 +183,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       event.currentTarget.value === '' &&
       selectedValue.length > 0
     ) {
-      store.state.setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
+      store.state.setIndices({ activeIndex: null, type: 'keyboard' });
       event.preventDefault();
     }
 
@@ -296,7 +296,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
                 if (!autoHighlightEnabled) {
                   store.state.setIndices({
                     activeIndex: null,
-                    selectedIndex: null,
                     type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
                   });
                 }
@@ -306,7 +305,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             if (open && store.state.activeIndex !== null && !shouldMaintainHighlight) {
               store.state.setIndices({
                 activeIndex: null,
-                selectedIndex: null,
                 type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
               });
             }
@@ -343,7 +341,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
               if (!autoHighlightEnabled) {
                 store.state.setIndices({
                   activeIndex: null,
-                  selectedIndex: null,
                   type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
                 });
               }
@@ -356,7 +353,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (open && store.state.activeIndex !== null && !autoHighlightEnabled) {
             store.state.setIndices({
               activeIndex: null,
-              selectedIndex: null,
               type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
             });
           }
@@ -428,7 +424,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             // If the removed item was also the active (highlighted) item, clear highlight
             store.state.setIndices({
               activeIndex: null,
-              selectedIndex: null,
               type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
             });
             store.state.setSelectedValue(

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -14,6 +15,12 @@ import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
+import { ComboboxPortalContext } from '../portal/ComboboxPortalContext';
+
+type ComboboxListItemMetadata = {
+  index?: number | null | undefined;
+  value: any;
+};
 
 /**
  * A list container for the items.
@@ -30,15 +37,20 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
+  const keepPortalMounted = React.useContext(ComboboxPortalContext);
   const { filteredItems, hasItems } = useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
   const popupProps = useStore(store, selectors.popupProps);
+  const open = useStore(store, selectors.open);
+  const inline = useStore(store, selectors.inline);
+  const forceMounted = useStore(store, selectors.forceMounted);
   const virtualized = useStore(store, selectors.virtualized);
 
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
+  const registryActive = inline || open || keepPortalMounted || forceMounted;
 
   const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
@@ -47,6 +59,47 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const setListElement = useStableCallback((element) => {
     store.set('listElement', element);
   });
+
+  const handleMapChange = useStableCallback(
+    (map: Map<Element, ComboboxListItemMetadata | null>) => {
+      if (!registryActive) {
+        return;
+      }
+
+      const itemValues: any[] = [];
+      map.forEach((metadata) => {
+        if (metadata?.index != null) {
+          itemValues[metadata.index] = metadata.value;
+        }
+      });
+
+      store.state.valuesRef.current = itemValues;
+
+      if (hasItems) {
+        store.set('itemValues', itemValues);
+      } else {
+        store.update({
+          itemValues,
+          allItemValues: itemValues,
+        });
+      }
+    },
+  );
+
+  useIsoLayoutEffect(() => {
+    if (registryActive) {
+      return;
+    }
+
+    if (!hasItems && store.state.itemValues.length !== 0) {
+      store.set('allItemValues', store.state.itemValues);
+    }
+
+    store.state.valuesRef.current = [];
+    if (store.state.itemValues.length !== 0) {
+      store.set('itemValues', []);
+    }
+  }, [hasItems, registryActive, store]);
 
   // Support "closed template" API: if children is a function, implicitly wrap it
   // with a Combobox.Collection that reads items from context/root.
@@ -120,6 +173,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     <CompositeList
       elementsRef={store.state.listRef}
       labelsRef={hasItems ? undefined : store.state.labelsRef}
+      onMapChange={handleMapChange}
     >
       {element}
     </CompositeList>

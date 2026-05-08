@@ -117,7 +117,6 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             );
             store.state.setIndices({
               activeIndex: null,
-              selectedIndex: null,
               type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
             });
           } else {

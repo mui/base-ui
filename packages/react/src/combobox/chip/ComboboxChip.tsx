@@ -58,7 +58,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 
       stopEvent(event);
 
-      store.state.setIndices({ activeIndex: null, selectedIndex: null, type: 'keyboard' });
+      store.state.setIndices({ activeIndex: null, type: 'keyboard' });
       store.state.setSelectedValue(
         selectedValue.filter((_: any, i: number) => i !== index),
         createChangeEventDetails(REASONS.none, event.nativeEvent),
