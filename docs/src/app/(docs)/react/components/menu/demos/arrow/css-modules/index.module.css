@@ -150,7 +150,7 @@
 }
 
 .Separator {
-  margin: 0.25rem 1rem;
+  margin: 0.25rem;
   height: 1px;
   background-color: light-dark(var(--color-neutral-950), white);
 }
