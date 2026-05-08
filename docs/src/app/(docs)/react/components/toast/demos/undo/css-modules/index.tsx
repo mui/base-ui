@@ -49,7 +49,7 @@ function ToastList() {
     <Toast.Root key={toast.id} toast={toast} className={styles.Toast}>
       <Toast.Content className={styles.Content}>
         <div className={styles.Text}>
-          <div>
+          <div className={styles.Message}>
             <Toast.Title className={styles.Title} />
             <Toast.Description className={styles.Description} />
           </div>

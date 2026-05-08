@@ -130,6 +130,9 @@
 }
 
 .Text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   min-width: 0;
   flex: 1;
 }
