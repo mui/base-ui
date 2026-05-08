@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { BellIcon } from '../../icons-tw';
 
 const demoPopover = Popover.createHandle();
+
+const triggerClassName =
+  'flex h-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm font-normal whitespace-nowrap text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-popup-open:bg-neutral-100 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800';
 
 export default function PopoverDetachedTriggersControlledDemo() {
   const [open, setOpen] = React.useState(false);
@@ -17,33 +19,21 @@ export default function PopoverDetachedTriggersControlledDemo() {
   return (
     <React.Fragment>
       <div className="flex gap-2 flex-wrap justify-center">
-        <Popover.Trigger
-          className="flex size-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white text-sm leading-none whitespace-nowrap font-normal select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-popup-open:bg-neutral-100 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
-          handle={demoPopover}
-          id="trigger-1"
-        >
-          <BellIcon aria-label="Notifications" className="size-5" />
+        <Popover.Trigger className={triggerClassName} handle={demoPopover} id="trigger-1">
+          Trigger 1
         </Popover.Trigger>
 
-        <Popover.Trigger
-          className="flex size-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white text-sm leading-none whitespace-nowrap font-normal select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-popup-open:bg-neutral-100 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
-          handle={demoPopover}
-          id="trigger-2"
-        >
-          <BellIcon aria-label="Notifications" className="size-5" />
+        <Popover.Trigger className={triggerClassName} handle={demoPopover} id="trigger-2">
+          Trigger 2
         </Popover.Trigger>
 
-        <Popover.Trigger
-          className="flex size-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white text-sm leading-none whitespace-nowrap font-normal select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-popup-open:bg-neutral-100 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
-          handle={demoPopover}
-          id="trigger-3"
-        >
-          <BellIcon aria-label="Notifications" className="size-5" />
+        <Popover.Trigger className={triggerClassName} handle={demoPopover} id="trigger-3">
+          Trigger 3
         </Popover.Trigger>
 
         <button
           type="button"
-          className="flex h-8 items-center justify-center gap-2 border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 dark:text-white select-none hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 disabled:border-neutral-500 disabled:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+          className="flex h-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm font-normal whitespace-nowrap text-neutral-950 dark:text-white select-none hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 disabled:border-neutral-500 disabled:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
           onClick={() => {
             setTriggerId('trigger-2');
             setOpen(true);
