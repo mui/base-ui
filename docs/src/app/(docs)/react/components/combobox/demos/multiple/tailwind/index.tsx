@@ -7,7 +7,7 @@ export default function ExampleMultipleCombobox() {
 
   return (
     <Combobox.Root items={langs} multiple>
-      <div className="max-w-[28rem] flex flex-col gap-1">
+      <div className="max-w-md flex flex-col gap-1">
         <label
           className="flex flex-col gap-1 text-sm leading-5 font-bold text-neutral-950 dark:text-white"
           htmlFor={id}
