@@ -31,7 +31,7 @@
 .Input {
   box-sizing: border-box;
   margin: 0;
-  padding: 0 0.75rem;
+  padding: 0 0.5rem;
   border: 1px solid light-dark(var(--color-neutral-950), white);
   border-right: 0;
   border-left: 0;

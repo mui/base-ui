@@ -32,7 +32,7 @@ export const Input = React.forwardRef<HTMLInputElement, NumberField.Input.Props>
     <NumberField.Input
       ref={forwardedRef}
       className={clsx(
-        'h-full w-16 rounded-none border-y border-neutral-950 bg-white px-3 text-center text-sm font-normal text-neutral-950 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:bg-neutral-950 dark:text-white',
+        'h-full w-16 rounded-none border-y border-neutral-950 bg-white px-2 text-sm font-normal text-neutral-950 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:bg-neutral-950 dark:text-white',
         className,
       )}
       {...props}
