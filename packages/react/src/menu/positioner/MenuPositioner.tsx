@@ -177,7 +177,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const closeTimeout = useTimeout();
 
-  // Clear pending close timeout when the menu closes.
   React.useEffect(() => {
     if (!open) {
       closeTimeout.clear();

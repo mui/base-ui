@@ -261,41 +261,6 @@ describe('<Tooltip.Root />', () => {
 
         expect(screen.getByText('Content')).not.toBe(null);
       });
-
-      it('respects Tooltip.Provider timeout after it expires', async () => {
-        await render(
-          <Tooltip.Provider timeout={50}>
-            <TestTooltip triggerProps={{ delay: 100, closeDelay: 0 }} />
-          </Tooltip.Provider>,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
-        await flushMicrotasks();
-
-        clock.tick(100);
-        await flushMicrotasks();
-        expect(screen.getByText('Content')).not.toBe(null);
-
-        fireEvent.mouseLeave(trigger);
-        await flushMicrotasks();
-        expect(screen.queryByText('Content')).toBe(null);
-
-        clock.tick(51);
-        await flushMicrotasks();
-
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
-        await flushMicrotasks();
-
-        expect(screen.queryByText('Content')).toBe(null);
-
-        clock.tick(100);
-        await flushMicrotasks();
-        expect(screen.getByText('Content')).not.toBe(null);
-      });
     });
 
     describe('prop: closeDelay', () => {

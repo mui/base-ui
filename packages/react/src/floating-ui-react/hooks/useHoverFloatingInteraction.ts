@@ -91,18 +91,15 @@ export function useHoverFloatingInteraction(
     closeHoverPopup(store, instance, tree, event, isHoverOpen(), hoverCloseGracePeriod);
   });
 
-  const closeWithDelay = React.useCallback(
-    (event: MouseEvent) => {
-      closeWithOptionalDelay(
-        store,
-        instance,
-        handleHoverClose,
-        event,
-        getDelay(closeDelayProp, 'close', instance.pointerType),
-      );
-    },
-    [closeDelayProp, handleHoverClose, instance, store],
-  );
+  const closeWithDelay = useStableCallback((event: MouseEvent) => {
+    closeWithOptionalDelay(
+      store,
+      instance,
+      handleHoverClose,
+      event,
+      getDelay(closeDelayProp, 'close', instance.pointerType),
+    );
+  });
 
   const clearPointerEvents = useStableCallback(() => {
     clearSafePolygonPointerEventsMutation(instance);
@@ -278,7 +275,6 @@ export function useHoverFloatingInteraction(
     floatingElement,
     store,
     dataRef,
-    closeDelayProp,
     nodeIdProp,
     isClickLikeOpenEvent,
     closeWithDelay,

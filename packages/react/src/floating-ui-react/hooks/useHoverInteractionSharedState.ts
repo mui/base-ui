@@ -23,8 +23,9 @@ export const HOVER_CLOSE_UNSET = -1;
 
 /**
  * Default grace period (ms) after a committed hover-close during which a
- * subsequent hover-open bypasses the configured delay. This enables smooth
- * trigger-to-trigger and popup-to-trigger handoffs.
+ * subsequent hover-open bypasses the configured delay. The 400ms window keeps
+ * trigger-to-trigger and popup-to-trigger handoffs responsive without keeping
+ * stale hover intent around for long.
  *
  * Note: the grace window intentionally applies to same-trigger re-entry as
  * well, not only cross-trigger handoffs. Consumers who need a strict reopen
@@ -283,7 +284,8 @@ export function closeHoverPopup(
   ReactDOM.flushSync(() => {});
 
   // Check the popup store's effective open state. After the flushSync above,
-  // regular `setState` calls from `onOpenChange` are committed, so:
+  // popup-store updates and non-transition controlled `setState` calls from
+  // `onOpenChange` are committed, so:
   //  - Consumer accepted → effective open is `false`
   //  - Consumer ignored (no cancel, no setState) → effective open is `true`
   //  - Consumer deferred via `startTransition` → effective open is `true`

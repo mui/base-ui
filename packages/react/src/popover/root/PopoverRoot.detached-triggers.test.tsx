@@ -857,6 +857,42 @@ describe('<Popover.Root />', () => {
       });
     });
 
+    it('clears trigger-change instant before hover close after switching back to the original trigger', async () => {
+      const { user, trigger1, popup } = await renderHoverDetachedTriggers();
+
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 150);
+        });
+      });
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'trigger-change');
+
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      await user.unhover(trigger1);
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
+      });
+
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 150);
+        });
+      });
+
+      expect(screen.getByTestId('popup')).toBe(popup);
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(popup).not.toHaveAttribute('data-instant');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    });
+
     it('keeps positioning correct when conditional triggers unmount and the tree remounts', async () => {
       const testPopover = Popover.createHandle();
 
