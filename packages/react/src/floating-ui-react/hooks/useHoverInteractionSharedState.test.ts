@@ -66,7 +66,7 @@ describe('closeHoverPopup', () => {
     expect(instance.lastHoverCloseTime).toBe(HOVER_CLOSE_UNSET);
   });
 
-  it('does not record a pending close when a controlled consumer ignores the request', () => {
+  it('does not record a pending close when a controlled consumer ignores the request', async () => {
     const store = createMockStore({ controlledOpen: true });
     const instance = HoverInteraction.create();
     const tree = createMockTree();
@@ -80,10 +80,12 @@ describe('closeHoverPopup', () => {
       400,
     );
 
-    // The consumer silently ignored the close request — the popup store's
-    // effective open is still `true` after `flushSync`. No hover-close
-    // bookkeeping is recorded, preventing a later unrelated close from
-    // inheriting a stale hover grace window.
+    // The consumer silently ignored the close request. The pending close is
+    // retained only until the next microtask can confirm that the popup is
+    // still effectively open, preventing a later unrelated close from
+    // inheriting stale hover grace.
+    await new Promise<void>(queueMicrotask);
+
     expect(tree.emittedEvents).toEqual([]);
     expect(instance.lastHoverCloseTime).toBe(HOVER_CLOSE_UNSET);
     expect(instance.pendingHoverClose).toBe(null);

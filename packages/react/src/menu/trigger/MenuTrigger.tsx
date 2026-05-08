@@ -324,6 +324,9 @@ export interface MenuTriggerProps<Payload = unknown>
   payload?: Payload | undefined;
   /**
    * How long to wait before the menu may be opened on hover. Specified in milliseconds.
+   * The delay is bypassed briefly after a committed hover close so quick
+   * popup-to-trigger, trigger-to-trigger, and same-trigger re-entry handoffs
+   * can reopen immediately.
    *
    * Requires the `openOnHover` prop.
    * @default 100

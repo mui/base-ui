@@ -59,6 +59,7 @@ export class HoverInteraction {
   restTimeoutPending: boolean;
   lastHoverCloseTime: number;
   pendingHoverClose: PendingHoverClose | null;
+  pendingHoverCloseId: number;
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
   handleCloseOptions: SafePolygonOptions | undefined;
@@ -76,6 +77,7 @@ export class HoverInteraction {
     // `HOVER_CLOSE_UNSET` means no hover-close has occurred yet.
     this.lastHoverCloseTime = HOVER_CLOSE_UNSET;
     this.pendingHoverClose = null;
+    this.pendingHoverCloseId = 0;
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();
     this.handleCloseOptions = undefined;
@@ -182,6 +184,12 @@ export function clearPendingHoverClose(instance: HoverInteraction): void {
   instance.pendingHoverClose = null;
 }
 
+function setPendingHoverClose(instance: HoverInteraction, pendingHoverClose: PendingHoverClose) {
+  instance.pendingHoverClose = pendingHoverClose;
+  instance.pendingHoverCloseId += 1;
+  return instance.pendingHoverCloseId;
+}
+
 /**
  * If a pending hover-close exists, finalizes it as committed: records the
  * grace timestamp (when applicable) and emits a `floating.closed` tree event
@@ -257,6 +265,16 @@ export function closeHoverPopup(
     return;
   }
 
+  // --- Pending phase: record intent to close. ---
+  // The pending close will be finalized by `emitCommittedHoverClose` either
+  // synchronously below (if the floating root store already reflects the
+  // closed state) or in the `open` watcher effect when the floating root
+  // store syncs the popup store's closed state.
+  const pendingHoverCloseId = setPendingHoverClose(instance, {
+    event,
+    shouldRecordGrace: isHoverOpen && hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0,
+  });
+
   // --- Commit verification phase ---
   // Force React to process any batched state updates that the consumer's
   // `onOpenChange` callback may have enqueued. This lets us detect whether
@@ -283,20 +301,21 @@ export function closeHoverPopup(
   const isEffectivelyOpen = store.context.isPopupEffectivelyOpen?.() ?? store.select('open');
 
   if (isEffectivelyOpen) {
-    // Consumer silently ignored the close (or used startTransition).
-    // Do not record a pending hover-close.
+    // The popup is still open at the end of this turn. Give a controlled
+    // `onOpenChange` one microtask to commit its `open=false` update, then
+    // drop the pending close if the popup is still effectively open so a later
+    // unrelated close cannot inherit hover-close grace.
+    queueMicrotask(() => {
+      if (
+        instance.pendingHoverCloseId === pendingHoverCloseId &&
+        (store.context.isPopupEffectivelyOpen?.() ?? store.select('open'))
+      ) {
+        clearPendingHoverClose(instance);
+      }
+    });
+
     return;
   }
-
-  // --- Pending phase: record intent to close. ---
-  // The pending close will be finalized by `emitCommittedHoverClose` either
-  // synchronously below (if the floating root store already reflects the
-  // closed state) or in the `open` watcher effect when the floating root
-  // store syncs the popup store's closed state.
-  instance.pendingHoverClose = {
-    event,
-    shouldRecordGrace: isHoverOpen && hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0,
-  };
 
   // If the floating root store already reflects the closed state (e.g.
   // Popover uses `flushSync` internally), finalize immediately so tree
