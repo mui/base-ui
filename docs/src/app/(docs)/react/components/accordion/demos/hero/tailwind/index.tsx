@@ -3,46 +3,46 @@ import { Accordion } from '@base-ui/react/accordion';
 
 export default function ExampleAccordion() {
   return (
-    <Accordion.Root className="flex w-80 max-w-full flex-col border-b border-neutral-950 text-neutral-950 dark:border-white dark:text-white">
+    <Accordion.Root className="flex w-80 max-w-full flex-col border border-neutral-950 text-neutral-950 dark:border-white dark:text-white">
       <Accordion.Item>
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-neutral-950 bg-transparent py-2 text-left text-sm font-normal text-neutral-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700">
             What is Base UI?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
-          <div className="py-2">
+          <div className="px-3 py-2">
             Base UI is a library of high-quality unstyled React components for design systems and
             web apps.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
 
-      <Accordion.Item>
+      <Accordion.Item className="border-t border-neutral-950 dark:border-white">
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-neutral-950 bg-transparent py-2 text-left text-sm font-normal text-neutral-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700">
             How do I get started?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
-          <div className="py-2">
+          <div className="px-3 py-2">
             Head to the “Quick start” guide in the docs. If you’ve used unstyled libraries before,
             you’ll feel at home.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
 
-      <Accordion.Item>
+      <Accordion.Item className="border-t border-neutral-950 dark:border-white">
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-neutral-950 bg-transparent py-2 text-left text-sm font-normal text-neutral-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700">
             Can I use it for my project?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
-          <div className="py-2">Of course! Base UI is free and open source.</div>
+          <div className="px-3 py-2">Of course! Base UI is free and open source.</div>
         </Accordion.Panel>
       </Accordion.Item>
     </Accordion.Root>

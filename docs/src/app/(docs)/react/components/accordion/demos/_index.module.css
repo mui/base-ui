@@ -4,8 +4,14 @@
   width: 20rem;
   max-width: 100%;
   flex-direction: column;
-  border-bottom: 1px solid light-dark(var(--color-neutral-950), white);
+  border: 1px solid light-dark(var(--color-neutral-950), white);
   color: light-dark(var(--color-neutral-950), white);
+}
+
+.Item {
+  & + & {
+    border-top: 1px solid light-dark(var(--color-neutral-950), white);
+  }
 }
 
 .Header {
@@ -19,10 +25,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
   margin: 0;
   border: none;
-  border-top: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 0;
   background-color: transparent;
   color: light-dark(var(--color-neutral-950), white);
@@ -32,6 +37,16 @@
   line-height: 1.25rem;
   text-align: left;
   user-select: none;
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+    }
+  }
+
+  &:active:not([data-disabled]) {
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+  }
 
   &:focus-visible {
     outline: 2px solid var(--color-blue-800);
@@ -66,5 +81,5 @@
 }
 
 .Content {
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
 }
