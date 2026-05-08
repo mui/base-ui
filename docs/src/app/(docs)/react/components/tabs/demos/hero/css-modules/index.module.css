@@ -1,3 +1,9 @@
+.Root {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 20rem;
+}
+
 .List {
   display: flex;
   position: relative;
@@ -60,16 +66,30 @@
   background-color: light-dark(white, var(--color-neutral-950));
 }
 
+.PanelViewport {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  min-height: 8rem;
+  border-inline: 1px solid light-dark(var(--color-neutral-950), white);
+  border-block: 1px solid light-dark(var(--color-neutral-950), white);
+}
+
 .Panel {
   box-sizing: border-box;
-  position: relative;
+  grid-area: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 8rem;
+  width: 100%;
+  padding: 1rem;
+
   outline: 0;
-  border-inline: 1px solid light-dark(var(--color-neutral-950), white);
-  border-block: 1px solid light-dark(var(--color-neutral-950), white);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-align: center;
+  color: light-dark(var(--color-neutral-950), white);
   background-color: light-dark(white, var(--color-neutral-950));
 
   &:focus-visible {
@@ -83,8 +103,6 @@
   }
 }
 
-.Icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  color: light-dark(var(--color-neutral-400), var(--color-neutral-500));
+.Paragraph {
+  margin: 0;
 }
