@@ -61,10 +61,9 @@ function shouldSkipTabActivationForClick(event: React.MouseEvent<HTMLAnchorEleme
   }
 
   // Let normal link behavior win when the click does not navigate in the current page:
-  // already handled events, new-window/download links, and modified or non-primary clicks
-  // should not update the selected tab in this browsing context.
+  // new-window/download links and modified or non-primary clicks should not update
+  // the selected tab in this browsing context.
   return (
-    event.defaultPrevented ||
     (event.currentTarget.target !== '' && event.currentTarget.target !== '_self') ||
     event.currentTarget.hasAttribute('download') ||
     event.button !== 0 ||

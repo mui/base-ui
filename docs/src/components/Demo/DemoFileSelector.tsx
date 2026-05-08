@@ -12,6 +12,10 @@ interface DemoFileSelectorProps {
 
 type Tab = { id: string; name: string; slug?: string };
 
+function isModifiedClick(event: React.MouseEvent | React.PointerEvent) {
+  return event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0;
+}
+
 export function DemoFileSelector({
   files,
   selectedFileName,
@@ -40,13 +44,12 @@ export function DemoFileSelector({
 
   const onTabPointerDown = React.useCallback((event: React.PointerEvent) => {
     // Track modifier keys before focus event fires
-    modifierKeysRef.current = event.ctrlKey || event.metaKey;
+    modifierKeysRef.current = isModifiedClick(event);
   }, []);
 
   const onTabClick = React.useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
-    // Allow Ctrl+Click (or Cmd+Click on Mac) to open in new tab
-    if (event.ctrlKey || event.metaKey) {
-      // Reset modifier keys flag after all event handlers complete
+    if (isModifiedClick(event)) {
+      // Let modified clicks preserve the link's native behavior.
       queueMicrotask(() => {
         modifierKeysRef.current = false;
       });
@@ -69,17 +72,16 @@ export function DemoFileSelector({
     <Tabs.Root value={selectedFileName} onValueChange={onValueChange}>
       <Tabs.List className="DemoTabsList" aria-label="Files">
         {tabs.map((tab: Tab) => (
-          <Tabs.Tab
-            // eslint-disable-next-line jsx-a11y/control-has-associated-label
-            render={<a href={tab.slug ? `#${tab.slug}` : undefined} onClick={onTabClick} />}
+          <Tabs.LinkTab
+            href={tab.slug ? `#${tab.slug}` : undefined}
             className="DemoTab"
             value={tab.id}
             key={tab.id}
-            nativeButton={false}
+            onClick={onTabClick}
             onPointerDown={onTabPointerDown}
           >
             {tab.name}
-          </Tabs.Tab>
+          </Tabs.LinkTab>
         ))}
       </Tabs.List>
     </Tabs.Root>

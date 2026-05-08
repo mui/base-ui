@@ -105,6 +105,72 @@ describe('<Tabs.LinkTab />', () => {
     expect(panels[1]).not.toHaveAttribute('hidden');
   });
 
+  it('selects the corresponding panel when the click event prevents default', async () => {
+    const { user } = await render(
+      <Tabs.Root defaultValue="overview">
+        <Tabs.List>
+          <Tabs.LinkTab href="#overview" value="overview">
+            Overview
+          </Tabs.LinkTab>
+          <Tabs.LinkTab
+            href="#settings"
+            value="settings"
+            onClick={(event) => event.preventDefault()}
+          >
+            Settings
+          </Tabs.LinkTab>
+        </Tabs.List>
+        <Tabs.Panel value="overview" keepMounted>
+          Overview panel
+        </Tabs.Panel>
+        <Tabs.Panel value="settings" keepMounted>
+          Settings panel
+        </Tabs.Panel>
+      </Tabs.Root>,
+    );
+
+    await user.click(screen.getByRole('tab', { name: 'Settings' }));
+
+    const panels = screen.getAllByRole('tabpanel', { hidden: true });
+
+    expect(panels[0]).toHaveAttribute('hidden');
+    expect(panels[1]).not.toHaveAttribute('hidden');
+  });
+
+  it('does not select the corresponding panel when the click event prevents the Base UI handler', async () => {
+    const { user } = await render(
+      <Tabs.Root defaultValue="overview">
+        <Tabs.List>
+          <Tabs.LinkTab href="#overview" value="overview">
+            Overview
+          </Tabs.LinkTab>
+          <Tabs.LinkTab
+            href="#settings"
+            value="settings"
+            onClick={(event) => {
+              event.preventBaseUIHandler();
+            }}
+          >
+            Settings
+          </Tabs.LinkTab>
+        </Tabs.List>
+        <Tabs.Panel value="overview" keepMounted>
+          Overview panel
+        </Tabs.Panel>
+        <Tabs.Panel value="settings" keepMounted>
+          Settings panel
+        </Tabs.Panel>
+      </Tabs.Root>,
+    );
+
+    await user.click(screen.getByRole('tab', { name: 'Settings' }));
+
+    const panels = screen.getAllByRole('tabpanel', { hidden: true });
+
+    expect(panels[0]).not.toHaveAttribute('hidden');
+    expect(panels[1]).toHaveAttribute('hidden');
+  });
+
   it('does not select or navigate when disabled', async () => {
     await renderRouterLinkTabs({ disabledLink2: true });
 
