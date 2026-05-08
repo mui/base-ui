@@ -277,11 +277,11 @@ describe('<Tooltip.Root />', () => {
 
         clock.tick(100);
         await flushMicrotasks();
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
 
         fireEvent.mouseLeave(trigger);
         await flushMicrotasks();
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         clock.tick(51);
         await flushMicrotasks();
@@ -290,11 +290,11 @@ describe('<Tooltip.Root />', () => {
         fireEvent.mouseMove(trigger);
         await flushMicrotasks();
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         clock.tick(100);
         await flushMicrotasks();
-        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(screen.getByText('Content')).not.toBe(null);
       });
     });
 

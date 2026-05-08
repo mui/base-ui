@@ -22,7 +22,7 @@ describe('closeHoverPopup', () => {
     );
 
     expect(tree.emittedEvents).toEqual([['floating.closed', expect.any(MouseEvent)]]);
-    expect(instance.lastHoverCloseTime).to.equal(HOVER_CLOSE_UNSET);
+    expect(instance.lastHoverCloseTime).toBe(HOVER_CLOSE_UNSET);
   });
 
   it('records reopen grace only for committed hover closes', () => {
@@ -42,7 +42,7 @@ describe('closeHoverPopup', () => {
       );
 
       expect(tree.emittedEvents).toEqual([['floating.closed', expect.any(MouseEvent)]]);
-      expect(instance.lastHoverCloseTime).to.equal(123);
+      expect(instance.lastHoverCloseTime).toBe(123);
     } finally {
       performanceNowSpy.mockRestore();
     }
@@ -63,7 +63,7 @@ describe('closeHoverPopup', () => {
     );
 
     expect(tree.emittedEvents).toEqual([]);
-    expect(instance.lastHoverCloseTime).to.equal(HOVER_CLOSE_UNSET);
+    expect(instance.lastHoverCloseTime).toBe(HOVER_CLOSE_UNSET);
   });
 
   it('does not record a pending close when a controlled consumer ignores the request', () => {
@@ -85,8 +85,8 @@ describe('closeHoverPopup', () => {
     // bookkeeping is recorded, preventing a later unrelated close from
     // inheriting a stale hover grace window.
     expect(tree.emittedEvents).toEqual([]);
-    expect(instance.lastHoverCloseTime).to.equal(HOVER_CLOSE_UNSET);
-    expect(instance.pendingHoverClose).to.equal(null);
+    expect(instance.lastHoverCloseTime).toBe(HOVER_CLOSE_UNSET);
+    expect(instance.pendingHoverClose).toBe(null);
   });
 });
 

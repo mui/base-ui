@@ -1607,17 +1607,17 @@ describe('<Menu.Root />', () => {
 
           clock.tick(100);
           await flushMicrotasks();
-          expect(screen.queryByRole('menu')).not.to.equal(null);
+          expect(screen.queryByRole('menu')).not.toBe(null);
 
           fireEvent.mouseLeave(trigger);
           await flushMicrotasks();
-          expect(screen.queryByRole('menu')).to.equal(null);
+          expect(screen.queryByRole('menu')).toBe(null);
 
           fireEvent.mouseEnter(trigger);
           fireEvent.mouseMove(trigger);
           await flushMicrotasks();
 
-          expect(screen.queryByRole('menu')).not.to.equal(null);
+          expect(screen.queryByRole('menu')).not.toBe(null);
         });
 
         it('restores open delay after the hover-close grace period expires', async () => {

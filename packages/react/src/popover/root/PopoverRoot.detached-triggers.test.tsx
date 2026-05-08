@@ -349,12 +349,12 @@ describe('<Popover.Root />', () => {
 
       await utils.user.hover(trigger1);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('1');
+        expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       await utils.user.hover(trigger2);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('2');
+        expect(screen.getByTestId('content').textContent).toBe('2');
       });
 
       return {
@@ -797,17 +797,17 @@ describe('<Popover.Root />', () => {
         });
       });
 
-      expect(screen.getByTestId('popup')).to.have.attribute('data-instant', 'trigger-change');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'trigger-change');
 
       await user.unhover(trigger2);
       await waitFor(() => {
-        expect(popup).to.have.attribute('data-ending-style');
+        expect(popup).toHaveAttribute('data-ending-style');
       });
 
-      expect(popup).not.to.have.attribute('data-instant');
+      expect(popup).not.toHaveAttribute('data-instant');
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
+        expect(screen.queryByTestId('popup')).toBe(null);
       });
     });
 
@@ -820,17 +820,17 @@ describe('<Popover.Root />', () => {
         });
       });
 
-      expect(screen.getByTestId('popup')).to.have.attribute('data-instant', 'trigger-change');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'trigger-change');
 
       fireEvent.click(screen.getByRole('button', { name: 'Close' }));
       await waitFor(() => {
-        expect(popup).to.have.attribute('data-ending-style');
+        expect(popup).toHaveAttribute('data-ending-style');
       });
 
-      expect(popup).not.to.have.attribute('data-instant');
+      expect(popup).not.toHaveAttribute('data-instant');
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
+        expect(screen.queryByTestId('popup')).toBe(null);
       });
     });
 
@@ -839,7 +839,7 @@ describe('<Popover.Root />', () => {
 
       await user.unhover(trigger2);
       await waitFor(() => {
-        expect(popup).to.have.attribute('data-ending-style');
+        expect(popup).toHaveAttribute('data-ending-style');
       });
 
       await act(async () => {
@@ -848,12 +848,12 @@ describe('<Popover.Root />', () => {
         });
       });
 
-      expect(screen.getByTestId('popup')).to.equal(popup);
-      expect(popup).to.have.attribute('data-ending-style');
-      expect(popup).not.to.have.attribute('data-instant');
+      expect(screen.getByTestId('popup')).toBe(popup);
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(popup).not.toHaveAttribute('data-instant');
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
+        expect(screen.queryByTestId('popup')).toBe(null);
       });
     });
 
