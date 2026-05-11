@@ -144,18 +144,10 @@ export interface FloatingNodeType {
 
 export type FloatingTreeType = FloatingTreeStore;
 
-export type ExtendedUserProps = {
-  active?: boolean | undefined;
-  selected?: boolean | undefined;
-};
-
 export interface ElementProps {
   reference?: React.HTMLProps<Element> | undefined;
   floating?: React.HTMLProps<HTMLElement> | undefined;
-  item?:
-    | React.HTMLProps<HTMLElement>
-    | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>)
-    | undefined;
+  item?: React.HTMLProps<HTMLElement> | undefined;
   trigger?: React.HTMLProps<Element> | undefined;
 }
 
