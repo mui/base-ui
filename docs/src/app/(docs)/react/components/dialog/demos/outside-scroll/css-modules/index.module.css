@@ -88,7 +88,7 @@
   display: flex;
   justify-content: center;
   background-color: light-dark(rgb(0 0 0 / 12%), rgb(255 255 255 / 12%));
-  width: 0.75rem;
+  width: 0.5rem;
   opacity: 0;
   transition: opacity 250ms;
   pointer-events: none;

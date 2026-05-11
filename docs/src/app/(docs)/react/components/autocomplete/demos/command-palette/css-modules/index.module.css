@@ -226,7 +226,7 @@
   display: flex;
   justify-content: center;
   background-color: light-dark(rgb(0 0 0 / 12%), rgb(255 255 255 / 12%));
-  width: 1rem;
+  width: 0.5rem;
   opacity: 0;
   transition: opacity 150ms;
   pointer-events: none;
@@ -239,13 +239,6 @@
   &[data-scrolling] {
     opacity: 1;
     pointer-events: auto;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    width: 1.25rem;
-    height: 100%;
   }
 }
 

@@ -29,7 +29,7 @@ export default function InsideScrollDialog() {
                   ))}
                 </ScrollArea.Content>
               </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar className="pointer-events-none flex w-3 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-150 before:absolute before:h-full before:w-4 before:content-[''] data-hovering:pointer-events-auto data-hovering:opacity-100 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0">
+              <ScrollArea.Scrollbar className="pointer-events-none flex w-2 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-150 data-hovering:pointer-events-auto data-hovering:opacity-100 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0">
                 <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>

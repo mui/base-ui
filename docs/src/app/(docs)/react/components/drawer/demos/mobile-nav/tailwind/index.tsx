@@ -123,7 +123,7 @@ export default function ExampleDrawerMobileNav() {
               </ScrollArea.Content>
             </ScrollArea.Viewport>
             <ScrollArea.Scrollbar className="pointer-events-none absolute m-[0.4rem] flex w-[0.25rem] justify-center rounded-[1rem] opacity-0 transition-opacity duration-250 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 data-scrolling:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-75 hover:delay-[0ms] data-ending-style:opacity-0 data-ending-style:duration-250 min-[42rem]:w-[0.4375rem]">
-              <ScrollArea.Thumb className="w-full rounded-[inherit] bg-neutral-500 before:absolute before:content-[''] before:top-1/2 before:left-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2" />
+              <ScrollArea.Thumb className="w-full rounded-[inherit] bg-neutral-500" />
             </ScrollArea.Scrollbar>
           </ScrollArea.Root>
         </Drawer.Viewport>

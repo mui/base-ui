@@ -45,7 +45,7 @@
   display: flex;
   justify-content: center;
   background-color: light-dark(rgb(0 0 0 / 8%), rgb(255 255 255 / 12%));
-  width: 1rem;
+  width: 0.5rem;
   margin: 1px;
   opacity: 0;
   transition: opacity 150ms;
@@ -59,13 +59,6 @@
   &[data-scrolling] {
     opacity: 1;
     pointer-events: auto;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    width: 1.25rem;
-    height: 100%;
   }
 }
 
