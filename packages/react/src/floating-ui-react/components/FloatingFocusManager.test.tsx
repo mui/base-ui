@@ -239,12 +239,13 @@ describe('FloatingFocusManager', () => {
           });
 
         try {
+          const user = userEvent.setup();
           render(<App />);
 
           fireEvent.click(screen.getByTestId('reference'));
           await flushMicrotasks();
 
-          act(() => screen.getByTestId('two').focus());
+          await user.click(screen.getByTestId('two'));
 
           act(() => {
             const callbacks = Array.from(frameCallbacks.values());
