@@ -122,7 +122,3 @@
   color: light-dark(var(--color-blue-800), var(--color-blue-500));
   font-weight: 700;
 }
-
-.ItemCategory mark {
-  color: var(--color-blue-800);
-}
