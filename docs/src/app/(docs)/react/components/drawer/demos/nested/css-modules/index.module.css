@@ -100,13 +100,17 @@
 
   box-sizing: border-box;
   position: relative;
-  width: 100%;
+  width: calc(100% + 2px);
+  margin-left: -1px;
+  margin-right: -1px;
   max-height: calc(80vh + var(--bleed));
   height: var(--drawer-height, auto);
   margin-bottom: calc(-1 * var(--bleed));
   padding: 1rem 1.5rem 1.5rem;
   padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px) + var(--bleed));
-  border-top: 1px solid light-dark(var(--color-neutral-950), white);
+  border-width: 1px 1px 0;
+  border-style: solid;
+  border-color: light-dark(var(--color-neutral-950), white);
   background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
   outline: 0;
