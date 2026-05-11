@@ -52,7 +52,7 @@ export function List({ className, ...props }: Autocomplete.List.Props) {
   return (
     <Autocomplete.List
       className={clsx(
-        'max-h-[min(23rem,var(--available-height))] overflow-y-auto overscroll-contain py-2 scroll-py-2 outline-0 data-empty:p-0',
+        'max-h-[min(23rem,var(--available-height))] overflow-y-auto overscroll-contain py-1 scroll-py-1 outline-0 data-empty:p-0',
         className,
       )}
       {...props}

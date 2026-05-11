@@ -103,7 +103,7 @@ export function List({ className, ...props }: Combobox.List.Props) {
   return (
     <Combobox.List
       className={clsx(
-        'outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-empty:p-0',
+        'outline-0 overflow-y-auto scroll-py-[0.25rem] py-1 overscroll-contain max-h-[min(23rem,var(--available-height))] data-empty:p-0',
         className,
       )}
       {...props}

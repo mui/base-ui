@@ -39,7 +39,7 @@ export default function ExampleGroupedCombobox() {
                 No produce found.
               </div>
             </Combobox.Empty>
-            <Combobox.List className="max-h-[min(23rem,var(--available-height))] overflow-auto overscroll-contain scroll-py-2 outline-0">
+            <Combobox.List className="max-h-[min(23rem,var(--available-height))] overflow-auto overscroll-contain py-1 scroll-py-1 outline-0">
               {(group: ProduceGroup) => (
                 <Combobox.Group key={group.value} items={group.items} className="block pb-2">
                   <Combobox.GroupLabel className="py-2 pr-2 pl-7 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">

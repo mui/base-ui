@@ -20,7 +20,7 @@ export default function ExampleAutocomplete() {
                 No tags found.
               </div>
             </Autocomplete.Empty>
-            <Autocomplete.List className="outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-empty:p-0">
+            <Autocomplete.List className="outline-0 overflow-y-auto scroll-py-[0.25rem] py-1 overscroll-contain max-h-[min(23rem,var(--available-height))] data-empty:p-0">
               {(tag: Tag) => (
                 <Autocomplete.Item
                   key={tag.id}

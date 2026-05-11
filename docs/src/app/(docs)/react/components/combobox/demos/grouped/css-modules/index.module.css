@@ -120,8 +120,9 @@
   box-sizing: border-box;
   overflow: auto;
   overscroll-behavior: contain;
-  scroll-padding-top: 0.5rem;
-  scroll-padding-bottom: 0.5rem;
+  padding-block: 0.25rem;
+  scroll-padding-top: 0.25rem;
+  scroll-padding-bottom: 0.25rem;
   max-height: min(23rem, var(--available-height));
   outline: 0;
 }

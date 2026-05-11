@@ -39,7 +39,7 @@ export default function ExampleCombobox() {
                 No fruits found.
               </div>
             </Combobox.Empty>
-            <Combobox.List className="max-h-[min(23rem,var(--available-height))] overflow-y-auto overscroll-contain py-2 scroll-py-2 outline-0 data-empty:p-0">
+            <Combobox.List className="max-h-[min(23rem,var(--available-height))] overflow-y-auto overscroll-contain py-1 scroll-py-1 outline-0 data-empty:p-0">
               {(item: Fruit) => (
                 <Combobox.Item
                   key={item.value}

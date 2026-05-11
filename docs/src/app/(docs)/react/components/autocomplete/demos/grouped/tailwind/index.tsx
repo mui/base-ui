@@ -20,7 +20,7 @@ export default function ExampleGroupAutocomplete() {
                 No tags found.
               </div>
             </Autocomplete.Empty>
-            <Autocomplete.List className="outline-0 overflow-y-auto scroll-py-2 overscroll-contain max-h-[min(22.5rem,var(--available-height))] data-empty:p-0">
+            <Autocomplete.List className="outline-0 overflow-y-auto py-1 scroll-py-1 overscroll-contain max-h-[min(22.5rem,var(--available-height))] data-empty:p-0">
               {(group: TagGroup) => (
                 <Autocomplete.Group key={group.value} items={group.items} className="block pb-2">
                   <Autocomplete.GroupLabel className="p-2 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">

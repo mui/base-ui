@@ -100,7 +100,7 @@ function VirtualizedList({
     <div
       role="presentation"
       ref={handleScrollElementRef}
-      className="h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-py-2"
+      className="h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-py-1"
       style={{ '--total-size': `${totalSize}px` } as React.CSSProperties}
     >
       <div role="presentation" className="relative w-full" style={{ height: totalSize }}>

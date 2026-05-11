@@ -15,7 +15,7 @@ export default function ExampleAutocompleteInline() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-hidden data-empty:hidden" sideOffset={4}>
           <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
-            <Autocomplete.List className="outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-empty:p-0">
+            <Autocomplete.List className="outline-0 overflow-y-auto scroll-py-[0.25rem] py-1 overscroll-contain max-h-[min(23rem,var(--available-height))] data-empty:p-0">
               {(tag: Tag) => (
                 <Autocomplete.Item
                   key={tag.id}

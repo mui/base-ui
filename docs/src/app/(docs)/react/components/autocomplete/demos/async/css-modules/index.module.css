@@ -34,14 +34,14 @@
 
 .Popup {
   box-sizing: border-box;
-  padding-block: 0.5rem;
+  padding-block: 0.25rem;
   background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
   width: var(--anchor-width);
   max-height: min(var(--available-height), 23rem);
   max-width: var(--available-width);
   overflow-y: auto;
-  scroll-padding-block: 0.5rem;
+  scroll-padding-block: 0.25rem;
   overscroll-behavior: contain;
 
   border: 1px solid light-dark(var(--color-neutral-950), white);

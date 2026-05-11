@@ -36,7 +36,7 @@ export default function ExamplePopoverCombobox() {
                   No countries found.
                 </div>
               </Combobox.Empty>
-              <Combobox.List className="max-h-[min(calc(24rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto overscroll-contain py-2 scroll-py-2 empty:p-0">
+              <Combobox.List className="max-h-[min(calc(24rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto overscroll-contain py-1 scroll-py-1 empty:p-0">
                 {(country: Country) => (
                   <Combobox.Item
                     key={country.code}

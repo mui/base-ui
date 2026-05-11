@@ -45,7 +45,7 @@ export default function ExampleAutocompleteCommandPalette() {
                       </div>
                     </Autocomplete.Empty>
 
-                    <Autocomplete.List className="py-2">
+                    <Autocomplete.List className="py-1">
                       {(group: Group) => (
                         <Autocomplete.Group
                           key={group.value}
