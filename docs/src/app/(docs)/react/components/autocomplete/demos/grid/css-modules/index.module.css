@@ -25,7 +25,7 @@
 
   &:focus {
     position: relative;
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid light-dark(var(--color-neutral-950), white);
     outline-offset: -2px;
   }
 }
@@ -57,7 +57,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid light-dark(var(--color-neutral-950), white);
     outline-offset: -2px;
   }
 }
@@ -94,7 +94,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid light-dark(var(--color-neutral-950), white);
     outline-offset: -2px;
   }
 }
@@ -125,7 +125,7 @@
   outline: none;
 
   &:focus {
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid light-dark(var(--color-neutral-950), white);
     outline-offset: -1px;
   }
 }

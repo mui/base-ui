@@ -11,7 +11,7 @@ const submenuTriggerClass =
 export default function ExampleContextMenu() {
   return (
     <ContextMenu.Root>
-      <ContextMenu.Trigger className="flex h-[12rem] w-[15rem] items-center justify-center rounded-none border border-neutral-950 bg-white text-neutral-950 select-none font-normal focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-neutral-950 dark:text-white">
+      <ContextMenu.Trigger className="flex h-[12rem] w-[15rem] items-center justify-center rounded-none border border-neutral-950 bg-white text-neutral-950 select-none font-normal focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white">
         Right click here
       </ContextMenu.Trigger>
       <ContextMenu.Portal>

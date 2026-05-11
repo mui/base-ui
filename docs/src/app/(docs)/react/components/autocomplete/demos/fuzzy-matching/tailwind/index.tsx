@@ -14,7 +14,7 @@ export default function ExampleFuzzyMatchingAutocomplete() {
         Fuzzy search documentation
         <Autocomplete.Input
           placeholder="e.g. React"
-          className="h-8 w-[16rem] border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white"
+          className="h-8 w-[16rem] border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white"
         />
       </label>
 

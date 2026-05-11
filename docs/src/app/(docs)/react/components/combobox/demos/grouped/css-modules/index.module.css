@@ -7,7 +7,7 @@
   background-color: light-dark(white, var(--color-neutral-950));
 
   &:focus-within {
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid light-dark(var(--color-neutral-950), white);
     outline-offset: -2px;
   }
 }

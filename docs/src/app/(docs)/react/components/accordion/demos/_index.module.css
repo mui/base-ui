@@ -49,7 +49,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid light-dark(var(--color-neutral-950), white);
     z-index: 1;
   }
 }

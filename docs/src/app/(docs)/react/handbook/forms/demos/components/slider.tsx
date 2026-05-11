@@ -46,7 +46,7 @@ export function Thumb({ className, ...props }: Slider.Thumb.Props) {
   return (
     <Slider.Thumb
       className={clsx(
-        'size-4 border border-neutral-950 bg-white select-none has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-blue-800 dark:border-white dark:bg-neutral-950',
+        'size-4 border border-neutral-950 bg-white select-none has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950',
         className,
       )}
       {...props}

@@ -20,7 +20,7 @@ function Toasts() {
           <pre className="whitespace-pre-wrap">{JSON.stringify(toast.data, null, 2)}</pre>
         </div>
         <Toast.Close
-          className="absolute top-2 right-2 flex size-6 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700"
+          className="absolute top-2 right-2 flex size-6 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700"
           aria-label="Close"
         >
           <XIcon className="size-5" />

@@ -13,7 +13,7 @@ export default function ExampleAutocompleteCommandPalette() {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger className="flex h-8 cursor-default items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700">
+      <Dialog.Trigger className="flex h-8 cursor-default items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700">
         Open command palette
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -31,13 +31,13 @@ export default function ExampleAutocompleteCommandPalette() {
               keepHighlight
             >
               <Autocomplete.Input
-                className="h-10 w-full border-0 border-b border-neutral-950 bg-white px-4 text-sm font-normal tracking-[0.016em] text-neutral-950 outline-none placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-blue-800 dark:border-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
+                className="h-10 w-full border-0 border-b border-neutral-950 bg-white px-4 text-sm font-normal tracking-[0.016em] text-neutral-950 outline-none placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
                 placeholder="Search for apps and commands…"
               />
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
 
               <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden">
-                <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain [scroll-padding-block:0.25rem] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800">
+                <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain [scroll-padding-block:0.25rem] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
                   <ScrollArea.Content style={{ minWidth: '100%' }}>
                     <Autocomplete.Empty>
                       <div className="flex min-h-32 items-center justify-start py-4 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">

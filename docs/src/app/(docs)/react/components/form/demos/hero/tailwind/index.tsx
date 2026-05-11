@@ -37,7 +37,7 @@ export default function ExampleForm() {
           defaultValue="https://example.com"
           placeholder="https://example.com"
           pattern="https?://.*"
-          className="h-8 w-full border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:text-white dark:placeholder:text-neutral-400"
+          className="h-8 w-full border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white dark:placeholder:text-neutral-400"
         />
         <Field.Error className="text-sm text-red-700 dark:text-red-400" />
       </Field.Root>
@@ -45,7 +45,7 @@ export default function ExampleForm() {
         disabled={loading}
         focusableWhenDisabled
         type="submit"
-        className="flex h-8 items-center justify-center gap-2 rounded-none border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-50 active:not-data-disabled:bg-neutral-100 data-disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-900 dark:active:not-data-disabled:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+        className="flex h-8 items-center justify-center gap-2 rounded-none border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-50 active:not-data-disabled:bg-neutral-100 data-disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-900 dark:active:not-data-disabled:bg-neutral-800 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
       >
         Submit
       </Button>
