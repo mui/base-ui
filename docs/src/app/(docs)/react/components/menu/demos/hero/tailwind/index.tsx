@@ -12,7 +12,7 @@ export default function ExampleMenu() {
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner className="outline-hidden" sideOffset={8}>
-          <Menu.Popup className="relative origin-[var(--transform-origin)] border border-neutral-950 bg-white py-1 text-neutral-950 outline-hidden drop-shadow-[0.25rem_0.25rem_0] drop-shadow-black/12 transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:drop-shadow-none">
+          <Menu.Popup className="relative origin-[var(--transform-origin)] border border-neutral-950 bg-white py-1 text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 outline-hidden transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
             <Menu.Item className={itemClass}>Add to Library</Menu.Item>
             <Menu.Item className={itemClass}>Add to Playlist</Menu.Item>
             <Menu.Separator className="mx-1 my-1 h-px bg-neutral-950 dark:bg-white" />
