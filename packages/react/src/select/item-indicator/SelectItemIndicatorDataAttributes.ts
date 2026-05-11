@@ -1,12 +1,12 @@
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 
-export enum SelectItemIndicatorDataAttributes {
+export const SelectItemIndicatorDataAttributes = {
   /**
    * Present when the indicator is animating in.
    */
-  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  startingStyle: TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the indicator is animating out.
    */
-  endingStyle = TransitionStatusDataAttributes.endingStyle,
-}
+  endingStyle: TransitionStatusDataAttributes.endingStyle,
+} as const;

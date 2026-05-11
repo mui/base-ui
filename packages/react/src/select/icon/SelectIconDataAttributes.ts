@@ -1,8 +1,8 @@
 import { CommonTriggerDataAttributes } from '../../utils/popupStateMapping';
 
-export enum SelectIconDataAttributes {
+export const SelectIconDataAttributes = {
   /**
    * Present when the corresponding popup is open.
    */
-  popupOpen = CommonTriggerDataAttributes.popupOpen,
-}
+  popupOpen: CommonTriggerDataAttributes.popupOpen,
+} as const;

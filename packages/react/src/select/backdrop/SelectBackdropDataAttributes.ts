@@ -1,20 +1,20 @@
 import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
-export enum SelectBackdropDataAttributes {
+export const SelectBackdropDataAttributes = {
   /**
    * Present when the select is open.
    */
-  open = CommonPopupDataAttributes.open,
+  open: CommonPopupDataAttributes.open,
   /**
    * Present when the select is closed.
    */
-  closed = CommonPopupDataAttributes.closed,
+  closed: CommonPopupDataAttributes.closed,
   /**
    * Present when the select is animating in.
    */
-  startingStyle = CommonPopupDataAttributes.startingStyle,
+  startingStyle: CommonPopupDataAttributes.startingStyle,
   /**
    * Present when the select is animating out.
    */
-  endingStyle = CommonPopupDataAttributes.endingStyle,
-}
+  endingStyle: CommonPopupDataAttributes.endingStyle,
+} as const;

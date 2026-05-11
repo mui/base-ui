@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { type FloatingEvents, type FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingEvents, FloatingRootContext } from '../../floating-ui-react/types';
 import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../internals/types';

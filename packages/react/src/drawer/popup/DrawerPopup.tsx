@@ -6,7 +6,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { FloatingFocusManager } from '../../floating-ui-react/components/FloatingFocusManager';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -23,7 +23,7 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Drawer components are mounted.
 let drawerSwipeVarsRegistered = false;

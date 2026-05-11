@@ -9,8 +9,8 @@ import {
   FloatingTree,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  type FloatingRootContext,
-} from '../../floating-ui-react';
+} from '../../floating-ui-react/components/FloatingTree';
+import type { FloatingRootContext } from '../../floating-ui-react/types';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {

@@ -6,8 +6,6 @@ import { warn } from '@base-ui/utils/warn';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
-import { resolveClassName } from '../utils/resolveClassName';
-import { resolveStyle } from '../utils/resolveStyle';
 import { mergeProps, mergePropsN, mergeClassNames } from '../merge-props';
 
 type IntrinsicTagName = keyof React.JSX.IntrinsicElements;
@@ -63,8 +61,18 @@ function useRenderElementProps<
     enabled = true,
   } = params;
 
-  const className = enabled ? resolveClassName(classNameProp, state) : undefined;
-  const style = enabled ? resolveStyle(styleProp, state) : undefined;
+  // eslint-disable-next-line no-nested-ternary
+  const className = enabled
+    ? typeof classNameProp === 'function'
+      ? classNameProp(state)
+      : classNameProp
+    : undefined;
+  // eslint-disable-next-line no-nested-ternary
+  const style = enabled
+    ? typeof styleProp === 'function'
+      ? styleProp(state)
+      : styleProp
+    : undefined;
 
   const stateProps = enabled
     ? getStateAttributesProps(state, stateAttributesMapping)

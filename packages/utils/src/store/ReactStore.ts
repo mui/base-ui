@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 import * as React from 'react';
-import { Store } from './Store';
+import { StoreCore } from './Store';
 import { useStore } from './useStore';
 import { useStableCallback } from '../useStableCallback';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
@@ -11,11 +11,11 @@ import { NOOP } from '../empty';
 /**
  * A Store that supports controlled state keys, non-reactive values and provides utility methods for React.
  */
-export class ReactStore<
+export class ReactStoreCore<
   State extends object,
   Context = Record<string, never>,
   Selectors extends Record<string, SelectorFunction<State>> = Record<string, never>,
-> extends Store<State> {
+> extends StoreCore<State> {
   /**
    * Creates a new ReactStore instance.
    *
@@ -34,7 +34,7 @@ export class ReactStore<
    */
   readonly context: Context;
 
-  private selectors: Selectors | undefined;
+  protected selectors: Selectors | undefined;
 
   /**
    * Synchronizes a single external value into the store.
@@ -46,7 +46,9 @@ export class ReactStore<
     key: keyof State,
     value: Value,
   ) {
-    React.useDebugValue(key);
+    if (process.env.NODE_ENV !== 'production') {
+      React.useDebugValue(key);
+    }
     // eslint-disable-next-line consistent-this
     const store = this;
     useIsoLayoutEffect(() => {
@@ -120,7 +122,9 @@ export class ReactStore<
     key: keyof State,
     controlled: Value | undefined,
   ): void {
-    React.useDebugValue(key);
+    if (process.env.NODE_ENV !== 'production') {
+      React.useDebugValue(key);
+    }
     // eslint-disable-next-line consistent-this
     const store = this;
     const isControlled = controlled !== undefined;
@@ -176,7 +180,9 @@ export class ReactStore<
   ): ReturnType<Selectors[Key]>;
 
   useState(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
-    React.useDebugValue(key);
+    if (process.env.NODE_ENV !== 'production') {
+      React.useDebugValue(key);
+    }
     return useStore(this, this.selectors![key], a1, a2, a3);
   }
 
@@ -191,7 +197,9 @@ export class ReactStore<
     key: Key,
     fn: ContextFunction<Context, Key> | undefined,
   ) {
-    React.useDebugValue(key);
+    if (process.env.NODE_ENV !== 'production') {
+      React.useDebugValue(key);
+    }
     const stableFunction = useStableCallback(fn ?? (NOOP as ContextFunction<Context, Key>));
     (this.context as Record<Key, ContextFunction<Context, Key>>)[key] = stableFunction;
   }
@@ -211,7 +219,13 @@ export class ReactStore<
     }
     return ref.current;
   }
+}
 
+export class ReactStore<
+  State extends object,
+  Context = Record<string, never>,
+  Selectors extends Record<string, SelectorFunction<State>> = Record<string, never>,
+> extends ReactStoreCore<State, Context, Selectors> {
   /**
    * Observes changes derived from the store's selectors and calls the listener when the selected value changes.
    *

@@ -5,7 +5,7 @@ import {
   FloatingTree,
   useFloatingNodeId,
   useFloatingTree,
-} from '../floating-ui-react';
+} from '../floating-ui-react/components/FloatingTree';
 import { type MenuRoot } from '../menu/root/MenuRoot';
 import { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';

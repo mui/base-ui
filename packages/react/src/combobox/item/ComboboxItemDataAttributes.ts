@@ -1,14 +1,14 @@
-export enum ComboboxItemDataAttributes {
+export const ComboboxItemDataAttributes = {
   /**
    * Present when the item is selected.
    */
-  selected = 'data-selected',
+  selected: 'data-selected',
   /**
    * Present when the item is highlighted.
    */
-  highlighted = 'data-highlighted',
+  highlighted: 'data-highlighted',
   /**
    * Present when the item is disabled.
    */
-  disabled = 'data-disabled',
-}
+  disabled: 'data-disabled',
+} as const;

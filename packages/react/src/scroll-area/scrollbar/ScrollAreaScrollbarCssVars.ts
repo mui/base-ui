@@ -1,12 +1,12 @@
-export enum ScrollAreaScrollbarCssVars {
+export const ScrollAreaScrollbarCssVars = {
   /**
    * The scroll area thumb's height.
    * @type {number}
    */
-  scrollAreaThumbHeight = '--scroll-area-thumb-height',
+  scrollAreaThumbHeight: '--scroll-area-thumb-height',
   /**
    * The scroll area thumb's width.
    * @type {number}
    */
-  scrollAreaThumbWidth = '--scroll-area-thumb-width',
-}
+  scrollAreaThumbWidth: '--scroll-area-thumb-width',
+} as const;

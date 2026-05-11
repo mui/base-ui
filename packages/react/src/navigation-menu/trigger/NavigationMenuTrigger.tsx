@@ -10,13 +10,10 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import {
-  safePolygon,
-  useClick,
-  useFloatingRootContext,
-  useFloatingTree,
-  useHoverReferenceInteraction,
-} from '../../floating-ui-react';
+import { useFloatingTree } from '../../floating-ui-react/components/FloatingTree';
+import { useFloatingRootContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { useHoverReferenceInteraction } from '../../floating-ui-react/hooks/useHoverReferenceInteraction';
+import { safePolygon } from '../../floating-ui-react/safePolygon';
 import {
   applySafePolygonPointerEventsMutation,
   clearSafePolygonPointerEventsMutation,
@@ -54,6 +51,7 @@ import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissCo
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 import { mergeProps } from '../../merge-props';
+import { useTriggerPress } from '../../utils/popups/useTriggerPress';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
@@ -622,7 +620,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     [hoverProps],
   );
 
-  const click = useClick(context, {
+  const click = useTriggerPress(context, {
     enabled: interactionsEnabled,
     stickIfOpen,
     toggle: isActiveItem,

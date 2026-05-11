@@ -1,18 +1,16 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { createSelector, ReactStore } from '@base-ui/utils/store/core';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
-  InlineRectCoords,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
-  PopupTriggerMap,
-  setOpenTriggerState,
-  updateInlineRectCoords,
-  usePopupStore,
-} from '../../utils/popups';
+} from '../../utils/popups/store';
+import { InlineRectCoords, updateInlineRectCoords } from '../../utils/popups/inlineRect';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
+import { setOpenTriggerState, usePopupStore } from '../../utils/popups/popupStoreUtils';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY } from '../utils/constants';

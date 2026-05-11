@@ -3,25 +3,25 @@ import {
   CommonTriggerDataAttributes,
 } from '../../utils/popupStateMapping';
 
-export enum ComboboxClearDataAttributes {
+export const ComboboxClearDataAttributes = {
   /**
    * Present when the corresponding popup is open.
    */
-  popupOpen = CommonTriggerDataAttributes.popupOpen,
+  popupOpen: CommonTriggerDataAttributes.popupOpen,
   /**
    * Present when the button is disabled.
    */
-  disabled = 'data-disabled',
+  disabled: 'data-disabled',
   /**
    * Present when the clear button is visible.
    */
-  visible = 'data-visible',
+  visible: 'data-visible',
   /**
    * Present when the button is animating in.
    */
-  startingStyle = CommonPopupDataAttributes.startingStyle,
+  startingStyle: CommonPopupDataAttributes.startingStyle,
   /**
    * Present when the button is animating out.
    */
-  endingStyle = CommonPopupDataAttributes.endingStyle,
-}
+  endingStyle: CommonPopupDataAttributes.endingStyle,
+} as const;

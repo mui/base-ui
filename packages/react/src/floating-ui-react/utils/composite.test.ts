@@ -1,4 +1,4 @@
-import { isElementVisible, isHiddenByStyles } from './composite';
+import { isElementVisible, isHiddenByStyles } from './visibility';
 
 afterEach(() => {
   document.body.innerHTML = '';

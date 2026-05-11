@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/core';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { ComboboxChipContext } from './ComboboxChipContext';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../floating-ui-react/utils/event';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';

@@ -1,12 +1,12 @@
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 
-export enum AvatarImageDataAttributes {
+export const AvatarImageDataAttributes = {
   /**
    * Present when the image is animating in.
    */
-  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  startingStyle: TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the image is animating out.
    */
-  endingStyle = TransitionStatusDataAttributes.endingStyle,
-}
+  endingStyle: TransitionStatusDataAttributes.endingStyle,
+} as const;

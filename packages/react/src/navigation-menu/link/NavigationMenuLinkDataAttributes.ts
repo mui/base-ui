@@ -1,6 +1,6 @@
-export enum NavigationMenuLinkDataAttributes {
+export const NavigationMenuLinkDataAttributes = {
   /**
    * Present when the link is the currently active page.
    */
-  active = 'data-active',
-}
+  active: 'data-active',
+} as const;

@@ -1,51 +1,51 @@
-export enum AutocompleteInputGroupDataAttributes {
+export const AutocompleteInputGroupDataAttributes = {
   /**
    * Present when the corresponding popup is open.
    */
-  popupOpen = 'data-popup-open',
+  popupOpen: 'data-popup-open',
   /**
    * Present when the input group is pressed.
    */
-  pressed = 'data-pressed',
+  pressed: 'data-pressed',
   /**
    * Present when the component is disabled.
    */
-  disabled = 'data-disabled',
+  disabled: 'data-disabled',
   /**
    * Present when the component is readonly.
    */
-  readonly = 'data-readonly',
+  readonly: 'data-readonly',
   /**
    * Indicates which side the corresponding popup is positioned relative to its anchor.
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null}
    */
-  popupSide = 'data-popup-side',
+  popupSide: 'data-popup-side',
   /**
    * Present when the component is in a valid state (when wrapped in Field.Root).
    */
-  valid = 'data-valid',
+  valid: 'data-valid',
   /**
    * Present when the component is in an invalid state (when wrapped in Field.Root).
    */
-  invalid = 'data-invalid',
+  invalid: 'data-invalid',
   /**
    * Present when the component has been touched (when wrapped in Field.Root).
    */
-  touched = 'data-touched',
+  touched: 'data-touched',
   /**
    * Present when the component's value has changed (when wrapped in Field.Root).
    */
-  dirty = 'data-dirty',
+  dirty: 'data-dirty',
   /**
    * Present when the component has a value (when wrapped in Field.Root).
    */
-  filled = 'data-filled',
+  filled: 'data-filled',
   /**
    * Present when the component is focused (when wrapped in Field.Root).
    */
-  focused = 'data-focused',
+  focused: 'data-focused',
   /**
    * Present when the corresponding items list is empty.
    */
-  listEmpty = 'data-list-empty',
-}
+  listEmpty: 'data-list-empty',
+} as const;

@@ -6,28 +6,32 @@ interface NavigatorUAData {
 
 const hasNavigator = typeof navigator !== 'undefined';
 
-const nav = getNavigatorData();
-const platform = getPlatform();
-const userAgent = getUserAgent();
-
 export const isWebKit =
   typeof CSS === 'undefined' || !CSS.supports
     ? false
     : CSS.supports('-webkit-backdrop-filter:none');
 
-export const isIOS =
-  // iPads can claim to be MacIntel
-  nav.platform === 'MacIntel' && nav.maxTouchPoints > 1
-    ? true
-    : /iP(hone|ad|od)|iOS/.test(nav.platform);
+export const isIOS = /* @__PURE__ */ (() => {
+  const nav = getNavigatorData();
+  return (
+    // iPads can claim to be MacIntel
+    nav.platform === 'MacIntel' && nav.maxTouchPoints > 1
+      ? true
+      : /iP(hone|ad|od)|iOS/.test(nav.platform)
+  );
+})();
 
-export const isFirefox = hasNavigator && /firefox/i.test(userAgent);
+export const isFirefox = /* @__PURE__ */ (() => hasNavigator && /firefox/i.test(getUserAgent()))();
 export const isSafari = hasNavigator && /apple/i.test(navigator.vendor);
-export const isEdge = hasNavigator && /Edg/i.test(userAgent);
-export const isAndroid = (hasNavigator && /android/i.test(platform)) || /android/i.test(userAgent);
-export const isMac =
-  hasNavigator && platform.toLowerCase().startsWith('mac') && !navigator.maxTouchPoints;
-export const isJSDOM = userAgent.includes('jsdom/');
+export const isEdge = /* @__PURE__ */ (() => hasNavigator && /Edg/i.test(getUserAgent()))();
+export const isAndroid = /* @__PURE__ */ (() => {
+  const userAgent = getUserAgent();
+  return (hasNavigator && /android/i.test(getPlatform())) || /android/i.test(userAgent);
+})();
+export const isMac = /* @__PURE__ */ (() => {
+  return hasNavigator && getPlatform().toLowerCase().startsWith('mac') && !navigator.maxTouchPoints;
+})();
+export const isJSDOM = /* @__PURE__ */ (() => getUserAgent().includes('jsdom/'))();
 
 // Avoid Chrome DevTools blue warning.
 function getNavigatorData(): { platform: string; maxTouchPoints: number } {

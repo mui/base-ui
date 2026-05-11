@@ -10,13 +10,15 @@ import {
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
-import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { useHoverReferenceInteraction } from '../../floating-ui-react/hooks/useHoverReferenceInteraction';
+import { safePolygon } from '../../floating-ui-react/safePolygon';
 import { OPEN_DELAY } from '../utils/constants';
 import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { REASONS } from '../../internals/reasons';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
+import { useClickTriggerPress } from '../../utils/popups/useTriggerPress';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
@@ -95,7 +97,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
-  const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
+  const click = useClickTriggerPress(floatingContext, stickIfOpen);
   const interactionTypeProps = useOpenMethodTriggerProps(
     () => store.select('open'),
     (interactionType) => {

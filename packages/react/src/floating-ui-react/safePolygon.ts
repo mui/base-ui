@@ -88,7 +88,6 @@ export interface SafePolygonOptions extends HandleCloseOptions {}
  * @see https://floating-ui.com/docs/useHover#safepolygon
  */
 export function safePolygon(options: SafePolygonOptions = {}) {
-  const { blockPointerEvents = false } = options;
   const timeout = new Timeout();
 
   const fn: HandleClose = ({ x, y, placement, elements, onClose, nodeId, tree }) => {
@@ -126,13 +125,23 @@ export function safePolygon(options: SafePolygonOptions = {}) {
       onClose();
     }
 
+    function hasOpenChildNode() {
+      return Boolean(tree && getNodeChildren(tree.nodesRef.current, nodeId).length > 0);
+    }
+
+    function closeIfNoOpenChild() {
+      if (!hasOpenChildNode()) {
+        close();
+      }
+    }
+
     return function onMouseMove(event: MouseEvent) {
       timeout.clear();
 
       const domReference = elements.domReference;
       const floating = elements.floating;
       if (!domReference || !floating || side == null || x == null || y == null) {
-        return undefined;
+        return;
       }
 
       const { clientX, clientY } = event;
@@ -145,7 +154,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
         hasLanded = true;
 
         if (!isLeave) {
-          return undefined;
+          return;
         }
       }
 
@@ -154,29 +163,19 @@ export function safePolygon(options: SafePolygonOptions = {}) {
 
         if (!isLeave) {
           hasLanded = true;
-          return undefined;
+          return;
         }
       }
 
       // Prevent overlapping floating element from being stuck in an open-close
       // loop: https://github.com/floating-ui/floating-ui/issues/1910
       if (isLeave && isElement(event.relatedTarget) && contains(floating, event.relatedTarget)) {
-        return undefined;
-      }
-
-      function hasOpenChildNode() {
-        return Boolean(tree && getNodeChildren(tree.nodesRef.current, nodeId).length > 0);
-      }
-
-      function closeIfNoOpenChild() {
-        if (!hasOpenChildNode()) {
-          close();
-        }
+        return;
       }
 
       // If any nested child is open, abort.
       if (hasOpenChildNode()) {
-        return undefined;
+        return;
       }
 
       const refRect = domReference.getBoundingClientRect();
@@ -201,7 +200,7 @@ export function safePolygon(options: SafePolygonOptions = {}) {
         (side === 'right' && x <= refRect.left + 1)
       ) {
         closeIfNoOpenChild();
-        return undefined;
+        return;
       }
 
       // Ignore when the cursor is within the rectangular trough between the
@@ -209,227 +208,133 @@ export function safePolygon(options: SafePolygonOptions = {}) {
       // which can start beyond the ref element's edge, traversing back and
       // forth from the ref to the floating element can cause it to close. This
       // ensures it always remains open in that case.
-      let isInsideTroughRect = false;
-
-      switch (side) {
-        case 'top':
-          isInsideTroughRect = isInsideAxisAlignedRect(
+      const isVerticalSide = side === 'top' || side === 'bottom';
+      const isInsideTroughRect = isVerticalSide
+        ? isInsideAxisAlignedRect(
             clientX,
             clientY,
             left,
-            refRect.top + 1,
+            side === 'top' ? refRect.top + 1 : rect.top + 1,
             right,
-            rect.bottom - 1,
-          );
-          break;
-        case 'bottom':
-          isInsideTroughRect = isInsideAxisAlignedRect(
+            side === 'top' ? rect.bottom - 1 : refRect.bottom - 1,
+          )
+        : isInsideAxisAlignedRect(
             clientX,
             clientY,
-            left,
-            rect.top + 1,
-            right,
-            refRect.bottom - 1,
-          );
-          break;
-        case 'left':
-          isInsideTroughRect = isInsideAxisAlignedRect(
-            clientX,
-            clientY,
-            rect.right - 1,
+            side === 'left' ? rect.right - 1 : refRect.right - 1,
             bottom,
-            refRect.left + 1,
+            side === 'left' ? refRect.left + 1 : rect.left + 1,
             top,
           );
-          break;
-        case 'right':
-          isInsideTroughRect = isInsideAxisAlignedRect(
-            clientX,
-            clientY,
-            refRect.right - 1,
-            bottom,
-            rect.left + 1,
-            top,
-          );
-          break;
-        default:
-      }
 
       if (isInsideTroughRect) {
-        return undefined;
+        return;
       }
 
       if (hasLanded && !isInsideRect(clientX, clientY, refRect)) {
         closeIfNoOpenChild();
-        return undefined;
+        return;
       }
 
       if (!isLeave && isCursorMovingSlowly(clientX, clientY)) {
         closeIfNoOpenChild();
-        return undefined;
+        return;
       }
 
-      let isInsidePolygon = false;
-
-      switch (side) {
-        case 'top': {
-          const cursorXOffset = isFloatingWider ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
-          const cursorPointOneX = isFloatingWider
-            ? x + cursorXOffset
-            : cursorLeaveFromRight
+      const isInsidePolygon = isVerticalSide
+        ? (() => {
+            const cursorXOffset = isFloatingWider ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
+            const cursorPointOneX = isFloatingWider
               ? x + cursorXOffset
-              : x - cursorXOffset;
-          const cursorPointTwoX = isFloatingWider
-            ? x - cursorXOffset
-            : cursorLeaveFromRight
-              ? x + cursorXOffset
-              : x - cursorXOffset;
-          const cursorPointY = y + POLYGON_BUFFER + 1;
+              : cursorLeaveFromRight
+                ? x + cursorXOffset
+                : x - cursorXOffset;
+            const cursorPointTwoX = isFloatingWider
+              ? x - cursorXOffset
+              : cursorLeaveFromRight
+                ? x + cursorXOffset
+                : x - cursorXOffset;
+            const cursorPointY = side === 'top' ? y + POLYGON_BUFFER + 1 : y - POLYGON_BUFFER;
+            const commonY =
+              side === 'top' ? rect.bottom - POLYGON_BUFFER : rect.top + POLYGON_BUFFER;
+            const oppositeY = side === 'top' ? rect.top : rect.bottom;
+            const commonYLeft = cursorLeaveFromRight
+              ? commonY
+              : isFloatingWider
+                ? commonY
+                : oppositeY;
+            const commonYRight = cursorLeaveFromRight
+              ? isFloatingWider
+                ? commonY
+                : oppositeY
+              : commonY;
 
-          const commonYLeft = cursorLeaveFromRight
-            ? rect.bottom - POLYGON_BUFFER
-            : isFloatingWider
-              ? rect.bottom - POLYGON_BUFFER
-              : rect.top;
-          const commonYRight = cursorLeaveFromRight
-            ? isFloatingWider
-              ? rect.bottom - POLYGON_BUFFER
-              : rect.top
-            : rect.bottom - POLYGON_BUFFER;
-
-          isInsidePolygon = isPointInQuadrilateral(
-            clientX,
-            clientY,
-            cursorPointOneX,
-            cursorPointY,
-            cursorPointTwoX,
-            cursorPointY,
-            rect.left,
-            commonYLeft,
-            rect.right,
-            commonYRight,
-          );
-          break;
-        }
-        case 'bottom': {
-          const cursorXOffset = isFloatingWider ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
-          const cursorPointOneX = isFloatingWider
-            ? x + cursorXOffset
-            : cursorLeaveFromRight
-              ? x + cursorXOffset
-              : x - cursorXOffset;
-          const cursorPointTwoX = isFloatingWider
-            ? x - cursorXOffset
-            : cursorLeaveFromRight
-              ? x + cursorXOffset
-              : x - cursorXOffset;
-          const cursorPointY = y - POLYGON_BUFFER;
-
-          const commonYLeft = cursorLeaveFromRight
-            ? rect.top + POLYGON_BUFFER
-            : isFloatingWider
-              ? rect.top + POLYGON_BUFFER
-              : rect.bottom;
-          const commonYRight = cursorLeaveFromRight
-            ? isFloatingWider
-              ? rect.top + POLYGON_BUFFER
-              : rect.bottom
-            : rect.top + POLYGON_BUFFER;
-
-          isInsidePolygon = isPointInQuadrilateral(
-            clientX,
-            clientY,
-            cursorPointOneX,
-            cursorPointY,
-            cursorPointTwoX,
-            cursorPointY,
-            rect.left,
-            commonYLeft,
-            rect.right,
-            commonYRight,
-          );
-          break;
-        }
-        case 'left': {
-          const cursorYOffset = isFloatingTaller ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
-          const cursorPointOneY = isFloatingTaller
-            ? y + cursorYOffset
-            : cursorLeaveFromBottom
+            return isPointInQuadrilateral(
+              clientX,
+              clientY,
+              cursorPointOneX,
+              cursorPointY,
+              cursorPointTwoX,
+              cursorPointY,
+              rect.left,
+              commonYLeft,
+              rect.right,
+              commonYRight,
+            );
+          })()
+        : (() => {
+            const cursorYOffset = isFloatingTaller ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
+            const cursorPointOneY = isFloatingTaller
               ? y + cursorYOffset
-              : y - cursorYOffset;
-          const cursorPointTwoY = isFloatingTaller
-            ? y - cursorYOffset
-            : cursorLeaveFromBottom
-              ? y + cursorYOffset
-              : y - cursorYOffset;
-          const cursorPointX = x + POLYGON_BUFFER + 1;
+              : cursorLeaveFromBottom
+                ? y + cursorYOffset
+                : y - cursorYOffset;
+            const cursorPointTwoY = isFloatingTaller
+              ? y - cursorYOffset
+              : cursorLeaveFromBottom
+                ? y + cursorYOffset
+                : y - cursorYOffset;
+            const cursorPointX = side === 'left' ? x + POLYGON_BUFFER + 1 : x - POLYGON_BUFFER;
+            const commonX =
+              side === 'left' ? rect.right - POLYGON_BUFFER : rect.left + POLYGON_BUFFER;
+            const oppositeX = side === 'left' ? rect.left : rect.right;
+            const commonXTop = cursorLeaveFromBottom
+              ? commonX
+              : isFloatingTaller
+                ? commonX
+                : oppositeX;
+            const commonXBottom = cursorLeaveFromBottom
+              ? isFloatingTaller
+                ? commonX
+                : oppositeX
+              : commonX;
 
-          const commonXTop = cursorLeaveFromBottom
-            ? rect.right - POLYGON_BUFFER
-            : isFloatingTaller
-              ? rect.right - POLYGON_BUFFER
-              : rect.left;
-          const commonXBottom = cursorLeaveFromBottom
-            ? isFloatingTaller
-              ? rect.right - POLYGON_BUFFER
-              : rect.left
-            : rect.right - POLYGON_BUFFER;
-
-          isInsidePolygon = isPointInQuadrilateral(
-            clientX,
-            clientY,
-            commonXTop,
-            rect.top,
-            commonXBottom,
-            rect.bottom,
-            cursorPointX,
-            cursorPointOneY,
-            cursorPointX,
-            cursorPointTwoY,
-          );
-          break;
-        }
-        case 'right': {
-          const cursorYOffset = isFloatingTaller ? POLYGON_BUFFER / 2 : POLYGON_BUFFER * 4;
-          const cursorPointOneY = isFloatingTaller
-            ? y + cursorYOffset
-            : cursorLeaveFromBottom
-              ? y + cursorYOffset
-              : y - cursorYOffset;
-          const cursorPointTwoY = isFloatingTaller
-            ? y - cursorYOffset
-            : cursorLeaveFromBottom
-              ? y + cursorYOffset
-              : y - cursorYOffset;
-          const cursorPointX = x - POLYGON_BUFFER;
-
-          const commonXTop = cursorLeaveFromBottom
-            ? rect.left + POLYGON_BUFFER
-            : isFloatingTaller
-              ? rect.left + POLYGON_BUFFER
-              : rect.right;
-          const commonXBottom = cursorLeaveFromBottom
-            ? isFloatingTaller
-              ? rect.left + POLYGON_BUFFER
-              : rect.right
-            : rect.left + POLYGON_BUFFER;
-
-          isInsidePolygon = isPointInQuadrilateral(
-            clientX,
-            clientY,
-            cursorPointX,
-            cursorPointOneY,
-            cursorPointX,
-            cursorPointTwoY,
-            commonXTop,
-            rect.top,
-            commonXBottom,
-            rect.bottom,
-          );
-          break;
-        }
-        default:
-      }
+            return side === 'left'
+              ? isPointInQuadrilateral(
+                  clientX,
+                  clientY,
+                  commonXTop,
+                  rect.top,
+                  commonXBottom,
+                  rect.bottom,
+                  cursorPointX,
+                  cursorPointOneY,
+                  cursorPointX,
+                  cursorPointTwoY,
+                )
+              : isPointInQuadrilateral(
+                  clientX,
+                  clientY,
+                  cursorPointX,
+                  cursorPointOneY,
+                  cursorPointX,
+                  cursorPointTwoY,
+                  commonXTop,
+                  rect.top,
+                  commonXBottom,
+                  rect.bottom,
+                );
+          })();
 
       if (!isInsidePolygon) {
         closeIfNoOpenChild();
@@ -437,15 +342,12 @@ export function safePolygon(options: SafePolygonOptions = {}) {
         timeout.start(40, closeIfNoOpenChild);
       }
 
-      return undefined;
+      return;
     };
   };
 
   // eslint-disable-next-line no-underscore-dangle
-  fn.__options = {
-    ...options,
-    blockPointerEvents,
-  };
+  fn.__options = options;
 
   return fn;
 }

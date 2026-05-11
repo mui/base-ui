@@ -4,7 +4,8 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDismiss, FloatingTree } from '../../floating-ui-react';
+import { FloatingTree } from '../../floating-ui-react/components/FloatingTree';
+import { useDismissCore as useDismiss } from '../../floating-ui-react/hooks/useDismissCore';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import {
   createChangeEventDetails,
@@ -14,11 +15,11 @@ import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
   FOCUSABLE_POPUP_PROPS,
-  PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
-} from '../../utils/popups';
+  type PayloadChildRenderFunction,
+} from '../../utils/popups/popupStoreUtils';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
 import { mergeProps } from '../../merge-props';
 

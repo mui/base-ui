@@ -19,10 +19,12 @@ interface UseCompositeListItemReturnValue {
   index: number;
 }
 
-export enum IndexGuessBehavior {
-  None,
-  GuessFromOrder,
-}
+export const IndexGuessBehavior = {
+  None: 0,
+  GuessFromOrder: 1,
+} as const;
+
+export type IndexGuessBehavior = (typeof IndexGuessBehavior)[keyof typeof IndexGuessBehavior];
 
 /**
  * Used to register a list item and its index (DOM position) in the `CompositeList`.

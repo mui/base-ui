@@ -19,7 +19,7 @@ import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useTriggerRegistration } from '../../utils/popups';
+import { useTriggerRegistration } from '../../utils/popups/popupStoreUtils';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { DrawerSwipeAreaDataAttributes } from './DrawerSwipeAreaDataAttributes';
 

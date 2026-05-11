@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { createSelector, ReactStore } from '@base-ui/utils/store/core';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -10,10 +10,9 @@ import {
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
-  PopupTriggerMap,
-  setOpenTriggerState,
-  usePopupStore,
-} from '../../utils/popups';
+} from '../../utils/popups/store';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
+import { setOpenTriggerState, usePopupStore } from '../../utils/popups/popupStoreUtils';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;

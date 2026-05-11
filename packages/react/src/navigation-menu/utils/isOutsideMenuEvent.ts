@@ -1,4 +1,4 @@
-import { FloatingTreeType } from '../../floating-ui-react';
+import type { FloatingTreeType } from '../../floating-ui-react/types';
 import { contains, getNodeChildren } from '../../floating-ui-react/utils';
 
 interface Targets {

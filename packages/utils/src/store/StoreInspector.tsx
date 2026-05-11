@@ -5,7 +5,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { mergeCleanups } from '../mergeCleanups';
 import { ownerDocument, ownerWindow } from '../owner';
 import { addEventListener } from '../addEventListener';
-import { Store } from './Store';
+import type { ReadonlyStore } from './Store';
 import { useForcedRerendering } from '../useForcedRerendering';
 import { useStableCallback } from '../useStableCallback';
 import { useAnimationFrame } from '../useAnimationFrame';
@@ -127,7 +127,7 @@ export interface StoreInspectorProps {
   /**
    * Instance of the store to inspect.
    */
-  store: Store<any>;
+  store: ReadonlyStore<any>;
   /**
    * Additional data to display in the inspector.
    */
@@ -185,7 +185,7 @@ export function StoreInspector(props: StoreInspectorProps) {
 
 interface PanelProps {
   anchorElement: HTMLElement | null;
-  store: Store<any>;
+  store: ReadonlyStore<any>;
   title?: string | undefined;
   additionalData?: any;
   open: boolean;

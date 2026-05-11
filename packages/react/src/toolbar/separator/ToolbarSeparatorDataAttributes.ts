@@ -1,7 +1,7 @@
-export enum ToolbarSeparatorDataAttributes {
+export const ToolbarSeparatorDataAttributes = {
   /**
    * Indicates the orientation of the toolbar.
    * @type {'horizontal' | 'vertical'}
    */
-  orientation = 'data-orientation',
-}
+  orientation: 'data-orientation',
+} as const;

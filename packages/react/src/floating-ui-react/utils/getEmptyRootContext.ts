@@ -1,4 +1,4 @@
-import { PopupTriggerMap } from '../../utils/popups';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import { FloatingRootStore } from '../components/FloatingRootStore';
 import type { FloatingRootContext } from '../types';
 

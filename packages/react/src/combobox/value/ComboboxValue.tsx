@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/core';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
 import { selectors } from '../store';

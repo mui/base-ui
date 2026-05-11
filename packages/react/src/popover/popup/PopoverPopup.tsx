@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
+import { FloatingFocusManager } from '../../floating-ui-react/components/FloatingFocusManager';
+import { useHoverFloatingInteraction } from '../../floating-ui-react/hooks/useHoverFloatingInteraction';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
@@ -18,7 +19,7 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { ClosePartProvider, useClosePartCount } from '../../utils/closePart';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopupState> = {
   ...baseMapping,

@@ -1,12 +1,12 @@
 import { CommonTriggerDataAttributes } from '../../utils/popupStateMapping';
 
-export enum PopoverTriggerDataAttributes {
+export const PopoverTriggerDataAttributes = {
   /**
    * Present when the corresponding popover is open.
    */
-  popupOpen = CommonTriggerDataAttributes.popupOpen,
+  popupOpen: CommonTriggerDataAttributes.popupOpen,
   /**
    * Present when the trigger is pressed.
    */
-  pressed = CommonTriggerDataAttributes.pressed,
-}
+  pressed: CommonTriggerDataAttributes.pressed,
+} as const;

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/core';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isAndroid, isFirefox } from '@base-ui/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../internals/types';
@@ -22,7 +22,7 @@ import {
 import { DEFAULT_FIELD_STATE_ATTRIBUTES } from '../../internals/field-constants/constants';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../floating-ui-react/utils/event';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';

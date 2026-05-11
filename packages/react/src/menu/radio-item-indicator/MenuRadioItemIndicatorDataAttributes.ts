@@ -1,24 +1,24 @@
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 
-export enum MenuRadioItemIndicatorDataAttributes {
+export const MenuRadioItemIndicatorDataAttributes = {
   /**
    * Present when the menu radio item is selected.
    */
-  checked = 'data-checked',
+  checked: 'data-checked',
   /**
    * Present when the menu radio item is not selected.
    */
-  unchecked = 'data-unchecked',
+  unchecked: 'data-unchecked',
   /**
    * Present when the menu radio item is disabled.
    */
-  disabled = 'data-disabled',
+  disabled: 'data-disabled',
   /**
    * Present when the radio indicator is animating in.
    */
-  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  startingStyle: TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the radio indicator is animating out.
    */
-  endingStyle = TransitionStatusDataAttributes.endingStyle,
-}
+  endingStyle: TransitionStatusDataAttributes.endingStyle,
+} as const;

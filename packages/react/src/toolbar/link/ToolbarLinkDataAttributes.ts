@@ -1,7 +1,7 @@
-export enum ToolbarLinkDataAttributes {
+export const ToolbarLinkDataAttributes = {
   /**
    * Indicates the orientation of the toolbar.
    * @type {'horizontal' | 'vertical'}
    */
-  orientation = 'data-orientation',
-}
+  orientation: 'data-orientation',
+} as const;

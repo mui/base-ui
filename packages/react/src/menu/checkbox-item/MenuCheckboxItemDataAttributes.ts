@@ -1,18 +1,18 @@
-export enum MenuCheckboxItemDataAttributes {
+export const MenuCheckboxItemDataAttributes = {
   /**
    * Present when the menu checkbox item is checked.
    */
-  checked = 'data-checked',
+  checked: 'data-checked',
   /**
    * Present when the menu checkbox item is not checked.
    */
-  unchecked = 'data-unchecked',
+  unchecked: 'data-unchecked',
   /**
    * Present when the menu checkbox item is disabled.
    */
-  disabled = 'data-disabled',
+  disabled: 'data-disabled',
   /**
    * Present when the menu checkbox item is highlighted.
    */
-  highlighted = 'data-highlighted',
-}
+  highlighted: 'data-highlighted',
+} as const;

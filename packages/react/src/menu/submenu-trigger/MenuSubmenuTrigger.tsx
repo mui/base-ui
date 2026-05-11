@@ -5,7 +5,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { useHoverReferenceInteraction } from '../../floating-ui-react/hooks/useHoverReferenceInteraction';
+import { safePolygon } from '../../floating-ui-react/safePolygon';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -14,7 +15,8 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { useTriggerRegistration } from '../../utils/popups';
+import { useTriggerRegistration } from '../../utils/popups/popupStoreUtils';
+import { useTriggerPress } from '../../utils/popups/useTriggerPress';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 /**
@@ -144,7 +146,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
-  const click = useClick(floatingRootContext, {
+  const click = useTriggerPress(floatingRootContext, {
     enabled: !disabled,
     event: 'mousedown',
     toggle: !openOnHover,

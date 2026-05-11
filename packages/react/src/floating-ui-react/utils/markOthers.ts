@@ -27,13 +27,6 @@ const uncontrolledElementsSets: Record<ControlAttribute, WeakSet<Element>> = {
 let markerCounterMap = new WeakMap<Element, number>();
 let lockCount = 0;
 
-function getUncontrolledElementsSet(controlAttribute: ControlAttribute) {
-  return uncontrolledElementsSets[controlAttribute];
-}
-
-export const supportsInert = (): boolean =>
-  typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
-
 function unwrapHost(node: Node | null): Element | null {
   if (!node) {
     return null;
@@ -129,7 +122,7 @@ function applyAttributeToOthers(
 
   if (controlAttribute) {
     const map = counters[controlAttribute];
-    const currentUncontrolledElementsSet = getUncontrolledElementsSet(controlAttribute);
+    const currentUncontrolledElementsSet = uncontrolledElementsSets[controlAttribute];
     uncontrolledElementsSet = currentUncontrolledElementsSet;
     counterMap = map;
     const ariaLiveElements = correctElements(

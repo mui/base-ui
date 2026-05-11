@@ -7,7 +7,7 @@ import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEvent
 import { REASONS } from '../../internals/reasons';
 import { DialogStore } from '../store/DialogStore';
 import { DialogHandle } from '../store/DialogHandle';
-import { type PayloadChildRenderFunction } from '../../utils/popups';
+import { type PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 
 export const IsDrawerContext = React.createContext(false);
 

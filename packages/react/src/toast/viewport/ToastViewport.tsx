@@ -5,7 +5,7 @@ import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../internals/shadowDom';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';

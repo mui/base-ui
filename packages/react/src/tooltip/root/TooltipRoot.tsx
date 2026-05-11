@@ -3,8 +3,10 @@ import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { TooltipRootContext } from './TooltipRootContext';
-import { useClientPoint, useDismiss } from '../../floating-ui-react';
+import { useClientPoint } from '../../floating-ui-react/hooks/useClientPoint';
+import { useDismissCore } from '../../floating-ui-react/hooks/useDismissCore';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -15,7 +17,7 @@ import {
   useOpenStateTransitions,
   usePopupInteractionProps,
   type PayloadChildRenderFunction,
-} from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
 import { mergeProps } from '../../merge-props';
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
@@ -257,22 +259,44 @@ function TooltipInteractions<Payload>({
 }) {
   const floatingRootContext = store.useState('floatingRootContext');
 
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismissCore(floatingRootContext, {
     enabled: !disabled,
-    referencePress: () => store.select('closeOnClick'),
   });
   const clientPoint = useClientPoint(floatingRootContext, {
     enabled: !disabled && trackCursorAxis !== 'none',
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
 
+  const closeOnReferencePress = useStableCallback((event: React.SyntheticEvent) => {
+    if (!store.select('closeOnClick')) {
+      return;
+    }
+
+    store.setOpen(
+      false,
+      createChangeEventDetails(
+        REASONS.triggerPress,
+        event.nativeEvent as MouseEvent | PointerEvent | TouchEvent | KeyboardEvent,
+      ),
+    );
+  });
+
+  const dismissReference = React.useMemo(
+    () => ({
+      ...dismiss.reference,
+      onPointerDown: closeOnReferencePress,
+      onClick: closeOnReferencePress,
+    }),
+    [dismiss.reference, closeOnReferencePress],
+  );
+
   const activeTriggerProps = React.useMemo(
-    () => mergeProps(clientPoint.reference, dismiss.reference),
-    [clientPoint.reference, dismiss.reference],
+    () => mergeProps(clientPoint.reference, dismissReference),
+    [clientPoint.reference, dismissReference],
   );
   const inactiveTriggerProps = React.useMemo(
-    () => mergeProps(clientPoint.trigger, dismiss.trigger),
-    [clientPoint.trigger, dismiss.trigger],
+    () => mergeProps(clientPoint.trigger, dismissReference),
+    [clientPoint.trigger, dismissReference],
   );
   const popupProps = React.useMemo(
     () => mergeProps(FOCUSABLE_POPUP_PROPS, clientPoint.floating, dismiss.floating),

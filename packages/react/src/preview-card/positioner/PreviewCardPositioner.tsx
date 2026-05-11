@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
-import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
+import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react/components/FloatingTree';
 import {
   type Side,
   type Align,
@@ -15,7 +15,7 @@ import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext'
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { usePositioner } from '../../utils/usePositioner';
-import { createInlineMiddleware } from '../../utils/popups';
+import { createInlineMiddleware } from '../../utils/popups/inlineRect';
 
 /**
  * Positions the popup against the trigger.

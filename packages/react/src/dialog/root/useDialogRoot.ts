@@ -3,8 +3,8 @@ import * as React from 'react';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { mergeProps } from '../../merge-props';
-import { useDismiss } from '../../floating-ui-react';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { useDismissCore as useDismiss } from '../../floating-ui-react/hooks/useDismissCore';
+import { contains, getTarget } from '../../internals/shadowDom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { type DialogRoot } from './DialogRoot';
@@ -15,7 +15,7 @@ import {
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
-} from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
 
 export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootReturnValue {
   const { store, parentContext, actionsRef, isDrawer } = params;

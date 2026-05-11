@@ -9,13 +9,13 @@ import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
   FloatingTree,
-  useDismiss,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  useListNavigation,
-  useTypeahead,
-  useSyncedFloatingRootContext,
-} from '../../floating-ui-react';
+} from '../../floating-ui-react/components/FloatingTree';
+import { useDismissCore as useDismiss } from '../../floating-ui-react/hooks/useDismissCore';
+import { useListNavigationNoGrid } from '../../floating-ui-react/hooks/useListNavigation';
+import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
+import { useTypeahead } from '../../floating-ui-react/hooks/useTypeahead';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
@@ -35,11 +35,11 @@ import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
   FOCUSABLE_POPUP_PROPS,
-  PayloadChildRenderFunction,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
-} from '../../utils/popups';
+  type PayloadChildRenderFunction,
+} from '../../utils/popups/popupStoreUtils';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 /**
@@ -409,7 +409,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [store],
   );
 
-  const listNavigation = useListNavigation(floatingRootContext, {
+  const listNavigation = useListNavigationNoGrid(floatingRootContext, {
     enabled: !disabled,
     listRef: store.context.itemDomElements,
     activeIndex,

@@ -2,7 +2,11 @@
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDismiss, FloatingTree, useFloatingParentNodeId } from '../../floating-ui-react';
+import {
+  FloatingTree,
+  useFloatingParentNodeId,
+} from '../../floating-ui-react/components/FloatingTree';
+import { useDismissCore as useDismiss } from '../../floating-ui-react/hooks/useDismissCore';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
 import { PopoverHandle } from '../store/PopoverHandle';
@@ -18,7 +22,7 @@ import {
   usePopupInteractionProps,
   usePopupRootSync,
   type PayloadChildRenderFunction,
-} from '../../utils/popups';
+} from '../../utils/popups/popupStoreUtils';
 import { mergeProps } from '../../merge-props';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {

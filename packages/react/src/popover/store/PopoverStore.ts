@@ -2,7 +2,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ReactStore, createSelector } from '@base-ui/utils/store';
+import { ReactStore, createSelector } from '@base-ui/utils/store/core';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type PopoverRoot } from '../root/PopoverRoot';
@@ -13,10 +13,9 @@ import {
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
-  PopupTriggerMap,
-  setOpenTriggerState,
-  usePopupStore,
-} from '../../utils/popups';
+} from '../../utils/popups/store';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
+import { setOpenTriggerState, usePopupStore } from '../../utils/popups/popupStoreUtils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {

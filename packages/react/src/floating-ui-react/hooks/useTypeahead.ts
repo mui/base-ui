@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { isElementVisible } from '../utils/composite';
+import { isElementVisible } from '../utils/visibility';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { contains } from '../utils/element';
 import { stopEvent } from '../utils/event';

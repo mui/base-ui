@@ -1,39 +1,39 @@
-export enum ScrollAreaScrollbarDataAttributes {
+export const ScrollAreaScrollbarDataAttributes = {
   /**
    * Indicates the orientation of the scrollbar.
    * @type {'horizontal' | 'vertical'}
    */
-  orientation = 'data-orientation',
+  orientation: 'data-orientation',
   /**
    * Present when the pointer is over the scroll area.
    */
-  hovering = 'data-hovering',
+  hovering: 'data-hovering',
   /**
    * Present when the user scrolls inside the scroll area.
    */
-  scrolling = 'data-scrolling',
+  scrolling: 'data-scrolling',
   /**
    * Present when the scroll area content is wider than the viewport.
    */
-  hasOverflowX = 'data-has-overflow-x',
+  hasOverflowX: 'data-has-overflow-x',
   /**
    * Present when the scroll area content is taller than the viewport.
    */
-  hasOverflowY = 'data-has-overflow-y',
+  hasOverflowY: 'data-has-overflow-y',
   /**
    * Present when there is overflow on the horizontal start side.
    */
-  overflowXStart = 'data-overflow-x-start',
+  overflowXStart: 'data-overflow-x-start',
   /**
    * Present when there is overflow on the horizontal end side.
    */
-  overflowXEnd = 'data-overflow-x-end',
+  overflowXEnd: 'data-overflow-x-end',
   /**
    * Present when there is overflow on the vertical start side.
    */
-  overflowYStart = 'data-overflow-y-start',
+  overflowYStart: 'data-overflow-y-start',
   /**
    * Present when there is overflow on the vertical end side.
    */
-  overflowYEnd = 'data-overflow-y-end',
-}
+  overflowYEnd: 'data-overflow-y-end',
+} as const;

@@ -1,6 +1,6 @@
-export enum CheckboxGroupDataAttributes {
+export const CheckboxGroupDataAttributes = {
   /**
    * Present when the checkbox group is disabled.
    */
-  disabled = 'data-disabled',
-}
+  disabled: 'data-disabled',
+} as const;

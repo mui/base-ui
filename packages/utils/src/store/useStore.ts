@@ -1,16 +1,15 @@
+'use client';
 import * as React from 'react';
-/* We need to import the shim because React 17 does not support the `useSyncExternalStore` API.
- * More info: https://github.com/mui/mui-x/issues/18303#issuecomment-2958392341 */
-import { useSyncExternalStore } from 'use-sync-external-store/shim';
-import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector';
 import { isReactVersionAtLeast } from '../reactVersion';
 import { register, getInstance, Instance } from '../fastHooks';
+import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import type { ReadonlyStore } from './Store';
 
 /* Some tests fail in R18 with the raw useSyncExternalStore. It may be possible to make it work
  * but for now we only enable it for R19+. */
 const canUseRawUseSyncExternalStore = isReactVersionAtLeast(19);
 const useStoreImplementation = canUseRawUseSyncExternalStore ? useStoreFast : useStoreLegacy;
+const NO_SELECTION = {};
 
 export function useStore<State, Value>(
   store: ReadonlyStore<State>,
@@ -56,7 +55,7 @@ function useStoreR19(
     [store, selector, a1, a2, a3],
   );
 
-  return useSyncExternalStore(store.subscribe, getSelection, getSelection);
+  return React.useSyncExternalStore(store.subscribe, getSelection, getSelection);
 }
 
 export type StoreInstance = Instance & {
@@ -123,7 +122,7 @@ register({
         };
       }
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      useSyncExternalStore(instance.subscribe, instance.getSnapshot, instance.getSnapshot);
+      React.useSyncExternalStore(instance.subscribe, instance.getSnapshot, instance.getSnapshot);
     }
   },
 });
@@ -187,10 +186,68 @@ function useStoreLegacy(
   a2?: unknown,
   a3?: unknown,
 ): unknown {
-  return useSyncExternalStoreWithSelector(
-    store.subscribe,
-    store.getSnapshot,
-    store.getSnapshot,
-    (state) => selector(state, a1, a2, a3),
-  );
+  const stateRef = React.useRef<{
+    store?: ReadonlyStore<unknown> | undefined;
+    selector?: Function | undefined;
+    a1?: unknown;
+    a2?: unknown;
+    a3?: unknown;
+    state: unknown;
+    value: unknown;
+  }>({
+    state: NO_SELECTION,
+    value: null,
+  });
+
+  const getSelection = React.useCallback(() => {
+    const state = store.getSnapshot();
+    const ref = stateRef.current;
+
+    if (
+      ref.state !== NO_SELECTION &&
+      ref.store === store &&
+      ref.selector === selector &&
+      Object.is(ref.a1, a1) &&
+      Object.is(ref.a2, a2) &&
+      Object.is(ref.a3, a3) &&
+      Object.is(ref.state, state)
+    ) {
+      return ref.value;
+    }
+
+    const value = selector(state, a1, a2, a3);
+
+    ref.store = store;
+    ref.selector = selector;
+    ref.a1 = a1;
+    ref.a2 = a2;
+    ref.a3 = a3;
+    ref.state = state;
+
+    if (!Object.is(value, ref.value)) {
+      ref.value = value;
+    }
+
+    return ref.value;
+  }, [store, selector, a1, a2, a3]);
+
+  return useSyncExternalStoreLegacy(store.subscribe, getSelection);
+}
+
+function useSyncExternalStoreLegacy(
+  subscribe: (onStoreChange: () => void) => () => void,
+  getSnapshot: () => unknown,
+): unknown {
+  const [snapshot, setSnapshot] = React.useState(getSnapshot);
+
+  useIsoLayoutEffect(() => {
+    function checkForUpdates() {
+      setSnapshot(getSnapshot());
+    }
+
+    checkForUpdates();
+    return subscribe(checkForUpdates);
+  }, [subscribe, getSnapshot]);
+
+  return snapshot;
 }

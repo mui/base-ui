@@ -1,18 +1,18 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { createSelector, ReactStore } from '@base-ui/utils/store/core';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { HTMLProps } from '../../internals/types';
+import type { HTMLProps } from '../../internals/types';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
-  PopupTriggerMap,
-} from '../../utils/popups';
+} from '../../utils/popups/store';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -127,16 +127,19 @@ export class MenuStore<Payload> extends ReactStore<
       selectors,
     );
 
-    // Set up propagation of state from parent menu if applicable.
-    this.unsubscribeParentListener = this.observe('parent', (parent) => {
-      this.unsubscribeParentListener?.();
+    let parentStoreCleanup: (() => void) | null = null;
+    let observedParent = this.state.parent;
+
+    const syncParent = (parent: MenuParent) => {
+      parentStoreCleanup?.();
+      parentStoreCleanup = null;
 
       if (parent.type === 'menu') {
         let rootId = parent.store.select('rootId');
         let floatingTreeRoot = parent.store.select('floatingTreeRoot');
         let keyboardEventRelay = parent.store.select('keyboardEventRelay');
 
-        this.unsubscribeParentListener = parent.store.subscribe(() => {
+        parentStoreCleanup = parent.store.subscribe(() => {
           const nextRootId = parent.store.select('rootId');
           const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
           const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
@@ -162,8 +165,17 @@ export class MenuStore<Payload> extends ReactStore<
       if (parent.type !== undefined) {
         this.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
       }
+    };
 
-      this.unsubscribeParentListener = null;
+    syncParent(observedParent);
+
+    this.subscribe((state) => {
+      if (state.parent === observedParent) {
+        return;
+      }
+
+      observedParent = state.parent;
+      syncParent(observedParent);
     });
   }
 
@@ -182,8 +194,6 @@ export class MenuStore<Payload> extends ReactStore<
 
     return externalStore ?? internalStore;
   }
-
-  private unsubscribeParentListener: (() => void) | null = null;
 }
 
 function createInitialState<Payload>(): State<Payload> {

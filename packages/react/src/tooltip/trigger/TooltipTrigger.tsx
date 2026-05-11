@@ -8,16 +8,14 @@ import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import {
-  safePolygon,
-  useDelayGroup,
-  useFocus,
-  useHoverReferenceInteraction,
-} from '../../floating-ui-react';
+import { useDelayGroup } from '../../floating-ui-react/components/FloatingDelayGroup';
+import { useFocus } from '../../floating-ui-react/hooks/useFocus';
+import { useHoverReferenceInteraction } from '../../floating-ui-react/hooks/useHoverReferenceInteraction';
+import { safePolygon } from '../../floating-ui-react/safePolygon';
 import { contains } from '../../floating-ui-react/utils/element';
 import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';

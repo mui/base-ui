@@ -1,12 +1,12 @@
 import { CommonTriggerDataAttributes } from '../../utils/popupStateMapping';
 
-export enum DialogTriggerDataAttributes {
+export const DialogTriggerDataAttributes = {
   /**
    * Present when the trigger is disabled.
    */
-  disabled = 'data-disabled',
+  disabled: 'data-disabled',
   /**
    * Present when the corresponding dialog is open.
    */
-  popupOpen = CommonTriggerDataAttributes.popupOpen,
-}
+  popupOpen: CommonTriggerDataAttributes.popupOpen,
+} as const;

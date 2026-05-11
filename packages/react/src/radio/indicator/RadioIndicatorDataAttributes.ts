@@ -1,56 +1,56 @@
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 
-export enum RadioIndicatorDataAttributes {
+export const RadioIndicatorDataAttributes = {
   /**
    * Present when the radio is checked.
    */
-  checked = 'data-checked',
+  checked: 'data-checked',
   /**
    * Present when the radio is not checked.
    */
-  unchecked = 'data-unchecked',
+  unchecked: 'data-unchecked',
   /**
    * Present when the radio is disabled.
    */
-  disabled = 'data-disabled',
+  disabled: 'data-disabled',
   /**
    * Present when the radio is readonly.
    */
-  readonly = 'data-readonly',
+  readonly: 'data-readonly',
   /**
    * Present when the radio is required.
    */
-  required = 'data-required',
+  required: 'data-required',
   /**
    * Present when the radio indicator is animating in.
    */
-  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  startingStyle: TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the radio indicator is animating out.
    */
-  endingStyle = TransitionStatusDataAttributes.endingStyle,
+  endingStyle: TransitionStatusDataAttributes.endingStyle,
   /**
    * Present when the radio is in a valid state (when wrapped in Field.Root).
    */
-  valid = 'data-valid',
+  valid: 'data-valid',
   /**
    * Present when the radio is in an invalid state (when wrapped in Field.Root).
    */
-  invalid = 'data-invalid',
+  invalid: 'data-invalid',
   /**
    * Present when the radio has been touched (when wrapped in Field.Root).
    */
-  touched = 'data-touched',
+  touched: 'data-touched',
   /**
    * Present when the radio's value has changed (when wrapped in Field.Root).
    */
-  dirty = 'data-dirty',
+  dirty: 'data-dirty',
   /**
    * Present when the radio is checked (when wrapped in Field.Root).
    */
-  filled = 'data-filled',
+  filled: 'data-filled',
   /**
    * Present when the radio is focused (when wrapped in Field.Root).
    */
-  focused = 'data-focused',
-}
+  focused: 'data-focused',
+} as const;

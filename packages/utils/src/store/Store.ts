@@ -6,7 +6,7 @@ type Listener<T> = (state: T) => void;
  * A data store implementation that allows subscribing to state changes and updating the state.
  * It uses an observer pattern to notify subscribers when the state changes.
  */
-export class Store<State> {
+export class StoreCore<State> {
   /**
    * The current state of the store.
    * This property is updated immediately when the state changes as a result of calling {@link setState}, {@link update}, or {@link set}.
@@ -105,7 +105,9 @@ export class Store<State> {
     const newState = { ...this.state };
     this.setState(newState);
   }
+}
 
+export class Store<State> extends StoreCore<State> {
   use<F extends (...args: any) => any>(selector: F, ...args: SelectorArgs<F>): ReturnType<F>;
 
   use(selector: any, a1?: unknown, a2?: unknown, a3?: unknown) {
@@ -114,7 +116,7 @@ export class Store<State> {
   }
 }
 
-export type ReadonlyStore<State> = Pick<Store<State>, 'getSnapshot' | 'subscribe' | 'state'>;
+export type ReadonlyStore<State> = Pick<StoreCore<State>, 'getSnapshot' | 'subscribe' | 'state'>;
 
 type SelectorArgs<Selector> = Selector extends (...params: infer Params) => any
   ? Tail<Params>
