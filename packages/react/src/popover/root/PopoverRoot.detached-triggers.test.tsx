@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import type { UserEvent } from '@testing-library/user-event';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Popover } from '@base-ui/react/popover';
@@ -13,46 +14,6 @@ describe('<Popover.Root />', () => {
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     type NumberPayload = { payload: number | undefined };
-
-    it('should open the popover with any trigger', async () => {
-      const { user } = await render(
-        <Popover.Root>
-          <Popover.Trigger>Trigger 1</Popover.Trigger>
-          <Popover.Trigger>Trigger 2</Popover.Trigger>
-          <Popover.Trigger>Trigger 3</Popover.Trigger>
-
-          <Popover.Portal>
-            <Popover.Positioner>
-              <Popover.Popup>
-                Popover Content
-                <Popover.Close>Close</Popover.Close>
-              </Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>,
-      );
-
-      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
-      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
-      const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
-
-      expect(screen.queryByText('Popover Content')).toBe(null);
-
-      await user.click(trigger1);
-      expect(screen.getByText('Popover Content')).toBeVisible();
-      await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).toBe(null);
-
-      await user.click(trigger2);
-      expect(screen.getByText('Popover Content')).toBeVisible();
-      await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).toBe(null);
-
-      await user.click(trigger3);
-      expect(screen.getByText('Popover Content')).toBeVisible();
-      await user.click(screen.getByText('Close'));
-      expect(screen.queryByText('Popover Content')).toBe(null);
-    });
 
     it('should open the popover with any trigger', async () => {
       const { user } = await render(
@@ -122,6 +83,51 @@ describe('<Popover.Root />', () => {
 
       await user.click(trigger2);
       expect(screen.getByTestId('content').textContent).toBe('2');
+    });
+
+    it('synchronizes ARIA attributes in controlled mode', async () => {
+      await render(
+        <Popover.Root open triggerId="trigger-2">
+          <Popover.Trigger id="trigger-1">Trigger 1</Popover.Trigger>
+          <Popover.Trigger id="trigger-2">Trigger 2</Popover.Trigger>
+
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Popover Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+      const popup = await screen.findByRole('dialog');
+
+      expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger1).not.toHaveAttribute('aria-controls');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger2.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+    });
+
+    it('synchronizes ARIA attributes for a controlled open single trigger without triggerId', async () => {
+      await render(
+        <Popover.Root open>
+          <Popover.Trigger>Trigger</Popover.Trigger>
+
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Popover Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const popup = await screen.findByRole('dialog');
+
+      await waitFor(() => {
+        expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+      });
     });
 
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
@@ -313,7 +319,7 @@ describe('<Popover.Root />', () => {
       );
     }
 
-    async function openAndClosePopover(user: any) {
+    async function openAndClosePopover(user: UserEvent) {
       await user.click(screen.getByRole('button', { name: 'Trigger' }));
       await waitFor(() => {
         expect(screen.getByText('Popover Content')).toBeVisible();
