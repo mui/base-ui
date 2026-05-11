@@ -24,7 +24,7 @@ export default function ExampleNumberField() {
         <NumberField.Decrement className={stepperClasses}>
           <MinusIcon className="size-3" />
         </NumberField.Decrement>
-        <NumberField.Input className="h-full w-[7ch] border-y border-neutral-950 rounded-none bg-white px-2 text-left text-sm font-normal text-neutral-950 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-800 dark:border-white dark:bg-neutral-950 dark:text-white" />
+        <NumberField.Input className="h-full w-[7ch] border-y border-neutral-950 rounded-none bg-white px-2 text-left text-sm font-normal text-neutral-950 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 dark:border-white dark:bg-neutral-950 dark:text-white" />
         <NumberField.Increment className={stepperClasses}>
           <PlusIcon className="size-3" />
         </NumberField.Increment>
