@@ -25,6 +25,52 @@ describe('NumberField validate', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1, { maximumFractionDigits: 1 })).toBe(0.3);
     });
 
+    it('respects roundingMode when maximumFractionDigits is provided', () => {
+      expect(
+        removeFloatingPointErrors(1.239, {
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(1.23);
+    });
+
+    it('rounds percent values at display scale when maximumFractionDigits is provided', () => {
+      expect(
+        removeFloatingPointErrors(0.01236, {
+          style: 'percent',
+          maximumFractionDigits: 2,
+        }),
+      ).toBe(0.0124);
+      expect(
+        removeFloatingPointErrors(0.01239, {
+          style: 'percent',
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(0.0123);
+    });
+
+    it('does not scale unit percent values when maximumFractionDigits is provided', () => {
+      expect(
+        removeFloatingPointErrors(1.239, {
+          style: 'unit',
+          unit: 'percent',
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(1.23);
+    });
+
+    it('respects roundingIncrement when maximumFractionDigits is provided', () => {
+      expect(
+        removeFloatingPointErrors(1.26, {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+          roundingIncrement: 5,
+        }),
+      ).toBe(1.5);
+    });
+
     it('returns 1000 for 1000, ignoring grouping', () => {
       expect(removeFloatingPointErrors(1000)).toBe(1000);
     });

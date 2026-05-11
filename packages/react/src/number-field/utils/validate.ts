@@ -3,7 +3,13 @@ import { getFormatter } from '../../utils/formatNumber';
 
 const STEP_EPSILON_FACTOR = 1e-10;
 
-function getFractionDigits(format?: Intl.NumberFormatOptions) {
+// The repo's configured Intl types do not include the newer NumberFormat v3 rounding options yet.
+type NumberFormatOptionsWithRounding = Intl.NumberFormatOptions & {
+  roundingIncrement?: number | undefined;
+  roundingMode?: string | undefined;
+};
+
+function getFractionDigits(format?: NumberFormatOptionsWithRounding) {
   const defaultOptions = getFormatter('en-US').resolvedOptions();
   const minimumFractionDigits =
     format?.minimumFractionDigits ?? defaultOptions.minimumFractionDigits ?? 0;
@@ -14,18 +20,40 @@ function getFractionDigits(format?: Intl.NumberFormatOptions) {
   return { maximumFractionDigits, minimumFractionDigits };
 }
 
-function roundToFractionDigits(value: number, maximumFractionDigits: number) {
+export function roundToFractionDigits(
+  value: number,
+  maximumFractionDigits: number,
+  format?: NumberFormatOptionsWithRounding,
+) {
   if (!Number.isFinite(value)) {
     return value;
   }
 
   const digits = Math.min(Math.max(maximumFractionDigits, 0), 20);
-  return Number(value.toFixed(digits));
+  const isPercentWithExplicitPrecision =
+    format?.style === 'percent' &&
+    (format.maximumFractionDigits != null || format.minimumFractionDigits != null);
+  const scale = isPercentWithExplicitPrecision ? 100 : 1;
+  const valueToRound = value * scale;
+
+  if (format?.roundingIncrement == null && format?.roundingMode == null) {
+    return Number(valueToRound.toFixed(digits)) / scale;
+  }
+
+  const roundingFormatOptions: NumberFormatOptionsWithRounding = {
+    useGrouping: false,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+    roundingIncrement: format?.roundingIncrement,
+    roundingMode: format?.roundingMode,
+  };
+
+  return Number(getFormatter('en-US', roundingFormatOptions).format(valueToRound)) / scale;
 }
 
-export function removeFloatingPointErrors(value: number, format?: Intl.NumberFormatOptions) {
+export function removeFloatingPointErrors(value: number, format?: NumberFormatOptionsWithRounding) {
   const { maximumFractionDigits } = getFractionDigits(format);
-  return roundToFractionDigits(value, maximumFractionDigits);
+  return roundToFractionDigits(value, maximumFractionDigits, format);
 }
 
 function snapToStep(
@@ -74,7 +102,7 @@ export function toValidatedNumber(
     minWithDefault: number;
     maxWithDefault: number;
     minWithZeroDefault: number;
-    format: Intl.NumberFormatOptions | undefined;
+    format: NumberFormatOptionsWithRounding | undefined;
     snapOnStep: boolean;
     small: boolean;
     clamp: boolean;
