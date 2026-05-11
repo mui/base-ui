@@ -64,7 +64,9 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   const payload = store.useState('payload') as Payload | undefined;
 
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store);
+  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
+    store.context.inlineRectCoordsRef.current = undefined;
+  });
 
   useIsoLayoutEffect(() => {
     if (open) {
