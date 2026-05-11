@@ -221,6 +221,43 @@ describe('FloatingFocusManager', () => {
         await flushMicrotasks();
         expect(screen.getByTestId('input')).toHaveFocus();
       });
+
+      test('does not steal focus if focus moves inside before initial focus lands', async () => {
+        const frameCallbacks = new Map<number, FrameRequestCallback>();
+        let frameId = 0;
+        const requestAnimationFrameSpy = vi
+          .spyOn(window, 'requestAnimationFrame')
+          .mockImplementation((callback) => {
+            frameId += 1;
+            frameCallbacks.set(frameId, callback);
+            return frameId;
+          });
+        const cancelAnimationFrameSpy = vi
+          .spyOn(window, 'cancelAnimationFrame')
+          .mockImplementation((id) => {
+            frameCallbacks.delete(id);
+          });
+
+        try {
+          render(<App />);
+
+          fireEvent.click(screen.getByTestId('reference'));
+          await flushMicrotasks();
+
+          act(() => screen.getByTestId('two').focus());
+
+          act(() => {
+            const callbacks = Array.from(frameCallbacks.values());
+            frameCallbacks.clear();
+            callbacks.forEach((callback) => callback(performance.now()));
+          });
+
+          expect(screen.getByTestId('two')).toHaveFocus();
+        } finally {
+          requestAnimationFrameSpy.mockRestore();
+          cancelAnimationFrameSpy.mockRestore();
+        }
+      });
     });
 
     describe('prop: returnFocus', () => {
