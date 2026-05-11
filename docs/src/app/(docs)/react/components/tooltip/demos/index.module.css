@@ -72,7 +72,7 @@
   border: 1px solid light-dark(var(--color-neutral-950), white);
   background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
-  filter: drop-shadow(0.25rem 0.25rem 0 rgb(0 0 0 / 12%));
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transform-origin: var(--transform-origin);
   transition:
     transform 100ms ease-out,
@@ -89,7 +89,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    filter: none;
+    box-shadow: none;
   }
 }
 
