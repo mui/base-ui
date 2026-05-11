@@ -585,6 +585,61 @@ describe('<NumberField.Input />', () => {
     expect(onValueChange.mock.calls[0][0]).toBe(1.23);
   });
 
+  async function renderControlledNumberField(
+    format: Intl.NumberFormatOptions,
+    locale: Intl.LocalesArgument = 'en-US',
+  ) {
+    const onValueChange = vi.fn();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(null);
+      return (
+        <NumberField.Root
+          value={value}
+          onValueChange={(nextValue) => {
+            onValueChange(nextValue);
+            setValue(nextValue);
+          }}
+          format={format}
+          locale={locale}
+        >
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      input.focus();
+    });
+
+    return { input, onValueChange, user };
+  }
+
+  it.each([
+    ['en-US', '1.239'],
+    ['fr-FR', '1,239'],
+    ['ar-EG', '١٫٢٣٩'],
+  ] as const)(
+    'should respect roundingMode when rounding to explicit maximumFractionDigits on blur in %s',
+    async (locale, inputText) => {
+      const format = {
+        maximumFractionDigits: 2,
+        roundingMode: 'floor',
+      };
+
+      const { input, onValueChange, user } = await renderControlledNumberField(format, locale);
+
+      await user.keyboard(inputText);
+      fireEvent.blur(input);
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(1.23);
+      expect(input).toHaveValue(new Intl.NumberFormat(locale, format).format(1.239));
+    },
+  );
+
   it('should not throw on blur when format uses roundingIncrement with fixed fraction digits', async () => {
     const format = {
       minimumFractionDigits: 1,
@@ -609,6 +664,36 @@ describe('<NumberField.Input />', () => {
     });
 
     expect(input).toHaveValue(expectedValue);
+  });
+
+  it.each([
+    [
+      'percent',
+      {
+        style: 'percent',
+        maximumFractionDigits: 2,
+        roundingMode: 'floor',
+      },
+      0.0123,
+    ],
+    [
+      'unit percent',
+      {
+        style: 'unit',
+        unit: 'percent',
+        maximumFractionDigits: 2,
+        roundingMode: 'floor',
+      },
+      1.23,
+    ],
+  ] as const)('should round %s values on blur', async (_, format, expectedValue) => {
+    const { input, onValueChange, user } = await renderControlledNumberField(format);
+
+    await user.keyboard('1.239%');
+    fireEvent.blur(input);
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(expectedValue);
+    expect(input).toHaveValue('1.23%');
   });
 
   it('should round to step precision on blur when step implies precision constraints', async () => {
