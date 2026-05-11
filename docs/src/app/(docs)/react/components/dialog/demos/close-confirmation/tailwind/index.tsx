@@ -69,9 +69,7 @@ export default function ExampleDialog() {
         <AlertDialog.Portal>
           <AlertDialog.Popup className="fixed top-1/2 left-1/2 -mt-8 flex w-96 max-w-[calc(100vw-3rem)] flex-col gap-4 translate-[-50%_calc(-50%_+_1.25rem_*_var(--nested-dialogs))] scale-[calc(1_-_0.1_*_var(--nested-dialogs))] bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[translate,scale,opacity] duration-150 ease-out after:absolute after:inset-0 after:bg-black/5 after:opacity-0 after:transition-opacity after:duration-150 after:ease-out after:pointer-events-none data-ending-style:translate-[-50%_calc(-50%_+_0.25rem_+_1.25rem_*_var(--nested-dialogs))] data-ending-style:scale-[0.96] data-ending-style:opacity-0 data-nested-dialog-open:after:opacity-100 data-starting-style:translate-[-50%_calc(-50%_+_0.25rem_+_1.25rem_*_var(--nested-dialogs))] data-starting-style:scale-[0.96] data-starting-style:opacity-0">
             <div className="flex flex-col gap-1">
-              <AlertDialog.Title className="text-base font-bold">
-                Discard tweet?
-              </AlertDialog.Title>
+              <AlertDialog.Title className="text-base font-bold">Discard tweet?</AlertDialog.Title>
               <AlertDialog.Description className="text-sm text-neutral-600 dark:text-neutral-400">
                 Your tweet will be lost.
               </AlertDialog.Description>

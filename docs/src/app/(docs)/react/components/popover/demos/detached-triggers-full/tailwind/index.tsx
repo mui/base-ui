@@ -19,19 +19,11 @@ export default function PopoverDetachedTriggersFullDemo() {
         Notifications
       </Popover.Trigger>
 
-      <Popover.Trigger
-        className={triggerClassName}
-        handle={demoPopover}
-        payload={ActivityPanel}
-      >
+      <Popover.Trigger className={triggerClassName} handle={demoPopover} payload={ActivityPanel}>
         Activity
       </Popover.Trigger>
 
-      <Popover.Trigger
-        className={triggerClassName}
-        handle={demoPopover}
-        payload={ProfilePanel}
-      >
+      <Popover.Trigger className={triggerClassName} handle={demoPopover} payload={ProfilePanel}>
         Profile
       </Popover.Trigger>
 

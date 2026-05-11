@@ -27,8 +27,8 @@ export default function OutsideScrollDialog() {
                   <div className="relative flex flex-col gap-1 pr-8">
                     <Dialog.Title className="text-base font-bold">Dialog</Dialog.Title>
                     <Dialog.Description className="text-sm text-neutral-600 dark:text-neutral-400">
-                      This layout keeps an outer container scrollable while the dialog can extend past
-                      the bottom edge.
+                      This layout keeps an outer container scrollable while the dialog can extend
+                      past the bottom edge.
                     </Dialog.Description>
                     <Dialog.Close
                       aria-label="Close"

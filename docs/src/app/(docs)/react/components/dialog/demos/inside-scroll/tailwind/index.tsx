@@ -24,9 +24,7 @@ export default function InsideScrollDialog() {
                   {CONTENT_SECTIONS.map((item) => (
                     <section className="flex flex-col gap-1 p-4" key={item.title}>
                       <h3 className="text-sm font-bold">{item.title}</h3>
-                      <p className="text-sm text-neutral-700 dark:text-neutral-300">
-                        {item.body}
-                      </p>
+                      <p className="text-sm text-neutral-700 dark:text-neutral-300">{item.body}</p>
                     </section>
                   ))}
                 </ScrollArea.Content>
