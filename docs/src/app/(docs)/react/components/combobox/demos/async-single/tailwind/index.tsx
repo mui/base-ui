@@ -139,44 +139,46 @@ export default function ExampleAsyncSingleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
           <Combobox.Popup
-            className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto overscroll-contain border border-neutral-950 bg-white py-1 text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-[opacity,transform] data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:transition-none dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
+            className="w-[var(--anchor-width)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-[opacity,transform] data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:transition-none dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
             aria-busy={isPending || undefined}
           >
-            <Combobox.Status>
-              {status ? (
-                <div className="flex items-center gap-2 py-1 pr-5 pl-2 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
-                  {status}
-                </div>
-              ) : null}
-            </Combobox.Status>
-            <Combobox.Empty>
-              {emptyMessage ? (
-                <div className="py-2 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
-                  {emptyMessage}
-                </div>
-              ) : null}
-            </Combobox.Empty>
-            <Combobox.List>
-              {(user: DirectoryUser) => (
-                <Combobox.Item
-                  key={user.id}
-                  value={user}
-                  className="grid cursor-default grid-cols-[0.75rem_1fr] items-start gap-2 px-2 py-2 text-sm leading-[1.2rem] outline-none select-none [@media(hover:hover)]:data-highlighted:relative [@media(hover:hover)]:data-highlighted:z-0 [@media(hover:hover)]:data-highlighted:text-neutral-950 [@media(hover:hover)]:data-highlighted:before:absolute [@media(hover:hover)]:data-highlighted:before:inset-0 [@media(hover:hover)]:data-highlighted:before:z-[-1] [@media(hover:hover)]:data-highlighted:before:bg-neutral-100 dark:[@media(hover:hover)]:data-highlighted:text-white dark:[@media(hover:hover)]:data-highlighted:before:bg-neutral-800"
-                >
-                  <Combobox.ItemIndicator className="col-start-1 mt-1">
-                    <CheckIcon className="size-3" />
-                  </Combobox.ItemIndicator>
-                  <span className="col-start-2 flex flex-col gap-1">
-                    <span className="text-sm leading-5 font-bold">{user.name}</span>
-                    <span className="text-xs">{user.email}</span>
-                    <span className="flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
-                      <span>@{user.username}</span>
-                      <span>{user.title}</span>
+            <div className="max-h-[min(var(--available-height),23rem)] overflow-y-auto overscroll-contain py-1 scroll-pt-1 scroll-pb-1">
+              <Combobox.Status>
+                {status ? (
+                  <div className="flex items-center gap-2 py-1 pr-5 pl-2 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                    {status}
+                  </div>
+                ) : null}
+              </Combobox.Status>
+              <Combobox.Empty>
+                {emptyMessage ? (
+                  <div className="py-2 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
+                    {emptyMessage}
+                  </div>
+                ) : null}
+              </Combobox.Empty>
+              <Combobox.List>
+                {(user: DirectoryUser) => (
+                  <Combobox.Item
+                    key={user.id}
+                    value={user}
+                    className="grid cursor-default grid-cols-[0.75rem_1fr] items-start gap-2 px-2 py-2 text-sm leading-[1.2rem] outline-none select-none [@media(hover:hover)]:data-highlighted:relative [@media(hover:hover)]:data-highlighted:z-0 [@media(hover:hover)]:data-highlighted:text-neutral-950 [@media(hover:hover)]:data-highlighted:before:absolute [@media(hover:hover)]:data-highlighted:before:inset-0 [@media(hover:hover)]:data-highlighted:before:z-[-1] [@media(hover:hover)]:data-highlighted:before:bg-neutral-100 dark:[@media(hover:hover)]:data-highlighted:text-white dark:[@media(hover:hover)]:data-highlighted:before:bg-neutral-800"
+                  >
+                    <Combobox.ItemIndicator className="col-start-1 mt-1">
+                      <CheckIcon className="size-3" />
+                    </Combobox.ItemIndicator>
+                    <span className="col-start-2 flex flex-col gap-1">
+                      <span className="text-sm leading-5 font-bold">{user.name}</span>
+                      <span className="text-xs">{user.email}</span>
+                      <span className="flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                        <span>@{user.username}</span>
+                        <span>{user.title}</span>
+                      </span>
                     </span>
-                  </span>
-                </Combobox.Item>
-              )}
-            </Combobox.List>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </div>
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>

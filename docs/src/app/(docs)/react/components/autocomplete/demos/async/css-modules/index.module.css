@@ -34,15 +34,11 @@
 
 .Popup {
   box-sizing: border-box;
-  padding-block: 0.25rem;
   background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
   width: var(--anchor-width);
-  max-height: min(var(--available-height), 23rem);
   max-width: var(--available-width);
-  overflow-y: auto;
-  scroll-padding-block: 0.25rem;
-  overscroll-behavior: contain;
+  overflow: clip;
 
   border: 1px solid light-dark(var(--color-neutral-950), white);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
@@ -50,6 +46,15 @@
   @media (prefers-color-scheme: dark) {
     box-shadow: none;
   }
+}
+
+.Viewport {
+  box-sizing: border-box;
+  max-height: min(var(--available-height), 23rem);
+  padding-block: 0.25rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 0.25rem;
 }
 
 .Item {

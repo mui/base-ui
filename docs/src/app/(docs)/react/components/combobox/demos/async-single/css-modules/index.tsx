@@ -128,29 +128,31 @@ export default function ExampleAsyncSingleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            <Combobox.Status>
-              {status ? <div className={styles.Status}>{status}</div> : null}
-            </Combobox.Status>
-            <Combobox.Empty>
-              {emptyMessage ? <div className={styles.Empty}>{emptyMessage}</div> : null}
-            </Combobox.Empty>
-            <Combobox.List>
-              {(user: DirectoryUser) => (
-                <Combobox.Item key={user.id} className={styles.Item} value={user}>
-                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Combobox.ItemIndicator>
-                  <span className={styles.ItemText}>
-                    <span className={styles.ItemTitle}>{user.name}</span>
-                    <span className={styles.ItemEmail}>{user.email}</span>
-                    <span className={styles.ItemSubtitle}>
-                      <span>@{user.username}</span>
-                      <span>{user.title}</span>
+            <div className={styles.Viewport}>
+              <Combobox.Status>
+                {status ? <div className={styles.Status}>{status}</div> : null}
+              </Combobox.Status>
+              <Combobox.Empty>
+                {emptyMessage ? <div className={styles.Empty}>{emptyMessage}</div> : null}
+              </Combobox.Empty>
+              <Combobox.List>
+                {(user: DirectoryUser) => (
+                  <Combobox.Item key={user.id} className={styles.Item} value={user}>
+                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Combobox.ItemIndicator>
+                    <span className={styles.ItemText}>
+                      <span className={styles.ItemTitle}>{user.name}</span>
+                      <span className={styles.ItemEmail}>{user.email}</span>
+                      <span className={styles.ItemSubtitle}>
+                        <span>@{user.username}</span>
+                        <span>{user.title}</span>
+                      </span>
                     </span>
-                  </span>
-                </Combobox.Item>
-              )}
-            </Combobox.List>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </div>
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>

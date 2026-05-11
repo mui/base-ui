@@ -88,32 +88,34 @@ export default function ExampleAsyncAutocomplete() {
       <Autocomplete.Portal hidden={!status}>
         <Autocomplete.Positioner className="outline-hidden" sideOffset={4} align="start">
           <Autocomplete.Popup
-            className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-1 scroll-pb-1 overscroll-contain border border-neutral-950 bg-white py-1 text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
+            className="w-[var(--anchor-width)] max-w-[var(--available-width)] overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
             aria-busy={isPending || undefined}
           >
-            <Autocomplete.Status>
-              {status && (
-                <div className="flex items-center gap-2 py-1 pr-8 pl-2 text-sm text-neutral-500 dark:text-neutral-400">
-                  {status}
-                </div>
-              )}
-            </Autocomplete.Status>
-            <Autocomplete.List>
-              {(movie: Movie) => (
-                <Autocomplete.Item
-                  key={movie.id}
-                  className="flex cursor-default py-2 pr-2 pl-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
-                  value={movie}
-                >
-                  <span className="flex w-full flex-col gap-1">
-                    <span className="font-bold leading-5">{movie.title}</span>
-                    <span className="text-sm leading-4 text-neutral-500 dark:text-neutral-400">
-                      {movie.year}
+            <div className="max-h-[min(var(--available-height),23rem)] overflow-y-auto overscroll-contain py-1 scroll-pt-1 scroll-pb-1">
+              <Autocomplete.Status>
+                {status && (
+                  <div className="flex items-center gap-2 py-1 pr-8 pl-2 text-sm text-neutral-500 dark:text-neutral-400">
+                    {status}
+                  </div>
+                )}
+              </Autocomplete.Status>
+              <Autocomplete.List>
+                {(movie: Movie) => (
+                  <Autocomplete.Item
+                    key={movie.id}
+                    className="flex cursor-default py-2 pr-2 pl-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
+                    value={movie}
+                  >
+                    <span className="flex w-full flex-col gap-1">
+                      <span className="font-bold leading-5">{movie.title}</span>
+                      <span className="text-sm leading-4 text-neutral-500 dark:text-neutral-400">
+                        {movie.year}
+                      </span>
                     </span>
-                  </span>
-                </Autocomplete.Item>
-              )}
-            </Autocomplete.List>
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </div>
           </Autocomplete.Popup>
         </Autocomplete.Positioner>
       </Autocomplete.Portal>

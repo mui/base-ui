@@ -34,15 +34,11 @@
 
 .Popup {
   box-sizing: border-box;
-  padding-block: 0.25rem;
   background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
   width: var(--anchor-width);
-  max-height: min(var(--available-height), 28rem);
   max-width: var(--available-width);
-  overflow-y: auto;
-  scroll-padding-block: 0.25rem;
-  overscroll-behavior: contain;
+  overflow: clip;
 
   border: 1px solid light-dark(var(--color-neutral-950), white);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
@@ -56,6 +52,11 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  padding-block: 0.25rem;
+  max-height: min(var(--available-height), 28rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 0.25rem;
 }
 
 .Item {
