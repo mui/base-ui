@@ -561,7 +561,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             // Handle browser autofill.
             onChange(event: React.ChangeEvent<HTMLInputElement>) {
               // Workaround for https://github.com/facebook/react/issues/9023
-              if (event.nativeEvent.defaultPrevented) {
+              if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
                 return;
               }
 
