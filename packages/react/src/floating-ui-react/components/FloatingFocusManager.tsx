@@ -696,9 +696,18 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
       elToFocus = elToFocus || getDefaultFocusElement();
 
+      const activeElementBeforeFocus = activeElement(doc);
+
       enqueueFocus(elToFocus, {
         preventScroll: elToFocus === floatingFocusElement,
-        guard: () => !contains(floatingFocusElement, activeElement(doc)),
+        guard() {
+          const currentActiveElement = activeElement(doc);
+          return (
+            contains(floatingFocusElement, activeElementBeforeFocus) ||
+            currentActiveElement === elToFocus ||
+            !contains(floatingFocusElement, currentActiveElement)
+          );
+        },
       });
     });
   }, [

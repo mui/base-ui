@@ -3,23 +3,23 @@ import type { FocusableElement } from './tabbable';
 
 interface Options {
   preventScroll?: boolean | undefined;
-  cancelPrevious?: boolean | undefined;
   sync?: boolean | undefined;
   guard?: (() => boolean) | undefined;
 }
 
 let rafId = 0;
 export function enqueueFocus(el: FocusableElement | null, options: Options = {}) {
-  const { preventScroll = false, cancelPrevious = true, sync = false, guard } = options;
-  if (cancelPrevious) {
-    cancelAnimationFrame(rafId);
-  }
-  const exec = () => {
+  const { preventScroll = false, sync = false, guard } = options;
+
+  cancelAnimationFrame(rafId);
+
+  function exec() {
     if (guard && !guard()) {
       return;
     }
     el?.focus({ preventScroll });
-  };
+  }
+
   if (sync) {
     exec();
     return NOOP;
@@ -28,8 +28,8 @@ export function enqueueFocus(el: FocusableElement | null, options: Options = {})
   const currentRafId = requestAnimationFrame(exec);
   rafId = currentRafId;
   return () => {
-    cancelAnimationFrame(currentRafId);
     if (rafId === currentRafId) {
+      cancelAnimationFrame(currentRafId);
       rafId = 0;
     }
   };
