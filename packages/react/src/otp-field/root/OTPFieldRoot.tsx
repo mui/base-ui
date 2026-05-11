@@ -407,7 +407,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
                 focusInput(0);
               },
               onChange(event) {
-                if (event.nativeEvent.defaultPrevented) {
+                if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
                   return;
                 }
 

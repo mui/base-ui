@@ -14,7 +14,6 @@ import {
   ElementProps,
   useDismiss,
   useFloatingRootContext,
-  useInteractions,
   useListNavigation,
   useClick,
 } from '../../floating-ui-react';
@@ -45,6 +44,8 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { mergeProps } from '../../merge-props';
 import {
   stringifyAsLabel,
   stringifyAsValue,
@@ -387,6 +388,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         popupProps: {},
         inputProps: {},
         triggerProps: {},
+        itemProps: EMPTY_OBJECT,
         positionerElement: null,
         listElement: null,
         triggerElement: null,
@@ -406,7 +408,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         setIndices: NOOP,
         onItemHighlighted: NOOP,
         handleSelection: NOOP,
-        getItemProps: () => EMPTY_OBJECT,
         forceMount: NOOP,
         requestSubmit: NOOP,
       }),
@@ -1091,20 +1092,35 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-    role,
-    click,
-    dismiss,
-    listNavigation,
-  ]);
+  const inputProps = React.useMemo(
+    () => mergeProps(listNavigation.reference, dismiss.reference, click.reference, role.reference),
+    [listNavigation.reference, dismiss.reference, click.reference, role.reference],
+  );
+
+  const popupProps = React.useMemo(
+    () =>
+      mergeProps(FOCUSABLE_POPUP_PROPS, listNavigation.floating, dismiss.floating, role.floating),
+    [listNavigation.floating, dismiss.floating, role.floating],
+  );
+
+  const itemProps = React.useMemo<HTMLProps>(() => {
+    const listNavigationItemProps = listNavigation.item as HTMLProps | undefined;
+    if (!listNavigationItemProps) {
+      return EMPTY_OBJECT;
+    }
+
+    // Combobox keeps focus on the input; item focus would incorrectly sync
+    // list navigation state from DOM focus.
+    return { ...listNavigationItemProps, onFocus: undefined };
+  }, [listNavigation.item]);
 
   useOnFirstRender(() => {
     store.update({
       inline: inlineProp,
-      popupProps: getFloatingProps(),
-      inputProps: getReferenceProps(),
+      popupProps,
+      inputProps,
       triggerProps,
-      getItemProps,
+      itemProps,
       setOpen,
       setInputValue,
       setSelectedValue,
@@ -1125,11 +1141,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       transitionStatus,
       items,
       inline: inlineProp,
-      popupProps: getFloatingProps(),
-      inputProps: getReferenceProps(),
+      popupProps,
+      inputProps,
       triggerProps,
       openMethod,
-      getItemProps,
+      itemProps,
       selectionMode,
       name,
       form,
@@ -1158,9 +1174,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     mounted,
     transitionStatus,
     items,
-    getFloatingProps,
-    getReferenceProps,
-    getItemProps,
+    popupProps,
+    inputProps,
+    itemProps,
     openMethod,
     triggerProps,
     selectionMode,
