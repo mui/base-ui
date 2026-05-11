@@ -44,10 +44,6 @@
     }
   }
 
-  &:active:not([data-disabled]) {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
-  }
-
   &:focus-visible {
     outline: 2px solid light-dark(var(--color-neutral-950), white);
     z-index: 1;
