@@ -83,12 +83,15 @@ export function useHoverFloatingInteraction(
     return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
-  const isHoverOpen = useStableCallback(() => {
-    return isHoverOpenEvent(dataRef.current.openEvent?.type);
-  });
-
   const handleHoverClose = useStableCallback((event: MouseEvent) => {
-    closeHoverPopup(store, instance, tree, event, isHoverOpen(), hoverCloseGracePeriod);
+    closeHoverPopup(
+      store,
+      instance,
+      tree,
+      event,
+      isHoverOpenEvent(dataRef.current.openEvent?.type),
+      hoverCloseGracePeriod,
+    );
   });
 
   const closeWithDelay = useStableCallback((event: MouseEvent) => {
@@ -132,7 +135,7 @@ export function useHoverFloatingInteraction(
     if (
       open &&
       instance.handleCloseOptions?.blockPointerEvents &&
-      isHoverOpen() &&
+      isHoverOpenEvent(dataRef.current.openEvent?.type) &&
       isElement(domReferenceElement) &&
       floatingElement
     ) {
@@ -179,8 +182,8 @@ export function useHoverFloatingInteraction(
     open,
     domReferenceElement,
     floatingElement,
+    dataRef,
     instance,
-    isHoverOpen,
     tree,
     parentId,
     clearPointerEvents,

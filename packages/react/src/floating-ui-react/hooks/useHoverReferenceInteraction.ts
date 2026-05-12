@@ -23,7 +23,6 @@ import {
   closeWithOptionalDelay,
   emitCommittedHoverClose,
   useHoverInteractionSharedState,
-  wasHoverClosedRecently,
 } from './useHoverInteractionSharedState';
 import type { HandleClose, HandleCloseContextBase } from './useHoverShared';
 import {
@@ -165,14 +164,13 @@ export function useHoverReferenceInteraction(
     );
   });
 
-  const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
+  const closeWithDelay = useStableCallback((event: MouseEvent) => {
     closeWithOptionalDelay(
       store,
       instance,
       handleHoverClose,
       event,
       getDelay(delayRef.current, 'close', instance.pointerType),
-      runElseBranch,
     );
   });
 
@@ -379,7 +377,7 @@ export function useHoverReferenceInteraction(
               !isClickLikeOpenEvent() &&
               currentTrigger === store.select('domReferenceElement')
             ) {
-              closeWithDelay(event, true);
+              closeWithDelay(event);
             }
           },
         });
@@ -548,5 +546,10 @@ function shouldIgnoreOpenDelayAfterHoverClose(
   hoverCloseGracePeriod: number | undefined,
 ) {
   // Applies to quick handoffs like trigger-to-trigger and popup-to-trigger.
-  return !isOpen && wasHoverClosedRecently(instance, performance.now(), hoverCloseGracePeriod);
+  return (
+    !isOpen &&
+    (hoverCloseGracePeriod ?? 0) > 0 &&
+    instance.lastHoverCloseTime !== 0 &&
+    performance.now() - instance.lastHoverCloseTime <= hoverCloseGracePeriod!
+  );
 }

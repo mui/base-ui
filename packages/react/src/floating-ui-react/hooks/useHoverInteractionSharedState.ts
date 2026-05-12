@@ -15,13 +15,6 @@ import type {
 import { isInteractiveElement } from '../utils/element';
 
 /**
- * Sentinel value for `lastHoverCloseTime` indicating that no hover-close has
- * been committed yet. Using a named constant avoids confusion with a real
- * `performance.now()` timestamp.
- */
-export const HOVER_CLOSE_UNSET = -1;
-
-/**
  * Default grace period (ms) after a committed hover-close during which a
  * subsequent hover-open bypasses the configured delay. The 400ms window keeps
  * trigger-to-trigger and popup-to-trigger handoffs responsive without keeping
@@ -33,19 +26,6 @@ export const HOVER_CLOSE_UNSET = -1;
  */
 export const HOVER_CLOSE_GRACE_PERIOD = 400;
 
-/**
- * Captures the context of a hover-close that has been accepted by the store
- * (not canceled) but has not yet been confirmed as committed — the effective
- * `open` state may still be `true` in controlled components that update
- * asynchronously. Once `open` actually becomes `false`, the pending close is
- * "committed": grace time is optionally recorded and a `floating.closed` tree
- * event is emitted.
- */
-type PendingHoverClose = {
-  event: MouseEvent;
-  /** Whether to record `lastHoverCloseTime` when this close is committed. */
-  shouldRecordGrace: boolean;
-};
 export { isInteractiveElement };
 
 export class HoverInteraction {
@@ -59,8 +39,8 @@ export class HoverInteraction {
   pointerEventsFloatingElement: HTMLElement | null;
   restTimeoutPending: boolean;
   lastHoverCloseTime: number;
-  pendingHoverClose: PendingHoverClose | null;
-  pendingHoverCloseId: number;
+  pendingHoverClose: MouseEvent | null;
+  pendingHoverCloseGrace: boolean;
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
   handleCloseOptions: SafePolygonOptions | undefined;
@@ -75,10 +55,10 @@ export class HoverInteraction {
     this.pointerEventsReferenceElement = null;
     this.pointerEventsFloatingElement = null;
     this.restTimeoutPending = false;
-    // `HOVER_CLOSE_UNSET` means no hover-close has occurred yet.
-    this.lastHoverCloseTime = HOVER_CLOSE_UNSET;
+    // `0` means no hover-close has occurred yet.
+    this.lastHoverCloseTime = 0;
     this.pendingHoverClose = null;
-    this.pendingHoverCloseId = 0;
+    this.pendingHoverCloseGrace = false;
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();
     this.handleCloseOptions = undefined;
@@ -177,20 +157,6 @@ export function useHoverInteractionSharedState(store: FloatingRootContext): Hove
   return data.hoverInteractionState;
 }
 
-export function recordHoverClose(instance: HoverInteraction, now = performance.now()): void {
-  instance.lastHoverCloseTime = now;
-}
-
-export function clearPendingHoverClose(instance: HoverInteraction): void {
-  instance.pendingHoverClose = null;
-}
-
-function setPendingHoverClose(instance: HoverInteraction, pendingHoverClose: PendingHoverClose) {
-  instance.pendingHoverClose = pendingHoverClose;
-  instance.pendingHoverCloseId += 1;
-  return instance.pendingHoverCloseId;
-}
-
 /**
  * If a pending hover-close exists, finalizes it as committed: records the
  * grace timestamp (when applicable) and emits a `floating.closed` tree event
@@ -210,18 +176,18 @@ export function emitCommittedHoverClose(
   instance: HoverInteraction,
   tree: FloatingTreeType | null,
 ): boolean {
-  const pendingHoverClose = instance.pendingHoverClose;
-  if (!pendingHoverClose) {
+  const pendingHoverCloseEvent = instance.pendingHoverClose;
+  if (!pendingHoverCloseEvent) {
     return false;
   }
 
   instance.pendingHoverClose = null;
 
-  if (pendingHoverClose.shouldRecordGrace) {
-    recordHoverClose(instance);
+  if (instance.pendingHoverCloseGrace) {
+    instance.lastHoverCloseTime = performance.now();
   }
 
-  tree?.events.emit('floating.closed', pendingHoverClose.event);
+  tree?.events.emit('floating.closed', pendingHoverCloseEvent);
   return true;
 }
 
@@ -251,7 +217,7 @@ export function closeHoverPopup(
 ): void {
   // Discard any stale pending close from a previous attempt that was never
   // committed (e.g. a controlled consumer ignored a prior close request).
-  clearPendingHoverClose(instance);
+  instance.pendingHoverClose = null;
 
   if (!store.select('open')) {
     return;
@@ -271,10 +237,8 @@ export function closeHoverPopup(
   // synchronously below (if the floating root store already reflects the
   // closed state) or in the `open` watcher effect when the floating root
   // store syncs the popup store's closed state.
-  const pendingHoverCloseId = setPendingHoverClose(instance, {
-    event,
-    shouldRecordGrace: isHoverOpen && hoverCloseGracePeriod != null && hoverCloseGracePeriod > 0,
-  });
+  instance.pendingHoverClose = event;
+  instance.pendingHoverCloseGrace = isHoverOpen && (hoverCloseGracePeriod ?? 0) > 0;
 
   // --- Commit verification phase ---
   // Force React to process any batched state updates that the consumer's
@@ -309,10 +273,10 @@ export function closeHoverPopup(
     // unrelated close cannot inherit hover-close grace.
     queueMicrotask(() => {
       if (
-        instance.pendingHoverCloseId === pendingHoverCloseId &&
+        instance.pendingHoverClose === event &&
         (store.context.isPopupEffectivelyOpen?.() ?? store.select('open'))
       ) {
-        clearPendingHoverClose(instance);
+        instance.pendingHoverClose = null;
       }
     });
 
@@ -328,34 +292,15 @@ export function closeHoverPopup(
 }
 
 export function clearRecentHoverClose(instance: HoverInteraction): void {
-  instance.lastHoverCloseTime = HOVER_CLOSE_UNSET;
-  clearPendingHoverClose(instance);
-}
-
-export function wasHoverClosedRecently(
-  instance: HoverInteraction,
-  now = performance.now(),
-  thresholdMs?: number,
-): boolean {
-  // Used by hover-open flows to suppress delay during quick handoffs
-  // (trigger-to-trigger, popup-to-trigger, and same-trigger re-entry).
-  if (
-    thresholdMs == null ||
-    thresholdMs <= 0 ||
-    instance.lastHoverCloseTime === HOVER_CLOSE_UNSET
-  ) {
-    return false;
-  }
-
-  return now - instance.lastHoverCloseTime <= thresholdMs;
+  instance.lastHoverCloseTime = 0;
+  instance.pendingHoverClose = null;
+  instance.pendingHoverCloseGrace = false;
 }
 
 /**
  * Closes the hover popup, applying an optional delay. This is the shared
  * close-with-delay helper used by both the reference and floating hover hooks.
  *
- * @param runElseBranch When `true` (default), closes immediately if no delay
- *   is configured. When `false`, only the delayed path runs.
  */
 export function closeWithOptionalDelay(
   store: FloatingRootContext,
@@ -363,7 +308,6 @@ export function closeWithOptionalDelay(
   handleHoverClose: (event: MouseEvent) => void,
   event: MouseEvent,
   closeDelay: number | undefined,
-  runElseBranch = true,
 ): void {
   // Bail out if the popup is already closed (e.g. mouseleave fired on an
   // already-closed kept-mounted popup). Avoids a spurious `setOpen(false)`.
@@ -374,7 +318,7 @@ export function closeWithOptionalDelay(
 
   if (closeDelay) {
     instance.openChangeTimeout.start(closeDelay, () => handleHoverClose(event));
-  } else if (runElseBranch) {
+  } else {
     instance.openChangeTimeout.clear();
     handleHoverClose(event);
   }

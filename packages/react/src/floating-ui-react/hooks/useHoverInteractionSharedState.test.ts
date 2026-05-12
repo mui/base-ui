@@ -1,10 +1,6 @@
 import { vi } from 'vitest';
 import type { FloatingRootContext, FloatingTreeType } from '../types';
-import {
-  closeHoverPopup,
-  HOVER_CLOSE_UNSET,
-  HoverInteraction,
-} from './useHoverInteractionSharedState';
+import { closeHoverPopup, HoverInteraction } from './useHoverInteractionSharedState';
 
 describe('closeHoverPopup', () => {
   it('emits a committed close even when the popup was not hover-opened', () => {
@@ -22,7 +18,7 @@ describe('closeHoverPopup', () => {
     );
 
     expect(tree.emittedEvents).toEqual([['floating.closed', expect.any(MouseEvent)]]);
-    expect(instance.lastHoverCloseTime).toBe(HOVER_CLOSE_UNSET);
+    expect(instance.lastHoverCloseTime).toBe(0);
   });
 
   it('records reopen grace only for committed hover closes', () => {
@@ -63,7 +59,7 @@ describe('closeHoverPopup', () => {
     );
 
     expect(tree.emittedEvents).toEqual([]);
-    expect(instance.lastHoverCloseTime).toBe(HOVER_CLOSE_UNSET);
+    expect(instance.lastHoverCloseTime).toBe(0);
   });
 
   it('does not record a pending close when a controlled consumer ignores the request', async () => {
@@ -87,7 +83,7 @@ describe('closeHoverPopup', () => {
     await new Promise<void>(queueMicrotask);
 
     expect(tree.emittedEvents).toEqual([]);
-    expect(instance.lastHoverCloseTime).toBe(HOVER_CLOSE_UNSET);
+    expect(instance.lastHoverCloseTime).toBe(0);
     expect(instance.pendingHoverClose).toBe(null);
   });
 });
