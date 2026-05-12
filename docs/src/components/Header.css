@@ -31,6 +31,11 @@
       box-shadow: none;
       background-color: transparent;
     }
+
+    @media print {
+      /* Prevent the header to be visible on each printed page */
+      position: absolute;
+    }
   }
 
   .HeaderLink,
