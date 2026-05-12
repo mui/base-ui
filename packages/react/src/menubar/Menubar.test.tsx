@@ -587,13 +587,11 @@ describe('<Menubar />', () => {
         const fileTrigger = screen.getByTestId('file-trigger');
         await user.click(fileTrigger);
 
-        // Menu should be open
+        // Menu should be open with the first item focused
         await waitFor(() => {
           expect(screen.queryByTestId('file-menu')).not.toBe(null);
         });
 
-        // Navigate with keyboard
-        await user.keyboard('{ArrowDown}');
         const firstItem = screen.getByTestId('file-item-1');
         await waitFor(() => {
           expect(firstItem).toHaveFocus();

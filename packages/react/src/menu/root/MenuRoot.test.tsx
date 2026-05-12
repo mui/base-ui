@@ -692,7 +692,6 @@ describe('<Menu.Root />', () => {
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
         await user.keyboard('[ArrowDown]');
-        await user.keyboard('[ArrowDown]');
 
         const submenuTrigger1 = await screen.findByTestId('submenu-trigger');
         await waitFor(() => {
@@ -995,6 +994,31 @@ describe('<Menu.Root />', () => {
 
         expect(items[4].tabIndex).toBe(0);
         [items[0], items[1], items[2], items[3]].forEach((item) => {
+          expect(item.tabIndex).toBe(-1);
+        });
+      });
+
+      it('focuses the first item when the menu is opened programmatically', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <div>
+              <button type="button" onClick={() => setOpen(true)}>
+                external
+              </button>
+              <TestMenu rootProps={{ open, onOpenChange: setOpen }} />
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByRole('button', { name: 'external' }));
+
+        const [firstItem, ...otherItems] = await screen.findAllByRole('menuitem');
+        await waitFor(() => expect(firstItem).toHaveFocus());
+        expect(firstItem.tabIndex).toBe(0);
+        otherItems.forEach((item) => {
           expect(item.tabIndex).toBe(-1);
         });
       });

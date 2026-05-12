@@ -423,6 +423,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     openOnArrowKeyDown: parent.type !== 'context-menu',
     externalTree: nested ? floatingTreeRoot : undefined,
     focusItemOnHover: highlightItemOnHover,
+    // Ensure an item is highlighted on open even when opened programmatically (no trigger keydown).
+    focusItemOnOpen: true,
   });
 
   const onTyping = React.useCallback(
