@@ -289,6 +289,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
         onPointerDown(event: React.PointerEvent) {
           pointerTypeRef.current = event.pointerType;
           store.set('closeOnClick', closeOnClick);
+          if (closeOnClick && !store.select('open')) {
+            store.cancelPendingOpen(event.nativeEvent);
+          }
         },
         onClick(event) {
           if (closeOnClick && !store.select('open')) {
