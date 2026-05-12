@@ -9,9 +9,7 @@ export default function ExamplePopoverCombobox() {
       <Combobox.Root items={countries}>
         <Combobox.Label className={styles.Label}>Country</Combobox.Label>
         <Combobox.Trigger className={styles.Trigger}>
-          <Combobox.Value
-            placeholder={<span className={styles.Placeholder}>Select country</span>}
-          />
+          <Combobox.Value placeholder="Select country" />
           <Combobox.Icon className={styles.TriggerIcon}>
             <ChevronUpDownIcon />
           </Combobox.Icon>
