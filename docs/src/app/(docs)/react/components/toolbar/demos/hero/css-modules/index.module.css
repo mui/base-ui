@@ -60,6 +60,10 @@
     }
   }
 
+  &[aria-pressed] {
+    padding: 0 0.75rem;
+  }
+
   &[data-pressed] {
     background-color: var(--color-neutral-950);
     color: white;
@@ -90,10 +94,6 @@
     }
   }
 
-  &[aria-pressed] {
-    padding: 0 0.75rem;
-  }
-
   &[role='combobox'] {
     min-width: 8rem;
     justify-content: space-between;
@@ -101,7 +101,6 @@
   }
 
   &:focus-visible {
-    background-color: transparent;
     outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
 
@@ -148,7 +147,6 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
