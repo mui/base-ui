@@ -21,9 +21,7 @@ export interface SelectRootContext {
   scrollHandlerRef: React.RefObject<((el: HTMLDivElement) => void) | null>;
   handleScrollArrowVisibility: () => void;
   scrollArrowsMountedCountRef: React.RefObject<number>;
-  getItemProps: (
-    props?: HTMLProps & { active?: boolean | undefined; selected?: boolean | undefined },
-  ) => Record<string, unknown>; // PREVENT_COMMIT
+  itemProps: HTMLProps;
   events: FloatingEvents;
   valueRef: React.RefObject<HTMLSpanElement | null>;
   valuesRef: React.RefObject<Array<any>>;
