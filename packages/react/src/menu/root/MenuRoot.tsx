@@ -361,10 +361,20 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }, [store]);
 
+  const setActiveIndex = React.useCallback(
+    (index: number | null) => {
+      if (store.select('activeIndex') === index) {
+        return;
+      }
+      store.set('activeIndex', index);
+    },
+    [store],
+  );
+
   React.useImperativeHandle(
     actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
+    () => ({ unmount: forceUnmount, close: handleImperativeClose, setActiveIndex }),
+    [forceUnmount, handleImperativeClose, setActiveIndex],
   );
 
   let ctx: ContextMenuRootContext | undefined;
@@ -394,16 +404,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   const direction = useDirection();
-
-  const setActiveIndex = React.useCallback(
-    (index: number | null) => {
-      if (store.select('activeIndex') === index) {
-        return;
-      }
-      store.set('activeIndex', index);
-    },
-    [store],
-  );
 
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
@@ -617,6 +617,10 @@ export interface MenuRootProps<Payload = unknown> {
    *    Instead, the `unmount` function must be called to unmount the menu manually.
    *   Useful when the menu's animation is controlled by an external library.
    * - `close`: When specified, the menu can be closed imperatively.
+   * - `setActiveIndex`: Set the index of the currently highlighted item.
+   *   Pass `0` to highlight the first item, or `null` to clear the highlight.
+   *   Useful when opening the menu programmatically from a custom interaction
+   *   so that keyboard focus lands on an item instead of the popup container.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
   /**
@@ -645,6 +649,7 @@ export interface MenuRootProps<Payload = unknown> {
 export interface MenuRootActions {
   unmount: () => void;
   close: () => void;
+  setActiveIndex: (index: number | null) => void;
 }
 
 export type MenuRootChangeEventReason =
