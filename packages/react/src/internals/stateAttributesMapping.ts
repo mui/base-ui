@@ -12,6 +12,9 @@ export const TransitionStatusDataAttributes = {
   endingStyle: 'data-ending-style',
 } as const;
 
+export type TransitionStatusDataAttributes =
+  (typeof TransitionStatusDataAttributes)[keyof typeof TransitionStatusDataAttributes];
+
 const STARTING_HOOK = { [TransitionStatusDataAttributes.startingStyle]: '' };
 const ENDING_HOOK = { [TransitionStatusDataAttributes.endingStyle]: '' };
 

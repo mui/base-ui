@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { contains, getTarget } from '../internals/shadowDom';
+import { contains, getTarget } from '../floating-ui-react/utils';
 import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
 import { clamp } from '../internals/clamp';
 import { getElementAtPoint } from './getElementAtPoint';
@@ -12,7 +12,7 @@ export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 type SwipeDismissNativeEvent = PointerEvent | TouchEvent;
 type SwipeDismissStartEvent = React.PointerEvent | React.TouchEvent;
 type SwipeDismissMoveEvent = React.PointerEvent | React.TouchEvent;
-type SwipeDismissEndEvent = React.PointerEvent | React.TouchEvent | PointerEvent | TouchEvent;
+type SwipeDismissEndEvent = React.PointerEvent | React.TouchEvent;
 type SwipeProgressDetailsInternal = {
   deltaX: number;
   deltaY: number;
@@ -28,17 +28,18 @@ const MAX_RELEASE_VELOCITY_AGE_MS = 80;
 const DEFAULT_IGNORE_SELECTOR = 'button,a,input,select,textarea,label,[role="button"]';
 
 export function getDisplacement(direction: SwipeDirection, deltaX: number, deltaY: number) {
-  /* eslint-disable no-nested-ternary */
-  return direction === 'up'
-    ? -deltaY
-    : direction === 'down'
-      ? deltaY
-      : direction === 'left'
-        ? -deltaX
-        : direction === 'right'
-          ? deltaX
-          : 0;
-  /* eslint-enable no-nested-ternary */
+  switch (direction) {
+    case 'up':
+      return -deltaY;
+    case 'down':
+      return deltaY;
+    case 'left':
+      return -deltaX;
+    case 'right':
+      return deltaX;
+    default:
+      return 0;
+  }
 }
 
 export function getElementTransform(element: HTMLElement) {
@@ -71,6 +72,10 @@ function getValidTimeStamp(timeStamp: number): number | null {
   return Number.isFinite(timeStamp) && timeStamp > 0 ? timeStamp : null;
 }
 
+function hasPrimaryMouseButton(buttons: number): boolean {
+  return buttons % 2 === 1;
+}
+
 function safelyChangePointerCapture(
   element: HTMLElement,
   pointerId: number,
@@ -84,7 +89,7 @@ function safelyChangePointerCapture(
   try {
     pointerCaptureMethod.call(element, pointerId);
   } catch (error) {
-    if ((error as Error)?.name === 'NotFoundError') {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'NotFoundError') {
       return;
     }
     throw error;
@@ -98,7 +103,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     elementRef,
     movementCssVars,
     canStart,
-    ignoreSelector = DEFAULT_IGNORE_SELECTOR,
     ignoreSelectorWhenTouch = true,
     ignoreScrollableAncestors = false,
     swipeThreshold: swipeThresholdProp,
@@ -111,6 +115,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     trackDrag = true,
   } = options;
 
+  const ignoreSelector = DEFAULT_IGNORE_SELECTOR;
   const primaryDirection = directions.length === 1 ? directions[0] : undefined;
 
   const swipeThresholdDefault = Math.max(
@@ -169,8 +174,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   const lastDragVelocityRef = React.useRef({ x: 0, y: 0 });
   const lastProgressDetailsRef = React.useRef<SwipeProgressDetailsInternal | null>(null);
   const isSwipingRef = React.useRef(false);
-  const dragAbortControllerRef = React.useRef<AbortController | null>(null);
-  const handleEndRef = React.useRef<((event: SwipeDismissEndEvent) => void) | null>(null);
 
   const setSwiping = useStableCallback((nextSwiping: boolean) => {
     if (isSwipingRef.current === nextSwiping) {
@@ -247,12 +250,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     lastDragSampleRef.current = { x: offset.x, y: offset.y, time: timeStamp };
   }
 
-  function getNativeEvent(
-    event: SwipeDismissStartEvent | SwipeDismissMoveEvent | SwipeDismissEndEvent,
-  ) {
-    return 'nativeEvent' in event ? (event.nativeEvent as SwipeDismissNativeEvent) : event;
-  }
-
   const reset = React.useCallback(() => {
     setCurrentSwipeDirection(undefined);
     setSwiping(false);
@@ -282,15 +279,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     lastDragSampleRef.current = null;
     lastDragVelocityRef.current = { x: 0, y: 0 };
     lastProgressDetailsRef.current = null;
-    dragAbortControllerRef.current?.abort();
-    dragAbortControllerRef.current = null;
   }, [setSwiping, swipeThresholdDefault, updateSwipeProgress]);
-
-  React.useEffect(() => {
-    return () => {
-      dragAbortControllerRef.current?.abort();
-    };
-  }, []);
 
   React.useEffect(() => {
     if (typeof swipeThresholdProp !== 'function') {
@@ -312,7 +301,10 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   function isTouchLikeEvent(
     event: SwipeDismissStartEvent | SwipeDismissMoveEvent | SwipeDismissEndEvent,
   ) {
-    return 'touches' in event || event.pointerType === 'touch';
+    if ('touches' in event) {
+      return true;
+    }
+    return event.pointerType === 'touch';
   }
 
   function getTargetAtPoint(position: { x: number; y: number }, nativeEvent: Event) {
@@ -350,7 +342,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   ) {
     swipeFromScrollableRef.current = false;
     const touchLike = isTouchLikeEvent(event);
-    const target = getTargetAtPoint(position, getNativeEvent(event));
+    const target = getTargetAtPoint(position, event.nativeEvent);
 
     const doc = ownerDocument(elementRef.current);
     const body = doc.body;
@@ -396,24 +388,11 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       recordDragSample({ x: transform.x, y: transform.y }, swipeStartTimeRef.current);
 
       if (!('touches' in event)) {
-        dragAbortControllerRef.current?.abort();
-        const dragAbortController = new AbortController();
-        dragAbortControllerRef.current = dragAbortController;
-        const pointerDoc = ownerDocument(element);
-        const handlePointerEnd = (pointerEvent: PointerEvent) => {
-          handleEndRef.current?.(pointerEvent);
-        };
-        pointerDoc.addEventListener('pointerup', handlePointerEnd, {
-          signal: dragAbortController.signal,
-        });
-        pointerDoc.addEventListener('pointercancel', handlePointerEnd, {
-          signal: dragAbortController.signal,
-        });
         safelyChangePointerCapture(element, event.pointerId, 'setPointerCapture');
       }
     }
 
-    onSwipeStart?.(getNativeEvent(event));
+    onSwipeStart?.(event.nativeEvent as SwipeDismissNativeEvent);
 
     setSwiping(true);
     setIsRealSwipe(false);
@@ -451,8 +430,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     setDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
     setCurrentSwipeDirection(undefined);
     sawPrimaryButtonsOnMoveRef.current = false;
-    dragAbortControllerRef.current?.abort();
-    dragAbortControllerRef.current = null;
 
     const element = elementRef.current;
     if (element) {
@@ -548,7 +525,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
     const allowedToStart = canStart
       ? canStart(startPos, {
-          nativeEvent: getNativeEvent(event),
+          nativeEvent: event.nativeEvent as SwipeDismissNativeEvent,
           direction: primaryDirection,
         })
       : true;
@@ -570,7 +547,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       return;
     }
 
-    const target = getTarget(getNativeEvent(event)) as HTMLElement | null;
+    const target = getTarget(event.nativeEvent) as HTMLElement | null;
     if (isTouchLikeEvent(event) && !swipeFromScrollableRef.current) {
       const boundaryElement = event.currentTarget as HTMLElement;
       if (findGestureScrollableTouchTarget(target, boundaryElement)) {
@@ -763,7 +740,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     if (!('touches' in event)) {
-      const hasPrimaryButton = event.buttons % 2 === 1;
+      const hasPrimaryButton = hasPrimaryMouseButton(event.buttons);
       if (hasPrimaryButton) {
         sawPrimaryButtonsOnMoveRef.current = true;
       }
@@ -789,7 +766,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
       const allowedToStart = canStart
         ? canStart(currentPos, {
-            nativeEvent: getNativeEvent(event),
+            nativeEvent: event.nativeEvent as SwipeDismissNativeEvent,
             direction: primaryDirection,
           })
         : true;
@@ -888,8 +865,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     setLockedDirection(null);
     resetPendingSwipeState();
     sawPrimaryButtonsOnMoveRef.current = false;
-    dragAbortControllerRef.current?.abort();
-    dragAbortControllerRef.current = null;
 
     const element = elementRef.current;
     if (element) {
@@ -931,7 +906,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     const releaseDecision = onRelease?.({
-      event: getNativeEvent(event),
+      event: event.nativeEvent as SwipeDismissNativeEvent,
       direction: currentSwipeDirection ?? intendedSwipeDirectionRef.current,
       deltaX,
       deltaY,
@@ -996,7 +971,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     if (shouldClose && dismissDirection) {
       setCurrentSwipeDirection(dismissDirection);
       setDragDismissed(true);
-      onDismiss?.(getNativeEvent(event), { direction: dismissDirection });
+      onDismiss?.(event.nativeEvent as SwipeDismissNativeEvent, { direction: dismissDirection });
     } else {
       dragOffsetRef.current = { x: resolvedInitialTransform.x, y: resolvedInitialTransform.y };
       setDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
@@ -1004,7 +979,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       updateSwipeProgress(0, progressDetails);
     }
   });
-  handleEndRef.current = handleEnd;
 
   const getDragStyles = React.useCallback((): React.CSSProperties => {
     const resolvedDragOffset = trackDrag ? dragOffset : dragOffsetRef.current;
@@ -1104,11 +1078,6 @@ export interface UseSwipeDismissOptions {
   canStart?:
     | ((position: { x: number; y: number }, details: UseSwipeDismissDetails) => boolean)
     | undefined;
-  /**
-   * Elements matching this selector won't start swipe interactions.
-   * @default 'button,a,input,select,textarea,label,[role="button"]'
-   */
-  ignoreSelector?: string | undefined;
   /**
    * If true, swiping won't start when the gesture begins within a scrollable element.
    * This helps avoid conflicts between scrolling content and swipe-to-dismiss.
