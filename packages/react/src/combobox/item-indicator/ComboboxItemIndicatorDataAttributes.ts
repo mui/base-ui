@@ -1,1 +1,12 @@
-export { TransitionStatusDataAttributes as ComboboxItemIndicatorDataAttributes } from '../../internals/stateAttributesMapping';
+import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
+
+export enum ComboboxItemIndicatorDataAttributes {
+  /**
+   * Present when the indicator is animating in.
+   */
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
+  /**
+   * Present when the indicator is animating out.
+   */
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
+}

@@ -1,26 +1,26 @@
 import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
-export const SelectScrollUpArrowDataAttributes = {
+export enum SelectScrollUpArrowDataAttributes {
   /**
    * Present when the scroll arrow is animating in.
    */
-  startingStyle: CommonPopupDataAttributes.startingStyle,
+  startingStyle = CommonPopupDataAttributes.startingStyle,
   /**
    * Present when the scroll arrow is animating out.
    */
-  endingStyle: CommonPopupDataAttributes.endingStyle,
+  endingStyle = CommonPopupDataAttributes.endingStyle,
   /**
    * Indicates the direction of the scroll arrow.
    * @type {'up'}
    */
-  direction: 'data-direction',
+  direction = 'data-direction',
   /**
    * Present when the scroll arrow is visible.
    */
-  visible: 'data-visible',
+  visible = 'data-visible',
   /**
    * Indicates which side the popup is positioned relative to the trigger.
    * @type {'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
-  side: CommonPopupDataAttributes.side,
-} as const;
+  side = CommonPopupDataAttributes.side,
+}

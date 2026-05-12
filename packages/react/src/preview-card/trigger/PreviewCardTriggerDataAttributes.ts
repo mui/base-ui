@@ -1,8 +1,8 @@
 import { CommonTriggerDataAttributes } from '../../utils/popupStateMapping';
 
-export const PreviewCardTriggerDataAttributes = {
+export enum PreviewCardTriggerDataAttributes {
   /**
    * Present when the corresponding preview card is open.
    */
-  popupOpen: CommonTriggerDataAttributes.popupOpen,
-} as const;
+  popupOpen = CommonTriggerDataAttributes.popupOpen,
+}

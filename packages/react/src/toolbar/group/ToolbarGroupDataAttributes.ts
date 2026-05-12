@@ -1,11 +1,11 @@
-export const ToolbarGroupDataAttributes = {
+export enum ToolbarGroupDataAttributes {
   /**
    * Present when the group is disabled.
    */
-  disabled: 'data-disabled',
+  disabled = 'data-disabled',
   /**
    * Indicates the orientation of the toolbar.
    * @type {'horizontal' | 'vertical'}
    */
-  orientation: 'data-orientation',
-} as const;
+  orientation = 'data-orientation',
+}

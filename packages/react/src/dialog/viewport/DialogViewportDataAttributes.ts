@@ -1,28 +1,28 @@
 import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
-export const DialogViewportDataAttributes = {
+export enum DialogViewportDataAttributes {
   /**
    * Present when the dialog is open.
    */
-  open: CommonPopupDataAttributes.open,
+  open = CommonPopupDataAttributes.open,
   /**
    * Present when the dialog is closed.
    */
-  closed: CommonPopupDataAttributes.closed,
+  closed = CommonPopupDataAttributes.closed,
   /**
    * Present when the dialog is animating in.
    */
-  startingStyle: CommonPopupDataAttributes.startingStyle,
+  startingStyle = CommonPopupDataAttributes.startingStyle,
   /**
    * Present when the dialog is animating out.
    */
-  endingStyle: CommonPopupDataAttributes.endingStyle,
+  endingStyle = CommonPopupDataAttributes.endingStyle,
   /**
    * Present when the dialog is nested within another dialog.
    */
-  nested: 'data-nested',
+  nested = 'data-nested',
   /**
    * Present when the dialog has other open dialogs nested within it.
    */
-  nestedDialogOpen: 'data-nested-dialog-open',
-} as const;
+  nestedDialogOpen = 'data-nested-dialog-open',
+}

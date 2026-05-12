@@ -1,7 +1,7 @@
-export const ToastDescriptionDataAttributes = {
+export enum ToastDescriptionDataAttributes {
   /**
    * The type of the toast.
    * @type {string}
    */
-  type: 'data-type',
-} as const;
+  type = 'data-type',
+}

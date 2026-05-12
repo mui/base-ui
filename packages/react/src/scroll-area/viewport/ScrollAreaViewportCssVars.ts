@@ -1,22 +1,22 @@
-export const ScrollAreaViewportCssVars = {
+export enum ScrollAreaViewportCssVars {
   /**
    * The distance from the horizontal start edge in pixels.
    * @type {number}
    */
-  scrollAreaOverflowXStart: '--scroll-area-overflow-x-start',
+  scrollAreaOverflowXStart = '--scroll-area-overflow-x-start',
   /**
    * The distance from the horizontal end edge in pixels.
    * @type {number}
    */
-  scrollAreaOverflowXEnd: '--scroll-area-overflow-x-end',
+  scrollAreaOverflowXEnd = '--scroll-area-overflow-x-end',
   /**
    * The distance from the vertical start edge in pixels.
    * @type {number}
    */
-  scrollAreaOverflowYStart: '--scroll-area-overflow-y-start',
+  scrollAreaOverflowYStart = '--scroll-area-overflow-y-start',
   /**
    * The distance from the vertical end edge in pixels.
    * @type {number}
    */
-  scrollAreaOverflowYEnd: '--scroll-area-overflow-y-end',
-} as const;
+  scrollAreaOverflowYEnd = '--scroll-area-overflow-y-end',
+}

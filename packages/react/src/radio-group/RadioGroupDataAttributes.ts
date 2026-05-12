@@ -1,6 +1,6 @@
-export const RadioGroupDataAttributes = {
+export enum RadioGroupDataAttributes {
   /**
    * Present when the radio group is disabled.
    */
-  disabled: 'data-disabled',
-} as const;
+  disabled = 'data-disabled',
+}

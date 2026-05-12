@@ -1,31 +1,31 @@
 import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
-export const TooltipArrowDataAttributes = {
+export enum TooltipArrowDataAttributes {
   /**
    * Present when the tooltip is open.
    */
-  open: CommonPopupDataAttributes.open,
+  open = CommonPopupDataAttributes.open,
   /**
    * Present when the tooltip is closed.
    */
-  closed: CommonPopupDataAttributes.closed,
+  closed = CommonPopupDataAttributes.closed,
   /**
    * Indicates which side the popup is positioned relative to the trigger.
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
-  side: CommonPopupDataAttributes.side,
+  side = CommonPopupDataAttributes.side,
   /**
    * Indicates how the popup is aligned relative to specified side.
    * @type {'start' | 'center' | 'end'}
    */
-  align: CommonPopupDataAttributes.align,
+  align = CommonPopupDataAttributes.align,
   /**
    * Present when the tooltip arrow is uncentered.
    */
-  uncentered: 'data-uncentered',
+  uncentered = 'data-uncentered',
   /**
    * Present if animations should be instant.
    * @type {'delay' | 'dismiss' | 'focus'}
    */
-  instant: 'data-instant',
-} as const;
+  instant = 'data-instant',
+}

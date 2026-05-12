@@ -1,12 +1,12 @@
-export const ScrollAreaRootCssVars = {
+export enum ScrollAreaRootCssVars {
   /**
    * The scroll area's corner height.
    * @type {number}
    */
-  scrollAreaCornerHeight: '--scroll-area-corner-height',
+  scrollAreaCornerHeight = '--scroll-area-corner-height',
   /**
    * The scroll area's corner width.
    * @type {number}
    */
-  scrollAreaCornerWidth: '--scroll-area-corner-width',
-} as const;
+  scrollAreaCornerWidth = '--scroll-area-corner-width',
+}

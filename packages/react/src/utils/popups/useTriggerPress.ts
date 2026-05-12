@@ -46,7 +46,7 @@ export function useTriggerPress(
     function getNextOpen(
       open: boolean,
       currentTarget: EventTarget | null,
-      isClickLikeOpenEvent: (eventType: string | undefined) => boolean,
+      isRelevantOpenEvent: (eventType: string | undefined) => boolean,
     ) {
       const openEvent = dataRef.current.openEvent;
 
@@ -58,7 +58,7 @@ export function useTriggerPress(
         return true;
       }
 
-      return openEvent && stickIfOpen ? !isClickLikeOpenEvent(openEvent.type) : false;
+      return openEvent && stickIfOpen ? !isRelevantOpenEvent(openEvent.type) : false;
     }
 
     return {
@@ -151,7 +151,7 @@ export function useClickTriggerPress(
           !open || store.select('domReferenceElement') !== event.currentTarget
             ? true
             : openEvent && stickIfOpen
-              ? openEvent.type !== 'click'
+              ? !isClickLikeOpenEvent(openEvent.type)
               : false;
         /* eslint-enable no-nested-ternary */
 
@@ -169,6 +169,10 @@ export function useClickTriggerPress(
   );
 
   return React.useMemo(() => (store ? { reference } : EMPTY_OBJECT), [reference, store]);
+}
+
+function isClickLikeOpenEvent(eventType: string | undefined) {
+  return eventType === 'click' || eventType === 'keydown' || eventType === 'keyup';
 }
 
 interface UseInputPressProps {

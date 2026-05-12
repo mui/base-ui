@@ -1,45 +1,45 @@
 import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
-export const DrawerPopupDataAttributes = {
+export enum DrawerPopupDataAttributes {
   /**
    * Present when the drawer is open.
    */
-  open: CommonPopupDataAttributes.open,
+  open = CommonPopupDataAttributes.open,
   /**
    * Present when the drawer is closed.
    */
-  closed: CommonPopupDataAttributes.closed,
+  closed = CommonPopupDataAttributes.closed,
   /**
    * Present when the drawer is animating in.
    */
-  startingStyle: CommonPopupDataAttributes.startingStyle,
+  startingStyle = CommonPopupDataAttributes.startingStyle,
   /**
    * Present when the drawer is animating out.
    */
-  endingStyle: CommonPopupDataAttributes.endingStyle,
+  endingStyle = CommonPopupDataAttributes.endingStyle,
   /**
    * Present when the drawer is at the expanded (full-height) snap point.
    */
-  expanded: 'data-expanded',
+  expanded = 'data-expanded',
   /**
    * Present when a nested drawer is open.
    */
-  nestedDrawerOpen: 'data-nested-drawer-open',
+  nestedDrawerOpen = 'data-nested-drawer-open',
   /**
    * Present when a nested drawer is being swiped.
    */
-  nestedDrawerSwiping: 'data-nested-drawer-swiping',
+  nestedDrawerSwiping = 'data-nested-drawer-swiping',
   /**
    * Present when the drawer is dismissed by swiping.
    */
-  swipeDismiss: 'data-swipe-dismiss',
+  swipeDismiss = 'data-swipe-dismiss',
   /**
    * Indicates the swipe direction.
    * @type {'up' | 'down' | 'left' | 'right'}
    */
-  swipeDirection: 'data-swipe-direction',
+  swipeDirection = 'data-swipe-direction',
   /**
    * Present when the drawer is being swiped.
    */
-  swiping: 'data-swiping',
-} as const;
+  swiping = 'data-swiping',
+}

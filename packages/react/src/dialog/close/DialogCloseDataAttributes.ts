@@ -1,6 +1,6 @@
-export const DialogCloseDataAttributes = {
+export enum DialogCloseDataAttributes {
   /**
    * Present when the button is disabled.
    */
-  disabled: 'data-disabled',
-} as const;
+  disabled = 'data-disabled',
+}

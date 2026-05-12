@@ -1,12 +1,12 @@
 import { CommonTriggerDataAttributes } from '../../utils/popupStateMapping';
 
-export const NavigationMenuTriggerDataAttributes = {
+export enum NavigationMenuTriggerDataAttributes {
   /**
    * Present when the corresponding navigation menu is open.
    */
-  popupOpen: CommonTriggerDataAttributes.popupOpen,
+  popupOpen = CommonTriggerDataAttributes.popupOpen,
   /**
    * Present when the trigger is pressed.
    */
-  pressed: CommonTriggerDataAttributes.pressed,
-} as const;
+  pressed = CommonTriggerDataAttributes.pressed,
+}

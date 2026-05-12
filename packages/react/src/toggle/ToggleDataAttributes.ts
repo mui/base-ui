@@ -1,6 +1,6 @@
-export const ToggleDataAttributes = {
+export enum ToggleDataAttributes {
   /**
    * Present when the toggle button is pressed.
    */
-  pressed: 'data-pressed',
-} as const;
+  pressed = 'data-pressed',
+}

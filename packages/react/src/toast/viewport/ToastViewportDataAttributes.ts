@@ -1,7 +1,7 @@
-export const ToastViewportDataAttributes = {
+export enum ToastViewportDataAttributes {
   /**
    * Indicates toasts are expanded in the viewport.
    * @type {boolean}
    */
-  expanded: 'data-expanded',
-} as const;
+  expanded = 'data-expanded',
+}

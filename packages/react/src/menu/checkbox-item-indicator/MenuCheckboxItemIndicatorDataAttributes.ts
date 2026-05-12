@@ -1,24 +1,24 @@
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 
-export const MenuCheckboxItemIndicatorDataAttributes = {
+export enum MenuCheckboxItemIndicatorDataAttributes {
   /**
    * Present when the menu checkbox item is checked.
    */
-  checked: 'data-checked',
+  checked = 'data-checked',
   /**
    * Present when the menu checkbox item is not checked.
    */
-  unchecked: 'data-unchecked',
+  unchecked = 'data-unchecked',
   /**
    * Present when the menu checkbox item is disabled.
    */
-  disabled: 'data-disabled',
+  disabled = 'data-disabled',
   /**
    * Present when the indicator is animating in.
    */
-  startingStyle: TransitionStatusDataAttributes.startingStyle,
+  startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**
    * Present when the indicator is animating out.
    */
-  endingStyle: TransitionStatusDataAttributes.endingStyle,
-} as const;
+  endingStyle = TransitionStatusDataAttributes.endingStyle,
+}

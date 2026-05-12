@@ -1,12 +1,12 @@
-export const NavigationMenuPopupCssVars = {
+export enum NavigationMenuPopupCssVars {
   /**
    * The fixed width of the popup element.
    * @type {number}
    */
-  popupWidth: '--popup-width',
+  popupWidth = '--popup-width',
   /**
    * The fixed height of the popup element.
    * @type {number}
    */
-  popupHeight: '--popup-height',
-} as const;
+  popupHeight = '--popup-height',
+}
