@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { useDrawerRootContext } from './DrawerRootContext';
@@ -778,6 +778,29 @@ describe('<Drawer.Root />', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Trigger 2' }));
     await flushMicrotasks();
     expect(screen.getByTestId('payload').textContent).toBe('2');
+  });
+
+  it('synchronizes trigger aria-controls with the popup id', async () => {
+    const { user } = await render(
+      <Drawer.Root>
+        <Drawer.Trigger>Open</Drawer.Trigger>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    await user.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).not.toBe(null);
+    });
+
+    const popup = screen.getByTestId('popup');
+    expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
   });
 
   it('resets the active snap point when closing', async () => {

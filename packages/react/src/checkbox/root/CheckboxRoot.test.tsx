@@ -130,19 +130,30 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
     });
 
-    ['Enter', 'Space'].forEach((key) => {
-      it(`can be activated with ${key} key`, async () => {
-        const { user } = await render(<Checkbox.Root />);
+    it('can be activated with Space key', async () => {
+      const { user } = await render(<Checkbox.Root />);
 
-        const checkbox = screen.getByRole('checkbox');
-        expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
 
-        await user.keyboard('[Tab]');
-        expect(checkbox).toHaveFocus();
+      await user.keyboard('[Tab]');
+      expect(checkbox).toHaveFocus();
 
-        await user.keyboard(`[${key}]`);
-        expect(checkbox).toHaveAttribute('aria-checked', 'true');
-      });
+      await user.keyboard('[Space]');
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('does not activate with Enter key', async () => {
+      const { user } = await render(<Checkbox.Root />);
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+      await user.keyboard('[Tab]');
+      expect(checkbox).toHaveFocus();
+
+      await user.keyboard('[Enter]');
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
     });
   });
 
@@ -446,6 +457,231 @@ describe('<Checkbox.Root />', () => {
       },
     );
 
+    it.skipIf(isJSDOM)('submits the form when Enter is pressed while focused', async () => {
+      const submitSpy = vi.fn((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return {
+          value: formData.get('test-checkbox'),
+          submitter: (event.nativeEvent as SubmitEvent).submitter,
+        };
+      });
+      const submitClickSpy = vi.fn();
+
+      const { user } = await render(
+        <Form onSubmit={submitSpy}>
+          <Field.Root name="test-checkbox">
+            <Checkbox.Root />
+          </Field.Root>
+          <button id="submit-button" type="submit" onClick={submitClickSpy}>
+            Submit
+          </button>
+        </Form>,
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+
+      await user.keyboard('[Tab]');
+      expect(checkbox).toHaveFocus();
+
+      await user.keyboard('[Enter]');
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value.value).toBe(null);
+      expect(submitSpy.mock.results.at(-1)?.value.submitter).toBe(
+        screen.getByRole('button', { name: 'Submit' }),
+      );
+      expect(submitClickSpy.mock.calls.length).toBe(1);
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it.skipIf(isJSDOM)(
+      'does not submit the form with Enter when the consumer prevents default',
+      async () => {
+        const submitSpy = vi.fn((event) => {
+          event.preventDefault();
+        });
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-checkbox">
+              <Checkbox.Root onKeyDown={(event) => event.preventDefault()} />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+
+        await user.keyboard('[Tab]');
+        expect(checkbox).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+
+        expect(submitSpy.mock.calls.length).toBe(0);
+        expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'does not submit the form with Enter when an ancestor prevents default',
+      async () => {
+        const submitSpy = vi.fn((event) => {
+          event.preventDefault();
+        });
+        const keyDownSpy = vi.fn((event: React.KeyboardEvent) => {
+          const defaultPrevented = event.defaultPrevented;
+          event.preventDefault();
+          return defaultPrevented;
+        });
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy} onKeyDown={keyDownSpy}>
+            <Field.Root name="test-checkbox">
+              <Checkbox.Root />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+
+        await user.keyboard('[Tab]');
+        expect(checkbox).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+
+        expect(keyDownSpy.mock.results.at(-1)?.value).toBe(false);
+        expect(submitSpy.mock.calls.length).toBe(0);
+        expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      },
+    );
+
+    it.skipIf(isJSDOM)('submits the form with Enter when readOnly', async () => {
+      const submitSpy = vi.fn((event) => {
+        event.preventDefault();
+        return (event.nativeEvent as SubmitEvent).submitter;
+      });
+
+      const { user } = await render(
+        <Form onSubmit={submitSpy}>
+          <Field.Root name="test-checkbox">
+            <Checkbox.Root readOnly />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+
+      await user.keyboard('[Tab]');
+      expect(checkbox).toHaveFocus();
+
+      await user.keyboard('[Enter]');
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe(
+        screen.getByRole('button', { name: 'Submit' }),
+      );
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it.skipIf(isJSDOM)(
+      'submits the form once with Enter when rendered as a native button',
+      async () => {
+        const submitSpy = vi.fn((event) => {
+          event.preventDefault();
+          return (event.nativeEvent as SubmitEvent).submitter;
+        });
+        const submitClickSpy = vi.fn();
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-checkbox">
+              <Checkbox.Root render={<button />} nativeButton />
+            </Field.Root>
+            <button type="submit" onClick={submitClickSpy}>
+              Submit
+            </button>
+          </Form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+
+        await user.keyboard('[Tab]');
+        expect(checkbox).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+
+        expect(submitSpy.mock.calls.length).toBe(1);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe(
+          screen.getByRole('button', { name: 'Submit' }),
+        );
+        expect(submitClickSpy.mock.calls.length).toBe(1);
+        expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'does not submit the form with Enter when there is no submit button',
+      async () => {
+        const submitSpy = vi.fn((event) => {
+          event.preventDefault();
+        });
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-checkbox">
+              <Checkbox.Root />
+            </Field.Root>
+          </Form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+
+        await user.keyboard('[Tab]');
+        expect(checkbox).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+
+        expect(submitSpy.mock.calls.length).toBe(0);
+        expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'does not submit the form with Enter when the default button is disabled',
+      async () => {
+        const submitSpy = vi.fn((event) => {
+          event.preventDefault();
+        });
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-checkbox">
+              <Checkbox.Root />
+            </Field.Root>
+            <button type="submit" disabled>
+              Disabled
+            </button>
+            <button type="submit">Enabled</button>
+          </Form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+
+        await user.keyboard('[Tab]');
+        expect(checkbox).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+
+        // getDefaultFormSubmitter intentionally returns the disabled default button;
+        // clicking it should be a no-op rather than falling through to a later submitter.
+        expect(submitSpy.mock.calls.length).toBe(0);
+        expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      },
+    );
+
     it.skipIf(isJSDOM)('submits to an external form when `form` is provided', async () => {
       const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -468,6 +704,36 @@ describe('<Checkbox.Root />', () => {
       expect(submitSpy.mock.calls.length).toBe(1);
       expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
     });
+
+    it.skipIf(isJSDOM)(
+      'submits to an external form with Enter when `form` is provided',
+      async () => {
+        const submitSpy = vi.fn((event) => {
+          event.preventDefault();
+          return (event.nativeEvent as SubmitEvent).submitter;
+        });
+
+        const { user } = await render(
+          <React.Fragment>
+            <Checkbox.Root name="test-checkbox" form="external-form" />
+            <form id="external-form" onSubmit={submitSpy}>
+              <button type="submit">Submit</button>
+            </form>
+          </React.Fragment>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+
+        await user.keyboard('[Tab]');
+        expect(checkbox).toHaveFocus();
+
+        await user.keyboard('[Enter]');
+
+        expect(submitSpy.mock.calls.length).toBe(1);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe(screen.getByRole('button'));
+        expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      },
+    );
 
     it.skipIf(isJSDOM)('submits uncheckedValue to an external form when unchecked', async () => {
       const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
@@ -1123,12 +1389,12 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).toHaveFocus();
 
     await user.keyboard('[Enter]');
-    expect(checkbox).toHaveAttribute('aria-checked', 'true');
-
-    await user.keyboard('[Space]');
     expect(checkbox).toHaveAttribute('aria-checked', 'false');
 
-    await user.click(checkbox);
+    await user.keyboard('[Space]');
     expect(checkbox).toHaveAttribute('aria-checked', 'true');
+
+    await user.click(checkbox);
+    expect(checkbox).toHaveAttribute('aria-checked', 'false');
   });
 });

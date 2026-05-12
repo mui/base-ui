@@ -1,7 +1,9 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { Popover } from '@base-ui/react/popover';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
+import { REASONS } from '../../internals/reasons';
 
 function isElementOrAncestorInert(element: HTMLElement) {
   let current: HTMLElement | null = element;
@@ -70,6 +72,45 @@ describe('<Popover.Close />', () => {
     fireEvent.click(screen.getByTestId('close'));
 
     expect(screen.queryByText('Content')).toBe(null);
+  });
+
+  it('keeps the trigger when closing with a tooltip trigger close button', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Popover.Root defaultOpen onOpenChange={handleOpenChange}>
+        <Popover.Trigger id="trigger-1">Trigger</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>
+              Content
+              <Popover.Close
+                data-testid="close"
+                render={(popoverCloseProps) => (
+                  <Tooltip.Root>
+                    <Tooltip.Trigger {...popoverCloseProps}>Close</Tooltip.Trigger>
+                    <Tooltip.Portal>
+                      <Tooltip.Positioner>
+                        <Tooltip.Popup>Tooltip</Tooltip.Popup>
+                      </Tooltip.Positioner>
+                    </Tooltip.Portal>
+                  </Tooltip.Root>
+                )}
+              />
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    expect(screen.queryByText('Content')).not.toBe(null);
+
+    fireEvent.click(screen.getByTestId('close'));
+
+    expect(screen.queryByText('Content')).toBe(null);
+    expect(handleOpenChange.mock.calls[0][0]).toBe(false);
+    expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.closePress);
+    expect(handleOpenChange.mock.calls[0][1].trigger?.id).toBe('trigger-1');
   });
 
   it('enables modal focus management when `modal=true` and close is rendered', async () => {

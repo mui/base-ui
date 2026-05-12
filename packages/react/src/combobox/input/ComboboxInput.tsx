@@ -103,6 +103,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const lastActiveIndexRef = React.useRef<number | null>(null);
   const shouldRestoreActiveIndexRef = React.useRef(false);
 
+  const inputOwnsFormValue = selectionMode === 'none' && !hasPositionerParent;
+
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
     const nextIsInsidePopup = hasPositionerParent || store.state.inline;
 
@@ -113,6 +115,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     store.update({
       inputElement: element,
       inputInsidePopup: nextIsInsidePopup,
+      inputOwnsFormValue,
     });
   });
 
@@ -203,7 +206,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         readOnly,
         required: selectionMode === 'none' ? required : undefined,
         form,
-        ...(selectionMode === 'none' && name && { name }),
+        ...(inputOwnsFormValue && name && { name }),
         id,
         onFocus() {
           setFocused(true);

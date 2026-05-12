@@ -11,16 +11,13 @@ import {
   ARROW_UP,
   ARROW_RIGHT,
   ARROW_LEFT,
-  HOME,
-  END,
+  COMPOSITE_KEYS,
   stopEvent,
 } from '../../internals/composite/composite';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-
-const SUPPORTED_KEYS = new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
 
 function getActiveTriggers(accordionItemRefs: { current: (HTMLElement | null)[] }): HTMLElement[] {
   const { current: accordionItemElements } = accordionItemRefs;
@@ -95,7 +92,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     tabIndex: 0,
     onClick: handleTrigger,
     onKeyDown(event: React.KeyboardEvent) {
-      if (!SUPPORTED_KEYS.has(event.key)) {
+      if (!COMPOSITE_KEYS.has(event.key)) {
         return;
       }
 
