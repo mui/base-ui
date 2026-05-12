@@ -9,28 +9,24 @@ type NumberFormatOptionsWithRounding = Intl.NumberFormatOptions & {
   roundingMode?: string | undefined;
 };
 
-function getFractionDigits(format?: NumberFormatOptionsWithRounding) {
-  const hasExplicitPrecision =
-    format?.maximumFractionDigits != null || format?.minimumFractionDigits != null;
-  const resolvedOptions = getFormatter(
-    'en-US',
-    hasExplicitPrecision ? format : undefined,
-  ).resolvedOptions();
-  const minimumFractionDigits =
-    format?.minimumFractionDigits ?? resolvedOptions.minimumFractionDigits ?? 0;
-  const maximumFractionDigits = Math.max(
-    format?.maximumFractionDigits ?? resolvedOptions.maximumFractionDigits ?? 20,
-    minimumFractionDigits,
+function getMaximumFractionDigits(format?: NumberFormatOptionsWithRounding) {
+  return Math.max(
+    format?.maximumFractionDigits ??
+      getFormatter(
+        'en-US',
+        format?.minimumFractionDigits == null ? undefined : format,
+      ).resolvedOptions().maximumFractionDigits ??
+      20,
+    format?.minimumFractionDigits ?? 0,
   );
-  return { maximumFractionDigits, minimumFractionDigits };
 }
 
-export function roundToFractionDigits(value: number, format?: NumberFormatOptionsWithRounding) {
+export function removeFloatingPointErrors(value: number, format?: NumberFormatOptionsWithRounding) {
   if (!Number.isFinite(value)) {
     return value;
   }
-  const { maximumFractionDigits } = getFractionDigits(format);
-  const digits = Math.min(Math.max(maximumFractionDigits, 0), 20);
+
+  const digits = Math.min(Math.max(getMaximumFractionDigits(format), 0), 20);
   const isPercentWithExplicitPrecision =
     format?.style === 'percent' &&
     (format.maximumFractionDigits != null || format.minimumFractionDigits != null);
@@ -45,15 +41,11 @@ export function roundToFractionDigits(value: number, format?: NumberFormatOption
     useGrouping: false,
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
-    roundingIncrement: format?.roundingIncrement,
-    roundingMode: format?.roundingMode,
+    roundingIncrement: format.roundingIncrement,
+    roundingMode: format.roundingMode,
   };
 
   return Number(getFormatter('en-US', roundingFormatOptions).format(valueToRound)) / scale;
-}
-
-export function removeFloatingPointErrors(value: number, format?: NumberFormatOptionsWithRounding) {
-  return roundToFractionDigits(value, format);
 }
 
 function snapToStep(

@@ -33,7 +33,7 @@ import {
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { REASONS } from '../../internals/reasons';
-import { roundToFractionDigits } from '../utils/validate';
+import { removeFloatingPointErrors } from '../utils/validate';
 
 const stateAttributesMapping = {
   ...fieldValidityMapping,
@@ -181,7 +181,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         formatOptions?.minimumFractionDigits != null;
 
       const committed = hasExplicitPrecision
-        ? roundToFractionDigits(parsedValue, formatOptions)
+        ? removeFloatingPointErrors(parsedValue, formatOptions)
         : parsedValue;
 
       const nextEventDetails = createGenericEventDetails(REASONS.inputBlur, event.nativeEvent);
