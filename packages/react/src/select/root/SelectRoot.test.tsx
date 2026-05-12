@@ -736,55 +736,69 @@ describe('<Select.Root />', () => {
   it('ignores hidden-input autofill when readOnly', async () => {
     const onValueChange = vi.fn();
     await render(
-      <Select.Root name="select" readOnly onValueChange={onValueChange}>
-        <Select.Trigger data-testid="trigger">
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>,
+      <Form errors={{ select: 'test' }}>
+        <Field.Root name="select">
+          <Select.Root readOnly onValueChange={onValueChange}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>
+      </Form>,
     );
 
     const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
     expect(selectInput).toHaveAttribute('name', 'select');
+    expect(screen.getByTestId('error')).toHaveTextContent('test');
     fireEvent.change(selectInput, { target: { value: 'b' } });
     await flushMicrotasks();
 
     expect(onValueChange).not.toHaveBeenCalled();
     expect(selectInput.value).toBe('');
+    expect(screen.getByTestId('error')).toHaveTextContent('test');
   });
 
   it('ignores hidden-input autofill when disabled', async () => {
     const onValueChange = vi.fn();
     await render(
-      <Select.Root name="select" disabled onValueChange={onValueChange}>
-        <Select.Trigger data-testid="trigger">
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>,
+      <Form errors={{ select: 'test' }}>
+        <Field.Root name="select">
+          <Select.Root disabled onValueChange={onValueChange}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>
+      </Form>,
     );
 
     const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
     expect(selectInput).toHaveAttribute('name', 'select');
+    expect(screen.getByTestId('error')).toHaveTextContent('test');
     fireEvent.change(selectInput, { target: { value: 'b' } });
     await flushMicrotasks();
 
     expect(onValueChange).not.toHaveBeenCalled();
     expect(selectInput.value).toBe('');
+    expect(screen.getByTestId('error')).toHaveTextContent('test');
   });
 
   describe('prop: modal', () => {

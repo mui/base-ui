@@ -1460,24 +1460,28 @@ describe('<Combobox.Root />', () => {
     const onValueChange = vi.fn();
     const onInputValueChange = vi.fn();
     await render(
-      <Combobox.Root
-        name="test"
-        readOnly
-        onValueChange={onValueChange}
-        onInputValueChange={onInputValueChange}
-      >
-        <Combobox.Input data-testid="input" />
-        <Combobox.Portal>
-          <Combobox.Positioner>
-            <Combobox.Popup>
-              <Combobox.List>
-                <Combobox.Item value="a">a</Combobox.Item>
-                <Combobox.Item value="b">b</Combobox.Item>
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>,
+      <Form errors={{ test: 'test' }}>
+        <Field.Root name="test">
+          <Combobox.Root
+            readOnly
+            onValueChange={onValueChange}
+            onInputValueChange={onInputValueChange}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="a">a</Combobox.Item>
+                    <Combobox.Item value="b">b</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>
+      </Form>,
     );
 
     const visibleInput = screen.getByTestId<HTMLInputElement>('input');
@@ -1485,6 +1489,7 @@ describe('<Combobox.Root />', () => {
       .getAllByDisplayValue('')
       .find((el) => el.getAttribute('name') === 'test') as HTMLInputElement;
     expect(hiddenInput).not.toBeUndefined();
+    expect(screen.getByTestId('error')).toHaveTextContent('test');
 
     fireEvent.change(hiddenInput, { target: { value: 'b' } });
     await flushMicrotasks();
@@ -1493,30 +1498,35 @@ describe('<Combobox.Root />', () => {
     expect(onInputValueChange).not.toHaveBeenCalled();
     expect(visibleInput.value).toBe('');
     expect(hiddenInput.value).toBe('');
+    expect(screen.getByTestId('error')).toHaveTextContent('test');
   });
 
   it('ignores hidden-input autofill when disabled', async () => {
     const onValueChange = vi.fn();
     const onInputValueChange = vi.fn();
     await render(
-      <Combobox.Root
-        name="test"
-        disabled
-        onValueChange={onValueChange}
-        onInputValueChange={onInputValueChange}
-      >
-        <Combobox.Input data-testid="input" />
-        <Combobox.Portal>
-          <Combobox.Positioner>
-            <Combobox.Popup>
-              <Combobox.List>
-                <Combobox.Item value="a">a</Combobox.Item>
-                <Combobox.Item value="b">b</Combobox.Item>
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>,
+      <Form errors={{ test: 'test' }}>
+        <Field.Root name="test">
+          <Combobox.Root
+            disabled
+            onValueChange={onValueChange}
+            onInputValueChange={onInputValueChange}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="a">a</Combobox.Item>
+                    <Combobox.Item value="b">b</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>
+      </Form>,
     );
 
     const visibleInput = screen.getByTestId<HTMLInputElement>('input');
@@ -1524,6 +1534,7 @@ describe('<Combobox.Root />', () => {
       .getAllByDisplayValue('')
       .find((el) => el.getAttribute('name') === 'test') as HTMLInputElement;
     expect(hiddenInput).not.toBeUndefined();
+    expect(screen.getByTestId('error')).toHaveTextContent('test');
 
     fireEvent.change(hiddenInput, { target: { value: 'b' } });
     await flushMicrotasks();
@@ -1532,6 +1543,7 @@ describe('<Combobox.Root />', () => {
     expect(onInputValueChange).not.toHaveBeenCalled();
     expect(visibleInput.value).toBe('');
     expect(hiddenInput.value).toBe('');
+    expect(screen.getByTestId('error')).toHaveTextContent('test');
   });
 
   it('shows all items when opening after browser autofill', async () => {
