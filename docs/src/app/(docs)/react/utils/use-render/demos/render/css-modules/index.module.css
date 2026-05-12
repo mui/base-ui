@@ -1,7 +1,11 @@
 .Text {
   font-size: 0.875rem;
   line-height: 1rem;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 
   strong& {
     font-weight: 700;

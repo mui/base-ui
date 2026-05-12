@@ -15,23 +15,41 @@
   height: 2rem;
   padding: 0;
   margin: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
+  color: var(--color-neutral-950);
   user-select: none;
 
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+  }
+
   &[data-popup-open] {
-    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+    background-color: var(--color-neutral-100);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-800);
+    }
   }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+    background-color: var(--color-neutral-200);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-700);
+    }
   }
 
   &:not(:first-child) {
@@ -39,13 +57,22 @@
   }
 
   &[data-disabled] {
-    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
-    border-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+    color: var(--color-neutral-500);
+    border-color: var(--color-neutral-500);
+
+    @media (prefers-color-scheme: dark) {
+      color: var(--color-neutral-400);
+      border-color: var(--color-neutral-400);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -76,9 +103,9 @@
   width: var(--popup-width, auto);
   max-width: 500px;
   transform-origin: var(--transform-origin);
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
+  color: var(--color-neutral-950);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
 
   font-size: 0.875rem;
@@ -89,6 +116,13 @@
     opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+    box-shadow: none;
+  }
+
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
@@ -97,10 +131,6 @@
 
   &[data-instant] {
     transition: none;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    box-shadow: none;
   }
 }
 
@@ -145,9 +175,14 @@
     box-sizing: border-box;
     width: calc(6px * sqrt(2));
     height: calc(6px * sqrt(2));
-    background-color: light-dark(white, var(--color-neutral-950));
-    border: 1px solid light-dark(var(--color-neutral-950), white);
+    background-color: white;
+    border: 1px solid var(--color-neutral-950);
     transform: translate(-50%, 50%) rotate(45deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-950);
+      border: 1px solid white;
+    }
   }
 }
 

@@ -7,34 +7,57 @@
   height: 2rem;
   padding: 0 0.75rem;
   margin: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1;
   white-space: nowrap;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+  }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+    background-color: var(--color-neutral-200);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-700);
+    }
   }
 
   &[data-disabled] {
-    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
-    border-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+    color: var(--color-neutral-500);
+    border-color: var(--color-neutral-500);
+
+    @media (prefers-color-scheme: dark) {
+      color: var(--color-neutral-400);
+      border-color: var(--color-neutral-400);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -89,11 +112,15 @@
 .Scrollbar {
   display: flex;
   justify-content: center;
-  background-color: light-dark(rgb(0 0 0 / 12%), rgb(255 255 255 / 12%));
+  background-color: rgb(0 0 0 / 12%);
   width: 0.5rem;
   opacity: 0;
   transition: opacity 150ms;
   pointer-events: none;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgb(255 255 255 / 12%);
+  }
 
   &[data-scrolling] {
     transition-duration: 0ms;
@@ -108,7 +135,11 @@
 
 .ScrollbarThumb {
   width: 100%;
-  background-color: light-dark(var(--color-neutral-950), white);
+  background-color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
 }
 
 .Popup {
@@ -119,9 +150,9 @@
   width: min(40rem, calc(100vw - 2rem));
   max-height: 100%;
   max-width: 100%;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
+  color: var(--color-neutral-950);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transition:
     transform 100ms ease-out,
@@ -130,6 +161,9 @@
   min-height: 0;
 
   @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
     box-shadow: none;
   }
 
@@ -158,7 +192,11 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
+  color: var(--color-neutral-600);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--color-neutral-400);
+  }
 }
 
 .Body {
@@ -167,7 +205,11 @@
   display: flex;
   min-height: 0;
   overflow: hidden;
-  border-block: 1px solid light-dark(var(--color-neutral-950), white);
+  border-block: 1px solid var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    border-block: 1px solid white;
+  }
 }
 
 .BodyViewport {
@@ -177,8 +219,12 @@
   overscroll-behavior: contain;
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -206,7 +252,11 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-neutral-700), var(--color-neutral-300));
+  color: var(--color-neutral-700);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--color-neutral-300);
+  }
 }
 
 .Actions {

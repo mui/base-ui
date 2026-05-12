@@ -13,7 +13,11 @@
 .Label {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .Toggle {
@@ -28,18 +32,30 @@
   border: none;
   border-radius: 0;
   background-color: transparent;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -57,22 +73,35 @@
   padding: 0 0.75rem;
   margin: 0;
   border: none;
-  background-color: light-dark(var(--color-neutral-200), var(--color-neutral-800));
+  background-color: var(--color-neutral-200);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.25rem;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-neutral-800);
+    color: white;
+  }
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-neutral-300), var(--color-neutral-700));
+      background-color: var(--color-neutral-300);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-700);
+      }
     }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }

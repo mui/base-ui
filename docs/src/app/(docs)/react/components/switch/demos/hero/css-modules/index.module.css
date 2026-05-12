@@ -5,37 +5,62 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .Switch {
   box-sizing: border-box;
   display: flex;
   flex-shrink: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
   padding: 0.125rem;
   width: 2.25rem;
   height: 1.25rem;
-  background-color: light-dark(white, var(--color-neutral-950));
+  background-color: white;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+  }
 
   &[data-checked] {
-    background-color: light-dark(var(--color-neutral-950), white);
+    background-color: var(--color-neutral-950);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: 2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
 .Thumb {
   width: 0.875rem;
   height: 0.875rem;
-  background-color: light-dark(var(--color-neutral-950), white);
+  background-color: var(--color-neutral-950);
   transition: translate 150ms ease;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
 
   &[data-checked] {
     translate: 1rem 0;
-    background-color: light-dark(white, var(--color-neutral-950));
+    background-color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-950);
+    }
   }
 }

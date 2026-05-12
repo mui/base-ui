@@ -1,7 +1,11 @@
 .Root {
   box-sizing: border-box;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   min-width: max-content;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .List {
@@ -29,7 +33,7 @@
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.25rem;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   user-select: none;
   text-decoration: none;
 
@@ -37,19 +41,35 @@
     padding: 0 0.5rem;
   }
 
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &[data-popup-open] {
-    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+    background-color: var(--color-neutral-100);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-800);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -125,9 +145,9 @@
   overflow: visible;
   box-sizing: border-box;
   outline: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
+  color: var(--color-neutral-950);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transform-origin: var(--transform-origin);
   transition-property: opacity, transform, width, height;
@@ -135,6 +155,13 @@
   transition-timing-function: var(--easing);
   width: var(--popup-width);
   height: var(--popup-height);
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+    box-shadow: none;
+  }
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -145,9 +172,6 @@
   &[data-ending-style] {
     transition-timing-function: ease;
     transition-duration: 0.15s;
-  }
-  @media (prefers-color-scheme: dark) {
-    box-shadow: none;
   }
 }
 
@@ -234,18 +258,30 @@
   background-color: transparent;
 
   &[data-popup-open] {
-    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+    background-color: var(--color-neutral-100);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-800);
+    }
   }
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -260,7 +296,11 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  color: var(--color-neutral-500);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--color-neutral-400);
+  }
 }
 
 .Arrow {
@@ -302,9 +342,14 @@
     box-sizing: border-box;
     width: calc(6px * sqrt(2));
     height: calc(6px * sqrt(2));
-    border: 1px solid light-dark(var(--color-neutral-950), white);
-    background-color: light-dark(white, var(--color-neutral-950));
+    border: 1px solid var(--color-neutral-950);
+    background-color: white;
     transform: translate(-50%, 50%) rotate(45deg);
+
+    @media (prefers-color-scheme: dark) {
+      border: 1px solid white;
+      background-color: var(--color-neutral-950);
+    }
   }
 }
 

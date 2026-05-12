@@ -12,7 +12,11 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .InputGroup {
@@ -21,8 +25,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.125rem;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
   min-height: 2rem;
   padding: 0.25rem 0.5rem;
   width: 16rem;
@@ -32,13 +36,22 @@
     width: 22rem;
   }
 
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+  }
+
   &:has(.Chip) {
     padding-inline: 0.25rem;
   }
 
   &:focus-within {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -55,8 +68,8 @@
   display: flex;
   align-items: center;
   min-height: calc(1.5rem - 2px);
-  background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
-  color: light-dark(var(--color-neutral-950), white);
+  background-color: var(--color-neutral-100);
+  color: var(--color-neutral-950);
   font-size: 0.875rem;
   line-height: 1;
   padding: 0 0.2rem 0 0.4rem;
@@ -65,15 +78,30 @@
   outline: 0;
   cursor: default;
 
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-neutral-800);
+    color: white;
+  }
+
   &:focus-within {
-    background-color: light-dark(var(--color-neutral-950), white);
-    color: light-dark(white, var(--color-neutral-950));
+    background-color: var(--color-neutral-950);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+      color: var(--color-neutral-950);
+    }
   }
 
   @media (hover: hover) {
     &[data-highlighted] {
-      background-color: light-dark(var(--color-neutral-950), white);
-      color: light-dark(white, var(--color-neutral-950));
+      background-color: var(--color-neutral-950);
+      color: white;
+
+      @media (prefers-color-scheme: dark) {
+        background-color: white;
+        color: var(--color-neutral-950);
+      }
     }
   }
 }
@@ -105,7 +133,11 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+      background-color: var(--color-neutral-200);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-700);
+      }
     }
   }
 }
@@ -113,7 +145,11 @@
 .Chip:focus-within .ChipRemove {
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-neutral-700), var(--color-neutral-200));
+      background-color: var(--color-neutral-700);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-200);
+      }
     }
   }
 }
@@ -135,17 +171,22 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
+  background-color: white;
+  color: var(--color-neutral-950);
   min-width: 3rem;
-
-  &:focus {
-    outline: none;
-  }
 
   @media (any-pointer: coarse) {
     font-size: 1rem;
     line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-neutral-950);
+    color: white;
+  }
+
+  &:focus {
+    outline: none;
   }
 }
 
@@ -157,8 +198,8 @@
 .Popup {
   box-sizing: border-box;
   padding-block: 0.25rem;
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
+  background-color: white;
+  color: var(--color-neutral-950);
   width: var(--anchor-width);
   max-width: var(--available-width);
   max-height: min(var(--available-height), 24rem);
@@ -169,17 +210,20 @@
     opacity 0.1s,
     transform 0.1s;
   transform-origin: var(--transform-origin);
-  border: 1px solid light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-neutral-950);
+    color: white;
+    border: 1px solid white;
+    box-shadow: none;
+  }
 
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
     transform: scale(0.95);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    box-shadow: none;
   }
 }
 
@@ -201,7 +245,11 @@
   &[data-selected] {
     z-index: 0;
     position: relative;
-    color: light-dark(var(--color-neutral-950), white);
+    color: var(--color-neutral-950);
+
+    @media (prefers-color-scheme: dark) {
+      color: white;
+    }
   }
 
   &[data-selected]::before,
@@ -217,11 +265,19 @@
     &[data-highlighted] {
       z-index: 0;
       position: relative;
-      color: light-dark(white, var(--color-neutral-950));
+      color: white;
+
+      @media (prefers-color-scheme: dark) {
+        color: var(--color-neutral-950);
+      }
     }
 
     &[data-highlighted]::before {
-      background-color: light-dark(var(--color-neutral-950), white);
+      background-color: var(--color-neutral-950);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: white;
+      }
     }
   }
 }
@@ -249,6 +305,10 @@
   box-sizing: border-box;
   font-size: 0.875rem;
   line-height: 1rem;
-  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  color: var(--color-neutral-500);
   padding: 0.5rem 1rem 0.5rem 0.5rem;
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--color-neutral-400);
+  }
 }

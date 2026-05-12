@@ -7,34 +7,57 @@
   height: 2rem;
   padding: 0 0.75rem;
   margin: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1;
   white-space: nowrap;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+  }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+    background-color: var(--color-neutral-200);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-700);
+    }
   }
 
   &[data-disabled] {
-    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
-    border-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+    color: var(--color-neutral-500);
+    border-color: var(--color-neutral-500);
+
+    @media (prefers-color-scheme: dark) {
+      color: var(--color-neutral-400);
+      border-color: var(--color-neutral-400);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -42,12 +65,16 @@
   position: fixed;
   min-height: 100dvh;
   inset: 0;
-  background-color: light-dark(rgb(0 0 0 / 20%), rgb(0 0 0 / 50%));
+  background-color: rgb(0 0 0 / 20%);
   transition: opacity 150ms;
 
   /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
   @supports (-webkit-touch-callout: none) {
     position: absolute;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgb(0 0 0 / 50%);
   }
 
   &[data-starting-style],
@@ -95,13 +122,16 @@
   max-width: 70rem;
   padding: 1rem;
   pointer-events: auto;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
+  color: var(--color-neutral-950);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
 
   @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
     box-shadow: none;
   }
 
@@ -122,14 +152,10 @@
   width: 2rem;
   height: 2rem;
   margin: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
+  color: var(--color-neutral-950);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
-
-  @media (prefers-color-scheme: dark) {
-    box-shadow: none;
-  }
 
   @media (min-width: 80rem) {
     top: 0;
@@ -137,19 +163,38 @@
     height: 2.5rem;
   }
 
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+    box-shadow: none;
+  }
+
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:active {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+    background-color: var(--color-neutral-200);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-700);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 

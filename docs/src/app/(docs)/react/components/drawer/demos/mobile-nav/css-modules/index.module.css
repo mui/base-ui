@@ -7,34 +7,57 @@
   height: 2rem;
   padding: 0 0.75rem;
   margin: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1;
   white-space: nowrap;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+  }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+    background-color: var(--color-neutral-200);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-700);
+    }
   }
 
   &[data-disabled] {
-    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
-    border-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+    color: var(--color-neutral-500);
+    border-color: var(--color-neutral-500);
+
+    @media (prefers-color-scheme: dark) {
+      color: var(--color-neutral-400);
+      border-color: var(--color-neutral-400);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -143,11 +166,17 @@
   display: flex;
   flex-direction: column;
   padding: 1rem 1.5rem 1.5rem;
-  border-top: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
+  border-top: 1px solid var(--color-neutral-950);
+  background-color: white;
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   transition: box-shadow 350ms cubic-bezier(0.375, 0.015, 0.545, 0.455);
+
+  @media (prefers-color-scheme: dark) {
+    border-top: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -173,15 +202,23 @@
 
 @media (min-width: 42rem) {
   .Panel {
-    border: 1px solid light-dark(var(--color-neutral-950), white);
+    border: 1px solid var(--color-neutral-950);
+
+    @media (prefers-color-scheme: dark) {
+      border: 1px solid white;
+    }
   }
 }
 
 .Handle {
   width: 3rem;
   height: 0.25rem;
-  background-color: light-dark(var(--color-neutral-300), var(--color-neutral-700));
+  background-color: var(--color-neutral-300);
   justify-self: center;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-neutral-700);
+  }
 }
 
 .CloseButton {
@@ -192,22 +229,38 @@
   justify-content: center;
   border: 0;
   background-color: transparent;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   justify-self: end;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:active {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+    background-color: var(--color-neutral-200);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-700);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -227,7 +280,11 @@
   margin: 0 0 1.25rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
+  color: var(--color-neutral-600);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--color-neutral-400);
+  }
 }
 
 .ScrollArea {
@@ -261,26 +318,43 @@
   width: 100%;
   height: 3rem;
   padding: 0 1rem;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: inherit;
   text-decoration: none;
-  background-color: light-dark(white, var(--color-neutral-950));
+  background-color: white;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+  }
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:active {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+    background-color: var(--color-neutral-200);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-700);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 

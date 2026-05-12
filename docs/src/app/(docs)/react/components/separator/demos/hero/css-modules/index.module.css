@@ -6,17 +6,26 @@
 
 .Separator {
   width: 1px;
-  background-color: light-dark(var(--color-neutral-300), var(--color-neutral-700));
+  background-color: var(--color-neutral-300);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-neutral-700);
+  }
 }
 
 .Link {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-neutral-950), white);
-  text-decoration-color: light-dark(var(--color-neutral-300), var(--color-neutral-700));
+  color: var(--color-neutral-950);
+  text-decoration-color: var(--color-neutral-300);
   text-decoration-thickness: 1px;
   text-decoration-line: none;
   text-underline-offset: 2px;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+    text-decoration-color: var(--color-neutral-700);
+  }
 
   @media (hover: hover) {
     &:hover {
@@ -25,8 +34,12 @@
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: 2px;
     text-decoration-line: none;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }

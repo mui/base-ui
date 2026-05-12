@@ -20,7 +20,11 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .Group {
@@ -32,7 +36,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0 0.5rem;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
   border-radius: 0;
   width: 7ch;
   height: 100%;
@@ -40,21 +44,31 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
+  background-color: white;
+  color: var(--color-neutral-950);
 
   text-align: left;
   font-variant-numeric: tabular-nums;
 
-  &:focus {
-    z-index: 1;
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
-    outline-offset: -1px;
-  }
-
   @media (any-pointer: coarse) {
     font-size: 1rem;
     line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+  }
+
+  &:focus {
+    z-index: 1;
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -69,26 +83,45 @@
   margin: 0;
   outline: 0;
   padding: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
   border-radius: 0;
-  background-color: light-dark(white, var(--color-neutral-950));
+  background-color: white;
   background-clip: padding-box;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+  }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+    background-color: var(--color-neutral-200);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-700);
+    }
   }
 
   &[data-disabled] {
-    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
-    border-color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+    color: var(--color-neutral-500);
+    border-color: var(--color-neutral-500);
+
+    @media (prefers-color-scheme: dark) {
+      color: var(--color-neutral-400);
+      border-color: var(--color-neutral-400);
+    }
   }
 
   svg {

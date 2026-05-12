@@ -6,16 +6,26 @@
   width: 15rem;
   height: 12rem;
   outline: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
   border-radius: 0;
-  background-color: light-dark(white, var(--color-neutral-950));
+  background-color: white;
   font-weight: 400;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   user-select: none;
 
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+  }
+
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -27,24 +37,27 @@
   box-sizing: border-box;
   outline: 0;
   padding-block: 0.25rem;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
   border-radius: 0;
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
+  background-color: white;
+  color: var(--color-neutral-950);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transform-origin: var(--transform-origin);
   transition:
     transform 100ms ease-out,
     opacity 100ms ease-out;
 
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+    box-shadow: none;
+  }
+
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
     transform: scale(0.98);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    box-shadow: none;
   }
 }
 
@@ -62,7 +75,11 @@
   &[data-highlighted] {
     z-index: 0;
     position: relative;
-    color: light-dark(white, var(--color-neutral-950));
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      color: var(--color-neutral-950);
+    }
   }
 
   &[data-highlighted]::before {
@@ -71,16 +88,28 @@
     position: absolute;
     inset-block: 0;
     inset-inline: 0.25rem;
-    background-color: light-dark(var(--color-neutral-950), white);
+    background-color: var(--color-neutral-950);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
   }
 
   &[data-disabled] {
-    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+    color: var(--color-neutral-500);
+
+    @media (prefers-color-scheme: dark) {
+      color: var(--color-neutral-400);
+    }
   }
 }
 
 .Separator {
   margin: 0.25rem;
   height: 1px;
-  background-color: light-dark(var(--color-neutral-950), white);
+  background-color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
 }

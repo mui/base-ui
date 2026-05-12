@@ -11,8 +11,12 @@
 }
 
 .Track {
-  background-color: light-dark(var(--color-neutral-200), var(--color-neutral-800));
+  background-color: var(--color-neutral-200);
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-neutral-800);
+  }
 
   &[data-orientation='vertical'] {
     height: 100%;
@@ -21,20 +25,33 @@
 }
 
 .Indicator {
-  background-color: light-dark(var(--color-neutral-950), white);
+  background-color: var(--color-neutral-950);
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
 }
 
 .Thumb {
   box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
   user-select: none;
 
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+  }
+
   &:has(:focus-visible) {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: 2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }

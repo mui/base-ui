@@ -20,46 +20,46 @@ import { Accordion } from '@base-ui/react/accordion';
 
 export default function ExampleAccordion() {
   return (
-    <Accordion.Root className="flex w-80 max-w-full flex-col border-b border-neutral-950 text-neutral-950 dark:border-white dark:text-white">
+    <Accordion.Root className="flex w-80 max-w-full flex-col border border-neutral-950 text-neutral-950 dark:border-white dark:text-white">
       <Accordion.Item>
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-neutral-950 bg-transparent py-2 text-left text-sm font-normal text-neutral-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800">
             What is Base UI?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
-          <div className="py-2">
+          <div className="px-3 py-2">
             Base UI is a library of high-quality unstyled React components for design systems and
             web apps.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
 
-      <Accordion.Item>
+      <Accordion.Item className="border-t border-neutral-950 dark:border-white">
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-neutral-950 bg-transparent py-2 text-left text-sm font-normal text-neutral-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800">
             How do I get started?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
-          <div className="py-2">
+          <div className="px-3 py-2">
             Head to the “Quick start” guide in the docs. If you’ve used unstyled libraries before,
             you’ll feel at home.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
 
-      <Accordion.Item>
+      <Accordion.Item className="border-t border-neutral-950 dark:border-white">
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-neutral-950 bg-transparent py-2 text-left text-sm font-normal text-neutral-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800">
             Can I use it for my project?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
-          <div className="py-2">Of course! Base UI is free and open source.</div>
+          <div className="px-3 py-2">Of course! Base UI is free and open source.</div>
         </Accordion.Panel>
       </Accordion.Item>
     </Accordion.Root>
@@ -89,8 +89,23 @@ This example shows how to implement the component using CSS Modules.
   width: 20rem;
   max-width: 100%;
   flex-direction: column;
-  border-bottom: 1px solid light-dark(var(--color-neutral-950), white);
-  color: light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
+  color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    color: white;
+  }
+}
+
+.Item {
+  & + & {
+    border-top: 1px solid var(--color-neutral-950);
+
+    @media (prefers-color-scheme: dark) {
+      border-top: 1px solid white;
+    }
+  }
 }
 
 .Header {
@@ -104,13 +119,12 @@ This example shows how to implement the component using CSS Modules.
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
   margin: 0;
   border: none;
-  border-top: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 0;
   background-color: transparent;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
@@ -118,9 +132,27 @@ This example shows how to implement the component using CSS Modules.
   text-align: left;
   user-select: none;
 
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
+    }
+  }
+
   &:focus-visible {
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid var(--color-neutral-950);
     z-index: 1;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -151,7 +183,7 @@ This example shows how to implement the component using CSS Modules.
 }
 
 .Content {
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
 }
 
 \`\`\`
@@ -259,47 +291,47 @@ export default function ExampleAccordion() {
   return (
     <Accordion.Root
       multiple
-      className="flex w-80 max-w-full flex-col border-b border-neutral-950 text-neutral-950 dark:border-white dark:text-white"
+      className="flex w-80 max-w-full flex-col border border-neutral-950 text-neutral-950 dark:border-white dark:text-white"
     >
       <Accordion.Item>
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-neutral-950 bg-transparent py-2 text-left text-sm font-normal text-neutral-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800">
             What is Base UI?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
-          <div className="py-2">
+          <div className="px-3 py-2">
             Base UI is a library of high-quality unstyled React components for design systems and
             web apps.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
 
-      <Accordion.Item>
+      <Accordion.Item className="border-t border-neutral-950 dark:border-white">
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-neutral-950 bg-transparent py-2 text-left text-sm font-normal text-neutral-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800">
             How do I get started?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
-          <div className="py-2">
+          <div className="px-3 py-2">
             Head to the “Quick start” guide in the docs. If you’ve used unstyled libraries before,
             you’ll feel at home.
           </div>
         </Accordion.Panel>
       </Accordion.Item>
 
-      <Accordion.Item>
+      <Accordion.Item className="border-t border-neutral-950 dark:border-white">
         <Accordion.Header>
-          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 border-t border-neutral-950 bg-transparent py-2 text-left text-sm font-normal text-neutral-950 select-none focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 dark:border-white dark:text-white">
+          <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800">
             Can I use it for my project?
             <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
-          <div className="py-2">Of course! Base UI is free and open source.</div>
+          <div className="px-3 py-2">Of course! Base UI is free and open source.</div>
         </Accordion.Panel>
       </Accordion.Item>
     </Accordion.Root>
@@ -329,8 +361,23 @@ This example shows how to implement the component using CSS Modules.
   width: 20rem;
   max-width: 100%;
   flex-direction: column;
-  border-bottom: 1px solid light-dark(var(--color-neutral-950), white);
-  color: light-dark(var(--color-neutral-950), white);
+  border: 1px solid var(--color-neutral-950);
+  color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    color: white;
+  }
+}
+
+.Item {
+  & + & {
+    border-top: 1px solid var(--color-neutral-950);
+
+    @media (prefers-color-scheme: dark) {
+      border-top: 1px solid white;
+    }
+  }
 }
 
 .Header {
@@ -344,13 +391,12 @@ This example shows how to implement the component using CSS Modules.
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
   margin: 0;
   border: none;
-  border-top: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 0;
   background-color: transparent;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
@@ -358,9 +404,27 @@ This example shows how to implement the component using CSS Modules.
   text-align: left;
   user-select: none;
 
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
+    }
+  }
+
   &:focus-visible {
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid var(--color-neutral-950);
     z-index: 1;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -391,7 +455,7 @@ This example shows how to implement the component using CSS Modules.
 }
 
 .Content {
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.75rem;
 }
 
 \`\`\`
@@ -841,7 +905,7 @@ export default function ExampleDirectionProvider() {
           <Slider.Control className="flex w-56 touch-none items-center py-3 select-none">
             <Slider.Track className="h-1 w-full bg-neutral-200 select-none dark:bg-neutral-800">
               <Slider.Indicator className="bg-neutral-950 select-none dark:bg-white" />
-              <Slider.Thumb className="size-4 border border-neutral-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-blue-800 dark:border-white dark:bg-neutral-950" />
+              <Slider.Thumb className="size-4 border border-neutral-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white dark:border-white dark:bg-neutral-950" />
             </Slider.Track>
           </Slider.Control>
         </Slider.Root>
@@ -871,26 +935,43 @@ This example shows how to implement the component using CSS Modules.
 .Track {
   width: 100%;
   height: 0.25rem;
-  background-color: light-dark(var(--color-neutral-200), var(--color-neutral-800));
+  background-color: var(--color-neutral-200);
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-neutral-800);
+  }
 }
 
 .Indicator {
-  background-color: light-dark(var(--color-neutral-950), white);
+  background-color: var(--color-neutral-950);
   user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
 }
 
 .Thumb {
   box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
   user-select: none;
 
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+  }
+
   &:has(:focus-visible) {
-    outline: 2px solid var(--color-blue-800);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: 2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 

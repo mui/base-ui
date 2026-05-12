@@ -10,11 +10,16 @@
 }
 
 .Legend {
-  border-bottom: 1px solid light-dark(var(--color-neutral-950), var(--color-white));
+  border-bottom: 1px solid var(--color-neutral-950);
   font-weight: 700;
   font-size: 1rem;
   line-height: 1.5rem;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom: 1px solid var(--color-white);
+    color: white;
+  }
 }
 
 .Field {
@@ -28,48 +33,74 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .Input {
   box-sizing: border-box;
   padding: 0 0.5rem;
   margin: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
   border-radius: 0;
+  border: 1px solid var(--color-neutral-950);
   width: 100%;
   height: 2rem;
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
-  background-color: light-dark(white, var(--color-neutral-950));
-  color: light-dark(var(--color-neutral-950), white);
-
-  &::placeholder {
-    color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
-  }
-
-  &:focus {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
-    outline-offset: -2px;
-  }
+  background-color: white;
+  color: var(--color-neutral-950);
 
   @media (any-pointer: coarse) {
     font-size: 1rem;
     line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+  }
+
+  &::placeholder {
+    color: var(--color-neutral-500);
+
+    @media (prefers-color-scheme: dark) {
+      color: var(--color-neutral-400);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
 .Error {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-red-700), var(--color-red-400));
+  color: var(--color-red-700);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--color-red-400);
+  }
 }
 
 .Description {
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: light-dark(var(--color-neutral-600), var(--color-neutral-400));
+  color: var(--color-neutral-600);
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--color-neutral-400);
+  }
 }

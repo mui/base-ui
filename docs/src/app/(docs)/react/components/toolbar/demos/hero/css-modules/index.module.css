@@ -3,10 +3,15 @@
   display: flex;
   align-items: center;
   gap: 1px;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
   padding: 1px;
   width: 37.5rem;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+  }
 }
 
 .Group {
@@ -25,7 +30,7 @@
   margin: 0;
   border: 0;
   background-color: transparent;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   user-select: none;
   font-family: inherit;
   font-size: 0.875rem;
@@ -33,30 +38,56 @@
   line-height: 1;
   white-space: nowrap;
 
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+      background-color: var(--color-neutral-100);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 
   &:active:not([data-disabled], [data-pressed]) {
-    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
+    background-color: var(--color-neutral-200);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-700);
+    }
   }
 
   &[data-pressed] {
-    background-color: light-dark(var(--color-neutral-950), white);
-    color: light-dark(white, var(--color-neutral-950));
+    background-color: var(--color-neutral-950);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+      color: var(--color-neutral-950);
+    }
   }
 
   @media (hover: hover) {
     &[data-pressed]:hover:not([data-disabled]) {
-      background-color: light-dark(var(--color-neutral-950), white);
-      color: light-dark(white, var(--color-neutral-950));
+      background-color: var(--color-neutral-950);
+      color: white;
+
+      @media (prefers-color-scheme: dark) {
+        background-color: white;
+        color: var(--color-neutral-950);
+      }
     }
   }
 
   &[data-popup-open] {
-    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+    background-color: var(--color-neutral-100);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-800);
+    }
   }
 
   &[aria-pressed] {
@@ -71,8 +102,12 @@
 
   &:focus-visible {
     background-color: transparent;
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -80,11 +115,15 @@
   width: 1px;
   height: 16px;
   margin: 0.25rem;
-  background-color: light-dark(var(--color-neutral-950), white);
+  background-color: var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
 }
 
 .Link {
-  color: light-dark(var(--color-neutral-500), var(--color-neutral-400));
+  color: var(--color-neutral-500);
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -93,15 +132,27 @@
   flex: 0 0 auto;
   margin-inline: auto 0.875rem;
 
+  @media (prefers-color-scheme: dark) {
+    color: var(--color-neutral-400);
+  }
+
   @media (hover: hover) {
     &:hover {
-      color: light-dark(var(--color-blue-700), var(--color-blue-500));
+      color: var(--color-blue-700);
+
+      @media (prefers-color-scheme: dark) {
+        color: var(--color-blue-500);
+      }
     }
   }
 
   &:focus-visible {
-    outline: 2px solid light-dark(var(--color-neutral-950), white);
+    outline: 2px solid var(--color-neutral-950);
     outline-offset: -2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -123,10 +174,10 @@
 .Popup {
   box-sizing: border-box;
   outline: 0;
-  border: 1px solid light-dark(var(--color-neutral-950), white);
-  background-color: light-dark(white, var(--color-neutral-950));
+  border: 1px solid var(--color-neutral-950);
+  background-color: white;
   background-clip: padding-box;
-  color: light-dark(var(--color-neutral-950), white);
+  color: var(--color-neutral-950);
   min-width: var(--anchor-width);
   transform-origin: var(--transform-origin);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
@@ -135,6 +186,13 @@
     opacity 100ms ease-out;
   overflow-y: auto;
   max-height: var(--available-height);
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: var(--color-neutral-950);
+    color: white;
+    box-shadow: none;
+  }
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -147,10 +205,6 @@
     transform: translateY(1px);
     opacity: 1;
     min-width: calc(var(--anchor-width) + 1rem);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    box-shadow: none;
   }
 }
 
@@ -178,8 +232,13 @@
   }
 
   &[data-highlighted] {
-    background-color: light-dark(var(--color-neutral-950), white);
-    color: light-dark(white, var(--color-neutral-950));
+    background-color: var(--color-neutral-950);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+      color: var(--color-neutral-950);
+    }
   }
 }
 
