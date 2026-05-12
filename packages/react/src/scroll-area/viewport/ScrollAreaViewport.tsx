@@ -307,7 +307,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     }
   }, [viewportRef, setHovering]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     const viewport = viewportRef.current;
     if (typeof ResizeObserver === 'undefined' || !viewport) {
       return undefined;

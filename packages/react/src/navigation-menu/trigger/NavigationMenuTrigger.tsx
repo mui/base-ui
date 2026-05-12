@@ -385,7 +385,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [mounted]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!popupElement || typeof ResizeObserver !== 'function') {
       return undefined;
     }
