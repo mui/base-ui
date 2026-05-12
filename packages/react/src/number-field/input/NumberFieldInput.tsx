@@ -187,11 +187,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         formatOptions?.maximumFractionDigits != null ||
         formatOptions?.minimumFractionDigits != null;
 
-      const maxFrac = formatOptions?.maximumFractionDigits;
-      const committed =
-        hasExplicitPrecision && typeof maxFrac === 'number'
-          ? roundToFractionDigits(parsedValue, maxFrac, formatOptions)
-          : parsedValue;
+      const committed = hasExplicitPrecision
+        ? roundToFractionDigits(parsedValue, formatOptions)
+        : parsedValue;
 
       const nextEventDetails = createGenericEventDetails(REASONS.inputBlur, event.nativeEvent);
       const shouldUpdateValue = value !== committed;

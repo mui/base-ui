@@ -50,6 +50,16 @@ describe('NumberField validate', () => {
       ).toBe(0.0123);
     });
 
+    it('rounds percent values at display scale when only minimumFractionDigits is provided', () => {
+      expect(
+        removeFloatingPointErrors(0.01239, {
+          style: 'percent',
+          minimumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(0.0123);
+    });
+
     it('does not scale unit percent values when maximumFractionDigits is provided', () => {
       expect(
         removeFloatingPointErrors(1.239, {

@@ -677,6 +677,15 @@ describe('<NumberField.Input />', () => {
       0.0123,
     ],
     [
+      'percent with min-only precision',
+      {
+        style: 'percent',
+        minimumFractionDigits: 2,
+        roundingMode: 'floor',
+      },
+      0.0123,
+    ],
+    [
       'unit percent',
       {
         style: 'unit',
