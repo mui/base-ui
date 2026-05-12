@@ -20,12 +20,12 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: light-dark(var(--color-neutral-50), var(--color-neutral-900));
+      background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
     }
   }
 
   &:active {
-    background-color: light-dark(var(--color-neutral-100), var(--color-neutral-800));
+    background-color: light-dark(var(--color-neutral-200), var(--color-neutral-700));
   }
 
   &:focus-visible {
