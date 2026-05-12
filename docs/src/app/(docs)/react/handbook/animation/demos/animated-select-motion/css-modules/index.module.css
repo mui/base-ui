@@ -103,7 +103,7 @@
   }
 
   &[data-side='none'] {
-    min-width: calc(var(--anchor-width) + 1rem);
+    min-width: calc(var(--anchor-width) + 1.5rem);
   }
 }
 
@@ -178,10 +178,6 @@
   grid-template-columns: 0.75rem 1fr;
   cursor: default;
   user-select: none;
-
-  [data-side='none'] & {
-    padding-right: 3rem;
-  }
 
   &[data-highlighted] {
     background-color: var(--color-neutral-950);

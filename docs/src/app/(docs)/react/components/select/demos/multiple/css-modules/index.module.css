@@ -147,7 +147,7 @@
     transition: none;
     transform: none;
     opacity: 1;
-    min-width: calc(var(--anchor-width) + 1rem);
+    min-width: calc(var(--anchor-width) + 1.5rem);
   }
 }
 
