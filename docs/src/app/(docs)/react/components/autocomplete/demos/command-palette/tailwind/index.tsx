@@ -31,7 +31,7 @@ export default function ExampleAutocompleteCommandPalette() {
               keepHighlight
             >
               <Autocomplete.Input
-                className="h-10 w-full border-0 border-b border-neutral-950 bg-white px-4 text-sm font-normal tracking-[0.016em] text-neutral-950 outline-none placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
+                className="h-10 w-full border-0 border-b border-neutral-950 bg-white px-4 text-sm any-pointer-coarse:text-base font-normal tracking-[0.016em] text-neutral-950 outline-none placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
                 placeholder="Search for apps and commands…"
               />
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>

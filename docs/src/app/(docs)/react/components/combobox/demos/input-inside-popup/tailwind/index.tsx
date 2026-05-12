@@ -28,7 +28,7 @@ export default function ExamplePopoverCombobox() {
               <div className="h-[var(--input-container-height)] w-80 bg-white text-center dark:bg-neutral-950">
                 <Combobox.Input
                   placeholder="e.g. United Kingdom"
-                  className="h-8 w-full min-w-72 border-0 bg-white px-2 dark:bg-neutral-950 text-sm font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:text-white"
+                  className="h-8 w-full min-w-72 border-0 bg-white px-2 dark:bg-neutral-950 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:text-white"
                 />
               </div>
               <Combobox.Empty>

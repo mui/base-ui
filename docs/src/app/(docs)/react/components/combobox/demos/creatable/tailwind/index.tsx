@@ -152,7 +152,7 @@ export default function ExampleCreatableCombobox() {
                       ref={comboboxInputRef}
                       id={id}
                       placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                      className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm dark:bg-neutral-950 leading-none font-normal text-neutral-950 outline-none dark:text-white"
+                      className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm any-pointer-coarse:text-base dark:bg-neutral-950 font-normal text-neutral-950 outline-none dark:text-white"
                       onKeyDown={handleInputKeyDown}
                     />
                   </React.Fragment>
@@ -216,17 +216,17 @@ export default function ExampleCreatableCombobox() {
             <form onSubmit={handleCreateSubmit}>
               <input
                 ref={createInputRef}
-                className="h-8 w-full border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm leading-5 font-normal text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:text-white"
+                className="h-8 w-full border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:text-white"
                 placeholder="Label name"
                 defaultValue={pendingQueryRef.current}
               />
               <div className="mt-4 flex justify-end gap-3">
-                <Dialog.Close className="flex h-8 items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700">
+                <Dialog.Close className="flex h-8 items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700">
                   Cancel
                 </Dialog.Close>
                 <button
                   type="submit"
-                  className="flex h-8 items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700"
+                  className="flex h-8 items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700"
                 >
                   Create
                 </button>

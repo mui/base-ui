@@ -129,10 +129,11 @@
   padding: 0;
   margin: 0;
   border: none;
+  border-radius: 0;
   height: calc(1.5rem - 2px);
   font-family: inherit;
   font-size: 0.875rem;
-  line-height: 1;
+  line-height: 1.25rem;
   font-weight: 400;
   background-color: light-dark(white, var(--color-neutral-950));
   color: light-dark(var(--color-neutral-950), white);
@@ -140,6 +141,11 @@
 
   &:focus {
     outline: none;
+  }
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
   }
 }
 

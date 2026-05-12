@@ -117,7 +117,7 @@ export default function ExampleAsyncSingleCombobox() {
           <Combobox.Input
             id={id}
             placeholder="e.g. Michael"
-            className="h-full w-full border-0 bg-white pl-2 dark:bg-neutral-950 text-sm font-normal text-neutral-950 outline-none dark:text-white"
+            className="h-full w-full border-0 bg-white pl-2 dark:bg-neutral-950 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 outline-none dark:text-white"
           />
           <div className="absolute right-0 bottom-0 flex h-full items-center justify-center text-neutral-500 dark:text-neutral-400">
             <Combobox.Clear

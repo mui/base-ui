@@ -71,7 +71,7 @@ export default function ExampleDrawerNested() {
                                             </label>
                                             <input
                                               id="device-name-tw"
-                                              className="w-full border border-neutral-950 bg-white px-2.5 py-2 font-normal text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+                                              className="h-8 w-full border border-neutral-950 bg-white px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
                                               defaultValue="Personal laptop"
                                             />
                                           </div>
@@ -85,7 +85,7 @@ export default function ExampleDrawerNested() {
                                             </label>
                                             <textarea
                                               id="notes-tw"
-                                              className="w-full resize-y border border-neutral-950 bg-white px-2.5 py-2 font-normal text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+                                              className="min-h-32 w-full resize-y border border-neutral-950 bg-white p-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
                                               defaultValue="Rotate recovery codes and revoke older sessions."
                                               rows={3}
                                             />

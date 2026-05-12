@@ -145,10 +145,10 @@
 
 .Textarea {
   box-sizing: border-box;
-  padding-block: 0.5rem;
-  padding-inline: 0.5rem;
+  padding: 0.5rem;
   margin: 0;
   border: 1px solid light-dark(var(--color-neutral-950), white);
+  border-radius: 0;
   width: 100%;
   min-height: 8rem;
   font-family: inherit;
@@ -165,5 +165,10 @@
   &:focus {
     outline: 2px solid light-dark(var(--color-neutral-950), white);
     outline-offset: -2px;
+  }
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
   }
 }

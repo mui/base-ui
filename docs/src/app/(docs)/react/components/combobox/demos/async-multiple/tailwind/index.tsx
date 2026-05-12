@@ -164,7 +164,7 @@ export default function ExampleAsyncMultipleCombobox() {
                   <Combobox.Input
                     id={id}
                     placeholder={value.length > 0 ? '' : 'e.g. Michael'}
-                    className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm dark:bg-neutral-950 leading-none font-normal text-neutral-950 outline-none dark:text-white"
+                    className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm any-pointer-coarse:text-base dark:bg-neutral-950 font-normal text-neutral-950 outline-none dark:text-white"
                   />
                 </React.Fragment>
               )}
