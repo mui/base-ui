@@ -595,6 +595,26 @@ describe('<MenuRoot />', () => {
       };
     }
 
+    async function waitForTriggerChangeInstant() {
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'trigger-change');
+      });
+    }
+
+    async function getPositionerAnimations() {
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner.getAnimations().length).toBeGreaterThan(0);
+      });
+      return positioner.getAnimations();
+    }
+
+    async function waitForAnimationsFinished(animations: Animation[]) {
+      await act(async () => {
+        await Promise.all(animations.map((animation) => animation.finished.catch(() => undefined)));
+      });
+    }
+
     it('should open the menu with any trigger', async () => {
       const testMenu = Menu.createHandle();
       const { user } = await render(
@@ -952,13 +972,7 @@ describe('<MenuRoot />', () => {
     it('clears trigger-change instant before hover close after switching triggers', async () => {
       const { user, trigger2, popup } = await renderHoverDetachedTriggers();
 
-      await act(async () => {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 150);
-        });
-      });
-
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'trigger-change');
+      await waitForTriggerChangeInstant();
 
       await user.unhover(trigger2);
       await waitFor(() => {
@@ -975,13 +989,7 @@ describe('<MenuRoot />', () => {
     it('clears trigger-change instant before non-hover close after switching triggers', async () => {
       const { popup } = await renderHoverDetachedTriggers(<Menu.Item>Close</Menu.Item>);
 
-      await act(async () => {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 150);
-        });
-      });
-
-      expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'trigger-change');
+      await waitForTriggerChangeInstant();
 
       fireEvent.click(screen.getByRole('menuitem', { name: 'Close' }));
       await waitFor(() => {
@@ -997,16 +1005,39 @@ describe('<MenuRoot />', () => {
 
     it('does not restore trigger-change instant after hover close starts', async () => {
       const { user, trigger2, popup } = await renderHoverDetachedTriggers();
+      const switchAnimations = await getPositionerAnimations();
 
       await user.unhover(trigger2);
       await waitFor(() => {
         expect(popup).toHaveAttribute('data-ending-style');
       });
 
-      await act(async () => {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 150);
-        });
+      await waitForAnimationsFinished(switchAnimations);
+
+      expect(screen.getByTestId('popup')).toBe(popup);
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(popup).not.toHaveAttribute('data-instant');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    });
+
+    it('clears trigger-change instant before hover close after switching back to the original trigger', async () => {
+      const { user, trigger1, popup } = await renderHoverDetachedTriggers();
+
+      await waitForTriggerChangeInstant();
+
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      await waitForTriggerChangeInstant();
+
+      await user.unhover(trigger1);
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
       });
 
       expect(screen.getByTestId('popup')).toBe(popup);

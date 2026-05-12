@@ -38,7 +38,7 @@ import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { mergeProps } from '../../merge-props';
-import { HOVER_CLOSE_GRACE_PERIOD } from '../utils/constants';
+import { HOVER_CLOSE_GRACE_PERIOD } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 
 const BOUNDARY_OFFSET = 2;
 

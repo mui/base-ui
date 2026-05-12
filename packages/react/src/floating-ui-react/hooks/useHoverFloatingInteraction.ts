@@ -42,7 +42,6 @@ export type UseHoverFloatingInteractionProps = {
   closeDelay?: number | (() => number) | undefined;
   /**
    * Reopens instantly for this many milliseconds after a committed hover close.
-   * Useful for trigger-to-trigger and popup-to-trigger handoffs.
    * @default undefined
    */
   hoverCloseGracePeriod?: number | undefined;
@@ -108,11 +107,7 @@ export function useHoverFloatingInteraction(
     clearSafePolygonPointerEventsMutation(instance);
   });
 
-  // Reset transient interaction state and finalize any pending hover-close
-  // when the popup closes. Uses a layout effect so pointer-event mutations
-  // are cleaned up before the browser paints. The `emitCommittedHoverClose`
-  // call is the layout-phase counterpart of the reference hook's regular
-  // effect. See the comment on `emitCommittedHoverClose` for details.
+  // Layout phase so pointer-event mutations are cleaned up before paint.
   useIsoLayoutEffect(() => {
     if (!open) {
       instance.pointerType = undefined;

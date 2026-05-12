@@ -11,7 +11,8 @@ import { StateAttributesMapping } from '../../internals/getStateAttributesProps'
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
-import { OPEN_DELAY, CLOSE_DELAY, HOVER_CLOSE_GRACE_PERIOD } from '../utils/constants';
+import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
+import { HOVER_CLOSE_GRACE_PERIOD } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';

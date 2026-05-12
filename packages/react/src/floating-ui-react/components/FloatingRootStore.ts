@@ -30,9 +30,7 @@ export interface FloatingRootStoreContext {
   nested: boolean;
   readonly triggerElements: PopupTriggerMap;
   /**
-   * Returns the effective `open` state from the popup store (i.e. `openProp ?? open`).
-   * Set by `useSyncedFloatingRootContext` so that `closeHoverPopup` can detect
-   * whether a controlled consumer committed a close request after `flushSync`.
+   * Returns the effective `open` state from the popup store (`openProp ?? open`).
    */
   isPopupEffectivelyOpen?: (() => boolean) | undefined;
 }

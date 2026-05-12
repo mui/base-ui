@@ -17,7 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { HOVER_CLOSE_GRACE_PERIOD } from '../utils/constants';
+import { HOVER_CLOSE_GRACE_PERIOD } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import { ClosePartProvider, useClosePartCount } from '../../utils/closePart';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 

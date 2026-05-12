@@ -58,7 +58,6 @@ export interface UseHoverReferenceInteractionProps {
   shouldOpen?: (() => boolean) | undefined;
   /**
    * Reopens instantly for this many milliseconds after a committed hover close.
-   * Useful for trigger-to-trigger and popup-to-trigger handoffs.
    * @default undefined
    */
   hoverCloseGracePeriod?: number | undefined;
@@ -191,12 +190,9 @@ export function useHoverReferenceInteraction(
     clearRecentHoverClose(instance);
   }, [hoverCloseGracePeriod, instance, open]);
 
-  // Finalize any pending hover-close when `open` transitions to `false`.
-  // This handles controlled consumers that defer their state update (e.g.
-  // `startTransition`) - the synchronous path inside `closeHoverPopup` won't
-  // see the transition, so this effect acts as a fallback. The call is
-  // idempotent: if the synchronous path already consumed the pending close,
-  // this is a no-op.
+  // Fallback for controlled consumers that defer their state update (e.g.
+  // `startTransition`), which the synchronous `flushSync` in `closeHoverPopup`
+  // cannot observe.
   React.useEffect(() => {
     if (open) {
       return;
@@ -545,7 +541,6 @@ function shouldIgnoreOpenDelayAfterHoverClose(
   isOpen: boolean,
   hoverCloseGracePeriod: number | undefined,
 ) {
-  // Applies to quick handoffs like trigger-to-trigger and popup-to-trigger.
   return (
     !isOpen &&
     (hoverCloseGracePeriod ?? 0) > 0 &&

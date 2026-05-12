@@ -67,9 +67,6 @@ export function isClickLikeOpenEvent(openEventType: string | undefined, interact
   return interactedInside || openEventType === 'click' || openEventType === 'mousedown';
 }
 
-/**
- * Returns whether the popup was opened by a hover interaction.
- */
 export function isHoverOpenEvent(openEventType: string | undefined) {
   return openEventType?.includes('mouse') === true && openEventType !== 'mousedown';
 }
