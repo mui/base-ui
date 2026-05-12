@@ -81,7 +81,7 @@ export default function ExampleAsyncAutocomplete() {
         Search movies by name or year
         <Autocomplete.Input
           placeholder="e.g. Pulp Fiction or 1994"
-          className="h-8 w-[16rem] border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 outline-none focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white"
+          className="h-8 w-[16rem] border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white"
         />
       </label>
 

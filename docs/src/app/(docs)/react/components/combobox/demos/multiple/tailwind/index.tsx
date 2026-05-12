@@ -37,7 +37,7 @@ export default function ExampleMultipleCombobox() {
                   <Combobox.Input
                     id={id}
                     placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
-                    className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm any-pointer-coarse:text-base dark:bg-neutral-950 font-normal text-neutral-950 outline-none dark:text-white"
+                    className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm any-pointer-coarse:text-base dark:bg-neutral-950 font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 dark:text-white"
                   />
                 </React.Fragment>
               )}
