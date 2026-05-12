@@ -1345,6 +1345,7 @@ describe('<Menu.Root />', () => {
           current: {
             unmount: vi.fn(),
             close: vi.fn(),
+            setActiveIndex: vi.fn(),
           },
         };
 
@@ -1387,6 +1388,40 @@ describe('<Menu.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByRole('menu')).toBe(null);
         });
+      });
+
+      it('setActiveIndex highlights the item at the given index when opening programmatically', async () => {
+        const actionsRef: React.RefObject<Menu.Root.Actions | null> = { current: null };
+
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(true);
+                  actionsRef.current?.setActiveIndex(0);
+                }}
+              >
+                external
+              </button>
+              <TestMenu rootProps={{ open, onOpenChange: setOpen, actionsRef }} />
+            </div>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByRole('button', { name: 'external' }));
+
+        const firstItem = await screen.findByTestId('item-1');
+
+        await waitFor(() => {
+          expect(firstItem).toHaveFocus();
+        });
+
+        expect(firstItem).toHaveAttribute('tabindex', '0');
       });
     });
 
