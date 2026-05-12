@@ -12,10 +12,10 @@ import {
   resolveModulePathWithFs,
 } from '@mui/internal-docs-infra/pipeline/loadServerCodeMeta';
 import {
-  loadCodeVariant,
+  loadIsomorphicCodeVariant,
   flattenCodeVariant,
-} from '@mui/internal-docs-infra/pipeline/loadCodeVariant';
-import { loadServerSource } from '@mui/internal-docs-infra/pipeline/loadServerSource';
+} from '@mui/internal-docs-infra/pipeline/loadIsomorphicCodeVariant';
+import { loadServerCodeSource } from '@mui/internal-docs-infra/pipeline/loadServerCodeSource';
 import * as mdx from './mdxNodeHelpers.mjs';
 
 /**
@@ -101,10 +101,15 @@ export async function processDemo(mdxFilePath, demoPath) {
       url = variantCodeOrUrl.url;
     }
 
-    const { code: variantCode } = await loadCodeVariant(url, variantName, variantCodeOrUrl, {
-      loadSource: loadServerSource,
-      disableParsing: true,
-    });
+    const { code: variantCode } = await loadIsomorphicCodeVariant(
+      url,
+      variantName,
+      variantCodeOrUrl,
+      {
+        loadSource: loadServerCodeSource,
+        disableParsing: true,
+      },
+    );
 
     const flattenedFiles = flattenCodeVariant(variantCode);
 
