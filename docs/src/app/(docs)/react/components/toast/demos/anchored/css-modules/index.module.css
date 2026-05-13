@@ -8,6 +8,7 @@
 
 .AnchoredToast {
   box-sizing: border-box;
+  position: relative;
   font-size: 0.875rem;
   line-height: 1.25rem;
   display: flex;
@@ -253,6 +254,7 @@
 
 .Tooltip {
   box-sizing: border-box;
+  position: relative;
   font-size: 0.875rem;
   line-height: 1.25rem;
   display: flex;
@@ -285,9 +287,12 @@
   }
 }
 
+.AnchoredDescription {
+  margin: 0;
+}
+
 .Arrow {
   display: block;
-  position: relative;
   width: 12px;
   height: 6px;
   overflow: clip;
@@ -389,11 +394,6 @@
       outline-color: white;
     }
   }
-}
-
-.Icon {
-  width: 1rem;
-  height: 1rem;
 }
 
 .CopyButton {

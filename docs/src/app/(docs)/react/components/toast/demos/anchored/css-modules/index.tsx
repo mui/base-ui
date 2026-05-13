@@ -94,7 +94,7 @@ function AnchoredToasts() {
             <Toast.Root toast={toast} className={styles.AnchoredToast}>
               <Toast.Arrow className={styles.Arrow} />
               <Toast.Content>
-                <Toast.Description />
+                <Toast.Description className={styles.AnchoredDescription} />
               </Toast.Content>
             </Toast.Root>
           </Toast.Positioner>
