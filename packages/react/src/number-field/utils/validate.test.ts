@@ -34,6 +34,36 @@ describe('NumberField validate', () => {
       ).toBe(1.23);
     });
 
+    it('respects half-even rounding at ties', () => {
+      expect(
+        removeFloatingPointErrors(1.235, {
+          maximumFractionDigits: 2,
+          roundingMode: 'halfEven',
+        }),
+      ).toBe(1.24);
+      expect(
+        removeFloatingPointErrors(1.245, {
+          maximumFractionDigits: 2,
+          roundingMode: 'halfEven',
+        }),
+      ).toBe(1.24);
+    });
+
+    it('respects rounding mode differences for negative values', () => {
+      expect(
+        removeFloatingPointErrors(-1.239, {
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(-1.24);
+      expect(
+        removeFloatingPointErrors(-1.239, {
+          maximumFractionDigits: 2,
+          roundingMode: 'trunc',
+        }),
+      ).toBe(-1.23);
+    });
+
     it('rounds percent values at display scale when maximumFractionDigits is provided', () => {
       expect(
         removeFloatingPointErrors(0.01236, {
@@ -71,6 +101,17 @@ describe('NumberField validate', () => {
       ).toBe(1.23);
     });
 
+    it('rounds currency values without percent scaling', () => {
+      expect(
+        removeFloatingPointErrors(1.239, {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(1.23);
+    });
+
     it('respects roundingIncrement when maximumFractionDigits is provided', () => {
       expect(
         removeFloatingPointErrors(1.26, {
@@ -79,6 +120,16 @@ describe('NumberField validate', () => {
           roundingIncrement: 5,
         }),
       ).toBe(1.5);
+    });
+
+    it('does not return NaN when percent scaling overflows before Intl rounding', () => {
+      expect(
+        removeFloatingPointErrors(Number.MAX_VALUE, {
+          style: 'percent',
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(Infinity);
     });
 
     it('returns 1000 for 1000, ignoring grouping', () => {
