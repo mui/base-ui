@@ -252,8 +252,13 @@ function TestNavigationMenuOrientationAttributes() {
   );
 }
 
-function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | null } = {}) {
-  const { nestedDefaultValue = 'nested-item-1' } = props;
+function TestInlineNestedNavigationMenu(
+  props: {
+    nestedDefaultValue?: string | null;
+    keepMountedContent?: boolean;
+  } = {},
+) {
+  const { nestedDefaultValue = 'nested-item-1', keepMountedContent = false } = props;
   const nestedRootProps =
     nestedDefaultValue == null ? undefined : { defaultValue: nestedDefaultValue };
 
@@ -263,7 +268,7 @@ function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | n
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
 
-          <NavigationMenu.Content data-testid="popup-1">
+          <NavigationMenu.Content data-testid="popup-1" keepMounted={keepMountedContent}>
             <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
             <NavigationMenu.Root {...nestedRootProps}>
               <NavigationMenu.List data-testid="inline-nested-list">
@@ -271,7 +276,10 @@ function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | n
                   <NavigationMenu.Trigger data-testid="nested-trigger-1">
                     Nested Item 1
                   </NavigationMenu.Trigger>
-                  <NavigationMenu.Content data-testid="nested-popup-1">
+                  <NavigationMenu.Content
+                    data-testid="nested-popup-1"
+                    keepMounted={keepMountedContent}
+                  >
                     <NavigationMenu.Link href="#nested-link-1">Nested Link 1</NavigationMenu.Link>
                   </NavigationMenu.Content>
                 </NavigationMenu.Item>
@@ -279,7 +287,10 @@ function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | n
                   <NavigationMenu.Trigger data-testid="nested-trigger-2">
                     Nested Item 2
                   </NavigationMenu.Trigger>
-                  <NavigationMenu.Content data-testid="nested-popup-2">
+                  <NavigationMenu.Content
+                    data-testid="nested-popup-2"
+                    keepMounted={keepMountedContent}
+                  >
                     <NavigationMenu.Link href="#nested-link-2">Nested Link 2</NavigationMenu.Link>
                   </NavigationMenu.Content>
                 </NavigationMenu.Item>
@@ -292,7 +303,7 @@ function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | n
 
         <NavigationMenu.Item value="item-2">
           <NavigationMenu.Trigger data-testid="trigger-2">Item 2</NavigationMenu.Trigger>
-          <NavigationMenu.Content data-testid="popup-2">
+          <NavigationMenu.Content data-testid="popup-2" keepMounted={keepMountedContent}>
             <NavigationMenu.Link href="#link-3">Link 3</NavigationMenu.Link>
           </NavigationMenu.Content>
         </NavigationMenu.Item>
@@ -685,6 +696,18 @@ function mockResizeObserver() {
   return () => {
     globalThis.ResizeObserver = originalResizeObserver;
   };
+}
+
+function primeOpenPopupSize(
+  popupRoot: HTMLElement,
+  positioner: HTMLElement,
+  width: number,
+  height: number,
+) {
+  popupRoot.style.setProperty('--popup-width', 'auto');
+  popupRoot.style.setProperty('--popup-height', 'auto');
+  positioner.style.setProperty('--positioner-width', `${width}px`);
+  positioner.style.setProperty('--positioner-height', `${height}px`);
 }
 
 function TestDeeplyNestedNavigationMenu() {
@@ -2353,7 +2376,7 @@ describe('<NavigationMenu.Root />', () => {
           const positioner = screen.getByTestId('positioner');
           const animations = mockAnimations(popupRoot);
 
-          let popupWidth = 250;
+          const popupWidth = 250;
           let popupHeight = 120;
 
           Object.defineProperty(popupRoot, 'offsetWidth', {
@@ -2365,7 +2388,6 @@ describe('<NavigationMenu.Root />', () => {
             get: () => popupHeight,
           });
 
-          popupWidth = 250;
           popupHeight = 220;
           animations.start();
           fireEvent.click(screen.getByTestId('insert-content'));
@@ -2379,7 +2401,7 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await act(async () => {
-            animations.finish();
+            await animations.finish();
             await flushMicrotasks();
           });
 
@@ -2410,21 +2432,13 @@ describe('<NavigationMenu.Root />', () => {
           const popupRoot = screen.getByTestId('popup-root');
           const positioner = screen.getByTestId('positioner');
 
-          const popupWidthValues = [250, 250];
           const popupHeightValues = [120, 220];
-          let popupWidth = 250;
+          const popupWidth = 250;
           let popupHeight = 220;
 
           Object.defineProperty(popupRoot, 'offsetWidth', {
             configurable: true,
-            get: () => {
-              const nextWidth = popupWidthValues.shift();
-              if (nextWidth != null) {
-                popupWidth = nextWidth;
-              }
-
-              return popupWidth;
-            },
+            get: () => popupWidth,
           });
           Object.defineProperty(popupRoot, 'offsetHeight', {
             configurable: true,
@@ -2449,6 +2463,179 @@ describe('<NavigationMenu.Root />', () => {
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+        }
+      });
+
+      it('does not animate popup sizing when kept nested default content first moves into the portal', async () => {
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        let setPopupPropertySpy: ReturnType<typeof vi.spyOn> | undefined;
+
+        try {
+          await render(<TestInlineNestedNavigationMenu keepMountedContent />);
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+
+          setPopupPropertySpy = vi.spyOn(popupRoot.style, 'setProperty');
+
+          const popupHeightValues = [120, 220];
+          const popupWidth = 250;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => {
+              const nextHeight = popupHeightValues.shift();
+              if (nextHeight != null) {
+                popupHeight = nextHeight;
+              }
+
+              return popupHeight;
+            },
+          });
+
+          await flushMicrotasks();
+
+          expect(screen.getByTestId('nested-popup-1')).not.toHaveAttribute('hidden');
+          await waitFor(() => {
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('220px');
+          });
+
+          const popupSetPropertyCalls = setPopupPropertySpy.mock.calls as Array<
+            [property: string, value: string, priority?: string]
+          >;
+          const fixedPopupHeightCalls = popupSetPropertyCalls
+            .filter((call) => call[0] === '--popup-height')
+            .map((call) => call[1])
+            .filter((value) => value !== 'auto' && value !== '0px');
+
+          expect(fixedPopupHeightCalls.length).toBeGreaterThan(0);
+          expect(fixedPopupHeightCalls.every((value) => value === '220px')).toBe(true);
+        } finally {
+          setPopupPropertySpy?.mockRestore();
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+        }
+      });
+
+      it('updates popup sizing when switching kept inline nested content', async () => {
+        const restoreResizeObserver = mockResizeObserver();
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        try {
+          await render(<TestInlineNestedNavigationMenu keepMountedContent />);
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+          await flushMicrotasks();
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+          const animations = mockAnimations(popupRoot);
+
+          const popupWidth = 250;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => popupHeight,
+          });
+
+          primeOpenPopupSize(popupRoot, positioner, 250, 220);
+
+          popupHeight = 300;
+          animations.start();
+          fireEvent.click(screen.getByTestId('nested-trigger-2'));
+          await flushMicrotasks();
+
+          expect(screen.getByTestId('nested-popup-2')).not.toHaveAttribute('hidden');
+          await waitFor(() => {
+            expect(screen.getByTestId('nested-popup-1')).toHaveAttribute('hidden');
+          });
+          await waitFor(() => {
+            expect(
+              parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
+            ).toBe(300);
+          });
+
+          await act(async () => {
+            await animations.finish();
+            await flushMicrotasks();
+          });
+
+          await waitFor(() => {
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('300px');
+          });
+        } finally {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+          restoreResizeObserver();
+        }
+      });
+
+      it('updates popup sizing when a kept nested content hidden attribute changes', async () => {
+        const restoreResizeObserver = mockResizeObserver();
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        try {
+          await render(<TestInlineNestedNavigationMenu keepMountedContent />);
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+          await flushMicrotasks();
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+
+          const popupWidth = 250;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => popupHeight,
+          });
+
+          primeOpenPopupSize(popupRoot, positioner, 250, 220);
+
+          popupHeight = 300;
+
+          await act(async () => {
+            // Contract-level check for the MutationObserver path; the sibling
+            // switch test above covers the React-driven `hidden` toggle.
+            screen.getByTestId('nested-popup-1').setAttribute('hidden', '');
+            await flushMicrotasks();
+          });
+
+          await waitFor(() => {
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('300px');
+          });
+        } finally {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+          restoreResizeObserver();
         }
       });
 

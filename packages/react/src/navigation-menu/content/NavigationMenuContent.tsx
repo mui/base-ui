@@ -99,11 +99,13 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   const handleCurrentContentRef = React.useCallback(
     (node: HTMLDivElement | null) => {
-      if (node) {
+      // Inactive `keepMounted` content also mounts in the viewport; only the
+      // active content can own the shared sizing observer target.
+      if (node && open) {
         currentContentRef.current = node;
       }
     },
-    [currentContentRef],
+    [currentContentRef, open],
   );
 
   const commonProps: HTMLProps<HTMLDivElement> = {

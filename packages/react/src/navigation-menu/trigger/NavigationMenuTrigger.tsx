@@ -458,6 +458,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       childList: true,
       subtree: true,
       characterData: true,
+      // `keepMounted` submenu switches update dimensions by toggling hidden
+      // content rather than inserting or removing content nodes.
+      attributes: true,
+      attributeFilter: ['hidden'],
     });
 
     return () => {
@@ -489,15 +493,16 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   useIsoLayoutEffect(() => {
     if (isActiveItemRef.current && open && popupElement) {
-      if (transitionStatus === 'starting') {
-        const hasNestedMenu = currentContentRef.current?.querySelector('[data-nested]') != null;
+      const hasNestedMenu = currentContentRef.current?.querySelector('[data-nested]') != null;
 
-        if (hasNestedMenu) {
-          sizeFrame.request(syncCurrentSize);
-          return () => {
-            sizeFrame.cancel();
-          };
-        }
+      if (transitionStatus === 'starting' && hasNestedMenu) {
+        // Inline nested menus can reveal their default content after the
+        // top-level content enters the viewport. Defer once so the opening
+        // size is measured from the final nested content, not the shell.
+        sizeFrame.request(syncCurrentSize);
+        return () => {
+          sizeFrame.cancel();
+        };
       }
 
       if (skipAutoSizeSyncRef.current) {
