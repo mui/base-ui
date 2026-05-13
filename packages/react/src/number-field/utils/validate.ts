@@ -3,7 +3,7 @@ import { getFormatter } from '../../utils/formatNumber';
 
 const STEP_EPSILON_FACTOR = 1e-10;
 
-// The repo's configured Intl types do not include the newer NumberFormat v3 rounding options yet.
+// The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
 type NumberFormatOptionsWithRounding = Intl.NumberFormatOptions & {
   roundingIncrement?: number | undefined;
   roundingMode?: string | undefined;
@@ -32,6 +32,10 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     (format.maximumFractionDigits != null || format.minimumFractionDigits != null);
   const scale = isPercentWithExplicitPrecision ? 100 : 1;
   const valueToRound = value * scale;
+
+  if (!Number.isFinite(valueToRound)) {
+    return valueToRound / scale;
+  }
 
   if (format?.roundingIncrement == null && format?.roundingMode == null) {
     return Number(valueToRound.toFixed(digits)) / scale;

@@ -666,6 +666,22 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue(expectedValue);
   });
 
+  it('should commit roundingIncrement values on blur', async () => {
+    const format = {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+      roundingIncrement: 5,
+    };
+
+    const { input, onValueChange, user } = await renderControlledNumberField(format);
+
+    await user.keyboard('1.26');
+    fireEvent.blur(input);
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(1.5);
+    expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1.26));
+  });
+
   it.each([
     [
       'percent',
@@ -703,6 +719,23 @@ describe('<NumberField.Input />', () => {
 
     expect(onValueChange.mock.lastCall?.[0]).toBe(expectedValue);
     expect(input).toHaveValue('1.23%');
+  });
+
+  it('should round currency values on blur without percent scaling', async () => {
+    const format = {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 2,
+      roundingMode: 'floor',
+    } as const;
+
+    const { input, onValueChange, user } = await renderControlledNumberField(format);
+
+    await user.keyboard('1.239');
+    fireEvent.blur(input);
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(1.23);
+    expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1.239));
   });
 
   it('should round to step precision on blur when step implies precision constraints', async () => {
