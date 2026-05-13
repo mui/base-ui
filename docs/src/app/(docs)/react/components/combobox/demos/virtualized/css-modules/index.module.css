@@ -61,7 +61,6 @@
   max-height: min(22rem, var(--available-height));
   max-width: var(--available-width);
   overflow: clip;
-
   border: 1px solid var(--color-neutral-950);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
 

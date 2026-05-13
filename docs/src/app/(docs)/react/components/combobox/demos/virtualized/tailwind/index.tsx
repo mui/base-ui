@@ -72,10 +72,10 @@ function VirtualizedList({
     getScrollElement: () => scrollElementRef.current,
     estimateSize: () => 32,
     overscan: 20,
-    paddingStart: 8,
-    paddingEnd: 8,
-    scrollPaddingEnd: 8,
-    scrollPaddingStart: 8,
+    paddingStart: 4,
+    paddingEnd: 4,
+    scrollPaddingEnd: 4,
+    scrollPaddingStart: 4,
   });
 
   React.useImperativeHandle(virtualizerRef, () => virtualizer);
