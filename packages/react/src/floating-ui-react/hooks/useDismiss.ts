@@ -592,6 +592,25 @@ export function useDismiss(
         return;
       }
 
+      // If the pointerup landed on a trigger that just opened a nested
+      // popup, treat it as within the floating UI — not a drag-out.
+      // Without this, pressing a nested popup trigger that opens on
+      // mousedown (e.g. Select with useClick({ event: 'mousedown' }))
+      // causes pointerup to fire while the trigger carries
+      // [data-popup-open], which is outside this floating element's
+      // DOM and not a registered FloatingTree child. That false-positive
+      // drag-out sets suppressNextOutsideClick, requiring an extra
+      // click to dismiss the parent.
+      //
+      // Only check [data-popup-open] (trigger state), not [data-open]
+      // (popup state) — drag-to-select ends on an item inside the
+      // popup ([data-open]) and should still trigger suppression so
+      // the parent stays open during the drag interaction.
+      const pressEndTarget = event.target as Element | null;
+      if (pressEndTarget && pressEndTarget.closest('[data-popup-open]')) {
+        return;
+      }
+
       // If pointerdown was prevented, no click may be generated for that
       // interaction. However, Firefox may still emit an immediate click after
       // pointerup (e.g. NumberField scrub with pointer lock), so suppress for

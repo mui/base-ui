@@ -356,7 +356,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   });
 
   const dismiss = useDismiss(floatingContext, {
-    bubbles: false,
+    // When modal, the Select owns the dismiss layer — outside clicks
+    // should close only the Select, not bubble up to parent popups.
+    // When non-modal (e.g. Select nested inside a Popover), outside
+    // clicks should cascade so the parent can also dismiss.
+    bubbles: !modal,
   });
 
   const listNavigation = useListNavigation(floatingContext, {
