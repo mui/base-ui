@@ -17,7 +17,7 @@ export default function ExampleSelect() {
         <Select.Label className={styles.Label}>Apple</Select.Label>
         <Select.Trigger className={styles.Select}>
           <Select.Value className={styles.Value} placeholder="Select apple" />
-          <Select.Icon className={styles.SelectIcon}>
+          <Select.Icon>
             <ChevronUpDownIcon />
           </Select.Icon>
         </Select.Trigger>

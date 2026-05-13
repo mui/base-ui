@@ -42,8 +42,8 @@ export function Value({ className, ...props }: Select.Value.Props) {
   );
 }
 
-export function Icon({ className, ...props }: Select.Icon.Props) {
-  return <Select.Icon className={clsx('flex', className)} {...props} />;
+export function Icon(props: Select.Icon.Props) {
+  return <Select.Icon {...props} />;
 }
 
 export function Portal(props: Select.Portal.Props) {

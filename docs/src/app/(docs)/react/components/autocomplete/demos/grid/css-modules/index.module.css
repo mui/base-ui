@@ -163,10 +163,6 @@
   }
 }
 
-.TriggerIcon {
-  display: flex;
-}
-
 .InputContainer {
   box-sizing: border-box;
   position: relative;

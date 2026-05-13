@@ -19,7 +19,7 @@ export default function ObjectValueSelect() {
               </span>
             )}
           </Select.Value>
-          <Select.Icon className={styles.SelectIcon}>
+          <Select.Icon>
             <ChevronUpDownIcon />
           </Select.Icon>
         </Select.Trigger>

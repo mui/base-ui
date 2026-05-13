@@ -20,7 +20,7 @@
 .Select {
   box-sizing: border-box;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   min-height: 2rem;
@@ -112,12 +112,6 @@
   @media (prefers-color-scheme: dark) {
     color: var(--color-neutral-400);
   }
-}
-
-.SelectIcon {
-  display: flex;
-  align-items: center;
-  align-self: center;
 }
 
 .Positioner {

@@ -11,7 +11,7 @@ export default function ExamplePopoverCombobox() {
         </Combobox.Label>
         <Combobox.Trigger className="flex h-8 min-w-40 cursor-default items-center justify-between gap-3 border border-neutral-950 bg-white px-2 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 data-popup-open:bg-neutral-100 data-placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:data-placeholder:text-neutral-400 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800">
           <Combobox.Value placeholder="Select country" />
-          <Combobox.Icon className="flex text-neutral-950 dark:text-white">
+          <Combobox.Icon className="text-neutral-950 dark:text-white">
             <ChevronUpDownIcon />
           </Combobox.Icon>
         </Combobox.Trigger>

@@ -40,7 +40,7 @@ export default function MultiSelectExample() {
           <Select.Value className="data-placeholder:text-neutral-500 dark:data-placeholder:text-neutral-400">
             {renderValue}
           </Select.Value>
-          <Select.Icon className="flex">
+          <Select.Icon>
             <ChevronUpDownIcon />
           </Select.Icon>
         </Select.Trigger>

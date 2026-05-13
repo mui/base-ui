@@ -99,10 +99,6 @@
   }
 }
 
-.SelectIcon {
-  display: flex;
-}
-
 .Positioner {
   outline: none;
   z-index: 10;

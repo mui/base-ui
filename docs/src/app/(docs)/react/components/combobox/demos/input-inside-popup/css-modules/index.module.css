@@ -79,7 +79,6 @@
 }
 
 .TriggerIcon {
-  display: flex;
   color: var(--color-neutral-950);
 
   @media (prefers-color-scheme: dark) {

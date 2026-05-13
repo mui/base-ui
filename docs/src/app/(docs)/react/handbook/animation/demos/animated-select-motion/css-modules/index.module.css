@@ -61,10 +61,6 @@
   }
 }
 
-.SelectIcon {
-  display: flex;
-}
-
 .Value[data-placeholder] {
   color: var(--color-neutral-500);
 

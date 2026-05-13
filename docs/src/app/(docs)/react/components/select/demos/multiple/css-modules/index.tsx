@@ -37,7 +37,7 @@ export default function MultiSelectExample() {
         <Select.Label className={styles.Label}>Languages</Select.Label>
         <Select.Trigger className={styles.Select}>
           <Select.Value className={styles.Value}>{renderValue}</Select.Value>
-          <Select.Icon className={styles.SelectIcon}>
+          <Select.Icon>
             <ChevronUpDownIcon />
           </Select.Icon>
         </Select.Trigger>

@@ -18,7 +18,7 @@ export default function ExampleSelectGrouped() {
             className="data-placeholder:text-neutral-500 dark:data-placeholder:text-neutral-400"
             placeholder="Select produce"
           />
-          <Select.Icon className="flex">
+          <Select.Icon>
             <ChevronUpDownIcon />
           </Select.Icon>
         </Select.Trigger>

@@ -154,10 +154,6 @@
   }
 }
 
-.SelectIcon {
-  display: flex;
-}
-
 .Positioner {
   outline: none;
   user-select: none;
