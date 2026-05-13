@@ -189,6 +189,14 @@ import { DemoPopoverDetachedTriggersFull } from './demos/detached-triggers-full'
 
 <DemoPopoverDetachedTriggersFull />
 
+### Nested `Select` dismissal (bug repro)
+
+When a `Select` is rendered inside a `Popover.Popup`, the outer `Popover` requires two outside clicks to dismiss instead of one. The repro below demonstrates the issue with the minimum markup; the `Select` dropdown does not need to be opened for the bug to occur.
+
+import { DemoPopoverNestedSelectDismiss } from './demos/nested-select-dismiss';
+
+<DemoPopoverNestedSelectDismiss />
+
 ## API reference
 
 import { TypesPopover } from './types';
