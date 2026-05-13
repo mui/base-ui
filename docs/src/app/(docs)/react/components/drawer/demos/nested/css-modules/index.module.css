@@ -168,7 +168,6 @@
     content: '';
     inset: 0;
     position: absolute;
-    border-radius: inherit;
     background-color: transparent;
     pointer-events: none;
     transition: background-color 450ms cubic-bezier(0.32, 0.72, 0, 1);
