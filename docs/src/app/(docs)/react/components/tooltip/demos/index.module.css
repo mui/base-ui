@@ -97,7 +97,7 @@
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transform-origin: var(--transform-origin);
   transition:
-    transform 100ms ease-out,
+    scale 100ms ease-out,
     opacity 100ms ease-out;
 
   @media (prefers-color-scheme: dark) {
@@ -110,7 +110,7 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transform: scale(0.98);
+    scale: 0.98;
   }
 
   &[data-instant] {

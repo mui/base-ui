@@ -109,7 +109,7 @@
     width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    scale 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
@@ -121,7 +121,7 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transform: scale(0.9);
+    scale: 0.9;
   }
 
   &[data-instant] {

@@ -59,12 +59,12 @@ export default function TooltipDetachedTriggersFullDemo() {
                   text-sm text-neutral-950 dark:text-white
                   origin-[var(--transform-origin)]
                   shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none
-                  transition-[width,height,opacity,scale]
+                  transition-[width,height,opacity,transform]
                   duration-[0.35s]
                   ease-[cubic-bezier(0.22,1,0.36,1)]
-                  data-ending-style:opacity-0 data-ending-style:scale-90
+                  data-ending-style:opacity-0 data-ending-style:[transform:scale(0.9)]
                   data-instant:transition-none
-                  data-starting-style:opacity-0 data-starting-style:scale-90"
+                  data-starting-style:opacity-0 data-starting-style:[transform:scale(0.9)]"
               >
                 <Tooltip.Arrow className={arrowClass} />
 
