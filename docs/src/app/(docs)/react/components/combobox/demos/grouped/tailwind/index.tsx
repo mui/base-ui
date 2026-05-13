@@ -19,13 +19,13 @@ export default function ExampleGroupedCombobox() {
               className="combobox-clear flex h-full w-6 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 dark:text-white"
               aria-label="Clear selection"
             >
-              <XIcon className="size-4" />
+              <XIcon />
             </Combobox.Clear>
             <Combobox.Trigger
               className="flex h-full w-6 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 dark:text-white"
               aria-label="Open popup"
             >
-              <ChevronDownIcon className="size-2.5" />
+              <ChevronDownIcon />
             </Combobox.Trigger>
           </div>
         </Combobox.InputGroup>
@@ -53,7 +53,7 @@ export default function ExampleGroupedCombobox() {
                         value={item}
                       >
                         <Combobox.ItemIndicator className="col-start-1 flex items-center justify-center">
-                          <CheckIcon className="size-3" />
+                          <CheckIcon />
                         </Combobox.ItemIndicator>
                         <span className="col-start-2">{item.label}</span>
                       </Combobox.Item>
@@ -71,7 +71,16 @@ export default function ExampleGroupedCombobox() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -79,7 +88,16 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
       <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
     </svg>
@@ -88,7 +106,15 @@ function XIcon(props: React.ComponentProps<'svg'>) {
 
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
     </svg>
   );

@@ -14,7 +14,7 @@ export default function ExampleUncontainedDialog() {
               className="absolute right-0 -top-10 flex h-8 w-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 xl:top-0 xl:h-10 xl:w-10 pointer-events-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
               aria-label="Close"
             >
-              <XIcon className="h-5 w-5" />
+              <XIcon />
             </Dialog.Close>
             <div className="pointer-events-auto h-full w-full max-w-[70rem] bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[scale] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-starting-style/popup:scale-105" />
           </Dialog.Popup>
@@ -26,7 +26,16 @@ export default function ExampleUncontainedDialog() {
 
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
       <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
     </svg>

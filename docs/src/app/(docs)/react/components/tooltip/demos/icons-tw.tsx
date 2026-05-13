@@ -3,6 +3,8 @@ import * as React from 'react';
 export function InfoIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -10,6 +12,7 @@ export function InfoIcon(props: React.ComponentProps<'svg'>) {
       strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
       <circle cx="12" cy="12" r="10" />
       <path d="M12 16v-4" />
@@ -20,6 +23,8 @@ export function InfoIcon(props: React.ComponentProps<'svg'>) {
 export function HelpIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -27,6 +32,7 @@ export function HelpIcon(props: React.ComponentProps<'svg'>) {
       strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
       <circle cx="12" cy="12" r="10" vectorEffect="non-scaling-stroke" />
       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" vectorEffect="non-scaling-stroke" />
@@ -38,6 +44,8 @@ export function HelpIcon(props: React.ComponentProps<'svg'>) {
 export function AlertIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -45,6 +53,7 @@ export function AlertIcon(props: React.ComponentProps<'svg'>) {
       strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
       <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
       <path d="M12 9v4" />

@@ -9,7 +9,7 @@ export default function TooltipDetachedTriggersSimpleDemo() {
   return (
     <Tooltip.Provider>
       <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip}>
-        <InfoIcon aria-label="This is a detached tooltip" className={styles.Icon} />
+        <InfoIcon aria-label="This is a detached tooltip" />
       </Tooltip.Trigger>
 
       <Tooltip.Root handle={demoTooltip}>
@@ -29,6 +29,8 @@ export default function TooltipDetachedTriggersSimpleDemo() {
 function InfoIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -36,6 +38,7 @@ function InfoIcon(props: React.ComponentProps<'svg'>) {
       strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
       <circle cx="12" cy="12" r="10" />
       <path d="M12 16v-4" />

@@ -40,13 +40,7 @@ export default function PermissionsForm() {
           <Checkbox.Indicator
             className={styles.Indicator}
             render={(props, state) => (
-              <span {...props}>
-                {state.indeterminate ? (
-                  <HorizontalRuleIcon className={styles.Icon} />
-                ) : (
-                  <CheckIcon className={styles.Icon} />
-                )}
-              </span>
+              <span {...props}>{state.indeterminate ? <HorizontalRuleIcon /> : <CheckIcon />}</span>
             )}
           />
         </Checkbox.Root>
@@ -56,7 +50,7 @@ export default function PermissionsForm() {
       <label className={styles.Item}>
         <Checkbox.Root value="view-dashboard" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
-            <CheckIcon className={styles.Icon} />
+            <CheckIcon />
           </Checkbox.Indicator>
         </Checkbox.Root>
         View Dashboard
@@ -65,7 +59,7 @@ export default function PermissionsForm() {
       <label className={styles.Item}>
         <Checkbox.Root value="access-reports" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
-            <CheckIcon className={styles.Icon} />
+            <CheckIcon />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Access Reports
@@ -92,11 +86,7 @@ export default function PermissionsForm() {
               className={styles.Indicator}
               render={(props, state) => (
                 <span {...props}>
-                  {state.indeterminate ? (
-                    <HorizontalRuleIcon className={styles.Icon} />
-                  ) : (
-                    <CheckIcon className={styles.Icon} />
-                  )}
+                  {state.indeterminate ? <HorizontalRuleIcon /> : <CheckIcon />}
                 </span>
               )}
             />
@@ -107,7 +97,7 @@ export default function PermissionsForm() {
         <label className={styles.Item}>
           <Checkbox.Root value="create-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
-              <CheckIcon className={styles.Icon} />
+              <CheckIcon />
             </Checkbox.Indicator>
           </Checkbox.Root>
           Create User
@@ -116,7 +106,7 @@ export default function PermissionsForm() {
         <label className={styles.Item}>
           <Checkbox.Root value="edit-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
-              <CheckIcon className={styles.Icon} />
+              <CheckIcon />
             </Checkbox.Indicator>
           </Checkbox.Root>
           Edit User
@@ -125,7 +115,7 @@ export default function PermissionsForm() {
         <label className={styles.Item}>
           <Checkbox.Root value="delete-user" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
-              <CheckIcon className={styles.Icon} />
+              <CheckIcon />
             </Checkbox.Indicator>
           </Checkbox.Root>
           Delete User
@@ -134,7 +124,7 @@ export default function PermissionsForm() {
         <label className={styles.Item}>
           <Checkbox.Root value="assign-roles" className={styles.Checkbox}>
             <Checkbox.Indicator className={styles.Indicator}>
-              <CheckIcon className={styles.Icon} />
+              <CheckIcon />
             </Checkbox.Indicator>
           </Checkbox.Root>
           Assign Roles
@@ -146,7 +136,16 @@ export default function PermissionsForm() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -154,7 +153,15 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 function HorizontalRuleIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" strokeWidth={1} {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      strokeWidth={1}
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <line
         x1="3"
         y1="12"

@@ -11,7 +11,7 @@ export default function ExampleAccordion() {
         <Accordion.Header>
           <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800">
             What is Base UI?
-            <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
+            <PlusIcon className="shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
@@ -26,7 +26,7 @@ export default function ExampleAccordion() {
         <Accordion.Header>
           <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800">
             How do I get started?
-            <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
+            <PlusIcon className="shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
@@ -41,7 +41,7 @@ export default function ExampleAccordion() {
         <Accordion.Header>
           <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800">
             Can I use it for my project?
-            <PlusIcon className="size-3 shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
+            <PlusIcon className="shrink-0 transition-transform duration-100 ease-out group-data-panel-open:rotate-45" />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-sm transition-[height] duration-150 ease-out data-ending-style:h-0 data-starting-style:h-0">
@@ -54,7 +54,16 @@ export default function ExampleAccordion() {
 
 function PlusIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 12 12" fill="none" stroke="currentcolor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M6 0.5V11.5" vectorEffect="non-scaling-stroke" />
       <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
     </svg>

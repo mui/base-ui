@@ -101,11 +101,6 @@
 
 .SelectIcon {
   display: flex;
-
-  & svg {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
 }
 
 .Positioner {
@@ -145,7 +140,7 @@
     transition: none;
     transform: translateY(1px);
     opacity: 1;
-    min-width: calc(var(--anchor-width) + 1rem);
+    min-width: calc(var(--anchor-width) + 1.5rem);
   }
 }
 
@@ -194,10 +189,6 @@
   cursor: default;
   user-select: none;
 
-  [data-side='none'] & {
-    padding-right: 3rem;
-  }
-
   &[data-highlighted] {
     background-color: var(--color-neutral-950);
     color: white;
@@ -211,12 +202,6 @@
 
 .ItemIndicator {
   grid-column-start: 1;
-}
-
-.ItemIndicatorIcon {
-  display: block;
-  width: 0.75rem;
-  height: 0.75rem;
 }
 
 .ItemText {

@@ -48,13 +48,13 @@ export default function ExampleToolbar() {
             <Select.Popup className={styles.Popup}>
               <Select.Item className={styles.Item} value="Helvetica">
                 <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
+                  <CheckIcon />
                 </Select.ItemIndicator>
                 <Select.ItemText className={styles.ItemText}>Helvetica</Select.ItemText>
               </Select.Item>
               <Select.Item className={styles.Item} value="Arial">
                 <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
+                  <CheckIcon />
                 </Select.ItemIndicator>
                 <Select.ItemText className={styles.ItemText}>Arial</Select.ItemText>
               </Select.Item>
@@ -72,7 +72,16 @@ export default function ExampleToolbar() {
 
 function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="m7 15 5 5 5-5" vectorEffect="non-scaling-stroke" />
       <path d="m7 9 5-5 5 5" vectorEffect="non-scaling-stroke" />
     </svg>
@@ -81,7 +90,16 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

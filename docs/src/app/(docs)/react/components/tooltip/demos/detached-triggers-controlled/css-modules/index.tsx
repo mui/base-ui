@@ -19,15 +19,15 @@ export default function TooltipDetachedTriggersControlledDemo() {
       <div className={styles.Container}>
         <div className={styles.ButtonGroup}>
           <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-1">
-            <InfoIcon aria-label="Controlled tooltip" className={styles.Icon} />
+            <InfoIcon aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-2">
-            <InfoIcon aria-label="Controlled tooltip" className={styles.Icon} />
+            <InfoIcon aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-3">
-            <InfoIcon aria-label="Controlled tooltip" className={styles.Icon} />
+            <InfoIcon aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
         </div>
 
@@ -65,6 +65,8 @@ export default function TooltipDetachedTriggersControlledDemo() {
 function InfoIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -72,6 +74,7 @@ function InfoIcon(props: React.ComponentProps<'svg'>) {
       strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
       <circle cx="12" cy="12" r="10" />
       <path d="M12 16v-4" />

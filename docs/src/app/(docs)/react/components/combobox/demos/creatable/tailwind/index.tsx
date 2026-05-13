@@ -144,7 +144,7 @@ export default function ExampleCreatableCombobox() {
                           className="flex size-4 items-center justify-center border-0 bg-transparent p-0 text-inherit hover:bg-neutral-200 group-focus-within:hover:bg-neutral-700 dark:hover:bg-neutral-700 dark:group-focus-within:hover:bg-neutral-200"
                           aria-label={`Remove ${label.value}`}
                         >
-                          <XIcon className="size-3" />
+                          <XIcon />
                         </Combobox.ChipRemove>
                       </Combobox.Chip>
                     ))}
@@ -179,7 +179,7 @@ export default function ExampleCreatableCombobox() {
                       value={item}
                     >
                       <span className="col-start-1">
-                        <PlusIcon className="size-3" />
+                        <PlusIcon />
                       </span>
                       <span className="col-start-2">Create "{item.creatable}"</span>
                     </Combobox.Item>
@@ -190,7 +190,7 @@ export default function ExampleCreatableCombobox() {
                       value={item}
                     >
                       <Combobox.ItemIndicator className="col-start-1">
-                        <CheckIcon className="size-3" />
+                        <CheckIcon />
                       </Combobox.ItemIndicator>
                       <span className="col-start-2">{item.value}</span>
                     </Combobox.Item>
@@ -241,7 +241,16 @@ export default function ExampleCreatableCombobox() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -249,7 +258,16 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 function PlusIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 12 12" fill="none" stroke="currentcolor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M6 0.5V11.5" vectorEffect="non-scaling-stroke" />
       <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
     </svg>
@@ -258,7 +276,16 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
 
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
       <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
     </svg>

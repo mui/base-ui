@@ -12,8 +12,6 @@
 }
 
 .Icon {
-  width: 0.75rem;
-  height: 0.75rem;
   transition: transform 100ms ease-out;
 }
 

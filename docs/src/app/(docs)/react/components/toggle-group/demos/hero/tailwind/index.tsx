@@ -13,21 +13,21 @@ export default function ExampleToggleGroup() {
         value="left"
         className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:not-data-pressed:bg-neutral-200 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 data-pressed:bg-neutral-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
       >
-        <AlignLeftIcon className="size-4" />
+        <AlignLeftIcon />
       </Toggle>
       <Toggle
         aria-label="Align center"
         value="center"
         className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:not-data-pressed:bg-neutral-200 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 data-pressed:bg-neutral-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
       >
-        <AlignCenterIcon className="size-4" />
+        <AlignCenterIcon />
       </Toggle>
       <Toggle
         aria-label="Align right"
         value="right"
         className="flex size-8 items-center justify-center border-none rounded-none bg-transparent text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:not-data-pressed:bg-neutral-200 dark:active:not-data-disabled:not-data-pressed:bg-neutral-700 data-pressed:bg-neutral-950 data-pressed:text-white dark:data-pressed:bg-white dark:data-pressed:text-neutral-950 data-pressed:hover:not-data-disabled:bg-neutral-950 data-pressed:hover:not-data-disabled:text-white dark:data-pressed:hover:not-data-disabled:bg-white dark:data-pressed:hover:not-data-disabled:text-neutral-950 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
       >
-        <AlignRightIcon className="size-4" />
+        <AlignRightIcon />
       </Toggle>
     </ToggleGroup>
   );
@@ -35,7 +35,14 @@ export default function ExampleToggleGroup() {
 
 function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 16 16" stroke="currentColor" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M2.5 3.5H13.5" />
       <path d="M2.5 9.5H13.5" />
       <path d="M2.5 6.5H10.5" />
@@ -46,7 +53,14 @@ function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
 
 function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 16 16" stroke="currentColor" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M3 3.5H14" />
       <path d="M3 9.5H14" />
       <path d="M4.5 6.5H12.5" />
@@ -57,7 +71,14 @@ function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
 
 function AlignRightIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 16 16" stroke="currentColor" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M2.5 3.5H13.5" />
       <path d="M2.5 9.5H13.5" />
       <path d="M5.5 6.5H13.5" />

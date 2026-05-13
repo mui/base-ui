@@ -28,7 +28,7 @@ export default function ExampleMultipleCombobox() {
                         className={styles.ChipRemove}
                         aria-label={`Remove ${language.value}`}
                       >
-                        <XIcon className={styles.ChipRemoveIcon} />
+                        <XIcon />
                       </Combobox.ChipRemove>
                     </Combobox.Chip>
                   ))}
@@ -54,7 +54,7 @@ export default function ExampleMultipleCombobox() {
               {(language: ProgrammingLanguage) => (
                 <Combobox.Item key={language.id} className={styles.Item} value={language}>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                    <CheckIcon />
                   </Combobox.ItemIndicator>
                   <span className={styles.ItemText}>{language.value}</span>
                 </Combobox.Item>
@@ -69,7 +69,16 @@ export default function ExampleMultipleCombobox() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -77,7 +86,16 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
       <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
     </svg>

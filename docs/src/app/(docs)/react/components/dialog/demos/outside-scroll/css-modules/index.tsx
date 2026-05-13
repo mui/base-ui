@@ -23,7 +23,7 @@ export default function OutsideScrollDialog() {
                       past the bottom edge.
                     </Dialog.Description>
                     <Dialog.Close className={styles.Close} aria-label="Close">
-                      <XIcon className={styles.CloseIcon} />
+                      <XIcon />
                     </Dialog.Close>
                   </div>
 
@@ -63,7 +63,16 @@ export default function OutsideScrollDialog() {
 
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
       <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
     </svg>

@@ -130,7 +130,7 @@ function VirtualizedList({
               }}
             >
               <Combobox.ItemIndicator className="col-start-1">
-                <CheckIcon className="size-3" />
+                <CheckIcon />
               </Combobox.ItemIndicator>
               <span className="col-start-2">{item.name}</span>
             </Combobox.Item>
@@ -143,7 +143,16 @@ function VirtualizedList({
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

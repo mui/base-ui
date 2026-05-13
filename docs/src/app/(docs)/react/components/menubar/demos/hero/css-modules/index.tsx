@@ -137,7 +137,15 @@ function handleClick(event: React.MouseEvent<HTMLElement>) {
 
 function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 10 10"
+      fill="none"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M3.5 9L7.5 5L3.5 1" stroke="currentColor" vectorEffect="non-scaling-stroke" />
     </svg>
   );

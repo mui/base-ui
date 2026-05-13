@@ -51,7 +51,7 @@ export default function MultiSelectExample() {
               {values.map((value) => (
                 <Select.Item key={value} value={value} className={styles.Item}>
                   <Select.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                    <CheckIcon />
                   </Select.ItemIndicator>
                   <Select.ItemText className={styles.ItemText}>{languages[value]}</Select.ItemText>
                 </Select.Item>
@@ -66,7 +66,16 @@ export default function MultiSelectExample() {
 
 function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="m7 15 5 5 5-5" vectorEffect="non-scaling-stroke" />
       <path d="m7 9 5-5 5 5" vectorEffect="non-scaling-stroke" />
     </svg>
@@ -75,7 +84,16 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

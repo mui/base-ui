@@ -12,7 +12,7 @@ export default function ExamplePopoverCombobox() {
         <Combobox.Trigger className="flex h-8 min-w-40 cursor-default items-center justify-between gap-3 border border-neutral-950 bg-white px-2 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 data-popup-open:bg-neutral-100 data-placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:data-placeholder:text-neutral-400 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800">
           <Combobox.Value placeholder="Select country" />
           <Combobox.Icon className="flex text-neutral-950 dark:text-white">
-            <ChevronUpDownIcon className="size-3" />
+            <ChevronUpDownIcon />
           </Combobox.Icon>
         </Combobox.Trigger>
         <Combobox.Portal>
@@ -40,7 +40,7 @@ export default function ExamplePopoverCombobox() {
                     className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
                   >
                     <Combobox.ItemIndicator className="col-start-1">
-                      <CheckIcon className="size-3" />
+                      <CheckIcon />
                     </Combobox.ItemIndicator>
                     <span className="col-start-2">{country.label}</span>
                   </Combobox.Item>
@@ -56,7 +56,16 @@ export default function ExamplePopoverCombobox() {
 
 function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="m7 15 5 5 5-5" vectorEffect="non-scaling-stroke" />
       <path d="m7 9 5-5 5 5" vectorEffect="non-scaling-stroke" />
     </svg>
@@ -65,7 +74,16 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

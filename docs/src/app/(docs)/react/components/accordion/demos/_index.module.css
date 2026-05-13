@@ -71,11 +71,7 @@
   }
 }
 
-.TriggerIcon {
-  box-sizing: border-box;
-  flex-shrink: 0;
-  width: 0.75rem;
-  height: 0.75rem;
+.Icon {
   transition: transform 100ms ease-out;
 
   [data-panel-open] > & {

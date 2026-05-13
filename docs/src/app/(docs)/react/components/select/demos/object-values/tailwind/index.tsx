@@ -21,7 +21,7 @@ export default function ObjectValueSelect() {
             )}
           </Select.Value>
           <Select.Icon className="flex items-center self-center">
-            <ChevronUpDownIcon className="size-3" />
+            <ChevronUpDownIcon />
           </Select.Icon>
         </Select.Trigger>
         <Select.Portal>
@@ -38,7 +38,7 @@ export default function ObjectValueSelect() {
                     className="group/item grid cursor-default grid-cols-[0.75rem_1fr] items-start gap-2 py-1.5 pr-4 pl-2.5 text-sm outline-hidden select-none [@media(hover:hover)]:data-highlighted:bg-neutral-950 [@media(hover:hover)]:data-highlighted:text-white dark:[@media(hover:hover)]:data-highlighted:bg-white dark:[@media(hover:hover)]:data-highlighted:text-neutral-950"
                   >
                     <Select.ItemIndicator className="col-start-1 flex items-center justify-center self-start relative top-[0.4em]">
-                      <CheckIcon className="size-3" />
+                      <CheckIcon />
                     </Select.ItemIndicator>
                     <Select.ItemText className="col-start-2 flex flex-col gap-0.5">
                       <span className="text-sm">{method.name}</span>
@@ -62,7 +62,16 @@ export default function ObjectValueSelect() {
 
 function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="m7 15 5 5 5-5" vectorEffect="non-scaling-stroke" />
       <path d="m7 9 5-5 5 5" vectorEffect="non-scaling-stroke" />
     </svg>
@@ -71,7 +80,16 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

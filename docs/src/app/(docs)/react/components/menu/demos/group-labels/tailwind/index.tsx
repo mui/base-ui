@@ -13,8 +13,8 @@ export default function ExampleMenu() {
 
   return (
     <Menu.Root>
-      <Menu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-popup-open:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
-        View <ChevronDownIcon className="size-3 -mr-1" />
+      <Menu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white pl-3 pr-2 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-popup-open:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
+        View <ChevronDownIcon />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner className="outline-hidden" sideOffset={8}>
@@ -26,19 +26,19 @@ export default function ExampleMenu() {
               <Menu.RadioGroup value={value} onValueChange={setValue}>
                 <Menu.RadioItem value="date" className={itemClass}>
                   <Menu.RadioItemIndicator className="col-start-1">
-                    <CheckboxCheckIcon className="size-3" />
+                    <CheckboxCheckIcon />
                   </Menu.RadioItemIndicator>
                   <span className="col-start-2">Date</span>
                 </Menu.RadioItem>
                 <Menu.RadioItem value="name" className={itemClass}>
                   <Menu.RadioItemIndicator className="col-start-1">
-                    <CheckboxCheckIcon className="size-3" />
+                    <CheckboxCheckIcon />
                   </Menu.RadioItemIndicator>
                   <span className="col-start-2">Name</span>
                 </Menu.RadioItem>
                 <Menu.RadioItem value="type" className={itemClass}>
                   <Menu.RadioItemIndicator className="col-start-1">
-                    <CheckboxCheckIcon className="size-3" />
+                    <CheckboxCheckIcon />
                   </Menu.RadioItemIndicator>
                   <span className="col-start-2">Type</span>
                 </Menu.RadioItem>
@@ -57,7 +57,7 @@ export default function ExampleMenu() {
                 className={itemClass}
               >
                 <Menu.CheckboxItemIndicator className="col-start-1">
-                  <CheckboxCheckIcon className="size-3" />
+                  <CheckboxCheckIcon />
                 </Menu.CheckboxItemIndicator>
                 <span className="col-start-2">Minimap</span>
               </Menu.CheckboxItem>
@@ -67,7 +67,7 @@ export default function ExampleMenu() {
                 className={itemClass}
               >
                 <Menu.CheckboxItemIndicator className="col-start-1">
-                  <CheckboxCheckIcon className="size-3" />
+                  <CheckboxCheckIcon />
                 </Menu.CheckboxItemIndicator>
                 <span className="col-start-2">Search</span>
               </Menu.CheckboxItem>
@@ -77,7 +77,7 @@ export default function ExampleMenu() {
                 className={itemClass}
               >
                 <Menu.CheckboxItemIndicator className="col-start-1">
-                  <CheckboxCheckIcon className="size-3" />
+                  <CheckboxCheckIcon />
                 </Menu.CheckboxItemIndicator>
                 <span className="col-start-2">Sidebar</span>
               </Menu.CheckboxItem>
@@ -91,7 +91,15 @@ export default function ExampleMenu() {
 
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 10 10"
+      fill="none"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -99,7 +107,16 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckboxCheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

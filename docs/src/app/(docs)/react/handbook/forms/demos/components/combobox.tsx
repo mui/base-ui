@@ -43,7 +43,7 @@ export function Clear({ className, ...props }: Combobox.Clear.Props) {
       )}
       {...props}
     >
-      <XIcon className="size-4" />
+      <XIcon />
     </Combobox.Clear>
   );
 }
@@ -129,7 +129,15 @@ export function ItemIndicator({ className, ...props }: Combobox.ItemIndicator.Pr
 
 export function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 10 10"
+      fill="none"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -137,7 +145,16 @@ export function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
       <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
     </svg>

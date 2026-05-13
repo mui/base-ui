@@ -123,11 +123,6 @@
       border-color: var(--color-neutral-400);
     }
   }
-
-  svg {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
 }
 
 .Decrement {

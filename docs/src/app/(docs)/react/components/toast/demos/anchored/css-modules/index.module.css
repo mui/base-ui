@@ -293,6 +293,7 @@
 
 .Arrow {
   display: block;
+  position: relative;
   width: 12px;
   height: 6px;
   overflow: clip;

@@ -10,15 +10,15 @@ export default function TooltipDetachedTriggersFullDemo() {
     <Tooltip.Provider>
       <div className={styles.ButtonGroup}>
         <Tooltip.Trigger className={styles.Button} handle={demoTooltip} payload={InfoContent}>
-          <InfoIcon aria-label="This is information about the feature" className={styles.Icon} />
+          <InfoIcon aria-label="This is information about the feature" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger className={styles.Button} handle={demoTooltip} payload={HelpContent}>
-          <HelpIcon aria-label="Need help?" className={styles.Icon} />
+          <HelpIcon aria-label="Need help?" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger className={styles.Button} handle={demoTooltip} payload={AlertContent}>
-          <AlertIcon aria-label="Warning: This action cannot be undone" className={styles.Icon} />
+          <AlertIcon aria-label="Warning: This action cannot be undone" />
         </Tooltip.Trigger>
       </div>
 
@@ -56,6 +56,8 @@ function AlertContent() {
 function InfoIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -63,6 +65,7 @@ function InfoIcon(props: React.ComponentProps<'svg'>) {
       strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
       <circle cx="12" cy="12" r="10" />
       <path d="M12 16v-4" />
@@ -74,6 +77,8 @@ function InfoIcon(props: React.ComponentProps<'svg'>) {
 function HelpIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -81,6 +86,7 @@ function HelpIcon(props: React.ComponentProps<'svg'>) {
       strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
       <circle cx="12" cy="12" r="10" vectorEffect="non-scaling-stroke" />
       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" vectorEffect="non-scaling-stroke" />
@@ -92,6 +98,8 @@ function HelpIcon(props: React.ComponentProps<'svg'>) {
 function AlertIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -99,6 +107,7 @@ function AlertIcon(props: React.ComponentProps<'svg'>) {
       strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
       <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
       <path d="M12 9v4" />

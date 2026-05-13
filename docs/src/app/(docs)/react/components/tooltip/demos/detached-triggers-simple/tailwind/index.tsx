@@ -18,7 +18,7 @@ export default function TooltipDetachedTriggersSimpleDemo() {
   return (
     <Tooltip.Provider>
       <Tooltip.Trigger className={triggerClass} handle={demoTooltip}>
-        <InfoIcon className="size-5" aria-label="This is a detached tooltip" />
+        <InfoIcon aria-label="This is a detached tooltip" />
       </Tooltip.Trigger>
 
       <Tooltip.Root handle={demoTooltip}>

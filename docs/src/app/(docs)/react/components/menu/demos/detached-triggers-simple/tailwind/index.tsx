@@ -46,6 +46,7 @@ function DotsIcon(props: React.ComponentProps<'svg'>) {
       stroke="currentColor"
       strokeWidth={1}
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
       <circle cx="5" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />
       <circle cx="12" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />

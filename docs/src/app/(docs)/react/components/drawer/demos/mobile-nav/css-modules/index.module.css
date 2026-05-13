@@ -264,11 +264,6 @@
   }
 }
 
-.CloseIcon {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
 .Title {
   margin: 0 0 0.25rem;
   font-size: 1rem;
@@ -285,10 +280,6 @@
   @media (prefers-color-scheme: dark) {
     color: var(--color-neutral-400);
   }
-}
-
-.ScrollArea {
-  padding-bottom: 2rem;
 }
 
 .List {

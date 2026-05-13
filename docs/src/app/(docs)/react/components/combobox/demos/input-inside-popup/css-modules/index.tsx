@@ -27,7 +27,7 @@ export default function ExamplePopoverCombobox() {
                 {(country: Country) => (
                   <Combobox.Item key={country.code} value={country} className={styles.Item}>
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                      <CheckIcon />
                     </Combobox.ItemIndicator>
                     <span className={styles.ItemText}>{country.label}</span>
                   </Combobox.Item>
@@ -43,7 +43,16 @@ export default function ExamplePopoverCombobox() {
 
 function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="m7 15 5 5 5-5" vectorEffect="non-scaling-stroke" />
       <path d="m7 9 5-5 5 5" vectorEffect="non-scaling-stroke" />
     </svg>
@@ -52,7 +61,16 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

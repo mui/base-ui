@@ -85,11 +85,6 @@
   @media (prefers-color-scheme: dark) {
     color: white;
   }
-
-  & svg {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
 }
 
 .InputContainer {
@@ -256,12 +251,6 @@
 
 .ItemIndicator {
   grid-column-start: 1;
-}
-
-.ItemIndicatorIcon {
-  display: block;
-  width: 0.75rem;
-  height: 0.75rem;
 }
 
 .Separator {

@@ -141,11 +141,6 @@
   }
 }
 
-.ChipRemoveIcon {
-  width: 0.75rem;
-  height: 0.75rem;
-}
-
 .Input {
   flex: 1;
   box-sizing: border-box;
@@ -285,12 +280,6 @@
   grid-column-start: 1;
 }
 
-.ItemIndicatorIcon {
-  display: block;
-  width: 0.75rem;
-  height: 0.75rem;
-}
-
 .Empty {
   box-sizing: border-box;
   font-size: 0.875rem;
@@ -321,11 +310,6 @@
   @media (prefers-color-scheme: dark) {
     color: white;
   }
-}
-
-.CreateIcon {
-  width: 0.75rem;
-  height: 0.75rem;
 }
 
 .CreateText {

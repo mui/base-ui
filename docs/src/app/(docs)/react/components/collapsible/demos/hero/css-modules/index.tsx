@@ -22,7 +22,14 @@ export default function ExampleCollapsible() {
 
 export function ChevronIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 10 10" fill="none" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 10 10"
+      fill="none"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M3.5 1L7.5 5L3.5 9" stroke="currentColor" strokeWidth="1" />
     </svg>
   );

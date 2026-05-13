@@ -7,13 +7,13 @@ export default function ExampleToggleGroup() {
   return (
     <ToggleGroup defaultValue={['left']} className={styles.Panel}>
       <Toggle aria-label="Align left" value="left" className={styles.Button}>
-        <AlignLeftIcon className={styles.Icon} />
+        <AlignLeftIcon />
       </Toggle>
       <Toggle aria-label="Align center" value="center" className={styles.Button}>
-        <AlignCenterIcon className={styles.Icon} />
+        <AlignCenterIcon />
       </Toggle>
       <Toggle aria-label="Align right" value="right" className={styles.Button}>
-        <AlignRightIcon className={styles.Icon} />
+        <AlignRightIcon />
       </Toggle>
     </ToggleGroup>
   );
@@ -21,7 +21,14 @@ export default function ExampleToggleGroup() {
 
 function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 16 16" stroke="currentColor" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M2.5 3.5H13.5" />
       <path d="M2.5 9.5H13.5" />
       <path d="M2.5 6.5H10.5" />
@@ -32,7 +39,14 @@ function AlignLeftIcon(props: React.ComponentProps<'svg'>) {
 
 function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 16 16" stroke="currentColor" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M3 3.5H14" />
       <path d="M3 9.5H14" />
       <path d="M4.5 6.5H12.5" />
@@ -43,7 +57,14 @@ function AlignCenterIcon(props: React.ComponentProps<'svg'>) {
 
 function AlignRightIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 16 16" stroke="currentColor" {...props}>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M2.5 3.5H13.5" />
       <path d="M2.5 9.5H13.5" />
       <path d="M5.5 6.5H13.5" />

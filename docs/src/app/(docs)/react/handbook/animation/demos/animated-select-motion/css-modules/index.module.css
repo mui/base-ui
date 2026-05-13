@@ -63,11 +63,6 @@
 
 .SelectIcon {
   display: flex;
-
-  & svg {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
 }
 
 .Value[data-placeholder] {
@@ -192,12 +187,6 @@
 
 .ItemIndicator {
   grid-column-start: 1;
-}
-
-.ItemIndicatorIcon {
-  display: block;
-  width: 0.75rem;
-  height: 0.75rem;
 }
 
 .ItemText {

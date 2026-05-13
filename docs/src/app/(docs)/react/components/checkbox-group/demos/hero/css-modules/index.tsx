@@ -19,7 +19,7 @@ export default function ExampleCheckboxGroup() {
       <label className={styles.Item}>
         <Checkbox.Root name="apple" value="fuji-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
-            <CheckIcon className={styles.Icon} />
+            <CheckIcon />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Fuji
@@ -28,7 +28,7 @@ export default function ExampleCheckboxGroup() {
       <label className={styles.Item}>
         <Checkbox.Root name="apple" value="gala-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
-            <CheckIcon className={styles.Icon} />
+            <CheckIcon />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Gala
@@ -37,7 +37,7 @@ export default function ExampleCheckboxGroup() {
       <label className={styles.Item}>
         <Checkbox.Root name="apple" value="granny-smith-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
-            <CheckIcon className={styles.Icon} />
+            <CheckIcon />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Granny Smith
@@ -48,7 +48,16 @@ export default function ExampleCheckboxGroup() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

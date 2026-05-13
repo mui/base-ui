@@ -24,13 +24,7 @@ export default function ExampleCheckboxGroup() {
           <Checkbox.Indicator
             className={styles.Indicator}
             render={(props, state) => (
-              <span {...props}>
-                {state.indeterminate ? (
-                  <HorizontalRuleIcon className={styles.Icon} />
-                ) : (
-                  <CheckIcon className={styles.Icon} />
-                )}
-              </span>
+              <span {...props}>{state.indeterminate ? <HorizontalRuleIcon /> : <CheckIcon />}</span>
             )}
           />
         </Checkbox.Root>
@@ -40,7 +34,7 @@ export default function ExampleCheckboxGroup() {
       <label className={styles.Item}>
         <Checkbox.Root value="fuji-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
-            <CheckIcon className={styles.Icon} />
+            <CheckIcon />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Fuji
@@ -49,7 +43,7 @@ export default function ExampleCheckboxGroup() {
       <label className={styles.Item}>
         <Checkbox.Root value="gala-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
-            <CheckIcon className={styles.Icon} />
+            <CheckIcon />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Gala
@@ -58,7 +52,7 @@ export default function ExampleCheckboxGroup() {
       <label className={styles.Item}>
         <Checkbox.Root value="granny-smith-apple" className={styles.Checkbox}>
           <Checkbox.Indicator className={styles.Indicator}>
-            <CheckIcon className={styles.Icon} />
+            <CheckIcon />
           </Checkbox.Indicator>
         </Checkbox.Root>
         Granny Smith
@@ -69,7 +63,16 @@ export default function ExampleCheckboxGroup() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -77,7 +80,15 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 function HorizontalRuleIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" strokeWidth={1} {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      strokeWidth={1}
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <line
         x1="3"
         y1="12"

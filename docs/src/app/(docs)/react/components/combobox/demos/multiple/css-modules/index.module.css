@@ -154,11 +154,6 @@
   }
 }
 
-.ChipRemoveIcon {
-  width: 0.75rem;
-  height: 0.75rem;
-}
-
 .Input {
   flex: 1;
   box-sizing: border-box;
@@ -296,12 +291,6 @@
 
 .ItemIndicator {
   grid-column-start: 1;
-}
-
-.ItemIndicatorIcon {
-  display: block;
-  width: 0.75rem;
-  height: 0.75rem;
 }
 
 .ItemName {

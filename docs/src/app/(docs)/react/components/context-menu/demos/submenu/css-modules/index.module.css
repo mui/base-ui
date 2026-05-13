@@ -185,11 +185,6 @@
   justify-content: space-between;
   gap: 1rem;
   padding-right: 1rem;
-
-  & svg {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
 }
 
 .Separator {

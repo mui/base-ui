@@ -11,7 +11,7 @@ export default function ExampleMenu() {
   return (
     <Menu.Root>
       <Menu.Trigger className={styles.Button}>
-        Workspace <ChevronDownIcon className={styles.ButtonIcon} />
+        Workspace <ChevronDownIcon />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner className={styles.Positioner} sideOffset={8}>
@@ -22,7 +22,7 @@ export default function ExampleMenu() {
               className={styles.CheckboxItem}
             >
               <Menu.CheckboxItemIndicator className={styles.CheckboxItemIndicator}>
-                <CheckboxCheckIcon className={styles.CheckboxItemIndicatorIcon} />
+                <CheckboxCheckIcon />
               </Menu.CheckboxItemIndicator>
               <span className={styles.CheckboxItemText}>Minimap</span>
             </Menu.CheckboxItem>
@@ -32,7 +32,7 @@ export default function ExampleMenu() {
               className={styles.CheckboxItem}
             >
               <Menu.CheckboxItemIndicator className={styles.CheckboxItemIndicator}>
-                <CheckboxCheckIcon className={styles.CheckboxItemIndicatorIcon} />
+                <CheckboxCheckIcon />
               </Menu.CheckboxItemIndicator>
               <span className={styles.CheckboxItemText}>Search</span>
             </Menu.CheckboxItem>
@@ -42,7 +42,7 @@ export default function ExampleMenu() {
               className={styles.CheckboxItem}
             >
               <Menu.CheckboxItemIndicator className={styles.CheckboxItemIndicator}>
-                <CheckboxCheckIcon className={styles.CheckboxItemIndicatorIcon} />
+                <CheckboxCheckIcon />
               </Menu.CheckboxItemIndicator>
               <span className={styles.CheckboxItemText}>Sidebar</span>
             </Menu.CheckboxItem>
@@ -55,7 +55,15 @@ export default function ExampleMenu() {
 
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 10 10" fill="none" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 10 10"
+      fill="none"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -63,7 +71,16 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckboxCheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

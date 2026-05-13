@@ -5,7 +5,7 @@
   justify-content: center;
   gap: 0.375rem;
   height: 2rem;
-  padding: 0 0.75rem;
+  padding: 0 0.5rem 0 0.75rem;
   margin: 0;
   outline: 0;
   border: 1px solid var(--color-neutral-950);
@@ -69,12 +69,6 @@
       outline-color: white;
     }
   }
-}
-
-.ButtonIcon {
-  width: 0.75rem;
-  height: 0.75rem;
-  margin-right: -0.25rem;
 }
 
 .Positioner {
@@ -184,11 +178,6 @@
   justify-content: space-between;
   gap: 1rem;
   padding-right: 1rem;
-
-  & svg {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
 }
 
 .Separator {

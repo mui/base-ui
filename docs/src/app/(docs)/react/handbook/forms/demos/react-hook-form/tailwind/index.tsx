@@ -101,7 +101,7 @@ function ReactHookForm() {
                   <div className="absolute right-0 bottom-0 inline-flex h-full items-center justify-center text-neutral-500 dark:text-neutral-400">
                     <Combobox.Clear />
                     <Combobox.Trigger>
-                      <Combobox.ChevronDownIcon className="size-3" />
+                      <Combobox.ChevronDownIcon />
                     </Combobox.Trigger>
                   </div>
                 </Combobox.InputGroup>
@@ -115,7 +115,7 @@ function ReactHookForm() {
                         return (
                           <Combobox.Item key={region} value={region}>
                             <Combobox.ItemIndicator>
-                              <CheckIcon className="size-3" />
+                              <CheckIcon />
                             </Combobox.ItemIndicator>
                             <span className="col-start-2">{region}</span>
                           </Combobox.Item>
@@ -197,7 +197,7 @@ function ReactHookForm() {
                 <Select.Trigger className="w-48" onBlur={onBlur}>
                   <Select.Value />
                   <Select.Icon>
-                    <ChevronUpDownIcon className="size-3" />
+                    <ChevronUpDownIcon />
                   </Select.Icon>
                 </Select.Trigger>
               </div>
@@ -210,7 +210,7 @@ function ReactHookForm() {
                         return (
                           <Select.Item key={serverType} value={serverType}>
                             <Select.ItemIndicator>
-                              <CheckIcon className="size-3" />
+                              <CheckIcon />
                             </Select.ItemIndicator>
                             <Select.ItemText>{label}</Select.ItemText>
                           </Select.Item>
@@ -242,11 +242,11 @@ function ReactHookForm() {
               <Field.Label>Number of instances</Field.Label>
               <NumberField.Group>
                 <NumberField.Decrement>
-                  <MinusIcon className="size-3" />
+                  <MinusIcon />
                 </NumberField.Decrement>
                 <NumberField.Input ref={ref} onBlur={onBlur} />
                 <NumberField.Increment>
-                  <PlusIcon className="size-3" />
+                  <PlusIcon />
                 </NumberField.Increment>
               </NumberField.Group>
             </NumberField.Root>
@@ -385,7 +385,7 @@ function ReactHookForm() {
                           onBlur={onBlur}
                         >
                           <Checkbox.Indicator>
-                            <CheckIcon className="size-3" />
+                            <CheckIcon />
                           </Checkbox.Indicator>
                         </Checkbox.Root>
                         {val}
@@ -416,7 +416,16 @@ export default function App() {
 
 function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="m7 15 5 5 5-5" vectorEffect="non-scaling-stroke" />
       <path d="m7 9 5-5 5 5" vectorEffect="non-scaling-stroke" />
     </svg>
@@ -425,7 +434,16 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
     </svg>
   );
@@ -433,7 +451,16 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 function PlusIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 12 12" fill="none" stroke="currentcolor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M6 0.5V11.5" vectorEffect="non-scaling-stroke" />
       <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
     </svg>
@@ -442,7 +469,16 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
 
 function MinusIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 12 12" fill="none" stroke="currentcolor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
     </svg>
   );

@@ -9,7 +9,7 @@ export default function MenuDetachedTriggersSimpleDemo() {
   return (
     <React.Fragment>
       <Menu.Trigger className={styles.IconButton} handle={demoMenu} aria-label="Project actions">
-        <DotsIcon className={styles.Icon} />
+        <DotsIcon />
       </Menu.Trigger>
 
       <Menu.Root handle={demoMenu}>
@@ -32,7 +32,16 @@ export default function MenuDetachedTriggersSimpleDemo() {
 
 function DotsIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1} {...props}>
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1}
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <circle cx="5" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />
       <circle cx="12" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />
       <circle cx="19" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />

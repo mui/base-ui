@@ -165,11 +165,6 @@
       background-color: white;
     }
   }
-
-  & svg {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
 }
 
 .MenuSeparator {

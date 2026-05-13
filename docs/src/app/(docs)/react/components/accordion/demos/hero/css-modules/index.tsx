@@ -9,7 +9,7 @@ export default function ExampleAccordion() {
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
             What is Base UI?
-            <PlusIcon className={styles.TriggerIcon} />
+            <PlusIcon className={styles.Icon} />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className={styles.Panel}>
@@ -24,7 +24,7 @@ export default function ExampleAccordion() {
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
             How do I get started?
-            <PlusIcon className={styles.TriggerIcon} />
+            <PlusIcon className={styles.Icon} />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className={styles.Panel}>
@@ -39,7 +39,7 @@ export default function ExampleAccordion() {
         <Accordion.Header className={styles.Header}>
           <Accordion.Trigger className={styles.Trigger}>
             Can I use it for my project?
-            <PlusIcon className={styles.TriggerIcon} />
+            <PlusIcon className={styles.Icon} />
           </Accordion.Trigger>
         </Accordion.Header>
         <Accordion.Panel className={styles.Panel}>
@@ -52,7 +52,16 @@ export default function ExampleAccordion() {
 
 function PlusIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg viewBox="0 0 12 12" fill="none" stroke="currentcolor" strokeWidth="1" {...props}>
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
       <path d="M6 0.5V11.5" vectorEffect="non-scaling-stroke" />
       <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
     </svg>
