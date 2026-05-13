@@ -261,6 +261,27 @@ describe('<OTPFieldPreview />', () => {
 
         expect(getValues()).toBe('AB12CD');
       });
+
+      it('composes built-in validation and custom sanitization from a non-first slot', async () => {
+        await render(
+          <OTPField
+            defaultValue="12"
+            validationType="alphanumeric"
+            sanitizeValue={(value) => value.toUpperCase()}
+          />,
+        );
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        await act(async () => {
+          inputs[2].focus();
+        });
+
+        fireEvent.change(inputs[2], { target: { value: 'a!' } });
+
+        expect(getValues()).toBe('12A');
+        expect(inputs[3]).toHaveFocus();
+      });
     });
 
     describe('prop: onValueChange', () => {
@@ -344,6 +365,26 @@ describe('<OTPFieldPreview />', () => {
         expect(getValues()).toBe('120');
         expect(onValueInvalid).toHaveBeenCalledTimes(1);
         expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1209');
+        expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      });
+
+      it('fires when built-in validation removes characters before custom sanitization expands the value', async () => {
+        const onValueInvalid = vi.fn();
+
+        await render(
+          <OTPField
+            validationType="numeric"
+            sanitizeValue={(value) => (value === '1' ? '12' : value)}
+            onValueInvalid={onValueInvalid}
+          />,
+        );
+
+        const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
+        fireEvent.change(firstInput, { target: { value: '1a' } });
+
+        expect(getValues()).toBe('12');
+        expect(onValueInvalid).toHaveBeenCalledTimes(1);
+        expect(onValueInvalid.mock.calls[0]?.[0]).toBe('1a');
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
 
@@ -975,6 +1016,43 @@ describe('<OTPFieldPreview />', () => {
       expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       expect(onValueComplete.mock.calls.length).toBe(1);
       expect(onValueComplete.mock.calls[0]?.[0]).toBe('123456');
+      expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+    });
+
+    it('composes validation and custom sanitization during hidden input autofill', async () => {
+      const onValueChange = vi.fn();
+      const onValueInvalid = vi.fn();
+      const onValueComplete = vi.fn();
+
+      await render(
+        <OTPField
+          name="otp"
+          validationType="alphanumeric"
+          sanitizeValue={(value) => value.toUpperCase()}
+          onValueChange={onValueChange}
+          onValueInvalid={onValueInvalid}
+          onValueComplete={onValueComplete}
+        />,
+      );
+
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+      expect(hiddenInput).not.toBeNull();
+
+      fireEvent.change(hiddenInput!, { target: { value: 'ab-12 cd!' } });
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      expect(inputs.map((input) => input.value)).toEqual(['A', 'B', '1', '2', 'C', 'D']);
+      expect(document.activeElement).toBe(inputs[5]);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0]?.[0]).toBe('AB12CD');
+      expect(onValueChange.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      expect(onValueInvalid).toHaveBeenCalledTimes(1);
+      expect(onValueInvalid.mock.calls[0]?.[0]).toBe('ab-12 cd!');
+      expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
+      expect(onValueComplete.mock.calls.length).toBe(1);
+      expect(onValueComplete.mock.calls[0]?.[0]).toBe('AB12CD');
       expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
     });
 

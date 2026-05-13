@@ -32,7 +32,7 @@ import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {
   getOTPValidationConfig,
   normalizeOTPValue,
-  stripOTPWhitespace,
+  normalizeOTPValueWithDetails,
   type OTPValidationType,
 } from '../utils/otp';
 
@@ -410,14 +410,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
                 }
 
                 const rawValue = event.currentTarget.value;
-                const normalizedValue = normalizeOTPValue(
+                const [normalizedValue, didSanitize] = normalizeOTPValueWithDetails(
                   rawValue,
                   length,
                   validationType,
                   sanitizeValue,
                 );
 
-                if (stripOTPWhitespace(rawValue).length > normalizedValue.length) {
+                if (didSanitize) {
                   reportValueInvalid(
                     rawValue,
                     createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -520,8 +520,8 @@ export interface OTPFieldRootProps extends Omit<
    *
    * The returned value is filtered by `validationType` again, then clamped to `length`.
    * It should be idempotent because the component may normalize controlled values on every render
-   * and normalize again for each user edit. Characters removed from user-entered text are reported
-   * through `onValueInvalid`.
+   * and normalize again for each user edit. Characters rejected while normalizing typed or pasted
+   * text are reported through `onValueInvalid`.
    */
   sanitizeValue?: ((value: string) => string) | undefined;
   /**

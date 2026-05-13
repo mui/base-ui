@@ -17,12 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import { useOTPFieldRootContext, getOTPFieldInputState } from '../root/OTPFieldRootContext';
 import type { OTPFieldRootState } from '../root/OTPFieldRoot';
 import { inputStateAttributesMapping } from '../utils/stateAttributesMapping';
-import {
-  normalizeOTPValue,
-  removeOTPCharacter,
-  replaceOTPValue,
-  stripOTPWhitespace,
-} from '../utils/otp';
+import { normalizeOTPValueWithDetails, removeOTPCharacter, replaceOTPValue } from '../utils/otp';
 
 /**
  * An individual OTP character input.
@@ -143,8 +138,12 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       const rawValue = event.currentTarget.value;
-      const nextDigits = normalizeOTPValue(rawValue, length, validationType, sanitizeValue);
-      const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
+      const [nextDigits, didSanitize] = normalizeOTPValueWithDetails(
+        rawValue,
+        length,
+        validationType,
+        sanitizeValue,
+      );
 
       if (didSanitize) {
         reportValueInvalid(
@@ -286,8 +285,12 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       event.preventDefault();
 
-      const nextDigits = normalizeOTPValue(rawValue, length, validationType, sanitizeValue);
-      const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
+      const [nextDigits, didSanitize] = normalizeOTPValueWithDetails(
+        rawValue,
+        length,
+        validationType,
+        sanitizeValue,
+      );
 
       if (didSanitize) {
         reportValueInvalid(

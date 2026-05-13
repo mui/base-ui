@@ -109,7 +109,7 @@ import { DemoOTPFieldFocusedPlaceholder } from './demos/focused-placeholder';
 ### Custom sanitization
 
 Use `sanitizeValue` to normalize accepted values before state updates, such as converting
-alphanumeric codes to uppercase. It runs after `validationType` filtering, and the result is checked
+alphanumeric codes to uppercase. It runs after `validationType` filtering, and the result is filtered
 against `validationType` again. Use `validationType="none"` when the sanitizer should provide the
 full validation rule.
 

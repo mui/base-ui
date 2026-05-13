@@ -48,22 +48,41 @@ function applyOTPValidation(value: string, validation: OTPValidationConfig | nul
  * Normalizes user-entered OTP text by stripping whitespace, applying validation and custom
  * sanitization, and clamping the final value to the configured slot count.
  */
+export function normalizeOTPValueWithDetails(
+  value: string | null | undefined,
+  length: number,
+  validationType: OTPValidationType,
+  sanitizeValue?: ((value: string) => string) | undefined,
+): readonly [value: string, didSanitize: boolean] {
+  const strippedValue = stripOTPWhitespace(value);
+  const validation = getOTPValidationConfig(validationType);
+  let sanitizedValue = applyOTPValidation(strippedValue, validation);
+  let didSanitize = strippedValue.length > sanitizedValue.length;
+
+  if (sanitizeValue) {
+    const customSanitizedValue = sanitizeValue(sanitizedValue);
+    didSanitize ||= sanitizedValue.length > customSanitizedValue.length;
+    sanitizedValue = applyOTPValidation(customSanitizedValue, validation);
+    didSanitize ||= customSanitizedValue.length > sanitizedValue.length;
+  }
+
+  // Slice by Unicode code points so multi-byte characters do not split across OTP slots.
+  const maxLength = length < 0 ? 0 : length;
+  const sanitizedCharacters = Array.from(sanitizedValue);
+
+  return [
+    sanitizedCharacters.slice(0, maxLength).join(''),
+    didSanitize || sanitizedCharacters.length > maxLength,
+  ];
+}
+
 export function normalizeOTPValue(
   value: string | null | undefined,
   length: number,
   validationType: OTPValidationType,
   sanitizeValue?: ((value: string) => string) | undefined,
 ) {
-  let sanitizedValue = stripOTPWhitespace(value);
-  const validation = getOTPValidationConfig(validationType);
-  sanitizedValue = applyOTPValidation(sanitizedValue, validation);
-
-  if (sanitizeValue) {
-    sanitizedValue = applyOTPValidation(sanitizeValue(sanitizedValue), validation);
-  }
-
-  // Slice by Unicode code points so multi-byte characters do not split across OTP slots.
-  return Array.from(sanitizedValue).slice(0, Math.max(length, 0)).join('');
+  return normalizeOTPValueWithDetails(value, length, validationType, sanitizeValue)[0];
 }
 
 /**
