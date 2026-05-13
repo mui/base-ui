@@ -3,7 +3,7 @@
   "description": "Performance benchmark workspace for Base UI",
   "scripts": {
     "benchmark": "vitest run",
-    "debug": "vitest --ui --browser.headless=false"
+    "debug": "vitest --browser.headless=false"
   },
   "dependencies": {
     "@base-ui/react": "workspace:*",
