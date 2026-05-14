@@ -26,7 +26,9 @@ export default function ObjectValueSelect() {
         <Select.Portal>
           <Select.Positioner className={styles.Positioner} sideOffset={8}>
             <Select.Popup className={styles.Popup}>
-              <Select.ScrollUpArrow className={styles.ScrollArrow}>⏶</Select.ScrollUpArrow>
+              <Select.ScrollUpArrow className={styles.ScrollArrow}>
+                <CaretUpIcon />
+              </Select.ScrollUpArrow>
               <Select.List className={styles.List}>
                 {shippingMethods.map((method) => (
                   <Select.Item key={method.id} value={method} className={styles.Item}>
@@ -42,7 +44,9 @@ export default function ObjectValueSelect() {
                   </Select.Item>
                 ))}
               </Select.List>
-              <Select.ScrollDownArrow className={styles.ScrollArrow}>⏷</Select.ScrollDownArrow>
+              <Select.ScrollDownArrow className={styles.ScrollArrow}>
+                <CaretDownIcon />
+              </Select.ScrollDownArrow>
             </Select.Popup>
           </Select.Positioner>
         </Select.Portal>
@@ -111,3 +115,33 @@ const shippingMethods: ShippingMethod[] = [
     price: '$19.99',
   },
 ];
+
+function CaretUpIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="M12 10H4l4-4.5z" />
+    </svg>
+  );
+}
+
+function CaretDownIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="M12 6H4l4 4.5z" />
+    </svg>
+  );
+}

@@ -24,7 +24,9 @@ export default function ExampleSelect() {
         <Select.Portal>
           <Select.Positioner className={styles.Positioner} sideOffset={8}>
             <Select.Popup className={styles.Popup}>
-              <Select.ScrollUpArrow className={styles.ScrollArrow}>⏶</Select.ScrollUpArrow>
+              <Select.ScrollUpArrow className={styles.ScrollArrow}>
+                <CaretUpIcon />
+              </Select.ScrollUpArrow>
               <Select.List className={styles.List}>
                 {apples.map(({ label, value }) => (
                   <Select.Item key={label} value={value} className={styles.Item}>
@@ -35,7 +37,9 @@ export default function ExampleSelect() {
                   </Select.Item>
                 ))}
               </Select.List>
-              <Select.ScrollDownArrow className={styles.ScrollArrow}>⏷</Select.ScrollDownArrow>
+              <Select.ScrollDownArrow className={styles.ScrollArrow}>
+                <CaretDownIcon />
+              </Select.ScrollDownArrow>
             </Select.Popup>
           </Select.Positioner>
         </Select.Portal>
@@ -73,6 +77,36 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
       style={{ display: 'block', ...props.style }}
     >
       <path d="m3 9 3.5 3.5 6.5-9" />
+    </svg>
+  );
+}
+
+function CaretUpIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="M12 10H4l4-4.5z" />
+    </svg>
+  );
+}
+
+function CaretDownIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }
