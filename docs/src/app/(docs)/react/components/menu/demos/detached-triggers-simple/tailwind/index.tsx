@@ -16,7 +16,7 @@ export default function MenuDetachedTriggersSimpleDemo() {
         aria-label="Project actions"
         className="flex size-8 items-center justify-center rounded-none border border-neutral-950 bg-white text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-popup-open:bg-neutral-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:data-popup-open:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
       >
-        <DotsIcon />
+        <EllipsisHorizontalIcon />
       </Menu.Trigger>
 
       <Menu.Root handle={demoMenu}>
@@ -36,21 +36,19 @@ export default function MenuDetachedTriggersSimpleDemo() {
     </React.Fragment>
   );
 }
-function DotsIcon(props: React.ComponentProps<'svg'>) {
+function EllipsisHorizontalIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1}
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <circle cx="5" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />
-      <circle cx="12" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />
-      <circle cx="19" cy="12" r="1" fill="currentColor" vectorEffect="non-scaling-stroke" />
+      <circle cx="3" cy="8" r="1" />
+      <circle cx="8" cy="8" r="1" />
+      <circle cx="13" cy="8" r="1" />
     </svg>
   );
 }
