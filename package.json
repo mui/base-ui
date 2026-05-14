@@ -5,6 +5,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "deduplicate": "pnpm dedupe",
+    "dedupe-harder": "tsx ./scripts/dedupeHarder.mts",
     "build": "lerna run --no-private build",
     "release:version": "lerna version --no-changelog --no-push --no-git-tag-version --no-private",
     "release:build": "lerna run --concurrency 8 --no-private build --skip-nx-cache",
