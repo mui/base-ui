@@ -26,19 +26,19 @@ export default function ExampleMenu() {
               <Menu.RadioGroup value={value} onValueChange={setValue}>
                 <Menu.RadioItem value="date" className={itemClass}>
                   <Menu.RadioItemIndicator className="col-start-1">
-                    <CheckboxCheckIcon />
+                    <CheckIcon />
                   </Menu.RadioItemIndicator>
                   <span className="col-start-2">Date</span>
                 </Menu.RadioItem>
                 <Menu.RadioItem value="name" className={itemClass}>
                   <Menu.RadioItemIndicator className="col-start-1">
-                    <CheckboxCheckIcon />
+                    <CheckIcon />
                   </Menu.RadioItemIndicator>
                   <span className="col-start-2">Name</span>
                 </Menu.RadioItem>
                 <Menu.RadioItem value="type" className={itemClass}>
                   <Menu.RadioItemIndicator className="col-start-1">
-                    <CheckboxCheckIcon />
+                    <CheckIcon />
                   </Menu.RadioItemIndicator>
                   <span className="col-start-2">Type</span>
                 </Menu.RadioItem>
@@ -57,7 +57,7 @@ export default function ExampleMenu() {
                 className={itemClass}
               >
                 <Menu.CheckboxItemIndicator className="col-start-1">
-                  <CheckboxCheckIcon />
+                  <CheckIcon />
                 </Menu.CheckboxItemIndicator>
                 <span className="col-start-2">Minimap</span>
               </Menu.CheckboxItem>
@@ -67,7 +67,7 @@ export default function ExampleMenu() {
                 className={itemClass}
               >
                 <Menu.CheckboxItemIndicator className="col-start-1">
-                  <CheckboxCheckIcon />
+                  <CheckIcon />
                 </Menu.CheckboxItemIndicator>
                 <span className="col-start-2">Search</span>
               </Menu.CheckboxItem>
@@ -77,7 +77,7 @@ export default function ExampleMenu() {
                 className={itemClass}
               >
                 <Menu.CheckboxItemIndicator className="col-start-1">
-                  <CheckboxCheckIcon />
+                  <CheckIcon />
                 </Menu.CheckboxItemIndicator>
                 <span className="col-start-2">Sidebar</span>
               </Menu.CheckboxItem>
@@ -104,19 +104,20 @@ function CaretDownIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-function CheckboxCheckIcon(props: React.ComponentProps<'svg'>) {
+function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1"
+      strokeLinecap="square"
+      strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
+      <path d="m3 9 3.5 3.5 6.5-9" />
     </svg>
   );
 }

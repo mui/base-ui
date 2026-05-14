@@ -22,7 +22,7 @@ export default function ExampleMenu() {
               className={styles.CheckboxItem}
             >
               <Menu.CheckboxItemIndicator className={styles.CheckboxItemIndicator}>
-                <CheckboxCheckIcon />
+                <CheckIcon />
               </Menu.CheckboxItemIndicator>
               <span className={styles.CheckboxItemText}>Minimap</span>
             </Menu.CheckboxItem>
@@ -32,7 +32,7 @@ export default function ExampleMenu() {
               className={styles.CheckboxItem}
             >
               <Menu.CheckboxItemIndicator className={styles.CheckboxItemIndicator}>
-                <CheckboxCheckIcon />
+                <CheckIcon />
               </Menu.CheckboxItemIndicator>
               <span className={styles.CheckboxItemText}>Search</span>
             </Menu.CheckboxItem>
@@ -42,7 +42,7 @@ export default function ExampleMenu() {
               className={styles.CheckboxItem}
             >
               <Menu.CheckboxItemIndicator className={styles.CheckboxItemIndicator}>
-                <CheckboxCheckIcon />
+                <CheckIcon />
               </Menu.CheckboxItemIndicator>
               <span className={styles.CheckboxItemText}>Sidebar</span>
             </Menu.CheckboxItem>
@@ -68,19 +68,20 @@ function CaretDownIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-function CheckboxCheckIcon(props: React.ComponentProps<'svg'>) {
+function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1"
+      strokeLinecap="square"
+      strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M20 6 9 17l-5-5" vectorEffect="non-scaling-stroke" />
+      <path d="m3 9 3.5 3.5 6.5-9" />
     </svg>
   );
 }
