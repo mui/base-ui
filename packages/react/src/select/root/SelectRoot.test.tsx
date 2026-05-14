@@ -1589,6 +1589,57 @@ describe('<Select.Root />', () => {
       await waitFor(() => expect(screen.getByTestId('selected-value')).toHaveTextContent('two'));
       await waitFor(() => expect(screen.queryByTestId('popover-popup')).not.toBe(null));
     });
+
+    it('does not consume the next outside press after dragging from a modal select trigger to the backdrop', async () => {
+      ignoreActWarnings();
+
+      const { user } = await render(
+        <div>
+          <button data-testid="outside">Outside</button>
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Open popover</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover-popup">
+                  <Select.Root>
+                    <Select.Trigger data-testid="select-trigger">
+                      <Select.Value placeholder="Pick one" />
+                    </Select.Trigger>
+                    <Select.Portal>
+                      <Select.Backdrop data-testid="select-backdrop" />
+                      <Select.Positioner alignItemWithTrigger>
+                        <Select.Popup />
+                      </Select.Positioner>
+                    </Select.Portal>
+                  </Select.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const selectTrigger = screen.getByTestId('select-trigger');
+
+      await user.pointer({ keys: '[MouseLeft>]', target: selectTrigger });
+      await screen.findByRole('listbox');
+
+      const selectBackdrop = screen.getByTestId('select-backdrop');
+
+      await user.pointer({ target: selectBackdrop });
+      await user.pointer({ keys: '[/MouseLeft]', target: selectBackdrop });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      expect(screen.queryByTestId('popover-popup')).not.toBe(null);
+
+      await user.click(screen.getByTestId('outside'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+      });
+    });
   });
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {

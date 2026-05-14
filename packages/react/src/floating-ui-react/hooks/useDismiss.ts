@@ -157,7 +157,7 @@ export function useDismiss(
 
   const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
 
-  const pressStartedInsideRef = React.useRef(false);
+  const pressStartedInsideRef = React.useRef<Element | null>(null);
   const pressStartPreventedRef = React.useRef(false);
   // Ignore only the very next outside click after dragging from inside to outside.
   const suppressNextOutsideClickRef = React.useRef(false);
@@ -263,7 +263,7 @@ export function useDismiss(
       }
 
       if (!pressStartedInsideRef.current) {
-        pressStartedInsideRef.current = true;
+        pressStartedInsideRef.current = target;
         pressStartPreventedRef.current = false;
       }
     },
@@ -325,7 +325,7 @@ export function useDismiss(
     }
 
     function resetPressStartState() {
-      pressStartedInsideRef.current = false;
+      pressStartedInsideRef.current = null;
       pressStartPreventedRef.current = false;
     }
 
@@ -570,7 +570,8 @@ export function useDismiss(
     }
 
     function handlePressEndCapture(event: PointerEvent | MouseEvent) {
-      if (!pressStartedInsideRef.current) {
+      const pressStartTarget = pressStartedInsideRef.current;
+      if (!pressStartTarget) {
         return;
       }
 
@@ -589,6 +590,16 @@ export function useDismiss(
       }
 
       if (isEventWithinFloatingTree(event)) {
+        return;
+      }
+
+      // Don't treat a nested trigger press as a parent drag-out unless it ends inside the popup.
+      const pressEndTarget = getTarget(event);
+      if (
+        pressStartTarget.closest('[data-popup-open]') &&
+        (!isElement(pressEndTarget) ||
+          !pressEndTarget.closest('[data-base-ui-focusable][data-open]'))
+      ) {
         return;
       }
 
