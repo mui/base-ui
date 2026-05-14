@@ -78,7 +78,7 @@ export default function ExampleToolbar() {
       </Select.Root>
       <Toolbar.Separator className="m-1 h-4 w-px bg-neutral-950 dark:bg-white" />
       <Toolbar.Link
-        className="mr-[0.875rem] ml-auto flex-none self-center font-[inherit] text-sm text-neutral-500 no-underline hover:text-blue-700 dark:text-neutral-400 dark:hover:text-blue-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+        className="mr-[0.875rem] ml-auto flex-none self-center font-[inherit] text-sm text-neutral-500 no-underline hover:text-blue-700 dark:text-neutral-400 dark:hover:text-blue-500 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
         href="#"
       >
         Edited 51m ago
