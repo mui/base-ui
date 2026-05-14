@@ -1,11 +1,18 @@
-export function CheckIcon() {
+import * as React from 'react';
+
+export function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-      <path
-        d="M0.833008 4.64229L3.8336 8.12297L9.53471 1.50968"
-        stroke="currentColor"
-        strokeWidth="1.25"
-      />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="m3 9 3.5 3.5 6.5-9" />
     </svg>
   );
 }

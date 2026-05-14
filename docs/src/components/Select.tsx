@@ -1,7 +1,7 @@
 import { Select } from '@base-ui/react/select';
 import clsx from 'clsx';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';
-import { ThickCheckIcon } from '../icons/ThickCheckIcon';
+import { CheckIcon } from '../icons/CheckIcon';
 import './Select.css';
 
 export const Root = Select.Root;
@@ -33,7 +33,7 @@ export function Popup({ children, className, ...props }: Select.Positioner.Props
 export function Item({ children, className, ...props }: Select.Item.Props) {
   return (
     <Select.Item className={clsx('SelectItem', className)} {...props}>
-      <Select.ItemIndicator className="SelectItemIndicator" render={<ThickCheckIcon />} />
+      <Select.ItemIndicator className="SelectItemIndicator" render={<CheckIcon />} />
       <Select.ItemText className="SelectItemText">{children}</Select.ItemText>
     </Select.Item>
   );
