@@ -13,7 +13,7 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "docs": "workspace:^",
-    "es-toolkit": "1.46.0",
+    "es-toolkit": "1.46.1",
     "is-wsl": "3.1.1",
     "react": "19.2.5",
     "react-dom": "19.2.5",

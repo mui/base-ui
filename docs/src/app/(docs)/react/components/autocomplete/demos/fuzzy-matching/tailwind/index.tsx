@@ -171,7 +171,7 @@ const fuzzyItems: FuzzyItem[] = [
   },
   {
     title: 'Webpack Configuration',
-    description: 'Optimizing Webpack configuration for production builds',
+    description: 'Optimizing webpack configuration for production builds',
     category: 'Build Tools',
   },
   {

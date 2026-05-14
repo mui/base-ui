@@ -4597,6 +4597,60 @@ describe('<Combobox.Root />', () => {
 
   describe('dialog pattern', () => {
     const fruits = ['Apple', 'Apricot', 'Banana', 'Grape', 'Orange'];
+    const asyncFruits = ['apple', 'banana', 'cherry'];
+
+    function AsyncDialogCombobox() {
+      const [loading, setLoading] = React.useState(true);
+      const [value, setValue] = React.useState<string | null>(null);
+
+      React.useEffect(() => {
+        const timeout = setTimeout(() => setLoading(false), 0);
+        return () => clearTimeout(timeout);
+      }, []);
+
+      return (
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Backdrop />
+            <Dialog.Popup>
+              <form>
+                <label htmlFor="name">Name</label>
+                <input id="name" disabled={loading} />
+
+                <label htmlFor="fruit">Fruit</label>
+                <Combobox.Root
+                  items={asyncFruits}
+                  value={value}
+                  onValueChange={setValue}
+                  disabled={loading}
+                >
+                  <Combobox.Input id="fruit" placeholder="Select fruit..." />
+                  <Combobox.Trigger aria-label="Open" />
+                  <Combobox.Portal>
+                    <Combobox.Positioner>
+                      <Combobox.Popup>
+                        <Combobox.List>
+                          {(item: string) => (
+                            <Combobox.Item key={item} value={item}>
+                              {item}
+                            </Combobox.Item>
+                          )}
+                        </Combobox.List>
+                      </Combobox.Popup>
+                    </Combobox.Positioner>
+                  </Combobox.Portal>
+                </Combobox.Root>
+
+                <button type="button">Cancel</button>
+                <button type="submit" disabled={loading}>
+                  Save
+                </button>
+              </form>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
 
     function DialogMultipleCombobox({ defaultOpen = true }: { defaultOpen?: boolean }) {
       const [open, setOpen] = React.useState(defaultOpen);
@@ -4659,6 +4713,46 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>
       );
     }
+
+    it('does not let pending dialog initial focus steal focus from an async-enabled combobox', async () => {
+      // Keep the dialog's initial-focus rAF pending until after the combobox click.
+      // The GitHub repro depends on this timing; otherwise the rAF can fire before the click.
+      const frameCallbacks = new Map<number, FrameRequestCallback>();
+      let frameId = 0;
+      const requestAnimationFrameSpy = vi
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation((callback) => {
+          frameId += 1;
+          frameCallbacks.set(frameId, callback);
+          return frameId;
+        });
+      const cancelAnimationFrameSpy = vi
+        .spyOn(window, 'cancelAnimationFrame')
+        .mockImplementation((id) => {
+          frameCallbacks.delete(id);
+        });
+
+      try {
+        const { user } = await render(<AsyncDialogCombobox />);
+
+        await waitFor(() => expect(screen.getByLabelText('Fruit')).toBeEnabled());
+        await user.click(screen.getByLabelText('Fruit'));
+
+        expect(await screen.findByRole('listbox')).toBeVisible();
+
+        act(() => {
+          const callbacks = Array.from(frameCallbacks.values());
+          frameCallbacks.clear();
+          callbacks.forEach((callback) => callback(performance.now()));
+        });
+
+        expect(screen.getByLabelText('Fruit')).toHaveFocus();
+        expect(screen.getByRole('listbox')).toBeVisible();
+      } finally {
+        requestAnimationFrameSpy.mockRestore();
+        cancelAnimationFrameSpy.mockRestore();
+      }
+    });
 
     describe('multiple', () => {
       it('clears input after filtering, removes filter and highlight', async () => {

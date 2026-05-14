@@ -900,6 +900,64 @@ describe('<OTPFieldPreview />', () => {
       expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
     });
 
+    it('ignores hidden-input autofill when the field is readonly', async () => {
+      const onValueChange = vi.fn();
+      const onValueInvalid = vi.fn();
+      const onValueComplete = vi.fn();
+
+      await render(
+        <OTPField
+          readOnly
+          name="otp"
+          onValueChange={onValueChange}
+          onValueInvalid={onValueInvalid}
+          onValueComplete={onValueComplete}
+        />,
+      );
+
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+      expect(hiddenInput).not.toBeNull();
+
+      fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueInvalid).not.toHaveBeenCalled();
+      expect(onValueComplete).not.toHaveBeenCalled();
+    });
+
+    it('ignores hidden-input autofill when the field is disabled', async () => {
+      const onValueChange = vi.fn();
+      const onValueInvalid = vi.fn();
+      const onValueComplete = vi.fn();
+
+      await render(
+        <OTPField
+          disabled
+          name="otp"
+          onValueChange={onValueChange}
+          onValueInvalid={onValueInvalid}
+          onValueComplete={onValueComplete}
+        />,
+      );
+
+      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+
+      expect(hiddenInput).not.toBeNull();
+
+      fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueInvalid).not.toHaveBeenCalled();
+      expect(onValueComplete).not.toHaveBeenCalled();
+    });
+
     describe('prop: autoSubmit', () => {
       const flushSyncLifecycleError = 'flushSync was called from inside a lifecycle method';
 
