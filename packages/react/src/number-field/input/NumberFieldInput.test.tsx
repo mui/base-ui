@@ -738,6 +738,39 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1.239));
   });
 
+  it('should not commit values that overflow while parsing on blur', async () => {
+    const format = {
+      style: 'percent',
+      maximumFractionDigits: 2,
+      roundingMode: 'floor',
+    } as const;
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    await render(
+      <NumberField.Root
+        format={format}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    const formattedOverflow = new Intl.NumberFormat('en-US', format).format(Number.MAX_VALUE);
+
+    await act(async () => {
+      input.focus();
+    });
+    fireEvent.change(input, { target: { value: formattedOverflow } });
+    fireEvent.blur(input);
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(onValueCommitted).not.toHaveBeenCalled();
+    expect(input).toHaveValue(formattedOverflow);
+  });
+
   it('should round to step precision on blur when step implies precision constraints', async () => {
     const onValueChange = vi.fn();
 

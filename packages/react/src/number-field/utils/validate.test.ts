@@ -122,14 +122,14 @@ describe('NumberField validate', () => {
       ).toBe(1.5);
     });
 
-    it('does not return NaN when percent scaling overflows before Intl rounding', () => {
+    it('keeps the original finite value when percent scaling overflows before Intl rounding', () => {
       expect(
         removeFloatingPointErrors(Number.MAX_VALUE, {
           style: 'percent',
           maximumFractionDigits: 2,
           roundingMode: 'floor',
         }),
-      ).toBe(Infinity);
+      ).toBe(Number.MAX_VALUE);
     });
 
     it('returns 1000 for 1000, ignoring grouping', () => {
@@ -279,6 +279,20 @@ describe('NumberField validate', () => {
         ).toBe(12.3);
       });
     });
+  });
+
+  it('applies roundingMode after step validation', () => {
+    expect(
+      toValidatedNumber(1.239, {
+        ...defaultOptions,
+        step: 0.001,
+        snapOnStep: true,
+        format: {
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        },
+      }),
+    ).toBe(1.23);
   });
 
   it('removes floating point errors by default', () => {
