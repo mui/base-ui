@@ -231,7 +231,7 @@ importers:
         specifier: 6.1.1
         version: 6.1.1(react@19.2.5)
       react-hook-form:
-        specifier: ^7.73.1
+        specifier: ^7.75.0
         version: 7.75.0(react@19.2.5)
       react-is:
         specifier: ^19.2.5
