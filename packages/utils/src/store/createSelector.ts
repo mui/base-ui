@@ -58,7 +58,7 @@ type MergeParams<
  *
  * The combiner function can have up to three additional parameters, but it **cannot have optional or default parameters**.
  *
- * This function accepts up to six functions and combines them into a single selector function.
+ * This function accepts up to seven input selectors plus a combiner and combines them into a single selector function.
  * The resulting selector will take the state from the combined selectors and any additional parameters required by the combiner.
  *
  * The return type of the resulting selector is determined by the return type of the combiner function.
