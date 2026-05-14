@@ -27,7 +27,7 @@ const shellCommands = [
   'corepack enable',
   'node --version',
   'pnpm --version',
-  `pnpm --store-dir ${shellQuote(pnpmStoreDirectory)} install`,
+  `pnpm --store-dir ${shellQuote(pnpmStoreDirectory)} install --no-frozen-lockfile`,
   `pnpm --store-dir ${shellQuote(pnpmStoreDirectory)} dedupe${
     dedupeArgs.length > 0 ? ` ${dedupeArgs.map(shellQuote).join(' ')}` : ''
   }`,
