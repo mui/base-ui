@@ -54,7 +54,7 @@ export function Positioner({ className, ...props }: Select.Positioner.Props) {
   return (
     <Select.Positioner
       className={clsx('outline-none select-none z-10', className)}
-      sideOffset={8}
+      sideOffset={4}
       {...props}
     />
   );

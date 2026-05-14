@@ -44,7 +44,7 @@ export default function MultiSelectExample() {
         <Select.Portal>
           <Select.Positioner
             className={styles.Positioner}
-            sideOffset={8}
+            sideOffset={4}
             alignItemWithTrigger={false}
           >
             <Select.Popup className={styles.Popup}>

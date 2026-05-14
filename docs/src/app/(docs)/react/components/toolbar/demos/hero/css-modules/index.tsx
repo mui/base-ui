@@ -44,7 +44,7 @@ export default function ExampleToolbar() {
           </Select.Icon>
         </Toolbar.Button>
         <Select.Portal>
-          <Select.Positioner className={styles.Positioner} sideOffset={8}>
+          <Select.Positioner className={styles.Positioner} sideOffset={4}>
             <Select.Popup className={styles.Popup}>
               <Select.Item className={styles.Item} value="Helvetica">
                 <Select.ItemIndicator className={styles.ItemIndicator}>

@@ -52,7 +52,7 @@ export default function ExampleToolbar() {
           </Select.Icon>
         </Toolbar.Button>
         <Select.Portal>
-          <Select.Positioner className="z-10 outline-none select-none" sideOffset={8}>
+          <Select.Positioner className="z-10 outline-none select-none" sideOffset={4}>
             <Select.Popup className="group max-h-[var(--available-height)] min-w-[var(--anchor-width)] origin-[var(--transform-origin)] overflow-y-auto border border-neutral-950 bg-white bg-clip-padding text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 outline-none transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-[side=none]:min-w-[calc(var(--anchor-width)+1.5rem)] data-[side=none]:translate-y-px data-[side=none]:scale-100 data-[side=none]:opacity-100 data-[side=none]:transition-none data-starting-style:scale-[0.98] data-starting-style:opacity-0 data-[side=none]:data-starting-style:scale-100 data-[side=none]:data-starting-style:opacity-100 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
               <Select.Item
                 value="Helvetica"

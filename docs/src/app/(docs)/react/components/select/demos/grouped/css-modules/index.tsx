@@ -17,7 +17,7 @@ export default function ExampleSelectGrouped() {
           </Select.Icon>
         </Select.Trigger>
         <Select.Portal>
-          <Select.Positioner className={styles.Positioner} sideOffset={8}>
+          <Select.Positioner className={styles.Positioner} sideOffset={4}>
             <Select.Popup className={styles.Popup}>
               <Select.ScrollUpArrow className={styles.ScrollArrow}>
                 <CaretUpIcon />
