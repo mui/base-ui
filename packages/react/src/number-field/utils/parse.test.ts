@@ -108,6 +108,15 @@ describe('NumberField parse', () => {
       expect(parseNumber('∞')).toBe(null);
     });
 
+    it('returns null when parsing overflows to Infinity', () => {
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'percent',
+        maximumFractionDigits: 2,
+      }).format(Number.MAX_VALUE);
+
+      expect(parseNumber(formatted, 'en-US', { style: 'percent' })).toBe(null);
+    });
+
     it('collapses extra dots from mixed-locale inputs', () => {
       // Last '.' is decimal; previous '.' are removed
       expect(parseNumber('1.234.567.89')).toBe(1234567.89);

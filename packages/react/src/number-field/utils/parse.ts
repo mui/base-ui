@@ -214,7 +214,7 @@ export function parseNumber(
     num /= 100;
   }
 
-  if (Number.isNaN(num)) {
+  if (!Number.isFinite(num)) {
     return null;
   }
 

@@ -4,12 +4,14 @@ import { getFormatter } from '../../utils/formatNumber';
 const STEP_EPSILON_FACTOR = 1e-10;
 
 // The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
+// Delete this once tsconfig.base.json includes es2023.
 type NumberFormatOptionsWithRounding = Intl.NumberFormatOptions & {
   roundingIncrement?: number | undefined;
   roundingMode?: string | undefined;
 };
 
 function getMaximumFractionDigits(format?: NumberFormatOptionsWithRounding) {
+  // Preserve the old decimal defaults unless min-only precision needs style-specific defaults.
   return Math.max(
     format?.maximumFractionDigits ??
       getFormatter(
@@ -27,6 +29,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   }
 
   const digits = Math.min(Math.max(getMaximumFractionDigits(format), 0), 20);
+  // Percent values are stored as fractions, so rounding must happen at the displayed scale.
   const isPercentWithExplicitPrecision =
     format?.style === 'percent' &&
     (format.maximumFractionDigits != null || format.minimumFractionDigits != null);
@@ -34,7 +37,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   const valueToRound = value * scale;
 
   if (!Number.isFinite(valueToRound)) {
-    return valueToRound / scale;
+    return value;
   }
 
   if (format?.roundingIncrement == null && format?.roundingMode == null) {
