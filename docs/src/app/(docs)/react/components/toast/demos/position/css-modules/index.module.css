@@ -26,7 +26,6 @@
   border: 1px solid var(--color-neutral-950);
   background-color: white;
   color: var(--color-neutral-950);
-  padding: 0.75rem;
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transform-origin: top center;
   top: 0;
@@ -97,12 +96,24 @@
     left: 0;
     height: calc(var(--gap) + 1px);
   }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-neutral-950);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
 }
 
 .Content {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 1rem;
+  height: 100%;
+  padding: 0.75rem;
   overflow: hidden;
   transition: opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 
