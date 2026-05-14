@@ -157,7 +157,7 @@ export function useDismiss(
 
   const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
 
-  const pressStartedInsideRef = React.useRef<Element | null>(null);
+  const pressStartedInsideRef = React.useRef(false);
   const pressStartPreventedRef = React.useRef(false);
   // Ignore only the very next outside click after dragging from inside to outside.
   const suppressNextOutsideClickRef = React.useRef(false);
@@ -263,7 +263,7 @@ export function useDismiss(
       }
 
       if (!pressStartedInsideRef.current) {
-        pressStartedInsideRef.current = target;
+        pressStartedInsideRef.current = true;
         pressStartPreventedRef.current = false;
       }
     },
@@ -325,7 +325,7 @@ export function useDismiss(
     }
 
     function resetPressStartState() {
-      pressStartedInsideRef.current = null;
+      pressStartedInsideRef.current = false;
       pressStartPreventedRef.current = false;
     }
 
@@ -367,6 +367,12 @@ export function useDismiss(
 
     function closeOnPressOutside(event: MouseEvent | PointerEvent | TouchEvent) {
       if (shouldIgnoreEvent(event)) {
+        // If an inside-to-outside drag didn't produce a click, don't let its stale
+        // suppression consume the next press's eventual click.
+        if (event.type !== 'click' && !isEventWithinOwnElements(event)) {
+          preventedPressSuppressionTimeout.clear();
+          suppressNextOutsideClickRef.current = false;
+        }
         clearInsideReactTree();
         return;
       }
@@ -570,8 +576,7 @@ export function useDismiss(
     }
 
     function handlePressEndCapture(event: PointerEvent | MouseEvent) {
-      const pressStartTarget = pressStartedInsideRef.current;
-      if (!pressStartTarget) {
+      if (!pressStartedInsideRef.current) {
         return;
       }
 
@@ -590,16 +595,6 @@ export function useDismiss(
       }
 
       if (isEventWithinFloatingTree(event)) {
-        return;
-      }
-
-      // Don't treat a nested trigger press as a parent drag-out unless it ends inside the popup.
-      const pressEndTarget = getTarget(event);
-      if (
-        pressStartTarget.closest('[data-popup-open]') &&
-        (!isElement(pressEndTarget) ||
-          !pressEndTarget.closest('[data-base-ui-focusable][data-open]'))
-      ) {
         return;
       }
 

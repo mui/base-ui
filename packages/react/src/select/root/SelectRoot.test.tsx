@@ -1342,6 +1342,33 @@ describe('<Select.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('select inside popover', () => {
+    async function fireHeldPress(target: Element) {
+      fireEvent.pointerDown(target, {
+        button: 0,
+        buttons: 1,
+        pointerType: 'mouse',
+      });
+      fireEvent.mouseDown(target, {
+        button: 0,
+        buttons: 1,
+      });
+
+      await wait(50);
+
+      fireEvent.pointerUp(target, {
+        button: 0,
+        buttons: 0,
+        pointerType: 'mouse',
+      });
+      fireEvent.mouseUp(target, {
+        button: 0,
+        buttons: 0,
+      });
+      fireEvent.click(target, {
+        button: 0,
+      });
+    }
+
     it('dismisses the popover with one outside press when the select has not been opened', async () => {
       const { user } = await render(
         <div>
@@ -1351,7 +1378,7 @@ describe('<Select.Root />', () => {
             <Popover.Portal>
               <Popover.Positioner>
                 <Popover.Popup data-testid="popover-popup">
-                  <Select.Root>
+                  <Select.Root defaultValue="one">
                     <Select.Trigger>
                       <Select.Value placeholder="Pick one" />
                     </Select.Trigger>
@@ -1374,7 +1401,7 @@ describe('<Select.Root />', () => {
       await user.click(screen.getByRole('button', { name: 'Open popover' }));
       await screen.findByTestId('popover-popup');
 
-      await user.click(screen.getByTestId('outside'));
+      await user.click(document.body);
 
       await waitFor(() => {
         expect(screen.queryByTestId('popover-popup')).toBe(null);
@@ -1460,6 +1487,115 @@ describe('<Select.Root />', () => {
         });
       },
     );
+
+    it('dismisses the popover with one outside press after reopening an aligned select', async () => {
+      const { user } = await render(
+        <div>
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Open popover</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover-popup">
+                  <Select.Root defaultValue="gala">
+                    <Select.Trigger data-testid="select-trigger">
+                      <Select.Value placeholder="Pick one" />
+                    </Select.Trigger>
+                    <Select.Portal>
+                      <Select.Positioner alignItemWithTrigger>
+                        <Select.Popup>
+                          <Select.Item value="gala">Gala</Select.Item>
+                          <Select.Item value="fuji">Fuji</Select.Item>
+                        </Select.Popup>
+                      </Select.Positioner>
+                    </Select.Portal>
+                  </Select.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      await user.pointer({ keys: '[MouseLeft>]', target: screen.getByTestId('select-trigger') });
+      await user.pointer({
+        keys: '[/MouseLeft]',
+        target: await screen.findByRole('option', { name: 'Gala' }),
+      });
+      await user.click(await screen.findByRole('option', { name: 'Fuji' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      expect(screen.queryByTestId('popover-popup')).not.toBe(null);
+
+      await fireHeldPress(document.body);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+      });
+    });
+
+    it('dismisses the popover after reopening a selected aligned select', async () => {
+      ignoreActWarnings();
+
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Open popover</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popover-popup" initialFocus={false}>
+                <Select.Root>
+                  <Select.Label>Apple</Select.Label>
+                  <Select.Trigger data-testid="select-trigger">
+                    <Select.Value placeholder="Select apple" />
+                  </Select.Trigger>
+                  <Select.Portal>
+                    <Select.Positioner sideOffset={8}>
+                      <Select.Popup>
+                        <Select.ScrollUpArrow />
+                        <Select.List>
+                          <Select.Item value="gala">Gala</Select.Item>
+                          <Select.Item value="fuji">Fuji</Select.Item>
+                          <Select.Item value="honeycrisp">Honeycrisp</Select.Item>
+                        </Select.List>
+                        <Select.ScrollDownArrow />
+                      </Select.Popup>
+                    </Select.Positioner>
+                  </Select.Portal>
+                </Select.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open popover' }));
+      await screen.findByTestId('popover-popup');
+
+      await user.click(screen.getByTestId('select-trigger'));
+      await user.click(await screen.findByRole('option', { name: 'Gala' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      await user.pointer({ keys: '[MouseLeft>]', target: screen.getByTestId('select-trigger') });
+      const selectedOption = await screen.findByRole('option', { name: 'Gala' });
+      await user.pointer({ keys: '[/MouseLeft]', target: selectedOption });
+
+      await user.click(await screen.findByRole('option', { name: 'Fuji' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      await fireHeldPress(document.body);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+      });
+    });
 
     it.each([true, false])(
       'keeps a modal popover open when choosing a non-modal select item with alignItemWithTrigger=%s',
@@ -1575,16 +1711,20 @@ describe('<Select.Root />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
 
       const selectTrigger = screen.getByTestId('select-trigger');
 
-      await user.pointer({ keys: '[MouseLeft>]', target: selectTrigger });
+      fireEvent.mouseDown(selectTrigger);
 
       const option = await screen.findByRole('option', { name: 'Two' });
-      await user.pointer({ target: option });
-      await wait(500);
-      await user.pointer({ keys: '[/MouseLeft]', target: option });
+      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
+      fireEvent.pointerMove(option, {
+        pointerType: 'mouse',
+        buttons: 1,
+        movementY: 8,
+      });
+      fireEvent.mouseUp(option);
 
       await waitFor(() => expect(screen.getByTestId('selected-value')).toHaveTextContent('two'));
       await waitFor(() => expect(screen.queryByTestId('popover-popup')).not.toBe(null));
@@ -1635,6 +1775,128 @@ describe('<Select.Root />', () => {
       expect(screen.queryByTestId('popover-popup')).not.toBe(null);
 
       await user.click(screen.getByTestId('outside'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popover-popup')).toBe(null);
+      });
+    });
+
+    it('does not consume the next outside press after a native drag from a modal select trigger outside all popups', async () => {
+      ignoreActWarnings();
+
+      await render(
+        <Popover.Root defaultOpen>
+          <Popover.Trigger>Open popover</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popover-popup">
+                <Select.Root>
+                  <Select.Trigger data-testid="select-trigger">
+                    <Select.Value placeholder="Pick one" />
+                  </Select.Trigger>
+                  <Select.Portal>
+                    <Select.Positioner alignItemWithTrigger>
+                      <Select.Popup>
+                        <Select.Item value="one">One</Select.Item>
+                        <Select.Item value="two">Two</Select.Item>
+                      </Select.Popup>
+                    </Select.Positioner>
+                  </Select.Portal>
+                </Select.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const selectTrigger = screen.getByTestId('select-trigger');
+      const rect = selectTrigger.getBoundingClientRect();
+      const startX = rect.left + rect.width / 2;
+      const startY = rect.top + rect.height / 2;
+
+      fireEvent.pointerDown(selectTrigger, {
+        button: 0,
+        buttons: 1,
+        clientX: startX,
+        clientY: startY,
+        pointerType: 'mouse',
+      });
+      fireEvent.mouseDown(selectTrigger, {
+        button: 0,
+        buttons: 1,
+        clientX: startX,
+        clientY: startY,
+      });
+
+      await screen.findByRole('listbox');
+
+      const endX = 400;
+      const endY = 20;
+      const endTarget = document.elementFromPoint(endX, endY) as Element;
+
+      fireEvent.pointerMove(endTarget, {
+        button: 0,
+        buttons: 1,
+        clientX: endX,
+        clientY: endY,
+        pointerType: 'mouse',
+      });
+      fireEvent.mouseMove(endTarget, {
+        button: 0,
+        buttons: 1,
+        clientX: endX,
+        clientY: endY,
+      });
+      fireEvent.pointerUp(endTarget, {
+        button: 0,
+        buttons: 0,
+        clientX: endX,
+        clientY: endY,
+        pointerType: 'mouse',
+      });
+      fireEvent.mouseUp(endTarget, {
+        button: 0,
+        buttons: 0,
+        clientX: endX,
+        clientY: endY,
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      expect(screen.queryByTestId('popover-popup')).not.toBe(null);
+
+      fireEvent.pointerDown(document.body, {
+        button: 0,
+        buttons: 1,
+        clientX: endX,
+        clientY: endY,
+        pointerType: 'mouse',
+      });
+      fireEvent.mouseDown(document.body, {
+        button: 0,
+        buttons: 1,
+        clientX: endX,
+        clientY: endY,
+      });
+      fireEvent.pointerUp(document.body, {
+        button: 0,
+        buttons: 0,
+        clientX: endX,
+        clientY: endY,
+        pointerType: 'mouse',
+      });
+      fireEvent.mouseUp(document.body, {
+        button: 0,
+        buttons: 0,
+        clientX: endX,
+        clientY: endY,
+      });
+      fireEvent.click(document.body, {
+        button: 0,
+        clientX: endX,
+        clientY: endY,
+      });
 
       await waitFor(() => {
         expect(screen.queryByTestId('popover-popup')).toBe(null);

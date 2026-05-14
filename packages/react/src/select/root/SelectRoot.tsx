@@ -356,7 +356,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   });
 
   const dismiss = useDismiss(floatingContext, {
-    // Modal Select owns outside presses; non-modal Select lets them cascade.
     bubbles: { outsidePress: !modal },
   });
 
