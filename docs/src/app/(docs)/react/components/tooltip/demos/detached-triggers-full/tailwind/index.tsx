@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { InfoIcon, HelpIcon, AlertIcon } from '../../icons-tw';
+import { HeadphonesIcon, StopwatchIcon, TrashIcon } from '../../icons-tw';
 
-const demoTooltip = Tooltip.createHandle<React.ComponentType>();
+const demoTooltip = Tooltip.createHandle<React.ReactNode>();
 
 const triggerClass =
   'flex size-8 items-center justify-center border border-neutral-950 bg-white text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white focus-visible:relative hover:bg-neutral-100 active:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-popup-open:bg-neutral-800 dark:hover:bg-neutral-800 dark:active:bg-neutral-700';
@@ -15,29 +15,33 @@ export default function TooltipDetachedTriggersFullDemo() {
   return (
     <Tooltip.Provider>
       <div className="flex">
-        <Tooltip.Trigger className={triggerClass} handle={demoTooltip} payload={InfoContent}>
-          <InfoIcon aria-label="This is information about the feature" />
+        <Tooltip.Trigger
+          className={triggerClass}
+          handle={demoTooltip}
+          payload="Listen to audio preview"
+        >
+          <HeadphonesIcon aria-label="Listen to audio preview" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
           className={`${triggerClass} border-l-0`}
           handle={demoTooltip}
-          payload={HelpContent}
+          payload="Set a timer"
         >
-          <HelpIcon aria-label="Need help?" />
+          <StopwatchIcon aria-label="Set a timer" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
           className={`${triggerClass} border-l-0`}
           handle={demoTooltip}
-          payload={AlertContent}
+          payload="Delete: This action cannot be undone"
         >
-          <AlertIcon aria-label="Warning: This action cannot be undone" />
+          <TrashIcon aria-label="Delete: This action cannot be undone" />
         </Tooltip.Trigger>
       </div>
 
       <Tooltip.Root handle={demoTooltip}>
-        {({ payload: Payload }) => (
+        {({ payload }) => (
           <Tooltip.Portal>
             <Tooltip.Positioner
               sideOffset={11}
@@ -98,7 +102,7 @@ export default function TooltipDetachedTriggersFullDemo() {
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0"
                 >
-                  {Payload !== undefined && <Payload />}
+                  {payload}
                 </Tooltip.Viewport>
               </Tooltip.Popup>
             </Tooltip.Positioner>
@@ -107,16 +111,4 @@ export default function TooltipDetachedTriggersFullDemo() {
       </Tooltip.Root>
     </Tooltip.Provider>
   );
-}
-
-function InfoContent() {
-  return <span>This is information about the feature</span>;
-}
-
-function HelpContent() {
-  return <span>Need help?</span>;
-}
-
-function AlertContent() {
-  return <span>Warning: This action cannot be undone</span>;
 }

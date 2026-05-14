@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { InfoIcon } from '../../icons-tw';
+import { TrashIcon } from '../../icons-tw';
 
 const demoTooltip = Tooltip.createHandle();
 
@@ -18,7 +18,7 @@ export default function TooltipDetachedTriggersSimpleDemo() {
   return (
     <Tooltip.Provider>
       <Tooltip.Trigger className={triggerClass} handle={demoTooltip}>
-        <InfoIcon aria-label="This is a detached tooltip" />
+        <TrashIcon aria-label="Delete" />
       </Tooltip.Trigger>
 
       <Tooltip.Root handle={demoTooltip}>
@@ -26,7 +26,7 @@ export default function TooltipDetachedTriggersSimpleDemo() {
           <Tooltip.Positioner sideOffset={11}>
             <Tooltip.Popup className={popupClass}>
               <Tooltip.Arrow className={arrowClass} />
-              This is a detached tooltip
+              Delete
             </Tooltip.Popup>
           </Tooltip.Positioner>
         </Tooltip.Portal>

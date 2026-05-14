@@ -3,35 +3,41 @@ import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import styles from './index.module.css';
 
-const demoTooltip = Tooltip.createHandle<React.ComponentType>();
+const demoTooltip = Tooltip.createHandle<React.ReactNode>();
 
 export default function TooltipDetachedTriggersFullDemo() {
   return (
     <Tooltip.Provider>
       <div className={styles.ButtonGroup}>
-        <Tooltip.Trigger className={styles.Button} handle={demoTooltip} payload={InfoContent}>
-          <InfoIcon aria-label="This is information about the feature" />
+        <Tooltip.Trigger
+          className={styles.Button}
+          handle={demoTooltip}
+          payload="Listen to audio preview"
+        >
+          <HeadphonesIcon aria-label="Listen to audio preview" />
         </Tooltip.Trigger>
 
-        <Tooltip.Trigger className={styles.Button} handle={demoTooltip} payload={HelpContent}>
-          <HelpIcon aria-label="Need help?" />
+        <Tooltip.Trigger className={styles.Button} handle={demoTooltip} payload="Set a timer">
+          <StopwatchIcon aria-label="Set a timer" />
         </Tooltip.Trigger>
 
-        <Tooltip.Trigger className={styles.Button} handle={demoTooltip} payload={AlertContent}>
-          <AlertIcon aria-label="Warning: This action cannot be undone" />
+        <Tooltip.Trigger
+          className={styles.Button}
+          handle={demoTooltip}
+          payload="Delete: This action cannot be undone"
+        >
+          <TrashIcon aria-label="Delete: This action cannot be undone" />
         </Tooltip.Trigger>
       </div>
 
       <Tooltip.Root handle={demoTooltip}>
-        {({ payload: Payload }) => (
+        {({ payload }) => (
           <Tooltip.Portal>
             <Tooltip.Positioner sideOffset={11} className={styles.Positioner}>
               <Tooltip.Popup className={styles.Popup}>
                 <Tooltip.Arrow className={styles.Arrow} />
 
-                <Tooltip.Viewport className={styles.Viewport}>
-                  {Payload !== undefined && <Payload />}
-                </Tooltip.Viewport>
+                <Tooltip.Viewport className={styles.Viewport}>{payload}</Tooltip.Viewport>
               </Tooltip.Popup>
             </Tooltip.Positioner>
           </Tooltip.Portal>
@@ -41,77 +47,62 @@ export default function TooltipDetachedTriggersFullDemo() {
   );
 }
 
-function InfoContent() {
-  return <span>This is information about the feature</span>;
-}
-
-function HelpContent() {
-  return <span>Need help?</span>;
-}
-
-function AlertContent() {
-  return <span>Warning: This action cannot be undone</span>;
-}
-
-function InfoIcon(props: React.ComponentProps<'svg'>) {
+function HeadphonesIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1}
-      strokeLinecap="square"
-      strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 16v-4" />
-      <path d="M12 8h.01" />
+      <path strokeLinecap="round" d="M1.5 11V7.5c0-2.5 2.5-6 6.5-6s6.5 3.5 6.5 6V11" />
+      <path d="M12 7.5c1.3807 0 2.5 1.11929 2.5 2.5v2c0 1.3807-1.1193 2.5-2.5 2.5h-1.5v-7zm-8 0h1.5v7H4c-1.38071 0-2.5-1.1193-2.5-2.5v-2c0-1.38071 1.11929-2.5 2.5-2.5Z" />
     </svg>
   );
 }
 
-function HelpIcon(props: React.ComponentProps<'svg'>) {
+function StopwatchIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1}
-      strokeLinecap="square"
-      strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <circle cx="12" cy="12" r="10" vectorEffect="non-scaling-stroke" />
-      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" vectorEffect="non-scaling-stroke" />
-      <path d="M12 17h.01" vectorEffect="non-scaling-stroke" />
+      <circle cx="8" cy="8.5" r="6" />
+      <path
+        strokeLinecap="square"
+        strokeLinejoin="round"
+        d="M8 9.5v-5m0-2v-2m-2 0h4M12 4l1.5-1.5"
+      />
     </svg>
   );
 }
 
-function AlertIcon(props: React.ComponentProps<'svg'>) {
+function TrashIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1}
-      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-      <path d="M12 9v4" />
-      <path d="M12 17h.01" />
+      <path strokeLinecap="square" d="M2.5 4h11" />
+      <path strokeLinecap="round" d="M6.5 4V3c0-.82843.67157-1.5 1.5-1.5s1.5.67157 1.5 1.5v1" />
+      <path
+        strokeLinecap="square"
+        d="m3.5 4 .87069 9.1422c.07332.7699.7199 1.3578 1.49324 1.3578h4.27217c.7733 0 1.4199-.5879 1.4932-1.3578L12.5 4"
+      />
     </svg>
   );
 }

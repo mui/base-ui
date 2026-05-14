@@ -9,7 +9,7 @@ export default function TooltipDetachedTriggersSimpleDemo() {
   return (
     <Tooltip.Provider>
       <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip}>
-        <InfoIcon aria-label="This is a detached tooltip" />
+        <TrashIcon aria-label="Delete" />
       </Tooltip.Trigger>
 
       <Tooltip.Root handle={demoTooltip}>
@@ -17,7 +17,7 @@ export default function TooltipDetachedTriggersSimpleDemo() {
           <Tooltip.Positioner sideOffset={11}>
             <Tooltip.Popup className={styles.Popup}>
               <Tooltip.Arrow className={styles.Arrow} />
-              This is a detached tooltip
+              Delete
             </Tooltip.Popup>
           </Tooltip.Positioner>
         </Tooltip.Portal>
@@ -26,23 +26,24 @@ export default function TooltipDetachedTriggersSimpleDemo() {
   );
 }
 
-function InfoIcon(props: React.ComponentProps<'svg'>) {
+function TrashIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1}
-      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <circle cx="12" cy="12" r="10" />
-      <path d="M12 16v-4" />
-      <path d="M12 8h.01" />
+      <path strokeLinecap="square" d="M2.5 4h11" />
+      <path strokeLinecap="round" d="M6.5 4V3c0-.82843.67157-1.5 1.5-1.5s1.5.67157 1.5 1.5v1" />
+      <path
+        strokeLinecap="square"
+        d="m3.5 4 .87069 9.1422c.07332.7699.7199 1.3578 1.49324 1.3578h4.27217c.7733 0 1.4199-.5879 1.4932-1.3578L12.5 4"
+      />
     </svg>
   );
 }

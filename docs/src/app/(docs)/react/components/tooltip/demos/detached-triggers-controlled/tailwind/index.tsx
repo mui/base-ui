@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { InfoIcon } from '../../icons-tw';
+import { HeadphonesIcon, StopwatchIcon, TrashIcon } from '../../icons-tw';
 
 const demoTooltip = Tooltip.createHandle();
 
@@ -31,7 +31,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
       <div className="flex gap-2 flex-wrap justify-center">
         <div className="flex">
           <Tooltip.Trigger className={iconButtonClass} handle={demoTooltip} id="trigger-1">
-            <InfoIcon aria-label="Controlled tooltip" />
+            <HeadphonesIcon aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger
@@ -39,7 +39,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
             handle={demoTooltip}
             id="trigger-2"
           >
-            <InfoIcon aria-label="Controlled tooltip" />
+            <StopwatchIcon aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger
@@ -47,7 +47,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
             handle={demoTooltip}
             id="trigger-3"
           >
-            <InfoIcon aria-label="Controlled tooltip" />
+            <TrashIcon aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
         </div>
 
