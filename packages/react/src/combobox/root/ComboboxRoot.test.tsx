@@ -1546,6 +1546,84 @@ describe('<Combobox.Root />', () => {
     expect(screen.getByTestId('error')).toHaveTextContent('test');
   });
 
+  it('ignores hidden-input autofill when readOnly outside Field', async () => {
+    const onValueChange = vi.fn();
+    const onInputValueChange = vi.fn();
+    await render(
+      <Combobox.Root
+        name="test"
+        readOnly
+        onValueChange={onValueChange}
+        onInputValueChange={onInputValueChange}
+      >
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+                <Combobox.Item value="b">b</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const visibleInput = screen.getByTestId<HTMLInputElement>('input');
+    const hiddenInput = screen
+      .getAllByDisplayValue('')
+      .find((el) => el.getAttribute('name') === 'test') as HTMLInputElement;
+    expect(hiddenInput).not.toBeUndefined();
+
+    fireEvent.change(hiddenInput, { target: { value: 'b' } });
+    await flushMicrotasks();
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(onInputValueChange).not.toHaveBeenCalled();
+    expect(visibleInput.value).toBe('');
+    expect(hiddenInput.value).toBe('');
+  });
+
+  it('ignores hidden-input autofill when disabled outside Field', async () => {
+    const onValueChange = vi.fn();
+    const onInputValueChange = vi.fn();
+    await render(
+      <Combobox.Root
+        name="test"
+        disabled
+        onValueChange={onValueChange}
+        onInputValueChange={onInputValueChange}
+      >
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+                <Combobox.Item value="b">b</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const visibleInput = screen.getByTestId<HTMLInputElement>('input');
+    const hiddenInput = screen
+      .getAllByDisplayValue('')
+      .find((el) => el.getAttribute('name') === 'test') as HTMLInputElement;
+    expect(hiddenInput).not.toBeUndefined();
+
+    fireEvent.change(hiddenInput, { target: { value: 'b' } });
+    await flushMicrotasks();
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(onInputValueChange).not.toHaveBeenCalled();
+    expect(visibleInput.value).toBe('');
+    expect(hiddenInput.value).toBe('');
+  });
+
   it('shows all items when opening after browser autofill', async () => {
     const items = ['a', 'b', 'c'];
     const { user } = await render(

@@ -801,6 +801,62 @@ describe('<Select.Root />', () => {
     expect(screen.getByTestId('error')).toHaveTextContent('test');
   });
 
+  it('ignores hidden-input autofill when readOnly outside Field', async () => {
+    const onValueChange = vi.fn();
+    await render(
+      <Select.Root name="select" readOnly onValueChange={onValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
+    expect(selectInput).toHaveAttribute('name', 'select');
+
+    fireEvent.change(selectInput, { target: { value: 'b' } });
+    await flushMicrotasks();
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(selectInput.value).toBe('');
+  });
+
+  it('ignores hidden-input autofill when disabled outside Field', async () => {
+    const onValueChange = vi.fn();
+    await render(
+      <Select.Root name="select" disabled onValueChange={onValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
+    expect(selectInput).toHaveAttribute('name', 'select');
+
+    fireEvent.change(selectInput, { target: { value: 'b' } });
+    await flushMicrotasks();
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(selectInput.value).toBe('');
+  });
+
   describe('prop: modal', () => {
     it('should render an internal backdrop when `true`', async () => {
       const { user } = await render(
