@@ -521,17 +521,17 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 function PlusIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1"
+      strokeLinecap="square"
+      strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M6 0.5V11.5" vectorEffect="non-scaling-stroke" />
-      <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
+      <path d="M1.5 8h13M8 14.5v-13" />
     </svg>
   );
 }
@@ -539,16 +539,17 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
 function MinusIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1"
+      strokeLinecap="square"
+      strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M0.5 6H11.5" vectorEffect="non-scaling-stroke" />
+      <path d="M2.5 8h11" />
     </svg>
   );
 }
