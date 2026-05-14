@@ -2,7 +2,8 @@ import { vi, expect } from 'vitest';
 import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { useClick, useFloating, useHover, useInteractions } from '../index';
+import { useTestInteractions } from '#test-utils';
+import { useClick, useFloating, useHover } from '../index';
 import { REASONS } from '../../internals/reasons';
 import type { UseFloatingOptions } from '../types';
 import type { UseClickProps } from './useClick';
@@ -25,7 +26,7 @@ function App({
       setOpen(nextOpen);
     },
   });
-  const { getReferenceProps, getFloatingProps } = useInteractions([useClick(context, props)]);
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([useClick(context, props)]);
   const Reference = typeable ? 'input' : 'button';
 
   return (
@@ -243,7 +244,7 @@ describe.skipIf(!isJSDOM)('useClick', () => {
         open,
         onOpenChange: setOpen,
       });
-      const { getReferenceProps, getFloatingProps } = useInteractions([
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([
         useHover(context),
         useClick(context, { stickIfOpen: true }),
       ]);
@@ -273,7 +274,7 @@ describe.skipIf(!isJSDOM)('useClick', () => {
         open,
         onOpenChange: setOpen,
       });
-      const { getReferenceProps, getFloatingProps } = useInteractions([
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([
         useHover(context),
         useClick(context, { stickIfOpen: false }),
       ]);

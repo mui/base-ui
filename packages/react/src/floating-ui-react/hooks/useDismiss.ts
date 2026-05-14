@@ -367,6 +367,12 @@ export function useDismiss(
 
     function closeOnPressOutside(event: MouseEvent | PointerEvent | TouchEvent) {
       if (shouldIgnoreEvent(event)) {
+        // A new press began outside the floating element and its trigger. Clear any
+        // leftover drag-out suppression so this press's eventual click can dismiss.
+        if (event.type !== 'click' && !isEventWithinOwnElements(event)) {
+          preventedPressSuppressionTimeout.clear();
+          suppressNextOutsideClickRef.current = false;
+        }
         clearInsideReactTree();
         return;
       }
