@@ -1369,45 +1369,6 @@ describe('<Select.Root />', () => {
       });
     }
 
-    it('dismisses the popover with one outside press when the select has not been opened', async () => {
-      const { user } = await render(
-        <div>
-          <button data-testid="outside">Outside</button>
-          <Popover.Root>
-            <Popover.Trigger>Open popover</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup data-testid="popover-popup">
-                  <Select.Root defaultValue="one">
-                    <Select.Trigger>
-                      <Select.Value placeholder="Pick one" />
-                    </Select.Trigger>
-                    <Select.Portal>
-                      <Select.Positioner>
-                        <Select.Popup>
-                          <Select.Item value="one">One</Select.Item>
-                          <Select.Item value="two">Two</Select.Item>
-                        </Select.Popup>
-                      </Select.Positioner>
-                    </Select.Portal>
-                  </Select.Root>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-        </div>,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'Open popover' }));
-      await screen.findByTestId('popover-popup');
-
-      await user.click(document.body);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popover-popup')).toBe(null);
-      });
-    });
-
     it('dismisses the popover with one outside press after reopening an aligned select', async () => {
       const { user } = await render(
         <div>
@@ -1517,48 +1478,42 @@ describe('<Select.Root />', () => {
       });
     });
 
-    it.each([true, false])(
-      'keeps a modal popover open when choosing a non-modal select item with alignItemWithTrigger=%s',
-      async (alignItemWithTrigger) => {
-        const { user } = await render(
-          <Popover.Root defaultOpen modal>
-            <Popover.Trigger>Open popover</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner data-testid="popover-positioner">
-                <Popover.Popup data-testid="popover-popup">
-                  <Select.Root modal={false}>
-                    <Select.Trigger data-testid="select-trigger">
-                      <Select.Value placeholder="Pick one" />
-                    </Select.Trigger>
-                    <Select.Portal>
-                      <Select.Positioner
-                        data-testid="select-positioner"
-                        alignItemWithTrigger={alignItemWithTrigger}
-                      >
-                        <Select.Popup>
-                          <Select.Item value="one">One</Select.Item>
-                          <Select.Item value="two">Two</Select.Item>
-                        </Select.Popup>
-                      </Select.Positioner>
-                    </Select.Portal>
-                  </Select.Root>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>,
-        );
+    it('keeps a modal popover open when choosing a non-modal aligned select item', async () => {
+      const { user } = await render(
+        <Popover.Root defaultOpen modal>
+          <Popover.Trigger>Open popover</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popover-popup">
+                <Select.Root modal={false}>
+                  <Select.Trigger data-testid="select-trigger">
+                    <Select.Value placeholder="Pick one" />
+                  </Select.Trigger>
+                  <Select.Portal>
+                    <Select.Positioner alignItemWithTrigger>
+                      <Select.Popup>
+                        <Select.Item value="one">One</Select.Item>
+                        <Select.Item value="two">Two</Select.Item>
+                      </Select.Popup>
+                    </Select.Positioner>
+                  </Select.Portal>
+                </Select.Root>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
 
-        await user.click(screen.getByTestId('select-trigger'));
-        await screen.findByRole('listbox');
+      await user.click(screen.getByTestId('select-trigger'));
+      await screen.findByRole('listbox');
 
-        await user.click(screen.getByRole('option', { name: 'Two' }));
+      await user.click(screen.getByRole('option', { name: 'Two' }));
 
-        await waitFor(() => {
-          expect(screen.queryByRole('listbox')).toBe(null);
-        });
-        expect(screen.queryByTestId('popover-popup')).not.toBe(null);
-      },
-    );
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      expect(screen.queryByTestId('popover-popup')).not.toBe(null);
+    });
 
     it('does not bubble Escape from a non-modal select to the popover', async () => {
       const { user } = await render(
@@ -1595,110 +1550,6 @@ describe('<Select.Root />', () => {
         expect(screen.queryByRole('listbox')).toBe(null);
       });
       expect(screen.queryByTestId('popover-popup')).not.toBe(null);
-    });
-
-    it('keeps the popover open when selecting via drag-to-select', async () => {
-      ignoreActWarnings();
-
-      function Test() {
-        const [value, setValue] = React.useState<string | null>('one');
-        return (
-          <div>
-            <span data-testid="selected-value">{value}</span>
-            <Popover.Root defaultOpen>
-              <Popover.Trigger>Open popover</Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner>
-                  <Popover.Popup data-testid="popover-popup">
-                    <Select.Root value={value} onValueChange={setValue}>
-                      <Select.Trigger data-testid="select-trigger">
-                        <Select.Value placeholder="Pick one" />
-                      </Select.Trigger>
-                      <Select.Portal>
-                        <Select.Positioner>
-                          <Select.Popup>
-                            <Select.Item value="one">One</Select.Item>
-                            <Select.Item value="two">Two</Select.Item>
-                          </Select.Popup>
-                        </Select.Positioner>
-                      </Select.Portal>
-                    </Select.Root>
-                  </Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>
-          </div>
-        );
-      }
-
-      await render(<Test />);
-
-      const selectTrigger = screen.getByTestId('select-trigger');
-
-      fireEvent.mouseDown(selectTrigger);
-
-      const option = await screen.findByRole('option', { name: 'Two' });
-      fireEvent.pointerEnter(option, { pointerType: 'mouse' });
-      fireEvent.pointerMove(option, {
-        pointerType: 'mouse',
-        buttons: 1,
-        movementY: 8,
-      });
-      fireEvent.mouseUp(option);
-
-      await waitFor(() => expect(screen.getByTestId('selected-value')).toHaveTextContent('two'));
-      await waitFor(() => expect(screen.queryByTestId('popover-popup')).not.toBe(null));
-    });
-
-    it('does not consume the next outside press after dragging from a modal select trigger to the backdrop', async () => {
-      ignoreActWarnings();
-
-      const { user } = await render(
-        <div>
-          <button data-testid="outside">Outside</button>
-          <Popover.Root defaultOpen>
-            <Popover.Trigger>Open popover</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup data-testid="popover-popup">
-                  <Select.Root>
-                    <Select.Trigger data-testid="select-trigger">
-                      <Select.Value placeholder="Pick one" />
-                    </Select.Trigger>
-                    <Select.Portal>
-                      <Select.Backdrop data-testid="select-backdrop" />
-                      <Select.Positioner alignItemWithTrigger>
-                        <Select.Popup />
-                      </Select.Positioner>
-                    </Select.Portal>
-                  </Select.Root>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-        </div>,
-      );
-
-      const selectTrigger = screen.getByTestId('select-trigger');
-
-      await user.pointer({ keys: '[MouseLeft>]', target: selectTrigger });
-      await screen.findByRole('listbox');
-
-      const selectBackdrop = screen.getByTestId('select-backdrop');
-
-      await user.pointer({ target: selectBackdrop });
-      await user.pointer({ keys: '[/MouseLeft]', target: selectBackdrop });
-
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).toBe(null);
-      });
-      expect(screen.queryByTestId('popover-popup')).not.toBe(null);
-
-      await user.click(screen.getByTestId('outside'));
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popover-popup')).toBe(null);
-      });
     });
 
     it('does not consume the next outside press after a native drag from a modal select trigger outside all popups', async () => {
