@@ -16,7 +16,7 @@ export default function OTPFieldGroupedDemo() {
           {Array.from({ length: 3 }, (_, index) => (
             <OTPField.Input
               key={index}
-              className="m-0 h-10 w-10 rounded-none border border-neutral-950 bg-white dark:bg-neutral-950 text-center font-inherit text-base font-normal text-neutral-950 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white"
+              className="m-0 h-10 w-10 rounded-none border border-neutral-950 bg-white dark:bg-neutral-950 text-center font-inherit text-base font-normal text-neutral-950 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white"
               aria-label={`Character ${index + 1} of ${OTP_LENGTH}`}
             />
           ))}
@@ -26,7 +26,7 @@ export default function OTPFieldGroupedDemo() {
           {Array.from({ length: 3 }, (_, index) => (
             <OTPField.Input
               key={index + 3}
-              className="m-0 h-10 w-10 rounded-none border border-neutral-950 bg-white dark:bg-neutral-950 text-center font-inherit text-base font-normal text-neutral-950 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white"
+              className="m-0 h-10 w-10 rounded-none border border-neutral-950 bg-white dark:bg-neutral-950 text-center font-inherit text-base font-normal text-neutral-950 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white"
               aria-label={`Character ${index + 4} of ${OTP_LENGTH}`}
             />
           ))}

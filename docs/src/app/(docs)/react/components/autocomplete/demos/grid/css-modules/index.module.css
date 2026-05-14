@@ -32,6 +32,7 @@
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
+    border-right: 0;
     color: white;
     background-color: var(--color-neutral-950);
   }
@@ -47,7 +48,7 @@
   &:focus {
     position: relative;
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -100,7 +101,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -155,7 +156,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -210,7 +211,6 @@
 
   &:focus {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;

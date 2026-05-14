@@ -49,7 +49,7 @@
 
   &:focus {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -60,7 +60,7 @@
 .InputInvalidA {
   border-color: var(--color-red-700);
   outline: 2px solid var(--color-red-700);
-  outline-offset: -2px;
+  outline-offset: -1px;
   animation: otp-field-shake-a 180ms ease-in-out;
 
   @media (prefers-color-scheme: dark) {
@@ -70,7 +70,7 @@
 
   &:focus {
     outline: 2px solid var(--color-red-700);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: var(--color-red-400);
@@ -81,7 +81,7 @@
 .InputInvalidB {
   border-color: var(--color-red-700);
   outline: 2px solid var(--color-red-700);
-  outline-offset: -2px;
+  outline-offset: -1px;
   animation: otp-field-shake-b 180ms ease-in-out;
 
   @media (prefers-color-scheme: dark) {
@@ -91,7 +91,7 @@
 
   &:focus {
     outline: 2px solid var(--color-red-700);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: var(--color-red-400);

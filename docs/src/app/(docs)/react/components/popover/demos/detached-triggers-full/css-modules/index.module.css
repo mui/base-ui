@@ -18,6 +18,7 @@
 
 .Popup {
   position: relative;
+  outline: none;
   background-color: white;
   color: var(--color-neutral-950);
   border: 1px solid var(--color-neutral-950);

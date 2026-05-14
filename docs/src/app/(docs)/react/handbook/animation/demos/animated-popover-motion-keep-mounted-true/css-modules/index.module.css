@@ -50,7 +50,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -74,10 +74,10 @@
   line-height: 1.25rem;
   transform-origin: var(--transform-origin);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
-
   width: var(--popup-width, auto);
   height: var(--popup-height, auto);
   max-width: 500px;
+  outline: none;
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;

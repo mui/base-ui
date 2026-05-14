@@ -11,6 +11,7 @@
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.75rem;
+  outline: none;
   border: 1px solid var(--color-neutral-950);
   background-color: white;
   color: var(--color-neutral-950);
@@ -19,7 +20,6 @@
   transition:
     transform 100ms ease-out,
     opacity 100ms ease-out;
-
   width: var(--popup-width, auto);
   height: var(--popup-height, auto);
   max-width: 500px;
@@ -174,7 +174,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;

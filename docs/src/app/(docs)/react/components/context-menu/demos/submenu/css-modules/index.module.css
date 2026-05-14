@@ -18,15 +18,6 @@
     background-color: var(--color-neutral-950);
     color: white;
   }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
-  }
 }
 
 .Positioner {

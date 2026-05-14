@@ -62,6 +62,7 @@
   }
 
   &:focus-visible {
+    position: relative;
     outline: 2px solid var(--color-neutral-950);
     z-index: 1;
 

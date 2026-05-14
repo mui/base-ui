@@ -9,7 +9,7 @@ export default function ExamplePopoverCombobox() {
         <Combobox.Label className="cursor-default text-sm leading-5 font-bold text-neutral-950 dark:text-white">
           Country
         </Combobox.Label>
-        <Combobox.Trigger className="flex h-8 min-w-40 cursor-default items-center justify-between gap-3 border border-neutral-950 bg-white px-2 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 data-popup-open:bg-neutral-100 data-placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:data-placeholder:text-neutral-400 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800">
+        <Combobox.Trigger className="flex h-8 min-w-40 cursor-default items-center justify-between gap-3 border border-neutral-950 bg-white px-2 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 data-popup-open:bg-neutral-100 data-placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:data-placeholder:text-neutral-400 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800">
           <Combobox.Value placeholder="Select country" />
           <Combobox.Icon className="text-neutral-950 dark:text-white">
             <ChevronUpDownIcon />
@@ -24,7 +24,7 @@ export default function ExamplePopoverCombobox() {
               <div className="h-[var(--input-container-height)] w-80 bg-white text-center dark:bg-neutral-950">
                 <Combobox.Input
                   placeholder="e.g. United Kingdom"
-                  className="h-8 w-full min-w-72 border-0 bg-white px-2 dark:bg-neutral-950 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:text-white"
+                  className="h-8 w-full min-w-72 border-0 bg-white px-2 dark:bg-neutral-950 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:text-white"
                 />
               </div>
               <Combobox.Empty>

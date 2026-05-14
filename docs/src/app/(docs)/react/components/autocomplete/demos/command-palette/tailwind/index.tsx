@@ -13,7 +13,7 @@ export default function ExampleAutocompleteCommandPalette() {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger className="flex h-8 cursor-default items-center justify-center border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700">
+      <Dialog.Trigger className="flex h-8 cursor-default items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700">
         Open command palette
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -31,13 +31,13 @@ export default function ExampleAutocompleteCommandPalette() {
               keepHighlight
             >
               <Autocomplete.Input
-                className="h-10 w-full border-0 border-b border-neutral-950 bg-white px-4 text-sm any-pointer-coarse:text-base font-normal tracking-[0.016em] text-neutral-950 outline-none placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
+                className="relative z-1 h-10 w-full border-0 bg-white px-3 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
                 placeholder="Search for apps and commands…"
               />
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
 
-              <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden">
-                <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain [scroll-padding-block:0.25rem] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
+              <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden border-t border-neutral-950 dark:border-t-white">
+                <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain [scroll-padding-block:0.25rem] focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
                   <ScrollArea.Content style={{ minWidth: '100%' }}>
                     <Autocomplete.Empty>
                       <div className="flex min-h-32 items-center justify-start py-4 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
@@ -52,7 +52,7 @@ export default function ExampleAutocompleteCommandPalette() {
                           items={group.items}
                           className="not-last:mb-1"
                         >
-                          <Autocomplete.GroupLabel className="m-0 flex min-h-8 items-center pr-6 pl-4 text-sm leading-none font-normal text-neutral-500 select-none outline-none dark:text-neutral-400">
+                          <Autocomplete.GroupLabel className="flex min-h-8 items-center pr-6 pl-3 text-sm leading-none font-normal text-neutral-500 select-none outline-none dark:text-neutral-400">
                             {group.value}
                           </Autocomplete.GroupLabel>
                           <Autocomplete.Collection>
@@ -61,10 +61,10 @@ export default function ExampleAutocompleteCommandPalette() {
                                 key={item.value}
                                 value={item}
                                 onClick={handleItemClick}
-                                className="group grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-6 text-sm font-normal leading-[1.25] tracking-[0.016em] outline-none select-none [scroll-margin-block:0.25rem] data-highlighted:bg-neutral-100 dark:data-highlighted:bg-neutral-800"
+                                className="group grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-6 text-sm font-normal leading-[1.25] outline-none select-none [scroll-margin-block:0.25rem] data-highlighted:bg-neutral-100 dark:data-highlighted:bg-neutral-800"
                               >
                                 <span className="min-w-0 truncate font-normal">{item.label}</span>
-                                <span className="shrink-0 whitespace-nowrap text-[0.875rem] tracking-[0.00625em] text-neutral-500 group-data-highlighted:text-neutral-700 dark:text-neutral-400 dark:group-data-highlighted:text-neutral-300">
+                                <span className="shrink-0 whitespace-nowrap text-sm text-neutral-500 group-data-highlighted:text-neutral-700 dark:text-neutral-400 dark:group-data-highlighted:text-neutral-300">
                                   {group.value === 'Suggestions' ? 'Application' : 'Command'}
                                 </span>
                               </Autocomplete.Item>
@@ -75,12 +75,12 @@ export default function ExampleAutocompleteCommandPalette() {
                     </Autocomplete.List>
                   </ScrollArea.Content>
                 </ScrollArea.Viewport>
-                <ScrollArea.Scrollbar className="flex w-2 justify-center bg-black/12 opacity-0 transition-opacity pointer-events-none data-hovering:opacity-100 data-hovering:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0 data-scrolling:pointer-events-auto dark:bg-white/12">
+                <ScrollArea.Scrollbar className="flex w-2 justify-center bg-black/12 opacity-0 transition-opacity duration-150 pointer-events-none data-hovering:opacity-100 data-hovering:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0 data-scrolling:pointer-events-auto dark:bg-white/12">
                   <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
                 </ScrollArea.Scrollbar>
               </ScrollArea.Root>
 
-              <div className="flex items-center justify-between border-t border-neutral-950 bg-white px-4 py-2.5 text-xs text-neutral-600 dark:border-white dark:bg-neutral-950 dark:text-neutral-400">
+              <div className="flex items-center justify-between border-t border-neutral-950 bg-white px-3 py-2.5 text-xs text-neutral-600 dark:border-white dark:bg-neutral-950 dark:text-neutral-400">
                 <div className="flex items-center gap-1">
                   <span>Activate</span>
                   <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-400 bg-neutral-100 px-1 font-mono text-[0.625rem] leading-none font-normal text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">

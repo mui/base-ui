@@ -45,7 +45,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -67,6 +67,10 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    position: absolute;
   }
 }
 
@@ -93,7 +97,6 @@
   max-height: min(36rem, calc(100dvh - 5rem));
   display: flex;
   flex-direction: column;
-
   border: 1px solid var(--color-neutral-950);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
 
@@ -113,10 +116,11 @@
 
 .Input {
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
   padding: 0 0.75rem;
   margin: 0;
   border: none;
-  border-bottom: 1px solid var(--color-neutral-950);
   width: 100%;
   height: 2.5rem;
   border-radius: 0;
@@ -126,7 +130,6 @@
   font-weight: 400;
   background-color: white;
   color: var(--color-neutral-950);
-  letter-spacing: 0.016em;
   outline: none;
 
   @media (any-pointer: coarse) {
@@ -135,7 +138,6 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    border-bottom: 1px solid white;
     background-color: var(--color-neutral-950);
     color: white;
   }
@@ -150,7 +152,6 @@
 
   &:focus {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -165,6 +166,11 @@
   min-height: 0;
   max-height: min(60dvh, 24rem);
   overflow: hidden;
+  border-top: 1px solid var(--color-neutral-950);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+  }
 }
 
 .ListViewport {
@@ -176,7 +182,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -207,6 +213,7 @@
   display: flex;
   align-items: center;
   min-height: 2rem;
+  margin: 0;
   padding: 0 1.5rem 0 0.75rem;
   font-size: 0.875rem;
   line-height: 1;
@@ -231,7 +238,6 @@
   gap: 0.5rem;
   align-items: center;
   font-size: 0.875rem;
-  letter-spacing: 0.016em;
   line-height: 1.25;
   font-weight: 400;
 
@@ -255,7 +261,6 @@
 .ItemType {
   font-size: 0.875rem;
   color: var(--color-neutral-500);
-  letter-spacing: 0.00625em;
   white-space: nowrap;
 
   @media (prefers-color-scheme: dark) {

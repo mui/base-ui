@@ -56,7 +56,6 @@
   &:focus-visible {
     background-color: transparent;
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;

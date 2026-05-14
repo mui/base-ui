@@ -65,7 +65,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -264,7 +264,7 @@
 @media (min-width: 700px) {
   .SubmenuList {
     flex-direction: column;
-    gap: 0;
+    gap: 1px;
     overflow-x: visible;
     overflow-y: clip;
     border-right: 1px solid var(--color-neutral-950);
@@ -313,7 +313,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -483,7 +483,7 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-neutral-950);
-    outline-offset: -2px;
+    outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;

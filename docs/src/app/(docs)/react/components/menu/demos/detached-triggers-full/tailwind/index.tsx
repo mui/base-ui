@@ -44,7 +44,7 @@ const triggerClass = `
   dark:border-white dark:bg-neutral-950 dark:text-white
   dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800
   focus-visible:outline focus-visible:outline-2
-  focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white
+  focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white
 `;
 
 const itemClass = `
