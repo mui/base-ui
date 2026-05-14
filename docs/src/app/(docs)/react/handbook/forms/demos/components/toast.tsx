@@ -20,7 +20,7 @@ function Toasts() {
           <pre className="whitespace-pre-wrap">{JSON.stringify(toast.data, null, 2)}</pre>
         </div>
         <Toast.Close
-          className="absolute top-2 right-2 flex size-6 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700"
+          className="absolute top-3 right-3 flex size-8 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 hover:bg-neutral-100 active:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700"
           aria-label="Close"
         >
           <XIcon />
@@ -48,17 +48,17 @@ export const useToastManager = Toast.useToastManager;
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1"
+      strokeLinecap="square"
+      strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
-      <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
+      <path d="m2.5 2.5 11 11m-11 0 11-11" />
     </svg>
   );
 }

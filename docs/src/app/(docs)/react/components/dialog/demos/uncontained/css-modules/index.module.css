@@ -159,8 +159,6 @@
 
   @media (min-width: 80rem) {
     top: 0;
-    width: 2.5rem;
-    height: 2.5rem;
   }
 
   @media (prefers-color-scheme: dark) {

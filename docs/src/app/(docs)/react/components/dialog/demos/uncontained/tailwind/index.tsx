@@ -11,7 +11,7 @@ export default function ExampleUncontainedDialog() {
         <Dialog.Viewport className="fixed inset-0 grid place-items-center px-4 py-12 xl:py-6">
           <Dialog.Popup className="group/popup relative flex h-full w-full max-w-[70rem] xl:max-w-none justify-center pointer-events-none transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0">
             <Dialog.Close
-              className="absolute right-0 -top-10 flex h-8 w-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 xl:top-0 xl:h-10 xl:w-10 pointer-events-auto focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
+              className="absolute right-0 -top-10 flex h-8 w-8 items-center justify-center border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 active:bg-neutral-200 dark:active:bg-neutral-700 xl:top-0 pointer-events-auto focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
               aria-label="Close"
             >
               <XIcon />
@@ -27,17 +27,17 @@ export default function ExampleUncontainedDialog() {
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1"
+      strokeLinecap="square"
+      strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M18 6 6 18" vectorEffect="non-scaling-stroke" />
-      <path d="m6 6 12 12" vectorEffect="non-scaling-stroke" />
+      <path d="m2.5 2.5 11 11m-11 0 11-11" />
     </svg>
   );
 }
