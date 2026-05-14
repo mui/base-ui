@@ -18,7 +18,7 @@ export default function ExampleSelect() {
         <Select.Trigger className={styles.Select}>
           <Select.Value className={styles.Value} placeholder="Select apple" />
           <Select.Icon>
-            <ChevronUpDownIcon />
+            <CaretUpDownIcon />
           </Select.Icon>
         </Select.Trigger>
         <Select.Portal>
@@ -44,20 +44,17 @@ export default function ExampleSelect() {
   );
 }
 
-function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
+function CaretUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="m7 15 5 5 5-5" vectorEffect="non-scaling-stroke" />
-      <path d="m7 9 5-5 5 5" vectorEffect="non-scaling-stroke" />
+      <path d="M11 10H5l3 3.5zm0-4H5l3-3.5z" />
     </svg>
   );
 }

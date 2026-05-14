@@ -9,7 +9,7 @@ export default function ObjectValueSelect() {
         <Select.Label className="cursor-default text-sm font-bold text-neutral-950 dark:text-white">
           Shipping method
         </Select.Label>
-        <Select.Trigger className="flex min-h-8 min-w-[16rem] items-center justify-between gap-3 pl-2 pr-2 py-1.5 text-sm leading-none whitespace-nowrap border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-popup-open:bg-neutral-100 dark:data-popup-open:bg-neutral-800 font-normal focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
+        <Select.Trigger className="flex min-h-8 min-w-[16rem] items-center justify-between gap-3 pl-2 pr-1 py-1.5 text-sm leading-none whitespace-nowrap border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 data-popup-open:bg-neutral-100 dark:data-popup-open:bg-neutral-800 font-normal focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
           <Select.Value>
             {(method: ShippingMethod) => (
               <span className="flex flex-col items-start gap-0.5">
@@ -21,7 +21,7 @@ export default function ObjectValueSelect() {
             )}
           </Select.Value>
           <Select.Icon>
-            <ChevronUpDownIcon />
+            <CaretUpDownIcon />
           </Select.Icon>
         </Select.Trigger>
         <Select.Portal>
@@ -60,20 +60,17 @@ export default function ObjectValueSelect() {
   );
 }
 
-function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
+function CaretUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="m7 15 5 5 5-5" vectorEffect="non-scaling-stroke" />
-      <path d="m7 9 5-5 5 5" vectorEffect="non-scaling-stroke" />
+      <path d="M11 10H5l3 3.5zm0-4H5l3-3.5z" />
     </svg>
   );
 }
