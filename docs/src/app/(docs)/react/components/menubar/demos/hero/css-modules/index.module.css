@@ -103,7 +103,8 @@
   }
 }
 
-.MenuItem {
+.MenuItem,
+.SubmenuTrigger {
   outline: 0;
   cursor: default;
   user-select: none;
@@ -165,6 +166,10 @@
       background-color: white;
     }
   }
+}
+
+.SubmenuTrigger {
+  padding-right: 0.5rem;
 }
 
 .MenuSeparator {

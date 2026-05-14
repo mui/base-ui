@@ -23,9 +23,9 @@ export default function ExampleMenubar() {
               </Menu.Item>
 
               <Menu.SubmenuRoot>
-                <Menu.SubmenuTrigger className={styles.MenuItem}>
+                <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                   Export
-                  <ChevronRightIcon />
+                  <CaretRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner
@@ -91,7 +91,7 @@ export default function ExampleMenubar() {
               <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger className={styles.MenuItem}>
                   Layout
-                  <ChevronRightIcon />
+                  <CaretRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner
@@ -135,18 +135,17 @@ function handleClick(event: React.MouseEvent<HTMLElement>) {
   console.log(`${event.currentTarget.textContent} clicked`);
 }
 
-function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
+function CaretRightIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 10 10"
-      fill="none"
-      strokeWidth="1"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentColor" vectorEffect="non-scaling-stroke" />
+      <path d="M6 12V4l4.5 4z" />
     </svg>
   );
 }

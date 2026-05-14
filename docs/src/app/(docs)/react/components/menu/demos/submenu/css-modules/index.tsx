@@ -7,7 +7,7 @@ export default function ExampleMenu() {
   return (
     <Menu.Root>
       <Menu.Trigger className={styles.Button}>
-        Song <ChevronDownIcon />
+        Song <CaretDownIcon />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner className={styles.Positioner} sideOffset={8}>
@@ -17,7 +17,7 @@ export default function ExampleMenu() {
             <Menu.SubmenuRoot>
               <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                 Add to Playlist
-                <ChevronRightIcon />
+                <CaretRightIcon />
               </Menu.SubmenuTrigger>
               <Menu.Portal>
                 <Menu.Positioner
@@ -53,34 +53,32 @@ function getOffset({ side }: { side: Menu.Positioner.Props['side'] }) {
   return side === 'top' || side === 'bottom' ? 4 : -4;
 }
 
-function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
+function CaretDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 10 10"
-      fill="none"
-      strokeWidth="1"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
+      <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }
 
-function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
+function CaretRightIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 10 10"
-      fill="none"
-      strokeWidth="1"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentColor" vectorEffect="non-scaling-stroke" />
+      <path d="M6 12V4l4.5 4z" />
     </svg>
   );
 }

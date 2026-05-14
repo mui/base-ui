@@ -16,7 +16,7 @@ export default function ExampleGroupedCombobox() {
               <XIcon />
             </Combobox.Clear>
             <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-              <ChevronDownIcon />
+              <CaretDownIcon />
             </Combobox.Trigger>
           </div>
         </Combobox.InputGroup>
@@ -89,18 +89,17 @@ function XIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
+function CaretDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="10"
-      height="10"
-      viewBox="0 0 10 10"
-      fill="none"
-      strokeWidth="1"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
+      <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }

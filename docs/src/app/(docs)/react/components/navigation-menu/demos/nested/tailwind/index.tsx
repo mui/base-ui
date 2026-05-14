@@ -9,7 +9,7 @@ export default function ExampleNavigationMenu() {
           <NavigationMenu.Trigger className={triggerClassName}>
             Overview
             <NavigationMenu.Icon className="transition-transform duration-150 ease-[ease] data-popup-open:rotate-180">
-              <ChevronDownIcon />
+              <CaretDownIcon />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
 
@@ -34,7 +34,7 @@ export default function ExampleNavigationMenu() {
                         How to use Base UI effectively.
                       </p>
                       <NavigationMenu.Icon className="absolute top-1/2 right-2.5 flex -translate-y-1/2 items-center justify-center transition-transform duration-200 ease-in-out data-popup-open:rotate-180">
-                        <ChevronRightIcon />
+                        <CaretRightIcon />
                       </NavigationMenu.Icon>
                     </NavigationMenu.Trigger>
                     <NavigationMenu.Content className={contentClassName}>
@@ -113,34 +113,32 @@ function Link(props: NavigationMenu.Link.Props) {
   );
 }
 
-function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
+function CaretDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 10 10"
-      fill="none"
-      strokeWidth="1"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
+      <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }
 
-function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
+function CaretRightIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="10"
-      height="10"
-      viewBox="0 0 10 10"
-      fill="none"
-      strokeWidth="1"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M3.5 1L7.5 5L3.5 9" stroke="currentColor" strokeWidth="1" />
+      <path d="M6 12V4l4.5 4z" />
     </svg>
   );
 }

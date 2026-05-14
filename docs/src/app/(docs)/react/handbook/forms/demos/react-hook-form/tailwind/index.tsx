@@ -101,7 +101,7 @@ function ReactHookForm() {
                   <div className="absolute right-0 bottom-0 inline-flex h-full items-center justify-center text-neutral-500 dark:text-neutral-400">
                     <Combobox.Clear />
                     <Combobox.Trigger>
-                      <Combobox.ChevronDownIcon />
+                      <Combobox.CaretDownIcon />
                     </Combobox.Trigger>
                   </div>
                 </Combobox.InputGroup>

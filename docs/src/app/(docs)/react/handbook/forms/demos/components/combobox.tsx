@@ -127,18 +127,17 @@ export function ItemIndicator({ className, ...props }: Combobox.ItemIndicator.Pr
   return <Combobox.ItemIndicator className={clsx('col-start-1', className)} {...props} />;
 }
 
-export function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
+export function CaretDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="12"
-      height="12"
-      viewBox="0 0 10 10"
-      fill="none"
-      strokeWidth="1"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" vectorEffect="non-scaling-stroke" />
+      <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }

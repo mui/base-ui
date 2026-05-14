@@ -111,7 +111,7 @@
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1rem;
-  padding-right: 2rem;
+  padding-right: 1.5rem;
   display: flex;
   font-size: 0.875rem;
   line-height: 1rem;
@@ -177,7 +177,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-right: 1rem;
+  padding-right: 0.5rem;
 }
 
 .Separator {
