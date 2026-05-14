@@ -8,6 +8,14 @@
   @media (prefers-color-scheme: dark) {
     background-color: var(--color-neutral-800);
   }
+
+  &:has(.Viewport:focus-visible) {
+    outline: 2px solid var(--color-neutral-950);
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
 }
 
 .Viewport {
@@ -22,18 +30,10 @@
     transparent 100%
   );
   mask-repeat: no-repeat;
+  outline: none;
 
   @media (prefers-color-scheme: dark) {
     background: var(--color-neutral-800);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
   }
 }
 
