@@ -1,6 +1,6 @@
-import { createSelector } from '@base-ui/utils/store';
+import { createSelector } from '@base-ui/utils/store/core';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingRootContext } from '../../floating-ui-react/types';
 import { FloatingRootStore } from '../../floating-ui-react/components/FloatingRootStore';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { TransitionStatus } from '../../internals/useTransitionStatus';

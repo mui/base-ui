@@ -3,11 +3,10 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
-import type { ReactStore } from '@base-ui/utils/store';
+import type { ReactStore } from '@base-ui/utils/store/core';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
@@ -85,7 +84,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const popupElement = store.useState('popupElement');
   const positionerElement = store.useState('positionerElement');
 
-  const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
+  const previousActiveTriggerRef = React.useRef<Element | null>(null);
   // Remount current content on trigger changes (and once more when payload lags) to avoid DOM reuse flashes.
   // The key bumps immediately on trigger switches, then again if the payload arrives on a later render.
   const currentContentKey = usePopupContentKey(activeTriggerId, payload);
@@ -136,6 +135,9 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
 
   useIsoLayoutEffect(() => {
+    const previousActiveTrigger = previousActiveTriggerRef.current;
+    previousActiveTriggerRef.current = open ? activeTrigger : null;
+
     // When a trigger changes, set the captured children HTML to state,
     // so we can render both new and old content.
     if (
@@ -166,13 +168,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
 
       lastHandledTriggerRef.current = activeTrigger;
     }
-  }, [
-    activeTrigger,
-    previousActiveTrigger,
-    previousContentNode,
-    onAnimationsFinished,
-    cleanupFrame,
-  ]);
+  }, [activeTrigger, open, previousContentNode, onAnimationsFinished, cleanupFrame]);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
@@ -319,18 +315,9 @@ function calculateRelativePosition(from: Element, to: Element): Offset {
   const fromRect = from.getBoundingClientRect();
   const toRect = to.getBoundingClientRect();
 
-  const fromCenter = {
-    x: fromRect.left + fromRect.width / 2,
-    y: fromRect.top + fromRect.height / 2,
-  };
-  const toCenter = {
-    x: toRect.left + toRect.width / 2,
-    y: toRect.top + toRect.height / 2,
-  };
-
   return {
-    horizontal: toCenter.x - fromCenter.x,
-    vertical: toCenter.y - fromCenter.y,
+    horizontal: toRect.left + toRect.width / 2 - fromRect.left - fromRect.width / 2,
+    vertical: toRect.top + toRect.height / 2 - fromRect.top - fromRect.height / 2,
   };
 }
 

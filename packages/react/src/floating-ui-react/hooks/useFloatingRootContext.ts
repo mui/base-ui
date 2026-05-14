@@ -3,7 +3,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { PopupTriggerMap } from '../../utils/popups';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingRootStore, type FloatingRootState } from '../components/FloatingRootStore';

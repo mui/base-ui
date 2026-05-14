@@ -11,7 +11,7 @@ import { transitionStatusMapping } from '../../internals/stateAttributesMapping'
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { useHoverFloatingInteraction } from '../../floating-ui-react';
+import { useHoverFloatingInteraction } from '../../floating-ui-react/hooks/useHoverFloatingInteraction';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipPopupState> = {
   ...baseMapping,

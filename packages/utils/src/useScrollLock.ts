@@ -13,19 +13,15 @@ let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
 
 function hasInsetScrollbars(referenceElement: Element | null) {
-  if (typeof document === 'undefined') {
-    return false;
-  }
   const doc = ownerDocument(referenceElement);
   const win = ownerWindow(doc);
   return win.innerWidth - doc.documentElement.clientWidth > 0;
 }
 
 function supportsStableScrollbarGutter(referenceElement: Element | null) {
-  const supported =
-    typeof CSS !== 'undefined' && CSS.supports && CSS.supports('scrollbar-gutter', 'stable');
+  const supported = typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable');
 
-  if (!supported || typeof document === 'undefined') {
+  if (!supported) {
     return false;
   }
 
@@ -90,7 +86,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
   if (isWebKit && (win.visualViewport?.scale ?? 1) !== 1) {
-    return () => {};
+    return NOOP;
   }
 
   function lockScroll() {
@@ -214,64 +210,60 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
   };
 }
 
-class ScrollLocker {
-  lockCount = 0;
-  restore = null as (() => void) | null;
-  timeoutLock = Timeout.create();
-  timeoutUnlock = Timeout.create();
+let lockCount = 0;
+let restore: (() => void) | null = null;
+const timeoutLock = Timeout.create();
+const timeoutUnlock = Timeout.create();
 
-  acquire(referenceElement: Element | null) {
-    this.lockCount += 1;
-    if (this.lockCount === 1 && this.restore === null) {
-      this.timeoutLock.start(0, () => this.lock(referenceElement));
-    }
-    return this.release;
-  }
-
-  release = () => {
-    this.lockCount -= 1;
-    if (this.lockCount === 0 && this.restore) {
-      this.timeoutUnlock.start(0, this.unlock);
-    }
-  };
-
-  private unlock = () => {
-    if (this.lockCount === 0 && this.restore) {
-      this.restore?.();
-      this.restore = null;
-    }
-  };
-
-  private lock(referenceElement: Element | null) {
-    if (this.lockCount === 0 || this.restore !== null) {
-      return;
-    }
-
-    const doc = ownerDocument(referenceElement);
-    const html = doc.documentElement;
-    const htmlOverflowY = ownerWindow(html).getComputedStyle(html).overflowY;
-
-    // If the site author already hid overflow on <html>, respect it and bail out.
-    if (htmlOverflowY === 'hidden' || htmlOverflowY === 'clip') {
-      this.restore = NOOP;
-      return;
-    }
-
-    const hasOverlayScrollbars = isIOS || !hasInsetScrollbars(referenceElement);
-
-    // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
-    // side effects and bugs that arise on iOS, it must be researched extensively before
-    // being enabled to ensure it doesn't cause the following issues:
-    // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
-    // - The navbar must not force itself into view and cause layout shift.
-    // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
-    this.restore = hasOverlayScrollbars
-      ? preventScrollOverlayScrollbars(referenceElement)
-      : preventScrollInsetScrollbars(referenceElement);
+function unlock() {
+  if (lockCount === 0 && restore) {
+    restore();
+    restore = null;
   }
 }
 
-const SCROLL_LOCKER = new ScrollLocker();
+function release() {
+  lockCount -= 1;
+  if (lockCount === 0 && restore) {
+    timeoutUnlock.start(0, unlock);
+  }
+}
+
+function lock(referenceElement: Element | null) {
+  if (lockCount === 0 || restore !== null) {
+    return;
+  }
+
+  const doc = ownerDocument(referenceElement);
+  const html = doc.documentElement;
+  const htmlOverflowY = ownerWindow(html).getComputedStyle(html).overflowY;
+
+  // If the site author already hid overflow on <html>, respect it and bail out.
+  if (htmlOverflowY === 'hidden' || htmlOverflowY === 'clip') {
+    restore = NOOP;
+    return;
+  }
+
+  const hasOverlayScrollbars = isIOS || !hasInsetScrollbars(referenceElement);
+
+  // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
+  // side effects and bugs that arise on iOS, it must be researched extensively before
+  // being enabled to ensure it doesn't cause the following issues:
+  // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
+  // - The navbar must not force itself into view and cause layout shift.
+  // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
+  restore = hasOverlayScrollbars
+    ? preventScrollOverlayScrollbars(referenceElement)
+    : preventScrollInsetScrollbars(referenceElement);
+}
+
+function acquire(referenceElement: Element | null) {
+  lockCount += 1;
+  if (lockCount === 1 && restore === null) {
+    timeoutLock.start(0, () => lock(referenceElement));
+  }
+  return release;
+}
 
 /**
  * Locks the scroll of the document when enabled.
@@ -284,6 +276,6 @@ export function useScrollLock(enabled: boolean = true, referenceElement: Element
     if (!enabled) {
       return undefined;
     }
-    return SCROLL_LOCKER.acquire(referenceElement);
+    return acquire(referenceElement);
   }, [enabled, referenceElement]);
 }

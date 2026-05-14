@@ -11,37 +11,37 @@ import {
   limitShift,
   offset,
   shift,
-  useFloating,
   size,
-  type UseFloatingOptions,
   type Placement,
-  type FloatingRootContext,
   type VirtualElement,
   type Padding,
-  type FloatingContext,
   type Side as PhysicalSide,
   type MiddlewareState,
   type AutoUpdateOptions,
   type Middleware,
-  type FloatingTreeStore,
-} from '../floating-ui-react';
+} from '@floating-ui/react-dom';
+import type {
+  FloatingRootContext,
+  FloatingContext,
+  UseFloatingOptions,
+} from '../floating-ui-react/types';
+import type { FloatingTreeStore } from '../floating-ui-react/components/FloatingTreeStore';
+import { useFloating } from '../floating-ui-react/hooks/useFloating';
 import { useDirection } from '../internals/direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
-  const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
-  const logicalRight = isRtl ? 'inline-start' : 'inline-end';
-  const logicalLeft = isRtl ? 'inline-end' : 'inline-start';
-  return (
-    {
-      top: 'top',
-      right: isLogicalSideParam ? logicalRight : 'right',
-      bottom: 'bottom',
-      left: isLogicalSideParam ? logicalLeft : 'left',
-    } satisfies Record<PhysicalSide, Side>
-  )[renderedSide];
+  if (
+    (sideParam === 'inline-start' || sideParam === 'inline-end') &&
+    renderedSide !== 'top' &&
+    renderedSide !== 'bottom'
+  ) {
+    return (renderedSide === 'right') === isRtl ? 'inline-start' : 'inline-end';
+  }
+
+  return renderedSide;
 }
 
 function getOffsetData(state: MiddlewareState, sideParam: Side, isRtl: boolean) {
@@ -157,27 +157,27 @@ export function useAnchorPositioning(
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
 
-  const anchorFn = typeof anchor === 'function' ? anchor : undefined;
-  const anchorFnCallback = useStableCallback(anchorFn);
-  const anchorDep = anchorFn ? anchorFnCallback : anchor;
+  const anchorFnCallback = useStableCallback(typeof anchor === 'function' ? anchor : undefined);
+  const anchorDep = typeof anchor === 'function' ? anchorFnCallback : anchor;
   const anchorValueRef = useValueAsRef(anchor);
   const mountedRef = useValueAsRef(mounted);
 
   const direction = useDirection();
   const isRtl = direction === 'rtl';
 
+  /* eslint-disable no-nested-ternary */
   const side =
     mountSide ||
-    (
-      {
-        top: 'top',
-        right: 'right',
-        bottom: 'bottom',
-        left: 'left',
-        'inline-end': isRtl ? 'left' : 'right',
-        'inline-start': isRtl ? 'right' : 'left',
-      } satisfies Record<Side, PhysicalSide>
-    )[sideParam];
+    (sideParam === 'inline-end'
+      ? isRtl
+        ? 'left'
+        : 'right'
+      : sideParam === 'inline-start'
+        ? isRtl
+          ? 'right'
+          : 'left'
+        : sideParam);
+  /* eslint-enable no-nested-ternary */
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
 
@@ -191,25 +191,19 @@ export function useAnchorPositioning(
   // Create a bias to the preferred side.
   // On iOS, when the mobile software keyboard opens, the input is exactly centered
   // in the viewport, but this can cause it to flip to the top undesirably.
-  const bias = 1;
-  const biasTop = sideParam === 'bottom' ? bias : 0;
-  const biasBottom = sideParam === 'top' ? bias : 0;
-  const biasLeft = sideParam === 'right' ? bias : 0;
-  const biasRight = sideParam === 'left' ? bias : 0;
-
   if (typeof collisionPadding === 'number') {
     collisionPadding = {
-      top: collisionPadding + biasTop,
-      right: collisionPadding + biasRight,
-      bottom: collisionPadding + biasBottom,
-      left: collisionPadding + biasLeft,
+      top: collisionPadding + (sideParam === 'bottom' ? 1 : 0),
+      right: collisionPadding + (sideParam === 'left' ? 1 : 0),
+      bottom: collisionPadding + (sideParam === 'top' ? 1 : 0),
+      left: collisionPadding + (sideParam === 'right' ? 1 : 0),
     };
   } else if (collisionPadding) {
     collisionPadding = {
-      top: (collisionPadding.top || 0) + biasTop,
-      right: (collisionPadding.right || 0) + biasRight,
-      bottom: (collisionPadding.bottom || 0) + biasBottom,
-      left: (collisionPadding.left || 0) + biasLeft,
+      top: (collisionPadding.top || 0) + (sideParam === 'bottom' ? 1 : 0),
+      right: (collisionPadding.right || 0) + (sideParam === 'left' ? 1 : 0),
+      bottom: (collisionPadding.bottom || 0) + (sideParam === 'top' ? 1 : 0),
+      left: (collisionPadding.left || 0) + (sideParam === 'right' ? 1 : 0),
     };
   }
 
@@ -271,10 +265,10 @@ export function useAnchorPositioning(
           // Ensure the popup flips if it's been limited by its --available-height and it resizes.
           // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
           padding: {
-            top: collisionPadding.top + bias,
-            right: collisionPadding.right + bias,
-            bottom: collisionPadding.bottom + bias,
-            left: collisionPadding.left + bias,
+            top: collisionPadding.top + 1,
+            right: collisionPadding.right + 1,
+            bottom: collisionPadding.bottom + 1,
+            left: collisionPadding.left + 1,
           },
           mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
           crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
@@ -381,12 +375,16 @@ export function useAnchorPositioning(
             : sideOffset;
         const isOverlappingAnchor = shiftY > sideOffsetValue;
 
-        const adjacentTransformOrigin = {
-          top: `${transformX}px calc(100% + ${sideOffsetValue}px)`,
-          bottom: `${transformX}px ${-sideOffsetValue}px`,
-          left: `calc(100% + ${sideOffsetValue}px) ${transformY}px`,
-          right: `${-sideOffsetValue}px ${transformY}px`,
-        }[currentRenderedSide];
+        /* eslint-disable no-nested-ternary */
+        const adjacentTransformOrigin =
+          currentRenderedSide === 'top'
+            ? `${transformX}px calc(100% + ${sideOffsetValue}px)`
+            : currentRenderedSide === 'bottom'
+              ? `${transformX}px ${-sideOffsetValue}px`
+              : currentRenderedSide === 'left'
+                ? `calc(100% + ${sideOffsetValue}px) ${transformY}px`
+                : `${-sideOffsetValue}px ${transformY}px`;
+        /* eslint-enable no-nested-ternary */
         const overlapTransformOrigin = `${transformX}px ${rects.reference.y + halfAnchorHeight - y}px`;
 
         elements.floating.style.setProperty(

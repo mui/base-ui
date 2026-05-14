@@ -3,7 +3,7 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { FloatingNode } from '../../floating-ui-react';
+import { FloatingNode } from '../../floating-ui-react/components/FloatingTree';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';

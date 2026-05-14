@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
+import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
 import {

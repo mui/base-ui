@@ -11,6 +11,7 @@
   },
   "exports": {
     "./store": "./src/store/index.ts",
+    "./store/core": "./src/store/core.ts",
     "./*": "./src/*.ts"
   },
   "imports": {

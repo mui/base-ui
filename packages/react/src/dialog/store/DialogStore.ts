@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { createSelector, ReactStore } from '@base-ui/utils/store/core';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
 import {
@@ -8,10 +8,9 @@ import {
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
-  PopupTriggerMap,
-  setOpenTriggerState,
-  usePopupStore,
-} from '../../utils/popups';
+} from '../../utils/popups/store';
+import { PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
+import { setOpenTriggerState, usePopupStore } from '../../utils/popups/popupStoreUtils';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   modal: boolean | 'trap-focus';

@@ -7,9 +7,9 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { DialogHandle } from '../store/DialogHandle';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useClick } from '../../floating-ui-react';
+import { useClickTriggerPress } from '../../utils/popups/useTriggerPress';
 import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**
@@ -63,7 +63,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     native: nativeButton,
   });
 
-  const click = useClick(floatingContext, { enabled: floatingContext != null });
+  const click = useClickTriggerPress(floatingContext);
   const interactionTypeProps = useOpenMethodTriggerProps(
     () => store.select('open'),
     (interactionType) => {

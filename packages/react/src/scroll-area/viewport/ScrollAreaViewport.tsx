@@ -245,7 +245,9 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
     }
 
-    const overflowMetricsPx: Array<[ScrollAreaViewportCssVars, number]> = [
+    const overflowMetricsPx: Array<
+      [(typeof ScrollAreaViewportCssVars)[keyof typeof ScrollAreaViewportCssVars], number]
+    > = [
       [ScrollAreaViewportCssVars.scrollAreaOverflowXStart, scrollLeftFromStart],
       [ScrollAreaViewportCssVars.scrollAreaOverflowXEnd, scrollLeftFromEnd],
       [ScrollAreaViewportCssVars.scrollAreaOverflowYStart, scrollTopFromStart],

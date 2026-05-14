@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { ElementProps } from '../../floating-ui-react';
+import type { ElementProps } from '../../floating-ui-react/types';
 
 export const NavigationMenuDismissContext = React.createContext<ElementProps | undefined>(
   undefined,

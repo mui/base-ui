@@ -8,16 +8,13 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { Store, useStore } from '@base-ui/utils/store';
+import { Store, useStore } from '@base-ui/utils/store/core';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
-import {
-  ElementProps,
-  useDismiss,
-  useFloatingRootContext,
-  useListNavigation,
-  useClick,
-} from '../../floating-ui-react';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import type { ElementProps } from '../../floating-ui-react/types';
+import { useDismissCore as useDismiss } from '../../floating-ui-react/hooks/useDismissCore';
+import { useFloatingRootContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { useListNavigation } from '../../floating-ui-react/hooks/useListNavigation';
+import { contains, getTarget } from '../../internals/shadowDom';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -41,10 +38,11 @@ import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from '.
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { HTMLProps } from '../../internals/types';
+import { useInputPress } from '../../utils/popups/useTriggerPress';
+import type { HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 import { mergeProps } from '../../merge-props';
 import {
   stringifyAsLabel,
@@ -266,11 +264,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     if (isGrouped) {
-      const groupedItems = items;
       const resultingGroups: Group<Value>[] = [];
       let currentCount = 0;
 
-      for (const group of groupedItems) {
+      for (const group of items) {
         if (limit > -1 && currentCount >= limit) {
           break;
         }
@@ -284,14 +281,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           continue;
         }
 
-        const remainingLimit = limit > -1 ? limit - currentCount : Infinity;
-        const itemsToTake = candidateItems.slice(0, remainingLimit);
-
-        if (itemsToTake.length > 0) {
-          const newGroup = { ...group, items: itemsToTake };
-          resultingGroups.push(newGroup);
-          currentCount += itemsToTake.length;
-        }
+        const itemsToTake =
+          limit > -1 ? candidateItems.slice(0, limit - currentCount) : candidateItems;
+        resultingGroups.push({ ...group, items: itemsToTake });
+        currentCount += itemsToTake.length;
       }
 
       return resultingGroups;
@@ -385,9 +378,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         inline: inlineProp,
         activeIndex: null,
         selectedIndex: null,
-        popupProps: {},
+        popupProps: EMPTY_OBJECT,
         inputProps: {},
-        triggerProps: {},
+        triggerProps: EMPTY_OBJECT,
         itemProps: EMPTY_OBJECT,
         positionerElement: null,
         listElement: null,
@@ -1021,14 +1014,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     };
   }, [inputElement, open, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
 
-  const click = useClick(floatingRootContext, {
+  const click = useInputPress(floatingRootContext, {
     enabled: !readOnly && !disabled && openOnInputClick,
-    event: 'mousedown-only',
-    toggle: false,
     // Apply a small delay for touch to let mobile viewport/keyboard positioning settle.
     // This avoids top-bottom flip flickers if the preferred position is "top" when first tapping.
     touchOpenDelay: inputInsidePopup ? 0 : 100,
-    reason: REASONS.inputPress,
   });
 
   const dismiss = useDismiss(floatingRootContext, {

@@ -8,9 +8,12 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
-import { getInlineRectTriggerProps, useTriggerDataForwarding } from '../../utils/popups';
+import { getInlineRectTriggerProps } from '../../utils/popups/inlineRect';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { useFocus } from '../../floating-ui-react/hooks/useFocus';
+import { useHoverReferenceInteraction } from '../../floating-ui-react/hooks/useHoverReferenceInteraction';
+import { safePolygon } from '../../floating-ui-react/safePolygon';
 
 /**
  * A link that opens the preview card.

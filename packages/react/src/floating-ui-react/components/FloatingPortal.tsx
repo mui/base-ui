@@ -1,13 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isNode } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
-import { useId } from '@base-ui/utils/useId';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -18,139 +13,12 @@ import {
 } from '../utils/tabbable';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { createAttribute } from '../utils/createAttribute';
-import {
-  useRenderElement,
-  type UseRenderElementComponentProps,
-} from '../../internals/useRenderElement';
 import { ownerVisuallyHidden } from '../../internals/constants';
 import type { BaseUIComponentProps } from '../../internals/types';
+import { PortalContext, type FocusManagerState } from './FloatingPortalContext';
+import { useFloatingPortalNode, type UseFloatingPortalNodeProps } from './useFloatingPortalNode';
 
-type FocusManagerState = null | {
-  modal: boolean;
-  open: boolean;
-  onOpenChange(
-    open: boolean,
-    data?: { reason?: string | undefined; event?: Event | undefined },
-  ): void;
-  domReference: Element | null;
-  closeOnFocusOut: boolean;
-};
-
-const PortalContext = React.createContext<null | {
-  portalNode: HTMLElement | null;
-  setFocusManagerState: React.Dispatch<React.SetStateAction<FocusManagerState>>;
-  beforeInsideRef: React.RefObject<HTMLSpanElement | null>;
-  afterInsideRef: React.RefObject<HTMLSpanElement | null>;
-  beforeOutsideRef: React.RefObject<HTMLSpanElement | null>;
-  afterOutsideRef: React.RefObject<HTMLSpanElement | null>;
-}>(null);
-
-export const usePortalContext = () => React.useContext(PortalContext);
-
-const attr = createAttribute('portal');
-
-export interface UseFloatingPortalNodeProps {
-  ref?: React.Ref<HTMLDivElement> | undefined;
-  container?:
-    | HTMLElement
-    | ShadowRoot
-    | null
-    | React.RefObject<HTMLElement | ShadowRoot | null>
-    | undefined;
-  componentProps?: UseRenderElementComponentProps<any> | undefined;
-  elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
-}
-
-export interface UseFloatingPortalNodeResult {
-  portalNode: HTMLElement | null;
-  portalSubtree: React.ReactPortal | null;
-}
-
-export function useFloatingPortalNode(
-  props: UseFloatingPortalNodeProps = {},
-): UseFloatingPortalNodeResult {
-  const { ref, container: containerProp, componentProps = EMPTY_OBJECT, elementProps } = props;
-
-  const uniqueId = useId();
-  const portalContext = usePortalContext();
-  const parentPortalNode = portalContext?.portalNode;
-
-  const [containerElement, setContainerElement] = React.useState<HTMLElement | ShadowRoot | null>(
-    null,
-  );
-  const [portalNode, setPortalNode] = React.useState<HTMLElement | null>(null);
-  const setPortalNodeRef = useStableCallback((node: HTMLElement | null) => {
-    if (node !== null) {
-      // the useIsoLayoutEffect below watching containerProp / parentPortalNode
-      // sets setPortalNode(null) when the container becomes null or changes.
-      // So even though the ref callback now ignores null, the portal node still gets cleared.
-      setPortalNode(node);
-    }
-  });
-
-  const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
-
-  useIsoLayoutEffect(() => {
-    // Wait for the container to be resolved if explicitly `null`.
-    if (containerProp === null) {
-      if (containerRef.current) {
-        containerRef.current = null;
-        setPortalNode(null);
-        setContainerElement(null);
-      }
-      return;
-    }
-
-    // React 17 does not use React.useId().
-    if (uniqueId == null) {
-      return;
-    }
-
-    const resolvedContainer =
-      (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
-      parentPortalNode ??
-      document.body;
-
-    if (resolvedContainer == null) {
-      if (containerRef.current) {
-        containerRef.current = null;
-        setPortalNode(null);
-        setContainerElement(null);
-      }
-      return;
-    }
-
-    if (containerRef.current !== resolvedContainer) {
-      containerRef.current = resolvedContainer;
-      setPortalNode(null);
-      setContainerElement(resolvedContainer);
-    }
-  }, [containerProp, parentPortalNode, uniqueId]);
-
-  const portalElement = useRenderElement('div', componentProps, {
-    ref: [ref, setPortalNodeRef],
-    props: [
-      {
-        id: uniqueId,
-        [attr]: '',
-      },
-      elementProps,
-    ],
-  });
-
-  // This `createPortal` call injects `portalElement` into the `container`.
-  // Another call inside `FloatingPortal`/`FloatingPortalLite` then injects the children into `portalElement`.
-  const portalSubtree =
-    containerElement && portalElement
-      ? ReactDOM.createPortal(portalElement, containerElement)
-      : null;
-
-  return {
-    portalNode,
-    portalSubtree,
-  };
-}
+export type { UseFloatingPortalNodeProps };
 
 /**
  * Portals the floating element into a given container element — by default,

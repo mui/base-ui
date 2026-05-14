@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { FloatingNode } from '../../floating-ui-react';
+import { FloatingNode } from '../../floating-ui-react/components/FloatingTree';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {

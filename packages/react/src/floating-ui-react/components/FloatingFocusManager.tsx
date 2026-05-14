@@ -11,7 +11,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -32,14 +32,14 @@ import {
   type FocusableElement,
 } from '../utils/tabbable';
 import { getNodeAncestors, getNodeChildren } from '../utils/nodes';
-import { isElementVisible } from '../utils/composite';
+import { isElementVisible } from '../utils/visibility';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { markOthers } from '../utils/markOthers';
-import { usePortalContext } from './FloatingPortal';
+import { usePortalContext } from './FloatingPortalContext';
 import { useFloatingTree } from './FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
@@ -47,11 +47,10 @@ import { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { resolveRef } from '../../utils/resolveRef';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
-  const win = ownerWindow(getTarget(event));
-  if (event instanceof win.KeyboardEvent) {
+  if ('key' in event) {
     return 'keyboard';
   }
-  if (event instanceof win.FocusEvent) {
+  if (event.type.startsWith('focus')) {
     // Focus events can be caused by a preceding pointer interaction (e.g., focusout on outside press).
     // Prefer the last known pointer type if provided, else treat as keyboard.
     return lastInteractionType || 'keyboard';
@@ -62,26 +61,25 @@ function getEventType(event: Event, lastInteractionType?: InteractionType): Inte
   if ('touches' in event) {
     return 'touch';
   }
-  if (event instanceof win.MouseEvent) {
+  if (event.type === 'click' || event.type.startsWith('mouse')) {
     // onClick events may not contain pointer events, and will fall through to here
-    return lastInteractionType || (event.detail === 0 ? 'keyboard' : 'mouse');
+    return lastInteractionType || ((event as MouseEvent).detail === 0 ? 'keyboard' : 'mouse');
   }
   return '';
 }
 
 const LIST_LIMIT = 20;
-let previouslyFocusedElements: WeakRef<Element>[] = [];
+const EMPTY_ELEMENTS: Element[] = [];
+let previouslyFocusedElements: Element[] = [];
 
 function clearDisconnectedPreviouslyFocusedElements() {
-  previouslyFocusedElements = previouslyFocusedElements.filter((entry) => {
-    return entry.deref()?.isConnected;
-  });
+  previouslyFocusedElements = previouslyFocusedElements.filter((element) => element.isConnected);
 }
 
 function addPreviouslyFocusedElement(element: Element | null | undefined) {
   clearDisconnectedPreviouslyFocusedElements();
   if (element && getNodeName(element) !== 'body') {
-    previouslyFocusedElements.push(new WeakRef(element));
+    previouslyFocusedElements.push(element);
     if (previouslyFocusedElements.length > LIST_LIMIT) {
       previouslyFocusedElements = previouslyFocusedElements.slice(-LIST_LIMIT);
     }
@@ -90,7 +88,7 @@ function addPreviouslyFocusedElement(element: Element | null | undefined) {
 
 function getPreviouslyFocusedElement() {
   clearDisconnectedPreviouslyFocusedElements();
-  return previouslyFocusedElements[previouslyFocusedElements.length - 1]?.deref();
+  return previouslyFocusedElements[previouslyFocusedElements.length - 1];
 }
 
 function getFirstTabbableElement(container: Element | null) {
@@ -105,10 +103,7 @@ function getFirstTabbableElement(container: Element | null) {
   return tabbable(container)[0] || container;
 }
 
-function handleTabIndex(
-  floatingFocusElement: HTMLElement,
-  orderRef: React.RefObject<Array<'reference' | 'floating' | 'content'>>,
-) {
+function handleTabIndex(floatingFocusElement: HTMLElement) {
   if (
     floatingFocusElement.hasAttribute('tabindex') &&
     !floatingFocusElement.hasAttribute('data-tabindex')
@@ -116,15 +111,11 @@ function handleTabIndex(
     return;
   }
 
-  if (
-    !orderRef.current.includes('floating') &&
-    !floatingFocusElement.getAttribute('role')?.includes('dialog')
-  ) {
+  if (!floatingFocusElement.getAttribute('role')?.includes('dialog')) {
     return;
   }
 
-  const focusableElements = focusable(floatingFocusElement);
-  const tabbableContent = focusableElements.filter((element) => {
+  const hasTabbableContent = focusable(floatingFocusElement).some((element) => {
     const dataTabIndex = element.getAttribute('data-tabindex') || '';
     return (
       isTabbable(element) ||
@@ -133,7 +124,7 @@ function handleTabIndex(
   });
   const tabIndex = floatingFocusElement.getAttribute('tabindex');
 
-  if (orderRef.current.includes('floating') || tabbableContent.length === 0) {
+  if (!hasTabbableContent) {
     if (tabIndex !== '0') {
       floatingFocusElement.setAttribute('tabindex', '0');
     }
@@ -286,7 +277,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // start.
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
 
-  const orderRef = React.useRef<Array<'reference' | 'floating' | 'content'>>(['content']);
   const initialFocusRef = useValueAsRef(initialFocus);
   const returnFocusRef = useValueAsRef(returnFocus);
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
@@ -325,7 +315,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   );
 
   const getResolvedInsideElements = useStableCallback(
-    () => getInsideElements?.().filter((element): element is Element => element != null) ?? [],
+    () =>
+      getInsideElements?.().filter((element): element is Element => element != null) ??
+      EMPTY_ELEMENTS,
   );
 
   // Prevent Tab from escaping the modal when there are no tabbable elements.
@@ -457,12 +449,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           triggers.hasMatchingElement((trigger) => contains(trigger, relatedTarget)) ||
           isRelatedFocusGuard ||
           (tree &&
-            (getNodeChildren(tree.nodesRef.current, nodeId).find(
+            (getNodeChildren(tree.nodesRef.current, nodeId).some(
               (node) =>
                 contains(node.context?.elements.floating, relatedTarget) ||
                 contains(node.context?.elements.domReference, relatedTarget),
             ) ||
-              getNodeAncestors(tree.nodesRef.current, nodeId).find(
+              getNodeAncestors(tree.nodesRef.current, nodeId).some(
                 (node) =>
                   [
                     node.context?.elements.floating,
@@ -473,7 +465,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         );
 
         if (currentTarget === domReference && floatingFocusElement) {
-          handleTabIndex(floatingFocusElement, orderRef);
+          handleTabIndex(floatingFocusElement);
         }
 
         // Restore focus to the previous tabbable element index to prevent
@@ -581,7 +573,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getTabbableContent,
     isUntrappedTypeableCombobox,
     getNodeId,
-    orderRef,
     dataRef,
     blurTimeout,
     pointerDownTimeout,
@@ -624,17 +615,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       isUntrappedTypeableCombobox ? domReference : null,
     ].filter((x): x is Element => x != null);
 
-    const ariaHiddenCleanup = markOthers(insideElements, {
-      ariaHidden: modal || isUntrappedTypeableCombobox,
-      mark: false,
-    });
+    const shouldAriaHide = modal || isUntrappedTypeableCombobox;
+    const ariaHiddenCleanup = shouldAriaHide
+      ? markOthers(insideElements, {
+          ariaHidden: true,
+          mark: false,
+        })
+      : undefined;
 
     const markerInsideElements = [floating, ...portalNodes].filter((x): x is Element => x != null);
     const markerCleanup = markOthers(markerInsideElements);
 
     return () => {
       markerCleanup();
-      ariaHiddenCleanup();
+      ariaHiddenCleanup?.();
     };
   }, [
     open,
@@ -886,11 +880,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     if (disabled || !floatingFocusElement) {
       return undefined;
     }
-    handleTabIndex(floatingFocusElement, orderRef);
+    handleTabIndex(floatingFocusElement);
     return () => {
       queueMicrotask(clearDisconnectedPreviouslyFocusedElements);
     };
-  }, [disabled, floatingFocusElement, orderRef]);
+  }, [disabled, floatingFocusElement]);
 
   const shouldRenderGuards =
     !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootContext } from '../../floating-ui-react';
+import type { FloatingRootContext } from '../../floating-ui-react/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import type { NavigationMenuRoot } from './NavigationMenuRoot';
 

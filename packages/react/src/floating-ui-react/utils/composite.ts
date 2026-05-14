@@ -1,9 +1,11 @@
 import { floor } from '@floating-ui/utils';
-import { getComputedStyle } from '@floating-ui/utils/dom';
 
 import type { Dimensions } from '../types';
 import { stopEvent } from './event';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from './constants';
+import { isElementVisible, isHiddenByStyles } from './visibility';
+
+export { isElementVisible, isHiddenByStyles };
 
 type DisabledIndices = ReadonlyArray<number> | ((index: number) => boolean);
 
@@ -496,23 +498,4 @@ export function isListIndexDisabled(
     !disabledIndices &&
     (element.hasAttribute('disabled') || element.getAttribute('aria-disabled') === 'true')
   );
-}
-
-export function isHiddenByStyles(styles: CSSStyleDeclaration) {
-  return styles.visibility === 'hidden' || styles.visibility === 'collapse';
-}
-
-export function isElementVisible(
-  element: Element | null,
-  styles: CSSStyleDeclaration | null = element ? getComputedStyle(element) : null,
-) {
-  if (!element || !element.isConnected || !styles || isHiddenByStyles(styles)) {
-    return false;
-  }
-
-  if (typeof element.checkVisibility === 'function') {
-    return element.checkVisibility();
-  }
-
-  return styles.display !== 'none' && styles.display !== 'contents';
 }

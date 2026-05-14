@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/core';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
@@ -17,15 +17,17 @@ import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
-import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../floating-ui-react/utils/event';
+import { contains, getTarget } from '../../internals/shadowDom';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useClick, useTypeahead } from '../../floating-ui-react';
+import { useTypeahead } from '../../floating-ui-react/hooks/useTypeahead';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
+import { useTriggerPress } from '../../utils/popups/useTriggerPress';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -125,7 +127,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     },
   });
 
-  const { reference: triggerClickProps } = useClick(floatingRootContext, {
+  const { reference: triggerClickProps } = useTriggerPress(floatingRootContext, {
     enabled: !readOnly && !comboboxDisabled,
     event: 'mousedown',
   });

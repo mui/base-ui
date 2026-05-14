@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/core';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { FieldRoot } from '../../field/root/FieldRoot';

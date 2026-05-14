@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/core';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';

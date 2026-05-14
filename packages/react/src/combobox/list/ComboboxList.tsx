@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/core';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -13,7 +13,7 @@ import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerCo
 import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent } from '../../floating-ui-react/utils/event';
 
 /**
  * A list container for the items.

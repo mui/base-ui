@@ -1,6 +1,6 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getSide } from '@floating-ui/utils';
-import { Middleware } from '../floating-ui-react';
+import type { Middleware } from '@floating-ui/react-dom';
 
 export const DEFAULT_SIDES = {
   sideX: 'left',

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { useStore } from '@base-ui/utils/store';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { useStore } from '@base-ui/utils/store/core';
+import { FloatingFocusManager } from '../../floating-ui-react/components/FloatingFocusManager';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
@@ -18,7 +18,7 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { contains, getTarget } from '../../internals/shadowDom';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 

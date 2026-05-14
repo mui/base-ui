@@ -2,13 +2,13 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import {
-  contains,
   type FocusableElement,
   getNextTabbable,
   getTabbableAfterElement,
   getTabbableBeforeElement,
   isOutsideEvent,
-} from '../../floating-ui-react/utils';
+} from '../../floating-ui-react/utils/tabbable';
+import { contains } from '../../internals/shadowDom';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,

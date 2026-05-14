@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
-import { FloatingPortal } from '../../floating-ui-react';
+import { useStore } from '@base-ui/utils/store/core';
+import { FloatingPortal } from '../../floating-ui-react/components/FloatingPortal';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';
 import { selectors } from '../store';

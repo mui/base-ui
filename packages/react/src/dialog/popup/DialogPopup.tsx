@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { FloatingFocusManager } from '../../floating-ui-react';
+import { FloatingFocusManager } from '../../floating-ui-react/components/FloatingFocusManager';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type BaseUIComponentProps } from '../../internals/types';
@@ -14,7 +14,7 @@ import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
 
 const stateAttributesMapping: StateAttributesMapping<DialogPopupState> = {
   ...baseMapping,

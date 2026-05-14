@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { createSelector, ReactStore } from '@base-ui/utils/store/core';
 import type { FloatingEvents, ContextData, ReferenceType } from '../types';
 import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { type FloatingUIOpenChangeDetails } from '../../internals/types';
-import { type PopupTriggerMap } from '../../utils/popups';
+import { type PopupTriggerMap } from '../../utils/popups/popupTriggerMap';
 import { isClickLikeEvent } from '../utils';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 

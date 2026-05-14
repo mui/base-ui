@@ -9,15 +9,12 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStore, Store } from '@base-ui/utils/store';
+import { useStore, Store } from '@base-ui/utils/store/core';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
-import {
-  useClick,
-  useDismiss,
-  useFloatingRootContext,
-  useListNavigation,
-  useTypeahead,
-} from '../../floating-ui-react';
+import { useDismissCore as useDismiss } from '../../floating-ui-react/hooks/useDismissCore';
+import { useFloatingRootContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { useListNavigationNoGrid } from '../../floating-ui-react/hooks/useListNavigation';
+import { useTypeahead } from '../../floating-ui-react/hooks/useTypeahead';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -36,7 +33,8 @@ import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups/popupStoreUtils';
+import { useTriggerPress } from '../../utils/popups/useTriggerPress';
 import { mergeProps } from '../../merge-props';
 
 /**
@@ -148,8 +146,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         openMethod: null,
         activeIndex: null,
         selectedIndex: null,
-        popupProps: {},
-        triggerProps: {},
+        popupProps: EMPTY_OBJECT,
+        triggerProps: EMPTY_OBJECT,
         triggerElement: null,
         positionerElement: null,
         listElement: null,
@@ -350,7 +348,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  const click = useClick(floatingContext, {
+  const click = useTriggerPress(floatingContext, {
     enabled: !readOnly && !disabled,
     event: 'mousedown',
   });
@@ -359,7 +357,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     bubbles: false,
   });
 
-  const listNavigation = useListNavigation(floatingContext, {
+  const listNavigation = useListNavigationNoGrid(floatingContext, {
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,

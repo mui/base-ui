@@ -23,7 +23,7 @@ import { REASONS } from '../../internals/reasons';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import type { DialogHandle } from '../../dialog/store/DialogHandle';
-import type { PayloadChildRenderFunction } from '../../utils/popups';
+import type { PayloadChildRenderFunction } from '../../utils/popups/popupStoreUtils';
 
 /**
  * Groups all parts of the drawer.

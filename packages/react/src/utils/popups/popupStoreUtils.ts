@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store/core';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';

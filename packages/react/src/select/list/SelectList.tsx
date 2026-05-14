@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/core';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';

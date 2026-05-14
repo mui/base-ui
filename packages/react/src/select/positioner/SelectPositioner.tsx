@@ -3,7 +3,7 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store/core';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';

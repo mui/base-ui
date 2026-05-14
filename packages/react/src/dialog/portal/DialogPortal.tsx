@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { FloatingPortal } from '../../floating-ui-react';
+import { FloatingPortal } from '../../floating-ui-react/components/FloatingPortal';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';

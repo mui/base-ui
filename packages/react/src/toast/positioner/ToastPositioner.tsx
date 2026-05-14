@@ -11,7 +11,7 @@ import {
 import type { BaseUIComponentProps } from '../../internals/types';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { ToastPositionerContext } from './ToastPositionerContext';
-import { useFloatingRootContext } from '../../floating-ui-react';
+import { useFloatingRootContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
 import { NOOP } from '../../internals/noop';
 import type { ToastObject } from '../useToastManager';
 import { ToastRootCssVars } from '../root/ToastRootCssVars';

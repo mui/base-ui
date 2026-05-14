@@ -24,7 +24,7 @@ import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../internals/shadowDom';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';

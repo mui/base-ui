@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store/core';
 import { isElement } from '@floating-ui/utils/dom';
 import { BaseUIChangeEventDetails } from '../../types';
-import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
+import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups/store';
 import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
 
 export interface UseSyncedFloatingRootContextOptions<

@@ -1,4 +1,4 @@
-import { Store, createSelector } from '@base-ui/utils/store';
+import { Store, createSelector } from '@base-ui/utils/store/core';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';

@@ -7,16 +7,15 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
-  safePolygon,
-  useClick,
-  useFloatingTree,
-  useFocus,
-  useHoverReferenceInteraction,
   useFloatingNodeId,
   useFloatingParentNodeId,
-} from '../../floating-ui-react';
+  useFloatingTree,
+} from '../../floating-ui-react/components/FloatingTree';
+import { useFocus } from '../../floating-ui-react/hooks/useFocus';
+import { useHoverReferenceInteraction } from '../../floating-ui-react/hooks/useHoverReferenceInteraction';
+import { safePolygon } from '../../floating-ui-react/safePolygon';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { contains } from '../../floating-ui-react/utils';
+import { contains } from '../../internals/shadowDom';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -26,7 +25,8 @@ import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
-import { useTriggerDataForwarding } from '../../utils/popups';
+import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';
+import { useTriggerPress } from '../../utils/popups/useTriggerPress';
 import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { REASONS } from '../../internals/reasons';
@@ -194,7 +194,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
-  const click = useClick(floatingRootContext, {
+  const click = useTriggerPress(floatingRootContext, {
     enabled: !disabled && parent.type !== 'context-menu',
     event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
     toggle: true,

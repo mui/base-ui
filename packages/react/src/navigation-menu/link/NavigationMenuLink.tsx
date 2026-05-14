@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useFloatingTree } from '../../floating-ui-react';
+import { useFloatingTree } from '../../floating-ui-react/components/FloatingTree';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,

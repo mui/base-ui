@@ -1,4 +1,4 @@
-import { ReactStore, createSelector } from '@base-ui/utils/store';
+import { ReactStore, createSelector } from '@base-ui/utils/store/core';
 import { generateId } from '@base-ui/utils/generateId';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Timeout } from '@base-ui/utils/useTimeout';
@@ -9,7 +9,7 @@ import {
   ToastObject,
 } from './useToastManager';
 import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
-import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../internals/shadowDom';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<Omit<ToastObject<Data>, 'id'>>;
@@ -66,26 +66,18 @@ function createToastMetadata(toasts: ToastObject<any>[]) {
   return metadata;
 }
 
-const toastMetadataSelector = (state: State) => state.toastMetadata;
-
 export const selectors = {
   toasts: createSelector((state: State) => state.toasts),
   isEmpty: createSelector((state: State) => state.toasts.length === 0),
-  toast: createSelector(
-    toastMetadataSelector,
-    (toastMetadata, id: string) => toastMetadata.get(id)?.value,
-  ),
+  toast: createSelector((state: State, id: string) => state.toastMetadata.get(id)?.value),
   toastIndex: createSelector(
-    toastMetadataSelector,
-    (toastMetadata, id: string) => toastMetadata.get(id)?.domIndex ?? -1,
+    (state: State, id: string) => state.toastMetadata.get(id)?.domIndex ?? -1,
   ),
   toastOffsetY: createSelector(
-    toastMetadataSelector,
-    (toastMetadata, id: string) => toastMetadata.get(id)?.offsetY ?? 0,
+    (state: State, id: string) => state.toastMetadata.get(id)?.offsetY ?? 0,
   ),
   toastVisibleIndex: createSelector(
-    toastMetadataSelector,
-    (toastMetadata, id: string) => toastMetadata.get(id)?.visibleIndex ?? -1,
+    (state: State, id: string) => state.toastMetadata.get(id)?.visibleIndex ?? -1,
   ),
   hovering: createSelector((state: State) => state.hovering),
   focused: createSelector((state: State) => state.focused),
