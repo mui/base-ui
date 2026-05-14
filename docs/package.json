@@ -71,7 +71,7 @@
     "@types/react-dom": "19.2.3",
     "@types/unist": "3.0.3",
     "@wooorm/starry-night": "3.9.0",
-    "baseline-browser-mapping": "2.10.21",
+    "baseline-browser-mapping": "2.10.28",
     "cross-env": "10.1.0",
     "mdast-util-mdx-jsx": "3.2.0",
     "motion": "12.38.0",
@@ -85,6 +85,6 @@
     "unified": "11.0.5",
     "unist-util-visit": "5.1.0",
     "yargs": "18.0.0",
-    "zod": "4.3.6"
+    "zod": "4.4.3"
   }
 }
