@@ -2,10 +2,10 @@ import * as React from 'react';
 
 export function MoreVertIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" {...props}>
-      <circle cx="7" cy="2.5" r="1.25" />
-      <circle cx="7" cy="7" r="1.25" />
-      <circle cx="7" cy="11.5" r="1.25" />
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" {...props}>
+      <circle cx="8" cy="3" r="1" />
+      <circle cx="8" cy="8" r="1" />
+      <circle cx="8" cy="13" r="1" />
     </svg>
   );
 }
