@@ -77,7 +77,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 150ms ease;
+  transition: transform 0.2s ease;
 
   &[data-popup-open] {
     transform: rotate(180deg);
@@ -85,8 +85,8 @@
 }
 
 .Positioner {
-  --easing: ease-out;
-  --duration: 160ms;
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration: 0.35s;
   box-sizing: border-box;
   transition-property: top, left, right, bottom;
   transition-duration: var(--duration);
@@ -159,10 +159,11 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transform: scale(0.98);
+    transform: scale(0.9);
   }
 
   &[data-ending-style] {
+    transition-property: opacity, transform;
     transition-timing-function: ease;
     transition-duration: 0.15s;
   }
@@ -398,6 +399,7 @@
 
   @media (min-width: 700px) {
     transform: translateY(0);
+    filter: blur(0);
     transition-duration: calc(var(--duration) * 1.35);
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -419,6 +421,11 @@
       &[data-activation-direction='down'] {
         transform: translateY(-72px);
       }
+    }
+
+    &[data-starting-style],
+    &[data-ending-style] {
+      filter: blur(2px);
     }
   }
 }

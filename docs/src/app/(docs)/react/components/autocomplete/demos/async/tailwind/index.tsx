@@ -91,7 +91,7 @@ export default function ExampleAsyncAutocomplete() {
             className="w-[var(--anchor-width)] max-w-[var(--available-width)] overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
             aria-busy={isPending || undefined}
           >
-            <div className="max-h-[min(var(--available-height),23rem)] overflow-y-auto overscroll-contain py-1 scroll-pt-1 scroll-pb-1">
+            <div className="max-h-[min(var(--available-height),22.5rem)] overflow-y-auto overscroll-contain py-1 scroll-pt-1 scroll-pb-1">
               <Autocomplete.Status>
                 {status && (
                   <div className="flex items-center gap-2 py-1 pr-8 pl-2 text-sm text-neutral-500 dark:text-neutral-400">
