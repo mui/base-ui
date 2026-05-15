@@ -68,7 +68,7 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
       {...props}
       style={{ display: 'block', ...props.style }}
     >
-      <path d="m3 9 3.5 3.5 6.5-9" />
+      <path d="m2.5 8.5 4 4 7-9" />
     </svg>
   );
 }

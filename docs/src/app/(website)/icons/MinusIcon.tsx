@@ -13,7 +13,7 @@ export function MinusIcon(props: React.ComponentProps<'svg'>) {
       className="Icon"
       {...props}
     >
-      <path d="M2.5 8h11" />
+      <path d="M1.5 8h13" />
     </svg>
   );
 }

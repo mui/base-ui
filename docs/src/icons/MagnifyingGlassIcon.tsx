@@ -12,8 +12,8 @@ export function MagnifyingGlassIcon(props: React.ComponentProps<'svg'>) {
       strokeLinejoin="round"
       {...props}
     >
-      <path d="m10.5 10.5 4 4" />
-      <circle cx="6.5" cy="6.5" r="5" />
+      <path d="m11 11 3.5 3.5" />
+      <circle cx="7" cy="7" r="5.5" />
     </svg>
   );
 }
