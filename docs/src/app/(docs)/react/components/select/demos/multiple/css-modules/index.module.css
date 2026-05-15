@@ -138,7 +138,7 @@
     transition: none;
     transform: none;
     opacity: 1;
-    min-width: calc(var(--anchor-width) + 1.5rem);
+    min-width: calc(var(--anchor-width) + 1.75rem);
   }
 }
 
@@ -153,7 +153,7 @@
   display: grid;
   gap: 0.5rem;
   align-items: center;
-  grid-template-columns: 0.75rem 1fr;
+  grid-template-columns: 1rem 1fr;
   cursor: default;
   user-select: none;
   scroll-margin-block: 0.25rem;
