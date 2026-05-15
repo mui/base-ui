@@ -35,24 +35,30 @@ function TestViewer(props: { children: React.ReactNode }) {
     };
   }, []);
 
+  // Wrapped in @layer all so Tailwind's preflight (in @layer base) wins for
+  // box-sizing, while unlayered demo styles still win over both. !important
+  // rules still apply everywhere because the !important cascade is inverted
+  // across layers.
   const globalStyles = `
-    html {
-      --webkit-font-smoothing: antialiased;
-      --moz-osx-font-smoothing: grayscale;
-      /* Do the opposite of the docs in order to help catching issues. */
-      box-sizing: content-box;
-    }
+    @layer all {
+      html {
+        --webkit-font-smoothing: antialiased;
+        --moz-osx-font-smoothing: grayscale;
+        /* Do the opposite of the docs in order to help catching issues. */
+        box-sizing: content-box;
+      }
 
-    *, *::before, *::after {
-      box-sizing: inherit;
-      /* Disable transitions to avoid flaky screenshots */
-      transition: none !important;
-      animation: none !important;
-    }
+      *, *::before, *::after {
+        box-sizing: inherit;
+        /* Disable transitions to avoid flaky screenshots */
+        transition: none !important;
+        animation: none !important;
+      }
 
-    body {
-      margin: 0;
-      overflow-x: hidden;
+      body {
+        margin: 0;
+        overflow-x: hidden;
+      }
     }
   `;
 
