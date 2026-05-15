@@ -1115,7 +1115,7 @@ describe('<Combobox.Root />', () => {
           await user.click(screen.getByTestId('set-external'));
           await user.click(screen.getByTestId('input'));
 
-          const popup = screen.getByTestId('popup');
+          const popup = await screen.findByTestId('popup');
           const option = await screen.findByRole('option', { name: 'item-25' });
 
           await waitFor(() => {
@@ -1180,7 +1180,7 @@ describe('<Combobox.Root />', () => {
           await user.click(screen.getByTestId('set-external'));
           await user.click(screen.getByTestId('trigger'));
 
-          const popup = screen.getByTestId('popup');
+          const popup = await screen.findByTestId('popup');
           const option = await screen.findByRole('option', { name: 'item-25' });
 
           await waitFor(() => {
