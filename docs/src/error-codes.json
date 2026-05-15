@@ -28,7 +28,7 @@
   "28": "Base UI: FieldRootContext is missing. Field parts must be placed within <Field.Root>.",
   "29": "[Floating UI]: Invalid grid - item width at index %s is greater than grid columns",
   "30": "Base UI: MenuCheckboxItemContext is missing. MenuCheckboxItem parts must be placed within <Menu.CheckboxItem>.",
-  "31": "Base UI: MenuGroupRootContext is missing. Menu group parts must be used within <Menu.Group>.",
+  "31": "Base UI: MenuGroupRootContext is missing. Menu group parts must be used within <Menu.Group> or <Menu.RadioGroup>.",
   "32": "Base UI: <Menu.Portal> is missing.",
   "33": "Base UI: MenuPositionerContext is missing. MenuPositioner parts must be placed within <Menu.Positioner>.",
   "34": "Base UI: MenuRadioGroupContext is missing. MenuRadioGroup parts must be placed within <Menu.RadioGroup>.",

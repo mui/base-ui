@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
+import { MenuGroupContext } from '../group/MenuGroupContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -29,6 +30,8 @@ export const MenuRadioGroup = React.memo(
       ...elementProps
     } = componentProps;
 
+    const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
+
     const [value, setValueUnwrapped] = useControlled({
       controlled: valueProp,
       default: defaultValue,
@@ -54,6 +57,7 @@ export const MenuRadioGroup = React.memo(
       ref: forwardedRef,
       props: {
         role: 'group',
+        'aria-labelledby': labelId,
         'aria-disabled': disabled || undefined,
         ...elementProps,
       },
@@ -68,8 +72,12 @@ export const MenuRadioGroup = React.memo(
       [value, setValue, disabled],
     );
 
+    const groupContext = React.useMemo(() => ({ setLabelId }), [setLabelId]);
+
     return (
-      <MenuRadioGroupContext.Provider value={context}>{element}</MenuRadioGroupContext.Provider>
+      <MenuGroupContext.Provider value={groupContext}>
+        <MenuRadioGroupContext.Provider value={context}>{element}</MenuRadioGroupContext.Provider>
+      </MenuGroupContext.Provider>
     );
   }),
 );

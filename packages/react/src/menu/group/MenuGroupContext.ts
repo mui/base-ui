@@ -11,7 +11,7 @@ export function useMenuGroupRootContext() {
   const context = React.useContext(MenuGroupContext);
   if (context === undefined) {
     throw new Error(
-      'Base UI: MenuGroupRootContext is missing. Menu group parts must be used within <Menu.Group>.',
+      'Base UI: MenuGroupRootContext is missing. Menu group parts must be used within <Menu.Group> or <Menu.RadioGroup>.',
     );
   }
 
