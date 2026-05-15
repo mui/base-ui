@@ -15,6 +15,7 @@ export function createCollatorItemFilter(
     if (item == null) {
       return false;
     }
+
     const itemString = stringifyAsLabel(item, itemToStringLabel);
     return collatorFilter.contains(itemString, query);
   };

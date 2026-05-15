@@ -335,6 +335,7 @@ export function useAnchorPositioning(
         if (!mountedRef.current) {
           return;
         }
+
         const floatingStyle = floating.style;
         floatingStyle.setProperty('--available-width', `${availableWidth}px`);
         floatingStyle.setProperty('--available-height', `${availableHeight}px`);
