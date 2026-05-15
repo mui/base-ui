@@ -1122,5 +1122,36 @@ describe('<MenuRoot />', () => {
 
       expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
+
+    it('focuses the first item when opening with `focusItem: first`', async () => {
+      const menuHandle = Menu.createHandle();
+      await render(
+        <div>
+          <Menu.Trigger handle={menuHandle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+          <Menu.Root handle={menuHandle}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item data-testid="item-1">One</Menu.Item>
+                  <Menu.Item data-testid="item-2">Two</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>,
+      );
+
+      await act(async () => {
+        menuHandle.open('trigger', 'first');
+      });
+
+      const firstItem = await screen.findByTestId('item-1');
+      await waitFor(() => {
+        expect(firstItem).toHaveFocus();
+      });
+      expect(firstItem).toHaveAttribute('tabindex', '0');
+    });
   });
 });

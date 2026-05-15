@@ -1,4 +1,5 @@
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { MenuRoot } from '../root/MenuRoot';
 import { MenuStore } from './MenuStore';
 
 export class MenuHandle<Payload> {
@@ -17,14 +18,19 @@ export class MenuHandle<Payload> {
    * The trigger must be a Menu.Trigger component with this handle passed as a prop.
    *
    * @param triggerId ID of the trigger to associate with the menu.
+   * @param focusItem Optional item to focus once the menu is open: `'first'`, `'last'`, or `'none'`.
    */
-  open(triggerId: string) {
+  open(triggerId: string, focusItem?: MenuRoot.FocusItem) {
     const triggerElement = triggerId
       ? (this.store.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
       : undefined;
 
     if (triggerId && !triggerElement) {
       throw new Error(`Base UI: MenuHandle.open: No trigger found with id "${triggerId}".`);
+    }
+
+    if (focusItem != null) {
+      this.store.set('pendingFocusItem', focusItem);
     }
 
     this.store.setOpen(
