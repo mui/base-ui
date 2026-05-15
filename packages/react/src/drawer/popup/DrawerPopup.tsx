@@ -23,6 +23,7 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Drawer components are mounted.
@@ -145,6 +146,9 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
+  const floatingId = floatingRootContext.useState('floatingId');
+
+  const popupId = elementProps.id ?? floatingId;
 
   const swipe = useDrawerViewportContext(true);
   useDialogPortalContext();
@@ -342,6 +346,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       const overshoot = Math.abs(nextOffset);
       const dampedOffset = -Math.sqrt(overshoot);
       const dampedMovement = dampedOffset - baseOffset;
+
       dragStyles = {
         ...dragStyles,
         transform: undefined,
@@ -360,10 +365,11 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     props: [
       rootPopupProps,
       {
+        id: popupId,
         'aria-labelledby': titleElementId,
         'aria-describedby': descriptionElementId,
         role,
-        tabIndex: -1,
+        ...FOCUSABLE_POPUP_PROPS,
         hidden: !mounted,
         onKeyDown(event: React.KeyboardEvent) {
           if (COMPOSITE_KEYS.has(event.key)) {

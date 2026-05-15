@@ -9,7 +9,8 @@ import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { DialogHandle } from '../store/DialogHandle';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useClick, useInteractions } from '../../floating-ui-react';
+import { useClick } from '../../floating-ui-react';
+import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**
  * A button that opens the dialog.
@@ -44,6 +45,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const popupId = store.useState('triggerPopupId', thisTriggerId);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -62,8 +64,12 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null });
-
-  const localInteractionProps = useInteractions([click]);
+  const interactionTypeProps = useOpenMethodTriggerProps(
+    () => store.select('open'),
+    (interactionType) => {
+      store.set('openMethod', interactionType);
+    },
+  );
 
   const state: DialogTriggerState = {
     disabled,
@@ -76,9 +82,16 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     state,
     ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
-      localInteractionProps.getReferenceProps(),
+      click.reference,
       rootTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: thisTriggerId },
+      interactionTypeProps,
+      {
+        [CLICK_TRIGGER_IDENTIFIER as string]: '',
+        id: thisTriggerId,
+        'aria-haspopup': 'dialog' as const,
+        'aria-expanded': isOpenedByThisTrigger,
+        'aria-controls': popupId,
+      },
       elementProps,
       getButtonProps,
     ],

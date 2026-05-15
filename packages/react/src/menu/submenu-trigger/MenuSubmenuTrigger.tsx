@@ -4,12 +4,8 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
-import {
-  safePolygon,
-  useClick,
-  useHoverReferenceInteraction,
-  useInteractions,
-} from '../../floating-ui-react';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -54,6 +50,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   const open = store.useState('open');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const popupId = store.useState('triggerPopupId', thisTriggerId);
 
   const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
   const registerTrigger = React.useCallback(
@@ -155,7 +152,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     stickIfOpen: false,
   });
 
-  const localInteractionProps = useInteractions([click]);
+  const localInteractionProps = click.reference ?? EMPTY_OBJECT;
 
   const rootTriggerProps = store.useState('triggerProps', true);
   delete rootTriggerProps.id;
@@ -166,11 +163,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     state,
     stateAttributesMapping: triggerOpenStateMapping,
     props: [
-      localInteractionProps.getReferenceProps(),
+      localInteractionProps,
       hoverProps,
       rootTriggerProps,
       itemProps,
       {
+        'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
         onBlur() {
           if (highlighted) {

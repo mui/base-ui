@@ -38,6 +38,7 @@ next-env.d.ts
 
 # Claude
 .claude/settings.local.json
+.claude/worktrees/
 
 # Testing
 test-results/
