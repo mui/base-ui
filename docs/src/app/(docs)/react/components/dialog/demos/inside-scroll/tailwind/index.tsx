@@ -11,15 +11,15 @@ export default function InsideScrollDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity duration-150 data-starting-style:opacity-0 data-ending-style:opacity-0 dark:opacity-50 supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="fixed inset-0 flex items-center justify-center overflow-hidden py-6 [@media(min-height:600px)]:pb-12 [@media(min-height:600px)]:pt-8">
-          <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col overflow-hidden bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-starting-style:scale-[0.98] data-starting-style:opacity-0 data-ending-style:scale-[0.98] data-ending-style:opacity-0">
-            <div className="flex flex-col gap-1 p-4">
+          <Dialog.Popup className="relative flex w-[min(40rem,calc(100vw-2rem))] max-h-full max-w-full min-h-0 flex-col bg-white dark:bg-neutral-950 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[scale,opacity] duration-100 ease-out data-starting-style:scale-[0.98] data-starting-style:opacity-0 data-ending-style:scale-[0.98] data-ending-style:opacity-0">
+            <div className="flex flex-col gap-1 p-4 border-b border-neutral-950 dark:border-white">
               <Dialog.Title className="text-base font-bold">Dialog</Dialog.Title>
               <Dialog.Description className="text-sm text-neutral-600 dark:text-neutral-400">
                 This layout keeps the popup fully on screen while allowing its content to scroll.
               </Dialog.Description>
             </div>
-            <ScrollArea.Root className="relative flex min-h-0 flex-auto overflow-hidden border-y border-neutral-950 dark:border-white">
-              <ScrollArea.Viewport className="flex-auto min-h-0 overflow-y-auto overscroll-contain focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
+            <ScrollArea.Root className="relative flex min-h-0 flex-auto overflow-hidden has-[>_:first-child:focus-visible]:outline-2 has-[>_:first-child:focus-visible]:outline-offset-0 has-[>_:first-child:focus-visible]:outline-neutral-950 dark:has-[>_:first-child:focus-visible]:outline-white">
+              <ScrollArea.Viewport className="flex-auto min-h-0 overflow-y-auto overscroll-contain outline-none">
                 <ScrollArea.Content className="flex flex-col">
                   {CONTENT_SECTIONS.map((item) => (
                     <section className="flex flex-col gap-1 p-4" key={item.title}>
@@ -33,7 +33,7 @@ export default function InsideScrollDialog() {
                 <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
-            <div className="flex justify-end gap-3 p-4">
+            <div className="flex justify-end gap-3 p-4 border-t border-neutral-950 dark:border-white">
               <Dialog.Close className="flex h-8 items-center justify-center gap-2 border border-neutral-950 dark:border-white bg-white dark:bg-neutral-950 px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 dark:text-white select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
                 Close
               </Dialog.Close>
