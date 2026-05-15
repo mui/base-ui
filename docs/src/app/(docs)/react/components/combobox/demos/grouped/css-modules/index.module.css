@@ -189,7 +189,7 @@
   user-select: none;
   padding: 0.5rem;
   display: grid;
-  grid-template-columns: 0.75rem 1fr;
+  grid-template-columns: 1rem 1fr;
   gap: 0.5rem;
   align-items: center;
   font-size: 0.875rem;

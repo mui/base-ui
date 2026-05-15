@@ -241,7 +241,7 @@
   display: grid;
   gap: 0.5rem;
   align-items: center;
-  grid-template-columns: 0.75rem 1fr;
+  grid-template-columns: 1rem 1fr;
   font-size: 0.875rem;
   line-height: 1rem;
 

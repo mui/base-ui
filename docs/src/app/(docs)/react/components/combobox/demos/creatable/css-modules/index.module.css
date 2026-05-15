@@ -297,7 +297,7 @@
   box-sizing: border-box;
   width: 100%;
   display: grid;
-  grid-template-columns: 0.75rem 1fr;
+  grid-template-columns: 1rem 1fr;
   align-items: center;
   gap: 0.5rem;
   border: none;
