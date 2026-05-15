@@ -5,6 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
@@ -16,6 +17,7 @@ import {
   useTypeahead,
   useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
+import { getMaxListIndex, getMinListIndex } from '../../floating-ui-react/utils/composite';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
@@ -371,10 +373,21 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [store],
   );
 
+  const handleImperativeFocusItem = React.useCallback(
+    (target: MenuRoot.FocusItem) => {
+      store.set('pendingFocusItem', target);
+    },
+    [store],
+  );
+
   React.useImperativeHandle(
     actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose, setActiveIndex }),
-    [forceUnmount, handleImperativeClose, setActiveIndex],
+    () => ({
+      unmount: forceUnmount,
+      close: handleImperativeClose,
+      focusItem: handleImperativeFocusItem,
+    }),
+    [forceUnmount, handleImperativeClose, handleImperativeFocusItem],
   );
 
   let ctx: ContextMenuRootContext | undefined;
@@ -420,6 +433,47 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     externalTree: nested ? floatingTreeRoot : undefined,
     focusItemOnHover: highlightItemOnHover,
   });
+
+  const pendingFocusItem = store.useState('pendingFocusItem');
+  const focusItemFrame = useAnimationFrame();
+
+  useIsoLayoutEffect(() => {
+    if (pendingFocusItem == null || !open) {
+      return undefined;
+    }
+
+    if (pendingFocusItem === 'none') {
+      store.update({ activeIndex: null, pendingFocusItem: null });
+      return undefined;
+    }
+
+    let cancelled = false;
+    let runs = 0;
+    const elements = store.context.itemDomElements;
+
+    const resolve = () => {
+      if (cancelled) {
+        return;
+      }
+      if (elements.current[0] == null) {
+        if (runs < 2) {
+          runs += 1;
+          focusItemFrame.request(resolve);
+        }
+        return;
+      }
+      const index =
+        pendingFocusItem === 'last' ? getMaxListIndex(elements) : getMinListIndex(elements);
+      store.update({ activeIndex: index, pendingFocusItem: null });
+    };
+
+    resolve();
+
+    return () => {
+      cancelled = true;
+      focusItemFrame.cancel();
+    };
+  }, [open, positionerElement, pendingFocusItem, store, focusItemFrame]);
 
   const onTyping = React.useCallback(
     (nextTyping: boolean) => {
@@ -617,8 +671,7 @@ export interface MenuRootProps<Payload = unknown> {
    *    Instead, the `unmount` function must be called to unmount the menu manually.
    *   Useful when the menu's animation is controlled by an external library.
    * - `close`: When specified, the menu can be closed imperatively.
-   * - `setActiveIndex`: Set the index of the currently highlighted item.
-   *   Pass `0` to highlight the first item, or `null` to clear the highlight.
+   * - `focusItem`: Move focus to the `'first'` or `'last'` item, or `'none'` to clear the highlight.
    *   Useful when opening the menu programmatically from a custom interaction
    *   so that keyboard focus lands on an item instead of the popup container.
    */
@@ -649,8 +702,10 @@ export interface MenuRootProps<Payload = unknown> {
 export interface MenuRootActions {
   unmount: () => void;
   close: () => void;
-  setActiveIndex: (index: number | null) => void;
+  focusItem: (target: MenuRoot.FocusItem) => void;
 }
+
+export type MenuRootFocusItem = 'first' | 'last' | 'none';
 
 export type MenuRootChangeEventReason =
   | typeof REASONS.triggerHover
@@ -699,6 +754,7 @@ export namespace MenuRoot {
   export type State = MenuRootState;
   export type Props<Payload = unknown> = MenuRootProps<Payload>;
   export type Actions = MenuRootActions;
+  export type FocusItem = MenuRootFocusItem;
   export type ChangeEventReason = MenuRootChangeEventReason;
   export type ChangeEventDetails = MenuRootChangeEventDetails;
   export type Orientation = MenuRootOrientation;
