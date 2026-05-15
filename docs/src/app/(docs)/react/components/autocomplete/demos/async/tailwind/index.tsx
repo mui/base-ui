@@ -108,7 +108,7 @@ export default function ExampleAsyncAutocomplete() {
                   >
                     <span className="flex w-full flex-col gap-1">
                       <span className="font-bold leading-5">{movie.title}</span>
-                      <span className="text-sm leading-4 text-neutral-500 dark:text-neutral-400 group-data-highlighted:text-neutral-400 dark:group-data-highlighted:text-neutral-500">
+                      <span className="text-sm leading-4 text-neutral-500 dark:text-neutral-400 group-data-highlighted:text-neutral-300 dark:group-data-highlighted:text-neutral-500">
                         {movie.year}
                       </span>
                     </span>
