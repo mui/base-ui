@@ -149,8 +149,6 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
       viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeLinecap="square"
-      strokeLinejoin="round"
       {...props}
       style={{ display: 'block', ...props.style }}
     >
