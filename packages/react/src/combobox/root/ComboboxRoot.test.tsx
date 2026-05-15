@@ -1130,6 +1130,71 @@ describe('<Combobox.Root />', () => {
         },
       );
 
+      it.skipIf(isJSDOM)(
+        'scrolls the selected item into view when opening from the trigger without the items prop',
+        async () => {
+          const items = Array.from({ length: 30 }, (_, index) => `item-${index}`);
+
+          function App() {
+            const [value, setValue] = React.useState<string | null>(null);
+
+            return (
+              <React.Fragment>
+                <button
+                  type="button"
+                  data-testid="set-external"
+                  onClick={() => setValue('item-25')}
+                >
+                  Set external
+                </button>
+                <Combobox.Root value={value} onValueChange={setValue}>
+                  <Combobox.Input data-testid="input" />
+                  <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+                  <Combobox.Portal>
+                    <Combobox.Positioner>
+                      <Combobox.Popup
+                        data-testid="popup"
+                        style={{ maxHeight: 80, overflow: 'auto' }}
+                      >
+                        <Combobox.List>
+                          {items.map((item) => (
+                            <Combobox.Item
+                              key={item}
+                              value={item}
+                              style={{ display: 'block', height: 24 }}
+                            >
+                              {item}
+                            </Combobox.Item>
+                          ))}
+                        </Combobox.List>
+                      </Combobox.Popup>
+                    </Combobox.Positioner>
+                  </Combobox.Portal>
+                </Combobox.Root>
+              </React.Fragment>
+            );
+          }
+
+          const { user } = await render(<App />);
+
+          await user.click(screen.getByTestId('set-external'));
+          await user.click(screen.getByTestId('trigger'));
+
+          const popup = screen.getByTestId('popup');
+          const option = await screen.findByRole('option', { name: 'item-25' });
+
+          await waitFor(() => {
+            expect(option).toHaveAttribute('data-highlighted');
+            expect(popup.scrollTop).toBeGreaterThan(0);
+
+            const popupRect = popup.getBoundingClientRect();
+            const optionRect = option.getBoundingClientRect();
+            expect(optionRect.top).toBeGreaterThanOrEqual(popupRect.top);
+            expect(optionRect.bottom).toBeLessThanOrEqual(popupRect.bottom);
+          });
+        },
+      );
+
       it('re-syncs selectedIndex after an external controlled update when closing without the items prop', async () => {
         function App() {
           const [value, setValue] = React.useState<string | null>('apple');
@@ -1530,6 +1595,48 @@ describe('<Combobox.Root />', () => {
 
       await waitFor(() => {
         expect(input).toHaveValue('cherry');
+      });
+    });
+
+    it('reports highlighted values with manual indices without the items prop', async () => {
+      const onItemHighlighted = vi.fn();
+      const items = ['apple', 'banana', 'cherry'];
+
+      const { user } = await render(
+        <Combobox.Root onItemHighlighted={onItemHighlighted}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {items.map((item, index) => (
+                    <Combobox.Item key={item} value={item} index={index}>
+                      {item}
+                    </Combobox.Item>
+                  ))}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.toBe(null);
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      const apple = screen.getByRole('option', { name: 'apple' });
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledWith(
+          'apple',
+          expect.objectContaining({ index: 0, reason: 'keyboard' }),
+        );
+        expect(input).toHaveAttribute('aria-activedescendant', apple.id);
       });
     });
 
@@ -3053,6 +3160,43 @@ describe('<Combobox.Root />', () => {
       });
     });
 
+    it('uses manually indexed rendered object values for closed trigger typeahead', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root<FruitItem> items={items} onValueChange={onValueChange}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: FruitItem, index: number) => (
+                    <Combobox.Item key={item.value} value={item} index={index}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+        await wait(0);
+      });
+      await user.keyboard('b');
+
+      await waitFor(() => {
+        expect(onValueChange).toHaveBeenCalledWith(
+          items[1],
+          expect.objectContaining({ reason: REASONS.none }),
+        );
+      });
+    });
+
     it('syncs the last selected index for primitive arrays with object items', async () => {
       await render(
         <Combobox.Root multiple items={items} defaultValue={['apple', 'cherry']}>
@@ -3531,7 +3675,11 @@ describe('<Combobox.Root />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
-      const input = await screen.findByTestId('input');
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-popup-open');
+      });
+
+      const input = screen.getByTestId('input');
       await user.type(input, 'app');
       await user.click(screen.getByRole('option', { name: 'apple' }));
 
@@ -3597,7 +3745,12 @@ describe('<Combobox.Root />', () => {
         const trigger = screen.getByTestId('trigger');
         await user.click(trigger);
 
-        const input = await screen.findByTestId('input');
+        let popup = await screen.findByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-open');
+        });
+
+        const input = screen.getByTestId('input');
         await user.type(input, 'zz');
 
         await waitFor(() => {
@@ -3607,7 +3760,7 @@ describe('<Combobox.Root />', () => {
 
         await user.keyboard('{Escape}');
 
-        const popup = screen.getByTestId('popup');
+        popup = screen.getByTestId('popup');
         await waitFor(() => {
           expect(popup).toHaveAttribute('data-ending-style');
         });
@@ -3621,7 +3774,12 @@ describe('<Combobox.Root />', () => {
 
         await user.click(trigger);
 
-        const reopenedInput = await screen.findByTestId('input');
+        const reopenedPopup = await screen.findByTestId('popup');
+        await waitFor(() => {
+          expect(reopenedPopup).toHaveAttribute('data-open');
+        });
+
+        const reopenedInput = screen.getByTestId('input');
         expect(reopenedInput).toHaveValue('');
         expect(screen.getByText('apple')).not.toBe(null);
       },
@@ -3683,7 +3841,12 @@ describe('<Combobox.Root />', () => {
         const trigger = screen.getByTestId('trigger');
         await user.click(trigger);
 
-        const input = await screen.findByTestId('input');
+        const popup = await screen.findByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-open');
+        });
+
+        const input = screen.getByTestId('input');
         await user.type(input, 'zz');
 
         await waitFor(() => {
@@ -3692,14 +3855,14 @@ describe('<Combobox.Root />', () => {
 
         await user.keyboard('{Escape}');
 
-        const popup = screen.getByTestId('popup');
         await waitFor(() => {
           expect(popup).toHaveAttribute('data-ending-style');
         });
 
-        await user.click(trigger);
+        fireEvent.mouseDown(trigger);
 
         await waitFor(() => {
+          expect(popup).toHaveAttribute('data-open');
           expect(popup).not.toHaveAttribute('data-ending-style');
         });
 

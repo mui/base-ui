@@ -1,4 +1,4 @@
-import { stringifyAsLabel } from '../../../internals/resolveValueLabel';
+import { isLabeledItem, stringifyAsLabel } from '../../../internals/resolveValueLabel';
 import type { Filter } from './useFilter';
 
 /**
@@ -58,7 +58,7 @@ export function createSingleSelectionCollatorFilter(
 }
 
 export function stringifyComboboxItemLabel(item: any, itemToStringLabel?: (item: any) => string) {
-  if (item && typeof item === 'object' && 'value' in item && 'label' in item) {
+  if (isLabeledItem(item)) {
     return String(item.label ?? '');
   }
 

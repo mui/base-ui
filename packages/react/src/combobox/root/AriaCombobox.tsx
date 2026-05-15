@@ -479,17 +479,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     getStringifiedValueForForm,
   );
 
-  const forceMount = useStableCallback((renderItems = true) => {
+  const forceMount = useStableCallback(() => {
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
         stringifyComboboxItemLabel(item, itemToStringLabel),
       );
       valuesRef.current = flatFilteredItemValues.slice();
-
-      if (!renderItems) {
-        return;
-      }
     }
 
     // Rendering is still needed when item metadata cannot be inferred from the
@@ -1250,9 +1246,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       hasItems,
       filteredItems,
       flatFilteredItems,
-      flatFilteredItemValues,
     }),
-    [query, hasItems, filteredItems, flatFilteredItems, flatFilteredItemValues],
+    [query, hasItems, filteredItems, flatFilteredItems],
   );
 
   const serializedValue = React.useMemo(() => {

@@ -5,8 +5,8 @@ import { serializeValue } from './serializeValue';
 type ItemRecord = Record<string, React.ReactNode>;
 type ItemsInput = ItemRecord | ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>> | undefined;
 
-interface LabeledItem {
-  value: any;
+export interface LabeledItem<Value = any> {
+  value: Value;
   label: React.ReactNode;
 }
 
@@ -62,7 +62,7 @@ export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => s
     return itemToStringLabel(item) ?? '';
   }
   if (item && typeof item === 'object') {
-    if ('label' in item && item.label != null) {
+    if (isLabeledItem(item) && item.label != null) {
       return String(item.label);
     }
     if ('value' in item) {
@@ -76,18 +76,22 @@ export function stringifyAsValue(item: any, itemToStringValue?: (item: any) => s
   if (itemToStringValue && item != null) {
     return itemToStringValue(item) ?? '';
   }
-  if (item && typeof item === 'object' && 'value' in item && 'label' in item) {
+  if (isLabeledItem(item)) {
     return serializeValue(item.value);
   }
   return serializeValue(item);
 }
 
-export function inferItemValue(item: any) {
-  if (item && typeof item === 'object' && 'value' in item && 'label' in item) {
+export function isLabeledItem<Value = any>(item: any): item is LabeledItem<Value> {
+  return item && typeof item === 'object' && 'value' in item && 'label' in item;
+}
+
+export function inferItemValue<Value>(item: Value | LabeledItem<Value>): Value {
+  if (isLabeledItem<Value>(item)) {
     return item.value;
   }
 
-  return item;
+  return item as Value;
 }
 
 export function resolveSelectedLabel(

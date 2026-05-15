@@ -17,10 +17,10 @@ import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { ComboboxPortalContext } from '../portal/ComboboxPortalContext';
 
-type ComboboxListItemMetadata = {
+interface ComboboxListItemMetadata {
   index?: number | null | undefined;
   value: any;
-};
+}
 
 /**
  * A list container for the items.

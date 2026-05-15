@@ -94,19 +94,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, comboboxLabelId);
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
-  const pointerDownRef = React.useRef(false);
 
   function trackPointerType(event: React.PointerEvent) {
     currentPointerTypeRef.current = event.pointerType;
-  }
-
-  function trackPointerDown(event: React.PointerEvent) {
-    trackPointerType(event);
-    pointerDownRef.current = true;
-  }
-
-  function clearPointerDown() {
-    pointerDownRef.current = false;
   }
 
   const domReference = floatingRootContext.useState('domReferenceElement');
@@ -174,10 +164,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         'aria-controls': open ? listElement?.id : undefined,
         'aria-required': inputInsidePopup ? required || undefined : undefined,
         'aria-labelledby': ariaLabelledBy,
-        onPointerDown: trackPointerDown,
+        onPointerDown: trackPointerType,
         onPointerEnter: trackPointerType,
-        onPointerUp: clearPointerDown,
-        onPointerCancel: clearPointerDown,
         onFocus() {
           setFocused(true);
 
@@ -185,12 +173,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          if (pointerDownRef.current) {
-            pointerDownRef.current = false;
-            return;
-          }
-
-          focusTimeout.start(0, () => store.state.forceMount());
+          focusTimeout.start(0, store.state.forceMount);
         },
         onBlur(event) {
           // If focus is moving into the popup, don't count it as a blur.
@@ -205,10 +188,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
             validation.commit(valueToValidate);
           }
-
-          if (!open) {
-            store.set('forceMounted', false);
-          }
         },
         onMouseDown(event) {
           if (disabled || readOnly) {
@@ -218,9 +197,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           if (!inputInsidePopup) {
             floatingRootContext.set('domReferenceElement', event.currentTarget);
           }
-
-          // Prime item refs when possible before opening without rendering a hidden list.
-          store.state.forceMount(false);
 
           if (currentPointerTypeRef.current !== 'touch') {
             store.state.inputRef.current?.focus();
