@@ -21,6 +21,7 @@
   width: 2.25rem;
   height: 1.25rem;
   background-color: white;
+  transition: background-color 150ms ease;
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
@@ -49,7 +50,9 @@
   width: 0.875rem;
   height: 0.875rem;
   background-color: var(--color-neutral-950);
-  transition: translate 150ms ease;
+  transition:
+    translate 150ms ease,
+    background-color 150ms ease;
 
   @media (prefers-color-scheme: dark) {
     background-color: white;
