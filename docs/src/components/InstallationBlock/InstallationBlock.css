@@ -69,4 +69,14 @@
     pointer-events: none;
     grid-area: 1 / 1;
   }
+
+  .InstallationBlockTabPanel {
+    border-bottom-left-radius: var(--radius-4);
+    border-bottom-right-radius: var(--radius-4);
+    outline: 0;
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+    }
+  }
 }
