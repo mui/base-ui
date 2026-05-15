@@ -20,7 +20,7 @@ export default function ExampleMenu() {
         <Menu.Positioner className="outline-hidden" sideOffset={8}>
           <Menu.Popup className="relative origin-[var(--transform-origin)] border border-neutral-950 bg-white py-1 text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 outline-hidden transition-[scale,opacity] duration-100 ease-out data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
             <Menu.Group>
-              <Menu.GroupLabel className="py-2 pr-8 pl-7.5 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
+              <Menu.GroupLabel className="py-2 pr-8 pl-[2.125rem] text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
                 Sort
               </Menu.GroupLabel>
               <Menu.RadioGroup value={value} onValueChange={setValue}>
@@ -48,7 +48,7 @@ export default function ExampleMenu() {
             <Menu.Separator className="mx-1 my-1 h-px bg-neutral-950 dark:bg-white" />
 
             <Menu.Group>
-              <Menu.GroupLabel className="py-2 pr-8 pl-7.5 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
+              <Menu.GroupLabel className="py-2 pr-8 pl-[2.125rem] text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
                 Workspace
               </Menu.GroupLabel>
               <Menu.CheckboxItem

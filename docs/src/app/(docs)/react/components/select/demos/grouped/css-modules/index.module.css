@@ -162,7 +162,7 @@
 .GroupLabel {
   box-sizing: border-box;
   padding-block: 0.375rem;
-  padding-left: calc(0.625rem + 0.75rem + 0.5rem);
+  padding-left: calc(0.625rem + 1rem + 0.5rem);
   padding-right: 1rem;
   font-size: 0.875rem;
   line-height: 1.25rem;

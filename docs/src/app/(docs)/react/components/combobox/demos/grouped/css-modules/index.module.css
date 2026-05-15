@@ -170,7 +170,7 @@
 .GroupLabel {
   box-sizing: border-box;
   user-select: none;
-  padding: 0.5rem 0.5rem 0.5rem 1.75rem;
+  padding: 0.5rem 0.5rem 0.5rem 2rem;
   font-size: 0.875rem;
   line-height: 1rem;
   color: var(--color-neutral-500);

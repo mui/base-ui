@@ -46,7 +46,7 @@ export default function ExampleGroupedCombobox() {
                   items={group.items}
                   className="block pb-2 last:pb-0"
                 >
-                  <Combobox.GroupLabel className="py-2 pr-2 pl-7 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
+                  <Combobox.GroupLabel className="py-2 pr-2 pl-8 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
                     {group.value}
                   </Combobox.GroupLabel>
                   <Combobox.Collection>
