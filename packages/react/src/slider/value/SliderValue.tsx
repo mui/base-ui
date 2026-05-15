@@ -34,6 +34,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
       htmlFor += `${thumbMetadata.inputId} `;
     }
   }
+
   const outputFor = htmlFor.trim() === '' ? undefined : htmlFor.trim();
 
   const formattedValues = React.useMemo(() => {

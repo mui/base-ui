@@ -173,6 +173,7 @@ export function useDelayGroup(
 
       unset();
     }
+
     return undefined;
   }, [
     open,

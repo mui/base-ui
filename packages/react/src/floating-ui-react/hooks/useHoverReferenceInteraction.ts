@@ -132,6 +132,7 @@ export function useHoverReferenceInteraction(
     if (!instance.handler) {
       return;
     }
+
     const doc = ownerDocument(store.select('domReferenceElement'));
     doc.removeEventListener('mousemove', instance.handler);
     instance.handler = undefined;

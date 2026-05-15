@@ -201,6 +201,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     const value = swipeThresholdProp({ element, direction });
+
     swipeThresholdRef.current = Math.max(0, value);
   }
 
@@ -212,6 +213,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
       if (details) {
         const lastDetails = lastProgressDetailsRef.current;
+
         detailsChanged =
           !lastDetails ||
           lastDetails.deltaX !== details.deltaX ||
@@ -241,6 +243,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const lastSample = lastDragSampleRef.current;
     if (lastSample && timeStamp > lastSample.time) {
       const durationMs = Math.max(timeStamp - lastSample.time, MIN_RELEASE_VELOCITY_DURATION_MS);
+
       lastDragVelocityRef.current = {
         x: (offset.x - lastSample.x) / durationMs,
         y: (offset.y - lastSample.y) / durationMs,
@@ -381,6 +384,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       elementSizeRef.current = { width: element.offsetWidth, height: element.offsetHeight };
       resolveSwipeThreshold(primaryDirection);
       const transform = getElementTransform(element);
+
       initialTransformRef.current = transform;
       dragOffsetRef.current = { x: transform.x, y: transform.y };
       setInitialTransform(transform);
@@ -426,6 +430,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     setLockedDirection(null);
 
     const resolvedInitialTransform = trackDrag ? initialTransform : initialTransformRef.current;
+
     dragOffsetRef.current = { x: resolvedInitialTransform.x, y: resolvedInitialTransform.y };
     setDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
     setCurrentSwipeDirection(undefined);

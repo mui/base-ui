@@ -102,6 +102,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     directionComputationIncomplete =
       previousValue != null && value != null && getTabElementBySelectedValue(value) == null;
   }
+
   const nextPreviousValue = directionComputationIncomplete ? previousValue : value;
   const shouldSyncActivationDirectionState =
     previousValue !== nextPreviousValue ||
@@ -121,6 +122,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
       const activationDirection = computeActivationDirection(value, newValue, orientation, tabMap);
+
       eventDetails.activationDirection = activationDirection;
 
       onValueChangeProp?.(newValue, eventDetails);
@@ -380,6 +382,7 @@ function computeActivationDirection(
     if (tabMetadata == null) {
       continue;
     }
+
     const tabValue = tabMetadata.value ?? tabMetadata.index;
     if (oldValue === tabValue) {
       oldTab = tabElement as HTMLElement;

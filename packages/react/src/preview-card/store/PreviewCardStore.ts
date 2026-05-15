@@ -45,6 +45,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
+
     state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
     super(
