@@ -116,7 +116,7 @@
   display: grid;
   gap: 0.5rem;
   align-items: center;
-  grid-template-columns: 0.75rem 1fr;
+  grid-template-columns: 1rem 1fr;
 
   &[data-highlighted] {
     z-index: 0;
