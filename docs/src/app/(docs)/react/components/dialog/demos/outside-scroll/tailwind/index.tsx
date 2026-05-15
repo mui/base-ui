@@ -11,7 +11,7 @@ export default function OutsideScrollDialog() {
         Open dialog
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-black/20 dark:bg-black/50 transition-opacity duration-[350ms] ease-[var(--ease-out-fast)] data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:duration-[220ms] data-ending-style:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] supports-[-webkit-touch-callout:none]:absolute" />
+        <Dialog.Backdrop className="fixed inset-0 bg-black/20 dark:bg-black/50 transition-opacity duration-[600ms] ease-[var(--ease-out-fast)] data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:duration-[350ms] data-ending-style:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] supports-[-webkit-touch-callout:none]:absolute" />
         <Dialog.Viewport className="group/dialog fixed inset-0">
           <ScrollArea.Root
             style={{ position: undefined }}
@@ -22,7 +22,7 @@ export default function OutsideScrollDialog() {
                 <Dialog.Popup
                   ref={popupRef}
                   initialFocus={popupRef}
-                  className="outline-0 relative mx-auto my-16 flex w-[min(40rem,calc(100vw-2rem))] flex-col gap-4 bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[350ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-starting-style:translate-y-[100dvh] data-ending-style:translate-y-[max(100dvh,100%)] data-ending-style:duration-[220ms] data-ending-style:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
+                  className="outline-0 relative mx-auto my-16 flex w-[min(40rem,calc(100vw-2rem))] flex-col gap-4 bg-white dark:bg-neutral-950 p-4 text-neutral-950 dark:text-white border border-neutral-950 dark:border-white shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none transition-[translate] duration-[700ms] ease-[cubic-bezier(0.45,1.005,0,1.005)] data-starting-style:translate-y-[100dvh] data-ending-style:translate-y-[max(100dvh,100%)] data-ending-style:duration-[350ms] data-ending-style:ease-[cubic-bezier(0.375,0.015,0.545,0.455)] motion-reduce:transition-none"
                 >
                   <div className="relative flex flex-col gap-1 pr-8">
                     <Dialog.Title className="text-base font-bold">Dialog</Dialog.Title>
