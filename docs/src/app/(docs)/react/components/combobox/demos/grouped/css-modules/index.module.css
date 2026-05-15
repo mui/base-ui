@@ -163,6 +163,10 @@
 .Group {
   display: block;
   padding-bottom: 0.5rem;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
 }
 
 .GroupLabel {
