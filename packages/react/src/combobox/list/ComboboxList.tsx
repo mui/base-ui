@@ -18,7 +18,6 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { ComboboxPortalContext } from '../portal/ComboboxPortalContext';
 
 interface ComboboxListItemMetadata {
-  index?: number | null | undefined;
   value: any;
 }
 
@@ -44,13 +43,14 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const grid = useStore(store, selectors.grid);
   const popupProps = useStore(store, selectors.popupProps);
   const open = useStore(store, selectors.open);
+  const mounted = useStore(store, selectors.mounted);
   const inline = useStore(store, selectors.inline);
   const forceMounted = useStore(store, selectors.forceMounted);
   const virtualized = useStore(store, selectors.virtualized);
 
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
-  const registryActive = inline || open || keepPortalMounted || forceMounted;
+  const registryActive = inline || open || mounted || keepPortalMounted || forceMounted;
 
   const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
@@ -68,8 +68,8 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
       const itemValues: any[] = [];
       map.forEach((metadata) => {
-        if (metadata?.index != null) {
-          itemValues[metadata.index] = metadata.value;
+        if (metadata) {
+          itemValues.push(metadata.value);
         }
       });
 

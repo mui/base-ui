@@ -4012,6 +4012,94 @@ describe('<Combobox.Root />', () => {
       },
     );
 
+    it.skipIf(isJSDOM)(
+      'restores the value registry when reopening during close animation',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const style = `
+          @keyframes combobox-close-test {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: combobox-close-test 100ms linear;
+          }
+        `;
+
+        const onItemHighlighted = vi.fn();
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Combobox.Root onItemHighlighted={onItemHighlighted} onValueChange={onValueChange}>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup
+                    data-testid="popup"
+                    className="animation-test-popup"
+                    aria-label="Fruits"
+                  >
+                    <Combobox.List>
+                      <Combobox.Item value="apple">apple</Combobox.Item>
+                      <Combobox.Item value="banana">banana</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const popup = await screen.findByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-open');
+        });
+
+        await user.keyboard('{Escape}');
+
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+
+        fireEvent.mouseDown(screen.getByTestId('trigger'));
+
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-open');
+          expect(popup).not.toHaveAttribute('data-ending-style');
+        });
+
+        onItemHighlighted.mockClear();
+        await user.keyboard('{ArrowDown}');
+
+        await waitFor(() => {
+          expect(onItemHighlighted).toHaveBeenCalledWith(
+            'apple',
+            expect.objectContaining({ index: 0 }),
+          );
+        });
+
+        await user.keyboard('{Enter}');
+
+        expect(onValueChange).toHaveBeenCalledWith(
+          'apple',
+          expect.objectContaining({ reason: REASONS.itemPress }),
+        );
+      },
+    );
+
     it('"multiple" clears typed input on close when no selection made', async () => {
       const onInput = vi.fn();
       const { user } = await render(
