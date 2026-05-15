@@ -33,6 +33,7 @@ export type State = {
   popupProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
+  itemProps: HTMLProps;
 
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
@@ -71,9 +72,6 @@ export type State = {
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: (renderItems?: boolean) => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
-  getItemProps: (
-    props?: HTMLProps & { active?: boolean | undefined; selected?: boolean | undefined },
-  ) => Record<string, unknown>;
   requestSubmit: () => void;
 
   name: string | undefined;
@@ -150,7 +148,7 @@ export const selectors = {
   popupProps: createSelector((state: State) => state.popupProps),
   inputProps: createSelector((state: State) => state.inputProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
-  getItemProps: createSelector((state: State) => state.getItemProps),
+  itemProps: createSelector((state: State) => state.itemProps),
 
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),

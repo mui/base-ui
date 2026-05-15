@@ -18,6 +18,7 @@ function roundToFractionDigits(value: number, maximumFractionDigits: number) {
   if (!Number.isFinite(value)) {
     return value;
   }
+
   const digits = Math.min(Math.max(maximumFractionDigits, 0), 20);
   return Number(value.toFixed(digits));
 }

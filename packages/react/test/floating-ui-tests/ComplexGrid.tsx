@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
+import { useTestInteractions } from '#test-utils';
 import {
   FloatingFocusManager,
   useClick,
   useDismiss,
   useFloating,
-  useInteractions,
   useListNavigation,
 } from '../../src/floating-ui-react';
 import styles from './ComplexGrid.module.css';
@@ -36,7 +36,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
 
   const disabledIndices = [0, 1, 2, 3, 4, 5, 6, 9, 14, 23, 35];
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
     useClick(context),
     useListNavigation(context, {
       listRef,

@@ -76,7 +76,10 @@ export function stringifyAsValue(item: any, itemToStringValue?: (item: any) => s
   if (itemToStringValue && item != null) {
     return itemToStringValue(item) ?? '';
   }
-  return serializeValue(inferItemValue(item));
+  if (item && typeof item === 'object' && 'value' in item && 'label' in item) {
+    return serializeValue(item.value);
+  }
+  return serializeValue(item);
 }
 
 export function inferItemValue(item: any) {
@@ -108,21 +111,7 @@ export function resolveSelectedLabel(
 
   // Items provided as plain record map
   if (items && !Array.isArray(items)) {
-    const recordItems = items as Record<string, React.ReactNode>;
-    const directMatch = recordItems[value];
-    if (directMatch != null) {
-      return directMatch;
-    }
-
-    if (isItemEqualToValue && value != null) {
-      for (const itemValue in recordItems) {
-        if (isItemEqualToValue(itemValue, value)) {
-          return recordItems[itemValue] ?? fallback();
-        }
-      }
-    }
-
-    return fallback();
+    return (items as any)[value] ?? fallback();
   }
 
   // Items provided as array (flat or grouped)
@@ -138,10 +127,8 @@ export function resolveSelectedLabel(
         ? isItemEqualToValue(itemValue, value)
         : itemValue === value;
     });
-    if (match) {
-      if (match.label != null) {
-        return match.label;
-      }
+    if (match?.label != null) {
+      return match.label;
     }
 
     // Object without explicit label: try matching by its `value` property

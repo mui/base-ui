@@ -191,6 +191,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     if (!control || !thumb) {
       return;
     }
+
     const thumbRect = thumb.getBoundingClientRect();
     const controlRect = control.getBoundingClientRect();
 

@@ -41,6 +41,19 @@ describe('useButton', () => {
         });
       });
 
+      it('does not set a type prop', async () => {
+        let buttonProps: Record<string, unknown> | undefined = undefined;
+
+        function Button() {
+          const { getButtonProps } = useButton({ native: false });
+          buttonProps = getButtonProps();
+          return <span {...buttonProps} />;
+        }
+
+        await render(<Button />);
+        expect(buttonProps).not.toHaveProperty('type');
+      });
+
       it.skipIf(isJSDOM)(
         'can be activated with Enter when the keyboard event originates inside a shadow root',
         async () => {
