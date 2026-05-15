@@ -231,9 +231,11 @@ export function Demo({
                         target="_blank"
                         rel="noopener"
                         onClick={onViewSource}
+                        style={{ cursor: 'pointer' }}
                       >
-                        <GitHubIcon aria-hidden="true" height={14} width={14} />
+                        <GitHubIcon aria-hidden="true" />
                         View source on GitHub
+                        <ExternalLinkIcon aria-hidden="true" />
                       </Menu.LinkItem>
 
                       <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
