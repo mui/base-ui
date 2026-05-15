@@ -40,7 +40,7 @@ export function Popup({ className, ...props }: Autocomplete.Popup.Props) {
   return (
     <Autocomplete.Popup
       className={clsx(
-        'w-(--anchor-width) max-h-[23rem] max-w-(--available-width) overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none',
+        'w-(--anchor-width) max-h-[22.5rem] max-w-(--available-width) overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none',
         className,
       )}
       {...props}
@@ -52,7 +52,7 @@ export function List({ className, ...props }: Autocomplete.List.Props) {
   return (
     <Autocomplete.List
       className={clsx(
-        'max-h-[min(23rem,var(--available-height))] overflow-y-auto overscroll-contain py-1 scroll-py-1 outline-0 data-empty:p-0',
+        'max-h-[min(22.5rem,var(--available-height))] overflow-y-auto overscroll-contain py-1 scroll-py-1 outline-0 data-empty:p-0',
         className,
       )}
       {...props}

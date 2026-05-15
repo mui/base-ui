@@ -168,7 +168,7 @@
     transform 150ms,
     opacity 150ms;
   max-width: var(--available-width);
-  max-height: 24rem;
+  max-height: 24.5rem;
 
   border: 1px solid var(--color-neutral-950);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
@@ -194,7 +194,7 @@
   padding-block: 0.25rem;
   overscroll-behavior: contain;
   max-height: min(
-    calc(24rem - var(--input-container-height) - 2px),
+    calc(24.5rem - var(--input-container-height) - 2px),
     calc(var(--available-height) - var(--input-container-height) - 2px)
   );
 

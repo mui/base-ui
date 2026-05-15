@@ -58,7 +58,7 @@
   background-color: white;
   color: var(--color-neutral-950);
   width: var(--anchor-width);
-  max-height: min(22rem, var(--available-height));
+  max-height: min(22.5rem, var(--available-height));
   max-width: var(--available-width);
   overflow: clip;
   border: 1px solid var(--color-neutral-950);
@@ -74,7 +74,7 @@
 
 .Scroller {
   box-sizing: border-box;
-  height: min(22rem, var(--total-size));
+  height: min(22.5rem, var(--total-size));
   max-height: var(--available-height);
   overflow: auto;
   overscroll-behavior: contain;

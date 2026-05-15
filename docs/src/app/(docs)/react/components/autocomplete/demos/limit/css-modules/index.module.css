@@ -67,7 +67,7 @@
   background-color: white;
   color: var(--color-neutral-950);
   width: var(--anchor-width);
-  max-height: min(var(--available-height), 23rem);
+  max-height: min(var(--available-height), 22.5rem);
   max-width: var(--available-width);
   overflow-y: auto;
   scroll-padding-block: 0.25rem;

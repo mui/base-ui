@@ -76,7 +76,7 @@
   background-color: white;
   color: var(--color-neutral-950);
   width: var(--anchor-width);
-  max-height: 23rem;
+  max-height: 22.5rem;
   max-width: var(--available-width);
   overflow: clip;
 
@@ -98,7 +98,7 @@
   padding-block: 0.25rem;
   scroll-padding-block: 0.25rem;
   outline: 0;
-  max-height: min(23rem, var(--available-height));
+  max-height: min(22.5rem, var(--available-height));
 
   &[data-empty] {
     padding: 0;

@@ -192,7 +192,7 @@
   color: var(--color-neutral-950);
   width: var(--anchor-width);
   max-width: var(--available-width);
-  max-height: min(var(--available-height), 24rem);
+  max-height: min(var(--available-height), 24.5rem);
   overflow-y: auto;
   scroll-padding-block: 0.25rem;
   overscroll-behavior: contain;

@@ -33,13 +33,13 @@ export default function ExampleGroupedCombobox() {
 
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
-          <Combobox.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-[opacity,transform] duration-100 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
+          <Combobox.Popup className="w-[var(--anchor-width)] max-h-[22.5rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-[opacity,transform] duration-100 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
             <Combobox.Empty>
               <div className="py-4 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
                 No produce found.
               </div>
             </Combobox.Empty>
-            <Combobox.List className="max-h-[min(23rem,var(--available-height))] overflow-auto overscroll-contain py-1 scroll-py-1 outline-0">
+            <Combobox.List className="max-h-[min(22.5rem,var(--available-height))] overflow-auto overscroll-contain py-1 scroll-py-1 outline-0">
               {(group: ProduceGroup) => (
                 <Combobox.Group key={group.value} items={group.items} className="block pb-2">
                   <Combobox.GroupLabel className="py-2 pr-2 pl-7 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">

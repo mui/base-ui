@@ -215,7 +215,7 @@
 
 .Viewport {
   box-sizing: border-box;
-  max-height: min(var(--available-height), 24rem);
+  max-height: min(var(--available-height), 24.5rem);
   padding-block: 0.25rem;
   overflow-y: auto;
   overscroll-behavior: contain;

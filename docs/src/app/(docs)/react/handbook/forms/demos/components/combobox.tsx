@@ -74,7 +74,7 @@ export function Popup({ className, ...props }: Combobox.Popup.Props) {
   return (
     <Combobox.Popup
       className={clsx(
-        'w-(--anchor-width) max-h-[23rem] max-w-(--available-width) origin-(--transform-origin) overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0/12%)] transition-[opacity,transform] duration-100 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none',
+        'w-(--anchor-width) max-h-[22.5rem] max-w-(--available-width) origin-(--transform-origin) overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0/12%)] transition-[opacity,transform] duration-100 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none',
         className,
       )}
       {...props}
@@ -103,7 +103,7 @@ export function List({ className, ...props }: Combobox.List.Props) {
   return (
     <Combobox.List
       className={clsx(
-        'outline-0 overflow-y-auto scroll-py-[0.25rem] py-1 overscroll-contain max-h-[min(23rem,var(--available-height))] data-empty:p-0',
+        'outline-0 overflow-y-auto scroll-py-[0.25rem] py-1 overscroll-contain max-h-[min(22.5rem,var(--available-height))] data-empty:p-0',
         className,
       )}
       {...props}

@@ -125,7 +125,7 @@
   background-color: white;
   color: var(--color-neutral-950);
   width: var(--anchor-width);
-  max-height: 23rem;
+  max-height: 22.5rem;
   max-width: var(--available-width);
   transition:
     opacity 0.1s,
@@ -156,7 +156,7 @@
   padding-block: 0.25rem;
   scroll-padding-top: 0.25rem;
   scroll-padding-bottom: 0.25rem;
-  max-height: min(23rem, var(--available-height));
+  max-height: min(22.5rem, var(--available-height));
   outline: 0;
 }
 

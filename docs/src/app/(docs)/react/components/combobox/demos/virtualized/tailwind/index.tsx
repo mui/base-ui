@@ -39,7 +39,7 @@ export default function ExampleVirtualizedCombobox() {
 
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
-          <Combobox.Popup className="w-[var(--anchor-width)] max-h-[min(22rem,var(--available-height))] max-w-[var(--available-width)] overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
+          <Combobox.Popup className="w-[var(--anchor-width)] max-h-[min(22.5rem,var(--available-height))] max-w-[var(--available-width)] overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
             <Combobox.Empty>
               <div className="py-4 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
                 No items found.
@@ -100,7 +100,7 @@ function VirtualizedList({
     <div
       role="presentation"
       ref={handleScrollElementRef}
-      className="h-[min(22rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-py-1"
+      className="h-[min(22.5rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-py-1"
       style={{ '--total-size': `${totalSize}px` } as React.CSSProperties}
     >
       <div role="presentation" className="relative w-full" style={{ height: totalSize }}>
