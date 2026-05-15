@@ -28,7 +28,7 @@ describe('otp utils', () => {
     expect(normalizeOTPValue(undefined, 6, 'alpha')).toBe('');
   });
 
-  it('uses custom sanitization when validationType is none', () => {
+  it('uses custom normalization when validationType is none', () => {
     expect(
       normalizeOTPValue('ab-12 cd', 6, 'none', (value) =>
         value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase(),
@@ -36,19 +36,19 @@ describe('otp utils', () => {
     ).toBe('AB12CD');
   });
 
-  it('applies custom sanitization after built-in validation', () => {
-    const sanitizeValue = vi.fn((value: string) => value.toUpperCase());
+  it('applies custom normalization after built-in validation', () => {
+    const normalizeValue = vi.fn((value: string) => value.toUpperCase());
 
-    expect(normalizeOTPValue('ab-12 cd!', 6, 'alphanumeric', sanitizeValue)).toBe('AB12CD');
-    expect(sanitizeValue).toHaveBeenCalledTimes(1);
-    expect(sanitizeValue).toHaveBeenCalledWith('ab12cd');
+    expect(normalizeOTPValue('ab-12 cd!', 6, 'alphanumeric', normalizeValue)).toBe('AB12CD');
+    expect(normalizeValue).toHaveBeenCalledTimes(1);
+    expect(normalizeValue).toHaveBeenCalledWith('ab12cd');
   });
 
-  it('filters custom sanitization output through built-in validation', () => {
+  it('filters custom normalization output through built-in validation', () => {
     expect(normalizeOTPValue('12', 6, 'numeric', (value) => `${value}AB`)).toBe('12');
   });
 
-  it('clamps values after custom sanitization', () => {
+  it('clamps values after custom normalization', () => {
     expect(normalizeOTPValue('123456', 4, 'numeric', (value) => `${value}789`)).toBe('1234');
   });
 
@@ -68,13 +68,13 @@ describe('otp utils', () => {
     expect(replaceOTPValue('123456', 5, '9', 6, 'numeric')).toBe('123459');
   });
 
-  it('applies custom sanitization when replacing OTP values', () => {
-    const sanitizeValue = vi.fn((value: string) => value.toUpperCase());
+  it('applies custom normalization when replacing OTP values', () => {
+    const normalizeValue = vi.fn((value: string) => value.toUpperCase());
 
-    expect(replaceOTPValue('123456', 2, 'ab', 6, 'alphanumeric', sanitizeValue)).toBe('12AB56');
+    expect(replaceOTPValue('123456', 2, 'ab', 6, 'alphanumeric', normalizeValue)).toBe('12AB56');
   });
 
-  it('preserves suffix characters when custom sanitization removes part of a middle replacement', () => {
+  it('preserves suffix characters when custom normalization removes part of a middle replacement', () => {
     expect(
       replaceOTPValue('1303', 1, '29', 4, 'numeric', (value) => value.replace(/[^0-3]/g, '')),
     ).toBe('1203');

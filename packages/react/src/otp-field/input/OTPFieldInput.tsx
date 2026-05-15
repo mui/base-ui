@@ -57,7 +57,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     reportValueInvalid,
     readOnly,
     required,
-    sanitizeValue,
+    normalizeValue,
     setValue,
     state,
     validationType,
@@ -138,14 +138,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       const rawValue = event.currentTarget.value;
-      const [nextDigits, didSanitize] = normalizeOTPValueWithDetails(
+      const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
         rawValue,
         length,
         validationType,
-        sanitizeValue,
+        normalizeValue,
       );
 
-      if (didSanitize) {
+      if (didRejectCharacters) {
         reportValueInvalid(
           rawValue,
           createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -171,7 +171,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         nextDigits,
         length,
         validationType,
-        sanitizeValue,
+        normalizeValue,
       );
 
       const committedValue = setValue(
@@ -285,14 +285,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       event.preventDefault();
 
-      const [nextDigits, didSanitize] = normalizeOTPValueWithDetails(
+      const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
         rawValue,
         length,
         validationType,
-        sanitizeValue,
+        normalizeValue,
       );
 
-      if (didSanitize) {
+      if (didRejectCharacters) {
         reportValueInvalid(
           rawValue,
           createGenericEventDetails(REASONS.inputPaste, event.nativeEvent),
@@ -304,7 +304,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       const committedValue = setValue(
-        replaceOTPValue(value, index, nextDigits, length, validationType, sanitizeValue),
+        replaceOTPValue(value, index, nextDigits, length, validationType, normalizeValue),
         createChangeEventDetails(REASONS.inputPaste, event.nativeEvent),
       );
 

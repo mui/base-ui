@@ -6,7 +6,7 @@ import styles from './index.module.css';
 
 const CODE_LENGTH = 6;
 
-function sanitizeRecoveryCode(value: string) {
+function normalizeRecoveryCode(value: string) {
   return value.toUpperCase();
 }
 
@@ -18,7 +18,7 @@ function getInvalidClassName(invalidPulse: number, evenClassName: string, oddCla
   return invalidPulse % 2 === 0 ? evenClassName : oddClassName;
 }
 
-export default function OTPFieldCustomSanitizeDemo() {
+export default function OTPFieldCustomNormalizeDemo() {
   const id = React.useId();
   const descriptionId = `${id}-description`;
 
@@ -46,7 +46,7 @@ export default function OTPFieldCustomSanitizeDemo() {
         id={id}
         length={CODE_LENGTH}
         validationType="alphanumeric"
-        sanitizeValue={sanitizeRecoveryCode}
+        normalizeValue={normalizeRecoveryCode}
         onValueChange={handleValueChange}
         onValueInvalid={handleValueInvalid}
         aria-describedby={descriptionId}

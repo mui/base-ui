@@ -106,18 +106,18 @@ import { DemoOTPFieldFocusedPlaceholder } from './demos/focused-placeholder';
 
 <DemoOTPFieldFocusedPlaceholder compact />
 
-### Custom sanitization
+### Custom normalization
 
-Use `sanitizeValue` to normalize accepted values before state updates, such as converting
+Use `normalizeValue` to normalize accepted values before state updates, such as converting
 alphanumeric codes to uppercase. It runs after `validationType` filtering, and the result is filtered
-against `validationType` again. Use `validationType="none"` when the sanitizer should provide the
+against `validationType` again. Use `validationType="none"` when the normalizer should provide the
 full validation rule.
 
 Pair custom rules with `inputMode` for keyboard hints and `onValueInvalid` for rejected characters.
 
-import { DemoOTPFieldCustomSanitize } from './demos/custom-sanitize';
+import { DemoOTPFieldCustomNormalize } from './demos/custom-sanitize';
 
-<DemoOTPFieldCustomSanitize compact />
+<DemoOTPFieldCustomNormalize compact />
 
 ### Masked entry
 

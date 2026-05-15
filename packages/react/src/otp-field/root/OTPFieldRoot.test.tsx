@@ -214,12 +214,12 @@ describe('<OTPFieldPreview />', () => {
       });
     });
 
-    describe('prop: sanitizeValue', () => {
-      it('supports custom sanitization when `validationType` is `none`', async () => {
+    describe('prop: normalizeValue', () => {
+      it('supports custom normalization when `validationType` is `none`', async () => {
         await render(
           <OTPField
             validationType="none"
-            sanitizeValue={(value) => value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()}
+            normalizeValue={(value) => value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()}
           />,
         );
 
@@ -236,7 +236,7 @@ describe('<OTPFieldPreview />', () => {
           await render(
             <OTPField
               validationType="alphanumeric"
-              sanitizeValue={(value) => value.toUpperCase()}
+              normalizeValue={(value) => value.toUpperCase()}
             />,
           );
 
@@ -251,9 +251,12 @@ describe('<OTPFieldPreview />', () => {
         }
       });
 
-      it('composes built-in validation and custom sanitization for pasted values', async () => {
+      it('composes built-in validation and custom normalization for pasted values', async () => {
         await render(
-          <OTPField validationType="alphanumeric" sanitizeValue={(value) => value.toUpperCase()} />,
+          <OTPField
+            validationType="alphanumeric"
+            normalizeValue={(value) => value.toUpperCase()}
+          />,
         );
 
         const [firstInput] = screen.getAllByRole<HTMLInputElement>('textbox');
@@ -262,12 +265,12 @@ describe('<OTPFieldPreview />', () => {
         expect(getValues()).toBe('AB12CD');
       });
 
-      it('composes built-in validation and custom sanitization from a non-first slot', async () => {
+      it('composes built-in validation and custom normalization from a non-first slot', async () => {
         await render(
           <OTPField
             defaultValue="12"
             validationType="alphanumeric"
-            sanitizeValue={(value) => value.toUpperCase()}
+            normalizeValue={(value) => value.toUpperCase()}
           />,
         );
 
@@ -313,7 +316,7 @@ describe('<OTPFieldPreview />', () => {
     });
 
     describe('prop: onValueInvalid', () => {
-      it('fires when typing is sanitized before the OTP value updates', async () => {
+      it('fires when typing is normalized before the OTP value updates', async () => {
         const onValueInvalid = vi.fn();
 
         await render(<OTPField onValueInvalid={onValueInvalid} />);
@@ -327,14 +330,14 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
 
-      it('fires when custom sanitization removes characters', async () => {
+      it('fires when custom normalization removes characters', async () => {
         const onValueInvalid = vi.fn();
 
         await render(
           <OTPField
             validationType="none"
             inputMode="numeric"
-            sanitizeValue={(value) => value.replace(/[^0-3]/g, '')}
+            normalizeValue={(value) => value.replace(/[^0-3]/g, '')}
             onValueInvalid={onValueInvalid}
           />,
         );
@@ -348,13 +351,13 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
 
-      it('fires when custom sanitization removes characters after built-in validation', async () => {
+      it('fires when custom normalization removes characters after built-in validation', async () => {
         const onValueInvalid = vi.fn();
 
         await render(
           <OTPField
             validationType="numeric"
-            sanitizeValue={(value) => value.replace(/[^0-3]/g, '')}
+            normalizeValue={(value) => value.replace(/[^0-3]/g, '')}
             onValueInvalid={onValueInvalid}
           />,
         );
@@ -368,13 +371,13 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
 
-      it('fires when built-in validation removes characters before custom sanitization expands the value', async () => {
+      it('fires when built-in validation removes characters before custom normalization expands the value', async () => {
         const onValueInvalid = vi.fn();
 
         await render(
           <OTPField
             validationType="numeric"
-            sanitizeValue={(value) => (value === '1' ? '12' : value)}
+            normalizeValue={(value) => (value === '1' ? '12' : value)}
             onValueInvalid={onValueInvalid}
           />,
         );
@@ -388,13 +391,13 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
 
-      it('fires when custom sanitization removes all characters after built-in validation', async () => {
+      it('fires when custom normalization removes all characters after built-in validation', async () => {
         const onValueInvalid = vi.fn();
 
         await render(
           <OTPField
             validationType="numeric"
-            sanitizeValue={() => ''}
+            normalizeValue={() => ''}
             onValueInvalid={onValueInvalid}
           />,
         );
@@ -408,7 +411,7 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
       });
 
-      it('fires `input-paste` when pasted text is sanitized before the OTP value updates', async () => {
+      it('fires `input-paste` when pasted text is normalized before the OTP value updates', async () => {
         const onValueInvalid = vi.fn();
 
         await render(<OTPField onValueInvalid={onValueInvalid} />);
@@ -422,13 +425,13 @@ describe('<OTPFieldPreview />', () => {
         expect(onValueInvalid.mock.calls[0]?.[1].reason).toBe(REASONS.inputPaste);
       });
 
-      it('fires `input-paste` when custom sanitization removes characters after built-in validation', async () => {
+      it('fires `input-paste` when custom normalization removes characters after built-in validation', async () => {
         const onValueInvalid = vi.fn();
 
         await render(
           <OTPField
             validationType="numeric"
-            sanitizeValue={(value) => value.replace(/[^0-3]/g, '')}
+            normalizeValue={(value) => value.replace(/[^0-3]/g, '')}
             onValueInvalid={onValueInvalid}
           />,
         );
@@ -1019,7 +1022,7 @@ describe('<OTPFieldPreview />', () => {
       expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
     });
 
-    it('composes validation and custom sanitization during hidden input autofill', async () => {
+    it('composes validation and custom normalization during hidden input autofill', async () => {
       const onValueChange = vi.fn();
       const onValueInvalid = vi.fn();
       const onValueComplete = vi.fn();
@@ -1028,7 +1031,7 @@ describe('<OTPFieldPreview />', () => {
         <OTPField
           name="otp"
           validationType="alphanumeric"
-          sanitizeValue={(value) => value.toUpperCase()}
+          normalizeValue={(value) => value.toUpperCase()}
           onValueChange={onValueChange}
           onValueInvalid={onValueInvalid}
           onValueComplete={onValueComplete}

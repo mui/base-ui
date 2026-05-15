@@ -46,33 +46,33 @@ function applyOTPValidation(value: string, validation: OTPValidationConfig | nul
 
 /**
  * Normalizes user-entered OTP text by stripping whitespace, applying validation and custom
- * sanitization, and clamping the final value to the configured slot count.
+ * normalization, and clamping the final value to the configured slot count.
  */
 export function normalizeOTPValueWithDetails(
   value: string | null | undefined,
   length: number,
   validationType: OTPValidationType,
-  sanitizeValue?: ((value: string) => string) | undefined,
-): readonly [value: string, didSanitize: boolean] {
+  normalizeValue?: ((value: string) => string) | undefined,
+): readonly [value: string, didRejectCharacters: boolean] {
   const strippedValue = stripOTPWhitespace(value);
   const validation = getOTPValidationConfig(validationType);
-  let sanitizedValue = applyOTPValidation(strippedValue, validation);
-  let didSanitize = strippedValue.length > sanitizedValue.length;
+  let normalizedValue = applyOTPValidation(strippedValue, validation);
+  let didRejectCharacters = strippedValue.length > normalizedValue.length;
 
-  if (sanitizeValue) {
-    const customSanitizedValue = sanitizeValue(sanitizedValue);
-    didSanitize ||= sanitizedValue.length > customSanitizedValue.length;
-    sanitizedValue = applyOTPValidation(customSanitizedValue, validation);
-    didSanitize ||= customSanitizedValue.length > sanitizedValue.length;
+  if (normalizeValue) {
+    const customNormalizedValue = normalizeValue(normalizedValue);
+    didRejectCharacters ||= normalizedValue.length > customNormalizedValue.length;
+    normalizedValue = applyOTPValidation(customNormalizedValue, validation);
+    didRejectCharacters ||= customNormalizedValue.length > normalizedValue.length;
   }
 
   // Slice by Unicode code points so multi-byte characters do not split across OTP slots.
   const maxLength = length < 0 ? 0 : length;
-  const sanitizedCharacters = Array.from(sanitizedValue);
+  const normalizedCharacters = Array.from(normalizedValue);
 
   return [
-    sanitizedCharacters.slice(0, maxLength).join(''),
-    didSanitize || sanitizedCharacters.length > maxLength,
+    normalizedCharacters.slice(0, maxLength).join(''),
+    didRejectCharacters || normalizedCharacters.length > maxLength,
   ];
 }
 
@@ -80,9 +80,9 @@ export function normalizeOTPValue(
   value: string | null | undefined,
   length: number,
   validationType: OTPValidationType,
-  sanitizeValue?: ((value: string) => string) | undefined,
+  normalizeValue?: ((value: string) => string) | undefined,
 ) {
-  return normalizeOTPValueWithDetails(value, length, validationType, sanitizeValue)[0];
+  return normalizeOTPValueWithDetails(value, length, validationType, normalizeValue)[0];
 }
 
 /**
@@ -95,9 +95,9 @@ export function replaceOTPValue(
   nextValue: string,
   length: number,
   validationType: OTPValidationType,
-  sanitizeValue?: ((value: string) => string) | undefined,
+  normalizeValue?: ((value: string) => string) | undefined,
 ) {
-  const normalizedValue = normalizeOTPValue(nextValue, length, validationType, sanitizeValue);
+  const normalizedValue = normalizeOTPValue(nextValue, length, validationType, normalizeValue);
   const prefix = currentValue.slice(0, index);
   const suffix = currentValue.slice(index + normalizedValue.length);
 
@@ -105,7 +105,7 @@ export function replaceOTPValue(
     `${prefix}${normalizedValue}${suffix}`,
     length,
     validationType,
-    sanitizeValue,
+    normalizeValue,
   );
 }
 
