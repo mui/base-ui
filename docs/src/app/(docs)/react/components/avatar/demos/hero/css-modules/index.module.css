@@ -6,8 +6,8 @@
   border-radius: 100%;
   user-select: none;
   font-weight: 400;
-  color: var(--color-neutral-950);
-  background-color: var(--color-neutral-200);
+  color: oklch(14.5% 0 0deg);
+  background-color: oklch(92.2% 0 0deg);
   font-size: 0.875rem;
   line-height: 1;
   overflow: hidden;
@@ -16,7 +16,7 @@
 
   @media (prefers-color-scheme: dark) {
     color: white;
-    background-color: var(--color-neutral-800);
+    background-color: oklch(26.9% 0 0deg);
   }
 }
 

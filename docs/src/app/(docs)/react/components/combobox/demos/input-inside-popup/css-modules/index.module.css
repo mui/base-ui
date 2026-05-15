@@ -16,13 +16,13 @@
   padding-right: 0.25rem;
   margin: 0;
   outline: 0;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1;
   white-space: nowrap;
   font-weight: 400;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   cursor: default;
   background-color: white;
   user-select: none;
@@ -31,37 +31,37 @@
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
     color: white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
   }
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-neutral-100);
+      background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        background-color: var(--color-neutral-800);
+        background-color: oklch(26.9% 0 0deg);
       }
     }
   }
 
   &:active {
-    background-color: var(--color-neutral-200);
+    background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-700);
+      background-color: oklch(37.1% 0 0deg);
     }
   }
 
   &[data-popup-open] {
-    background-color: var(--color-neutral-100);
+    background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-800);
+      background-color: oklch(26.9% 0 0deg);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -70,16 +70,16 @@
   }
 
   &[data-placeholder] {
-    color: var(--color-neutral-500);
+    color: oklch(55.6% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-400);
+      color: oklch(70.8% 0 0deg);
     }
   }
 }
 
 .TriggerIcon {
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     color: white;
@@ -94,7 +94,7 @@
   background-color: white;
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
   }
 }
 
@@ -112,7 +112,7 @@
   line-height: 1.25rem;
   font-weight: 400;
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   outline: none;
 
   @media (any-pointer: coarse) {
@@ -121,20 +121,20 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 
   &::placeholder {
-    color: var(--color-neutral-500);
+    color: oklch(55.6% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-400);
+      color: oklch(70.8% 0 0deg);
     }
   }
 
   &:focus {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -146,7 +146,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   cursor: default;
 
   @media (prefers-color-scheme: dark) {
@@ -162,7 +162,7 @@
   --input-container-height: 2rem;
   box-sizing: border-box;
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   transform-origin: var(--transform-origin);
   transition:
     transform 150ms,
@@ -170,11 +170,11 @@
   max-width: var(--available-width);
   max-height: 24.5rem;
 
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
     border: 1px solid white;
     box-shadow: none;
@@ -225,7 +225,7 @@
     color: white;
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-950);
+      color: oklch(14.5% 0 0deg);
     }
   }
 
@@ -235,7 +235,7 @@
     position: absolute;
     inset-block: 0;
     inset-inline: 0;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       background-color: white;
@@ -254,10 +254,10 @@
 .Separator {
   margin: 0.375rem 1rem;
   height: 1px;
-  background-color: var(--color-neutral-100);
+  background-color: oklch(97% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-800);
+    background-color: oklch(26.9% 0 0deg);
   }
 }
 
@@ -265,10 +265,10 @@
   box-sizing: border-box;
   font-size: 0.875rem;
   line-height: 1rem;
-  color: var(--color-neutral-500);
+  color: oklch(55.6% 0 0deg);
   padding: 1rem 1rem 1rem 0.5rem;
 
   @media (prefers-color-scheme: dark) {
-    color: var(--color-neutral-400);
+    color: oklch(70.8% 0 0deg);
   }
 }

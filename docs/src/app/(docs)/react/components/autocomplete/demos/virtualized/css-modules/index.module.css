@@ -3,7 +3,7 @@
   padding: 0 0.5rem;
   margin: 0;
   border-radius: 0;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   width: 16rem;
   height: 2rem;
   font-family: inherit;
@@ -11,7 +11,7 @@
   line-height: 1.25rem;
   font-weight: 400;
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   outline: none;
 
   @media (any-pointer: coarse) {
@@ -21,12 +21,12 @@
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 
   &:focus {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -42,7 +42,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     color: white;
@@ -56,14 +56,14 @@
 .Popup {
   box-sizing: border-box;
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   width: var(--anchor-width);
   max-width: var(--available-width);
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
     border: 1px solid white;
     box-shadow: none;
@@ -106,7 +106,7 @@
     color: white;
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-950);
+      color: oklch(14.5% 0 0deg);
     }
   }
 
@@ -116,7 +116,7 @@
     position: absolute;
     inset-block: 0;
     inset-inline: 0;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       background-color: white;
@@ -128,10 +128,10 @@
   box-sizing: border-box;
   font-size: 0.875rem;
   line-height: 1rem;
-  color: var(--color-neutral-500);
+  color: oklch(55.6% 0 0deg);
   padding: 1rem 1rem 1rem 0.5rem;
 
   @media (prefers-color-scheme: dark) {
-    color: var(--color-neutral-400);
+    color: oklch(70.8% 0 0deg);
   }
 }

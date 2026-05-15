@@ -3,14 +3,14 @@
   width: 24rem;
   height: 12rem;
   max-width: calc(100vw - 8rem);
-  background-color: var(--color-neutral-100);
+  background-color: oklch(97% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-800);
+    background-color: oklch(26.9% 0 0deg);
   }
 
   &:has(.Viewport:focus-visible) {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -21,7 +21,7 @@
 .Viewport {
   --fade-size: 40px;
   height: 100%;
-  background: var(--color-neutral-100);
+  background: oklch(97% 0 0deg);
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
@@ -33,7 +33,7 @@
   outline: none;
 
   @media (prefers-color-scheme: dark) {
-    background: var(--color-neutral-800);
+    background: oklch(26.9% 0 0deg);
   }
 }
 
@@ -50,7 +50,7 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.375rem;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     color: white;
@@ -84,7 +84,7 @@
 
 .Thumb {
   width: 100%;
-  background-color: var(--color-neutral-950);
+  background-color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     background-color: white;

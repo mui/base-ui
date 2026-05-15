@@ -6,16 +6,16 @@
   width: 15rem;
   height: 12rem;
   outline: 0;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
   background-color: white;
   font-weight: 400;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 }
@@ -28,10 +28,10 @@
   box-sizing: border-box;
   outline: 0;
   padding-block: 0.25rem;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transform-origin: var(--transform-origin);
   transition:
@@ -40,7 +40,7 @@
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
     box-shadow: none;
   }
@@ -69,7 +69,7 @@
     color: white;
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-950);
+      color: oklch(14.5% 0 0deg);
     }
   }
 
@@ -79,7 +79,7 @@
     position: absolute;
     inset-block: 0;
     inset-inline: 0.25rem;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       background-color: white;
@@ -87,10 +87,10 @@
   }
 
   &[data-disabled] {
-    color: var(--color-neutral-500);
+    color: oklch(55.6% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-400);
+      color: oklch(70.8% 0 0deg);
     }
   }
 }
@@ -98,7 +98,7 @@
 .Separator {
   margin: 0.25rem;
   height: 1px;
-  background-color: var(--color-neutral-950);
+  background-color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     background-color: white;

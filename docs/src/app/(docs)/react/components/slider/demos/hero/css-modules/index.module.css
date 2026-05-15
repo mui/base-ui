@@ -11,16 +11,16 @@
 .Track {
   width: 100%;
   height: 0.25rem;
-  background-color: var(--color-neutral-200);
+  background-color: oklch(92.2% 0 0deg);
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-800);
+    background-color: oklch(26.9% 0 0deg);
   }
 }
 
 .Indicator {
-  background-color: var(--color-neutral-950);
+  background-color: oklch(14.5% 0 0deg);
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -32,17 +32,17 @@
   box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
   }
 
   &:has(:focus-visible) {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: 2px;
 
     @media (prefers-color-scheme: dark) {

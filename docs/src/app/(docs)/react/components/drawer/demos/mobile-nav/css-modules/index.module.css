@@ -7,52 +7,52 @@
   height: 2rem;
   padding: 0 0.75rem;
   margin: 0;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1;
   white-space: nowrap;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: var(--color-neutral-100);
+      background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        background-color: var(--color-neutral-800);
+        background-color: oklch(26.9% 0 0deg);
       }
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: var(--color-neutral-200);
+    background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-700);
+      background-color: oklch(37.1% 0 0deg);
     }
   }
 
   &[data-disabled] {
-    color: var(--color-neutral-500);
-    border-color: var(--color-neutral-500);
+    color: oklch(55.6% 0 0deg);
+    border-color: oklch(55.6% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-400);
-      border-color: var(--color-neutral-400);
+      color: oklch(70.8% 0 0deg);
+      border-color: oklch(70.8% 0 0deg);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -166,15 +166,15 @@
   display: flex;
   flex-direction: column;
   padding: 1rem 1.5rem 1.5rem;
-  border-top: 1px solid var(--color-neutral-950);
+  border-top: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   transition: box-shadow 350ms cubic-bezier(0.375, 0.015, 0.545, 0.455);
 
   @media (prefers-color-scheme: dark) {
     border-top: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 }
@@ -202,7 +202,7 @@
 
 @media (min-width: 42rem) {
   .Panel {
-    border: 1px solid var(--color-neutral-950);
+    border: 1px solid oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       border: 1px solid white;
@@ -213,11 +213,11 @@
 .Handle {
   width: 3rem;
   height: 0.25rem;
-  background-color: var(--color-neutral-300);
+  background-color: oklch(87% 0 0deg);
   justify-self: center;
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-700);
+    background-color: oklch(37.1% 0 0deg);
   }
 }
 
@@ -229,7 +229,7 @@
   justify-content: center;
   border: 0;
   background-color: transparent;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   justify-self: end;
 
   @media (prefers-color-scheme: dark) {
@@ -238,24 +238,24 @@
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-neutral-100);
+      background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        background-color: var(--color-neutral-800);
+        background-color: oklch(26.9% 0 0deg);
       }
     }
   }
 
   &:active {
-    background-color: var(--color-neutral-200);
+    background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-700);
+      background-color: oklch(37.1% 0 0deg);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -275,10 +275,10 @@
   margin: 0 0 1.25rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--color-neutral-600);
+  color: oklch(43.9% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    color: var(--color-neutral-400);
+    color: oklch(70.8% 0 0deg);
   }
 }
 
@@ -309,7 +309,7 @@
   width: 100%;
   height: 3rem;
   padding: 0 1rem;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: inherit;
@@ -318,29 +318,29 @@
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
   }
 
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-neutral-100);
+      background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        background-color: var(--color-neutral-800);
+        background-color: oklch(26.9% 0 0deg);
       }
     }
   }
 
   &:active {
-    background-color: var(--color-neutral-200);
+    background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-700);
+      background-color: oklch(37.1% 0 0deg);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -381,5 +381,5 @@
 .ScrollbarThumb {
   width: 100%;
   border-radius: inherit;
-  background-color: var(--color-neutral-500);
+  background-color: oklch(55.6% 0 0deg);
 }

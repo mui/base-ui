@@ -9,7 +9,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   cursor: default;
 
   @media (prefers-color-scheme: dark) {
@@ -29,61 +29,61 @@
   padding-right: 0.25rem;
   margin: 0;
   outline: 0;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1;
   white-space: nowrap;
   font-weight: 400;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   user-select: none;
   min-width: 16rem;
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: var(--color-neutral-100);
+      background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        background-color: var(--color-neutral-800);
+        background-color: oklch(26.9% 0 0deg);
       }
     }
   }
 
   &[data-popup-open] {
-    background-color: var(--color-neutral-100);
+    background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-800);
+      background-color: oklch(26.9% 0 0deg);
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: var(--color-neutral-200);
+    background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-700);
+      background-color: oklch(37.1% 0 0deg);
     }
   }
 
   &[data-disabled] {
-    color: var(--color-neutral-500);
-    border-color: var(--color-neutral-500);
+    color: oklch(55.6% 0 0deg);
+    border-color: oklch(55.6% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-400);
-      border-color: var(--color-neutral-400);
+      color: oklch(70.8% 0 0deg);
+      border-color: oklch(70.8% 0 0deg);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -107,10 +107,10 @@
 .ValueSecondary {
   font-size: 0.75rem;
   line-height: 1rem;
-  color: var(--color-neutral-600);
+  color: oklch(43.9% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    color: var(--color-neutral-400);
+    color: oklch(70.8% 0 0deg);
   }
 }
 
@@ -123,10 +123,10 @@
 .Popup {
   box-sizing: border-box;
   outline: 0;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   background-clip: padding-box;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   min-width: var(--anchor-width);
   transform-origin: var(--transform-origin);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
@@ -136,7 +136,7 @@
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
     box-shadow: none;
   }
@@ -181,19 +181,19 @@
 
   @media (hover: hover) {
     &[data-highlighted] {
-      background-color: var(--color-neutral-950);
+      background-color: oklch(14.5% 0 0deg);
       color: white;
 
       @media (prefers-color-scheme: dark) {
         background-color: white;
-        color: var(--color-neutral-950);
+        color: oklch(14.5% 0 0deg);
       }
 
       .ItemDescription {
-        color: var(--color-neutral-400);
+        color: oklch(70.8% 0 0deg);
 
         @media (prefers-color-scheme: dark) {
-          color: var(--color-neutral-600);
+          color: oklch(43.9% 0 0deg);
         }
       }
     }
@@ -225,10 +225,10 @@
 .ItemDescription {
   font-size: 0.75rem;
   line-height: 1rem;
-  color: var(--color-neutral-600);
+  color: oklch(43.9% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    color: var(--color-neutral-400);
+    color: oklch(70.8% 0 0deg);
   }
 }
 
@@ -245,7 +245,7 @@
   justify-content: center;
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
   }
 
   &::before {

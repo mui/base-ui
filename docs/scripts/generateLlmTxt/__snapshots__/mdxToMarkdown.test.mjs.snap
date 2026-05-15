@@ -98,8 +98,8 @@ This example shows how to implement the component using CSS Modules.
   width: 20rem;
   max-width: 100%;
   flex-direction: column;
-  border: 1px solid var(--color-neutral-950);
-  color: var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
+  color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
@@ -109,7 +109,7 @@ This example shows how to implement the component using CSS Modules.
 
 .Item {
   & + & {
-    border-top: 1px solid var(--color-neutral-950);
+    border-top: 1px solid oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       border-top: 1px solid white;
@@ -133,7 +133,7 @@ This example shows how to implement the component using CSS Modules.
   border: none;
   border-radius: 0;
   background-color: transparent;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
@@ -147,17 +147,17 @@ This example shows how to implement the component using CSS Modules.
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: var(--color-neutral-100);
+      background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        background-color: var(--color-neutral-800);
+        background-color: oklch(26.9% 0 0deg);
       }
     }
   }
 
   &:focus-visible {
     position: relative;
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     z-index: 1;
 
     @media (prefers-color-scheme: dark) {
@@ -385,8 +385,8 @@ This example shows how to implement the component using CSS Modules.
   width: 20rem;
   max-width: 100%;
   flex-direction: column;
-  border: 1px solid var(--color-neutral-950);
-  color: var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
+  color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
@@ -396,7 +396,7 @@ This example shows how to implement the component using CSS Modules.
 
 .Item {
   & + & {
-    border-top: 1px solid var(--color-neutral-950);
+    border-top: 1px solid oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       border-top: 1px solid white;
@@ -420,7 +420,7 @@ This example shows how to implement the component using CSS Modules.
   border: none;
   border-radius: 0;
   background-color: transparent;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
@@ -434,17 +434,17 @@ This example shows how to implement the component using CSS Modules.
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: var(--color-neutral-100);
+      background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        background-color: var(--color-neutral-800);
+        background-color: oklch(26.9% 0 0deg);
       }
     }
   }
 
   &:focus-visible {
     position: relative;
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     z-index: 1;
 
     @media (prefers-color-scheme: dark) {
@@ -965,16 +965,16 @@ This example shows how to implement the component using CSS Modules.
 .Track {
   width: 100%;
   height: 0.25rem;
-  background-color: var(--color-neutral-200);
+  background-color: oklch(92.2% 0 0deg);
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-800);
+    background-color: oklch(26.9% 0 0deg);
   }
 }
 
 .Indicator {
-  background-color: var(--color-neutral-950);
+  background-color: oklch(14.5% 0 0deg);
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -986,17 +986,17 @@ This example shows how to implement the component using CSS Modules.
   box-sizing: border-box;
   width: 1rem;
   height: 1rem;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
   }
 
   &:has(:focus-visible) {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: 2px;
 
     @media (prefers-color-scheme: dark) {

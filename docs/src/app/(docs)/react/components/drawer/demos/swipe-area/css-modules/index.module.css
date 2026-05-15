@@ -3,13 +3,13 @@
   width: 100%;
   min-height: 20rem;
   overflow: hidden;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 }
@@ -34,12 +34,12 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--color-neutral-600);
+  color: oklch(43.9% 0 0deg);
   text-align: center;
   padding-right: 3rem;
 
   @media (prefers-color-scheme: dark) {
-    color: var(--color-neutral-400);
+    color: oklch(70.8% 0 0deg);
   }
 }
 
@@ -51,8 +51,8 @@
   width: 2.5rem;
   z-index: 1;
   box-sizing: border-box;
-  border-left: 2px dashed var(--color-blue);
-  background-color: color-mix(in oklch, var(--color-blue), transparent 90%);
+  border-left: 2px dashed oklch(45% 50% 264deg);
+  background-color: color-mix(in oklch, oklch(45% 50% 264deg), transparent 90%);
 }
 
 .SwipeLabel {
@@ -67,7 +67,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-blue);
+  color: oklch(45% 50% 264deg);
   white-space: nowrap;
   pointer-events: none;
 }
@@ -81,52 +81,52 @@
   height: 2rem;
   padding: 0 0.75rem;
   margin: 0;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1;
   white-space: nowrap;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: var(--color-neutral-100);
+      background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        background-color: var(--color-neutral-800);
+        background-color: oklch(26.9% 0 0deg);
       }
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: var(--color-neutral-200);
+    background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-700);
+      background-color: oklch(37.1% 0 0deg);
     }
   }
 
   &[data-disabled] {
-    color: var(--color-neutral-500);
-    border-color: var(--color-neutral-500);
+    color: oklch(55.6% 0 0deg);
+    border-color: oklch(55.6% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-400);
-      border-color: var(--color-neutral-400);
+      color: oklch(70.8% 0 0deg);
+      border-color: oklch(70.8% 0 0deg);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -188,9 +188,9 @@
   padding: 1.5rem;
   padding-right: calc(1.5rem + var(--bleed));
   margin-right: calc(-1 * var(--bleed));
-  border-left: 1px solid var(--color-neutral-950);
+  border-left: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   outline: 0;
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   overflow-y: auto;
@@ -201,7 +201,7 @@
 
   @media (prefers-color-scheme: dark) {
     border-left: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
     box-shadow: none;
   }
@@ -222,7 +222,7 @@
   @supports (-webkit-touch-callout: none) {
     --bleed: 0px;
     margin-right: 0;
-    border: 1px solid var(--color-neutral-950);
+    border: 1px solid oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       border: 1px solid white;
@@ -248,10 +248,10 @@
   margin: 0 0 1.5rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--color-neutral-600);
+  color: oklch(43.9% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    color: var(--color-neutral-400);
+    color: oklch(70.8% 0 0deg);
   }
 }
 

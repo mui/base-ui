@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: start;
   gap: 0.25rem;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     color: white;
@@ -33,7 +33,7 @@
   height: 1rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
   background-color: white;
   color: white;
@@ -42,23 +42,23 @@
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
-    color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
+    color: oklch(14.5% 0 0deg);
   }
 
   &[data-checked],
   &[data-indeterminate] {
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
 
     @media (prefers-color-scheme: dark) {
       background-color: white;
-      color: var(--color-neutral-950);
+      color: oklch(14.5% 0 0deg);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: 2px;
 
     @media (prefers-color-scheme: dark) {

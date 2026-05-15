@@ -8,14 +8,14 @@
 .Viewport {
   box-sizing: border-box;
   height: 100%;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -39,17 +39,17 @@
 }
 
 .Item {
-  background-color: var(--color-neutral-200);
+  background-color: oklch(92.2% 0 0deg);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.875rem;
   font-weight: 700;
-  color: var(--color-neutral-600);
+  color: oklch(43.9% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-800);
-    color: var(--color-neutral-400);
+    background-color: oklch(26.9% 0 0deg);
+    color: oklch(70.8% 0 0deg);
   }
 }
 
@@ -87,7 +87,7 @@
 
 .Thumb {
   width: 100%;
-  background-color: var(--color-neutral-950);
+  background-color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     background-color: white;

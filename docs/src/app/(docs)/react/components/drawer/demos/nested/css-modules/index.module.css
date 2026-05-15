@@ -7,52 +7,52 @@
   height: 2rem;
   padding: 0 0.75rem;
   margin: 0;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1;
   white-space: nowrap;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: var(--color-neutral-100);
+      background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        background-color: var(--color-neutral-800);
+        background-color: oklch(26.9% 0 0deg);
       }
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: var(--color-neutral-200);
+    background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-700);
+      background-color: oklch(37.1% 0 0deg);
     }
   }
 
   &[data-disabled] {
-    color: var(--color-neutral-500);
-    border-color: var(--color-neutral-500);
+    color: oklch(55.6% 0 0deg);
+    border-color: oklch(55.6% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-400);
-      border-color: var(--color-neutral-400);
+      color: oklch(70.8% 0 0deg);
+      border-color: oklch(70.8% 0 0deg);
     }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -133,9 +133,9 @@
   padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px) + var(--bleed));
   border-width: 1px 1px 0;
   border-style: solid;
-  border-color: var(--color-neutral-950);
+  border-color: oklch(14.5% 0 0deg);
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   outline: 0;
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   overflow-y: auto;
@@ -150,7 +150,7 @@
 
   @media (prefers-color-scheme: dark) {
     border-color: white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
     box-shadow: none;
   }
@@ -212,11 +212,11 @@
   width: 3rem;
   height: 0.25rem;
   margin: 0 auto 1rem;
-  background-color: var(--color-neutral-300);
+  background-color: oklch(87% 0 0deg);
   transition: opacity 0.2s;
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-700);
+    background-color: oklch(37.1% 0 0deg);
   }
 
   [data-nested-drawer-open] & {
@@ -241,11 +241,11 @@
   margin: 0 0 1.5rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--color-neutral-600);
+  color: oklch(43.9% 0 0deg);
   text-align: center;
 
   @media (prefers-color-scheme: dark) {
-    color: var(--color-neutral-400);
+    color: oklch(70.8% 0 0deg);
   }
 }
 
@@ -263,10 +263,10 @@
 .List {
   margin: 0 0 1.5rem;
   padding-left: 1.25rem;
-  color: var(--color-neutral-700);
+  color: oklch(37.1% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    color: var(--color-neutral-300);
+    color: oklch(87% 0 0deg);
   }
 }
 
@@ -280,10 +280,10 @@
   font-size: 0.925rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: var(--color-neutral-700);
+  color: oklch(37.1% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    color: var(--color-neutral-300);
+    color: oklch(87% 0 0deg);
   }
 }
 .Input {
@@ -292,14 +292,14 @@
   height: 2rem;
   padding: 0 0.5rem;
   margin: 0;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
 
   @media (any-pointer: coarse) {
     font-size: 1rem;
@@ -308,20 +308,20 @@
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 
   &::placeholder {
-    color: var(--color-neutral-500);
+    color: oklch(55.6% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-400);
+      color: oklch(70.8% 0 0deg);
     }
   }
 
   &:focus {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -336,14 +336,14 @@
   min-height: 8rem;
   padding: 0.5rem 0.625rem;
   margin: 0;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.25rem;
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   resize: vertical;
 
   @media (any-pointer: coarse) {
@@ -353,20 +353,20 @@
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
   }
 
   &::placeholder {
-    color: var(--color-neutral-500);
+    color: oklch(55.6% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      color: var(--color-neutral-400);
+      color: oklch(70.8% 0 0deg);
     }
   }
 
   &:focus {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -377,7 +377,7 @@
 
 .Input:focus-visible,
 .Textarea:focus-visible {
-  outline: 2px solid var(--color-neutral-950);
+  outline: 2px solid oklch(14.5% 0 0deg);
   outline-offset: -1px;
 
   @media (prefers-color-scheme: dark) {

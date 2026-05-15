@@ -1,11 +1,11 @@
 .Panel {
   display: flex;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
   }
 }
 
@@ -20,7 +20,7 @@
   margin: 0;
   border: 0;
   background-color: transparent;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -28,34 +28,34 @@
   }
 
   &[data-popup-open] {
-    background-color: var(--color-neutral-100);
+    background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-800);
+      background-color: oklch(26.9% 0 0deg);
     }
   }
 
   @media (hover: hover) {
     &:hover:not([data-disabled]) {
-      background-color: var(--color-neutral-100);
+      background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        background-color: var(--color-neutral-800);
+        background-color: oklch(26.9% 0 0deg);
       }
     }
   }
 
   &:active:not([data-disabled]) {
-    background-color: var(--color-neutral-200);
+    background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-700);
+      background-color: oklch(37.1% 0 0deg);
     }
   }
 
   &:focus-visible {
     background-color: transparent;
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -71,9 +71,9 @@
   flex-direction: column;
   padding: 0.25rem 0.5rem;
   position: relative;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
   transform-origin: var(--transform-origin);
   transition:
@@ -82,7 +82,7 @@
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
     color: white;
     box-shadow: none;
   }
@@ -135,11 +135,11 @@
     width: calc(6px * sqrt(2));
     height: calc(6px * sqrt(2));
     background-color: white;
-    border: 1px solid var(--color-neutral-950);
+    border: 1px solid oklch(14.5% 0 0deg);
     transform: translate(-50%, 50%) rotate(45deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: var(--color-neutral-950);
+      background-color: oklch(14.5% 0 0deg);
       border: 1px solid white;
     }
   }

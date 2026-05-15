@@ -6,21 +6,21 @@
   background-color: white;
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-neutral-950);
+    background-color: oklch(14.5% 0 0deg);
   }
 }
 
 .Viewport {
   box-sizing: border-box;
   height: 100%;
-  border: 1px solid var(--color-neutral-950);
+  border: 1px solid oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     border: 1px solid white;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-neutral-950);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
 
     @media (prefers-color-scheme: dark) {
@@ -42,7 +42,7 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.375rem;
-  color: var(--color-neutral-950);
+  color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     color: white;
@@ -76,7 +76,7 @@
 
 .Thumb {
   width: 100%;
-  background-color: var(--color-neutral-950);
+  background-color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
     background-color: white;
