@@ -80,7 +80,7 @@ export default function ExampleEmojiPicker() {
                       <Autocomplete.GroupLabel className="sticky top-0 z-[1] m-0 w-full border-b border-gray-100 bg-[canvas] px-4 pb-1 pt-2 text-[0.75rem] font-bold uppercase tracking-wide text-gray-600">
                         {group.label}
                       </Autocomplete.GroupLabel>
-                      <div className="p-1" role="presentation">
+                      <div className="p-1" role="none">
                         {chunkArray(group.items, COLUMNS).map((row, rowIdx) => (
                           <Autocomplete.Row key={rowIdx} className="grid grid-cols-5">
                             {row.map((rowItem) => (
