@@ -479,13 +479,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     getStringifiedValueForForm,
   );
 
-  const forceMount = useStableCallback(() => {
+  const forceMount = useStableCallback((forceRender?: boolean) => {
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
         stringifyComboboxItemLabel(item, itemToStringLabel),
       );
       valuesRef.current = flatFilteredItemValues.slice();
+
+      if (!forceRender) {
+        return;
+      }
     }
 
     // Rendering is still needed when item metadata cannot be inferred from the
@@ -1304,22 +1308,22 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             const nextValue = event.currentTarget.value;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
+            // Browser autofill only writes a single scalar value.
+            if (multiple) {
+              return;
+            }
+
+            if (selectionMode === 'none') {
+              setDirty(nextValue !== validityData.initialValue);
+              setInputValue(nextValue, details);
+
+              if (shouldValidateOnChange()) {
+                validation.commit(nextValue);
+              }
+              return;
+            }
+
             function handleChange() {
-              // Browser autofill only writes a single scalar value.
-              if (multiple) {
-                return;
-              }
-
-              if (selectionMode === 'none') {
-                setDirty(nextValue !== validityData.initialValue);
-                setInputValue(nextValue, details);
-
-                if (shouldValidateOnChange()) {
-                  validation.commit(nextValue);
-                }
-                return;
-              }
-
               const matchingIndex = valuesRef.current.findIndex((v, index) => {
                 // Try matching by value first (e.g., "US" for country code)
                 const candidateValue = stringifyAsValue(v, itemToStringValue);
@@ -1337,7 +1341,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               });
 
               if (matchingIndex !== -1) {
-                const matchingValue = valuesRef.current[matchingIndex];
+                const matchingValue = getRegisteredItemValue(
+                  store.state.itemValues,
+                  valuesRef.current,
+                  matchingIndex,
+                );
                 setDirty(matchingValue !== validityData.initialValue);
                 setSelectedValue?.(matchingValue, details);
 
@@ -1345,14 +1353,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                   validation.commit(matchingValue);
                 }
               }
+
+              if (!open && !inline && store.state.forceMounted) {
+                store.set('forceMounted', false);
+              }
             }
 
-            if (items) {
-              handleChange();
-            } else {
-              forceMount();
-              queueMicrotask(handleChange);
-            }
+            forceMount(true);
+            queueMicrotask(handleChange);
           },
         })}
         id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
@@ -1384,6 +1392,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
+}
+
+function getRegisteredItemValue(
+  itemValues: readonly any[],
+  fallbackValues: readonly any[],
+  index: number,
+) {
+  if (Object.hasOwn(itemValues, index)) {
+    return itemValues[index];
+  }
+
+  return fallbackValues[index];
 }
 
 function resolveLabelString(

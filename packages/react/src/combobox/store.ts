@@ -4,7 +4,7 @@ import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
-import { hasNullItemLabel, inferItemValue } from '../internals/resolveValueLabel';
+import { hasNullItemLabel, inferItemValue, isLabeledItem } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
@@ -201,14 +201,28 @@ export function findMatchingItemIndex(
   selectedValue: any,
   isItemEqualToValue: State['isItemEqualToValue'],
 ) {
-  const selectedValueIsObject = selectedValue != null && typeof selectedValue === 'object';
   return itemValues.findIndex((itemValue) => {
     if (itemValue === undefined) {
       return false;
     }
 
-    const candidateValue = selectedValueIsObject ? itemValue : inferItemValue(itemValue);
-    return compareItemEquality(candidateValue, selectedValue, isItemEqualToValue);
+    if (!isLabeledItem(itemValue)) {
+      return compareItemEquality(itemValue, selectedValue, isItemEqualToValue);
+    }
+
+    const inferredItemValue = inferItemValue(itemValue);
+    if (Object.is(inferredItemValue, selectedValue) || Object.is(itemValue, selectedValue)) {
+      return true;
+    }
+
+    if (isLabeledItem(selectedValue)) {
+      return (
+        compareItemEquality(itemValue, selectedValue, isItemEqualToValue) ||
+        compareItemEquality(inferredItemValue, selectedValue, isItemEqualToValue)
+      );
+    }
+
+    return compareItemEquality(inferredItemValue, selectedValue, isItemEqualToValue);
   });
 }
 

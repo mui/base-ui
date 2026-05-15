@@ -3073,6 +3073,42 @@ describe('<Combobox.Root />', () => {
       ).toBe(true);
     });
 
+    it('supports custom equality against object item value properties', async () => {
+      const objectValueItems = [
+        { value: { code: 'apple' }, label: 'Apple' },
+        { value: { code: 'banana' }, label: 'Banana' },
+      ];
+
+      await render(
+        <Combobox.Root
+          items={objectValueItems}
+          defaultValue={{ code: 'banana' }}
+          isItemEqualToValue={(itemValue, value) => itemValue.code === value.code}
+        >
+          <Combobox.Input />
+          <SelectedIndexProbe />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: (typeof objectValueItems)[number]) => (
+                    <Combobox.Item key={item.value.code} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).toHaveValue('Banana');
+      await waitFor(() => {
+        expect(screen.getByTestId('selected-index')).toHaveTextContent('1');
+      });
+    });
+
     it('uses inferred primitive values for closed trigger typeahead before a selection', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(
@@ -3123,7 +3159,7 @@ describe('<Combobox.Root />', () => {
       });
     });
 
-    it('uses rendered object values for closed trigger typeahead', async () => {
+    it('does not force-mount rendered items for closed trigger typeahead', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root<FruitItem> items={items} onValueChange={onValueChange}>
@@ -3150,17 +3186,19 @@ describe('<Combobox.Root />', () => {
         screen.getByTestId('trigger').focus();
         await wait(0);
       });
+      expect(screen.queryByRole('listbox', { hidden: true })).toBe(null);
+
       await user.keyboard('b');
 
       await waitFor(() => {
         expect(onValueChange).toHaveBeenCalledWith(
-          items[1],
+          'banana',
           expect.objectContaining({ reason: REASONS.none }),
         );
       });
     });
 
-    it('uses manually indexed rendered object values for closed trigger typeahead', async () => {
+    it('does not force-mount manually indexed items for closed trigger typeahead', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root<FruitItem> items={items} onValueChange={onValueChange}>
@@ -3187,11 +3225,13 @@ describe('<Combobox.Root />', () => {
         screen.getByTestId('trigger').focus();
         await wait(0);
       });
+      expect(screen.queryByRole('listbox', { hidden: true })).toBe(null);
+
       await user.keyboard('b');
 
       await waitFor(() => {
         expect(onValueChange).toHaveBeenCalledWith(
-          items[1],
+          'banana',
           expect.objectContaining({ reason: REASONS.none }),
         );
       });
@@ -3285,6 +3325,40 @@ describe('<Combobox.Root />', () => {
       );
     });
 
+    it('uses rendered object values when browser autofill matches an item label', async () => {
+      const onValueChange = vi.fn();
+
+      await render(
+        <Combobox.Root name="fruit" items={items} onValueChange={onValueChange}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: FruitItem) => (
+                    <Combobox.Item key={item.value} value={item}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      fireEvent.change(
+        screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'fruit')!,
+        { target: { value: 'Banana' } },
+      );
+      await flushMicrotasks();
+
+      expect(onValueChange).toHaveBeenCalledWith(
+        items[1],
+        expect.objectContaining({ reason: REASONS.none }),
+      );
+    });
+
     it('uses inferred primitive values for virtualized item indexes before a selection', async () => {
       await render(
         <Combobox.Root items={items} virtualized defaultOpen>
@@ -3300,6 +3374,72 @@ describe('<Combobox.Root />', () => {
       );
 
       expect(screen.getByRole('option', { name: 'Banana' }).id).not.toContain('--1');
+    });
+  });
+
+  it('filters label-only object items by their label', async () => {
+    const items = [
+      { id: 'fruit-apple', label: 'Apple', group: 'Fruits' },
+      { id: 'fruit-banana', label: 'Banana', group: 'Fruits' },
+    ];
+
+    const { user } = await render(
+      <Combobox.Root items={items}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(item: (typeof items)[number]) => (
+                  <Combobox.Item key={item.id} value={item}>
+                    {item.label}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await user.type(screen.getByRole('combobox'), 'fruit');
+
+    expect(screen.queryByRole('option', { name: 'Apple' })).toBe(null);
+    expect(screen.queryByRole('option', { name: 'Banana' })).toBe(null);
+  });
+
+  it('unmounts a force-mounted closed popup without an items prop after trigger blur', async () => {
+    await render(
+      <Combobox.Root>
+        <Combobox.Trigger data-testid="trigger">
+          <Combobox.Value />
+        </Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="apple">Apple</Combobox.Item>
+                <Combobox.Item value="banana">Banana</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    await act(async () => {
+      screen.getByTestId('trigger').focus();
+      await wait(0);
+    });
+
+    expect(screen.getByRole('listbox', { hidden: true })).not.toBe(null);
+
+    act(() => {
+      screen.getByTestId('trigger').blur();
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('listbox', { hidden: true })).toBe(null);
     });
   });
 

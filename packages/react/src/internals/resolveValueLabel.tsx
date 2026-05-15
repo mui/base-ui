@@ -62,7 +62,7 @@ export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => s
     return itemToStringLabel(item) ?? '';
   }
   if (item && typeof item === 'object') {
-    if (isLabeledItem(item) && item.label != null) {
+    if ('label' in item && item.label != null) {
       return String(item.label);
     }
     if ('value' in item) {

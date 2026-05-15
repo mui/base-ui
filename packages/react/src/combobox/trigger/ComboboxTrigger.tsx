@@ -176,6 +176,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           focusTimeout.start(0, store.state.forceMount);
         },
         onBlur(event) {
+          focusTimeout.clear();
+
+          if (!store.state.open) {
+            store.set('forceMounted', false);
+          }
+
           // If focus is moving into the popup, don't count it as a blur.
           if (contains(positionerElement, event.relatedTarget)) {
             return;
