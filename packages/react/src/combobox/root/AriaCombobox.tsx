@@ -479,17 +479,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     getStringifiedValueForForm,
   );
 
-  const forceMount = useStableCallback((forceRender?: boolean) => {
+  const forceMount = useStableCallback(() => {
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
         stringifyComboboxItemLabel(item, itemToStringLabel),
       );
       valuesRef.current = flatFilteredItemValues.slice();
-
-      if (!forceRender) {
-        return;
-      }
+      return;
     }
 
     // Rendering is still needed when item metadata cannot be inferred from the
@@ -1341,11 +1338,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               });
 
               if (matchingIndex !== -1) {
-                const matchingValue = getRegisteredItemValue(
-                  store.state.itemValues,
-                  valuesRef.current,
-                  matchingIndex,
-                );
+                const registeredValues = store.state.itemValues;
+                const matchingValue =
+                  registeredValues[matchingIndex] !== undefined
+                    ? registeredValues[matchingIndex]
+                    : valuesRef.current[matchingIndex];
                 setDirty(matchingValue !== validityData.initialValue);
                 setSelectedValue?.(matchingValue, details);
 
@@ -1354,12 +1351,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 }
               }
 
-              if (!open && !inline && store.state.forceMounted) {
-                store.set('forceMounted', false);
-              }
+              store.set('forceMounted', false);
             }
 
-            forceMount(true);
+            forceMount();
+            if (items) {
+              store.set('forceMounted', true);
+            }
             queueMicrotask(handleChange);
           },
         })}
@@ -1392,18 +1390,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
-}
-
-function getRegisteredItemValue(
-  itemValues: readonly any[],
-  fallbackValues: readonly any[],
-  index: number,
-) {
-  if (Object.hasOwn(itemValues, index)) {
-    return itemValues[index];
-  }
-
-  return fallbackValues[index];
 }
 
 function resolveLabelString(

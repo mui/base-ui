@@ -83,12 +83,12 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
       return;
     }
 
-    if (!hasItems && store.state.itemValues.length !== 0) {
-      store.set('allItemValues', store.state.itemValues);
-    }
-
+    const itemValues = store.state.itemValues;
     store.state.valuesRef.current = [];
-    if (store.state.itemValues.length !== 0) {
+    if (itemValues.length) {
+      if (!hasItems) {
+        store.set('allItemValues', itemValues);
+      }
       store.set('itemValues', []);
     }
   }, [hasItems, registryActive, store]);
