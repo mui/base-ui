@@ -48,6 +48,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   if (Number.isFinite(value)) {
     status = value === max ? 'complete' : 'progressing';
   }
+
   const formattedValue = formatNumberValue(value, locale, formatOptionsRef.current);
 
   const state: ProgressRootState = React.useMemo(() => ({ status }), [status]);

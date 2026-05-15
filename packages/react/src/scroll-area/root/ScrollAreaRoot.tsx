@@ -81,6 +81,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const handleScroll = useStableCallback((scrollPosition: Coords) => {
     const offsetX = scrollPosition.x - scrollPositionRef.current.x;
     const offsetY = scrollPosition.y - scrollPositionRef.current.y;
+
     scrollPositionRef.current = scrollPosition;
 
     if (offsetY !== 0) {
@@ -149,6 +150,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
         const maxThumbOffsetY =
           scrollbarYRef.current.offsetHeight - thumbHeight - scrollbarYOffset - thumbYOffset;
         const scrollRatioY = deltaY / maxThumbOffsetY;
+
         viewportRef.current.scrollTop =
           startScrollTopRef.current + scrollRatioY * (scrollableContentHeight - viewportHeight);
         event.preventDefault();
@@ -171,6 +173,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
         const maxThumbOffsetX =
           scrollbarXRef.current.offsetWidth - thumbWidth - scrollbarXOffset - thumbXOffset;
         const scrollRatioX = deltaX / maxThumbOffsetX;
+
         viewportRef.current.scrollLeft =
           startScrollLeftRef.current + scrollRatioX * (scrollableContentWidth - viewportWidth);
         event.preventDefault();
