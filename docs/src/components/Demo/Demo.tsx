@@ -231,7 +231,6 @@ export function Demo({
                         target="_blank"
                         rel="noopener"
                         onClick={onViewSource}
-                        style={{ cursor: 'pointer' }}
                       >
                         <GitHubIcon aria-hidden="true" />
                         View source on GitHub
