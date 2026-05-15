@@ -119,7 +119,7 @@
 
     &:focus-visible {
       z-index: 1;
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -2px;
     }
 
