@@ -30,24 +30,31 @@ export default function TooltipDetachedTriggersControlledDemo() {
     <Tooltip.Provider>
       <div className="flex gap-2 flex-wrap justify-center">
         <div className="flex">
-          <Tooltip.Trigger className={iconButtonClass} handle={demoTooltip} id="trigger-1">
-            <HeadphonesIcon aria-label="Controlled tooltip" />
+          <Tooltip.Trigger
+            className={iconButtonClass}
+            handle={demoTooltip}
+            id="trigger-1"
+            aria-label="Controlled tooltip"
+          >
+            <HeadphonesIcon aria-hidden="true" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger
             className={`${iconButtonClass} border-l-0`}
             handle={demoTooltip}
             id="trigger-2"
+            aria-label="Controlled tooltip"
           >
-            <StopwatchIcon aria-label="Controlled tooltip" />
+            <StopwatchIcon aria-hidden="true" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger
             className={`${iconButtonClass} border-l-0`}
             handle={demoTooltip}
             id="trigger-3"
+            aria-label="Controlled tooltip"
           >
-            <TrashIcon aria-label="Controlled tooltip" />
+            <TrashIcon aria-hidden="true" />
           </Tooltip.Trigger>
         </div>
 

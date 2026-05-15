@@ -8,8 +8,8 @@ const demoTooltip = Tooltip.createHandle();
 export default function TooltipDetachedTriggersSimpleDemo() {
   return (
     <Tooltip.Provider>
-      <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip}>
-        <TrashIcon aria-label="Delete" />
+      <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} aria-label="Delete">
+        <TrashIcon aria-hidden="true" />
       </Tooltip.Trigger>
 
       <Tooltip.Root handle={demoTooltip}>

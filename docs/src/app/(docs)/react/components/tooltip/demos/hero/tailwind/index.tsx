@@ -15,8 +15,8 @@ export default function ExampleTooltip() {
     <Tooltip.Provider>
       <div className="flex border border-neutral-950 bg-white dark:border-white dark:bg-neutral-950">
         <Tooltip.Root>
-          <Tooltip.Trigger className={triggerClass}>
-            <BoldIcon aria-label="Bold" />
+          <Tooltip.Trigger className={triggerClass} aria-label="Bold">
+            <BoldIcon aria-hidden="true" />
           </Tooltip.Trigger>
           <Tooltip.Portal>
             <Tooltip.Positioner sideOffset={11}>
@@ -29,8 +29,8 @@ export default function ExampleTooltip() {
         </Tooltip.Root>
 
         <Tooltip.Root>
-          <Tooltip.Trigger className={triggerClass}>
-            <ItalicIcon aria-label="Italic" />
+          <Tooltip.Trigger className={triggerClass} aria-label="Italic">
+            <ItalicIcon aria-hidden="true" />
           </Tooltip.Trigger>
           <Tooltip.Portal>
             <Tooltip.Positioner sideOffset={11}>
@@ -43,8 +43,8 @@ export default function ExampleTooltip() {
         </Tooltip.Root>
 
         <Tooltip.Root>
-          <Tooltip.Trigger className={triggerClass}>
-            <UnderlineIcon aria-label="Underline" />
+          <Tooltip.Trigger className={triggerClass} aria-label="Underline">
+            <UnderlineIcon aria-hidden="true" />
           </Tooltip.Trigger>
           <Tooltip.Portal>
             <Tooltip.Positioner sideOffset={11}>

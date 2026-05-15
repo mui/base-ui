@@ -18,16 +18,31 @@ export default function TooltipDetachedTriggersControlledDemo() {
     <Tooltip.Provider>
       <div className={styles.Container}>
         <div className={styles.ButtonGroup}>
-          <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-1">
-            <HeadphonesIcon aria-label="Controlled tooltip" />
+          <Tooltip.Trigger
+            className={styles.IconButton}
+            handle={demoTooltip}
+            id="trigger-1"
+            aria-label="Trigger 1"
+          >
+            <HeadphonesIcon aria-hidden="true" />
           </Tooltip.Trigger>
 
-          <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-2">
-            <StopwatchIcon aria-label="Controlled tooltip" />
+          <Tooltip.Trigger
+            className={styles.IconButton}
+            handle={demoTooltip}
+            id="trigger-2"
+            aria-label="Trigger 2"
+          >
+            <StopwatchIcon aria-hidden="true" />
           </Tooltip.Trigger>
 
-          <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-3">
-            <TrashIcon aria-label="Controlled tooltip" />
+          <Tooltip.Trigger
+            className={styles.IconButton}
+            handle={demoTooltip}
+            id="trigger-3"
+            aria-label="Trigger 3"
+          >
+            <TrashIcon aria-hidden="true" />
           </Tooltip.Trigger>
         </div>
 

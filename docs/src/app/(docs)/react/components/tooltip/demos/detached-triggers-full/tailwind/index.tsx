@@ -19,24 +19,27 @@ export default function TooltipDetachedTriggersFullDemo() {
           className={triggerClass}
           handle={demoTooltip}
           payload="Listen to audio preview"
+          aria-label="Listen to audio preview"
         >
-          <HeadphonesIcon aria-label="Listen to audio preview" />
+          <HeadphonesIcon aria-hidden="true" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
           className={`${triggerClass} border-l-0`}
           handle={demoTooltip}
           payload="Set a timer"
+          aria-label="Set a timer"
         >
-          <StopwatchIcon aria-label="Set a timer" />
+          <StopwatchIcon aria-hidden="true" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
           className={`${triggerClass} border-l-0`}
           handle={demoTooltip}
           payload="Delete: This action cannot be undone"
+          aria-label="Delete: This action cannot be undone"
         >
-          <TrashIcon aria-label="Delete: This action cannot be undone" />
+          <TrashIcon aria-hidden="true" />
         </Tooltip.Trigger>
       </div>
 

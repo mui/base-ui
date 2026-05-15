@@ -17,8 +17,8 @@ const arrowClass =
 export default function TooltipDetachedTriggersSimpleDemo() {
   return (
     <Tooltip.Provider>
-      <Tooltip.Trigger className={triggerClass} handle={demoTooltip}>
-        <TrashIcon aria-label="Delete" />
+      <Tooltip.Trigger className={triggerClass} handle={demoTooltip} aria-label="Delete">
+        <TrashIcon aria-hidden="true" />
       </Tooltip.Trigger>
 
       <Tooltip.Root handle={demoTooltip}>
