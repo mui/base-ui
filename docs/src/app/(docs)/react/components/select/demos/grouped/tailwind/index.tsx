@@ -31,7 +31,7 @@ export default function ExampleSelectGrouped() {
               <Select.List className="relative py-1 scroll-pt-6 scroll-pb-6 overflow-y-auto max-h-[var(--available-height)]">
                 {groupedProduce.map((group, index) => (
                   <React.Fragment key={group.value}>
-                    <Select.Group className="block pb-0.5">
+                    <Select.Group className="block pb-0.5 last:pb-0">
                       <Select.GroupLabel className="py-1.5 pr-4 pl-[1.875rem] text-sm leading-5 text-neutral-500 select-none dark:text-neutral-400">
                         {group.value}
                       </Select.GroupLabel>
