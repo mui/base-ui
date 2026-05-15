@@ -821,6 +821,26 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByText('Content')).toBe(null);
       });
 
+      it('should not open when the trigger receives pointerdown before delay duration', async () => {
+        await render(<TestTooltip />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+
+        clock.tick(OPEN_DELAY / 2);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
       it('should open when the trigger was clicked before delay duration and closeOnClick is false', async () => {
         await render(<TestTooltip triggerProps={{ closeOnClick: false }} />);
 

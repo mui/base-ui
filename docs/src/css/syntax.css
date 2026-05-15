@@ -42,7 +42,7 @@
     /* Docs-infra extensions for concepts not in prettylights */
     --color-docs-infra-syntax-number: var(--color-blue);
     --color-docs-infra-syntax-boolean: var(--color-blue);
-    --color-docs-infra-syntax-nullish: var(--color-gray-500);
+    --color-docs-infra-syntax-nullish: var(--color-gray-600);
     --color-docs-infra-syntax-attr-key: var(--color-violet);
     --color-docs-infra-syntax-attr-value: var(--color-navy);
     --color-docs-infra-syntax-attr-equals: var(--color-red);
