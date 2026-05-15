@@ -28,14 +28,6 @@
     right: 1.125rem;
   }
 
-  .DemoCopyIconWrap {
-    display: flex;
-    width: 0.875rem;
-    height: 0.875rem;
-    align-items: center;
-    justify-content: center;
-  }
-
   .DemoPlayground {
     position: relative;
 
