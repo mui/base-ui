@@ -123,9 +123,7 @@
   background-color: white;
   color: var(--color-neutral-950);
   width: var(--anchor-width);
-  max-height: 22.5rem;
   max-width: var(--available-width);
-  overflow: clip;
   transition:
     opacity 0.1s,
     transform 0.1s;

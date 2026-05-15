@@ -128,7 +128,6 @@
   color: var(--color-neutral-950);
   width: var(--anchor-width);
   max-width: var(--available-width);
-  overflow: clip;
   transition:
     opacity 0.1s,
     transform 0.1s;

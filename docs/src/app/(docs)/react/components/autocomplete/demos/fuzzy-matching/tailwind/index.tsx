@@ -20,7 +20,7 @@ export default function ExampleFuzzyMatchingAutocomplete() {
 
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-hidden" sideOffset={4}>
-          <Autocomplete.Popup className="w-(--anchor-width) max-w-(--available-width) overflow-clip border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
+          <Autocomplete.Popup className="w-(--anchor-width) max-w-(--available-width) border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
             <Autocomplete.Empty>
               <div className="py-2 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
                 No results found for "{<Autocomplete.Value />}"

@@ -121,11 +121,9 @@
 
 .Popup {
   box-sizing: border-box;
-  overflow: clip;
   background-color: white;
   color: var(--color-neutral-950);
   width: var(--anchor-width);
-  max-height: 22.5rem;
   max-width: var(--available-width);
   transition:
     opacity 0.1s,
