@@ -733,78 +733,23 @@ describe('<Select.Root />', () => {
     });
   });
 
-  it('ignores hidden-input autofill when readOnly', async () => {
+  it.each([
+    { lockState: 'readOnly', label: 'inside Field', withField: true },
+    { lockState: 'disabled', label: 'inside Field', withField: true },
+    { lockState: 'readOnly', label: 'outside Field', withField: false },
+    { lockState: 'disabled', label: 'outside Field', withField: false },
+  ] as const)('ignores hidden-input autofill when $lockState $label', async ({
+    lockState,
+    withField,
+  }) => {
     const onValueChange = vi.fn();
-    await render(
-      <Form errors={{ select: 'test' }}>
-        <Field.Root name="select">
-          <Select.Root readOnly onValueChange={onValueChange}>
-            <Select.Trigger data-testid="trigger">
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="a">a</Select.Item>
-                  <Select.Item value="b">b</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-          <Field.Error data-testid="error" />
-        </Field.Root>
-      </Form>,
-    );
-
-    const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
-    expect(selectInput).toHaveAttribute('name', 'select');
-    expect(screen.getByTestId('error')).toHaveTextContent('test');
-    fireEvent.change(selectInput, { target: { value: 'b' } });
-    await flushMicrotasks();
-
-    expect(onValueChange).not.toHaveBeenCalled();
-    expect(selectInput.value).toBe('');
-    expect(screen.getByTestId('error')).toHaveTextContent('test');
-  });
-
-  it('ignores hidden-input autofill when disabled', async () => {
-    const onValueChange = vi.fn();
-    await render(
-      <Form errors={{ select: 'test' }}>
-        <Field.Root name="select">
-          <Select.Root disabled onValueChange={onValueChange}>
-            <Select.Trigger data-testid="trigger">
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="a">a</Select.Item>
-                  <Select.Item value="b">b</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-          <Field.Error data-testid="error" />
-        </Field.Root>
-      </Form>,
-    );
-
-    const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
-    expect(selectInput).toHaveAttribute('name', 'select');
-    expect(screen.getByTestId('error')).toHaveTextContent('test');
-    fireEvent.change(selectInput, { target: { value: 'b' } });
-    await flushMicrotasks();
-
-    expect(onValueChange).not.toHaveBeenCalled();
-    expect(selectInput.value).toBe('');
-    expect(screen.getByTestId('error')).toHaveTextContent('test');
-  });
-
-  it('ignores hidden-input autofill when readOnly outside Field', async () => {
-    const onValueChange = vi.fn();
-    await render(
-      <Select.Root name="select" readOnly onValueChange={onValueChange}>
+    const select = (
+      <Select.Root
+        name={withField ? undefined : 'select'}
+        readOnly={lockState === 'readOnly'}
+        disabled={lockState === 'disabled'}
+        onValueChange={onValueChange}
+      >
         <Select.Trigger data-testid="trigger">
           <Select.Value />
         </Select.Trigger>
@@ -816,45 +761,38 @@ describe('<Select.Root />', () => {
             </Select.Popup>
           </Select.Positioner>
         </Select.Portal>
-      </Select.Root>,
+      </Select.Root>
     );
 
-    const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
-    expect(selectInput).toHaveAttribute('name', 'select');
-
-    fireEvent.change(selectInput, { target: { value: 'b' } });
-    await flushMicrotasks();
-
-    expect(onValueChange).not.toHaveBeenCalled();
-    expect(selectInput.value).toBe('');
-  });
-
-  it('ignores hidden-input autofill when disabled outside Field', async () => {
-    const onValueChange = vi.fn();
     await render(
-      <Select.Root name="select" disabled onValueChange={onValueChange}>
-        <Select.Trigger data-testid="trigger">
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>,
+      withField ? (
+        <Form errors={{ select: 'test' }}>
+          <Field.Root name="select">
+            {select}
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>
+      ) : (
+        select
+      ),
     );
 
     const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
     expect(selectInput).toHaveAttribute('name', 'select');
+
+    if (withField) {
+      expect(screen.getByTestId('error')).toHaveTextContent('test');
+    }
 
     fireEvent.change(selectInput, { target: { value: 'b' } });
     await flushMicrotasks();
 
     expect(onValueChange).not.toHaveBeenCalled();
     expect(selectInput.value).toBe('');
+
+    if (withField) {
+      expect(screen.getByTestId('error')).toHaveTextContent('test');
+    }
   });
 
   describe('prop: modal', () => {

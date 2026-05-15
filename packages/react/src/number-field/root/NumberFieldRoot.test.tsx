@@ -1320,6 +1320,62 @@ describe('<NumberField />', () => {
       expect(onValueChange.mock.calls[0][0]).toBe(42);
       expect(input).toHaveValue('42');
     });
+
+    it.each([
+      { lockState: 'readOnly', label: 'inside Field', withField: true },
+      { lockState: 'disabled', label: 'inside Field', withField: true },
+      { lockState: 'readOnly', label: 'outside Field', withField: false },
+      { lockState: 'disabled', label: 'outside Field', withField: false },
+    ] as const)(
+      'ignores hidden-input autofill when $lockState $label',
+      async ({ lockState, withField }) => {
+        const onValueChange = vi.fn();
+        const numberField = (
+          <NumberFieldBase.Root
+            name={withField ? undefined : 'quantity'}
+            defaultValue={1}
+            readOnly={lockState === 'readOnly'}
+            disabled={lockState === 'disabled'}
+            onValueChange={onValueChange}
+          >
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        );
+
+        await render(
+          withField ? (
+            <Form errors={{ quantity: 'test' }}>
+              <Field.Root name="quantity">
+                {numberField}
+                <Field.Error data-testid="error" />
+              </Field.Root>
+            </Form>
+          ) : (
+            numberField
+          ),
+        );
+
+        const input = screen.getByRole('textbox');
+        const hiddenInput = document.querySelector(
+          'input[type="number"][name="quantity"]',
+        ) as HTMLInputElement;
+
+        expect(hiddenInput).not.toBe(null);
+
+        if (withField) {
+          expect(screen.getByTestId('error')).toHaveTextContent('test');
+        }
+
+        fireEvent.change(hiddenInput, { target: { value: '42' } });
+
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(input).toHaveValue('1');
+
+        if (withField) {
+          expect(screen.getByTestId('error')).toHaveTextContent('test');
+        }
+      },
+    );
   });
 
   describe('Field', () => {
