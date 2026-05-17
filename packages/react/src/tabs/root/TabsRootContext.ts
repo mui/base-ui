@@ -9,6 +9,10 @@ export interface TabsRootContext {
    */
   value: TabsTab.Value;
   /**
+   * Whether to keep every panel's HTML element in the DOM while it is hidden.
+   */
+  keepMounted: boolean;
+  /**
    * Callback for setting new value.
    */
   onValueChange: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;

@@ -30,6 +30,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const {
     className,
     defaultValue: defaultValueProp = 0,
+    keepMounted: keepMountedProp = false,
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
     render,
@@ -200,6 +201,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
+      keepMounted: keepMountedProp,
       onValueChange,
       orientation,
       registerMountedTabPanel,
@@ -212,6 +214,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       getTabElementBySelectedValue,
       getTabIdByPanelValue,
       getTabPanelIdByValue,
+      keepMountedProp,
       onValueChange,
       orientation,
       registerMountedTabPanel,
@@ -459,6 +462,12 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRootState
    * @default 0
    */
   defaultValue?: TabsTab.Value | undefined;
+  /**
+   * Whether to keep every panel's HTML element in the DOM while the panel is hidden.
+   * Can be overridden per-panel with the `keepMounted` prop on `Tabs.Panel`.
+   * @default false
+   */
+  keepMounted?: boolean | undefined;
   /**
    * The component orientation (layout flow direction).
    * @default 'horizontal'
