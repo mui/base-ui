@@ -2257,4 +2257,66 @@ describe('<Tabs.Root />', () => {
       expect(secondTab).toHaveAttribute('aria-selected', 'false');
     });
   });
+
+  describe('prop: keepMounted', () => {
+    it('keeps all panels mounted in the DOM when keepMounted is set on Tabs.Root', async () => {
+      await render(
+        <Tabs.Root defaultValue="one" keepMounted>
+          <Tabs.List>
+            <Tabs.Tab value="one">One</Tabs.Tab>
+            <Tabs.Tab value="two">Two</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="one" data-testid="panel-one">
+            One
+          </Tabs.Panel>
+          <Tabs.Panel value="two" data-testid="panel-two">
+            Two
+          </Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      expect(screen.getByTestId('panel-one')).not.toBeNull();
+      expect(screen.getByTestId('panel-two')).not.toBeNull();
+    });
+
+    it('allows a panel to opt out of keepMounted set on Tabs.Root', async () => {
+      await render(
+        <Tabs.Root defaultValue="one" keepMounted>
+          <Tabs.List>
+            <Tabs.Tab value="one">One</Tabs.Tab>
+            <Tabs.Tab value="two">Two</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="one" data-testid="panel-one">
+            One
+          </Tabs.Panel>
+          <Tabs.Panel value="two" data-testid="panel-two" keepMounted={false}>
+            Two
+          </Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      expect(screen.getByTestId('panel-one')).not.toBeNull();
+      expect(screen.queryByTestId('panel-two')).toBeNull();
+    });
+
+    it('allows a panel to opt into keepMounted without it being set on Tabs.Root', async () => {
+      await render(
+        <Tabs.Root defaultValue="one">
+          <Tabs.List>
+            <Tabs.Tab value="one">One</Tabs.Tab>
+            <Tabs.Tab value="two">Two</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="one" data-testid="panel-one">
+            One
+          </Tabs.Panel>
+          <Tabs.Panel value="two" data-testid="panel-two" keepMounted>
+            Two
+          </Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      expect(screen.getByTestId('panel-one')).not.toBeNull();
+      expect(screen.getByTestId('panel-two')).not.toBeNull();
+    });
+  });
 });

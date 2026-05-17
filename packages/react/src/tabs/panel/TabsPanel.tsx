@@ -31,16 +31,26 @@ export const TabsPanel = React.forwardRef(function TabsPanel(
   componentProps: TabsPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, value, render, keepMounted = false, style, ...elementProps } = componentProps;
+  const {
+    className,
+    value,
+    render,
+    keepMounted: keepMountedProp,
+    style,
+    ...elementProps
+  } = componentProps;
 
   const {
     value: selectedValue,
     getTabIdByPanelValue,
+    keepMounted: contextKeepMounted,
     orientation,
     tabActivationDirection,
     registerMountedTabPanel,
     unregisterMountedTabPanel,
   } = useTabsRootContext();
+
+  const keepMounted = keepMountedProp ?? contextKeepMounted;
 
   const id = useBaseUiId();
 
