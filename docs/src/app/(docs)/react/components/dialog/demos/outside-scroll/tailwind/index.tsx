@@ -67,7 +67,7 @@ export default function OutsideScrollDialog() {
                 </Dialog.Popup>
               </ScrollArea.Content>
             </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar className="pointer-events-none flex w-2 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-[250ms] data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-[75ms] data-scrolling:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-[75ms] hover:delay-[0ms] group-data-ending-style/dialog:opacity-0 group-data-ending-style/dialog:duration-[250ms]">
+            <ScrollArea.Scrollbar className="relative pointer-events-none flex w-2 justify-center bg-black/12 dark:bg-white/12 opacity-0 transition-opacity duration-[250ms] before:absolute before:content-[''] before:inset-y-0 before:-inset-x-1.5 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-[75ms] data-scrolling:delay-[0ms] hover:pointer-events-auto hover:opacity-100 hover:duration-[75ms] hover:delay-[0ms] group-data-ending-style/dialog:opacity-0 group-data-ending-style/dialog:duration-[250ms]">
               <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
             </ScrollArea.Scrollbar>
           </ScrollArea.Root>
