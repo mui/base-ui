@@ -17,11 +17,11 @@ export default function ExampleScrollAreaBoth() {
           </ul>
         </ScrollArea.Content>
       </ScrollArea.Viewport>
-      <ScrollArea.Scrollbar className="relative m-px flex bg-black/12 dark:bg-white/12 opacity-0 transition-opacity pointer-events-none data-[orientation=vertical]:w-2 data-[orientation=horizontal]:h-2 data-hovering:pointer-events-auto data-hovering:opacity-100 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0">
+      <ScrollArea.Scrollbar className="relative m-px flex bg-black/12 dark:bg-white/12 opacity-0 transition-opacity pointer-events-none before:absolute before:content-[''] before:inset-0 data-[orientation=vertical]:before:-inset-x-1.5 data-[orientation=horizontal]:before:-inset-y-1.5 data-[orientation=vertical]:w-2 data-[orientation=horizontal]:h-2 data-hovering:pointer-events-auto data-hovering:opacity-100 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0">
         <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
       </ScrollArea.Scrollbar>
       <ScrollArea.Scrollbar
-        className="relative m-px flex bg-black/12 dark:bg-white/12 opacity-0 transition-opacity pointer-events-none data-[orientation=vertical]:w-2 data-[orientation=horizontal]:h-2 data-hovering:pointer-events-auto data-hovering:opacity-100 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0"
+        className="relative m-px flex bg-black/12 dark:bg-white/12 opacity-0 transition-opacity pointer-events-none before:absolute before:content-[''] before:inset-0 data-[orientation=vertical]:before:-inset-x-1.5 data-[orientation=horizontal]:before:-inset-y-1.5 data-[orientation=vertical]:w-2 data-[orientation=horizontal]:h-2 data-hovering:pointer-events-auto data-hovering:opacity-100 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0"
         orientation="horizontal"
       >
         <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
