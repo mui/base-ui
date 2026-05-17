@@ -9,7 +9,18 @@ export default function PopoverDetachedTriggersControlledDemo() {
   const [open, setOpen] = React.useState(false);
   const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
+  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
   const handleOpenChange = (isOpen: boolean, eventDetails: Popover.Root.ChangeEventDetails) => {
+    // Clicks on the programmatic button are treated as an outside press.
+    // Call eventDetails.cancel() so onClick can close the popover without conflicting updates.
+    if (
+      !isOpen &&
+      eventDetails.reason === 'outside-press' &&
+      buttonRef.current?.contains(eventDetails.event.target as Node)
+    ) {
+      eventDetails.cancel();
+      return;
+    }
     setOpen(isOpen);
     setTriggerId(eventDetails.trigger?.id ?? null);
   };
@@ -32,9 +43,15 @@ export default function PopoverDetachedTriggersControlledDemo() {
         <button
           className={styles.Button}
           type="button"
+          ref={buttonRef}
           onClick={() => {
-            setTriggerId('trigger-2');
-            setOpen(true);
+            if (open) {
+              // Close regardless of which trigger opened it
+              setOpen(false);
+            } else {
+              setTriggerId('trigger-2');
+              setOpen(true);
+            }
           }}
         >
           Open programmatically
