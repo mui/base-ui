@@ -17,12 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import { useOTPFieldRootContext, getOTPFieldInputState } from '../root/OTPFieldRootContext';
 import type { OTPFieldRootState } from '../root/OTPFieldRoot';
 import { inputStateAttributesMapping } from '../utils/stateAttributesMapping';
-import {
-  normalizeOTPValue,
-  removeOTPCharacter,
-  replaceOTPValue,
-  stripOTPWhitespace,
-} from '../utils/otp';
+import { normalizeOTPValueWithDetails, removeOTPCharacter, replaceOTPValue } from '../utils/otp';
 
 /**
  * An individual OTP character input.
@@ -62,7 +57,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     reportValueInvalid,
     readOnly,
     required,
-    sanitizeValue,
+    normalizeValue,
     setValue,
     state,
     validationType,
@@ -143,15 +138,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       const rawValue = event.currentTarget.value;
-      const nextDigits = normalizeOTPValue(
-        event.currentTarget.value,
+      const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
+        rawValue,
         length,
         validationType,
-        sanitizeValue,
+        normalizeValue,
       );
-      const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
 
-      if (didSanitize) {
+      if (didRejectCharacters) {
         reportValueInvalid(
           rawValue,
           createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -177,7 +171,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         nextDigits,
         length,
         validationType,
-        sanitizeValue,
+        normalizeValue,
       );
 
       const committedValue = setValue(
@@ -291,10 +285,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       event.preventDefault();
 
-      const nextDigits = normalizeOTPValue(rawValue, length, validationType, sanitizeValue);
-      const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
+      const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
+        rawValue,
+        length,
+        validationType,
+        normalizeValue,
+      );
 
-      if (didSanitize) {
+      if (didRejectCharacters) {
         reportValueInvalid(
           rawValue,
           createGenericEventDetails(REASONS.inputPaste, event.nativeEvent),
@@ -306,7 +304,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       const committedValue = setValue(
-        replaceOTPValue(value, index, nextDigits, length, validationType, sanitizeValue),
+        replaceOTPValue(value, index, nextDigits, length, validationType, normalizeValue),
         createChangeEventDetails(REASONS.inputPaste, event.nativeEvent),
       );
 
