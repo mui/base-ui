@@ -352,42 +352,34 @@
 .Scrollbar {
   position: absolute;
   display: flex;
-  width: 0.5rem;
-  margin: 1px;
+  width: 0.25rem;
+  margin: 0.4rem;
   justify-content: center;
-  background-color: rgb(0 0 0 / 12%);
+  border-radius: 1rem;
   opacity: 0;
-  transition: opacity 150ms;
+  transition: opacity 250ms;
   pointer-events: none;
 
-  @media (prefers-color-scheme: dark) {
-    background-color: rgb(255 255 255 / 12%);
-  }
-
+  &:hover,
   &[data-scrolling] {
     opacity: 1;
-    transition-duration: 0ms;
+    transition-duration: 75ms;
+    transition-delay: 0ms;
     pointer-events: auto;
   }
 
   [data-ending-style] & {
-    transition-duration: 150ms;
+    transition-duration: 250ms;
     opacity: 0;
   }
 
-  &::before {
-    content: '';
-    position: absolute;
-    inset-block: 0;
-    inset-inline: -0.375rem;
+  @media (min-width: 42rem) {
+    width: 0.4375rem;
   }
 }
 
 .ScrollbarThumb {
   width: 100%;
-  background-color: oklch(14.5% 0 0deg);
-
-  @media (prefers-color-scheme: dark) {
-    background-color: white;
-  }
+  border-radius: inherit;
+  background-color: oklch(55.6% 0 0deg);
 }
