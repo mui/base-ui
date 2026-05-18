@@ -656,39 +656,45 @@ function useOTPFieldRootDevWarnings(parameters: UseOTPFieldRootDevWarningsParame
   const { inputCount, length, sanitizeValue, validationType } = parameters;
 
   React.useEffect(() => {
-    if (!Number.isInteger(length) || length <= 0 || inputCount === 0 || inputCount === length) {
-      return;
-    }
+    if (process.env.NODE_ENV === 'production') {
+      if (!Number.isInteger(length) || length <= 0 || inputCount === 0 || inputCount === length) {
+        return;
+      }
 
-    const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
-    const message =
-      '<OTPField.Root> `length` must match the number of rendered ' +
-      `<OTPField.Input /> parts. Received \`length={${length}}\` but rendered ` +
-      `${inputCount} input${inputCount === 1 ? '' : 's'}.`;
-    warn(message, ownerStackMessage);
+      const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+      const message =
+        '<OTPField.Root> `length` must match the number of rendered ' +
+        `<OTPField.Input /> parts. Received \`length={${length}}\` but rendered ` +
+        `${inputCount} input${inputCount === 1 ? '' : 's'}.`;
+      warn(message, ownerStackMessage);
+    }
   }, [inputCount, length]);
 
   React.useEffect(() => {
-    if (Number.isInteger(length) && length > 0) {
-      return;
-    }
+    if (process.env.NODE_ENV === 'production') {
+      if (Number.isInteger(length) && length > 0) {
+        return;
+      }
 
-    const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
-    warn(
-      `<OTPField.Root> \`length\` must be a positive integer. Received \`length={${String(length)}}\`.`,
-      ownerStackMessage,
-    );
+      const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+      warn(
+        `<OTPField.Root> \`length\` must be a positive integer. Received \`length={${String(length)}}\`.`,
+        ownerStackMessage,
+      );
+    }
   }, [length]);
 
   React.useEffect(() => {
-    if (sanitizeValue == null || validationType === 'none') {
-      return;
-    }
+    if (process.env.NODE_ENV === 'production') {
+      if (sanitizeValue == null || validationType === 'none') {
+        return;
+      }
 
-    const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
-    warn(
-      '<OTPField.Root> `sanitizeValue` is only used when `validationType="none"`.',
-      ownerStackMessage,
-    );
+      const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+      warn(
+        '<OTPField.Root> `sanitizeValue` is only used when `validationType="none"`.',
+        ownerStackMessage,
+      );
+    }
   }, [sanitizeValue, validationType]);
 }

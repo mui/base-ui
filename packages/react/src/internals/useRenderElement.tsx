@@ -199,15 +199,16 @@ function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
   if (!LOWERCASE_CHARACTER_PATTERN.test(functionName)) {
     return;
   }
-
-  warn(
-    `The \`render\` prop received a function named \`${functionName}\` that starts with an uppercase letter.`,
-    'This usually means a React component was passed directly as `render={Component}`.',
-    'Base UI calls `render` as a plain function, which can break the Rules of Hooks during reconciliation.',
-    'If this is an intentional render callback, rename it to start with a lowercase letter.',
-    'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
-    'https://base-ui.com/r/invalid-render-prop',
-  );
+  if (process.env.NODE_ENV === 'production') {
+    warn(
+      `The \`render\` prop received a function named \`${functionName}\` that starts with an uppercase letter.`,
+      'This usually means a React component was passed directly as `render={Component}`.',
+      'Base UI calls `render` as a plain function, which can break the Rules of Hooks during reconciliation.',
+      'If this is an intentional render callback, rename it to start with a lowercase letter.',
+      'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
+      'https://base-ui.com/r/invalid-render-prop',
+    );
+  }
 }
 
 function renderTag(Tag: string, props: Record<string, any>) {
