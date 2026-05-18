@@ -1153,5 +1153,38 @@ describe('<MenuRoot />', () => {
       });
       expect(firstItem).toHaveAttribute('tabindex', '0');
     });
+
+    it('focuses the popup when opening with `focusItem: none`', async () => {
+      const menuHandle = Menu.createHandle();
+      await render(
+        <div>
+          <Menu.Trigger handle={menuHandle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+          <Menu.Root handle={menuHandle}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>One</Menu.Item>
+                  <Menu.Item>Two</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>,
+      );
+
+      await act(async () => {
+        menuHandle.open('trigger', 'none');
+      });
+
+      const popup = await screen.findByRole('menu');
+      await waitFor(() => {
+        expect(popup).toHaveFocus();
+      });
+      screen.getAllByRole('menuitem').forEach((item) => {
+        expect(item).toHaveAttribute('tabindex', '-1');
+      });
+    });
   });
 });
