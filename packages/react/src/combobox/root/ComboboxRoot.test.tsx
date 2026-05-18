@@ -1461,69 +1461,69 @@ describe('<Combobox.Root />', () => {
     { lockState: 'disabled', label: 'inside Field', withField: true },
     { lockState: 'readOnly', label: 'outside Field', withField: false },
     { lockState: 'disabled', label: 'outside Field', withField: false },
-  ] as const)('ignores hidden-input autofill when $lockState $label', async ({
-    lockState,
-    withField,
-  }) => {
-    const onValueChange = vi.fn();
-    const onInputValueChange = vi.fn();
-    const combobox = (
-      <Combobox.Root
-        name={withField ? undefined : 'test'}
-        readOnly={lockState === 'readOnly'}
-        disabled={lockState === 'disabled'}
-        onValueChange={onValueChange}
-        onInputValueChange={onInputValueChange}
-      >
-        <Combobox.Input data-testid="input" />
-        <Combobox.Portal>
-          <Combobox.Positioner>
-            <Combobox.Popup>
-              <Combobox.List>
-                <Combobox.Item value="a">a</Combobox.Item>
-                <Combobox.Item value="b">b</Combobox.Item>
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>
-    );
+  ] as const)(
+    'ignores hidden-input autofill when $lockState $label',
+    async ({ lockState, withField }) => {
+      const onValueChange = vi.fn();
+      const onInputValueChange = vi.fn();
+      const combobox = (
+        <Combobox.Root
+          name={withField ? undefined : 'test'}
+          readOnly={lockState === 'readOnly'}
+          disabled={lockState === 'disabled'}
+          onValueChange={onValueChange}
+          onInputValueChange={onInputValueChange}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
 
-    await render(
-      withField ? (
-        <Form errors={{ test: 'test' }}>
-          <Field.Root name="test">
-            {combobox}
-            <Field.Error data-testid="error" />
-          </Field.Root>
-        </Form>
-      ) : (
-        combobox
-      ),
-    );
+      await render(
+        withField ? (
+          <Form errors={{ test: 'test' }}>
+            <Field.Root name="test">
+              {combobox}
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>
+        ) : (
+          combobox
+        ),
+      );
 
-    const visibleInput = screen.getByTestId<HTMLInputElement>('input');
-    const hiddenInput = screen
-      .getAllByDisplayValue('')
-      .find((el) => el.getAttribute('name') === 'test') as HTMLInputElement;
-    expect(hiddenInput).not.toBeUndefined();
+      const visibleInput = screen.getByTestId<HTMLInputElement>('input');
+      const hiddenInput = screen
+        .getAllByDisplayValue('')
+        .find((el) => el.getAttribute('name') === 'test') as HTMLInputElement;
+      expect(hiddenInput).not.toBeUndefined();
 
-    if (withField) {
-      expect(screen.getByTestId('error')).toHaveTextContent('test');
-    }
+      if (withField) {
+        expect(screen.getByTestId('error')).toHaveTextContent('test');
+      }
 
-    fireEvent.change(hiddenInput, { target: { value: 'b' } });
-    await flushMicrotasks();
+      fireEvent.change(hiddenInput, { target: { value: 'b' } });
+      await flushMicrotasks();
 
-    expect(onValueChange).not.toHaveBeenCalled();
-    expect(onInputValueChange).not.toHaveBeenCalled();
-    expect(visibleInput.value).toBe('');
-    expect(hiddenInput.value).toBe('');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onInputValueChange).not.toHaveBeenCalled();
+      expect(visibleInput.value).toBe('');
+      expect(hiddenInput.value).toBe('');
 
-    if (withField) {
-      expect(screen.getByTestId('error')).toHaveTextContent('test');
-    }
-  });
+      if (withField) {
+        expect(screen.getByTestId('error')).toHaveTextContent('test');
+      }
+    },
+  );
 
   it('shows all items when opening after browser autofill', async () => {
     const items = ['a', 'b', 'c'];

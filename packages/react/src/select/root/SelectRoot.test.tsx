@@ -738,62 +738,62 @@ describe('<Select.Root />', () => {
     { lockState: 'disabled', label: 'inside Field', withField: true },
     { lockState: 'readOnly', label: 'outside Field', withField: false },
     { lockState: 'disabled', label: 'outside Field', withField: false },
-  ] as const)('ignores hidden-input autofill when $lockState $label', async ({
-    lockState,
-    withField,
-  }) => {
-    const onValueChange = vi.fn();
-    const select = (
-      <Select.Root
-        name={withField ? undefined : 'select'}
-        readOnly={lockState === 'readOnly'}
-        disabled={lockState === 'disabled'}
-        onValueChange={onValueChange}
-      >
-        <Select.Trigger data-testid="trigger">
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner>
-            <Select.Popup>
-              <Select.Item value="a">a</Select.Item>
-              <Select.Item value="b">b</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
-    );
+  ] as const)(
+    'ignores hidden-input autofill when $lockState $label',
+    async ({ lockState, withField }) => {
+      const onValueChange = vi.fn();
+      const select = (
+        <Select.Root
+          name={withField ? undefined : 'select'}
+          readOnly={lockState === 'readOnly'}
+          disabled={lockState === 'disabled'}
+          onValueChange={onValueChange}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      );
 
-    await render(
-      withField ? (
-        <Form errors={{ select: 'test' }}>
-          <Field.Root name="select">
-            {select}
-            <Field.Error data-testid="error" />
-          </Field.Root>
-        </Form>
-      ) : (
-        select
-      ),
-    );
+      await render(
+        withField ? (
+          <Form errors={{ select: 'test' }}>
+            <Field.Root name="select">
+              {select}
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>
+        ) : (
+          select
+        ),
+      );
 
-    const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
-    expect(selectInput).toHaveAttribute('name', 'select');
+      const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
+      expect(selectInput).toHaveAttribute('name', 'select');
 
-    if (withField) {
-      expect(screen.getByTestId('error')).toHaveTextContent('test');
-    }
+      if (withField) {
+        expect(screen.getByTestId('error')).toHaveTextContent('test');
+      }
 
-    fireEvent.change(selectInput, { target: { value: 'b' } });
-    await flushMicrotasks();
+      fireEvent.change(selectInput, { target: { value: 'b' } });
+      await flushMicrotasks();
 
-    expect(onValueChange).not.toHaveBeenCalled();
-    expect(selectInput.value).toBe('');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(selectInput.value).toBe('');
 
-    if (withField) {
-      expect(screen.getByTestId('error')).toHaveTextContent('test');
-    }
-  });
+      if (withField) {
+        expect(screen.getByTestId('error')).toHaveTextContent('test');
+      }
+    },
+  );
 
   describe('prop: modal', () => {
     it('should render an internal backdrop when `true`', async () => {
