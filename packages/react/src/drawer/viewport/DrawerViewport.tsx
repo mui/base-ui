@@ -968,6 +968,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     <DialogViewport
       ref={forwardedRef}
       className={className}
+      style={style}
       render={render}
       {...mergeProps<'div'>(elementProps, {
         onPointerDown(event) {
