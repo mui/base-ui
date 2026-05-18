@@ -117,5 +117,26 @@ describe('<Menu.GroupLabel />', () => {
       const radioGroup = screen.getByRole('group');
       expect(radioGroup).toHaveAttribute('aria-labelledby', 'test-group');
     });
+
+    it('should support GroupLabel when RadioGroup is rendered as Group', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Group render={<Menu.RadioGroup />}>
+                  <Menu.GroupLabel>Test group</Menu.GroupLabel>
+                </Menu.Group>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const radioGroup = screen.getByRole('group');
+      const groupLabel = screen.getByText('Test group');
+
+      expect(radioGroup).toHaveAttribute('aria-labelledby', groupLabel.id);
+    });
   });
 });

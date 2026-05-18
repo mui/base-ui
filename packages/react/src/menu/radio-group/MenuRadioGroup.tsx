@@ -27,6 +27,7 @@ export const MenuRadioGroup = React.memo(
       onValueChange: onValueChangeProp,
       disabled = false,
       style,
+      'aria-labelledby': ariaLabelledByProp,
       ...elementProps
     } = componentProps;
 
@@ -57,7 +58,7 @@ export const MenuRadioGroup = React.memo(
       ref: forwardedRef,
       props: {
         role: 'group',
-        'aria-labelledby': labelId,
+        'aria-labelledby': ariaLabelledByProp ?? labelId,
         'aria-disabled': disabled || undefined,
         ...elementProps,
       },
