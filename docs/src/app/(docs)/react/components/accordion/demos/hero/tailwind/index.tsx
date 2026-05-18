@@ -3,7 +3,7 @@ import { Accordion } from '@base-ui/react/accordion';
 
 export default function ExampleAccordion() {
   return (
-    <Accordion.Root className="flex w-80 max-w-full flex-col border border-neutral-950 text-neutral-950 dark:border-white dark:text-white">
+    <Accordion.Root className="flex w-full max-w-80 flex-col border border-neutral-950 text-neutral-950 dark:border-white dark:text-white">
       <Accordion.Item>
         <Accordion.Header>
           <Accordion.Trigger className="group flex w-full items-center justify-between gap-4 bg-transparent px-3 py-2 text-left text-sm font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 focus-visible:relative focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white dark:text-white dark:hover:not-data-disabled:bg-neutral-800">

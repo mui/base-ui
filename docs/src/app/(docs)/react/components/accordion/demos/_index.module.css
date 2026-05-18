@@ -1,8 +1,8 @@
 .Accordion {
   box-sizing: border-box;
   display: flex;
-  width: 20rem;
-  max-width: 100%;
+  max-width: 20rem;
+  width: 100%;
   flex-direction: column;
   border: 1px solid oklch(14.5% 0 0deg);
   color: oklch(14.5% 0 0deg);

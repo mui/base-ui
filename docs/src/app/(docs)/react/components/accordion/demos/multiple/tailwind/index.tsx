@@ -5,7 +5,7 @@ export default function ExampleAccordion() {
   return (
     <Accordion.Root
       multiple
-      className="flex w-80 max-w-full flex-col border border-neutral-950 text-neutral-950 dark:border-white dark:text-white"
+      className="flex w-full max-w-80 flex-col border border-neutral-950 text-neutral-950 dark:border-white dark:text-white"
     >
       <Accordion.Item>
         <Accordion.Header>
