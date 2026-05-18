@@ -358,6 +358,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
         // Prevent the default behavior to avoid scrolling the page.
         event.preventDefault();
+        allowInputSyncRef.current = true;
 
         const amount = getStepAmount(event) ?? DEFAULT_STEP;
 

@@ -356,9 +356,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingContext, {
-    bubbles: false,
-  });
+  const dismiss = useDismiss(floatingContext);
 
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !readOnly && !disabled,

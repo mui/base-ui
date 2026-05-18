@@ -120,7 +120,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
     const previousHeight = element.style.height;
     element.style.height = 'auto';
+
     const height = element.offsetHeight;
+
     element.style.height = previousHeight;
 
     function update() {
@@ -164,6 +166,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       if (!swipeDirections.includes('right') && deltaX > 0) {
         newDeltaX = deltaX ** OPPOSITE_DIRECTION_DAMPING_FACTOR;
       }
+
       if (!swipeDirections.includes('left') && deltaX < 0) {
         newDeltaX = -(Math.abs(deltaX) ** OPPOSITE_DIRECTION_DAMPING_FACTOR);
       }
@@ -178,6 +181,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       if (!swipeDirections.includes('down') && deltaY > 0) {
         newDeltaY = deltaY ** OPPOSITE_DIRECTION_DAMPING_FACTOR;
       }
+
       if (!swipeDirections.includes('up') && deltaY < 0) {
         newDeltaY = -(Math.abs(deltaY) ** OPPOSITE_DIRECTION_DAMPING_FACTOR);
       }
@@ -241,6 +245,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
         default:
           break;
       }
+
       if (shouldClose) {
         break;
       }
@@ -393,6 +398,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     } else {
       const direction = intendedSwipeDirectionRef.current;
       const currentDisplacement = getDisplacement(direction, cancelDeltaX, cancelDeltaY);
+
       if (currentDisplacement > SWIPE_THRESHOLD) {
         cancelledSwipeRef.current = false;
         setCurrentSwipeDirection(direction);
@@ -422,6 +428,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       if (swipeDirections.includes('left') || swipeDirections.includes('right')) {
         newOffsetX += dampedDelta.x;
       }
+
       if (swipeDirections.includes('up') || swipeDirections.includes('down')) {
         newOffsetY += dampedDelta.y;
       }
@@ -438,6 +445,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       ) {
         return;
       }
+
       store.closeToast(toast.id);
     }
   }
@@ -561,6 +569,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 });
 
 export type ToastRootToastObject<Data extends object = any> = ToastObjectType<Data>;
+
 export interface ToastRootState {
   /**
    * The transition status of the component.
@@ -587,6 +596,7 @@ export interface ToastRootState {
    */
   swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
 }
+
 export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRootState> {
   /**
    * The toast to render.

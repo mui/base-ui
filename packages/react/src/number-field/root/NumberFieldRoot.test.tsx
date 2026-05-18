@@ -10,6 +10,26 @@ import { REASONS } from '../../internals/reasons';
 describe('<NumberField />', () => {
   const { render } = createRenderer();
 
+  function pasteText(target: HTMLElement, value: string) {
+    if (isJSDOM) {
+      fireEvent.paste(target, {
+        clipboardData: {
+          getData: (type: string) => (type === 'text/plain' ? value : ''),
+        },
+      });
+      return;
+    }
+
+    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(pasteEvent, 'clipboardData', {
+      value: {
+        getData: (type: string) => (type === 'text/plain' ? value : ''),
+      },
+    });
+
+    fireEvent(target, pasteEvent);
+  }
+
   describeConformance(<NumberFieldBase.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
@@ -1084,6 +1104,25 @@ describe('<NumberField />', () => {
       fireEvent.blur(input);
       expect(onValueCommitted.mock.calls.length).toBe(1);
       expect(onValueCommitted.mock.calls[0][0]).toBe(5);
+    });
+
+    it('syncs the visible input value when using the mouse wheel after pasting', async () => {
+      const onValueChange = vi.fn();
+
+      await render(<NumberField defaultValue={10} allowWheelScrub onValueChange={onValueChange} />);
+
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+      await act(async () => input.focus());
+
+      pasteText(input, '20');
+
+      expect(input).toHaveValue('20');
+      expect(onValueChange.mock.lastCall?.[0]).toBe(20);
+
+      fireEvent.wheel(input, { deltaY: -1 });
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(21);
+      expect(input).toHaveValue('21');
     });
   });
 
