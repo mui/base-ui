@@ -96,6 +96,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       const maxScroll = horizontal
         ? viewportEl.scrollWidth - viewportEl.clientWidth
         : viewportEl.scrollHeight - viewportEl.clientHeight;
+      // RTL horizontal scrolling uses a negative `scrollLeft` range, from 0 to `-maxScroll`.
       const minScroll = horizontal && direction === 'rtl' ? -maxScroll : 0;
       const maxScrollValue = horizontal && direction === 'rtl' ? 0 : maxScroll;
       const scrollValue = viewportEl[scrollProperty];

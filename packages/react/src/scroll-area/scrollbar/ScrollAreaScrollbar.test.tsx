@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { screen, fireEvent, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
@@ -193,7 +193,7 @@ describe('<ScrollArea.Scrollbar />', () => {
 
   describe('wheel', () => {
     async function renderWheelTest(props: {
-      direction?: 'ltr' | 'rtl';
+      direction?: TextDirection;
       orientation?: 'horizontal' | 'vertical';
       scrollLeft?: number;
       scrollTop?: number;
@@ -252,37 +252,9 @@ describe('<ScrollArea.Scrollbar />', () => {
     }
 
     it('allows horizontal scrolling away from the RTL start edge', async () => {
-      await render(
-        <DirectionProvider direction="rtl">
-          <ScrollArea.Root style={{ width: 200, height: 200, direction: 'rtl' }}>
-            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
-              <div style={{ width: 1000, height: 200 }} />
-            </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal" keepMounted />
-          </ScrollArea.Root>
-        </DirectionProvider>,
-      );
+      const { viewport, scrollbar } = await renderWheelTest({ direction: 'rtl' });
 
-      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
-      const horizontalScrollbar = screen.getByTestId('horizontal');
-
-      Object.defineProperties(viewport, {
-        clientWidth: {
-          configurable: true,
-          value: 200,
-        },
-        scrollWidth: {
-          configurable: true,
-          value: 1000,
-        },
-        scrollLeft: {
-          configurable: true,
-          writable: true,
-          value: 0,
-        },
-      });
-
-      fireEvent.wheel(horizontalScrollbar, { deltaX: -50 });
+      fireEvent.wheel(scrollbar, { deltaX: -50 });
 
       expect(viewport.scrollLeft).toBe(-50);
     });
@@ -306,6 +278,10 @@ describe('<ScrollArea.Scrollbar />', () => {
 
       fireEvent.wheel(scrollbar, { deltaX: 50 });
       expect(viewport.scrollLeft).toBe(0);
+
+      viewport.scrollLeft = -100;
+      fireEvent.wheel(scrollbar, { deltaX: 50 });
+      expect(viewport.scrollLeft).toBe(-50);
 
       viewport.scrollLeft = -790;
       fireEvent.wheel(scrollbar, { deltaX: -50 });
