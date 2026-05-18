@@ -142,7 +142,7 @@ export interface UseListNavigationProps {
   /**
    * Callback fired when a pending imperative item focus request has been consumed.
    */
-  onPendingFocusItemChange?: ((pendingFocusItem: null) => void) | undefined;
+  onPendingFocusItemClear?: (() => void) | undefined;
   /**
    * Whether pressing an arrow key on the navigation's main axis opens the
    * floating element.
@@ -256,8 +256,8 @@ export function useListNavigation(
     virtual = false,
     focusItemOnOpen = 'auto',
     focusItemOnHover = true,
-    pendingFocusItem = null,
-    onPendingFocusItemChange,
+    pendingFocusItem,
+    onPendingFocusItemClear,
     openOnArrowKeyDown = true,
     disabledIndices = undefined,
     orientation = 'vertical',
@@ -312,7 +312,7 @@ export function useListNavigation(
   });
 
   const clearPendingFocusItem = useStableCallback(() => {
-    onPendingFocusItemChange?.(null);
+    onPendingFocusItemClear?.();
   });
 
   const previousOnNavigateRef = React.useRef(onNavigate);
@@ -417,10 +417,7 @@ export function useListNavigation(
       return undefined;
     }
 
-    const resolveFocusItem = (
-      target: Exclude<UseListNavigationFocusItem, 'none'>,
-      onDone?: () => void,
-    ) => {
+    const resolveFocusItem = (focusLast: boolean, onDone?: () => void) => {
       let cancelled = false;
 
       const waitForListPopulated = () => {
@@ -433,7 +430,7 @@ export function useListNavigation(
           return;
         }
 
-        indexRef.current = target === 'last' ? getMaxListIndex(listRef) : getMinListIndex(listRef);
+        indexRef.current = focusLast ? getMaxListIndex(listRef) : getMinListIndex(listRef);
         keyRef.current = null;
         onNavigate();
         onDone?.();
@@ -463,7 +460,7 @@ export function useListNavigation(
         return undefined;
       }
 
-      return resolveFocusItem(pendingFocusItem, clearPendingFocusItem);
+      return resolveFocusItem(pendingFocusItem === 'last', clearPendingFocusItem);
     }
 
     if (activeIndex == null) {
@@ -485,14 +482,11 @@ export function useListNavigation(
         focusItemOnOpenRef.current &&
         (keyRef.current != null || (focusItemOnOpenRef.current === true && keyRef.current == null))
       ) {
-        const target =
-          keyRef.current == null ||
-          isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
-          nested
-            ? 'first'
-            : 'last';
-
-        return resolveFocusItem(target);
+        return resolveFocusItem(
+          keyRef.current != null &&
+            !isMainOrientationToEndKey(keyRef.current, orientation, rtl) &&
+            !nested,
+        );
       }
     } else if (!isIndexOutOfListBounds(listRef.current, activeIndex)) {
       indexRef.current = activeIndex;

@@ -420,9 +420,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const direction = useDirection();
   const pendingFocusItem = store.useState('pendingFocusItem');
-  const clearPendingFocusItem = useStableCallback(() => {
-    store.set('pendingFocusItem', null);
-  });
 
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
@@ -439,7 +436,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     externalTree: nested ? floatingTreeRoot : undefined,
     focusItemOnHover: highlightItemOnHover,
     pendingFocusItem,
-    onPendingFocusItemChange: clearPendingFocusItem,
+    onPendingFocusItemClear() {
+      store.set('pendingFocusItem', null);
+    },
   });
 
   const onTyping = React.useCallback(
