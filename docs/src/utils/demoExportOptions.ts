@@ -8,7 +8,11 @@ import { ExportConfig } from '@mui/internal-docs-infra/useDemo';
 
 const defaultStylesLink = `<link rel="stylesheet" href="demo.css" />`;
 const htmlHeadWithDefaultStyles: ExportConfig['headTemplate'] = () => defaultStylesLink;
-const demoCss = `body {
+const demoCss = `:root {
+  color-scheme: light dark;
+}
+
+body {
   font-family: system-ui;
   margin: 0;
 
@@ -25,10 +29,6 @@ const demoCss = `body {
   isolation: isolate;
 }
 `;
-
-// CSS Modules Theme Styles (src/demo-data/theme)
-const themeStylesLink = `<link rel="stylesheet" href="theme.css" />`;
-const htmlHeadWithCssModulesTheme: ExportConfig['headTemplate'] = () => themeStylesLink;
 
 // Tailwind CSS Setup
 const tailwindSetup = `
@@ -637,9 +637,7 @@ const htmlHeadWithTailwind: ExportConfig['headTemplate'] = ({ variant }) => {
 const htmlHeadTemplate: ExportConfig['headTemplate'] = (props) => {
   const head = [htmlHeadWithDefaultStyles(props)];
 
-  if (props.variantName === 'CssModules') {
-    head.push(htmlHeadWithCssModulesTheme(props));
-  } else if (props.variantName === 'Tailwind') {
+  if (props.variantName === 'Tailwind') {
     head.push(htmlHeadWithTailwind(props));
   }
 
@@ -650,23 +648,6 @@ const htmlHeadTemplate: ExportConfig['headTemplate'] = (props) => {
 const transformVariant: ExportConfig['transformVariant'] = (variant, variantName, globals) => {
   globals = { ...globals };
   globals['demo.css'] = { source: demoCss };
-
-  // Add color-scheme to the theme file if it exists
-  if (variantName === 'CssModules' && globals['theme.css']) {
-    const cssTheme = globals['theme.css'];
-    const source =
-      typeof cssTheme === 'object' && cssTheme.source && stringOrHastToString(cssTheme.source);
-    if (source) {
-      if (!source.includes(':root {')) {
-        throw new Error('Expected to find a ":root" selector in the demo theme file');
-      }
-
-      globals['theme.css'] = {
-        ...cssTheme,
-        source: source.replace(':root {', `:root {\n  color-scheme: light dark;\n`),
-      };
-    }
-  }
 
   return { globals };
 };
@@ -704,10 +685,6 @@ const transformVariantForCRA: ExportConfig['transformVariant'] = (
   const { variant: transformedVariant, globals: transformedGlobals } = transformed || {};
 
   const transformedGlobalsForCRA = { ...transformedGlobals };
-
-  if (variantName === 'CssModules') {
-    exposeMetadataToPublic(transformedGlobalsForCRA, 'theme.css');
-  }
 
   exposeMetadataToPublic(transformedGlobalsForCRA, 'demo.css');
 

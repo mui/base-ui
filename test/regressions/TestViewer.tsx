@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-function TestViewer(props: { children: React.ReactNode }) {
-  const { children } = props;
+function TestViewer(props: { children: React.ReactNode; isTailwind: boolean }) {
+  const { children, isTailwind } = props;
 
   // We're simulating `act(() => ReactDOM.render(children))`
   // In the end children passive effects should've been flushed.
@@ -35,16 +35,30 @@ function TestViewer(props: { children: React.ReactNode }) {
     };
   }, []);
 
-  const globalStyles = `
+  // Tailwind demos rely on preflight's `box-sizing: border-box` for `*`, so we
+  // skip the content-box flip there — otherwise the demos render with wrong
+  // dimensions and don't represent what users actually see.
+  const boxSizingFlip = isTailwind
+    ? ''
+    : `
     html {
-      --webkit-font-smoothing: antialiased;
-      --moz-osx-font-smoothing: grayscale;
-      /* Do the opposite of the docs in order to help catching issues. */
       box-sizing: content-box;
     }
 
     *, *::before, *::after {
       box-sizing: inherit;
+    }
+  `;
+
+  const globalStyles = `
+    html {
+      --webkit-font-smoothing: antialiased;
+      --moz-osx-font-smoothing: grayscale;
+    }
+
+    ${boxSizingFlip}
+
+    *, *::before, *::after {
       /* Disable transitions to avoid flaky screenshots */
       transition: none !important;
       animation: none !important;

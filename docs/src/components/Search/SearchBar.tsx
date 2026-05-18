@@ -13,8 +13,9 @@ import { Button } from '@base-ui/react/button';
 import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { isMac } from '@base-ui/utils/detectBrowser';
-import { CornerDownLeft, Search } from 'lucide-react';
+import { CornerDownLeft } from 'lucide-react';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
+import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
 import './SearchBar.css';
 
@@ -321,7 +322,7 @@ export function SearchBar({
   const searchInput = React.useMemo(
     () => (
       <div className="SearchInputRoot">
-        <Search className="SearchInputIcon" />
+        <MagnifyingGlassIcon className="SearchInputIcon" />
         <Autocomplete.Input
           id="search-input"
           ref={inputRef}
@@ -371,7 +372,7 @@ export function SearchBar({
   return (
     <React.Fragment>
       <Button onClick={handleOpenDialog} aria-label="Search" className={`SearchTrigger`}>
-        <Search className="SearchTriggerIcon" />
+        <MagnifyingGlassIcon className="SearchTriggerIcon" />
         <div className="SearchTriggerKbd">
           {showCmdSymbol ? (
             <kbd className="SearchTriggerCmd">⌘</kbd>
