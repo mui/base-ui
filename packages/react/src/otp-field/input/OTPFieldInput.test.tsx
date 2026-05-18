@@ -196,6 +196,57 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[2]);
   });
 
+  it.each([
+    ['ArrowUp', 0],
+    ['ArrowDown', 3],
+  ] as const)('moves focus to the field boundary with %s', async (key, targetIndex) => {
+    await render(<OTPFieldTest defaultValue="1234" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[1].focus();
+    });
+
+    expect(fireEvent.keyDown(inputs[1], { key })).toBe(false);
+    expect(inputs[targetIndex]).toHaveFocus();
+  });
+
+  it('keeps focus on an empty slot with ArrowDown', async () => {
+    await render(<OTPFieldTest defaultValue="12" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[2].focus();
+    });
+
+    expect(fireEvent.keyDown(inputs[2], { key: 'ArrowDown' })).toBe(false);
+    expect(inputs[2]).toHaveFocus();
+  });
+
+  it('does not reselect the final slot when typing the same character', async () => {
+    const { user } = await render(<OTPFieldTest defaultValue="123456" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const lastInput = inputs[5];
+
+    await act(async () => {
+      lastInput.focus();
+    });
+
+    const select = vi.spyOn(lastInput, 'select');
+
+    try {
+      await user.keyboard('6');
+
+      expect(select).not.toHaveBeenCalled();
+      expect(lastInput).toHaveFocus();
+    } finally {
+      select.mockRestore();
+    }
+  });
+
   it('moves focus to the first slot with Home', async () => {
     await render(<OTPFieldTest defaultValue="1234" />);
 
@@ -255,10 +306,10 @@ describe('<OTPField.Input />', () => {
     fireEvent.keyDown(inputs[1], { key: 'ArrowRight' });
     expect(document.activeElement).toBe(inputs[2]);
 
-    fireEvent.keyDown(inputs[2], { key: 'Home' });
+    fireEvent.keyDown(inputs[2], { key: 'ArrowUp' });
     expect(document.activeElement).toBe(inputs[0]);
 
-    fireEvent.keyDown(inputs[0], { key: 'End' });
+    fireEvent.keyDown(inputs[0], { key: 'ArrowDown' });
     expect(document.activeElement).toBe(inputs[3]);
   });
 
