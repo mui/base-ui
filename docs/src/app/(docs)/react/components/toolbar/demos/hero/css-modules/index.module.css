@@ -43,7 +43,7 @@
   }
 
   @media (hover: hover) {
-    &:hover:not([data-disabled]) {
+    &:hover:not([data-disabled], [data-popup-open]) {
       background-color: oklch(97% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
@@ -75,7 +75,7 @@
   }
 
   @media (hover: hover) {
-    &[data-pressed]:hover:not([data-disabled]) {
+    &[data-pressed]:hover:not([data-disabled], [data-popup-open]) {
       background-color: oklch(14.5% 0 0deg);
       color: white;
 
@@ -88,9 +88,11 @@
 
   &[data-popup-open] {
     background-color: oklch(97% 0 0deg);
+    color: oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
       background-color: oklch(26.9% 0 0deg);
+      color: white;
     }
   }
 
