@@ -72,10 +72,8 @@ export const MenuRadioGroup = React.memo(
       [value, setValue, disabled],
     );
 
-    const groupContext = React.useMemo(() => ({ setLabelId }), [setLabelId]);
-
     return (
-      <MenuGroupContext.Provider value={groupContext}>
+      <MenuGroupContext.Provider value={setLabelId}>
         <MenuRadioGroupContext.Provider value={context}>{element}</MenuRadioGroupContext.Provider>
       </MenuGroupContext.Provider>
     );

@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
 
-export interface MenuGroupContext {
-  setLabelId: (id: string | undefined) => void;
-}
+export type MenuGroupContext = (id: string | undefined) => void;
 
 export const MenuGroupContext = React.createContext<MenuGroupContext | undefined>(undefined);
 

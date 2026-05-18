@@ -4,9 +4,7 @@ import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { MenuGroupContext } from '../group/MenuGroupContext';
 
-const testContext: MenuGroupContext = {
-  setLabelId: () => {},
-};
+const testContext: MenuGroupContext = () => {};
 
 describe('<Menu.GroupLabel />', () => {
   const { render } = createRenderer();
