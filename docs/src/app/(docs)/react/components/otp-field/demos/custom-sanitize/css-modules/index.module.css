@@ -11,7 +11,11 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: var(--color-gray-900);
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .Root {
@@ -23,45 +27,75 @@
 .Input {
   box-sizing: border-box;
   margin: 0;
-  border: 1px solid var(--color-gray-300);
+  padding: 0;
+
+  border: 1px solid oklch(14.5% 0 0deg);
   width: 2.5rem;
-  height: 2.75rem;
-  border-radius: 0.5rem;
+  height: 2.5rem;
+  border-radius: 0;
   font-family: inherit;
-  font-size: 1.125rem;
-  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 400;
   text-align: center;
-  background-color: transparent;
-  color: var(--color-gray-900);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
 
   &:focus {
-    outline: none;
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
 .InputInvalidA {
-  border-color: var(--color-red);
-  outline: 2px solid var(--color-red-800);
+  border-color: oklch(50.5% 0.213 27.518deg);
+  outline: 2px solid oklch(50.5% 0.213 27.518deg);
   outline-offset: -1px;
   animation: otp-field-shake-a 180ms ease-in-out;
 
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(70.4% 0.191 22.216deg);
+    outline: 2px solid oklch(70.4% 0.191 22.216deg);
+  }
+
   &:focus {
-    outline: 2px solid var(--color-red-800);
+    outline: 2px solid oklch(50.5% 0.213 27.518deg);
     outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: oklch(70.4% 0.191 22.216deg);
+    }
   }
 }
 
 .InputInvalidB {
-  border-color: var(--color-red);
-  outline: 2px solid var(--color-red-800);
+  border-color: oklch(50.5% 0.213 27.518deg);
+  outline: 2px solid oklch(50.5% 0.213 27.518deg);
   outline-offset: -1px;
   animation: otp-field-shake-b 180ms ease-in-out;
 
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(70.4% 0.191 22.216deg);
+    outline: 2px solid oklch(70.4% 0.191 22.216deg);
+  }
+
   &:focus {
-    outline: 2px solid var(--color-red-800);
+    outline: 2px solid oklch(50.5% 0.213 27.518deg);
     outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: oklch(70.4% 0.191 22.216deg);
+    }
   }
 }
 
@@ -69,7 +103,11 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: var(--color-gray-600);
+  color: oklch(43.9% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
 }
 
 .Code {

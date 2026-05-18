@@ -73,7 +73,3 @@
     opacity: 0;
   }
 }
-
-.Arrow {
-  transition: left calc(var(--animation-duration)) var(--easing);
-}

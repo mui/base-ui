@@ -10,7 +10,7 @@ export default function ExampleUncontainedDialog() {
         <Dialog.Viewport className={styles.Viewport}>
           <Dialog.Popup className={styles.PopupRoot}>
             <Dialog.Close className={styles.Close} aria-label="Close">
-              <XIcon className={styles.CloseIcon} />
+              <XIcon />
             </Dialog.Close>
             <div className={styles.Popup} />
           </Dialog.Popup>
@@ -23,18 +23,17 @@ export default function ExampleUncontainedDialog() {
 function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
+      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
+      <path d="m2.5 2.5 11 11m-11 0 11-11" />
     </svg>
   );
 }

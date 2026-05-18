@@ -6,9 +6,6 @@ import {
 } from '@mui/internal-docs-infra/abstractCreateDemo';
 
 import { Demo as DemoContent } from '../components/Demo/Demo';
-import { DemoDataTheme } from '../demo-data/theme';
-
-const demoGlobalData = [DemoDataTheme];
 
 /**
  * Creates a demo component for displaying code examples with syntax highlighting.
@@ -18,7 +15,6 @@ const demoGlobalData = [DemoDataTheme];
  */
 export const createDemo = createDemoFactory({
   DemoContent,
-  demoGlobalData,
 });
 
 /**
@@ -30,5 +26,4 @@ export const createDemo = createDemoFactory({
  */
 export const createDemoWithVariants = createDemoWithVariantsFactory({
   DemoContent,
-  demoGlobalData,
 });
