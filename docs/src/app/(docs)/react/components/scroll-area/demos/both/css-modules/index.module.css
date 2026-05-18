@@ -77,11 +77,11 @@
   }
 
   &[data-orientation='vertical'] {
-    width: 0.5rem;
+    width: 1rem;
   }
 
   &[data-orientation='horizontal'] {
-    height: 0.5rem;
+    height: 1rem;
   }
 }
 

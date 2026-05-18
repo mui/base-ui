@@ -115,7 +115,7 @@
   display: flex;
   justify-content: center;
   background-color: rgb(0 0 0 / 12%);
-  width: 0.5rem;
+  width: 1rem;
   opacity: 0;
   transition: opacity 250ms;
   pointer-events: none;

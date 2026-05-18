@@ -61,7 +61,7 @@
   display: flex;
   justify-content: center;
   background-color: rgb(0 0 0 / 8%);
-  width: 0.5rem;
+  width: 1rem;
   margin: 1px;
   opacity: 0;
   transition: opacity 150ms;
