@@ -242,10 +242,10 @@
   font-weight: 400;
 
   &[data-highlighted] {
-    background-color: oklch(97% 0 0deg);
+    background-color: oklch(92.2% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      background-color: oklch(26.9% 0 0deg);
+      background-color: oklch(37.1% 0 0deg);
     }
   }
 }
