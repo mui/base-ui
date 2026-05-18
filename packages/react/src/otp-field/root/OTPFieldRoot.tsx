@@ -19,7 +19,7 @@ import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLab
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useValueChanged } from '../../internals/useValueChanged';
-import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
+import type { BaseUIComponentProps, MaybeBaseUIEvent } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -406,7 +406,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
               onFocus() {
                 focusInput(0);
               },
-              onChange(event: BaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
+              onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
                 if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
                   // Outside Field.Root, the event is not wrapped by mergeProps.
                   event.preventBaseUIHandler?.();
