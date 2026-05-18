@@ -2,9 +2,6 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 
-const itemClass =
-  "flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-1 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 data-highlighted:before:content-[''] dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white";
-
 export default function MenuArrowDemo() {
   return (
     <Menu.Root>
@@ -32,6 +29,9 @@ export default function MenuArrowDemo() {
     </Menu.Root>
   );
 }
+
+const itemClass =
+  "flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-1 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 data-highlighted:before:content-[''] dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white";
 
 function CaretDownIcon(props: React.ComponentProps<'svg'>) {
   return (

@@ -35,28 +35,6 @@ type MenuKey = keyof typeof MENUS;
 
 const demoMenu = Menu.createHandle<MenuKey>();
 
-const triggerClass = `
-  flex h-8 items-center justify-center
-  rounded-none border border-neutral-950 bg-white
-  px-3 text-sm font-normal text-neutral-950
-  select-none
-  hover:bg-neutral-100 active:bg-neutral-200 data-popup-open:bg-neutral-100
-  dark:border-white dark:bg-neutral-950 dark:text-white
-  dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800
-  focus-visible:outline focus-visible:outline-2
-  focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white
-`;
-
-const itemClass = `
-  flex cursor-default py-2 pr-8 pl-4
-  text-sm leading-4 outline-none select-none
-  data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white
-  data-highlighted:before:absolute data-highlighted:before:inset-x-1
-  data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1]
-  data-highlighted:before:bg-neutral-950 data-highlighted:before:content-['']
-  dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white
-`;
-
 export default function MenuDetachedTriggersFullDemo() {
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -149,3 +127,24 @@ export default function MenuDetachedTriggersFullDemo() {
     </div>
   );
 }
+
+const triggerClass = `
+  flex h-8 items-center justify-center
+  rounded-none border border-neutral-950 bg-white
+  px-3 text-sm font-normal text-neutral-950
+  select-none
+  hover:bg-neutral-100 active:bg-neutral-200 data-popup-open:bg-neutral-100
+  dark:border-white dark:bg-neutral-950 dark:text-white
+  dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800
+  focus-visible:outline focus-visible:outline-2
+  focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white
+`;
+const itemClass = `
+  flex cursor-default py-2 pr-8 pl-4
+  text-sm leading-4 outline-none select-none
+  data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white
+  data-highlighted:before:absolute data-highlighted:before:inset-x-1
+  data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1]
+  data-highlighted:before:bg-neutral-950 data-highlighted:before:content-['']
+  dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white
+`;
