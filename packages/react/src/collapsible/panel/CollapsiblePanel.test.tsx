@@ -138,6 +138,29 @@ describe('<Collapsible.Panel />', () => {
     );
   });
 
+  // we test firefox in browserstack which does not support this yet
+  describe.skipIf(!('onbeforematch' in window) || isJSDOM)('prop: hiddenUntilFound', () => {
+    it('uses `hidden="until-found" to hide panel when true', async () => {
+      const handleOpenChange = vi.fn();
+
+      await render(
+        <Collapsible.Root defaultOpen={false} onOpenChange={handleOpenChange}>
+          <Collapsible.Trigger />
+          <Collapsible.Panel hiddenUntilFound keepMounted>
+            {PANEL_CONTENT}
+          </Collapsible.Panel>
+        </Collapsible.Root>,
+      );
+
+      const panel = screen.getByText(PANEL_CONTENT);
+
+      fireBeforeMatch(panel);
+
+      expect(handleOpenChange.mock.calls.length).toBe(1);
+      expect(panel).toHaveAttribute('data-open');
+    });
+  });
+
   describe.skipIf(isJSDOM)('CSS transitions', () => {
     it('restores a measured height before applying closing transition styles', async () => {
       const { user } = await render(
@@ -1021,27 +1044,4 @@ describe('<Collapsible.Panel />', () => {
       });
     },
   );
-
-  // we test firefox in browserstack which does not support this yet
-  describe.skipIf(!('onbeforematch' in window) || isJSDOM)('prop: hiddenUntilFound', () => {
-    it('uses `hidden="until-found" to hide panel when true', async () => {
-      const handleOpenChange = vi.fn();
-
-      await render(
-        <Collapsible.Root defaultOpen={false} onOpenChange={handleOpenChange}>
-          <Collapsible.Trigger />
-          <Collapsible.Panel hiddenUntilFound keepMounted>
-            {PANEL_CONTENT}
-          </Collapsible.Panel>
-        </Collapsible.Root>,
-      );
-
-      const panel = screen.getByText(PANEL_CONTENT);
-
-      fireBeforeMatch(panel);
-
-      expect(handleOpenChange.mock.calls.length).toBe(1);
-      expect(panel).toHaveAttribute('data-open');
-    });
-  });
 });

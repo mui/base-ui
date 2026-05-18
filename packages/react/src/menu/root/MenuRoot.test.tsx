@@ -653,9 +653,7 @@ describe('<Menu.Root />', () => {
         const submenuTrigger = await screen.findByTestId('submenu-trigger');
         await user.hover(submenuTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('submenu')).not.toBe(null);
-        });
+        await screen.findByTestId('submenu');
 
         const submenuItem = await screen.findByTestId('item-4_1');
         await act(async () => {
@@ -764,16 +762,12 @@ describe('<Menu.Root />', () => {
         const menuTrigger = screen.getByTestId('menu-trigger');
         await user.click(menuTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('menu-popup')).not.toBe(null);
-        });
+        await screen.findByTestId('menu-popup');
 
         const dialogTrigger = screen.getByTestId('dialog-trigger');
         await user.click(dialogTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('dialog-popup')).not.toBe(null);
-        });
+        await screen.findByTestId('dialog-popup');
 
         const dialogButton = screen.getByTestId('dialog-button');
         await act(async () => {
@@ -1197,9 +1191,7 @@ describe('<Menu.Root />', () => {
 
         await user.click(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).not.toBe(null);
-        });
+        await screen.findByRole('menu');
 
         const positioner = screen.getByTestId('menu-positioner');
 
@@ -1218,124 +1210,11 @@ describe('<Menu.Root />', () => {
 
         await user.click(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).not.toBe(null);
-        });
+        await screen.findByRole('menu');
 
         const positioner = screen.getByTestId('menu-positioner');
 
         expect(positioner.previousElementSibling).toBe(null);
-      });
-    });
-
-    describe.skipIf(isJSDOM)('scroll locking', () => {
-      describe('interaction type tracking (openMethod)', () => {
-        it('should not apply scroll lock when opened via touch', async () => {
-          await render(<TestMenu rootProps={{ modal: true }} />);
-
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-
-          const menu = await screen.findByRole('menu');
-
-          const doc = menu.ownerDocument;
-
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(false);
-        });
-
-        it('should apply scroll lock when opened via mouse', async () => {
-          const { user } = await render(<TestMenu rootProps={{ modal: true }} />);
-
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-          const doc = trigger.ownerDocument;
-
-          await user.click(trigger);
-          await screen.findByRole('menu');
-
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(true);
-        });
-      });
-
-      describe('touch scroll lock', () => {
-        it('should apply scroll lock when a touch-opened popup covers the viewport width', async () => {
-          await render(
-            <Menu.Root modal>
-              <Menu.Trigger>Open</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner data-testid="positioner" style={{ width: 'calc(100vw - 10px)' }}>
-                  <Menu.Popup>
-                    <Menu.Item>1</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>,
-          );
-
-          const trigger = screen.getByRole('button', { name: 'Open' });
-
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-
-          const menu = await screen.findByRole('menu');
-          const doc = menu.ownerDocument;
-
-          await waitFor(() => {
-            const isScrollLocked =
-              doc.documentElement.style.overflow === 'hidden' ||
-              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-              doc.body.style.overflow === 'hidden';
-
-            expect(isScrollLocked).toBe(true);
-          });
-        });
-
-        it('should not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
-          await render(
-            <Menu.Root modal>
-              <Menu.Trigger>Open</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner data-testid="positioner" style={{ width: '240px' }}>
-                  <Menu.Popup>
-                    <Menu.Item>1</Menu.Item>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.Root>,
-          );
-
-          const trigger = screen.getByRole('button', { name: 'Open' });
-
-          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
-          fireEvent.mouseDown(trigger);
-
-          const menu = await screen.findByRole('menu');
-          const doc = menu.ownerDocument;
-
-          await act(async () => {
-            await new Promise<void>((resolve) => {
-              requestAnimationFrame(() => resolve());
-            });
-          });
-
-          const isScrollLocked =
-            doc.documentElement.style.overflow === 'hidden' ||
-            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
-            doc.body.style.overflow === 'hidden';
-
-          expect(isScrollLocked).toBe(false);
-        });
       });
     });
 
@@ -1366,15 +1245,11 @@ describe('<Menu.Root />', () => {
 
         await user.keyboard('{Enter}');
 
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).not.toBe(null);
-        });
+        await screen.findByRole('menu');
 
         await user.click(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).not.toBe(null);
-        });
+        await screen.findByRole('menu');
 
         await act(async () => {
           await new Promise((resolve) => {
@@ -1487,9 +1362,7 @@ describe('<Menu.Root />', () => {
         const openButton = screen.getByText('Open');
         await user.click(openButton);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('menu')).not.toBe(null);
-        });
+        await screen.findByTestId('menu');
 
         expect(onOpenChangeComplete.mock.calls.length).toBe(2);
         expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
@@ -1562,9 +1435,7 @@ describe('<Menu.Root />', () => {
 
         await userEvent.hover(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).not.toBe(null);
-        });
+        await screen.findByRole('menu');
       });
 
       it('should close the menu when the trigger is no longer hovered', async () => {
@@ -1580,9 +1451,7 @@ describe('<Menu.Root />', () => {
 
         await userEvent.hover(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).not.toBe(null);
-        });
+        await screen.findByRole('menu');
 
         await userEvent.unhover(trigger);
 
@@ -1603,9 +1472,7 @@ describe('<Menu.Root />', () => {
 
         await userEvent.hover(submenuTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('submenu')).not.toBe(null);
-        });
+        await screen.findByTestId('submenu');
       });
 
       it('does not clear body pointer-events styles when closing a scoped submenu', async () => {
@@ -1619,9 +1486,7 @@ describe('<Menu.Root />', () => {
         const submenuTrigger = screen.getByTestId('submenu-trigger');
         await userEvent.hover(submenuTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('submenu')).not.toBe(null);
-        });
+        await screen.findByTestId('submenu');
 
         const previousBodyPointerEvents = document.body.style.pointerEvents;
         try {
@@ -1671,9 +1536,7 @@ describe('<Menu.Root />', () => {
         const submenuTrigger = screen.getByTestId('submenu-trigger');
         await userEvent.hover(submenuTrigger);
 
-        await waitFor(() => {
-          expect(screen.getByTestId('submenu')).not.toBe(null);
-        });
+        await screen.findByTestId('submenu');
 
         const menu = screen.getByTestId('menu');
         const submenuPositioner = screen.getByTestId('submenu-positioner');
@@ -1699,9 +1562,7 @@ describe('<Menu.Root />', () => {
 
         await userEvent.hover(trigger);
 
-        await waitFor(() => {
-          expect(screen.getByTestId('menu')).not.toBe(null);
-        });
+        await screen.findByTestId('menu');
 
         const menu = screen.getByTestId('menu');
 
@@ -1711,12 +1572,8 @@ describe('<Menu.Root />', () => {
 
         await userEvent.hover(submenuTrigger);
 
-        await waitFor(() => {
-          expect(screen.getByTestId('menu')).not.toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByTestId('submenu')).not.toBe(null);
-        });
+        await screen.findByTestId('menu');
+        await screen.findByTestId('submenu');
 
         const submenu = screen.getByTestId('submenu');
 
@@ -1725,12 +1582,8 @@ describe('<Menu.Root />', () => {
         fireEvent.mouseLeave(menu);
         await userEvent.hover(submenu);
 
-        await waitFor(() => {
-          expect(screen.getByTestId('menu')).not.toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByTestId('submenu')).not.toBe(null);
-        });
+        await screen.findByTestId('menu');
+        await screen.findByTestId('submenu');
       });
 
       it('keeps the parent submenu open after a third-level submenu closes due to sibling hover', async () => {
@@ -1749,25 +1602,19 @@ describe('<Menu.Root />', () => {
 
         await userEvent.hover(trigger);
 
-        await waitFor(() => {
-          expect(screen.getByTestId('menu')).not.toBe(null);
-        });
+        await screen.findByTestId('menu');
 
         // Open first-level submenu
         const level1Trigger = screen.getByRole('menuitem', { name: 'Item 4' });
         await userEvent.hover(level1Trigger);
 
-        await waitFor(() => {
-          expect(screen.getByTestId('submenu')).not.toBe(null);
-        });
+        await screen.findByTestId('submenu');
 
         // Open second-level submenu
         const level2Trigger = screen.getByRole('menuitem', { name: 'Item 4.3' });
         await userEvent.hover(level2Trigger);
 
-        await waitFor(() => {
-          expect(screen.getByTestId('nested-submenu')).not.toBe(null);
-        });
+        await screen.findByTestId('nested-submenu');
 
         // Hover a sibling item in the parent submenu to close the second-level submenu
         const parentSibling = screen.getByRole('menuitem', { name: 'Item 4.2' });
@@ -1783,9 +1630,7 @@ describe('<Menu.Root />', () => {
         fireEvent.mouseLeave(submenu1);
 
         // Parent submenu should still be open
-        await waitFor(() => {
-          expect(screen.getByTestId('submenu')).not.toBe(null);
-        });
+        await screen.findByTestId('submenu');
       });
 
       describe('modal behavior', () => {
@@ -1973,6 +1818,117 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('scroll locking', () => {
+      describe('interaction type tracking (openMethod)', () => {
+        it('should not apply scroll lock when opened via touch', async () => {
+          await render(<TestMenu rootProps={{ modal: true }} />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+
+          const menu = await screen.findByRole('menu');
+
+          const doc = menu.ownerDocument;
+
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(false);
+        });
+
+        it('should apply scroll lock when opened via mouse', async () => {
+          const { user } = await render(<TestMenu rootProps={{ modal: true }} />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+          const doc = trigger.ownerDocument;
+
+          await user.click(trigger);
+          await screen.findByRole('menu');
+
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
+      });
+
+      describe('touch scroll lock', () => {
+        it('should apply scroll lock when a touch-opened popup covers the viewport width', async () => {
+          await render(
+            <Menu.Root modal>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner" style={{ width: 'calc(100vw - 10px)' }}>
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Open' });
+
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+
+          const menu = await screen.findByRole('menu');
+          const doc = menu.ownerDocument;
+
+          await waitFor(() => {
+            const isScrollLocked =
+              doc.documentElement.style.overflow === 'hidden' ||
+              doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+              doc.body.style.overflow === 'hidden';
+
+            expect(isScrollLocked).toBe(true);
+          });
+        });
+
+        it('should not apply scroll lock when a touch-opened popup is narrower than the viewport', async () => {
+          await render(
+            <Menu.Root modal>
+              <Menu.Trigger>Open</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner" style={{ width: '240px' }}>
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Open' });
+
+          fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+          fireEvent.mouseDown(trigger);
+
+          const menu = await screen.findByRole('menu');
+          const doc = menu.ownerDocument;
+
+          await act(async () => {
+            await new Promise<void>((resolve) => {
+              requestAnimationFrame(() => resolve());
+            });
+          });
+
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(false);
+        });
+      });
+    });
+
     describe.skipIf(isJSDOM)('mouse interaction', () => {
       afterEach(async () => {
         const { cleanup } = await import('vitest-browser-react');
@@ -2009,9 +1965,7 @@ describe('<Menu.Root />', () => {
 
         fireEvent.mouseDown(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('menu')).not.toBe(null);
-        });
+        await screen.findByTestId('menu');
 
         await wait(200);
 
@@ -2205,9 +2159,7 @@ describe('<Menu.Root />', () => {
 
       await user.keyboard('{ArrowDown}');
 
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.toBe(null);
-      });
+      await screen.findByRole('menu');
 
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{ArrowDown}'); // Share

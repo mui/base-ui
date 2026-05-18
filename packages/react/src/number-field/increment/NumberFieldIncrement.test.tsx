@@ -17,7 +17,7 @@ describe('<NumberField.Increment />', () => {
     },
   }));
 
-  it('has increase label', async () => {
+  it('has the default "Increase" label', async () => {
     await render(
       <NumberField.Root>
         <NumberField.Increment />
@@ -26,7 +26,7 @@ describe('<NumberField.Increment />', () => {
     expect(screen.queryByLabelText('Increase')).not.toBe(null);
   });
 
-  it('increments starting from 0 click', async () => {
+  it('keeps an empty value at 0 when clicked', async () => {
     await render(
       <NumberField.Root>
         <NumberField.Increment />
@@ -39,7 +39,7 @@ describe('<NumberField.Increment />', () => {
     expect(screen.getByRole('textbox')).toHaveValue('0');
   });
 
-  it('increments to 1 starting from defaultValue=0 click', async () => {
+  it('increments from defaultValue=0 to 1 when clicked', async () => {
     await render(
       <NumberField.Root defaultValue={0}>
         <NumberField.Increment />
@@ -52,7 +52,7 @@ describe('<NumberField.Increment />', () => {
     expect(screen.getByRole('textbox')).toHaveValue('1');
   });
 
-  it('first increment after external controlled update', async () => {
+  it('increments from an external controlled update', async () => {
     function Controlled() {
       const [value, setValue] = React.useState<number | null>(null);
       return (
@@ -464,7 +464,7 @@ describe('<NumberField.Increment />', () => {
     });
   });
 
-  describe('disabled state', () => {
+  describe('prop: disabled', () => {
     it('should not increment when root is disabled', async () => {
       const handleValueChange = vi.fn();
       await render(
@@ -497,31 +497,31 @@ describe('<NumberField.Increment />', () => {
       expect(handleValueChange.mock.calls.length).toBe(0);
       expect(input).toHaveValue('0');
     });
+  });
 
-    describe('prop: className', () => {
-      it('when root is disabled', async () => {
-        const classNameSpy = vi.fn();
-        await render(
-          <NumberField.Root disabled>
-            <NumberField.Increment className={classNameSpy} />
-            <NumberField.Input />
-          </NumberField.Root>,
-        );
+  describe('prop: className', () => {
+    it('receives disabled state when the root is disabled', async () => {
+      const classNameSpy = vi.fn();
+      await render(
+        <NumberField.Root disabled>
+          <NumberField.Increment className={classNameSpy} />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
 
-        expect(classNameSpy.mock.lastCall?.[0]).toHaveProperty('disabled', true);
-      });
+      expect(classNameSpy.mock.lastCall?.[0]).toHaveProperty('disabled', true);
+    });
 
-      it('when button is disabled', async () => {
-        const classNameSpy = vi.fn();
-        await render(
-          <NumberField.Root>
-            <NumberField.Increment disabled className={classNameSpy} />
-            <NumberField.Input />
-          </NumberField.Root>,
-        );
+    it('receives disabled state when the button is disabled', async () => {
+      const classNameSpy = vi.fn();
+      await render(
+        <NumberField.Root>
+          <NumberField.Increment disabled className={classNameSpy} />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
 
-        expect(classNameSpy.mock.lastCall?.[0]).toHaveProperty('disabled', true);
-      });
+      expect(classNameSpy.mock.lastCall?.[0]).toHaveProperty('disabled', true);
     });
   });
 });

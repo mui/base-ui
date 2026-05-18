@@ -202,15 +202,11 @@ describe('<Tooltip.Root />', () => {
       it('should open when the component is rendered', async () => {
         await render(<TestTooltip rootProps={{ defaultOpen: true }} />);
 
-        await flushMicrotasks();
-
         expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should not open when the component is rendered and open is controlled', async () => {
         await render(<TestTooltip rootProps={{ defaultOpen: true, open: false }} />);
-
-        await flushMicrotasks();
 
         expect(screen.queryByText('Content')).toBe(null);
       });
@@ -218,15 +214,11 @@ describe('<Tooltip.Root />', () => {
       it('should not close when the component is rendered and open is controlled', async () => {
         await render(<TestTooltip rootProps={{ defaultOpen: true, open: true }} />);
 
-        await flushMicrotasks();
-
         expect(screen.getByText('Content')).not.toBe(null);
       });
 
       it('should remain uncontrolled', async () => {
         await render(<TestTooltip rootProps={{ defaultOpen: true }} />);
-
-        await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.toBe(null);
 
@@ -313,15 +305,11 @@ describe('<Tooltip.Root />', () => {
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await user.hover(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('positioner')).not.toBe(null);
-        });
+        await screen.findByTestId('positioner');
 
         await user.unhover(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('positioner')).not.toBe(null);
-        });
+        await screen.findByTestId('positioner');
 
         await act(async () => actionsRef.current.unmount());
 
@@ -443,9 +431,7 @@ describe('<Tooltip.Root />', () => {
         const openButton = screen.getByText('Open');
         await user.click(openButton);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).not.toBe(null);
-        });
+        await screen.findByTestId('popup');
 
         expect(onOpenChangeComplete.mock.calls.length).toBe(2);
         expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
@@ -518,6 +504,106 @@ describe('<Tooltip.Root />', () => {
         );
 
         expect(onOpenChangeComplete.mock.calls.length).toBe(0);
+      });
+    });
+
+    describe('prop: disabled', () => {
+      it('should not open when disabled', async () => {
+        await render(<TestTooltip rootProps={{ disabled: true }} triggerProps={{ delay: 0 }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+
+        await act(async () => trigger.focus());
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('should not open on focus when the trigger is disabled', async () => {
+        await render(<TestTooltip triggerProps={{ disabled: true, delay: 0 }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await act(async () => trigger.focus());
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('should close if open when becoming disabled', async () => {
+        function App() {
+          const [disabled, setDisabled] = React.useState(false);
+          return (
+            <div>
+              <TestTooltip
+                rootProps={{ defaultOpen: true, disabled }}
+                triggerProps={{ delay: 0 }}
+              />
+              <button
+                data-testid="disabled"
+                onClick={() => {
+                  setDisabled(true);
+                }}
+              />
+            </div>
+          );
+        }
+
+        await render(<App />);
+
+        expect(screen.queryByText('Content')).not.toBe(null);
+
+        const disabledButton = screen.getByTestId('disabled');
+        fireEvent.click(disabledButton);
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('does not throw error when combined with defaultOpen', async () => {
+        await render(<TestTooltip rootProps={{ defaultOpen: true, disabled: true }} />);
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+    });
+
+    describe('prop: disableHoverablePopup', () => {
+      it('applies pointer-events: none to the positioner when `disableHoverablePopup = true`', async () => {
+        await render(
+          <TestTooltip rootProps={{ disableHoverablePopup: true }} triggerProps={{ delay: 0 }} />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('positioner').style.pointerEvents).toBe('none');
+      });
+
+      it('does not apply pointer-events: none to the positioner when `disableHoverablePopup = false`', async () => {
+        await render(
+          <TestTooltip rootProps={{ disableHoverablePopup: false }} triggerProps={{ delay: 0 }} />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('positioner').style.pointerEvents).toBe('');
       });
     });
 
@@ -640,106 +726,6 @@ describe('<Tooltip.Root />', () => {
             .filter((a) => (a as CSSTransition).transitionProperty === 'opacity');
           expect(opacityAnimations.length).toBe(0);
         });
-      });
-    });
-
-    describe('prop: disabled', () => {
-      it('should not open when disabled', async () => {
-        await render(<TestTooltip rootProps={{ disabled: true }} triggerProps={{ delay: 0 }} />);
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
-
-        await flushMicrotasks();
-
-        expect(screen.queryByText('Content')).toBe(null);
-
-        await act(async () => trigger.focus());
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-
-      it('should not open on focus when the trigger is disabled', async () => {
-        await render(<TestTooltip triggerProps={{ disabled: true, delay: 0 }} />);
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-        await act(async () => trigger.focus());
-        await flushMicrotasks();
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-
-      it('should close if open when becoming disabled', async () => {
-        function App() {
-          const [disabled, setDisabled] = React.useState(false);
-          return (
-            <div>
-              <TestTooltip
-                rootProps={{ defaultOpen: true, disabled }}
-                triggerProps={{ delay: 0 }}
-              />
-              <button
-                data-testid="disabled"
-                onClick={() => {
-                  setDisabled(true);
-                }}
-              />
-            </div>
-          );
-        }
-
-        await render(<App />);
-
-        expect(screen.queryByText('Content')).not.toBe(null);
-
-        const disabledButton = screen.getByTestId('disabled');
-        fireEvent.click(disabledButton);
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-
-      it('does not throw error when combined with defaultOpen', async () => {
-        await render(<TestTooltip rootProps={{ defaultOpen: true, disabled: true }} />);
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-    });
-
-    describe('prop: disableHoverablePopup', () => {
-      it('applies pointer-events: none to the positioner when `disableHoverablePopup = true`', async () => {
-        await render(
-          <TestTooltip rootProps={{ disableHoverablePopup: true }} triggerProps={{ delay: 0 }} />,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
-
-        await flushMicrotasks();
-
-        expect(screen.getByTestId('positioner').style.pointerEvents).toBe('none');
-      });
-
-      it('does not apply pointer-events: none to the positioner when `disableHoverablePopup = false`', async () => {
-        await render(
-          <TestTooltip rootProps={{ disableHoverablePopup: false }} triggerProps={{ delay: 0 }} />,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
-
-        await flushMicrotasks();
-
-        expect(screen.getByTestId('positioner').style.pointerEvents).toBe('');
       });
     });
 

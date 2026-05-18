@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { NumberField } from '@base-ui/react/number-field';
 import { screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
 import { type Orientation } from '../../internals/types';
@@ -41,17 +41,23 @@ describe('<Toolbar.Input />', () => {
 
   describe('ARIA attributes', () => {
     it('renders a textbox', async () => {
-      await render(
-        <Toolbar.Root>
+      const { setProps } = await render(
+        <Toolbar.Root orientation="horizontal">
           <Toolbar.Input data-testid="input" />
         </Toolbar.Root>,
       );
 
-      expect(screen.getByTestId('input')).toBe(screen.getByRole('textbox'));
+      const input = screen.getByTestId('input');
+      expect(input).toBe(screen.getByRole('textbox'));
+      expect(input).toHaveAttribute('data-orientation', 'horizontal');
+
+      await setProps({ orientation: 'vertical' });
+
+      expect(input).toHaveAttribute('data-orientation', 'vertical');
     });
   });
 
-  describe.skipIf(isJSDOM)('keyboard navigation', () => {
+  describe('keyboard navigation', () => {
     // when navigating through RTL text in real browsers the arrow keys for
     // moving the text insertion cursor is also reversed from LTR but this doesn't
     // work with testing library
@@ -113,7 +119,7 @@ describe('<Toolbar.Input />', () => {
       expect(screen.getByRole('textbox')).toHaveAttribute('aria-roledescription', 'Number field');
     });
 
-    it('handles interactions', async () => {
+    it('increments and decrements a rendered NumberField.Input', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(
         <Toolbar.Root>
@@ -160,6 +166,7 @@ describe('<Toolbar.Input />', () => {
 
       expect(input).not.toHaveAttribute('disabled');
       expect(input).toHaveAttribute('data-disabled');
+      expect(input).toHaveAttribute('data-focusable');
       expect(input).toHaveAttribute('aria-disabled', 'true');
 
       await user.keyboard('[Tab]');

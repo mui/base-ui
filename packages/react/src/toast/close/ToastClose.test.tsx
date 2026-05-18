@@ -27,6 +27,20 @@ describe('<Toast.Close />', () => {
     },
   }));
 
+  it('has the toast type data attribute', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ ...toast, type: 'success' }}>
+            <Toast.Close data-testid="close" />
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByTestId('close')).toHaveAttribute('data-type', 'success');
+  });
+
   it('closes the toast when clicked', async () => {
     const { user } = await render(
       <Toast.Provider>

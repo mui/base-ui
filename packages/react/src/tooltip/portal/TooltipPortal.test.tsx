@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { createRenderer, describeConformance } from '#test-utils';
 

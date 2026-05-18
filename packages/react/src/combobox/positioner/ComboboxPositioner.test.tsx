@@ -8,6 +8,17 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 describe('<Combobox.Positioner />', () => {
   const { render } = createRenderer();
 
+  describeConformance(<Combobox.Positioner />, () => ({
+    refInstanceof: window.HTMLDivElement,
+    render(node) {
+      return render(
+        <Combobox.Root open>
+          <Combobox.Portal>{node}</Combobox.Portal>
+        </Combobox.Root>,
+      );
+    },
+  }));
+
   it('should not lock body scroll when controlled value={[]} triggers a re-render', async () => {
     // Render outside of act() to match real browser behavior where
     // the initial render and the useEffect re-render are separate commits.
@@ -62,17 +73,6 @@ describe('<Combobox.Positioner />', () => {
     expect(htmlOverflowX).not.toBe('hidden');
     expect(htmlOverflowY).not.toBe('hidden');
   });
-
-  describeConformance(<Combobox.Positioner />, () => ({
-    refInstanceof: window.HTMLDivElement,
-    render(node) {
-      return render(
-        <Combobox.Root open>
-          <Combobox.Portal>{node}</Combobox.Portal>
-        </Combobox.Root>,
-      );
-    },
-  }));
 
   describe.skipIf(isJSDOM)('default anchor', () => {
     it('uses the input when input group is absent', async () => {

@@ -195,7 +195,7 @@ describe('<Combobox.Clear />', () => {
 
       const input = screen.getByTestId('input');
       await user.click(input);
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
       await user.click(screen.getByRole('option', { name: 'a' }));
 
       await waitFor(() => {

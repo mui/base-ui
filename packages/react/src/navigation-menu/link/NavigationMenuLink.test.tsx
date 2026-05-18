@@ -46,9 +46,7 @@ describe('<NavigationMenu.Link />', () => {
 
       await user.click(trigger);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       const link = screen.getByRole('link', { name: 'Link 1' });
@@ -86,15 +84,13 @@ describe('<NavigationMenu.Link />', () => {
 
       await user.click(trigger);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       const link = screen.getByRole('link', { name: 'Link 1' });
       await user.click(link);
 
-      await waitFor(() => expect(screen.queryByTestId('popup-1')).not.toBe(null));
+      await screen.findByTestId('popup-1');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
   });

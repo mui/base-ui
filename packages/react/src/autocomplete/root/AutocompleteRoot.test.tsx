@@ -54,9 +54,7 @@ describe('<Autocomplete.Root />', () => {
       await user.clear(input);
       await user.type(input, 'a');
 
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBe(null);
-      });
+      await screen.findByRole('listbox');
 
       await user.tab();
 
@@ -155,7 +153,7 @@ describe('<Autocomplete.Root />', () => {
     expect(input.value).toBe('');
   });
 
-  it('should pass autoComplete to the visible input', async () => {
+  it('passes autoComplete to the visible input', async () => {
     await render(
       <Autocomplete.Root name="search">
         <Autocomplete.Input autoComplete="on" />
@@ -468,7 +466,7 @@ describe('<Autocomplete.Root />', () => {
       await user.click(input);
       await user.type(input, 'ban');
 
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
       expect(input).toHaveAttribute('aria-activedescendant');
 
       const highlightedBefore = input.getAttribute('aria-activedescendant');
@@ -476,7 +474,7 @@ describe('<Autocomplete.Root />', () => {
 
       await user.clear(input);
 
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
       expect(input.getAttribute('aria-activedescendant')).toBe(highlightedBefore);
     });
 
@@ -1094,7 +1092,7 @@ describe('<Autocomplete.Root />', () => {
     });
   });
 
-  describe('Form', () => {
+  describe('Form integration', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {
         shouldAdvanceTime: true,
@@ -1758,7 +1756,7 @@ describe('<Autocomplete.Root />', () => {
     });
   });
 
-  describe('Field', () => {
+  describe('Field integration', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {
         shouldAdvanceTime: true,
@@ -1782,7 +1780,7 @@ describe('<Autocomplete.Root />', () => {
       expect(screen.getByTestId('input')).toHaveAttribute('required');
     });
 
-    it('[data-touched]', async () => {
+    it('adds data-touched after blur', async () => {
       await render(
         <Field.Root>
           <Autocomplete.Root>
@@ -1813,7 +1811,7 @@ describe('<Autocomplete.Root />', () => {
       expect(input).toHaveAttribute('data-touched', '');
     });
 
-    it('[data-dirty]', async () => {
+    it('adds data-dirty after the value changes', async () => {
       const { user } = await renderFakeTimers(
         <Field.Root>
           <Autocomplete.Root>
@@ -1842,8 +1840,8 @@ describe('<Autocomplete.Root />', () => {
       expect(input).toHaveAttribute('data-dirty', '');
     });
 
-    describe('[data-filled]', () => {
-      it('adds [data-filled] attribute when input has content', async () => {
+    describe('field state attribute: data-filled', () => {
+      it('adds data-filled when input has content', async () => {
         const { user } = await renderFakeTimers(
           <Field.Root>
             <Autocomplete.Root>
@@ -1872,7 +1870,7 @@ describe('<Autocomplete.Root />', () => {
         expect(input).toHaveAttribute('data-filled', '');
       });
 
-      it('adds [data-filled] attribute when already filled with defaultValue', async () => {
+      it('adds data-filled when already filled with defaultValue', async () => {
         await render(
           <Field.Root>
             <Autocomplete.Root defaultValue="initial value">
@@ -1896,7 +1894,7 @@ describe('<Autocomplete.Root />', () => {
       });
     });
 
-    it('[data-focused]', async () => {
+    it('adds data-focused while focused', async () => {
       await render(
         <Field.Root>
           <Autocomplete.Root>
@@ -1928,7 +1926,7 @@ describe('<Autocomplete.Root />', () => {
       expect(input).not.toHaveAttribute('data-focused');
     });
 
-    it('[data-invalid]', async () => {
+    it('adds data-invalid when the field is invalid', async () => {
       await render(
         <Field.Root invalid>
           <Autocomplete.Root>
@@ -1951,7 +1949,7 @@ describe('<Autocomplete.Root />', () => {
       expect(input).toHaveAttribute('data-invalid', '');
     });
 
-    it('[data-valid]', async () => {
+    it('adds data-valid after validation succeeds', async () => {
       const { user } = await render(
         <Field.Root validationMode="onBlur">
           <Autocomplete.Root required>
@@ -1981,143 +1979,147 @@ describe('<Autocomplete.Root />', () => {
       expect(input).not.toHaveAttribute('data-invalid');
     });
 
-    it('prop: validate', async () => {
-      await render(
-        <Field.Root validationMode="onBlur" validate={() => 'error'}>
-          <Autocomplete.Root>
-            <Autocomplete.Input data-testid="input" />
-            <Autocomplete.Portal>
-              <Autocomplete.Positioner />
-            </Autocomplete.Portal>
-          </Autocomplete.Root>
-        </Field.Root>,
-      );
+    describe('prop: validate', () => {
+      it('applies aria-invalid after blur', async () => {
+        await render(
+          <Field.Root validationMode="onBlur" validate={() => 'error'}>
+            <Autocomplete.Root>
+              <Autocomplete.Input data-testid="input" />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner />
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </Field.Root>,
+        );
 
-      const input = screen.getByTestId('input');
-      expect(input).not.toHaveAttribute('aria-invalid');
+        const input = screen.getByTestId('input');
+        expect(input).not.toHaveAttribute('aria-invalid');
 
-      fireEvent.focus(input);
-      fireEvent.blur(input);
-      await flushMicrotasks();
-      expect(input).toHaveAttribute('aria-invalid', 'true');
+        fireEvent.focus(input);
+        fireEvent.blur(input);
+        await flushMicrotasks();
+        expect(input).toHaveAttribute('aria-invalid', 'true');
+      });
     });
 
-    it('prop: validationMode=onSubmit', async () => {
-      const { user } = await render(
-        <Form>
+    describe('prop: validationMode', () => {
+      it('validates when validationMode is onSubmit', async () => {
+        const { user } = await render(
+          <Form>
+            <Field.Root
+              validate={(value) => {
+                return value === 'one' ? 'error' : null;
+              }}
+            >
+              <Autocomplete.Root required>
+                <Autocomplete.Input data-testid="input" />
+                <Autocomplete.Portal>
+                  <Autocomplete.Positioner>
+                    <Autocomplete.Popup>
+                      <Autocomplete.List>
+                        <Autocomplete.Item value="one">Option 1</Autocomplete.Item>
+                        <Autocomplete.Item value="two">Option 2</Autocomplete.Item>
+                      </Autocomplete.List>
+                    </Autocomplete.Popup>
+                  </Autocomplete.Positioner>
+                </Autocomplete.Portal>
+              </Autocomplete.Root>
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        const input = screen.getByTestId('input');
+        expect(input).not.toHaveAttribute('aria-invalid');
+
+        await user.click(screen.getByText('submit'));
+        expect(input).toHaveAttribute('aria-invalid', 'true');
+
+        await user.type(input, 'two');
+        expect(input).not.toHaveAttribute('aria-invalid');
+
+        await user.clear(input);
+        await user.type(input, 'one');
+        expect(input).toHaveAttribute('aria-invalid', 'true');
+
+        await user.clear(input);
+        await user.type(input, 'three');
+        expect(input).not.toHaveAttribute('aria-invalid');
+      });
+
+      // flaky in real browser
+      it.skipIf(!isJSDOM)('validates when validationMode is onChange', async () => {
+        const { user } = await render(
           <Field.Root
+            validationMode="onChange"
             validate={(value) => {
-              return value === 'one' ? 'error' : null;
+              return value === 'invalid' ? 'error' : null;
             }}
           >
-            <Autocomplete.Root required>
+            <Autocomplete.Root>
               <Autocomplete.Input data-testid="input" />
               <Autocomplete.Portal>
                 <Autocomplete.Positioner>
                   <Autocomplete.Popup>
                     <Autocomplete.List>
-                      <Autocomplete.Item value="one">Option 1</Autocomplete.Item>
-                      <Autocomplete.Item value="two">Option 2</Autocomplete.Item>
+                      <Autocomplete.Item value="valid">Valid Option</Autocomplete.Item>
                     </Autocomplete.List>
                   </Autocomplete.Popup>
                 </Autocomplete.Positioner>
               </Autocomplete.Portal>
             </Autocomplete.Root>
-          </Field.Root>
-          <button type="submit">submit</button>
-        </Form>,
-      );
+          </Field.Root>,
+        );
 
-      const input = screen.getByTestId('input');
-      expect(input).not.toHaveAttribute('aria-invalid');
+        const input = screen.getByTestId('input');
 
-      await user.click(screen.getByText('submit'));
-      expect(input).toHaveAttribute('aria-invalid', 'true');
+        expect(input).not.toHaveAttribute('aria-invalid');
 
-      await user.type(input, 'two');
-      expect(input).not.toHaveAttribute('aria-invalid');
+        await user.type(input, 'invalid');
 
-      await user.clear(input);
-      await user.type(input, 'one');
-      expect(input).toHaveAttribute('aria-invalid', 'true');
-
-      await user.clear(input);
-      await user.type(input, 'three');
-      expect(input).not.toHaveAttribute('aria-invalid');
-    });
-
-    // flaky in real browser
-    it.skipIf(!isJSDOM)('prop: validationMode=onChange', async () => {
-      const { user } = await render(
-        <Field.Root
-          validationMode="onChange"
-          validate={(value) => {
-            return value === 'invalid' ? 'error' : null;
-          }}
-        >
-          <Autocomplete.Root>
-            <Autocomplete.Input data-testid="input" />
-            <Autocomplete.Portal>
-              <Autocomplete.Positioner>
-                <Autocomplete.Popup>
-                  <Autocomplete.List>
-                    <Autocomplete.Item value="valid">Valid Option</Autocomplete.Item>
-                  </Autocomplete.List>
-                </Autocomplete.Popup>
-              </Autocomplete.Positioner>
-            </Autocomplete.Portal>
-          </Autocomplete.Root>
-        </Field.Root>,
-      );
-
-      const input = screen.getByTestId('input');
-
-      expect(input).not.toHaveAttribute('aria-invalid');
-
-      await user.type(input, 'invalid');
-
-      expect(input).toHaveAttribute('aria-invalid', 'true');
-    });
-
-    // flaky in real browser
-    it.skipIf(!isJSDOM)('prop: validationMode=onBlur', async () => {
-      const { user } = await render(
-        <Field.Root
-          validationMode="onBlur"
-          validate={(value) => {
-            return value === 'invalid' ? 'error' : null;
-          }}
-        >
-          <Autocomplete.Root>
-            <Autocomplete.Input data-testid="input" />
-            <Autocomplete.Portal>
-              <Autocomplete.Positioner>
-                <Autocomplete.Popup>
-                  <Autocomplete.List>
-                    <Autocomplete.Item value="valid">Valid Option</Autocomplete.Item>
-                  </Autocomplete.List>
-                </Autocomplete.Popup>
-              </Autocomplete.Positioner>
-            </Autocomplete.Portal>
-          </Autocomplete.Root>
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
-
-      const input = screen.getByTestId('input');
-
-      expect(input).not.toHaveAttribute('aria-invalid');
-
-      await user.type(input, 'invalid');
-
-      fireEvent.blur(input);
-
-      await waitFor(() => {
         expect(input).toHaveAttribute('aria-invalid', 'true');
+      });
+
+      // flaky in real browser
+      it.skipIf(!isJSDOM)('validates when validationMode is onBlur', async () => {
+        const { user } = await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              return value === 'invalid' ? 'error' : null;
+            }}
+          >
+            <Autocomplete.Root>
+              <Autocomplete.Input data-testid="input" />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      <Autocomplete.Item value="valid">Valid Option</Autocomplete.Item>
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        expect(input).not.toHaveAttribute('aria-invalid');
+
+        await user.type(input, 'invalid');
+
+        fireEvent.blur(input);
+
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-invalid', 'true');
+        });
       });
     });
 
-    it('Field.Label', async () => {
+    it('links Field.Label to the input', async () => {
       await render(
         <Field.Root>
           <Autocomplete.Root>
@@ -2136,7 +2138,7 @@ describe('<Autocomplete.Root />', () => {
       );
     });
 
-    it('Field.Description', async () => {
+    it('links Field.Description to the input', async () => {
       await render(
         <Field.Root>
           <Autocomplete.Root>

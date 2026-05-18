@@ -13,6 +13,23 @@ describe('<Progress.Indicator />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  it('has progress state attributes', async () => {
+    const { setProps } = await render(
+      <Progress.Root value={40}>
+        <Progress.Indicator data-testid="indicator" />
+      </Progress.Root>,
+    );
+
+    const indicator = screen.getByTestId('indicator');
+    expect(indicator).toHaveAttribute('data-progressing', '');
+
+    await setProps({ value: 100 });
+    expect(indicator).toHaveAttribute('data-complete', '');
+
+    await setProps({ value: null });
+    expect(indicator).toHaveAttribute('data-indeterminate', '');
+  });
+
   describe.skipIf(isJSDOM)('internal styles', () => {
     it('determinate', async () => {
       await render(

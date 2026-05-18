@@ -38,9 +38,7 @@ describe('<Dialog.Root />', () => {
       expect(screen.queryByText('Dialog Content')).toBe(null);
 
       await user.click(trigger1);
-      await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.toBe(null);
-      });
+      await screen.findByText('Dialog Content');
 
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
@@ -48,9 +46,7 @@ describe('<Dialog.Root />', () => {
       });
 
       await user.click(trigger2);
-      await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.toBe(null);
-      });
+      await screen.findByText('Dialog Content');
 
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
@@ -58,9 +54,7 @@ describe('<Dialog.Root />', () => {
       });
 
       await user.click(trigger3);
-      await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.toBe(null);
-      });
+      await screen.findByText('Dialog Content');
     });
 
     it('sets the payload and renders content based on its value', async () => {
@@ -368,27 +362,21 @@ describe('<Dialog.Root />', () => {
       expect(screen.queryByText('Dialog Content')).toBe(null);
 
       await user.click(trigger1);
-      await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.toBe(null);
-      });
+      await screen.findByText('Dialog Content');
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(screen.queryByText('Dialog Content')).toBe(null);
       });
 
       await user.click(trigger2);
-      await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.toBe(null);
-      });
+      await screen.findByText('Dialog Content');
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(screen.queryByText('Dialog Content')).toBe(null);
       });
 
       await user.click(trigger3);
-      await waitFor(() => {
-        expect(screen.queryByText('Dialog Content')).not.toBe(null);
-      });
+      await screen.findByText('Dialog Content');
     });
 
     it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {
@@ -685,9 +673,7 @@ describe('<Dialog.Root />', () => {
       expect(screen.queryByRole('dialog')).toBe(null);
 
       await act(() => dialog.open('trigger'));
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBe(null);
-      });
+      await screen.findByRole('dialog');
 
       expect(screen.getByTestId('content').textContent).toBe('Content');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -725,9 +711,7 @@ describe('<Dialog.Root />', () => {
       expect(screen.queryByRole('dialog')).toBe(null);
 
       await act(() => dialog.open('trigger2'));
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBe(null);
-      });
+      await screen.findByRole('dialog');
 
       expect(screen.getByTestId('content').textContent).toBe('2');
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
@@ -766,9 +750,7 @@ describe('<Dialog.Root />', () => {
       expect(screen.queryByRole('dialog')).toBe(null);
 
       await act(() => dialog.openWithPayload(8));
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBe(null);
-      });
+      await screen.findByRole('dialog');
 
       expect(screen.getByTestId('content').textContent).toBe('8');
       expect(trigger1).not.toHaveAttribute('aria-expanded', 'true');

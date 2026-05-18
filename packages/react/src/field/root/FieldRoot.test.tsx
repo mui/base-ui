@@ -10,14 +10,7 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Switch } from '@base-ui/react/switch';
 import { Slider } from '@base-ui/react/slider';
 import { Field } from '@base-ui/react/field';
-import {
-  act,
-  fireEvent,
-  flushMicrotasks,
-  reactMajor,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { LabelableProvider } from '../../internals/labelable-provider';
 
@@ -323,7 +316,7 @@ describe('<Field.Root />', () => {
   );
 
   describe('prop: disabled', () => {
-    it('should add data-disabled style hook to all components', async () => {
+    it('adds data-disabled to field parts', async () => {
       await render(
         <Field.Root data-testid="field" disabled>
           <Field.Control data-testid="control" />
@@ -402,7 +395,7 @@ describe('<Field.Root />', () => {
       // expect(screen.queryByText('custom error')).toBe(null);
     });
 
-    it('should apply aria-invalid prop to control once validation finishes', async () => {
+    it('applies aria-invalid to the control after validation finishes', async () => {
       await render(
         <Form>
           <Field.Root validate={() => 'error'}>
@@ -634,8 +627,8 @@ describe('<Field.Root />', () => {
   });
 
   describe('prop: validationMode', () => {
-    describe('onSubmit', () => {
-      it('should validate the field on submit', async () => {
+    describe('validationMode: onSubmit', () => {
+      it('validates the field on submit', async () => {
         await render(
           <Form>
             <Field.Root validate={() => 'error'}>
@@ -678,7 +671,7 @@ describe('<Field.Root />', () => {
       });
     });
 
-    describe('onChange', () => {
+    describe('validationMode: onChange', () => {
       it('validates the field on change', async () => {
         await render(
           <Field.Root
@@ -705,7 +698,7 @@ describe('<Field.Root />', () => {
       });
     });
 
-    describe('onBlur', () => {
+    describe('validationMode: onBlur', () => {
       it('validates the field on blur', async () => {
         await render(
           <Field.Root
@@ -735,7 +728,7 @@ describe('<Field.Root />', () => {
         expect(control).toHaveAttribute('aria-invalid', 'true');
       });
 
-      it('should not mark invalid if `valueMissing` is the only error and not yet dirtied', async () => {
+      it('does not mark invalid if `valueMissing` is the only error and not yet dirtied', async () => {
         await render(
           <Field.Root validationMode="onBlur">
             <Field.Control data-testid="control" required />
@@ -751,7 +744,7 @@ describe('<Field.Root />', () => {
         expect(control).not.toHaveAttribute('aria-invalid');
       });
 
-      it('should mark invalid if `valueMissing` is the only error and dirtied', async () => {
+      it('marks invalid if `valueMissing` is the only error and dirtied', async () => {
         await render(
           <Field.Root validationMode="onBlur">
             <Field.Control data-testid="control" required />
@@ -784,15 +777,10 @@ describe('<Field.Root />', () => {
 
         fireEvent.focus(control);
         fireEvent.blur(control);
-
-        await flushMicrotasks();
-
-        await waitFor(() => {
-          expect(screen.queryByText('error')).not.toBe(null);
-        });
+        await screen.findByText('error');
       });
 
-      it('should apply [data-field] style hooks to field components', async () => {
+      it('adds validity state attributes to field parts', async () => {
         await render(
           <Field.Root validationMode="onBlur">
             <Field.Label data-testid="label">Label</Field.Label>
@@ -838,7 +826,7 @@ describe('<Field.Root />', () => {
         expect(error).toBe(null);
       });
 
-      describe('revalidation', () => {
+      describe('revalidation after initial validation', () => {
         it('revalidates on change for `valueMissing`', async () => {
           await render(
             <Field.Root validationMode="onBlur">
@@ -952,8 +940,8 @@ describe('<Field.Root />', () => {
         });
       });
 
-      describe('computed validity state', () => {
-        it('should not mark field as invalid for valueMissing if not dirty', async () => {
+      describe('computed validity state attributes', () => {
+        it('does not mark the field invalid for untouched valueMissing', async () => {
           await render(
             <Field.Root validationMode="onBlur">
               <Field.Control data-testid="control" required />
@@ -969,7 +957,7 @@ describe('<Field.Root />', () => {
           expect(control).not.toHaveAttribute('aria-invalid');
         });
 
-        it('should mark field as invalid for valueMissing if dirty', async () => {
+        it('marks the field invalid for dirty valueMissing', async () => {
           await render(
             <Field.Root validationMode="onBlur">
               <Field.Control data-testid="control" required />
@@ -978,18 +966,16 @@ describe('<Field.Root />', () => {
 
           const control = screen.getByTestId('control');
 
-          // Mark as touched and dirtied
           fireEvent.focus(control);
           fireEvent.change(control, { target: { value: 'a' } });
           fireEvent.change(control, { target: { value: '' } });
           fireEvent.blur(control);
 
-          // valueMissing is true, and markedDirtyRef is true, so valid should be false
           expect(control).toHaveAttribute('data-invalid', '');
           expect(control).toHaveAttribute('aria-invalid', 'true');
         });
 
-        it('should mark field as invalid for other errors (e.g., typeMismatch) even if not dirty', async () => {
+        it('marks the field invalid for typeMismatch even when not dirty', async () => {
           await render(
             <Field.Root validationMode="onBlur">
               <Field.Control data-testid="control" type="email" defaultValue="not_an_email@" />
@@ -998,11 +984,9 @@ describe('<Field.Root />', () => {
 
           const control = screen.getByTestId('control');
 
-          // Mark as touched but not dirty
           fireEvent.focus(control);
           fireEvent.blur(control);
 
-          // typeMismatch is true, so valid should be false regardless of dirty state
           expect(control).toHaveAttribute('data-invalid', '');
           expect(control).toHaveAttribute('aria-invalid', 'true');
         });
@@ -1054,9 +1038,70 @@ describe('<Field.Root />', () => {
     });
   });
 
-  describe('style hooks', () => {
-    describe('touched', () => {
-      it('should apply [data-touched] style hook to all components when touched', async () => {
+  describe('prop: dirty', () => {
+    it('controls the dirty state', async () => {
+      await render(
+        <Field.Root data-testid="root" dirty>
+          <Field.Control data-testid="control" />
+          <Field.Label data-testid="label" />
+          <Field.Description data-testid="description" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      ['root', 'control', 'label', 'description'].forEach((part) => {
+        expect(screen.getByTestId(part)).toHaveAttribute('data-dirty');
+      });
+    });
+  });
+
+  describe('prop: touched', () => {
+    it('controls the touched state', async () => {
+      await render(
+        <Field.Root data-testid="root" touched>
+          <Field.Control data-testid="control" />
+          <Field.Label data-testid="label" />
+          <Field.Description data-testid="description" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      ['root', 'control', 'label', 'description'].forEach((part) => {
+        expect(screen.getByTestId(part)).toHaveAttribute('data-touched');
+      });
+    });
+  });
+
+  describe('prop: actionsRef', () => {
+    it('validates the field when the `validate` method is called', async () => {
+      function App() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+        return (
+          <div>
+            <Field.Root name="username" actionsRef={actionsRef}>
+              <Field.Control defaultValue="" required />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              validate
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.queryByTestId('error')).toBe(null);
+
+      await user.click(screen.getByText('validate'));
+
+      expect(screen.queryByTestId('error')).not.toBe(null);
+    });
+  });
+
+  describe('field state attributes', () => {
+    describe('data-touched', () => {
+      it('adds data-touched to field parts when touched', async () => {
         await render(
           <Field.Root data-testid="root">
             <Field.Control data-testid="control" />
@@ -1089,8 +1134,8 @@ describe('<Field.Root />', () => {
       });
     });
 
-    describe('dirty', () => {
-      it('should apply [data-dirty] style hook to all components when dirty', async () => {
+    describe('data-dirty', () => {
+      it('adds data-dirty to field parts when dirty', async () => {
         await render(
           <Field.Root data-testid="root">
             <Field.Control data-testid="control" />
@@ -1126,8 +1171,8 @@ describe('<Field.Root />', () => {
       });
     });
 
-    describe('filled', () => {
-      it('should apply [data-filled] style hook to all components when filled', async () => {
+    describe('data-filled', () => {
+      it('adds data-filled to field parts when filled', async () => {
         await render(
           <Field.Root data-testid="root">
             <Field.Control data-testid="control" />
@@ -1162,7 +1207,7 @@ describe('<Field.Root />', () => {
         expect(description).not.toHaveAttribute('data-filled');
       });
 
-      it('changes [data-filled] when the value is changed externally', async () => {
+      it('updates data-filled when the value is changed externally', async () => {
         function App() {
           const [value, setValue] = React.useState('');
           return (
@@ -1188,8 +1233,8 @@ describe('<Field.Root />', () => {
       });
     });
 
-    describe('focused', () => {
-      it('should apply [data-focused] style hook to all components when focused', async () => {
+    describe('data-focused', () => {
+      it('adds data-focused to field parts when focused', async () => {
         await render(
           <Field.Root data-testid="root">
             <Field.Control data-testid="control" />
@@ -1273,67 +1318,6 @@ describe('<Field.Root />', () => {
       fireEvent.focus(input);
 
       expect(input.value).toBe('abc');
-    });
-  });
-
-  describe('prop: dirty', () => {
-    it('controls the dirty state', async () => {
-      await render(
-        <Field.Root data-testid="root" dirty>
-          <Field.Control data-testid="control" />
-          <Field.Label data-testid="label" />
-          <Field.Description data-testid="description" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
-
-      ['root', 'control', 'label', 'description'].forEach((part) => {
-        expect(screen.getByTestId(part)).toHaveAttribute('data-dirty');
-      });
-    });
-  });
-
-  describe('prop: touched', () => {
-    it('controls the touched state', async () => {
-      await render(
-        <Field.Root data-testid="root" touched>
-          <Field.Control data-testid="control" />
-          <Field.Label data-testid="label" />
-          <Field.Description data-testid="description" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
-
-      ['root', 'control', 'label', 'description'].forEach((part) => {
-        expect(screen.getByTestId(part)).toHaveAttribute('data-touched');
-      });
-    });
-  });
-
-  describe('prop: actionsRef', () => {
-    it('validates the field when the `validate` method is called', async () => {
-      function App() {
-        const actionsRef = React.useRef<Field.Root.Actions>(null);
-        return (
-          <div>
-            <Field.Root name="username" actionsRef={actionsRef}>
-              <Field.Control defaultValue="" required />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-            <button type="button" onClick={() => actionsRef.current?.validate()}>
-              validate
-            </button>
-          </div>
-        );
-      }
-
-      const { user } = await render(<App />);
-
-      expect(screen.queryByTestId('error')).toBe(null);
-
-      await user.click(screen.getByText('validate'));
-
-      expect(screen.queryByTestId('error')).not.toBe(null);
     });
   });
 });

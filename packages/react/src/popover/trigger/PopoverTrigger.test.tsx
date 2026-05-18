@@ -72,8 +72,8 @@ describe('<Popover.Trigger />', () => {
     });
   });
 
-  describe('style hooks', () => {
-    it('should have the data-popup-open and data-pressed attributes when open by clicking', async () => {
+  describe('state attributes', () => {
+    it('adds data-popup-open and data-pressed when opened by click', async () => {
       await render(
         <Popover.Root>
           <Popover.Trigger />
@@ -90,7 +90,7 @@ describe('<Popover.Trigger />', () => {
       expect(trigger).toHaveAttribute('data-pressed');
     });
 
-    it('should have the data-popup-open but not the data-pressed attribute when open by hover', async () => {
+    it('adds data-popup-open but not data-pressed when opened by hover', async () => {
       const { user } = await render(
         <Popover.Root>
           <Popover.Trigger openOnHover delay={0} />

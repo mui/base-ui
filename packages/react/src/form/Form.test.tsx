@@ -469,32 +469,6 @@ describe('<Form />', () => {
     });
   });
 
-  it('does not submit when invalid prop remains true even if validate returns null', async () => {
-    const submitSpy = vi.fn();
-    const validateSpy = vi.fn(() => null);
-
-    const { user } = render(
-      <Form onSubmit={submitSpy}>
-        <Field.Root name="name" invalid validate={validateSpy} validationMode="onChange">
-          <Field.Control data-testid="name" />
-          <Field.Error data-testid="name-error" />
-        </Field.Root>
-        <button type="submit">submit</button>
-      </Form>,
-    );
-
-    const input = screen.getByTestId('name');
-    await user.click(input);
-    await user.keyboard('o');
-
-    expect(validateSpy.mock.calls.length).toBe(1);
-
-    await user.click(screen.getByText('submit'));
-
-    expect(submitSpy.mock.calls.length).toBe(0);
-    expect(input).toHaveAttribute('aria-invalid', 'true');
-  });
-
   describe('prop: noValidate', () => {
     it('should disable native validation if set to true (default)', () => {
       render(<Form data-testid="form" />);
@@ -575,5 +549,31 @@ describe('<Form />', () => {
 
       await expect(screen.queryByTestId('error')).toHaveTextContent('number field error');
     });
+  });
+
+  it('does not submit when invalid prop remains true even if validate returns null', async () => {
+    const submitSpy = vi.fn();
+    const validateSpy = vi.fn(() => null);
+
+    const { user } = render(
+      <Form onSubmit={submitSpy}>
+        <Field.Root name="name" invalid validate={validateSpy} validationMode="onChange">
+          <Field.Control data-testid="name" />
+          <Field.Error data-testid="name-error" />
+        </Field.Root>
+        <button type="submit">submit</button>
+      </Form>,
+    );
+
+    const input = screen.getByTestId('name');
+    await user.click(input);
+    await user.keyboard('o');
+
+    expect(validateSpy.mock.calls.length).toBe(1);
+
+    await user.click(screen.getByText('submit'));
+
+    expect(submitSpy.mock.calls.length).toBe(0);
+    expect(input).toHaveAttribute('aria-invalid', 'true');
   });
 });

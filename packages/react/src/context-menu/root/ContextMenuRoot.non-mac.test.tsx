@@ -1,11 +1,5 @@
 import { vi, expect } from 'vitest';
-import {
-  fireEvent,
-  ignoreActWarnings,
-  reactMajor,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { fireEvent, ignoreActWarnings, reactMajor, screen } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer } from '#test-utils';
 
@@ -64,9 +58,7 @@ describe('<ContextMenu.Root /> (non-Mac)', () => {
       fireEvent.pointerMove(document.body, { clientX: 24, clientY: 24 });
       fireEvent.mouseUp(item, { button: 2, clientX: 24, clientY: 24 });
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-popup')).not.toBe(null);
-      });
+      await screen.findByTestId('context-popup');
 
       expect(onOpenChange.mock.calls.length).toBe(1);
     });

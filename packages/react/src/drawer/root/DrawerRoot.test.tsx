@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { useDrawerRootContext } from './DrawerRootContext';
@@ -697,8 +697,6 @@ describe('<Drawer.Root />', () => {
     const handleOpenChange = vi.fn();
     await render(<TestCase onOpenChange={handleOpenChange} />);
 
-    await flushMicrotasks();
-
     const viewport = screen.getByTestId('viewport');
     const popup = screen.getByTestId('popup');
 
@@ -764,7 +762,6 @@ describe('<Drawer.Root />', () => {
       </div>,
     );
 
-    await flushMicrotasks();
     expect(screen.queryByTestId('payload')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Trigger 1' }));
@@ -795,9 +792,7 @@ describe('<Drawer.Root />', () => {
     const trigger = screen.getByRole('button', { name: 'Open' });
     await user.click(trigger);
 
-    await waitFor(() => {
-      expect(screen.getByRole('dialog')).not.toBe(null);
-    });
+    await screen.findByRole('dialog');
 
     const popup = screen.getByTestId('popup');
     expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
@@ -805,7 +800,6 @@ describe('<Drawer.Root />', () => {
 
   it('resets the active snap point when closing', async () => {
     await render(<SnapPointResetCase />);
-    await flushMicrotasks();
 
     const closeButton = screen.getByTestId('close');
     fireEvent.click(closeButton);
@@ -817,7 +811,6 @@ describe('<Drawer.Root />', () => {
 
   it('resets to the default snap point when provided', async () => {
     await render(<DefaultSnapPointResetCase />);
-    await flushMicrotasks();
 
     expect(screen.getByTestId('active-snap').textContent).toBe('300px');
 
@@ -832,7 +825,6 @@ describe('<Drawer.Root />', () => {
   it('provides event details when snap point changes', async () => {
     const handleSnapPointChange = vi.fn();
     await render(<SnapPointChangeDetailsCase onSnapPointChange={handleSnapPointChange} />);
-    await flushMicrotasks();
 
     const closeButton = screen.getByTestId('close');
     fireEvent.click(closeButton);
@@ -846,7 +838,6 @@ describe('<Drawer.Root />', () => {
 
   it('does not reset snap point when a close is canceled', async () => {
     await render(<CanceledCloseSnapPointResetCase />);
-    await flushMicrotasks();
 
     expect(screen.getByTestId('active-snap').textContent).toBe('1');
 
@@ -861,7 +852,6 @@ describe('<Drawer.Root />', () => {
 
     try {
       await render(<CanceledSwipeCloseCase />);
-      await flushMicrotasks();
 
       const viewport = screen.getByTestId('viewport');
       const popup = screen.getByTestId('popup');
@@ -892,7 +882,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<ControlledAlwaysOpenCase onOpenChange={handleOpenChange} />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -931,7 +920,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<ControlledSwipeCloseSnapPointCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -953,7 +941,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<CanceledSwipeCloseSnapPointCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -985,7 +972,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<SnapPointSequentialSkipCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1020,7 +1006,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<SnapPointSequentialSkipCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1054,7 +1039,6 @@ describe('<Drawer.Root />', () => {
 
     try {
       await render(<SnapPointSwipeCase onOpenChange={handleOpenChange} />);
-      await flushMicrotasks();
 
       const viewport = screen.getByTestId('viewport');
       const popup = screen.getByTestId('popup');
@@ -1091,7 +1075,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<SnapPointSwipeCase onOpenChange={handleOpenChange} />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');
@@ -1153,8 +1136,6 @@ describe('<Drawer.Root />', () => {
           </Drawer.Portal>
         </Drawer.Root>,
       );
-
-      await flushMicrotasks();
 
       const instance = CloseWatcherStub.instances[CloseWatcherStub.instances.length - 1];
       expect(instance).not.toBeUndefined();

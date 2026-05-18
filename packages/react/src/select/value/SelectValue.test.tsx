@@ -55,6 +55,24 @@ describe('<Select.Value />', () => {
     });
   });
 
+  describe('prop: placeholder', () => {
+    it('has the placeholder data attribute when no value is selected', async () => {
+      const { setProps } = await render(
+        <Select.Root value={null}>
+          <Select.Value data-testid="value" placeholder="Select a value" />
+        </Select.Root>,
+      );
+
+      const value = screen.getByTestId('value');
+      expect(value).toHaveTextContent('Select a value');
+      expect(value).toHaveAttribute('data-placeholder', '');
+
+      await setProps({ value: 'one' });
+
+      expect(value).not.toHaveAttribute('data-placeholder');
+    });
+  });
+
   describe('prop: items (object format)', () => {
     it('displays the label from items object when no children are provided', async () => {
       const items = {
@@ -424,46 +442,6 @@ describe('<Select.Value />', () => {
     });
   });
 
-  it('changes text when the value changes', async () => {
-    function App() {
-      const [value, setValue] = React.useState<string | null>(null);
-      return (
-        <div>
-          <button onClick={() => setValue('1')}>1</button>
-          <button onClick={() => setValue('2')}>2</button>
-          <button onClick={() => setValue(null)}>null</button>
-          <Select.Root value={value} onValueChange={setValue}>
-            <Select.Trigger>
-              <Select.Value data-testid="value">{(val) => val ?? 'initial'}</Select.Value>
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="1">1</Select.Item>
-                  <Select.Item value="2">2</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-        </div>
-      );
-    }
-
-    const { user } = await render(<App />);
-
-    await user.click(screen.getByText('initial'));
-    await flushMicrotasks();
-
-    await user.click(screen.getByRole('button', { name: '1' }));
-    expect(screen.getByTestId('value')).toHaveTextContent('1');
-
-    await user.click(screen.getByRole('button', { name: '2' }));
-    expect(screen.getByTestId('value')).toHaveTextContent('2');
-
-    await user.click(screen.getByRole('button', { name: 'null' }));
-    expect(screen.getByTestId('value')).toHaveTextContent('initial');
-  });
-
   describe('prop: multiple', () => {
     it('displays comma-separated labels for multiple values with items object', async () => {
       const items = {
@@ -760,5 +738,45 @@ describe('<Select.Value />', () => {
 
       expect(screen.getByTestId('placeholder')).toHaveTextContent('Select an option');
     });
+  });
+
+  it('changes text when the value changes', async () => {
+    function App() {
+      const [value, setValue] = React.useState<string | null>(null);
+      return (
+        <div>
+          <button onClick={() => setValue('1')}>1</button>
+          <button onClick={() => setValue('2')}>2</button>
+          <button onClick={() => setValue(null)}>null</button>
+          <Select.Root value={value} onValueChange={setValue}>
+            <Select.Trigger>
+              <Select.Value data-testid="value">{(val) => val ?? 'initial'}</Select.Value>
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="1">1</Select.Item>
+                  <Select.Item value="2">2</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    await user.click(screen.getByText('initial'));
+    await flushMicrotasks();
+
+    await user.click(screen.getByRole('button', { name: '1' }));
+    expect(screen.getByTestId('value')).toHaveTextContent('1');
+
+    await user.click(screen.getByRole('button', { name: '2' }));
+    expect(screen.getByTestId('value')).toHaveTextContent('2');
+
+    await user.click(screen.getByRole('button', { name: 'null' }));
+    expect(screen.getByTestId('value')).toHaveTextContent('initial');
   });
 });

@@ -326,7 +326,7 @@ describe('FloatingFocusManager', () => {
         expect(screen.queryByTestId('close-dialog')).not.toBeInTheDocument();
       });
 
-      test('return to the first focusable descendent of the reference, if the reference is not focusable', async () => {
+      test('return to the first focusable descendant of the reference, if the reference is not focusable', async () => {
         render(
           <Dialog render={({ close }) => <button onClick={close} data-testid="close-dialog" />}>
             <div data-testid="non-focusable-reference">
@@ -595,149 +595,6 @@ describe('FloatingFocusManager', () => {
       });
     });
 
-    describe('iframe focus navigation', () => {
-      function App({ iframe }: { iframe: HTMLElement }) {
-        return (
-          <div>
-            <a href="#">prev iframe link</a>
-            <Popover
-              portalRef={iframe}
-              render={() => (
-                <div data-testid="popover">
-                  <a href="#">popover link 1</a>
-                  <a href="#">popover link 2</a>
-                </div>
-              )}
-            >
-              <button>Open</button>
-            </Popover>
-            <a href="#">next iframe link</a>
-          </div>
-        );
-      }
-
-      function Popover({
-        children,
-        render,
-        portalRef,
-      }: {
-        children: React.ReactElement;
-        render: () => React.ReactNode;
-        portalRef?: HTMLElement;
-      }) {
-        const [open, setOpen] = React.useState(false);
-
-        const { floatingStyles, refs, context } = useFloating({
-          open,
-          onOpenChange: setOpen,
-        });
-
-        const click = useClick(context);
-        const dismiss = useDismiss(context);
-
-        const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
-
-        return (
-          <>
-            {React.cloneElement(children, getReferenceProps({ ref: refs.setReference }))}
-            {open && (
-              <FloatingPortal container={portalRef}>
-                <FloatingFocusManager context={context} modal={false}>
-                  <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
-                    {render()}
-                  </div>
-                </FloatingFocusManager>
-              </FloatingPortal>
-            )}
-          </>
-        );
-      }
-
-      function IframeApp() {
-        React.useEffect(() => {
-          function createIframe() {
-            const innerRoot = document.querySelector('#innerRoot');
-            const iframe = document.createElement('iframe');
-            iframe.setAttribute('data-testid', 'iframe');
-            iframe.src = 'about:blank';
-            iframe.style.height = '300px';
-
-            innerRoot?.appendChild(iframe);
-
-            // Properly open, write, and close the iframe document.
-            const iframeDoc = iframe.contentWindow?.document;
-            if (iframeDoc) {
-              iframeDoc.open();
-              iframeDoc.write(`<div id="rootIframe"></div>`);
-              iframeDoc.close();
-            }
-
-            const rootIframe = iframe.contentWindow?.document.getElementById('rootIframe');
-            return rootIframe;
-          }
-
-          const root = createIframe();
-          if (root) {
-            ReactDOMClient.createRoot(root).render(<App iframe={root} />);
-          }
-        }, []);
-
-        return (
-          <>
-            <a href="#">Outside link 1</a>
-            <div id="innerRoot" />
-            <a href="#">Outside link 2</a>
-          </>
-        );
-      }
-
-      /* eslint-disable testing-library/prefer-screen-queries */
-      // "Should not already be working"(?) when trying to click within the iframe
-      // https://github.com/facebook/react/pull/32441
-      test.skipIf(!isJSDOM)('tabs from the popover to the next element in the iframe', async () => {
-        render(<IframeApp />);
-
-        const iframe: HTMLIFrameElement = await screen.findByTestId('iframe');
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-        const iframeWithin = iframeDoc ? within(iframeDoc.body) : screen;
-
-        const user = userEvent.setup({ document: iframeDoc });
-
-        await user.click(iframeWithin.getByRole('button', { name: 'Open' }));
-
-        expect(iframeWithin.getByTestId('popover')).toBeInTheDocument();
-
-        await user.tab();
-        await user.tab();
-
-        expect(isFocused(iframeWithin.getByText('next iframe link'))).toBe(true);
-      });
-
-      // "Should not already be working"(?) when trying to click within the iframe
-      // https://github.com/facebook/react/pull/32441
-      test.skipIf(!isJSDOM)(
-        'shift+tab from the popover to the previous element in the iframe',
-        async () => {
-          render(<IframeApp />);
-
-          const iframe: HTMLIFrameElement = await screen.findByTestId('iframe');
-          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-          const iframeWithin = iframeDoc ? within(iframeDoc.body) : screen;
-
-          const user = userEvent.setup({ document: iframeDoc });
-
-          await user.click(iframeWithin.getByRole('button', { name: 'Open' }));
-
-          expect(iframeWithin.getByTestId('popover')).toBeInTheDocument();
-
-          await user.tab({ shift: true });
-
-          expect(isFocused(iframeWithin.getByRole('button', { name: 'Open' }))).toBe(true);
-        },
-      );
-    });
-    /* eslint-enable testing-library/prefer-screen-queries */
-
     describe('prop: modal', () => {
       test('when true', async () => {
         render(<App modal />);
@@ -845,8 +702,6 @@ describe('FloatingFocusManager', () => {
         }
 
         render(<App />);
-        await flushMicrotasks();
-
         await waitFor(() => {
           expect(screen.getByTestId('floating')).toHaveFocus();
         });
@@ -1197,7 +1052,6 @@ describe('FloatingFocusManager', () => {
         await flushMicrotasks();
         expect(screen.getByTestId('floating')).not.toHaveFocus();
         fireEvent.click(screen.getByTestId('toggle'));
-        await flushMicrotasks();
         await waitFor(() => {
           expect(screen.getByTestId('floating')).toHaveFocus();
         });
@@ -1271,9 +1125,6 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('floating')).not.toHaveFocus();
 
         fireEvent.click(screen.getByTestId('reference'));
-
-        await flushMicrotasks();
-
         await waitFor(() => {
           expect(screen.getByTestId('child')).toHaveFocus();
         });
@@ -1292,6 +1143,148 @@ describe('FloatingFocusManager', () => {
 
         expect(screen.getByTestId('reference')).toHaveFocus();
       });
+    });
+
+    describe('iframe focus navigation', () => {
+      function App({ iframe }: { iframe: HTMLElement }) {
+        return (
+          <div>
+            <a href="#">prev iframe link</a>
+            <Popover
+              portalRef={iframe}
+              render={() => (
+                <div data-testid="popover">
+                  <a href="#">popover link 1</a>
+                  <a href="#">popover link 2</a>
+                </div>
+              )}
+            >
+              <button>Open</button>
+            </Popover>
+            <a href="#">next iframe link</a>
+          </div>
+        );
+      }
+
+      function Popover({
+        children,
+        render,
+        portalRef,
+      }: {
+        children: React.ReactElement;
+        render: () => React.ReactNode;
+        portalRef?: HTMLElement;
+      }) {
+        const [open, setOpen] = React.useState(false);
+
+        const { floatingStyles, refs, context } = useFloating({
+          open,
+          onOpenChange: setOpen,
+        });
+
+        const click = useClick(context);
+        const dismiss = useDismiss(context);
+
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+        return (
+          <>
+            {React.cloneElement(children, getReferenceProps({ ref: refs.setReference }))}
+            {open && (
+              <FloatingPortal container={portalRef}>
+                <FloatingFocusManager context={context} modal={false}>
+                  <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
+                    {render()}
+                  </div>
+                </FloatingFocusManager>
+              </FloatingPortal>
+            )}
+          </>
+        );
+      }
+
+      function IframeApp() {
+        React.useEffect(() => {
+          function createIframe() {
+            const innerRoot = document.querySelector('#innerRoot');
+            const iframe = document.createElement('iframe');
+            iframe.setAttribute('data-testid', 'iframe');
+            iframe.src = 'about:blank';
+            iframe.style.height = '300px';
+
+            innerRoot?.appendChild(iframe);
+
+            // Properly open, write, and close the iframe document.
+            const iframeDoc = iframe.contentWindow?.document;
+            if (iframeDoc) {
+              iframeDoc.open();
+              iframeDoc.write(`<div id="rootIframe"></div>`);
+              iframeDoc.close();
+            }
+
+            const rootIframe = iframe.contentWindow?.document.getElementById('rootIframe');
+            return rootIframe;
+          }
+
+          const root = createIframe();
+          if (root) {
+            ReactDOMClient.createRoot(root).render(<App iframe={root} />);
+          }
+        }, []);
+
+        return (
+          <>
+            <a href="#">Outside link 1</a>
+            <div id="innerRoot" />
+            <a href="#">Outside link 2</a>
+          </>
+        );
+      }
+
+      /* eslint-disable testing-library/prefer-screen-queries */
+      // "Should not already be working"(?) when trying to click within the iframe
+      // https://github.com/facebook/react/pull/32441
+      test.skipIf(!isJSDOM)('tabs from the popover to the next element in the iframe', async () => {
+        render(<IframeApp />);
+
+        const iframe: HTMLIFrameElement = await screen.findByTestId('iframe');
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        const iframeWithin = iframeDoc ? within(iframeDoc.body) : screen;
+
+        const user = userEvent.setup({ document: iframeDoc });
+
+        await user.click(iframeWithin.getByRole('button', { name: 'Open' }));
+
+        expect(iframeWithin.getByTestId('popover')).toBeInTheDocument();
+
+        await user.tab();
+        await user.tab();
+
+        expect(isFocused(iframeWithin.getByText('next iframe link'))).toBe(true);
+      });
+
+      // "Should not already be working"(?) when trying to click within the iframe
+      // https://github.com/facebook/react/pull/32441
+      test.skipIf(!isJSDOM)(
+        'shift+tab from the popover to the previous element in the iframe',
+        async () => {
+          render(<IframeApp />);
+
+          const iframe: HTMLIFrameElement = await screen.findByTestId('iframe');
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+          const iframeWithin = iframeDoc ? within(iframeDoc.body) : screen;
+
+          const user = userEvent.setup({ document: iframeDoc });
+
+          await user.click(iframeWithin.getByRole('button', { name: 'Open' }));
+
+          expect(iframeWithin.getByTestId('popover')).toBeInTheDocument();
+
+          await user.tab({ shift: true });
+
+          expect(isFocused(iframeWithin.getByRole('button', { name: 'Open' }))).toBe(true);
+        },
+      );
     });
 
     describe('non-modal + FloatingPortal', () => {
@@ -1543,8 +1536,6 @@ describe('FloatingFocusManager', () => {
         expect(two).toHaveFocus();
 
         fireEvent.click(remove);
-        await flushMicrotasks();
-
         await waitFor(() => {
           expect(document.body).toHaveFocus();
         });

@@ -7,7 +7,7 @@ import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
-describe('<OTPFieldPreview />', () => {
+describe('<OTPField.Root />', () => {
   const { render, renderToString } = createRenderer();
   const OTP_LENGTH = 6;
 
@@ -521,7 +521,7 @@ describe('<OTPFieldPreview />', () => {
     });
   });
 
-  describe('Field', () => {
+  describe('Field integration', () => {
     it('associates Field.Label with the first slot', async () => {
       await render(
         <Field.Root>
@@ -836,7 +836,7 @@ describe('<OTPFieldPreview />', () => {
     });
   });
 
-  describe('Form', () => {
+  describe('Form integration', () => {
     it('blocks form submission while the code is incomplete', async () => {
       await render(
         <form data-testid="form">

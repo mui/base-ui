@@ -38,13 +38,19 @@ describe('<Toolbar.Link />', () => {
 
   describe('ARIA attributes', () => {
     it('renders an anchor', async () => {
-      await render(
-        <Toolbar.Root>
+      const { setProps } = await render(
+        <Toolbar.Root orientation="horizontal">
           <Toolbar.Link data-testid="link" href="https://base-ui.com" />
         </Toolbar.Root>,
       );
 
-      expect(screen.getByTestId('link')).toBe(screen.getByRole('link'));
+      const link = screen.getByTestId('link');
+      expect(link).toBe(screen.getByRole('link'));
+      expect(link).toHaveAttribute('data-orientation', 'horizontal');
+
+      await setProps({ orientation: 'vertical' });
+
+      expect(link).toHaveAttribute('data-orientation', 'vertical');
     });
   });
 });

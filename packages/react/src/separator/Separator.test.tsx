@@ -22,6 +22,7 @@ describe('<Separator />', () => {
         await render(<Separator orientation={orientation as Separator.Props['orientation']} />);
 
         expect(screen.getByRole('separator')).toHaveAttribute('aria-orientation', orientation);
+        expect(screen.getByRole('separator')).toHaveAttribute('data-orientation', orientation);
       });
     });
   });

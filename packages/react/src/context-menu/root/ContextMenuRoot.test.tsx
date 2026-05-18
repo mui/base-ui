@@ -125,9 +125,7 @@ describe('<ContextMenu.Root />', () => {
 
       fireEvent.mouseUp(item, { button: 2, clientX: 12, clientY: 12 });
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-popup')).not.toBe(null);
-      });
+      await screen.findByTestId('context-popup');
 
       expect(onOpenChange.mock.calls.length).toBe(1);
     });
@@ -161,9 +159,7 @@ describe('<ContextMenu.Root />', () => {
 
       fireEvent.mouseUp(item, { button: 2, clientX: 18, clientY: 18 });
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-popup')).not.toBe(null);
-      });
+      await screen.findByTestId('context-popup');
 
       expect(onOpenChange.mock.calls.length).toBe(1);
     });

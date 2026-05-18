@@ -228,25 +228,68 @@ describe('<CheckboxGroup />', () => {
     });
   });
 
-  describe('Field', () => {
-    it('prop: validationMode=onSubmit', async () => {
-      const validateSpy = vi.fn((value) => {
-        const v = value as string[];
-        if (v.length === 0) {
-          return 'custom error 1';
-        }
-        if (v.length < 2) {
-          return 'custom error 2';
-        }
-        if (v.includes('two')) {
-          return 'custom error 3';
-        }
-        return null;
+  describe('Field integration', () => {
+    describe('prop: validationMode', () => {
+      it('validates when validationMode is onSubmit', async () => {
+        const validateSpy = vi.fn((value) => {
+          const v = value as string[];
+          if (v.length === 0) {
+            return 'custom error 1';
+          }
+          if (v.length < 2) {
+            return 'custom error 2';
+          }
+          if (v.includes('two')) {
+            return 'custom error 3';
+          }
+          return null;
+        });
+        const { user } = render(
+          <Form>
+            <Field.Root validate={validateSpy} name="test">
+              <CheckboxGroup defaultValue={[]}>
+                <Field.Item>
+                  <Checkbox.Root value="one" data-testid="checkbox" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="two" data-testid="checkbox" />
+                </Field.Item>
+                <Field.Item>
+                  <Checkbox.Root value="three" data-testid="checkbox" />
+                </Field.Item>
+              </CheckboxGroup>
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        const checkboxes = screen.getAllByTestId('checkbox');
+        const [checkbox1, checkbox2, checkbox3] = checkboxes;
+        checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+
+        await user.click(checkbox2);
+        checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+
+        await user.click(screen.getByText('submit'));
+        checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid'));
+
+        await user.click(checkbox1);
+        expect(validateSpy.mock.lastCall?.[0]).toEqual(['two', 'one']);
+        checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid'));
+        await user.click(checkbox2);
+        await user.click(checkbox3);
+        expect(validateSpy.mock.lastCall?.[0]).toEqual(['one', 'three']);
+        checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
       });
-      const { user } = render(
-        <Form>
-          <Field.Root validate={validateSpy} name="test">
-            <CheckboxGroup defaultValue={[]}>
+
+      it('validates when validationMode is onChange', async () => {
+        const validateSpy = vi.fn((value) => {
+          const v = value as string[];
+          return v.includes('one') ? 'error' : null;
+        });
+        render(
+          <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
+            <CheckboxGroup defaultValue={['one']}>
               <Field.Item>
                 <Checkbox.Root value="one" data-testid="checkbox" />
               </Field.Item>
@@ -257,172 +300,131 @@ describe('<CheckboxGroup />', () => {
                 <Checkbox.Root value="three" data-testid="checkbox" />
               </Field.Item>
             </CheckboxGroup>
-          </Field.Root>
-          <button type="submit">submit</button>
-        </Form>,
-      );
-
-      const checkboxes = screen.getAllByTestId('checkbox');
-      const [checkbox1, checkbox2, checkbox3] = checkboxes;
-      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
-
-      await user.click(checkbox2);
-      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
-
-      await user.click(screen.getByText('submit'));
-      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid'));
-
-      await user.click(checkbox1);
-      expect(validateSpy.mock.lastCall?.[0]).toEqual(['two', 'one']);
-      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid'));
-      await user.click(checkbox2);
-      await user.click(checkbox3);
-      expect(validateSpy.mock.lastCall?.[0]).toEqual(['one', 'three']);
-      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
-    });
-
-    it('prop: validationMode=onChange', async () => {
-      const validateSpy = vi.fn((value) => {
-        const v = value as string[];
-        return v.includes('one') ? 'error' : null;
-      });
-      render(
-        <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
-          <CheckboxGroup defaultValue={['one']}>
-            <Field.Item>
-              <Checkbox.Root value="one" data-testid="checkbox" />
-            </Field.Item>
-            <Field.Item>
-              <Checkbox.Root value="two" data-testid="checkbox" />
-            </Field.Item>
-            <Field.Item>
-              <Checkbox.Root value="three" data-testid="checkbox" />
-            </Field.Item>
-          </CheckboxGroup>
-        </Field.Root>,
-      );
-
-      const checkboxes = screen.getAllByTestId('checkbox');
-      const [checkbox1, checkbox2, checkbox3] = checkboxes;
-
-      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
-
-      fireEvent.click(checkbox1);
-      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
-      expect(validateSpy.mock.calls.length).toBe(1);
-      expect(validateSpy.mock.lastCall?.[0]).toEqual([]);
-
-      fireEvent.click(checkbox2);
-      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
-      expect(validateSpy.mock.calls.length).toBe(2);
-      expect(validateSpy.mock.lastCall?.[0]).toEqual(['two']);
-
-      fireEvent.click(checkbox1);
-      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
-      expect(validateSpy.mock.calls.length).toBe(3);
-      expect(validateSpy.mock.lastCall?.[0]).toEqual(['two', 'one']);
-
-      fireEvent.click(checkbox3);
-      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
-    });
-
-    it('revalidates when the controlled value changes externally', async () => {
-      const validateSpy = vi.fn((value: unknown) => {
-        const values = value as string[];
-        return values.includes('one') ? 'error' : null;
-      });
-
-      function App() {
-        const [selected, setSelected] = React.useState<string[]>([]);
-
-        return (
-          <React.Fragment>
-            <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
-              <CheckboxGroup value={selected}>
-                <Field.Item>
-                  <Checkbox.Root value="one" data-testid="checkbox" />
-                </Field.Item>
-                <Field.Item>
-                  <Checkbox.Root value="two" data-testid="checkbox" />
-                </Field.Item>
-              </CheckboxGroup>
-            </Field.Root>
-            <button type="button" onClick={() => setSelected(['one'])}>
-              Select externally
-            </button>
-          </React.Fragment>
+          </Field.Root>,
         );
-      }
 
-      render(<App />);
+        const checkboxes = screen.getAllByTestId('checkbox');
+        const [checkbox1, checkbox2, checkbox3] = checkboxes;
 
-      const checkboxes = screen.getAllByTestId('checkbox');
-      const toggle = screen.getByText('Select externally');
+        checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
 
-      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
-      const initialCallCount = validateSpy.mock.calls.length;
+        fireEvent.click(checkbox1);
+        checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+        expect(validateSpy.mock.calls.length).toBe(1);
+        expect(validateSpy.mock.lastCall?.[0]).toEqual([]);
 
-      fireEvent.click(toggle);
+        fireEvent.click(checkbox2);
+        checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+        expect(validateSpy.mock.calls.length).toBe(2);
+        expect(validateSpy.mock.lastCall?.[0]).toEqual(['two']);
 
-      expect(validateSpy.mock.calls.length).toBe(initialCallCount + 1);
-      expect(validateSpy.mock.lastCall?.[0]).toEqual(['one']);
-      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
-    });
+        fireEvent.click(checkbox1);
+        checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
+        expect(validateSpy.mock.calls.length).toBe(3);
+        expect(validateSpy.mock.lastCall?.[0]).toEqual(['two', 'one']);
 
-    it('prop: validationMode=onBlur', async () => {
-      const validateSpy = vi.fn((value) => {
-        const v = value as string[];
-        return v.includes('one') ? 'error' : null;
+        fireEvent.click(checkbox3);
+        checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
       });
-      render(
-        <Field.Root validationMode="onBlur" validate={validateSpy} name="apple">
-          <CheckboxGroup defaultValue={['one']}>
-            <Field.Item>
-              <Checkbox.Root value="one" data-testid="checkbox" />
-            </Field.Item>
-            <Field.Item>
-              <Checkbox.Root value="two" data-testid="checkbox" />
-            </Field.Item>
-            <Field.Item>
-              <Checkbox.Root value="three" data-testid="checkbox" />
-            </Field.Item>
-          </CheckboxGroup>
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
 
-      const checkboxes = screen.getAllByTestId('checkbox');
-      const [checkbox1, , checkbox3] = checkboxes;
+      it('revalidates when the controlled value changes externally', async () => {
+        const validateSpy = vi.fn((value: unknown) => {
+          const values = value as string[];
+          return values.includes('one') ? 'error' : null;
+        });
 
-      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+        function App() {
+          const [selected, setSelected] = React.useState<string[]>([]);
 
-      fireEvent.click(checkbox1);
-      expect(validateSpy.mock.calls.length).toBe(0);
-      fireEvent.blur(checkbox1);
-      expect(validateSpy.mock.calls.length).toBe(1);
-      expect(validateSpy.mock.lastCall?.[0]).toEqual([]);
+          return (
+            <React.Fragment>
+              <Field.Root validationMode="onChange" validate={validateSpy} name="apple">
+                <CheckboxGroup value={selected}>
+                  <Field.Item>
+                    <Checkbox.Root value="one" data-testid="checkbox" />
+                  </Field.Item>
+                  <Field.Item>
+                    <Checkbox.Root value="two" data-testid="checkbox" />
+                  </Field.Item>
+                </CheckboxGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setSelected(['one'])}>
+                Select externally
+              </button>
+            </React.Fragment>
+          );
+        }
 
-      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+        render(<App />);
 
-      fireEvent.click(checkbox3);
-      expect(validateSpy.mock.calls.length).toBe(1);
-      fireEvent.blur(checkbox3);
-      expect(validateSpy.mock.calls.length).toBe(2);
-      expect(validateSpy.mock.lastCall?.[0]).toEqual(['three']);
+        const checkboxes = screen.getAllByTestId('checkbox');
+        const toggle = screen.getByText('Select externally');
 
-      checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+        checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+        const initialCallCount = validateSpy.mock.calls.length;
 
-      fireEvent.click(checkbox1);
-      expect(validateSpy.mock.calls.length).toBe(2);
-      fireEvent.blur(checkbox1);
-      expect(validateSpy.mock.calls.length).toBe(3);
-      expect(validateSpy.mock.lastCall?.[0]).toEqual(['three', 'one']);
+        fireEvent.click(toggle);
 
-      checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
+        expect(validateSpy.mock.calls.length).toBe(initialCallCount + 1);
+        expect(validateSpy.mock.lastCall?.[0]).toEqual(['one']);
+        checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
+      });
+
+      it('validates when validationMode is onBlur', async () => {
+        const validateSpy = vi.fn((value) => {
+          const v = value as string[];
+          return v.includes('one') ? 'error' : null;
+        });
+        render(
+          <Field.Root validationMode="onBlur" validate={validateSpy} name="apple">
+            <CheckboxGroup defaultValue={['one']}>
+              <Field.Item>
+                <Checkbox.Root value="one" data-testid="checkbox" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="two" data-testid="checkbox" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="three" data-testid="checkbox" />
+              </Field.Item>
+            </CheckboxGroup>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const checkboxes = screen.getAllByTestId('checkbox');
+        const [checkbox1, , checkbox3] = checkboxes;
+
+        checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+
+        fireEvent.click(checkbox1);
+        expect(validateSpy.mock.calls.length).toBe(0);
+        fireEvent.blur(checkbox1);
+        expect(validateSpy.mock.calls.length).toBe(1);
+        expect(validateSpy.mock.lastCall?.[0]).toEqual([]);
+
+        checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+
+        fireEvent.click(checkbox3);
+        expect(validateSpy.mock.calls.length).toBe(1);
+        fireEvent.blur(checkbox3);
+        expect(validateSpy.mock.calls.length).toBe(2);
+        expect(validateSpy.mock.lastCall?.[0]).toEqual(['three']);
+
+        checkboxes.forEach((checkbox) => expect(checkbox).not.toHaveAttribute('aria-invalid'));
+
+        fireEvent.click(checkbox1);
+        expect(validateSpy.mock.calls.length).toBe(2);
+        fireEvent.blur(checkbox1);
+        expect(validateSpy.mock.calls.length).toBe(3);
+        expect(validateSpy.mock.lastCall?.[0]).toEqual(['three', 'one']);
+
+        checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
+      });
     });
   });
 
-  describe('Field.Label', () => {
+  describe('Field.Label integration', () => {
     it('implicit association', async () => {
       const changeSpy = vi.fn();
       render(
@@ -452,7 +454,7 @@ describe('<CheckboxGroup />', () => {
 
       const checkboxes = screen.getAllByRole('checkbox');
       const labels = screen.getAllByTestId('label');
-      const inputs = document.querySelectorAll('input[type="checkbox"]');
+      const inputs = document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
 
       checkboxes.forEach((checkbox, index) => {
         const label = labels[index];
@@ -495,7 +497,7 @@ describe('<CheckboxGroup />', () => {
       const checkboxes = screen.getAllByRole('checkbox');
       const labels = screen.getAllByTestId('label');
       const descriptions = screen.getAllByTestId('description');
-      const inputs = document.querySelectorAll('input[type="checkbox"]');
+      const inputs = document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
 
       checkboxes.forEach((checkbox, index) => {
         const label = labels[index];
@@ -515,7 +517,7 @@ describe('<CheckboxGroup />', () => {
     });
   });
 
-  describe('Field.Description', () => {
+  describe('Field.Description integration', () => {
     it('links the group and individual checkboxes', async () => {
       await render(
         <Field.Root name="apple">

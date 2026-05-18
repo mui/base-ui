@@ -128,7 +128,7 @@ describe('useCheckboxGroupParent', () => {
     expect(checkboxC).toHaveAttribute('aria-checked', 'false');
   });
 
-  it('should correctly initialize the values array', () => {
+  it('initializes the values array', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>(['a']);
       return (
@@ -181,7 +181,7 @@ describe('useCheckboxGroupParent', () => {
     expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('should apply space-separated aria-controls attribute with child names', () => {
+  it('applies space-separated aria-controls attribute with child names', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);
       return (

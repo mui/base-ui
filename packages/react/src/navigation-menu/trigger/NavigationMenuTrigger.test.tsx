@@ -150,8 +150,6 @@ describe('<NavigationMenu.Trigger />', () => {
     });
 
     await userEvent.keyboard('{ArrowDown}');
-    await flushMicrotasks();
-
     await waitFor(() => {
       expect(
         Math.abs(
@@ -176,7 +174,6 @@ describe('<NavigationMenu.Trigger />', () => {
     });
 
     await userEvent.keyboard('{ArrowDown}');
-    await flushMicrotasks();
     await waitFor(() => {
       expect(
         Math.abs(

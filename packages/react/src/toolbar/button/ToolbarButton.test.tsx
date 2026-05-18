@@ -47,13 +47,19 @@ describe('<Toolbar.Button />', () => {
 
   describe('ARIA attributes', () => {
     it('renders a button', async () => {
-      await render(
-        <Toolbar.Root>
+      const { setProps } = await render(
+        <Toolbar.Root orientation="horizontal">
           <Toolbar.Button data-testid="button" />
         </Toolbar.Root>,
       );
 
-      expect(screen.getByTestId('button')).toBe(screen.getByRole('button'));
+      const button = screen.getByTestId('button');
+      expect(button).toBe(screen.getByRole('button'));
+      expect(button).toHaveAttribute('data-orientation', 'horizontal');
+
+      await setProps({ orientation: 'vertical' });
+
+      expect(button).toHaveAttribute('data-orientation', 'vertical');
     });
   });
 
@@ -80,6 +86,7 @@ describe('<Toolbar.Button />', () => {
 
       expect(button).not.toHaveAttribute('disabled');
       expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute('data-focusable');
       expect(button).toHaveAttribute('aria-disabled', 'true');
 
       await user.click(button);
@@ -118,7 +125,7 @@ describe('<Toolbar.Button />', () => {
         expect(screen.getByTestId('button')).toBe(screen.getByRole('switch'));
       });
 
-      it('handles interactions', async () => {
+      it('toggles the switch with pointer and keyboard activation', async () => {
         vi.spyOn(console, 'error')
           .mockName('console.error')
           .mockImplementation(() => {});
@@ -238,7 +245,7 @@ describe('<Toolbar.Button />', () => {
         expect(screen.getByTestId('button')).toHaveAttribute('aria-haspopup', 'menu');
       });
 
-      it('handles interactions', async () => {
+      it('opens the menu and calls trigger handlers', async () => {
         const handleOpenChange = vi.fn();
         const handleClick = vi.fn();
         const { user } = await render(
@@ -374,57 +381,60 @@ describe('<Toolbar.Button />', () => {
         expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
       });
 
-      it.skipIf(!isJSDOM)('handles interactions', async () => {
-        const handleValueChange = vi.fn();
-        const { user } = await render(
-          <Toolbar.Root>
-            <Select.Root defaultValue="a" onValueChange={handleValueChange}>
-              <Toolbar.Button data-testid="button" render={<Select.Trigger />} />
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup data-testid="popup">
-                    <Select.Item value="a" data-testid="item-a">
-                      a
-                    </Select.Item>
-                    <Select.Item value="b" data-testid="item-b">
-                      b
-                    </Select.Item>
-                  </Select.Popup>
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
-          </Toolbar.Root>,
-        );
+      it.skipIf(!isJSDOM)(
+        'opens the select and changes value with keyboard activation',
+        async () => {
+          const handleValueChange = vi.fn();
+          const { user } = await render(
+            <Toolbar.Root>
+              <Select.Root defaultValue="a" onValueChange={handleValueChange}>
+                <Toolbar.Button data-testid="button" render={<Select.Trigger />} />
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup data-testid="popup">
+                      <Select.Item value="a" data-testid="item-a">
+                        a
+                      </Select.Item>
+                      <Select.Item value="b" data-testid="item-b">
+                        b
+                      </Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Toolbar.Root>,
+          );
 
-        expect(screen.queryByRole('listbox')).toBe(null);
-
-        const trigger = screen.getByTestId('button');
-        await user.keyboard('[Tab]');
-        expect(trigger).toHaveFocus();
-
-        await user.keyboard('[ArrowDown]');
-        expect(screen.queryByRole('listbox')).toBe(screen.getByTestId('popup'));
-        await waitFor(() => {
-          expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
-        });
-
-        await user.keyboard('[ArrowDown]');
-        await waitFor(() => {
-          expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
-        });
-
-        await user.keyboard('[Enter]');
-        await waitFor(() => {
           expect(screen.queryByRole('listbox')).toBe(null);
-        });
 
-        await waitFor(() => {
+          const trigger = screen.getByTestId('button');
+          await user.keyboard('[Tab]');
           expect(trigger).toHaveFocus();
-        });
 
-        expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange).toHaveBeenCalledWith('b', expect.anything());
-      });
+          await user.keyboard('[ArrowDown]');
+          expect(screen.queryByRole('listbox')).toBe(screen.getByTestId('popup'));
+          await waitFor(() => {
+            expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
+          });
+
+          await user.keyboard('[ArrowDown]');
+          await waitFor(() => {
+            expect(screen.getByRole('option', { name: 'b' })).toHaveFocus();
+          });
+
+          await user.keyboard('[Enter]');
+          await waitFor(() => {
+            expect(screen.queryByRole('listbox')).toBe(null);
+          });
+
+          await waitFor(() => {
+            expect(trigger).toHaveFocus();
+          });
+
+          expect(handleValueChange).toHaveBeenCalledTimes(1);
+          expect(handleValueChange).toHaveBeenCalledWith('b', expect.anything());
+        },
+      );
 
       it('disabled state', async () => {
         await expect(async () => {
@@ -499,7 +509,7 @@ describe('<Toolbar.Button />', () => {
         expect(screen.getByTestId('trigger')).toBe(screen.getByRole('button'));
       });
 
-      it('handles interactions', async () => {
+      it('opens the dialog from the toolbar trigger', async () => {
         const onOpenChange = vi.fn();
         const { user } = await render(
           <Toolbar.Root>
@@ -620,7 +630,7 @@ describe('<Toolbar.Button />', () => {
         expect(screen.getByTestId('trigger')).toBe(screen.getByRole('button'));
       });
 
-      it('handles interactions', async () => {
+      it('opens the alert dialog from the toolbar trigger', async () => {
         const onOpenChange = vi.fn();
         const { user } = await render(
           <Toolbar.Root>
@@ -741,7 +751,7 @@ describe('<Toolbar.Button />', () => {
         expect(screen.getByRole('button')).toHaveAttribute('aria-haspopup', 'dialog');
       });
 
-      it('handles interactions', async () => {
+      it('opens and closes the popover with keyboard activation', async () => {
         const onOpenChange = vi.fn();
         const { user } = await render(
           <Toolbar.Root>
@@ -828,7 +838,7 @@ describe('<Toolbar.Button />', () => {
         });
       });
 
-      it('handles interactions', async () => {
+      it('toggles standalone and grouped buttons', async () => {
         const onPressedChange = vi.fn();
         const { user } = await render(
           <Toolbar.Root>

@@ -773,9 +773,7 @@ describe('<Popover.Root />', () => {
       expect(screen.queryByRole('dialog')).toBe(null);
 
       await act(() => popover.open('trigger'));
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBe(null);
-      });
+      await screen.findByRole('dialog');
 
       expect(screen.getByTestId('content').textContent).toBe('Content');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -815,9 +813,7 @@ describe('<Popover.Root />', () => {
       expect(screen.queryByRole('dialog')).toBe(null);
 
       await act(() => popover.open('trigger2'));
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).not.toBe(null);
-      });
+      await screen.findByRole('dialog');
 
       expect(screen.getByTestId('content').textContent).toBe('2');
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');

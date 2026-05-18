@@ -224,7 +224,6 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
 
       await act(async () => trigger1.focus());
-      await flushMicrotasks();
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('1');
       });
@@ -1144,9 +1143,7 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByTestId('content')).toBe(null);
 
       await act(() => handle.open('trigger'));
-      await waitFor(() => {
-        expect(screen.queryByTestId('content')).not.toBe(null);
-      });
+      await screen.findByTestId('content');
 
       expect(screen.getByTestId('content').textContent).toBe('Content');
       expect(trigger).toHaveAttribute('data-popup-open');
@@ -1187,9 +1184,7 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByTestId('content')).toBe(null);
 
       await act(() => handle.open('trigger2'));
-      await waitFor(() => {
-        expect(screen.queryByTestId('content')).not.toBe(null);
-      });
+      await screen.findByTestId('content');
 
       expect(screen.getByTestId('content').textContent).toBe('2');
       expect(trigger2).toHaveAttribute('data-popup-open');

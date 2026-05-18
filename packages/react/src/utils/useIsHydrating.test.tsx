@@ -1,5 +1,4 @@
 import { expect } from 'vitest';
-import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { useIsHydrating } from './useIsHydrating';

@@ -630,44 +630,6 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('allowEscape + virtual', () => {
-    it('when true', async () => {
-      render(<App allowEscape virtual loopFocus />);
-      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
-      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
-      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
-      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('false');
-      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
-      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
-      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
-      expect(screen.getByTestId('item-1').getAttribute('aria-selected')).toBe('true');
-      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
-      expect(screen.getByTestId('item-2').getAttribute('aria-selected')).toBe('true');
-      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
-      expect(screen.getByTestId('item-2').getAttribute('aria-selected')).toBe('false');
-      await flushMicrotasks();
-    });
-
-    it('when false', async () => {
-      render(<App allowEscape={false} virtual loopFocus />);
-      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
-      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
-      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
-      expect(screen.getByTestId('item-1').getAttribute('aria-selected')).toBe('true');
-      await flushMicrotasks();
-    });
-
-    it('true - onNavigate is called with `null` when escaped', async () => {
-      const spy = vi.fn();
-      render(<App allowEscape virtual loopFocus onNavigate={spy} />);
-      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
-      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
-      expect(spy).toHaveBeenCalledTimes(2);
-      expect(spy.mock.calls.some((args) => args[0] === null)).toBe(true);
-      await flushMicrotasks();
-    });
-  });
-
   describe('prop: openOnArrowKeyDown', () => {
     it('opens on ArrowDown when true', async () => {
       render(<App openOnArrowKeyDown />);
@@ -859,6 +821,44 @@ describe('useListNavigation', () => {
         expect(item).toHaveAttribute('aria-selected', 'false');
       });
       expect(spy.mock.calls.at(-1)?.[0]).toBe(null);
+    });
+  });
+
+  describe('allowEscape + virtual', () => {
+    it('when true', async () => {
+      render(<App allowEscape virtual loopFocus />);
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
+      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('false');
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+      expect(screen.getByTestId('item-1').getAttribute('aria-selected')).toBe('true');
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+      expect(screen.getByTestId('item-2').getAttribute('aria-selected')).toBe('true');
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+      expect(screen.getByTestId('item-2').getAttribute('aria-selected')).toBe('false');
+      await flushMicrotasks();
+    });
+
+    it('when false', async () => {
+      render(<App allowEscape={false} virtual loopFocus />);
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+      expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+      expect(screen.getByTestId('item-1').getAttribute('aria-selected')).toBe('true');
+      await flushMicrotasks();
+    });
+
+    it('true - onNavigate is called with `null` when escaped', async () => {
+      const spy = vi.fn();
+      render(<App allowEscape virtual loopFocus onNavigate={spy} />);
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
+      fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy.mock.calls.some((args) => args[0] === null)).toBe(true);
+      await flushMicrotasks();
     });
   });
 

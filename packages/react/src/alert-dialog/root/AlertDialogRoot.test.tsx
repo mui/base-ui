@@ -241,21 +241,181 @@ describe('<AlertDialog.Root />', () => {
       const trigger = screen.getByText('Open');
       await user.click(trigger);
 
-      await waitFor(() => {
-        expect(screen.queryByRole('alertdialog')).not.toBe(null);
-      });
+      await screen.findByRole('alertdialog');
 
       await user.click(trigger);
 
-      await waitFor(() => {
-        expect(screen.queryByRole('alertdialog')).not.toBe(null);
-      });
+      await screen.findByRole('alertdialog');
 
       await act(async () => actionsRef.current.unmount());
 
       await waitFor(() => {
         expect(screen.queryByRole('alertdialog')).toBe(null);
       });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+    it('is called on close when there is no exit animation defined', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <div>
+            <button onClick={() => setOpen(false)}>Close</button>
+            <AlertDialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="popup" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+
+      expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+      expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('is called on close when the exit animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = vi.fn();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-indicator[data-ending-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(false)}>Close</button>
+            <AlertDialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup className="animation-test-indicator" data-testid="popup" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByTestId('popup')).not.toBe(null);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+      });
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+
+      expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('is called on open when there is no enter animation defined', async () => {
+      const onOpenChangeComplete = vi.fn();
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button onClick={() => setOpen(true)}>Open</button>
+            <AlertDialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup data-testid="popup" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      await screen.findByTestId('popup');
+
+      expect(onOpenChangeComplete.mock.calls.length).toBe(2);
+      expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+    });
+
+    it('is called on open when the enter animation finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const onOpenChangeComplete = vi.fn();
+
+      function Test() {
+        const style = `
+          @keyframes test-anim {
+            from {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-indicator[data-starting-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={() => setOpen(true)}>Open</button>
+            <AlertDialog.Root
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <AlertDialog.Portal>
+                <AlertDialog.Popup className="animation-test-indicator" data-testid="popup" />
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+
+      // Wait for open animation to finish
+      await waitFor(() => {
+        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+      });
+
+      expect(screen.queryByTestId('popup')).not.toBe(null);
     });
   });
 
@@ -285,27 +445,21 @@ describe('<AlertDialog.Root />', () => {
       expect(screen.queryByText('Alert dialog content')).toBe(null);
 
       await user.click(trigger1);
-      await waitFor(() => {
-        expect(screen.queryByText('Alert dialog content')).not.toBe(null);
-      });
+      await screen.findByText('Alert dialog content');
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(screen.queryByText('Alert dialog content')).toBe(null);
       });
 
       await user.click(trigger2);
-      await waitFor(() => {
-        expect(screen.queryByText('Alert dialog content')).not.toBe(null);
-      });
+      await screen.findByText('Alert dialog content');
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(screen.queryByText('Alert dialog content')).toBe(null);
       });
 
       await user.click(trigger3);
-      await waitFor(() => {
-        expect(screen.queryByText('Alert dialog content')).not.toBe(null);
-      });
+      await screen.findByText('Alert dialog content');
     });
 
     it('sets the payload and renders content based on its value', async () => {
@@ -498,27 +652,21 @@ describe('<AlertDialog.Root />', () => {
       expect(screen.queryByText('Alert dialog content')).toBe(null);
 
       await user.click(trigger1);
-      await waitFor(() => {
-        expect(screen.queryByText('Alert dialog content')).not.toBe(null);
-      });
+      await screen.findByText('Alert dialog content');
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(screen.queryByText('Alert dialog content')).toBe(null);
       });
 
       await user.click(trigger2);
-      await waitFor(() => {
-        expect(screen.queryByText('Alert dialog content')).not.toBe(null);
-      });
+      await screen.findByText('Alert dialog content');
       await user.click(screen.getByText('Close'));
       await waitFor(() => {
         expect(screen.queryByText('Alert dialog content')).toBe(null);
       });
 
       await user.click(trigger3);
-      await waitFor(() => {
-        expect(screen.queryByText('Alert dialog content')).not.toBe(null);
-      });
+      await screen.findByText('Alert dialog content');
     });
 
     it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {
@@ -705,9 +853,7 @@ describe('<AlertDialog.Root />', () => {
       const backdrop = await screen.findByRole('presentation', { hidden: true });
       await user.click(backdrop);
 
-      await waitFor(() => {
-        expect(screen.queryByRole('alertdialog')).not.toBe(null);
-      });
+      await screen.findByRole('alertdialog');
     });
 
     it('opens and closes the dialog', async () => {
@@ -729,9 +875,7 @@ describe('<AlertDialog.Root />', () => {
       expect(screen.queryByRole('alertdialog')).toBe(null);
 
       await act(() => dialog.open('trigger'));
-      await waitFor(() => {
-        expect(screen.queryByRole('alertdialog')).not.toBe(null);
-      });
+      await screen.findByRole('alertdialog');
 
       expect(screen.getByTestId('content').textContent).toBe('Content');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -769,9 +913,7 @@ describe('<AlertDialog.Root />', () => {
       expect(screen.queryByRole('alertdialog')).toBe(null);
 
       await act(() => dialog.open('trigger2'));
-      await waitFor(() => {
-        expect(screen.queryByRole('alertdialog')).not.toBe(null);
-      });
+      await screen.findByRole('alertdialog');
 
       expect(screen.getByTestId('content').textContent).toBe('2');
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
@@ -810,9 +952,7 @@ describe('<AlertDialog.Root />', () => {
       expect(screen.queryByRole('alertdialog')).toBe(null);
 
       await act(() => dialog.openWithPayload(8));
-      await waitFor(() => {
-        expect(screen.queryByRole('alertdialog')).not.toBe(null);
-      });
+      await screen.findByRole('alertdialog');
 
       expect(screen.getByTestId('content').textContent).toBe('8');
       expect(trigger1).not.toHaveAttribute('aria-expanded', 'true');
@@ -839,172 +979,6 @@ describe('<AlertDialog.Root />', () => {
       );
 
       expect(screen.getByRole('presentation', { hidden: true })).not.toBe(null);
-    });
-  });
-
-  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-    it('is called on close when there is no exit animation defined', async () => {
-      const onOpenChangeComplete = vi.fn();
-
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <AlertDialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <AlertDialog.Portal>
-                <AlertDialog.Popup data-testid="popup" />
-              </AlertDialog.Portal>
-            </AlertDialog.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).toBe(null);
-      });
-
-      expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-    });
-
-    it('is called on close when the exit animation finishes', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const onOpenChangeComplete = vi.fn();
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(true);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <AlertDialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <AlertDialog.Portal>
-                <AlertDialog.Popup className="animation-test-indicator" data-testid="popup" />
-              </AlertDialog.Portal>
-            </AlertDialog.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      expect(screen.getByTestId('popup')).not.toBe(null);
-
-      // Wait for open animation to finish
-      await waitFor(() => {
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      });
-
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).toBe(null);
-      });
-
-      expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-    });
-
-    it('is called on open when there is no enter animation defined', async () => {
-      const onOpenChangeComplete = vi.fn();
-
-      function Test() {
-        const [open, setOpen] = React.useState(false);
-        return (
-          <div>
-            <button onClick={() => setOpen(true)}>Open</button>
-            <AlertDialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <AlertDialog.Portal>
-                <AlertDialog.Popup data-testid="popup" />
-              </AlertDialog.Portal>
-            </AlertDialog.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const openButton = screen.getByText('Open');
-      await user.click(openButton);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).not.toBe(null);
-      });
-
-      expect(onOpenChangeComplete.mock.calls.length).toBe(2);
-      expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-    });
-
-    it('is called on open when the enter animation finishes', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const onOpenChangeComplete = vi.fn();
-
-      function Test() {
-        const style = `
-          @keyframes test-anim {
-            from {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-starting-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-        const [open, setOpen] = React.useState(false);
-
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(true)}>Open</button>
-            <AlertDialog.Root
-              open={open}
-              onOpenChange={setOpen}
-              onOpenChangeComplete={onOpenChangeComplete}
-            >
-              <AlertDialog.Portal>
-                <AlertDialog.Popup className="animation-test-indicator" data-testid="popup" />
-              </AlertDialog.Portal>
-            </AlertDialog.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const openButton = screen.getByText('Open');
-      await user.click(openButton);
-
-      // Wait for open animation to finish
-      await waitFor(() => {
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      });
-
-      expect(screen.queryByTestId('popup')).not.toBe(null);
     });
   });
 });

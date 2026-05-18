@@ -3,7 +3,7 @@ import { PreviewCard } from '@base-ui/react/preview-card';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
-describe('<Popover.Popup />', () => {
+describe('<PreviewCard.Popup />', () => {
   const { render } = createRenderer();
 
   describeConformance(<PreviewCard.Popup />, () => ({

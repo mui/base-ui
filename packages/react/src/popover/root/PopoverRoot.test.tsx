@@ -72,9 +72,7 @@ describe('<Popover.Root />', () => {
         const trigger = screen.getByTestId('trigger');
 
         await user.click(trigger);
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-        });
+        await screen.findByRole('dialog');
 
         await user.keyboard('{Escape}');
         await waitFor(() => {
@@ -82,9 +80,7 @@ describe('<Popover.Root />', () => {
         });
 
         await user.click(trigger);
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-        });
+        await screen.findByRole('dialog');
 
         fireEvent.click(document.body);
         await waitFor(() => {
@@ -255,9 +251,7 @@ describe('<Popover.Root />', () => {
         const item = await screen.findByText('Item');
         await user.click(item);
 
-        await waitFor(() => {
-          expect(screen.getByTestId('popover-popup')).not.toBe(null);
-        });
+        await screen.findByTestId('popover-popup');
       });
     });
 
@@ -342,6 +336,391 @@ describe('<Popover.Root />', () => {
         clock.tick(50);
 
         expect(screen.queryByText('Content')).toBe(null);
+      });
+    });
+
+    describe('prop: actionsRef', () => {
+      it('unmounts the popover when the `unmount` method is called', async () => {
+        const actionsRef = {
+          current: {
+            unmount: vi.fn(),
+            close: vi.fn(),
+          },
+        };
+
+        const { user } = await render(
+          <TestPopover
+            rootProps={{
+              actionsRef,
+              onOpenChange: (open, details) => {
+                details.preventUnmountOnClose();
+              },
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+
+        await screen.findByRole('dialog');
+
+        await user.click(trigger);
+
+        await screen.findByRole('dialog');
+
+        await act(async () => actionsRef.current.unmount());
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+      });
+
+      it('closes the popover when the `close` method is called', async () => {
+        const actionsRef = React.createRef<Popover.Root.Actions>();
+        await render(<TestPopover rootProps={{ defaultOpen: true, actionsRef }} />);
+
+        await act(async () => {
+          actionsRef.current!.close();
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByText('Content')).toBe(null);
+        });
+      });
+    });
+
+    describe('prop: modal', () => {
+      it('should render an internal backdrop when `true`', async () => {
+        const { user } = await render(
+          <div>
+            <TestPopover rootProps={{ modal: true }} />
+            <button>Outside</button>
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await user.click(trigger);
+
+        await screen.findByRole('dialog');
+
+        const positioner = screen.getByTestId('positioner');
+
+        expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
+      });
+
+      it('should only render focus guards inside the popup when `true`', async () => {
+        const { user } = await render(
+          <div>
+            <TestPopover
+              rootProps={{ modal: true }}
+              popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
+            />
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await user.click(trigger);
+
+        await screen.findByRole('dialog');
+
+        expect(
+          trigger.previousElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false,
+        ).toBe(false);
+        expect(trigger.nextElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false).toBe(
+          false,
+        );
+        expect(
+          document.querySelectorAll('[data-base-ui-focus-guard][data-type="inside"]'),
+        ).toHaveLength(2);
+      });
+
+      it('should keep trigger focus guards when `true` without a close part', async () => {
+        const { user } = await render(
+          <div>
+            <TestPopover
+              rootProps={{ defaultOpen: true, modal: true }}
+              popupProps={{ children: <input data-testid="input-inside" /> }}
+              afterTrigger={<input data-testid="focus-target" />}
+            />
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        expect(trigger.previousElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+        expect(trigger.nextElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+
+        await act(async () => {
+          screen.getByTestId('input-inside').focus();
+        });
+
+        await user.tab();
+
+        expect(screen.getByTestId('focus-target')).toHaveFocus();
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popover-popup')).toBe(null);
+        });
+      });
+
+      it('should not render an internal backdrop when `false`', async () => {
+        const { user } = await render(
+          <div>
+            <TestPopover rootProps={{ modal: false }} />
+            <button>Outside</button>
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await user.click(trigger);
+
+        await screen.findByRole('dialog');
+
+        const positioner = screen.getByTestId('positioner');
+
+        expect(positioner.previousElementSibling).toBe(null);
+      });
+
+      describe('with openOnHover', () => {
+        clock.withFakeTimers();
+
+        it('enables modal behavior after a hover-open is clicked', async () => {
+          await render(
+            <TestPopover
+              rootProps={{ modal: true }}
+              triggerProps={{ openOnHover: true, delay: 0 }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          await flushMicrotasks();
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+
+          const positioner = screen.getByTestId('positioner');
+          expect(positioner.previousElementSibling).toBe(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+
+          await flushMicrotasks();
+
+          expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
+        });
+
+        it('reopens on hover after an impatient click is followed by a close button press', async () => {
+          await render(
+            <TestPopover
+              triggerProps={{ openOnHover: true, delay: 100 }}
+              popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+          clock.tick(100);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+          await flushMicrotasks();
+
+          fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('dialog')).toBe(null);
+
+          // Re-enter with mouse events only. A fresh pointerenter can be
+          // missed after the click-driven close, but hover should still work.
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+          clock.tick(100);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+      });
+    });
+
+    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+      it('is called on close when there is no exit animation defined', async () => {
+        const onOpenChangeComplete = vi.fn();
+
+        function Test() {
+          const [open, setOpen] = React.useState(true);
+          return (
+            <div>
+              <button onClick={() => setOpen(false)}>Close</button>
+              <TestPopover
+                rootProps={{ open, onOpenChangeComplete }}
+                popupProps={{ children: null }}
+              />
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const closeButton = screen.getByText('Close');
+        await user.click(closeButton);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popover-popup')).toBe(null);
+        });
+
+        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
+      });
+
+      it('is called on close when the exit animation finishes', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const onOpenChangeComplete = vi.fn();
+
+        function Test() {
+          const style = `
+          @keyframes test-anim {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-indicator[data-ending-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+          const [open, setOpen] = React.useState(true);
+
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <button onClick={() => setOpen(false)}>Close</button>
+              <TestPopover
+                rootProps={{ open, onOpenChangeComplete }}
+                popupProps={{ className: 'animation-test-indicator', children: null }}
+              />
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        expect(screen.getByTestId('popover-popup')).not.toBe(null);
+
+        // Wait for open animation to finish
+        await waitFor(() => {
+          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+        });
+
+        const closeButton = screen.getByText('Close');
+        await user.click(closeButton);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popover-popup')).toBe(null);
+        });
+
+        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
+      });
+
+      it('is called on open when there is no enter animation defined', async () => {
+        const onOpenChangeComplete = vi.fn();
+
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <div>
+              <button onClick={() => setOpen(true)}>Open</button>
+              <TestPopover
+                rootProps={{ open, onOpenChangeComplete }}
+                popupProps={{ children: null }}
+              />
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const openButton = screen.getByText('Open');
+        await user.click(openButton);
+
+        await screen.findByTestId('popover-popup');
+
+        expect(onOpenChangeComplete.mock.calls.length).toBe(2);
+        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+      });
+
+      it('is called on open when the enter animation finishes', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const onOpenChangeComplete = vi.fn();
+
+        function Test() {
+          const style = `
+          @keyframes test-anim {
+            from {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-indicator[data-starting-style] {
+            animation: test-anim 1ms;
+          }
+        `;
+
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <button onClick={() => setOpen(true)}>Open</button>
+              <TestPopover
+                rootProps={{
+                  open,
+                  onOpenChange: (nextOpen) => setOpen(nextOpen),
+                  onOpenChangeComplete,
+                }}
+                popupProps={{ className: 'animation-test-indicator', children: null }}
+              />
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const openButton = screen.getByText('Open');
+        await user.click(openButton);
+
+        // Wait for open animation to finish
+        await waitFor(() => {
+          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
+        });
+
+        expect(screen.queryByTestId('popover-popup')).not.toBe(null);
+      });
+
+      it('does not get called on mount when not open', async () => {
+        const onOpenChangeComplete = vi.fn();
+
+        await render(
+          <TestPopover rootProps={{ onOpenChangeComplete }} popupProps={{ children: null }} />,
+        );
+
+        expect(onOpenChangeComplete.mock.calls.length).toBe(0);
       });
     });
 
@@ -551,8 +930,6 @@ describe('<Popover.Root />', () => {
         await flushMicrotasks();
 
         await user.hover(firstInput);
-        await flushMicrotasks();
-
         await waitFor(() => {
           expect(screen.queryByRole('dialog')).toBe(null);
         });
@@ -1090,231 +1467,6 @@ describe('<Popover.Root />', () => {
       });
     });
 
-    describe('prop: actionsRef', () => {
-      it('unmounts the popover when the `unmount` method is called', async () => {
-        const actionsRef = {
-          current: {
-            unmount: vi.fn(),
-            close: vi.fn(),
-          },
-        };
-
-        const { user } = await render(
-          <TestPopover
-            rootProps={{
-              actionsRef,
-              onOpenChange: (open, details) => {
-                details.preventUnmountOnClose();
-              },
-            }}
-          />,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        await user.click(trigger);
-
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-        });
-
-        await user.click(trigger);
-
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-        });
-
-        await act(async () => actionsRef.current.unmount());
-
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toBe(null);
-        });
-      });
-
-      it('closes the popover when the `close` method is called', async () => {
-        const actionsRef = React.createRef<Popover.Root.Actions>();
-        await render(<TestPopover rootProps={{ defaultOpen: true, actionsRef }} />);
-
-        await act(async () => {
-          actionsRef.current!.close();
-        });
-
-        await waitFor(() => {
-          expect(screen.queryByText('Content')).toBe(null);
-        });
-      });
-    });
-
-    describe('prop: modal', () => {
-      it('should render an internal backdrop when `true`', async () => {
-        const { user } = await render(
-          <div>
-            <TestPopover rootProps={{ modal: true }} />
-            <button>Outside</button>
-          </div>,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-        await user.click(trigger);
-
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-        });
-
-        const positioner = screen.getByTestId('positioner');
-
-        expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
-      });
-
-      it('should only render focus guards inside the popup when `true`', async () => {
-        const { user } = await render(
-          <div>
-            <TestPopover
-              rootProps={{ modal: true }}
-              popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
-            />
-          </div>,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-        await user.click(trigger);
-
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-        });
-
-        expect(
-          trigger.previousElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false,
-        ).toBe(false);
-        expect(trigger.nextElementSibling?.hasAttribute('data-base-ui-focus-guard') ?? false).toBe(
-          false,
-        );
-        expect(
-          document.querySelectorAll('[data-base-ui-focus-guard][data-type="inside"]'),
-        ).toHaveLength(2);
-      });
-
-      it('should keep trigger focus guards when `true` without a close part', async () => {
-        const { user } = await render(
-          <div>
-            <TestPopover
-              rootProps={{ defaultOpen: true, modal: true }}
-              popupProps={{ children: <input data-testid="input-inside" /> }}
-              afterTrigger={<input data-testid="focus-target" />}
-            />
-          </div>,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-        expect(trigger.previousElementSibling).toHaveAttribute('data-base-ui-focus-guard');
-        expect(trigger.nextElementSibling).toHaveAttribute('data-base-ui-focus-guard');
-
-        await act(async () => {
-          screen.getByTestId('input-inside').focus();
-        });
-
-        await user.tab();
-
-        expect(screen.getByTestId('focus-target')).toHaveFocus();
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popover-popup')).toBe(null);
-        });
-      });
-
-      it('should not render an internal backdrop when `false`', async () => {
-        const { user } = await render(
-          <div>
-            <TestPopover rootProps={{ modal: false }} />
-            <button>Outside</button>
-          </div>,
-        );
-
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-        await user.click(trigger);
-
-        await waitFor(() => {
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-        });
-
-        const positioner = screen.getByTestId('positioner');
-
-        expect(positioner.previousElementSibling).toBe(null);
-      });
-
-      describe('with openOnHover', () => {
-        clock.withFakeTimers();
-
-        it('enables modal behavior after a hover-open is clicked', async () => {
-          await render(
-            <TestPopover
-              rootProps={{ modal: true }}
-              triggerProps={{ openOnHover: true, delay: 0 }}
-            />,
-          );
-
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-          fireEvent.mouseEnter(trigger);
-          fireEvent.mouseMove(trigger);
-
-          await flushMicrotasks();
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-
-          const positioner = screen.getByTestId('positioner');
-          expect(positioner.previousElementSibling).toBe(null);
-
-          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
-          fireEvent.click(trigger);
-
-          await flushMicrotasks();
-
-          expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
-        });
-
-        it('reopens on hover after an impatient click is followed by a close button press', async () => {
-          await render(
-            <TestPopover
-              triggerProps={{ openOnHover: true, delay: 100 }}
-              popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
-            />,
-          );
-
-          const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-          fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-          fireEvent.mouseEnter(trigger);
-          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
-
-          clock.tick(100);
-          await flushMicrotasks();
-
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-
-          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
-          fireEvent.click(trigger);
-          await flushMicrotasks();
-
-          fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-          await flushMicrotasks();
-
-          expect(screen.queryByRole('dialog')).toBe(null);
-
-          // Re-enter with mouse events only. A fresh pointerenter can be
-          // missed after the click-driven close, but hover should still work.
-          fireEvent.mouseEnter(trigger);
-          fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
-
-          clock.tick(100);
-          await flushMicrotasks();
-
-          expect(screen.queryByRole('dialog')).not.toBe(null);
-        });
-      });
-    });
-
     describe.skipIf(isJSDOM)('scroll locking', () => {
       describe('touch scroll lock', () => {
         it('applies scroll lock when a touch-opened popup covers the viewport width', async () => {
@@ -1388,178 +1540,6 @@ describe('<Popover.Root />', () => {
       });
     });
 
-    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-      it('is called on close when there is no exit animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = React.useState(true);
-          return (
-            <div>
-              <button onClick={() => setOpen(false)}>Close</button>
-              <TestPopover
-                rootProps={{ open, onOpenChangeComplete }}
-                popupProps={{ children: null }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popover-popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on close when the exit animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            to {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-ending-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = React.useState(true);
-
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              <button onClick={() => setOpen(false)}>Close</button>
-              <TestPopover
-                rootProps={{ open, onOpenChangeComplete }}
-                popupProps={{ className: 'animation-test-indicator', children: null }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        expect(screen.getByTestId('popover-popup')).not.toBe(null);
-
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-
-        const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popover-popup')).toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.lastCall?.[0]).toBe(false);
-      });
-
-      it('is called on open when there is no enter animation defined', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const [open, setOpen] = React.useState(false);
-          return (
-            <div>
-              <button onClick={() => setOpen(true)}>Open</button>
-              <TestPopover
-                rootProps={{ open, onOpenChangeComplete }}
-                popupProps={{ children: null }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popover-popup')).not.toBe(null);
-        });
-
-        expect(onOpenChangeComplete.mock.calls.length).toBe(2);
-        expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-      });
-
-      it('is called on open when the enter animation finishes', async () => {
-        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-        const onOpenChangeComplete = vi.fn();
-
-        function Test() {
-          const style = `
-          @keyframes test-anim {
-            from {
-              opacity: 0;
-            }
-          }
-
-          .animation-test-indicator[data-starting-style] {
-            animation: test-anim 1ms;
-          }
-        `;
-
-          const [open, setOpen] = React.useState(false);
-
-          return (
-            <div>
-              {/* eslint-disable-next-line react/no-danger */}
-              <style dangerouslySetInnerHTML={{ __html: style }} />
-              <button onClick={() => setOpen(true)}>Open</button>
-              <TestPopover
-                rootProps={{
-                  open,
-                  onOpenChange: (nextOpen) => setOpen(nextOpen),
-                  onOpenChangeComplete,
-                }}
-                popupProps={{ className: 'animation-test-indicator', children: null }}
-              />
-            </div>
-          );
-        }
-
-        const { user } = await render(<Test />);
-
-        const openButton = screen.getByText('Open');
-        await user.click(openButton);
-
-        // Wait for open animation to finish
-        await waitFor(() => {
-          expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
-        });
-
-        expect(screen.queryByTestId('popover-popup')).not.toBe(null);
-      });
-
-      it('does not get called on mount when not open', async () => {
-        const onOpenChangeComplete = vi.fn();
-
-        await render(
-          <TestPopover rootProps={{ onOpenChangeComplete }} popupProps={{ children: null }} />,
-        );
-
-        expect(onOpenChangeComplete.mock.calls.length).toBe(0);
-      });
-    });
-
     describe('nested popup interactions', () => {
       it('keeps the parent popover open when press starts in nested popover and ends outside', async () => {
         function Test() {
@@ -1604,9 +1584,7 @@ describe('<Popover.Root />', () => {
         fireEvent.pointerDown(childPopup, { pointerType: 'mouse', button: 0 });
         fireEvent.click(outside);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('parent-popup')).not.toBe(null);
-        });
+        await screen.findByTestId('parent-popup');
         expect(screen.queryByTestId('child-popup')).not.toBe(null);
       });
 

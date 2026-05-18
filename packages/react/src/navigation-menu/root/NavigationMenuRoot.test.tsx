@@ -1198,9 +1198,7 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.hover(trigger2);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-2')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-2');
     });
 
     it.skipIf(isJSDOM)(
@@ -1236,9 +1234,7 @@ describe('<NavigationMenu.Root />', () => {
 
         await user.hover(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup-1')).not.toBe(null);
-        });
+        await screen.findByTestId('popup-1');
       },
     );
 
@@ -1249,18 +1245,14 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.hover(trigger1);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
 
       await user.click(trigger1);
       await flushMicrotasks();
 
       await user.hover(trigger2);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-2')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-2');
 
       await user.unhover(trigger2);
 
@@ -1270,9 +1262,7 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.hover(trigger1);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
     });
 
     it('closes after pointerdown on a link in a hover-open popup when pointer leaves', async () => {
@@ -1281,9 +1271,7 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.hover(trigger1);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
 
       const popup1 = screen.getByTestId('popup-1');
       const link1 = within(popup1).getByText('Link 1');
@@ -1718,9 +1706,7 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.click(trigger);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       const dialogTrigger = screen.getByTestId('dialog-trigger');
@@ -1730,9 +1716,7 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.click(screen.getByTestId('dialog-button'));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
@@ -1742,9 +1726,7 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.click(trigger);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       const popoverTrigger = screen.getByTestId('popover-trigger');
@@ -1754,9 +1736,7 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.click(screen.getByTestId('popover-button'));
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
   });
@@ -1917,9 +1897,7 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.click(trigger1);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
 
       const popup1 = screen.getByTestId('popup-1');
       const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
@@ -1950,9 +1928,7 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.click(trigger1);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.toBe(null);
-      });
+      await screen.findByTestId('popup-1');
 
       const popup1 = screen.getByTestId('popup-1');
       const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
@@ -1976,9 +1952,7 @@ describe('<NavigationMenu.Root />', () => {
 
       await user.click(trigger1);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('content-1')).not.toBe(null);
-      });
+      await screen.findByTestId('content-1');
 
       expect(screen.queryByTestId('level2-content-1')).not.toBe(null);
       expect(screen.queryByTestId('level3-content-1')).not.toBe(null);
@@ -2740,8 +2714,6 @@ describe('<NavigationMenu.Root />', () => {
           popupHeight = 180;
 
           fireEvent(window, new Event('resize'));
-          await flushMicrotasks();
-
           await waitFor(() => {
             expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
             expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
@@ -2957,8 +2929,6 @@ describe('<NavigationMenu.Root />', () => {
           fireEvent.mouseEnter(topLevelLink);
           fireEvent.mouseMove(topLevelLink);
           clock.tick(OPEN_DELAY);
-          await flushMicrotasks();
-
           await waitFor(() => {
             expect(triggerProduct).toHaveAttribute('aria-expanded', 'false');
           });
@@ -3031,8 +3001,6 @@ describe('<NavigationMenu.Root />', () => {
 
           const closeStart = performance.now();
           fireEvent.keyDown(screen.getByTestId('trigger-learn'), { key: 'Escape' });
-          await flushMicrotasks();
-
           await waitFor(() => {
             expect(onOpenChangeComplete.mock.calls.length).toBe(1);
             expect(onOpenChangeComplete.mock.calls[0][0]).toBe(false);

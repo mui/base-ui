@@ -337,48 +337,6 @@ describe('<Slider.Thumb />', () => {
     });
   });
 
-  describe('stacking order', () => {
-    it('relies on DOM order before any thumb is used', async () => {
-      await render(
-        <Slider.Root defaultValue={[20, 20]}>
-          <Slider.Control>
-            <Slider.Thumb data-testid="thumb-0" />
-            <Slider.Thumb data-testid="thumb-1" />
-          </Slider.Control>
-        </Slider.Root>,
-      );
-
-      expect(screen.getByTestId('thumb-0').style.zIndex).toBe('');
-      expect(screen.getByTestId('thumb-1').style.zIndex).toBe('');
-    });
-
-    it('keeps the most recently active thumb on top after focus moves away', async () => {
-      const { user } = await render(
-        <Slider.Root defaultValue={[20, 20]}>
-          <Slider.Control>
-            <Slider.Thumb data-testid="thumb-0" />
-            <Slider.Thumb data-testid="thumb-1" />
-          </Slider.Control>
-        </Slider.Root>,
-      );
-
-      const [thumb0, thumb1] = [screen.getByTestId('thumb-0'), screen.getByTestId('thumb-1')];
-
-      await user.keyboard('[Tab]');
-      expect(screen.getAllByRole('slider')[0]).toHaveFocus();
-      expect(thumb0.style.zIndex).toBe('2');
-
-      await user.keyboard('[Tab]');
-      expect(screen.getAllByRole('slider')[1]).toHaveFocus();
-      expect(thumb1.style.zIndex).toBe('2');
-
-      await user.keyboard('[Tab]');
-      expect(document.body).toHaveFocus();
-      expect(thumb1.style.zIndex).toBe('1');
-      expect(thumb0.style.zIndex).toBe('');
-    });
-  });
-
   describe('prop: thumbAlignment', () => {
     it.skipIf(isJSDOM)('recomputes inset positions when the slider becomes visible', async () => {
       function App() {
@@ -496,6 +454,48 @@ describe('<Slider.Thumb />', () => {
         });
       },
     );
+  });
+
+  describe('stacking order', () => {
+    it('relies on DOM order before any thumb is used', async () => {
+      await render(
+        <Slider.Root defaultValue={[20, 20]}>
+          <Slider.Control>
+            <Slider.Thumb data-testid="thumb-0" />
+            <Slider.Thumb data-testid="thumb-1" />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(screen.getByTestId('thumb-0').style.zIndex).toBe('');
+      expect(screen.getByTestId('thumb-1').style.zIndex).toBe('');
+    });
+
+    it('keeps the most recently active thumb on top after focus moves away', async () => {
+      const { user } = await render(
+        <Slider.Root defaultValue={[20, 20]}>
+          <Slider.Control>
+            <Slider.Thumb data-testid="thumb-0" />
+            <Slider.Thumb data-testid="thumb-1" />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const [thumb0, thumb1] = [screen.getByTestId('thumb-0'), screen.getByTestId('thumb-1')];
+
+      await user.keyboard('[Tab]');
+      expect(screen.getAllByRole('slider')[0]).toHaveFocus();
+      expect(thumb0.style.zIndex).toBe('2');
+
+      await user.keyboard('[Tab]');
+      expect(screen.getAllByRole('slider')[1]).toHaveFocus();
+      expect(thumb1.style.zIndex).toBe('2');
+
+      await user.keyboard('[Tab]');
+      expect(document.body).toHaveFocus();
+      expect(thumb1.style.zIndex).toBe('1');
+      expect(thumb0.style.zIndex).toBe('');
+    });
   });
 
   /**
