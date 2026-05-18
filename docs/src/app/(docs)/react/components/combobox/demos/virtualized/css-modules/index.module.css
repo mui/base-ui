@@ -141,7 +141,7 @@
   font-size: 0.875rem;
   line-height: 1rem;
   color: oklch(55.6% 0 0deg);
-  padding: 1rem 1rem 1rem 0.5rem;
+  padding: 0.75rem 0.5rem;
 
   @media (prefers-color-scheme: dark) {
     color: oklch(70.8% 0 0deg);
