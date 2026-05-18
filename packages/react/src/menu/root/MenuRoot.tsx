@@ -5,7 +5,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
@@ -17,7 +16,6 @@ import {
   useTypeahead,
   useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
-import { getMaxListIndex, getMinListIndex } from '../../floating-ui-react/utils/composite';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
 import { TYPEAHEAD_RESET_MS } from '../../internals/constants';
@@ -417,6 +415,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   const direction = useDirection();
+  const pendingFocusItem = store.useState('pendingFocusItem');
+  const clearPendingFocusItem = useStableCallback(() => {
+    store.set('pendingFocusItem', null);
+  });
 
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
@@ -432,48 +434,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     openOnArrowKeyDown: parent.type !== 'context-menu',
     externalTree: nested ? floatingTreeRoot : undefined,
     focusItemOnHover: highlightItemOnHover,
+    pendingFocusItem,
+    onPendingFocusItemChange: clearPendingFocusItem,
   });
-
-  const pendingFocusItem = store.useState('pendingFocusItem');
-  const focusItemFrame = useAnimationFrame();
-
-  useIsoLayoutEffect(() => {
-    if (pendingFocusItem == null || !open) {
-      return undefined;
-    }
-
-    if (pendingFocusItem === 'none') {
-      store.update({ activeIndex: null, pendingFocusItem: null });
-      return undefined;
-    }
-
-    let cancelled = false;
-    let runs = 0;
-    const elements = store.context.itemDomElements;
-
-    const resolve = () => {
-      if (cancelled) {
-        return;
-      }
-      if (elements.current[0] == null) {
-        if (runs < 2) {
-          runs += 1;
-          focusItemFrame.request(resolve);
-        }
-        return;
-      }
-      const index =
-        pendingFocusItem === 'last' ? getMaxListIndex(elements) : getMinListIndex(elements);
-      store.update({ activeIndex: index, pendingFocusItem: null });
-    };
-
-    resolve();
-
-    return () => {
-      cancelled = true;
-      focusItemFrame.cancel();
-    };
-  }, [open, positionerElement, pendingFocusItem, store, focusItemFrame]);
 
   const onTyping = React.useCallback(
     (nextTyping: boolean) => {

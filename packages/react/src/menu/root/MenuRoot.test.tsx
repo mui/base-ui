@@ -10,6 +10,7 @@ import {
 } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Menu } from '@base-ui/react/menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
@@ -1670,6 +1671,60 @@ describe('<Menu.Root />', () => {
           });
           screen.getAllByRole('menuitem').forEach((item) => {
             expect(item).toHaveAttribute('tabindex', '-1');
+          });
+        });
+
+        it('waits for composed items that register after a layout effect', async () => {
+          const actionsRef: React.RefObject<Menu.Root.Actions | null> = { current: null };
+
+          function DelayedItem(props: { children: React.ReactNode; testId: string }) {
+            const [mounted, setMounted] = React.useState(false);
+            useIsoLayoutEffect(() => {
+              setMounted(true);
+            }, []);
+
+            if (!mounted) {
+              return null;
+            }
+
+            return <Menu.Item data-testid={props.testId}>{props.children}</Menu.Item>;
+          }
+
+          function App() {
+            const [open, setOpen] = React.useState(false);
+            return (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(true);
+                    actionsRef.current?.focusItem('first');
+                  }}
+                >
+                  external
+                </button>
+                <TestMenu
+                  rootProps={{ open, onOpenChange: setOpen, actionsRef }}
+                  popupProps={{
+                    children: (
+                      <React.Fragment>
+                        <DelayedItem testId="delayed-1">One</DelayedItem>
+                        <DelayedItem testId="delayed-2">Two</DelayedItem>
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              </div>
+            );
+          }
+
+          const { user } = await render(<App />);
+
+          await user.click(screen.getByRole('button', { name: 'external' }));
+
+          const firstItem = await screen.findByTestId('delayed-1');
+          await waitFor(() => {
+            expect(firstItem).toHaveFocus();
           });
         });
       });
