@@ -166,26 +166,15 @@
   }
 }
 
-.InputContainer {
-  box-sizing: border-box;
-  position: relative;
-  z-index: 2;
-  width: 16rem;
-  height: var(--input-container-height);
-  background: white;
-
-  @media (prefers-color-scheme: dark) {
-    background: oklch(14.5% 0 0deg);
-  }
-}
-
 .Input {
   box-sizing: border-box;
   padding: 0 0.5rem;
+  border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
   margin: 0;
-  width: 100%;
-  height: 2rem;
+  width: 16rem;
+  max-width: 100%;
+  height: var(--input-container-height);
   font-family: inherit;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -201,6 +190,7 @@
   @media (prefers-color-scheme: dark) {
     background-color: oklch(14.5% 0 0deg);
     color: white;
+    border-color: white;
   }
 
   &::placeholder {
@@ -213,10 +203,20 @@
 
   &:focus {
     outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -2px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
     }
+  }
+}
+
+.Viewport {
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-top: none;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
   }
 }
 
@@ -235,14 +235,11 @@
     opacity 150ms;
   max-width: var(--available-width);
   max-height: 20.5rem;
-
-  border: 1px solid oklch(14.5% 0 0deg);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
 
   @media (prefers-color-scheme: dark) {
     background-color: oklch(14.5% 0 0deg);
     color: white;
-    border: 1px solid white;
     box-shadow: none;
   }
 
