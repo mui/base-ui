@@ -98,6 +98,7 @@ export function DialogInteractions({
       if ('touches' in event && event.touches.length !== 1) {
         return false;
       }
+
       const target = getTarget(event) as Element | null;
       if (isTopmost && !disablePointerDismissal) {
         const eventTarget = target as Element | null;

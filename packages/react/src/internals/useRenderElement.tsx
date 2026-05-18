@@ -141,7 +141,9 @@ function evaluateRenderProp<T extends React.ElementType, S>(
       }
       return render(props, state);
     }
+
     const mergedProps = mergeProps(props, render.props);
+
     mergedProps.ref = props.ref;
 
     let newElement = render;

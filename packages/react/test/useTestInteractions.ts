@@ -1,14 +1,24 @@
 import * as React from 'react';
-
-import type { ElementProps } from '../types';
-import { ACTIVE_KEY, FOCUSABLE_ATTRIBUTE, SELECTED_KEY } from '../utils/constants';
+import type { ElementProps } from '../src/floating-ui-react/types';
+import {
+  ACTIVE_KEY,
+  FOCUSABLE_ATTRIBUTE,
+  SELECTED_KEY,
+} from '../src/floating-ui-react/utils/constants';
 
 export type ExtendedUserProps = {
   [ACTIVE_KEY]?: boolean | undefined;
   [SELECTED_KEY]?: boolean | undefined;
 };
 
-export interface UseInteractionsReturn {
+export type TestElementProps = Omit<ElementProps, 'item'> & {
+  item?:
+    | React.HTMLProps<HTMLElement>
+    | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>)
+    | undefined;
+};
+
+export interface UseTestInteractionsReturn {
   getReferenceProps: (userProps?: React.HTMLProps<Element>) => Record<string, unknown>;
   getFloatingProps: (userProps?: React.HTMLProps<HTMLElement>) => Record<string, unknown>;
   getItemProps: (
@@ -17,13 +27,9 @@ export interface UseInteractionsReturn {
   getTriggerProps: (userProps?: React.HTMLProps<Element>) => Record<string, unknown>;
 }
 
-/**
- * Merges an array of interaction hooks' props into prop getters, allowing
- * event handler functions to be composed together without overwriting one
- * another.
- * @see https://floating-ui.com/docs/useInteractions
- */
-export function useInteractions(propsList: Array<ElementProps | void> = []): UseInteractionsReturn {
+export function useTestInteractions(
+  propsList: Array<TestElementProps | void> = [],
+): UseTestInteractionsReturn {
   const referenceDeps = propsList.map((interactionProps) => interactionProps?.reference);
   const floatingDeps = propsList.map((interactionProps) => interactionProps?.floating);
   const itemDeps = propsList.map((interactionProps) => interactionProps?.item);
@@ -62,9 +68,9 @@ export function useInteractions(propsList: Array<ElementProps | void> = []): Use
 
 /* eslint-disable guard-for-in */
 
-function mergeProps<Key extends keyof ElementProps>(
+function mergeProps<Key extends keyof TestElementProps>(
   userProps: (React.HTMLProps<Element> & ExtendedUserProps) | undefined,
-  propsList: Array<ElementProps | void>,
+  propsList: Array<TestElementProps | void>,
   elementKey: Key,
 ): Record<string, unknown> {
   const eventHandlers = new Map<string, Array<(...args: unknown[]) => void>>();

@@ -1,20 +1,10 @@
 import { vi, expect } from 'vitest';
 import * as React from 'react';
 import { render } from '@testing-library/react';
+import { useTestInteractions } from './useTestInteractions';
+import { FOCUSABLE_ATTRIBUTE } from '../src/floating-ui-react/utils/constants';
 
-import {
-  useClick,
-  useDismiss,
-  useFloating,
-  useFocus,
-  useHover,
-  useInteractions,
-  useListNavigation,
-  useRole,
-  useTypeahead,
-} from '../index';
-
-describe('useInteractions', () => {
+describe('useTestInteractions', () => {
   it('correctly merges functions', () => {
     const firstInteractionOnClick = vi.fn();
     const secondInteractionOnClick = vi.fn();
@@ -22,7 +12,7 @@ describe('useInteractions', () => {
     const userOnClick = vi.fn();
 
     function App() {
-      const { getReferenceProps } = useInteractions([
+      const { getReferenceProps } = useTestInteractions([
         { reference: { onClick: firstInteractionOnClick } },
         {
           reference: {
@@ -52,7 +42,7 @@ describe('useInteractions', () => {
 
   it('does not error with undefined user supplied functions', () => {
     function App() {
-      const { getReferenceProps } = useInteractions([{ reference: { onClick() {} } }]);
+      const { getReferenceProps } = useTestInteractions([{ reference: { onClick() {} } }]);
       expect(() =>
         // @ts-expect-error
         getReferenceProps({ onClick: undefined }).onClick(),
@@ -65,7 +55,7 @@ describe('useInteractions', () => {
 
   it('does not break props that start with `on`', () => {
     function App() {
-      const { getReferenceProps } = useInteractions([]);
+      const { getReferenceProps } = useTestInteractions([]);
 
       const props = getReferenceProps({
         // @ts-expect-error
@@ -84,7 +74,7 @@ describe('useInteractions', () => {
 
   it('does not break props that return values', () => {
     function App() {
-      const { getReferenceProps } = useInteractions([]);
+      const { getReferenceProps } = useTestInteractions([]);
 
       const props = getReferenceProps({
         // @ts-expect-error
@@ -100,43 +90,60 @@ describe('useInteractions', () => {
     render(<App />);
   });
 
+  it('adds focusable props to floating elements', () => {
+    function App() {
+      const { getFloatingProps } = useTestInteractions([]);
+      const props = getFloatingProps();
+
+      expect(props.tabIndex).toBe(-1);
+      expect(props[FOCUSABLE_ATTRIBUTE]).toBe('');
+
+      return null;
+    }
+
+    render(<App />);
+  });
+
+  it('strips active and selected from item props passed to item callbacks', () => {
+    const item = vi.fn((props: { active?: boolean; selected?: boolean }) => ({
+      role: 'option' as const,
+      tabIndex: props.active ? 0 : -1,
+      'aria-selected': props.selected,
+    }));
+
+    function App() {
+      const { getItemProps } = useTestInteractions([{ item }]);
+      const props = getItemProps({ active: true, selected: true });
+
+      expect(item).toHaveBeenCalledWith({ active: true, selected: true });
+      expect(props.active).toBeUndefined();
+      expect(props.selected).toBeUndefined();
+      expect(props.role).toBe('option');
+      expect(props.tabIndex).toBe(0);
+      expect(props['aria-selected']).toBe(true);
+
+      return null;
+    }
+
+    render(<App />);
+  });
+
   it('prop getters are memoized', () => {
     function App() {
-      const [open, setOpen] = React.useState(false);
       const [, setCount] = React.useState(0);
+      const propsList = React.useMemo(
+        () => [
+          { reference: { onClick() {} } },
+          { floating: { onKeyDown() {} } },
+          { item: { onMouseMove() {} } },
+        ],
+        [],
+      );
 
-      const handleClose = () => () => {};
-      // eslint-disable-next-line
-      handleClose.__options = { blockPointerEvents: true };
-
-      const listRef = React.useRef([]);
-      const { context } = useFloating({ open, onOpenChange: setOpen });
-
-      // NOTE: if `ref`-related props are not memoized, this will cause
-      // an infinite loop as they must be memoized externally (as done by React).
-      // Other non-primitives like functions and arrays get memoized by the hooks.
-      const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-        useHover(context, { handleClose }),
-        useFocus(context),
-        useClick(context),
-        useRole(context),
-        useDismiss(context),
-        useListNavigation(context, {
-          listRef,
-          activeIndex: 0,
-          onNavigate: () => {},
-          disabledIndices: [],
-        }),
-        useTypeahead(context, {
-          listRef,
-          activeIndex: 0,
-          onMatch: () => {},
-        }),
-      ]);
+      const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions(propsList);
 
       React.useEffect(() => {
-        // Should NOT cause an infinite loop as the prop getters are memoized.
-        setCount((c) => c + 1);
+        setCount((count) => count + 1);
       }, [getReferenceProps, getFloatingProps, getItemProps]);
 
       return null;

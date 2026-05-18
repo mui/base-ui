@@ -70,7 +70,7 @@ export const ComboboxItem = React.memo(
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, itemValue);
-    const getItemProps = useStore(store, selectors.getItemProps);
+    const itemProps = useStore(store, selectors.itemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -138,10 +138,6 @@ export const ComboboxItem = React.memo(
       composite: true,
     });
 
-    const rootProps = getItemProps({ active: highlighted, selected });
-    rootProps.id = undefined;
-    rootProps.onFocus = undefined;
-
     const state: ComboboxItemState = {
       disabled,
       selected,
@@ -200,7 +196,7 @@ export const ComboboxItem = React.memo(
     const element = useRenderElement('div', componentProps, {
       ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
       state,
-      props: [rootProps, defaultProps, elementProps, getButtonProps],
+      props: [itemProps, defaultProps, elementProps, getButtonProps],
     });
 
     const contextValue: ComboboxItemContext = React.useMemo(
