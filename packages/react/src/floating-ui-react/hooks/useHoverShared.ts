@@ -68,5 +68,5 @@ export function isClickLikeOpenEvent(openEventType: string | undefined, interact
 }
 
 export function isHoverOpenEvent(openEventType: string | undefined) {
-  return openEventType?.includes('mouse') && openEventType !== 'mousedown';
+  return openEventType?.includes('mouse') === true && openEventType !== 'mousedown';
 }

@@ -96,6 +96,7 @@ export function useSyncedFloatingRootContext<
   // Keep non-reactive context values fresh for interactions that call `store.setOpen`.
   store.context.onOpenChange = handleOpenChange;
   store.context.nested = nested;
+  store.context.isPopupEffectivelyOpen = () => popupStore.select('open');
 
   return store;
 }

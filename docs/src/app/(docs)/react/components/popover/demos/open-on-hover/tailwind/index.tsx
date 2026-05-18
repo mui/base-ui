@@ -6,6 +6,7 @@ export default function ExamplePopover() {
     <Popover.Root>
       <Popover.Trigger
         openOnHover
+        closeDelay={100}
         className="flex size-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100"
       >
         <BellIcon aria-label="Notifications" />

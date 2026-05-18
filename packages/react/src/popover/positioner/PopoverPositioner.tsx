@@ -92,6 +92,12 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const domReference = floatingRootContext.useState('domReferenceElement');
 
+  const openCycleRef = React.useRef(0);
+
+  useIsoLayoutEffect(() => {
+    openCycleRef.current += 1;
+  }, [open]);
+
   // When the current trigger element changes, enable transitions on the
   // positioner temporarily
   useIsoLayoutEffect(() => {
@@ -109,8 +115,19 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ) {
       store.set('instantType', undefined);
       const ac = new AbortController();
+      const triggerElementOnSwitch = currentTriggerElement;
+      const openCycleOnSwitch = openCycleRef.current;
       runOnceAnimationsFinish(() => {
-        store.set('instantType', 'trigger-change');
+        // The switch animation may finish after a hover-close has already started.
+        // Only restore `trigger-change` while the same trigger still owns the
+        // same open popover cycle.
+        if (
+          openCycleRef.current === openCycleOnSwitch &&
+          store.select('open') &&
+          floatingRootContext.select('domReferenceElement') === triggerElementOnSwitch
+        ) {
+          store.set('instantType', 'trigger-change');
+        }
       }, ac.signal);
 
       return () => {
@@ -119,7 +136,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     }
 
     return undefined;
-  }, [domReference, runOnceAnimationsFinish, store]);
+  }, [domReference, floatingRootContext, runOnceAnimationsFinish, store]);
 
   useAnchoredPopupScrollLock(
     open && modal === true && openReason !== REASONS.triggerHover,

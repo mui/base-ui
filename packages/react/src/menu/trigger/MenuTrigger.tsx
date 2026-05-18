@@ -38,6 +38,7 @@ import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { mergeProps } from '../../merge-props';
+import { HOVER_CLOSE_GRACE_PERIOD } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -183,6 +184,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     move: false,
     restMs: parent.type === undefined ? delay : undefined,
     delay: { close: closeDelay },
+    hoverCloseGracePeriod: HOVER_CLOSE_GRACE_PERIOD,
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
@@ -327,6 +329,9 @@ export interface MenuTriggerProps<Payload = unknown>
   payload?: Payload | undefined;
   /**
    * How long to wait before the menu may be opened on hover. Specified in milliseconds.
+   * The delay is bypassed briefly after a committed hover close so quick
+   * popup-to-trigger, trigger-to-trigger, and same-trigger re-entry handoffs
+   * can reopen immediately.
    *
    * Requires the `openOnHover` prop.
    * @default 100

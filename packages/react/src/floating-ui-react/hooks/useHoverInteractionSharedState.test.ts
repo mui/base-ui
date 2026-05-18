@@ -1,0 +1,137 @@
+import { vi } from 'vitest';
+import type { FloatingRootContext, FloatingTreeType } from '../types';
+import { closeHoverPopup, HoverInteraction } from './useHoverInteractionSharedState';
+
+describe('closeHoverPopup', () => {
+  it('emits a committed close even when the popup was not hover-opened', () => {
+    const store = createMockStore();
+    const instance = HoverInteraction.create();
+    const tree = createMockTree();
+
+    closeHoverPopup(
+      store as FloatingRootContext,
+      instance,
+      tree as unknown as FloatingTreeType,
+      new MouseEvent('mouseleave'),
+      false,
+      400,
+    );
+
+    expect(tree.emittedEvents).toEqual([['floating.closed', expect.any(MouseEvent)]]);
+    expect(instance.lastHoverCloseTime).toBe(0);
+  });
+
+  it('records reopen grace only for committed hover closes', () => {
+    const store = createMockStore();
+    const instance = HoverInteraction.create();
+    const tree = createMockTree();
+    const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(123);
+
+    try {
+      closeHoverPopup(
+        store as FloatingRootContext,
+        instance,
+        tree as unknown as FloatingTreeType,
+        new MouseEvent('mouseleave'),
+        true,
+        400,
+      );
+
+      expect(tree.emittedEvents).toEqual([['floating.closed', expect.any(MouseEvent)]]);
+      expect(instance.lastHoverCloseTime).toBe(123);
+    } finally {
+      performanceNowSpy.mockRestore();
+    }
+  });
+
+  it('does not report a close when the request is canceled', () => {
+    const store = createMockStore({ cancelClose: true });
+    const instance = HoverInteraction.create();
+    const tree = createMockTree();
+
+    closeHoverPopup(
+      store as FloatingRootContext,
+      instance,
+      tree as unknown as FloatingTreeType,
+      new MouseEvent('mouseleave'),
+      true,
+      400,
+    );
+
+    expect(tree.emittedEvents).toEqual([]);
+    expect(instance.lastHoverCloseTime).toBe(0);
+  });
+
+  it('does not record a pending close when a controlled consumer ignores the request', async () => {
+    const store = createMockStore({ controlledOpen: true });
+    const instance = HoverInteraction.create();
+    const tree = createMockTree();
+
+    closeHoverPopup(
+      store as FloatingRootContext,
+      instance,
+      tree as unknown as FloatingTreeType,
+      new MouseEvent('mouseleave'),
+      true,
+      400,
+    );
+
+    // The consumer silently ignored the close request. The pending close is
+    // retained only until the next microtask can confirm that the popup is
+    // still effectively open, preventing a later unrelated close from
+    // inheriting stale hover grace.
+    await new Promise<void>(queueMicrotask);
+
+    expect(tree.emittedEvents).toEqual([]);
+    expect(instance.lastHoverCloseTime).toBe(0);
+    expect(instance.pendingHoverClose).toBe(null);
+  });
+});
+
+function createMockStore(
+  options: {
+    cancelClose?: boolean;
+    controlledOpen?: boolean;
+  } = {},
+) {
+  let open = true;
+
+  return {
+    context: {
+      isPopupEffectivelyOpen:
+        options.controlledOpen != null ? () => options.controlledOpen : undefined,
+    },
+    select(key: string) {
+      if (key === 'open') {
+        return options.controlledOpen ?? open;
+      }
+
+      return undefined;
+    },
+    setOpen(
+      _open: boolean,
+      eventDetails: {
+        cancel: () => void;
+      },
+    ) {
+      if (options.cancelClose) {
+        eventDetails.cancel();
+        return;
+      }
+
+      open = false;
+    },
+  };
+}
+
+function createMockTree() {
+  const emittedEvents: Array<[string, unknown]> = [];
+  return {
+    emittedEvents,
+    events: {
+      emit(event: string, data: unknown) {
+        emittedEvents.push([event, data]);
+      },
+    },
+  };
+}

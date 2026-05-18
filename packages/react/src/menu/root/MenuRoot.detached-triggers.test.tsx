@@ -1,6 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM, wait } from '#test-utils';
 
@@ -480,6 +487,134 @@ describe('<MenuRoot />', () => {
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = { payload: number | undefined };
 
+    async function renderHoverDetachedTriggers(
+      popupChildren: React.ReactNode = <Menu.Item data-testid="content">{undefined}</Menu.Item>,
+    ) {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testMenu = Menu.createHandle<number>();
+
+      const utils = await render(
+        <div style={{ position: 'relative', width: 400, height: 200 }}>
+          <style>
+            {`
+              .positioner {
+                transition:
+                  top 120ms linear,
+                  left 120ms linear,
+                  transform 120ms linear;
+              }
+
+              .popup {
+                opacity: 1;
+                transition: opacity 250ms linear;
+              }
+
+              .popup[data-ending-style] {
+                opacity: 0;
+              }
+
+              .positioner[data-instant],
+              .popup[data-instant] {
+                transition: none;
+              }
+            `}
+          </style>
+
+          <Menu.Trigger
+            handle={testMenu}
+            payload={1}
+            openOnHover
+            delay={0}
+            style={{
+              position: 'absolute',
+              top: 20,
+              left: 20,
+            }}
+          >
+            Trigger 1
+          </Menu.Trigger>
+          <Menu.Trigger
+            handle={testMenu}
+            payload={2}
+            openOnHover
+            delay={0}
+            style={{
+              position: 'absolute',
+              top: 20,
+              left: 220,
+            }}
+          >
+            Trigger 2
+          </Menu.Trigger>
+
+          <Menu.Root handle={testMenu}>
+            {({ payload }: NumberPayload) => (
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner" className="positioner">
+                  <Menu.Popup data-testid="popup" className="popup">
+                    {React.isValidElement<{ 'data-testid'?: string }>(popupChildren) &&
+                    popupChildren.props['data-testid'] === 'content' ? (
+                      React.cloneElement(
+                        popupChildren as React.ReactElement<{ children?: React.ReactNode }>,
+                        undefined,
+                        payload,
+                      )
+                    ) : (
+                      <React.Fragment>
+                        <Menu.Item data-testid="content">{payload}</Menu.Item>
+                        {popupChildren}
+                      </React.Fragment>
+                    )}
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            )}
+          </Menu.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await utils.user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      await utils.user.hover(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
+
+      return {
+        ...utils,
+        trigger1,
+        trigger2,
+        popup: screen.getByTestId('popup'),
+      };
+    }
+
+    async function waitForTriggerChangeInstant() {
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'trigger-change');
+      });
+    }
+
+    async function getPositionerAnimations() {
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner.getAnimations().length).toBeGreaterThan(0);
+      });
+      return positioner.getAnimations();
+    }
+
+    async function waitForAnimationsFinished(animations: Animation[]) {
+      await act(async () => {
+        await Promise.all(animations.map((animation) => animation.finished.catch(() => undefined)));
+      });
+    }
+
     it('should open the menu with any trigger', async () => {
       const testMenu = Menu.createHandle();
       const { user } = await render(
@@ -610,6 +745,59 @@ describe('<MenuRoot />', () => {
 
       expect(screen.getByTestId('popup')).toBe(popupElement);
       expect(screen.getByTestId('positioner')).toBe(positionerElement);
+    });
+
+    it('bypasses open delay when hovering another trigger shortly after leaving the popup', async () => {
+      ignoreActWarnings();
+      const testMenu = Menu.createHandle();
+      await render(
+        <React.Fragment>
+          <Menu.Trigger handle={testMenu} openOnHover delay={100}>
+            Trigger 1
+          </Menu.Trigger>
+          <Menu.Trigger handle={testMenu} openOnHover delay={100}>
+            Trigger 2
+          </Menu.Trigger>
+
+          <Menu.Root handle={testMenu}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </React.Fragment>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      await flushMicrotasks();
+
+      await wait(100);
+      await flushMicrotasks();
+      const popup = screen.getByRole('menu');
+
+      fireEvent.mouseLeave(trigger1, { relatedTarget: popup });
+      fireEvent.mouseEnter(popup, { relatedTarget: trigger1 });
+      await flushMicrotasks();
+      expect(screen.queryByRole('menu')).not.toBe(null);
+
+      fireEvent.mouseLeave(popup, { relatedTarget: document.body, clientX: 500, clientY: 500 });
+      fireEvent.mouseMove(document.body, { clientX: 500, clientY: 500 });
+      await flushMicrotasks();
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      fireEvent.mouseEnter(trigger2, { relatedTarget: document.body });
+      fireEvent.mouseMove(trigger2);
+      await flushMicrotasks();
+      expect(screen.queryByRole('menu')).not.toBe(null);
     });
 
     it('should allow controlling the menu state programmatically', async () => {
@@ -779,6 +967,86 @@ describe('<MenuRoot />', () => {
 
       const popup = screen.getByTestId('popup');
       expect(popup.style.scale).toBe('');
+    });
+
+    it('clears trigger-change instant before hover close after switching triggers', async () => {
+      const { user, trigger2, popup } = await renderHoverDetachedTriggers();
+
+      await waitForTriggerChangeInstant();
+
+      await user.unhover(trigger2);
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
+      });
+
+      expect(popup).not.toHaveAttribute('data-instant');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    });
+
+    it('clears trigger-change instant before non-hover close after switching triggers', async () => {
+      const { popup } = await renderHoverDetachedTriggers(<Menu.Item>Close</Menu.Item>);
+
+      await waitForTriggerChangeInstant();
+
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Close' }));
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
+      });
+
+      expect(popup).not.toHaveAttribute('data-instant');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    });
+
+    it('does not restore trigger-change instant after hover close starts', async () => {
+      const { user, trigger2, popup } = await renderHoverDetachedTriggers();
+      const switchAnimations = await getPositionerAnimations();
+
+      await user.unhover(trigger2);
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
+      });
+
+      await waitForAnimationsFinished(switchAnimations);
+
+      expect(screen.getByTestId('popup')).toBe(popup);
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(popup).not.toHaveAttribute('data-instant');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    });
+
+    it('clears trigger-change instant before hover close after switching back to the original trigger', async () => {
+      const { user, trigger1, popup } = await renderHoverDetachedTriggers();
+
+      await waitForTriggerChangeInstant();
+
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      await waitForTriggerChangeInstant();
+
+      await user.unhover(trigger1);
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
+      });
+
+      expect(screen.getByTestId('popup')).toBe(popup);
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(popup).not.toHaveAttribute('data-instant');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
     });
 
     describe('nested menus', () => {

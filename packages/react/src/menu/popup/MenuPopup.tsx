@@ -18,6 +18,7 @@ import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { HOVER_CLOSE_GRACE_PERIOD } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 
 const stateAttributesMapping: StateAttributesMapping<MenuPopupState> = {
   ...baseMapping,
@@ -86,6 +87,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   useHoverFloatingInteraction(floatingContext, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
     closeDelay,
+    hoverCloseGracePeriod: HOVER_CLOSE_GRACE_PERIOD,
   });
 
   const setPopupElement = React.useCallback(

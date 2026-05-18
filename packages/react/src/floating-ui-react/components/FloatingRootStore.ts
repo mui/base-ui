@@ -29,6 +29,10 @@ export interface FloatingRootStoreContext {
   readonly events: FloatingEvents;
   nested: boolean;
   readonly triggerElements: PopupTriggerMap;
+  /**
+   * Returns the effective `open` state from the popup store (`openProp ?? open`).
+   */
+  isPopupEffectivelyOpen?: (() => boolean) | undefined;
 }
 
 const selectors = {

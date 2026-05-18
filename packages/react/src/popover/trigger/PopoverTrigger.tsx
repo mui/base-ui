@@ -11,7 +11,8 @@ import { StateAttributesMapping } from '../../internals/getStateAttributesProps'
 import { useRenderElement } from '../../internals/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
-import { OPEN_DELAY } from '../utils/constants';
+import { OPEN_DELAY, CLOSE_DELAY } from '../utils/constants';
+import { HOVER_CLOSE_GRACE_PERIOD } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
@@ -40,7 +41,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     payload,
     openOnHover = false,
     delay = OPEN_DELAY,
-    closeDelay = 0,
+    closeDelay = CLOSE_DELAY,
     id: idProp,
     ...elementProps
   } = componentProps;
@@ -90,6 +91,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     delay: {
       close: closeDelay,
     },
+    hoverCloseGracePeriod: HOVER_CLOSE_GRACE_PERIOD,
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
     isClosing: () => store.select('transitionStatus') === 'ending',
@@ -211,6 +213,9 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
     openOnHover?: boolean | undefined;
     /**
      * How long to wait before the popover may be opened on hover. Specified in milliseconds.
+     * The delay is bypassed briefly after a committed hover close so quick
+     * popup-to-trigger, trigger-to-trigger, and same-trigger re-entry handoffs
+     * can reopen immediately.
      *
      * Requires the `openOnHover` prop.
      * @default 300

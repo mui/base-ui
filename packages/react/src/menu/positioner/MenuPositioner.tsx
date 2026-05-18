@@ -79,6 +79,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const domReference = floatingRootContext.useState('domReferenceElement');
 
   const previousTriggerRef = React.useRef<Element | null>(null);
+  const openCycleRef = React.useRef(0);
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
 
   let anchor = anchorProp;
@@ -176,7 +177,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const closeTimeout = useTimeout();
 
-  // Clear pending close timeout when the menu closes.
   React.useEffect(() => {
     if (!open) {
       closeTimeout.clear();
@@ -226,6 +226,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
+  // Track close/reopen cycles so a stale trigger switch animation callback
+  // cannot affect a later menu open.
+  useIsoLayoutEffect(() => {
+    openCycleRef.current += 1;
+  }, [open]);
+
   // Keep positioner transition behavior aligned with Popover when switching detached triggers.
   useIsoLayoutEffect(() => {
     const currentTrigger = domReference;
@@ -239,8 +245,16 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       store.set('instantType', undefined);
 
       const abortController = new AbortController();
+      const triggerOnSwitch = currentTrigger;
+      const openCycleOnSwitch = openCycleRef.current;
       runOnceAnimationsFinish(() => {
-        store.set('instantType', 'trigger-change');
+        if (
+          openCycleRef.current === openCycleOnSwitch &&
+          store.select('open') &&
+          floatingRootContext.select('domReferenceElement') === triggerOnSwitch
+        ) {
+          store.set('instantType', 'trigger-change');
+        }
       }, abortController.signal);
 
       return () => {
@@ -249,7 +263,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     }
 
     return undefined;
-  }, [domReference, runOnceAnimationsFinish, store]);
+  }, [domReference, floatingRootContext, runOnceAnimationsFinish, store]);
 
   const state: MenuPositionerState = {
     open,

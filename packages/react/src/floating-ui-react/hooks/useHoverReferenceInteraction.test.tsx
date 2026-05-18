@@ -2,12 +2,15 @@ import { vi, expect } from 'vitest';
 import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
+import { createRenderer } from '#test-utils';
 import { useFloating } from './useFloating';
 import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
+  const { render: renderWithClock, clock } = createRenderer();
+
   it('does not treat child target as inactive when handlers are on a wrapper', async () => {
     const onOpenChange = vi.fn();
 
@@ -196,6 +199,104 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
 
     expect(onOpenChange).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole('tooltip')).not.toBe(null);
+  });
+
+  describe('open delay after mouseleave', () => {
+    clock.withFakeTimers();
+
+    it('does not bypass open delay after mouseleave while already closed', async () => {
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        const triggerElementRef = React.useRef<Element | null>(null);
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange: setOpen,
+        });
+
+        const hoverProps = useHoverReferenceInteraction(context, {
+          delay: { open: 100, close: 0 },
+          hoverCloseGracePeriod: 400,
+          triggerElementRef,
+        });
+
+        return (
+          <React.Fragment>
+            <button
+              data-testid="trigger"
+              ref={(node) => {
+                refs.setReference(node);
+                triggerElementRef.current = node;
+              }}
+              {...hoverProps}
+            />
+            {open && <div role="tooltip" ref={refs.setFloating} />}
+          </React.Fragment>
+        );
+      }
+
+      await renderWithClock(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      // Can happen during aborted hovers; should not seed hover handoff grace.
+      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseMove(trigger, { movementX: 10, movementY: 0 });
+
+      expect(screen.queryByRole('tooltip')).toBe(null);
+
+      clock.tick(99);
+      await flushMicrotasks();
+      expect(screen.queryByRole('tooltip')).toBe(null);
+
+      clock.tick(1);
+      await flushMicrotasks();
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+    });
+
+    it('does not schedule a delayed close from mouseleave while already closed', async () => {
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        const triggerElementRef = React.useRef<Element | null>(null);
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange: setOpen,
+        });
+
+        const hoverProps = useHoverReferenceInteraction(context, {
+          delay: { open: 100, close: 300 },
+          triggerElementRef,
+        });
+
+        return (
+          <React.Fragment>
+            <button
+              data-testid="trigger"
+              ref={(node) => {
+                refs.setReference(node);
+                triggerElementRef.current = node;
+              }}
+              {...hoverProps}
+            />
+            {open && <div role="tooltip" ref={refs.setFloating} />}
+          </React.Fragment>
+        );
+      }
+
+      await renderWithClock(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseEnter(trigger);
+
+      expect(screen.queryByRole('tooltip')).toBe(null);
+
+      clock.tick(100);
+      await flushMicrotasks();
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+
+      clock.tick(200);
+      await flushMicrotasks();
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+    });
   });
 
   it('reopens immediately for same trigger in delegated wrapper mode during close transition', async () => {

@@ -17,6 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { HOVER_CLOSE_GRACE_PERIOD } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import { ClosePartProvider, useClosePartCount } from '../../utils/closePart';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
@@ -72,7 +73,11 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
   });
 
-  useHoverFloatingInteraction(floatingContext, { enabled: openOnHover && !disabled, closeDelay });
+  useHoverFloatingInteraction(floatingContext, {
+    enabled: openOnHover && !disabled,
+    closeDelay,
+    hoverCloseGracePeriod: HOVER_CLOSE_GRACE_PERIOD,
+  });
 
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
