@@ -18,52 +18,6 @@ export function hasExplicitNumberFormatPrecision(format?: NumberFormatOptionsWit
   );
 }
 
-function hasSignificantDigits(format?: NumberFormatOptionsWithRounding) {
-  return format?.maximumSignificantDigits != null || format?.minimumSignificantDigits != null;
-}
-
-function roundToFractionDigits(value: number, maximumFractionDigits: number) {
-  const digits = Math.min(Math.max(maximumFractionDigits, 0), 20);
-  return Number(value.toFixed(digits));
-}
-
-function cleanScaledPercentValue(value: number, maximumFractionDigits: number) {
-  // Directional Intl rounding has no tolerance for the binary noise introduced by `value * 100`.
-  // Clean a few extra decimal places first so exact typed boundaries like 0.46% stay exact.
-  const digits = Math.min(Math.max(maximumFractionDigits + 6, 0), 20);
-  return Number(value.toFixed(digits));
-}
-
-function roundWithIntl(
-  value: number,
-  digits: number,
-  format?: NumberFormatOptionsWithRounding,
-): number {
-  // Keep style/unit/notation out so the formatted string parses back as a plain number. Percent
-  // scaling is applied explicitly before and after this formatter.
-  const roundingFormatOptions: NumberFormatOptionsWithRounding = {
-    useGrouping: false,
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-    minimumSignificantDigits: format?.minimumSignificantDigits,
-    maximumSignificantDigits: format?.maximumSignificantDigits,
-    roundingIncrement: format?.roundingIncrement,
-    roundingMode: format?.roundingMode,
-    roundingPriority: format?.roundingPriority,
-  };
-
-  try {
-    const roundedValue = Number(getFormatter('en-US', roundingFormatOptions).format(value));
-    return Number.isFinite(roundedValue) ? roundedValue : roundToFractionDigits(value, digits);
-  } catch {
-    return roundToFractionDigits(value, digits);
-  }
-}
-
-function getDefaultMaximumFractionDigits() {
-  return getFormatter('en-US').resolvedOptions().maximumFractionDigits ?? 20;
-}
-
 function getMaximumFractionDigits(format?: NumberFormatOptionsWithRounding) {
   // Preserve the old decimal defaults unless min-only precision needs style-specific defaults.
   const minimumFractionDigits = format?.minimumFractionDigits ?? 0;
@@ -73,7 +27,7 @@ function getMaximumFractionDigits(format?: NumberFormatOptionsWithRounding) {
   }
 
   if (format?.minimumFractionDigits == null) {
-    return Math.max(getDefaultMaximumFractionDigits(), 0);
+    return 3;
   }
 
   // Some invalid Intl option combinations throw when constructing the formatter. Rendering usually
@@ -84,7 +38,7 @@ function getMaximumFractionDigits(format?: NumberFormatOptionsWithRounding) {
       minimumFractionDigits,
     );
   } catch {
-    return Math.max(getDefaultMaximumFractionDigits(), minimumFractionDigits);
+    return Math.max(3, minimumFractionDigits);
   }
 }
 
@@ -94,7 +48,8 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   }
 
   const digits = Math.min(Math.max(getMaximumFractionDigits(format), 0), 20);
-  const hasSignificantPrecision = hasSignificantDigits(format);
+  const hasSignificantPrecision =
+    format?.maximumSignificantDigits != null || format?.minimumSignificantDigits != null;
   // Percent values are stored as fractions, so rounding must happen at the displayed scale.
   const isPercentWithExplicitPrecision =
     format?.style === 'percent' && hasExplicitNumberFormatPrecision(format);
@@ -107,8 +62,12 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   }
 
   if (scale !== 1) {
-    valueToRound = cleanScaledPercentValue(valueToRound, digits);
+    // Directional Intl rounding has no tolerance for the binary noise introduced by `value * 100`.
+    // Clean a few extra decimal places first so exact typed boundaries like 0.46% stay exact.
+    valueToRound = Number(valueToRound.toFixed(Math.min(digits + 6, 20)));
   }
+
+  const roundedFallback = Number(valueToRound.toFixed(digits)) / scale;
 
   if (
     !hasSignificantPrecision &&
@@ -116,10 +75,28 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     format?.roundingMode == null &&
     format?.roundingPriority == null
   ) {
-    return roundToFractionDigits(valueToRound, digits) / scale;
+    return roundedFallback;
   }
 
-  return roundWithIntl(valueToRound, digits, format) / scale;
+  try {
+    // Keep style/unit/notation out so the formatted string parses back as a plain number.
+    const roundingFormatOptions = {
+      useGrouping: false,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+      minimumSignificantDigits: format?.minimumSignificantDigits,
+      maximumSignificantDigits: format?.maximumSignificantDigits,
+      roundingIncrement: format?.roundingIncrement,
+      roundingMode: format?.roundingMode,
+      roundingPriority: format?.roundingPriority,
+    } satisfies NumberFormatOptionsWithRounding;
+
+    const roundedValue = Number(getFormatter('en-US', roundingFormatOptions).format(valueToRound));
+
+    return Number.isFinite(roundedValue) ? roundedValue / scale : roundedFallback;
+  } catch {
+    return roundedFallback;
+  }
 }
 
 function snapToStep(
