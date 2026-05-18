@@ -377,6 +377,7 @@
     display: flex;
     min-height: 0;
     flex: 1;
+    overflow: hidden;
 
     &:has(.SearchScrollAreaViewport:focus-visible) {
       outline: 2px solid var(--gray-t2);
