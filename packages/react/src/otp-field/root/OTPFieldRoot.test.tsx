@@ -1059,63 +1059,61 @@ describe('<OTPFieldPreview />', () => {
       expect(onValueComplete.mock.calls[0]?.[1].reason).toBe(REASONS.inputChange);
     });
 
-    it('ignores hidden-input autofill when the field is readonly', async () => {
-      const onValueChange = vi.fn();
-      const onValueInvalid = vi.fn();
-      const onValueComplete = vi.fn();
+    it.each([
+      { lockState: 'readOnly', label: 'inside Field', withField: true },
+      { lockState: 'disabled', label: 'inside Field', withField: true },
+      { lockState: 'readOnly', label: 'outside Field', withField: false },
+      { lockState: 'disabled', label: 'outside Field', withField: false },
+    ] as const)(
+      'ignores hidden-input autofill when $lockState $label',
+      async ({ lockState, withField }) => {
+        const onValueChange = vi.fn();
+        const onValueInvalid = vi.fn();
+        const onValueComplete = vi.fn();
+        const otpField = (
+          <OTPField
+            readOnly={lockState === 'readOnly'}
+            disabled={lockState === 'disabled'}
+            name={withField ? undefined : 'otp'}
+            onValueChange={onValueChange}
+            onValueInvalid={onValueInvalid}
+            onValueComplete={onValueComplete}
+          />
+        );
 
-      await render(
-        <OTPField
-          readOnly
-          name="otp"
-          onValueChange={onValueChange}
-          onValueInvalid={onValueInvalid}
-          onValueComplete={onValueComplete}
-        />,
-      );
+        await render(
+          withField ? (
+            <Form errors={{ otp: 'test' }}>
+              <Field.Root name="otp">
+                {otpField}
+                <Field.Error data-testid="error" />
+              </Field.Root>
+            </Form>
+          ) : (
+            otpField
+          ),
+        );
 
-      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
+        const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
 
-      expect(hiddenInput).not.toBeNull();
+        expect(hiddenInput).not.toBeNull();
 
-      fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });
+        if (withField) {
+          expect(screen.getByTestId('error')).toHaveTextContent('test');
+        }
 
-      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+        fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });
 
-      expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
-      expect(onValueChange).not.toHaveBeenCalled();
-      expect(onValueInvalid).not.toHaveBeenCalled();
-      expect(onValueComplete).not.toHaveBeenCalled();
-    });
+        expect(getValues()).toBe('');
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(onValueInvalid).not.toHaveBeenCalled();
+        expect(onValueComplete).not.toHaveBeenCalled();
 
-    it('ignores hidden-input autofill when the field is disabled', async () => {
-      const onValueChange = vi.fn();
-      const onValueInvalid = vi.fn();
-      const onValueComplete = vi.fn();
-
-      await render(
-        <OTPField
-          disabled
-          name="otp"
-          onValueChange={onValueChange}
-          onValueInvalid={onValueInvalid}
-          onValueComplete={onValueComplete}
-        />,
-      );
-
-      const hiddenInput = document.querySelector<HTMLInputElement>('input[name="otp"]');
-
-      expect(hiddenInput).not.toBeNull();
-
-      fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });
-
-      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
-
-      expect(inputs.map((input) => input.value)).toEqual(['', '', '', '', '', '']);
-      expect(onValueChange).not.toHaveBeenCalled();
-      expect(onValueInvalid).not.toHaveBeenCalled();
-      expect(onValueComplete).not.toHaveBeenCalled();
-    });
+        if (withField) {
+          expect(screen.getByTestId('error')).toHaveTextContent('test');
+        }
+      },
+    );
 
     describe('prop: autoSubmit', () => {
       const flushSyncLifecycleError = 'flushSync was called from inside a lifecycle method';
