@@ -262,6 +262,7 @@
     calc(20.5rem - var(--input-container-height) - 2px),
     calc(var(--available-height) - var(--input-container-height) - 2px)
   );
+  padding-block: 0.5rem;
 
   &:empty {
     padding: 0;
