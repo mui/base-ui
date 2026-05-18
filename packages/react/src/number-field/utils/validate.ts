@@ -3,6 +3,8 @@ import { getFormatter } from '../../utils/formatNumber';
 
 const STEP_EPSILON_FACTOR = 1e-10;
 
+// The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
+// Delete this once tsconfig.base.json includes es2023.
 type NumberFormatOptionsWithRounding = Intl.NumberFormatOptions & {
   roundingIncrement?: number | undefined;
   roundingMode?: string | undefined;
