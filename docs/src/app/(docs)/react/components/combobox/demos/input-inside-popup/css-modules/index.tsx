@@ -17,22 +17,22 @@ export default function ExamplePopoverCombobox() {
         <Combobox.Portal>
           <Combobox.Positioner align="start" sideOffset={4}>
             <Combobox.Popup className={styles.Popup} aria-label="Select country">
-              <div className={styles.InputContainer}>
-                <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
+              <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
+              <div className={styles.Viewport}>
+                <Combobox.Empty>
+                  <div className={styles.Empty}>No countries found.</div>
+                </Combobox.Empty>
+                <Combobox.List className={styles.List}>
+                  {(country: Country) => (
+                    <Combobox.Item key={country.code} value={country} className={styles.Item}>
+                      <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                        <CheckIcon />
+                      </Combobox.ItemIndicator>
+                      <span className={styles.ItemText}>{country.label}</span>
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
               </div>
-              <Combobox.Empty>
-                <div className={styles.Empty}>No countries found.</div>
-              </Combobox.Empty>
-              <Combobox.List className={styles.List}>
-                {(country: Country) => (
-                  <Combobox.Item key={country.code} value={country} className={styles.Item}>
-                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon />
-                    </Combobox.ItemIndicator>
-                    <span className={styles.ItemText}>{country.label}</span>
-                  </Combobox.Item>
-                )}
-              </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
         </Combobox.Portal>

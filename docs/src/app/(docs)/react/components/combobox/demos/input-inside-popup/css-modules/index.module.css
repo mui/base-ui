@@ -86,25 +86,13 @@
   }
 }
 
-.InputContainer {
-  box-sizing: border-box;
-  width: 20rem;
-  height: var(--input-container-height);
-  text-align: center;
-  background-color: white;
-
-  @media (prefers-color-scheme: dark) {
-    background-color: oklch(14.5% 0 0deg);
-  }
-}
-
 .Input {
   box-sizing: border-box;
   padding: 0 0.5rem;
   margin: 0;
-  border: none;
+  border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
-  min-width: 18rem;
+  min-width: 20rem;
   width: 100%;
   height: 2rem;
   font-family: inherit;
@@ -123,6 +111,7 @@
   @media (prefers-color-scheme: dark) {
     background-color: oklch(14.5% 0 0deg);
     color: white;
+    border-color: white;
   }
 
   &::placeholder {
@@ -135,6 +124,7 @@
 
   &:focus {
     outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -2px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
@@ -169,14 +159,11 @@
     opacity 150ms;
   max-width: var(--available-width);
   max-height: 24.5rem;
-
-  border: 1px solid oklch(14.5% 0 0deg);
   box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
 
   @media (prefers-color-scheme: dark) {
     background-color: oklch(14.5% 0 0deg);
     color: white;
-    border: 1px solid white;
     box-shadow: none;
   }
 
@@ -184,6 +171,16 @@
   &[data-ending-style] {
     opacity: 0;
     transform: scale(0.9);
+  }
+}
+
+.Viewport {
+  border-right: 1px solid oklch(14.5% 0 0deg);
+  border-bottom: 1px solid oklch(14.5% 0 0deg);
+  border-left: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
   }
 }
 

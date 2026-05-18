@@ -18,34 +18,34 @@ export default function ExamplePopoverCombobox() {
         <Combobox.Portal>
           <Combobox.Positioner align="start" sideOffset={4}>
             <Combobox.Popup
-              className="[--input-container-height:2rem] max-h-[24.5rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-[scale,opacity] duration-150 data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
+              className="[--input-container-height:2rem] max-h-[24.5rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-[scale,opacity] duration-150 data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0  dark:bg-neutral-950 dark:text-white dark:shadow-none"
               aria-label="Select country"
             >
-              <div className="h-[var(--input-container-height)] w-80 bg-white text-center dark:bg-neutral-950">
-                <Combobox.Input
-                  placeholder="e.g. United Kingdom"
-                  className="h-8 w-full min-w-72 border-0 bg-white px-2 dark:bg-neutral-950 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:text-white"
-                />
+              <Combobox.Input
+                placeholder="e.g. United Kingdom"
+                className="h-8 w-full min-w-80 border border-neutral-950 bg-white px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 any-pointer-coarse:text-base dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400 dark:border-white dark:focus:outline-white"
+              />
+              <div className="border-x border-b border-neutral-950 dark:border-white">
+                <Combobox.Empty>
+                  <div className="py-4 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
+                    No countries found.
+                  </div>
+                </Combobox.Empty>
+                <Combobox.List className="max-h-[min(calc(24.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto overscroll-contain py-1 scroll-py-1 empty:p-0">
+                  {(country: Country) => (
+                    <Combobox.Item
+                      key={country.code}
+                      value={country}
+                      className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[1rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
+                    >
+                      <Combobox.ItemIndicator className="col-start-1">
+                        <CheckIcon />
+                      </Combobox.ItemIndicator>
+                      <span className="col-start-2">{country.label}</span>
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
               </div>
-              <Combobox.Empty>
-                <div className="py-4 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
-                  No countries found.
-                </div>
-              </Combobox.Empty>
-              <Combobox.List className="max-h-[min(calc(24.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto overscroll-contain py-1 scroll-py-1 empty:p-0">
-                {(country: Country) => (
-                  <Combobox.Item
-                    key={country.code}
-                    value={country}
-                    className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[1rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
-                  >
-                    <Combobox.ItemIndicator className="col-start-1">
-                      <CheckIcon />
-                    </Combobox.ItemIndicator>
-                    <span className="col-start-2">{country.label}</span>
-                  </Combobox.Item>
-                )}
-              </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
         </Combobox.Portal>
