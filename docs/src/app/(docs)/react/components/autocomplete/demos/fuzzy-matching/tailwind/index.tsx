@@ -22,12 +22,12 @@ export default function ExampleFuzzyMatchingAutocomplete() {
         <Autocomplete.Positioner className="outline-hidden" sideOffset={4}>
           <Autocomplete.Popup className="w-(--anchor-width) max-w-(--available-width) border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
             <Autocomplete.Empty>
-              <div className="py-2 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
+              <div className="py-3 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
                 No results found for "{<Autocomplete.Value />}"
               </div>
             </Autocomplete.Empty>
 
-            <Autocomplete.List className="flex max-h-[min(var(--available-height),28rem)] flex-col overflow-y-auto overscroll-contain py-1 scroll-pt-1 scroll-pb-1">
+            <Autocomplete.List className="flex max-h-[min(var(--available-height),28rem)] flex-col overflow-y-auto overscroll-contain py-1 scroll-pt-1 scroll-pb-1 empty:p-0">
               {(item: FuzzyItem) => (
                 <Autocomplete.Item
                   key={item.title}
