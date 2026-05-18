@@ -174,6 +174,7 @@
     opacity calc(var(--duration) * 0.5) ease,
     transform var(--duration) var(--easing);
   padding: 0.5rem;
+  width: calc(100vw - 40px);
   height: 100%;
 
   @media (min-width: 500px) {
