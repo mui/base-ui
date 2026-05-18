@@ -35,14 +35,14 @@ export default function ObjectValueSelect() {
                   <Select.Item
                     key={method.id}
                     value={method}
-                    className="group/item grid cursor-default grid-cols-[1rem_1fr] items-start gap-2 py-1.5 pr-4 pl-2.5 text-sm outline-hidden select-none [@media(hover:hover)]:data-highlighted:bg-neutral-950 [@media(hover:hover)]:data-highlighted:text-white dark:[@media(hover:hover)]:data-highlighted:bg-white dark:[@media(hover:hover)]:data-highlighted:text-neutral-950"
+                    className="group/item grid cursor-default grid-cols-[1rem_1fr] items-start gap-2 py-1.5 pr-4 pl-2.5 text-sm outline-hidden select-none data-highlighted:bg-neutral-950 data-highlighted:text-white dark:data-highlighted:bg-white dark:data-highlighted:text-neutral-950"
                   >
                     <Select.ItemIndicator className="col-start-1 flex items-center justify-center self-start relative top-[0.4em]">
                       <CheckIcon />
                     </Select.ItemIndicator>
                     <Select.ItemText className="col-start-2 flex flex-col gap-0.5">
                       <span className="text-sm">{method.name}</span>
-                      <span className="text-xs text-neutral-600 [@media(hover:hover)]:group-data-highlighted/item:text-neutral-400 dark:text-neutral-400 dark:[@media(hover:hover)]:group-data-highlighted/item:text-neutral-600">
+                      <span className="text-xs text-neutral-600 group-data-highlighted/item:text-neutral-400 dark:text-neutral-400 dark:group-data-highlighted/item:text-neutral-600">
                         {method.duration} ({method.price})
                       </span>
                     </Select.ItemText>
