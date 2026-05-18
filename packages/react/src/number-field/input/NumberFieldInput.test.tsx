@@ -619,6 +619,7 @@ describe('<NumberField.Input />', () => {
     locale: Intl.LocalesArgument = 'en-US',
   ) {
     const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
 
     function Controlled() {
       const [value, setValue] = React.useState<number | null>(null);
@@ -629,6 +630,7 @@ describe('<NumberField.Input />', () => {
             onValueChange(nextValue);
             setValue(nextValue);
           }}
+          onValueCommitted={onValueCommitted}
           format={format}
           locale={locale}
         >
@@ -644,7 +646,7 @@ describe('<NumberField.Input />', () => {
       input.focus();
     });
 
-    return { input, onValueChange, user };
+    return { input, onValueChange, onValueCommitted, user };
   }
 
   it.each([
@@ -702,13 +704,34 @@ describe('<NumberField.Input />', () => {
       roundingIncrement: 5,
     };
 
-    const { input, onValueChange, user } = await renderControlledNumberField(format);
+    const { input, onValueChange, onValueCommitted, user } =
+      await renderControlledNumberField(format);
 
     await user.keyboard('1.26');
+    expect(onValueCommitted).not.toHaveBeenCalled();
+
     fireEvent.blur(input);
 
     expect(onValueChange.mock.lastCall?.[0]).toBe(1.5);
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(1.5);
     expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1.26));
+  });
+
+  it('should commit significant digit rounded values on blur', async () => {
+    const format = {
+      maximumSignificantDigits: 3,
+      roundingMode: 'floor',
+    };
+
+    const { input, onValueChange, onValueCommitted, user } =
+      await renderControlledNumberField(format);
+
+    await user.keyboard('12345');
+    fireEvent.blur(input);
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(12300);
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(12300);
+    expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(12345));
   });
 
   it.each([
@@ -748,6 +771,24 @@ describe('<NumberField.Input />', () => {
 
     expect(onValueChange.mock.lastCall?.[0]).toBe(expectedValue);
     expect(input).toHaveValue('1.23%');
+  });
+
+  it('should preserve exact percent precision boundaries with directional roundingMode on blur', async () => {
+    const format = {
+      style: 'percent',
+      maximumFractionDigits: 2,
+      roundingMode: 'floor',
+    } as const;
+
+    const { input, onValueChange, onValueCommitted, user } =
+      await renderControlledNumberField(format);
+
+    await user.keyboard('0.46%');
+    fireEvent.blur(input);
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.0046);
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(0.0046);
+    expect(input).toHaveValue('0.46%');
   });
 
   it('should round currency values on blur without percent scaling', async () => {

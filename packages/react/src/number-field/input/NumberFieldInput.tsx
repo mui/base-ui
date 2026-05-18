@@ -33,7 +33,7 @@ import {
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { REASONS } from '../../internals/reasons';
-import { removeFloatingPointErrors } from '../utils/validate';
+import { hasExplicitNumberFormatPrecision, removeFloatingPointErrors } from '../utils/validate';
 
 const stateAttributesMapping = {
   ...fieldValidityMapping,
@@ -176,9 +176,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       }
 
       // If an explicit precision is requested, round the committed numeric value.
-      const hasExplicitPrecision =
-        formatOptions?.maximumFractionDigits != null ||
-        formatOptions?.minimumFractionDigits != null;
+      const hasExplicitPrecision = hasExplicitNumberFormatPrecision(formatOptions);
 
       const committed = hasExplicitPrecision
         ? removeFloatingPointErrors(parsedValue, formatOptions)

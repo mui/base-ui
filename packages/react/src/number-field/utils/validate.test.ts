@@ -80,6 +80,19 @@ describe('NumberField validate', () => {
       ).toBe(0.0123);
     });
 
+    it.each(['floor', 'ceil', 'trunc', 'expand'] as const)(
+      'preserves exact percent precision boundaries with roundingMode: %s',
+      (roundingMode) => {
+        expect(
+          removeFloatingPointErrors(0.0046, {
+            style: 'percent',
+            maximumFractionDigits: 2,
+            roundingMode,
+          }),
+        ).toBe(0.0046);
+      },
+    );
+
     it('rounds percent values at display scale when only minimumFractionDigits is provided', () => {
       expect(
         removeFloatingPointErrors(0.01239, {
@@ -88,6 +101,36 @@ describe('NumberField validate', () => {
           roundingMode: 'floor',
         }),
       ).toBe(0.0123);
+    });
+
+    it('rounds values with significant digit precision', () => {
+      expect(
+        removeFloatingPointErrors(12345, {
+          maximumSignificantDigits: 3,
+          roundingMode: 'floor',
+        }),
+      ).toBe(12300);
+    });
+
+    it('rounds percent values at display scale when significant digits are provided', () => {
+      expect(
+        removeFloatingPointErrors(0.01239, {
+          style: 'percent',
+          maximumSignificantDigits: 3,
+          roundingMode: 'floor',
+        }),
+      ).toBe(0.0123);
+    });
+
+    it('respects roundingPriority when fraction and significant digits are provided', () => {
+      expect(
+        removeFloatingPointErrors(1.2345, {
+          minimumFractionDigits: 2,
+          maximumSignificantDigits: 3,
+          roundingMode: 'floor',
+          roundingPriority: 'morePrecision',
+        }),
+      ).toBe(1.234);
     });
 
     it('does not scale unit percent values when maximumFractionDigits is provided', () => {
