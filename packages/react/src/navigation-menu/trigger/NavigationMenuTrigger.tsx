@@ -54,6 +54,7 @@ import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissCo
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 import { mergeProps } from '../../merge-props';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
@@ -106,6 +107,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
   const dismissProps = useNavigationMenuDismissContext();
+  const direction = useDirection();
 
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
@@ -768,8 +770,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
+      const verticalOpenKey = direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight';
       const openHorizontal = orientation === 'horizontal' && event.key === 'ArrowDown';
-      const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
+      const openVertical = orientation === 'vertical' && event.key === verticalOpenKey;
 
       if (openHorizontal || openVertical) {
         setValue(itemValue, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));

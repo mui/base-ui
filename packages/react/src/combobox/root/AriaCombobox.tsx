@@ -60,6 +60,7 @@ import {
   selectedValueIncludes,
 } from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 /**
  * @internal
@@ -132,6 +133,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     validation,
   } = useFieldRootContext();
 
+  const direction = useDirection();
   const id = useLabelableId({ id: idProp });
   const collatorFilter = useCoreFilter({ locale });
 
@@ -1072,6 +1074,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
     cols: grid ? 2 : 1,
     orientation: grid ? 'horizontal' : undefined,
+    rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.

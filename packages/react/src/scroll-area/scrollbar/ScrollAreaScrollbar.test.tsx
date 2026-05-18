@@ -1,4 +1,5 @@
 import { expect } from 'vitest';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { screen, fireEvent, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
@@ -187,6 +188,68 @@ describe('<ScrollArea.Scrollbar />', () => {
       fireEvent(verticalScrollbar, event);
 
       expect(viewport.scrollTop).toBe(0);
+    });
+  });
+
+  describe('wheel', () => {
+    it('allows horizontal scrolling away from the RTL start edge', async () => {
+      await render(
+        <DirectionProvider direction="rtl">
+          <ScrollArea.Root style={{ width: 200, height: 200, direction: 'rtl' }}>
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: 1000, height: 200 }} />
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal" keepMounted />
+          </ScrollArea.Root>
+        </DirectionProvider>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const horizontalScrollbar = screen.getByTestId('horizontal');
+
+      Object.defineProperties(viewport, {
+        clientWidth: {
+          configurable: true,
+          value: 200,
+        },
+        scrollWidth: {
+          configurable: true,
+          value: 1000,
+        },
+        scrollLeft: {
+          configurable: true,
+          writable: true,
+          value: 0,
+        },
+      });
+
+      fireEvent.wheel(horizontalScrollbar, { deltaX: -50 });
+
+      expect(viewport.scrollLeft).toBe(-50);
+    });
+
+    it.skipIf(isJSDOM)('registers after the horizontal scrollbar becomes visible', async () => {
+      await render(
+        <DirectionProvider direction="rtl">
+          <ScrollArea.Root style={{ width: 200, height: 200, direction: 'rtl' }}>
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: 1000, height: 200 }} />
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal">
+              <ScrollArea.Thumb />
+            </ScrollArea.Scrollbar>
+          </ScrollArea.Root>
+        </DirectionProvider>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const horizontalScrollbar = await screen.findByTestId('horizontal');
+
+      await waitFor(() => expect(horizontalScrollbar).toHaveAttribute('data-has-overflow-x'));
+
+      fireEvent.wheel(horizontalScrollbar, { deltaX: -50 });
+
+      expect(viewport.scrollLeft).toBe(-50);
     });
   });
 
