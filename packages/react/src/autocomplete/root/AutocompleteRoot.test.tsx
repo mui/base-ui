@@ -97,6 +97,64 @@ describe('<Autocomplete.Root />', () => {
     expect(input.value).toBe('beta');
   });
 
+  it('ignores hidden-input autofill when readOnly', async () => {
+    const onValueChange = vi.fn();
+    await render(
+      <Field.Root name="auto">
+        <Autocomplete.Root defaultValue="" readOnly onValueChange={onValueChange}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                  <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>
+      </Field.Root>,
+    );
+
+    const hidden = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
+    fireEvent.change(hidden, { target: { value: 'beta' } });
+    await flushMicrotasks();
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(input.value).toBe('');
+  });
+
+  it('ignores hidden-input autofill when disabled', async () => {
+    const onValueChange = vi.fn();
+    await render(
+      <Field.Root name="auto">
+        <Autocomplete.Root defaultValue="" disabled onValueChange={onValueChange}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                  <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>
+      </Field.Root>,
+    );
+
+    const hidden = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
+    fireEvent.change(hidden, { target: { value: 'beta' } });
+    await flushMicrotasks();
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(input.value).toBe('');
+  });
+
   it('should pass autoComplete to the visible input', async () => {
     await render(
       <Autocomplete.Root name="search">

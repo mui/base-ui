@@ -34,6 +34,7 @@ import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
+import type { MaybeBaseUIEvent } from '../../internals/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
@@ -557,9 +558,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               });
             },
             // Handle browser autofill.
-            onChange(event: React.ChangeEvent<HTMLInputElement>) {
+            onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
               // Workaround for https://github.com/facebook/react/issues/9023
-              if (event.nativeEvent.defaultPrevented) {
+              if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
+                // Outside Field.Root, the event is not wrapped by mergeProps.
+                event.preventBaseUIHandler?.();
                 return;
               }
 
