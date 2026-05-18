@@ -129,10 +129,15 @@
     color: var(--color-foreground);
     font-weight: bold;
     user-select: text;
-  }
+    border-radius: var(--radius-4);
 
-  .DemoFilename:hover {
-    text-decoration: underline;
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+    }
   }
 
   .DemoTabsList {
