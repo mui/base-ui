@@ -165,32 +165,32 @@
 
 .Link {
   outline: 0;
-  color: oklch(42.4% 0.199 265.638deg);
+  color: oklch(14.5% 0 0deg);
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
-  text-decoration-color: color-mix(in oklab, oklch(42.4% 0.199 265.638deg), transparent 40%);
+  text-decoration-color: color-mix(in oklab, oklch(14.5% 0 0deg), transparent 40%);
   text-underline-offset: 2px;
 
   @media (prefers-color-scheme: dark) {
-    color: oklch(62.3% 0.214 259.815deg);
-    text-decoration-color: color-mix(in oklab, oklch(62.3% 0.214 259.815deg), transparent 40%);
+    color: white;
+    text-decoration-color: color-mix(in oklab, white, transparent 40%);
   }
 
   @media (hover: hover) {
     &:hover {
-      text-decoration-color: oklch(42.4% 0.199 265.638deg);
+      text-decoration-color: oklch(14.5% 0 0deg);
 
       @media (prefers-color-scheme: dark) {
-        text-decoration-color: oklch(62.3% 0.214 259.815deg);
+        text-decoration-color: white;
       }
     }
   }
 
   &[data-popup-open] {
-    text-decoration-color: oklch(42.4% 0.199 265.638deg);
+    text-decoration-color: oklch(14.5% 0 0deg);
 
     @media (prefers-color-scheme: dark) {
-      text-decoration-color: oklch(62.3% 0.214 259.815deg);
+      text-decoration-color: white;
     }
   }
 
