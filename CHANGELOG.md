@@ -79,7 +79,7 @@ _May 19, 2026_
 
 - **Breaking change:** Rename `sanitizeValue` to `normalizeValue` and allow composing with validation (#4717) by @atomiks
 - Avoid `flushSync` during validation (#4685) by @atomiks
-- Support ctrl/cmd keyboard shortcuts (#4606) by @atomiks
+- Support <kbd>Ctrl</kbd> and <kbd>Cmd</kbd> shortcuts (#4606) by @atomiks
 - Fire `onValueComplete()` for full paste (#4690) by @atomiks
 - Ignore hidden input changes while readonly or disabled (#4806) by @lunaxislu
 - Prevent locked hidden autofill validation (#4827) by @lunaxislu
