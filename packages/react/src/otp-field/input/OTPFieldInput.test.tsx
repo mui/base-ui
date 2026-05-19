@@ -364,9 +364,9 @@ describe('<OTPField.Input />', () => {
       });
 
       fireEvent.keyDown(inputs[2], { key: 'ArrowLeft', ...modifierKey });
-      expect(document.activeElement).toBe(inputs[3]);
+      expect(document.activeElement).toBe(inputs[4]);
 
-      fireEvent.keyDown(inputs[3], { key: 'ArrowRight', ...modifierKey });
+      fireEvent.keyDown(inputs[4], { key: 'ArrowRight', ...modifierKey });
       expect(document.activeElement).toBe(inputs[0]);
     },
   );
