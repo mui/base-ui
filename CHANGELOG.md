@@ -72,7 +72,7 @@ _May 19, 2026_
 
 ### OTP Field
 
-- **Breaking change:** Rename `sanitizeValue` to `normalizeValue` and allow composing with validation (#4717) by @atomiks
+- **Breaking change:** Rename `sanitizeValue()` to `normalizeValue()` and allow composing with validation (#4717) by @atomiks
 - Avoid `flushSync` during validation (#4685) by @atomiks
 - Support <kbd>Ctrl</kbd> and <kbd>Cmd</kbd> shortcuts (#4606) by @atomiks
 - Fire `onValueComplete()` for full paste (#4690) by @atomiks
