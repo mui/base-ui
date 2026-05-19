@@ -94,6 +94,30 @@ describe('<AlertDialog.Root />', () => {
     expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
   });
 
+  it('synchronizes detached trigger ARIA attributes when initially open with a handle', async () => {
+    const handle = AlertDialog.createHandle();
+
+    await render(
+      <React.Fragment>
+        <AlertDialog.Trigger handle={handle} id="trigger">
+          Open
+        </AlertDialog.Trigger>
+        <AlertDialog.Root handle={handle} defaultOpen defaultTriggerId="trigger">
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>Dialog</AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>
+      </React.Fragment>,
+    );
+
+    const trigger = screen.getByText('Open');
+    const popup = screen.getByRole('alertdialog');
+
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+    expect(handle.isOpen).toBe(true);
+  });
+
   it('renders a viewport', async () => {
     await render(
       <AlertDialog.Root open>
