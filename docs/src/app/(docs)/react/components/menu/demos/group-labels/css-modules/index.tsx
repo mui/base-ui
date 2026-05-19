@@ -17,29 +17,27 @@ export default function ExampleMenu() {
       <Menu.Portal>
         <Menu.Positioner className={styles.Positioner} sideOffset={8}>
           <Menu.Popup className={styles.Popup}>
-            <Menu.Group>
+            <Menu.RadioGroup value={value} onValueChange={setValue}>
               <Menu.GroupLabel className={styles.GroupLabel}>Sort</Menu.GroupLabel>
-              <Menu.RadioGroup value={value} onValueChange={setValue}>
-                <Menu.RadioItem className={styles.RadioItem} value="date">
-                  <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>
-                    <CheckIcon />
-                  </Menu.RadioItemIndicator>
-                  <span className={styles.RadioItemText}>Date</span>
-                </Menu.RadioItem>
-                <Menu.RadioItem className={styles.RadioItem} value="name">
-                  <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>
-                    <CheckIcon />
-                  </Menu.RadioItemIndicator>
-                  <span className={styles.RadioItemText}>Name</span>
-                </Menu.RadioItem>
-                <Menu.RadioItem className={styles.RadioItem} value="type">
-                  <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>
-                    <CheckIcon />
-                  </Menu.RadioItemIndicator>
-                  <span className={styles.RadioItemText}>Type</span>
-                </Menu.RadioItem>
-              </Menu.RadioGroup>
-            </Menu.Group>
+              <Menu.RadioItem className={styles.RadioItem} value="date">
+                <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>
+                  <CheckIcon />
+                </Menu.RadioItemIndicator>
+                <span className={styles.RadioItemText}>Date</span>
+              </Menu.RadioItem>
+              <Menu.RadioItem className={styles.RadioItem} value="name">
+                <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>
+                  <CheckIcon />
+                </Menu.RadioItemIndicator>
+                <span className={styles.RadioItemText}>Name</span>
+              </Menu.RadioItem>
+              <Menu.RadioItem className={styles.RadioItem} value="type">
+                <Menu.RadioItemIndicator className={styles.RadioItemIndicator}>
+                  <CheckIcon />
+                </Menu.RadioItemIndicator>
+                <span className={styles.RadioItemText}>Type</span>
+              </Menu.RadioItem>
+            </Menu.RadioGroup>
 
             <Menu.Separator className={styles.Separator} />
 
