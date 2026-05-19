@@ -2,6 +2,12 @@ import { clamp } from '../../internals/clamp';
 import { getFormatter } from '../../utils/formatNumber';
 
 const STEP_EPSILON_FACTOR = 1e-10;
+// Matches Intl.NumberFormat's decimal maximumFractionDigits default.
+const DEFAULT_DIGITS = 3;
+// Keep committed-value normalization aligned with Number Field's max-precision display path.
+const MAX_DIGITS = 20;
+// Extra places used to scrub percent-scale float noise without affecting normal input precision.
+const PERCENT_GUARD_DIGITS = 6;
 
 // The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
 // Delete this once tsconfig.base.json includes es2023.
@@ -32,13 +38,13 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
 
   const hasRoundingOptions = hasNumberFormatRoundingOptions(format);
   if (!hasRoundingOptions) {
-    return +value.toFixed(3);
+    return +value.toFixed(DEFAULT_DIGITS);
   }
 
   const resolvedOptions = getFormatter('en-US', format).resolvedOptions();
   const digits = Math.min(
-    format.maximumFractionDigits ?? resolvedOptions.maximumFractionDigits ?? 3,
-    20,
+    format.maximumFractionDigits ?? resolvedOptions.maximumFractionDigits ?? DEFAULT_DIGITS,
+    MAX_DIGITS,
   );
 
   // Percent values are stored as fractions, so rounding must happen at the displayed scale.
@@ -53,7 +59,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   if (scale > 1) {
     // Directional Intl rounding has no tolerance for the binary noise introduced by `value * 100`.
     // Clean a few extra decimal places first so exact typed boundaries like 0.46% stay exact.
-    valueToRound = +valueToRound.toFixed(Math.min(digits + 6, 20));
+    valueToRound = +valueToRound.toFixed(Math.min(digits + PERCENT_GUARD_DIGITS, MAX_DIGITS));
   }
 
   return (
