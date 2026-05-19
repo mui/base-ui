@@ -14,10 +14,6 @@ _May 19, 2026_
 - Improve mount performance with interaction splitting (#4661) by @atomiks
 - Don't steal initial focus if focus already moved inside the floating element (#4775) by @stefee
 
-### Accordion
-
-- Refactor key handling to use `COMPOSITE_KEYS` for consistency (#4744) by @sai6855
-
 ### Alert Dialog
 
 - Fix handle defaults (#4834) by @atomiks
@@ -61,7 +57,6 @@ _May 19, 2026_
 ### Menu
 
 - Fix submenu pointer-events scope for `keepMounted` portals (#4723) by @twillhorn
-- Bump timeout for `<Menu.LinkItem>` keyboard navigation e2e test (#4746) by @Janpot
 - Support `<Menu.GroupLabel>` in `<Menu.RadioGroup>` (#4826) by @nami8824
 - Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
 
@@ -108,11 +103,6 @@ _May 19, 2026_
 - Allow mouse selection without highlight (#4699) by @atomiks
 - Ignore hidden-input changes while readonly or disabled (#4810) by @lunaxislu
 - Fix nested Select requiring extra outside clicks to dismiss parent (#4820) by @mattrothenberg
-
-### Slider
-
-- Refactor key handling to use `COMPOSITE_KEYS` for consistency (#4744) by @sai6855
-
 
 ### Tabs
 
