@@ -39,6 +39,36 @@ function TestNavigationMenu(props: NavigationMenu.Root.Props) {
   );
 }
 
+function TestControlledNavigationMenuWithCloseButton() {
+  const [value, setValue] = React.useState<string | null>('item-1');
+
+  return (
+    <React.Fragment>
+      <button type="button" data-testid="close-menu" onClick={() => setValue(null)}>
+        Close
+      </button>
+      <NavigationMenu.Root value={value} onValueChange={(nextValue) => setValue(nextValue)}>
+        <NavigationMenu.List>
+          <NavigationMenu.Item value="item-1">
+            <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+            <NavigationMenu.Content data-testid="controlled-content">
+              <div>Controlled content</div>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner data-testid="positioner">
+            <NavigationMenu.Popup data-testid="popup-root">
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>
+    </React.Fragment>
+  );
+}
+
 function TestNavigationMenuWithTopLevelLink(props: NavigationMenu.Root.Props = {}) {
   return (
     <NavigationMenu.Root {...props}>
@@ -1511,6 +1541,49 @@ describe('<NavigationMenu.Root />', () => {
       trigger1 = screen.getByTestId('trigger-1');
       expect(trigger1).toHaveAttribute('aria-expanded', 'false');
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('preserves popup size when controlled value closes externally', async () => {
+      const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      try {
+        await render(<TestControlledNavigationMenuWithCloseButton />);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('controlled-content')).not.toBe(null);
+        });
+
+        const popupRoot = screen.getByTestId('popup-root');
+        const positioner = screen.getByTestId('positioner');
+        const animations = mockAnimations(popupRoot);
+
+        Object.defineProperty(popupRoot, 'offsetWidth', {
+          configurable: true,
+          get: () => (screen.queryByTestId('controlled-content') ? 675 : 0),
+        });
+        Object.defineProperty(popupRoot, 'offsetHeight', {
+          configurable: true,
+          get: () => (screen.queryByTestId('controlled-content') ? 220 : 0),
+        });
+
+        animations.start();
+        fireEvent.click(screen.getByTestId('close-menu'));
+        await flushMicrotasks();
+
+        expect(popupRoot).toHaveAttribute('data-ending-style');
+        expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('675px');
+        expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('220px');
+        expect(positioner.style.getPropertyValue('--positioner-width')).toBe('675px');
+        expect(positioner.style.getPropertyValue('--positioner-height')).toBe('220px');
+
+        await act(async () => {
+          animations.finish();
+          await flushMicrotasks();
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+      }
     });
   });
 

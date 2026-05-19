@@ -3,6 +3,7 @@ import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
   FloatingNode,
@@ -115,8 +116,43 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     abortController: null,
     owner: null,
   });
+  const nextOpenRef = React.useRef(open);
+  const closeTransitionSnapshotRef = React.useRef(false);
+
+  nextOpenRef.current = open;
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  const freezePopupSizeForClose = useStableCallback(() => {
+    if (closeTransitionSnapshotRef.current) {
+      return;
+    }
+
+    if (positionerElement && popupElement) {
+      setSharedFixedSize(popupElement, positionerElement);
+      closeTransitionSnapshotRef.current = true;
+    }
+  });
+
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    return () => {
+      // Controlled value changes bypass `setValue`, so snapshot before content
+      // unmounts and the popup dimensions can collapse.
+      if (!nextOpenRef.current) {
+        freezePopupSizeForClose();
+      }
+    };
+  }, [open, freezePopupSizeForClose]);
+
+  useIsoLayoutEffect(() => {
+    if (open) {
+      closeTransitionSnapshotRef.current = false;
+    }
+  }, [open]);
 
   React.useEffect(() => {
     setViewportInert(false);
@@ -132,9 +168,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
         setActivationDirection(null);
         setFloatingRootContext(undefined);
 
-        if (positionerElement && popupElement) {
-          setSharedFixedSize(popupElement, positionerElement);
-        }
+        freezePopupSizeForClose();
       }
 
       if (nextValue !== value) {
