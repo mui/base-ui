@@ -13,7 +13,10 @@ export const releases: Release[] = [
     versionSlug: 'v1-5-0',
     date: '2026-05-19',
     highlights: [
+      'Allow Persian digits in `NumberField`.',
+      'Support `Ctrl` and `Cmd` shortcuts in `OTPField`.',
       'Rename `sanitizeValue` to `normalizeValue` and allow composing with validation in `<OTPField.Root>`.',
+      'Add `data-popup-side` to `<Select.Trigger>`',
       'Many accessibility, performance, and bug fixes.',
     ],
   },
