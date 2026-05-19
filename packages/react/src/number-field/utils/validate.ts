@@ -42,7 +42,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   let valueToRound = value * scale;
 
   if (!Number.isFinite(valueToRound)) {
-    // Percent scaling can overflow for extreme finite values; preserve the old finite value.
+    // Percent scaling can overflow for extreme finite values; fall back to the unscaled value.
     return value;
   }
 
