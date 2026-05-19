@@ -751,6 +751,30 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1.2399));
   });
 
+  it('should format controlled values with rounding options after external value changes', async () => {
+    const format = {
+      minimumIntegerDigits: 1,
+      roundingMode: 'floor',
+    };
+
+    function Controlled(props: { value: number | null }) {
+      return (
+        <NumberField.Root value={props.value} format={format}>
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { setProps } = await render(<Controlled value={null} />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      setProps({ value: 1.2399 });
+    });
+
+    expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1.2399));
+  });
+
   it.each([
     [
       'percent',
