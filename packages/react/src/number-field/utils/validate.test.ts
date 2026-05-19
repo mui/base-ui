@@ -122,6 +122,34 @@ describe('NumberField validate', () => {
       ).toBe(0.0123);
     });
 
+    it('rounds percent significant digit values without reintroducing binary noise', () => {
+      const format = {
+        style: 'percent',
+        maximumSignificantDigits: 2,
+        roundingMode: 'floor',
+      } as const;
+      const rounded = removeFloatingPointErrors(0.009995, format);
+
+      expect(rounded).toBe(0.0099);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(0.009995),
+      );
+    });
+
+    it('preserves meaningful percent precision above directional rounding boundaries', () => {
+      const format = {
+        style: 'percent',
+        maximumFractionDigits: 2,
+        roundingMode: 'ceil',
+      } as const;
+      const rounded = removeFloatingPointErrors(0.01230000001, format);
+
+      expect(rounded).toBe(0.0124);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(0.01230000001),
+      );
+    });
+
     it('uses percent fraction defaults when significant digits use roundingPriority', () => {
       const format = {
         style: 'percent',
@@ -196,6 +224,19 @@ describe('NumberField validate', () => {
           roundingMode: 'floor',
         }),
       ).toBe(Number.MAX_VALUE);
+    });
+
+    it('rounds scientific notation values at their formatted scale', () => {
+      const format = {
+        notation: 'scientific',
+        maximumFractionDigits: 2,
+      } as const;
+      const rounded = removeFloatingPointErrors(0.000123456, format);
+
+      expect(rounded).toBe(0.000123);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(0.000123456),
+      );
     });
 
     it('returns 1000 for 1000, ignoring grouping', () => {
@@ -359,6 +400,38 @@ describe('NumberField validate', () => {
         },
       }),
     ).toBe(1.23);
+  });
+
+  it('clamps the final value after percent rounding crosses max', () => {
+    expect(
+      toValidatedNumber(0.01236, {
+        ...defaultOptions,
+        step: undefined,
+        snapOnStep: false,
+        maxWithDefault: 0.01235,
+        format: {
+          style: 'percent',
+          maximumFractionDigits: 2,
+        },
+      }),
+    ).toBe(0.01235);
+  });
+
+  it('clamps the final value after directional percent rounding crosses min', () => {
+    expect(
+      toValidatedNumber(0.01234, {
+        ...defaultOptions,
+        step: undefined,
+        snapOnStep: false,
+        minWithDefault: 0.01235,
+        minWithZeroDefault: 0.01235,
+        format: {
+          style: 'percent',
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        },
+      }),
+    ).toBe(0.01235);
   });
 
   it('removes floating point errors by default', () => {

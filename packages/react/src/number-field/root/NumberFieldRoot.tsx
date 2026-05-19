@@ -29,7 +29,7 @@ import {
 } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { DEFAULT_STEP } from '../utils/constants';
-import { toValidatedNumber } from '../utils/validate';
+import { hasNumberFormatRoundingOptions, toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
 import {
@@ -696,9 +696,7 @@ function getControlledInputValue(
   locale: Intl.LocalesArgument,
   format: Intl.NumberFormatOptions | undefined,
 ) {
-  const explicitPrecision =
-    format?.maximumFractionDigits != null || format?.minimumFractionDigits != null;
-  return explicitPrecision
+  return hasNumberFormatRoundingOptions(format)
     ? formatNumber(value, locale, format)
     : formatNumberMaxPrecision(value, locale, format);
 }

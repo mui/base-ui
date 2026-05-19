@@ -6,8 +6,8 @@ const STEP_EPSILON_FACTOR = 1e-10;
 const DEFAULT_DIGITS = 3;
 // Keep committed-value normalization aligned with Number Field's max-precision display path.
 const MAX_DIGITS = 20;
-// Extra places used to scrub percent-scale float noise without affecting normal input precision.
-const PERCENT_GUARD_DIGITS = 6;
+// Keeps binary scale/unscale noise out of committed percent values while preserving meaningful input.
+const FLOATING_POINT_SIGNIFICANT_DIGITS = 15;
 
 // The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
 // Delete this once tsconfig.base.json includes es2023.
@@ -58,27 +58,37 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
 
   if (scale > 1) {
     // Directional Intl rounding has no tolerance for the binary noise introduced by `value * 100`.
-    // Clean a few extra decimal places first so exact typed boundaries like 0.46% stay exact.
-    valueToRound = Number(
-      valueToRound.toFixed(Math.min(digits + PERCENT_GUARD_DIGITS, MAX_DIGITS)),
-    );
+    // Keep real precision while removing artifacts like 0.45999999999999996 for typed 0.46%.
+    valueToRound = removeFloatingPointNoise(valueToRound);
   }
 
-  return (
-    Number(
-      getFormatter('en-US', {
-        // Keep style/unit/notation out so the formatted string parses back as a plain number.
-        useGrouping: false,
-        minimumFractionDigits: digits,
-        maximumFractionDigits: digits,
-        minimumSignificantDigits: format.minimumSignificantDigits,
-        maximumSignificantDigits: format.maximumSignificantDigits,
-        roundingIncrement: format.roundingIncrement,
-        roundingMode: format.roundingMode,
-        roundingPriority: format.roundingPriority,
-      } as NumberFormatOptionsWithRounding).format(valueToRound),
-    ) / scale
+  const notation = format.notation;
+  const supportsNumericNotation = notation === 'scientific' || notation === 'engineering';
+  const roundedValue = Number(
+    getFormatter('en-US', {
+      // Keep style/unit/compact notation out so the formatted string parses back as a plain number.
+      useGrouping: false,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+      minimumSignificantDigits: format.minimumSignificantDigits,
+      maximumSignificantDigits: format.maximumSignificantDigits,
+      notation: supportsNumericNotation ? notation : undefined,
+      roundingIncrement: format.roundingIncrement,
+      roundingMode: format.roundingMode,
+      roundingPriority: format.roundingPriority,
+    } as NumberFormatOptionsWithRounding).format(valueToRound),
   );
+
+  if (!Number.isFinite(roundedValue)) {
+    return value;
+  }
+
+  const nextValue = roundedValue / scale;
+  return scale > 1 ? removeFloatingPointNoise(nextValue) : nextValue;
+}
+
+function removeFloatingPointNoise(value: number) {
+  return Number(value.toPrecision(FLOATING_POINT_SIGNIFICANT_DIGITS));
 }
 
 function snapToStep(
@@ -141,7 +151,8 @@ export function toValidatedNumber(
 
   if (step != null && snapOnStep) {
     if (step === 0) {
-      return removeFloatingPointErrors(clampedValue, format);
+      const roundedValue = removeFloatingPointErrors(clampedValue, format);
+      return shouldClamp ? clamp(roundedValue, minWithDefault, maxWithDefault) : roundedValue;
     }
 
     // If a real minimum is provided, use it
@@ -151,8 +162,10 @@ export function toValidatedNumber(
     }
 
     const snappedValue = snapToStep(clampedValue, base, step, small ? 'nearest' : 'directional');
-    return removeFloatingPointErrors(snappedValue, format);
+    const roundedValue = removeFloatingPointErrors(snappedValue, format);
+    return shouldClamp ? clamp(roundedValue, minWithDefault, maxWithDefault) : roundedValue;
   }
 
-  return removeFloatingPointErrors(clampedValue, format);
+  const roundedValue = removeFloatingPointErrors(clampedValue, format);
+  return shouldClamp ? clamp(roundedValue, minWithDefault, maxWithDefault) : roundedValue;
 }
