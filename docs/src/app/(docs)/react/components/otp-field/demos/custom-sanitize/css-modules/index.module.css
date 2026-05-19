@@ -110,11 +110,6 @@
   }
 }
 
-.Code {
-  font-family:
-    ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
-}
-
 .ScreenReaderOnly {
   position: absolute;
   width: 1px;

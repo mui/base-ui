@@ -1,12 +1,9 @@
 'use client';
 import * as React from 'react';
-import { IsDrawerContext } from '../../dialog/root/DialogRoot';
-import { useDialogRoot, DialogInteractions } from '../../dialog/root/useDialogRoot';
-import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { DialogStore } from '../../dialog/store/DialogStore';
-import { DialogHandle } from '../../dialog/store/DialogHandle';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
+import { useRenderDialogRoot } from '../../dialog/root/useRenderDialogRoot';
+import type { AlertDialogHandle } from '../handle';
 
 /**
  * Groups all parts of the alert dialog.
@@ -15,61 +12,7 @@ import type { DialogRoot } from '../../dialog/root/DialogRoot';
  * Documentation: [Base UI Alert Dialog](https://base-ui.com/react/components/alert-dialog)
  */
 export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) {
-  const {
-    children,
-    open: openProp,
-    defaultOpen = false,
-    onOpenChange,
-    onOpenChangeComplete,
-    actionsRef,
-    handle,
-    triggerId: triggerIdProp,
-    defaultTriggerId: defaultTriggerIdProp = null,
-  } = props;
-
-  const parentDialogRootContext = useDialogRootContext(true);
-  const nested = Boolean(parentDialogRootContext);
-
-  const store = DialogStore.useStore(handle?.store, {
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-    modal: true,
-    disablePointerDismissal: true,
-    nested,
-    role: 'alertdialog',
-  });
-
-  store.useControlledProp('openProp', openProp);
-  store.useControlledProp('triggerIdProp', triggerIdProp);
-  store.useSyncedValue('nested', nested);
-  store.useContextCallback('onOpenChange', onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
-
-  const open = store.useState('open');
-  const mounted = store.useState('mounted');
-  const payload = store.useState('payload') as Payload | undefined;
-
-  const dialogRoot = useDialogRoot({
-    store,
-    actionsRef,
-    parentContext: parentDialogRootContext?.store.context,
-    isDrawer: false,
-  });
-
-  const shouldRenderInteractions = open || mounted;
-
-  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
-
-  return (
-    <IsDrawerContext.Provider value={false}>
-      <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-        {shouldRenderInteractions && <DialogInteractions store={store} dialogRoot={dialogRoot} />}
-        {typeof children === 'function' ? children({ payload }) : children}
-      </DialogRootContext.Provider>
-    </IsDrawerContext.Provider>
-  );
+  return useRenderDialogRoot(props, 'alert-dialog');
 }
 
 export interface AlertDialogRootState {}
@@ -79,17 +22,17 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
   'modal' | 'disablePointerDismissal' | 'onOpenChange' | 'actionsRef' | 'handle'
 > {
   /**
-   * Event handler called when the dialog is opened or closed.
+   * Event handler called when the alert dialog is opened or closed.
    */
   onOpenChange?:
     | ((open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void)
     | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the dialog will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the dialog manually.
-   * Useful when the dialog's animation is controlled by an external library.
-   * - `close`: Closes the dialog imperatively when called.
+   * - `unmount`: When specified, the alert dialog will not be unmounted when closed.
+   * Instead, the `unmount` function must be called to unmount the alert dialog manually.
+   * Useful when the alert dialog's animation is controlled by an external library.
+   * - `close`: Closes the alert dialog imperatively when called.
    */
   actionsRef?: React.RefObject<AlertDialogRoot.Actions | null> | undefined;
   /**
@@ -97,7 +40,7 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
    * If specified, allows external triggers to control the alert dialog's open state.
    * Can be created with the AlertDialog.createHandle() method.
    */
-  handle?: DialogHandle<Payload> | undefined;
+  handle?: AlertDialogHandle<Payload> | undefined;
 }
 
 export type AlertDialogRootActions = DialogRoot.Actions;
