@@ -43,21 +43,24 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const disabled = store.useState('disabled');
 
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
-  const touchPositionRef = React.useRef<{ x: number; y: number } | null>(null);
+  const pointerPositionRef = React.useRef<{ id: number; x: number; y: number } | null>(null);
   const longPressTimeout = useTimeout();
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
 
-  function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
-    const isTouchEvent = event.type.startsWith('touch');
+  function handleLongPress(event: MouseEvent | PointerEvent) {
+    const isTouchLike =
+      'pointerType' in event && (event.pointerType === 'touch' || event.pointerType === 'pen');
+    const x = event.clientX;
+    const y = event.clientY;
 
     initialCursorPointRef.current = { x, y };
 
     setAnchor({
       getBoundingClientRect() {
         return DOMRect.fromRect({
-          width: isTouchEvent ? 10 : 0,
-          height: isTouchEvent ? 10 : 0,
+          width: isTouchLike ? 10 : 0,
+          height: isTouchLike ? 10 : 0,
           x,
           y,
         });
@@ -78,7 +81,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     }
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
-    handleLongPress(event.clientX, event.clientY, event.nativeEvent);
+    handleLongPress(event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
 
     addEventListener(
@@ -113,44 +116,63 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     );
   }
 
-  function handleTouchStart(event: React.TouchEvent) {
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if (disabled) {
       return;
     }
+    if (event.pointerType !== 'touch' && event.pointerType !== 'pen') {
+      return;
+    }
+    if (!event.isPrimary) {
+      return;
+    }
+
     allowMouseUpTriggerRef.current = false;
-    if (event.touches.length === 1) {
-      event.stopPropagation();
-      const touch = event.touches[0];
-      touchPositionRef.current = { x: touch.clientX, y: touch.clientY };
-      longPressTimeout.start(LONG_PRESS_DELAY, () => {
-        if (touchPositionRef.current) {
-          handleLongPress(
-            touchPositionRef.current.x,
-            touchPositionRef.current.y,
-            event.nativeEvent,
-          );
-        }
-      });
-    }
-  }
+    event.stopPropagation();
 
-  function handleTouchMove(event: React.TouchEvent) {
-    if (longPressTimeout.isStarted() && touchPositionRef.current && event.touches.length === 1) {
-      const touch = event.touches[0];
-      const moveThreshold = 10;
+    pointerPositionRef.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
 
-      const deltaX = Math.abs(touch.clientX - touchPositionRef.current.x);
-      const deltaY = Math.abs(touch.clientY - touchPositionRef.current.y);
-
-      if (deltaX > moveThreshold || deltaY > moveThreshold) {
-        longPressTimeout.clear();
+    longPressTimeout.start(LONG_PRESS_DELAY, () => {
+      if (pointerPositionRef.current) {
+        handleLongPress(event.nativeEvent);
       }
+    });
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const active = pointerPositionRef.current;
+    if (!active || event.pointerId !== active.id) {
+      return;
+    }
+    if (!longPressTimeout.isStarted()) {
+      return;
+    }
+
+    const moveThreshold = 10;
+    const deltaX = Math.abs(event.clientX - active.x);
+    const deltaY = Math.abs(event.clientY - active.y);
+
+    if (deltaX > moveThreshold || deltaY > moveThreshold) {
+      longPressTimeout.clear();
     }
   }
 
-  function handleTouchEnd() {
+  function handlePointerEnd(event: React.PointerEvent<HTMLDivElement>) {
+    const active = pointerPositionRef.current;
+    if (active && event.pointerId !== active.id) {
+      return;
+    }
     longPressTimeout.clear();
-    touchPositionRef.current = null;
+    pointerPositionRef.current = null;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
   }
 
   React.useEffect(() => {
@@ -184,10 +206,10 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     props: [
       {
         onContextMenu: handleContextMenu,
-        onTouchStart: handleTouchStart,
-        onTouchMove: handleTouchMove,
-        onTouchEnd: handleTouchEnd,
-        onTouchCancel: handleTouchEnd,
+        onPointerDown: handlePointerDown,
+        onPointerMove: handlePointerMove,
+        onPointerUp: handlePointerEnd,
+        onPointerCancel: handlePointerEnd,
         style: {
           WebkitTouchCallout: 'none',
         },
