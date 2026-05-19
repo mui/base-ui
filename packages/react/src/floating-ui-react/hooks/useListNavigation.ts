@@ -135,14 +135,14 @@ export interface UseListNavigationProps {
    */
   focusItemOnHover?: boolean | undefined;
   /**
-   * A pending imperative item focus request to resolve against the list.
+   * A pending imperative item highlight request to resolve against the list.
    * @default null
    */
-  pendingFocusItem?: UseListNavigationFocusItem | null | undefined;
+  pendingHighlightItem?: UseListNavigationHighlightItem | null | undefined;
   /**
-   * Callback fired when a pending imperative item focus request has been consumed.
+   * Callback fired when a pending imperative item highlight request has been consumed.
    */
-  onPendingFocusItemClear?: (() => void) | undefined;
+  onPendingHighlightItemClear?: (() => void) | undefined;
   /**
    * Whether pressing an arrow key on the navigation's main axis opens the
    * floating element.
@@ -232,7 +232,7 @@ export interface UseListNavigationProps {
   externalTree?: FloatingTreeStore | undefined;
 }
 
-export type UseListNavigationFocusItem = 'first' | 'last' | 'none';
+export type UseListNavigationHighlightItem = 'first' | 'last' | 'none';
 
 /**
  * Adds arrow key-based navigation of a list of items, either using real DOM
@@ -256,8 +256,8 @@ export function useListNavigation(
     virtual = false,
     focusItemOnOpen = 'auto',
     focusItemOnHover = true,
-    pendingFocusItem,
-    onPendingFocusItemClear,
+    pendingHighlightItem,
+    onPendingHighlightItemClear,
     openOnArrowKeyDown = true,
     disabledIndices = undefined,
     orientation = 'vertical',
@@ -311,8 +311,8 @@ export function useListNavigation(
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
-  const clearPendingFocusItem = useStableCallback(() => {
-    onPendingFocusItemClear?.();
+  const clearPendingHighlightItem = useStableCallback(() => {
+    onPendingHighlightItemClear?.();
   });
 
   const previousOnNavigateRef = React.useRef(onNavigate);
@@ -450,17 +450,17 @@ export function useListNavigation(
       };
     };
 
-    if (pendingFocusItem != null) {
+    if (pendingHighlightItem != null) {
       forceSyncFocusRef.current = false;
 
-      if (pendingFocusItem === 'none') {
+      if (pendingHighlightItem === 'none') {
         indexRef.current = -1;
         onNavigate();
-        clearPendingFocusItem();
+        clearPendingHighlightItem();
         return undefined;
       }
 
-      return resolveFocusItem(pendingFocusItem === 'last', clearPendingFocusItem);
+      return resolveFocusItem(pendingHighlightItem === 'last', clearPendingHighlightItem);
     }
 
     if (activeIndex == null) {
@@ -500,14 +500,14 @@ export function useListNavigation(
     open,
     floatingElement,
     activeIndex,
-    pendingFocusItem,
+    pendingHighlightItem,
     selectedIndexRef,
     nested,
     listRef,
     orientation,
     rtl,
     onNavigate,
-    clearPendingFocusItem,
+    clearPendingHighlightItem,
     focusItem,
   ]);
 

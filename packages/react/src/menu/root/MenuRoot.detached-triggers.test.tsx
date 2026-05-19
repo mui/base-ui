@@ -1123,7 +1123,7 @@ describe('<MenuRoot />', () => {
       expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
 
-    it('focuses the first item when opening with `focusItem: first`', async () => {
+    it('focuses the first item when opening with `highlightItem: first`', async () => {
       const menuHandle = Menu.createHandle();
       await render(
         <div>
@@ -1154,7 +1154,7 @@ describe('<MenuRoot />', () => {
       expect(firstItem).toHaveAttribute('tabindex', '0');
     });
 
-    it('focuses the popup when opening with `focusItem: none`', async () => {
+    it('focuses the popup when opening with `highlightItem: none`', async () => {
       const menuHandle = Menu.createHandle();
       await render(
         <div>

@@ -1565,7 +1565,7 @@ describe('<Menu.Root />', () => {
           current: {
             unmount: vi.fn(),
             close: vi.fn(),
-            focusItem: vi.fn(),
+            highlightItem: vi.fn(),
           },
         };
 
@@ -1610,8 +1610,8 @@ describe('<Menu.Root />', () => {
         });
       });
 
-      describe('focusItem', () => {
-        function createApp(target: Menu.Root.FocusItem) {
+      describe('highlightItem', () => {
+        function createApp(target: Menu.Root.HighlightItem) {
           const actionsRef: React.RefObject<Menu.Root.Actions | null> = { current: null };
 
           return function App() {
@@ -1622,7 +1622,7 @@ describe('<Menu.Root />', () => {
                   type="button"
                   onClick={() => {
                     setOpen(true);
-                    actionsRef.current?.focusItem(target);
+                    actionsRef.current?.highlightItem(target);
                   }}
                 >
                   external
@@ -1698,7 +1698,7 @@ describe('<Menu.Root />', () => {
                   type="button"
                   onClick={() => {
                     setOpen(true);
-                    actionsRef.current?.focusItem('first');
+                    actionsRef.current?.highlightItem('first');
                   }}
                 >
                   external

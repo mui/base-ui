@@ -371,9 +371,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [store],
   );
 
-  const handleImperativeFocusItem = React.useCallback(
-    (target: MenuRoot.FocusItem) => {
-      store.set('pendingFocusItem', target);
+  const handleImperativeHighlightItem = React.useCallback(
+    (target: MenuRoot.HighlightItem) => {
+      store.set('pendingHighlightItem', target);
     },
     [store],
   );
@@ -383,9 +383,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     () => ({
       unmount: forceUnmount,
       close: handleImperativeClose,
-      focusItem: handleImperativeFocusItem,
+      highlightItem: handleImperativeHighlightItem,
     }),
-    [forceUnmount, handleImperativeClose, handleImperativeFocusItem],
+    [forceUnmount, handleImperativeClose, handleImperativeHighlightItem],
   );
 
   let ctx: ContextMenuRootContext | undefined;
@@ -415,7 +415,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   const direction = useDirection();
-  const pendingFocusItem = store.useState('pendingFocusItem');
+  const pendingHighlightItem = store.useState('pendingHighlightItem');
 
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
@@ -431,9 +431,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     openOnArrowKeyDown: parent.type !== 'context-menu',
     externalTree: nested ? floatingTreeRoot : undefined,
     focusItemOnHover: highlightItemOnHover,
-    pendingFocusItem,
-    onPendingFocusItemClear() {
-      store.set('pendingFocusItem', null);
+    pendingHighlightItem,
+    onPendingHighlightItemClear() {
+      store.set('pendingHighlightItem', null);
     },
   });
 
@@ -633,9 +633,9 @@ export interface MenuRootProps<Payload = unknown> {
    *    Instead, the `unmount` function must be called to unmount the menu manually.
    *   Useful when the menu's animation is controlled by an external library.
    * - `close`: When specified, the menu can be closed imperatively.
-   * - `focusItem`: Move focus to the `'first'` or `'last'` item, or `'none'` to clear the highlight.
+   * - `highlightItem`: Highlight the `'first'` or `'last'` item, or `'none'` to clear the highlight.
    *   Useful when opening the menu programmatically from a custom interaction
-   *   so that keyboard focus lands on an item instead of the popup container.
+   *   so that the first item is highlighted instead of the popup container receiving focus.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
   /**
@@ -664,10 +664,10 @@ export interface MenuRootProps<Payload = unknown> {
 export interface MenuRootActions {
   unmount: () => void;
   close: () => void;
-  focusItem: (target: MenuRoot.FocusItem) => void;
+  highlightItem: (target: MenuRoot.HighlightItem) => void;
 }
 
-export type MenuRootFocusItem = 'first' | 'last' | 'none';
+export type MenuRootHighlightItem = 'first' | 'last' | 'none';
 
 export type MenuRootChangeEventReason =
   | typeof REASONS.triggerHover
@@ -716,7 +716,7 @@ export namespace MenuRoot {
   export type State = MenuRootState;
   export type Props<Payload = unknown> = MenuRootProps<Payload>;
   export type Actions = MenuRootActions;
-  export type FocusItem = MenuRootFocusItem;
+  export type HighlightItem = MenuRootHighlightItem;
   export type ChangeEventReason = MenuRootChangeEventReason;
   export type ChangeEventDetails = MenuRootChangeEventDetails;
   export type Orientation = MenuRootOrientation;

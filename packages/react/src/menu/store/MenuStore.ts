@@ -23,7 +23,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
-  pendingFocusItem: MenuRoot.FocusItem | null;
+  pendingHighlightItem: MenuRoot.HighlightItem | null;
   hoverEnabled: boolean;
   stickIfOpen: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
@@ -74,7 +74,7 @@ const selectors = {
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
   }),
   activeIndex: createSelector((state: State<unknown>) => state.activeIndex),
-  pendingFocusItem: createSelector((state: State<unknown>) => state.pendingFocusItem),
+  pendingHighlightItem: createSelector((state: State<unknown>) => state.pendingHighlightItem),
   isActive: createSelector(
     (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   ),
@@ -204,7 +204,7 @@ function createInitialState<Payload>(): State<Payload> {
     },
     rootId: undefined,
     activeIndex: null,
-    pendingFocusItem: null,
+    pendingHighlightItem: null,
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,

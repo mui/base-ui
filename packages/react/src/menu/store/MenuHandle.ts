@@ -18,9 +18,9 @@ export class MenuHandle<Payload> {
    * The trigger must be a Menu.Trigger component with this handle passed as a prop.
    *
    * @param triggerId ID of the trigger to associate with the menu.
-   * @param focusItem Optional item to focus once the menu is open: `'first'`, `'last'`, or `'none'`.
+   * @param highlightItem Optional item to highlight once the menu is open: `'first'`, `'last'`, or `'none'`.
    */
-  open(triggerId: string, focusItem?: MenuRoot.FocusItem) {
+  open(triggerId: string, highlightItem?: MenuRoot.HighlightItem) {
     const triggerElement = triggerId
       ? (this.store.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
       : undefined;
@@ -29,8 +29,8 @@ export class MenuHandle<Payload> {
       throw new Error(`Base UI: MenuHandle.open: No trigger found with id "${triggerId}".`);
     }
 
-    if (focusItem != null) {
-      this.store.set('pendingFocusItem', focusItem);
+    if (highlightItem != null) {
+      this.store.set('pendingHighlightItem', highlightItem);
     }
 
     this.store.setOpen(
