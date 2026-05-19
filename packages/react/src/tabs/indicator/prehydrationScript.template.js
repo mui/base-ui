@@ -44,26 +44,39 @@
     };
   }
 
-  if (activeTab != null && tabsList != null) {
-    const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
-    const { width: tabsListWidth, height: tabsListHeight } = getCssDimensions(tabsList);
-    const tabRect = activeTab.getBoundingClientRect();
-    const tabsListRect = tabsList.getBoundingClientRect();
-    const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
-    const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
-    const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
+  function getElementOffset(element) {
+    let offsetLeft = element.offsetLeft;
+    let offsetTop = element.offsetTop;
+    let offsetParent = element.offsetParent;
 
-    if (hasNonZeroScale) {
-      const tabLeftDelta = tabRect.left - tabsListRect.left;
-      const tabTopDelta = tabRect.top - tabsListRect.top;
-
-      left = tabLeftDelta / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
-      top = tabTopDelta / scaleY + tabsList.scrollTop - tabsList.clientTop;
-    } else {
-      left = activeTab.offsetLeft;
-      top = activeTab.offsetTop;
+    while (offsetParent) {
+      offsetLeft += offsetParent.offsetLeft + offsetParent.clientLeft;
+      offsetTop += offsetParent.offsetTop + offsetParent.clientTop;
+      offsetParent = offsetParent.offsetParent;
     }
 
+    return {
+      left: offsetLeft,
+      top: offsetTop,
+    };
+  }
+
+  function getRelativeLayoutOffset(element, ancestor) {
+    const elementOffset = getElementOffset(element);
+    const ancestorOffset = getElementOffset(ancestor);
+
+    return {
+      left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
+      top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
+    };
+  }
+
+  if (activeTab != null && tabsList != null) {
+    const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
+    const layoutOffset = getRelativeLayoutOffset(activeTab, tabsList);
+
+    left = layoutOffset.left;
+    top = layoutOffset.top;
     width = computedWidth;
     height = computedHeight;
     right = tabsList.scrollWidth - left - width;

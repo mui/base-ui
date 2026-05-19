@@ -20,6 +20,30 @@ const stateAttributesMapping = {
   activeTabSize: () => null,
 };
 
+function getElementOffset(element: HTMLElement) {
+  let left = element.offsetLeft;
+  let top = element.offsetTop;
+  let offsetParent = element.offsetParent as HTMLElement | null;
+
+  while (offsetParent) {
+    left += offsetParent.offsetLeft + offsetParent.clientLeft;
+    top += offsetParent.offsetTop + offsetParent.clientTop;
+    offsetParent = offsetParent.offsetParent as HTMLElement | null;
+  }
+
+  return { left, top };
+}
+
+function getRelativeLayoutOffset(element: HTMLElement, ancestor: HTMLElement) {
+  const elementOffset = getElementOffset(element);
+  const ancestorOffset = getElementOffset(ancestor);
+
+  return {
+    left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
+    top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
+  };
+}
+
 /**
  * A visual indicator that can be styled to match the position of the currently active tab.
  * Renders a `<span>` element.
@@ -68,25 +92,10 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
 
     if (activeTab != null) {
       const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
-      const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabsListElement);
-      const tabRect = activeTab.getBoundingClientRect();
-      const tabsListRect = tabsListElement.getBoundingClientRect();
-      const scaleX = tabListWidth > 0 ? tabsListRect.width / tabListWidth : 1;
-      const scaleY = tabListHeight > 0 ? tabsListRect.height / tabListHeight : 1;
-      const hasNonZeroScale =
-        Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
+      const layoutOffset = getRelativeLayoutOffset(activeTab, tabsListElement);
 
-      if (hasNonZeroScale) {
-        const tabLeftDelta = tabRect.left - tabsListRect.left;
-        const tabTopDelta = tabRect.top - tabsListRect.top;
-
-        left = tabLeftDelta / scaleX + tabsListElement.scrollLeft - tabsListElement.clientLeft;
-        top = tabTopDelta / scaleY + tabsListElement.scrollTop - tabsListElement.clientTop;
-      } else {
-        left = activeTab.offsetLeft;
-        top = activeTab.offsetTop;
-      }
-
+      left = layoutOffset.left;
+      top = layoutOffset.top;
       width = computedWidth;
       height = computedHeight;
       right = tabsListElement.scrollWidth - left - width;

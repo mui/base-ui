@@ -41,22 +41,37 @@ describe('<Tabs.Indicator />', () => {
       expect(Math.abs(actualNumber - expected)).toBeLessThanOrEqual(0.01);
     }
 
+    function getElementOffset(element: HTMLElement) {
+      let left = element.offsetLeft;
+      let top = element.offsetTop;
+      let offsetParent = element.offsetParent as HTMLElement | null;
+
+      while (offsetParent) {
+        left += offsetParent.offsetLeft + offsetParent.clientLeft;
+        top += offsetParent.offsetTop + offsetParent.clientTop;
+        offsetParent = offsetParent.offsetParent as HTMLElement | null;
+      }
+
+      return { left, top };
+    }
+
+    function getRelativeLayoutOffset(element: HTMLElement, ancestor: HTMLElement) {
+      const elementOffset = getElementOffset(element);
+      const ancestorOffset = getElementOffset(ancestor);
+
+      return {
+        left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
+        top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
+      };
+    }
+
     function assertBubblePositionVariables(
       bubble: HTMLElement,
       tabList: HTMLElement,
       activeTab: HTMLElement,
     ) {
-      const tabRect = activeTab.getBoundingClientRect();
-      const tabListRect = tabList.getBoundingClientRect();
       const { width: tabWidth, height: tabHeight } = getCssDimensions(activeTab);
-      const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabList);
-      const scaleX = tabListWidth > 0 ? tabListRect.width / tabListWidth : 1;
-      const scaleY = tabListHeight > 0 ? tabListRect.height / tabListHeight : 1;
-
-      const relativeLeft =
-        (tabRect.left - tabListRect.left) / scaleX + tabList.scrollLeft - tabList.clientLeft;
-      const relativeTop =
-        (tabRect.top - tabListRect.top) / scaleY + tabList.scrollTop - tabList.clientTop;
+      const { left: relativeLeft, top: relativeTop } = getRelativeLayoutOffset(activeTab, tabList);
       const relativeRight = tabList.scrollWidth - relativeLeft - tabWidth;
       const relativeBottom = tabList.scrollHeight - relativeTop - tabHeight;
 
@@ -190,6 +205,55 @@ describe('<Tabs.Indicator />', () => {
               <Tabs.Indicator data-testid="bubble" />
             </Tabs.List>
           </Tabs.Root>
+        </div>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      tabList.scrollLeft = 80;
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
+    });
+
+    it('should account for 3D transforms on ancestors', async () => {
+      await render(
+        <div style={{ perspective: '1000px' }}>
+          <div style={{ transform: 'rotateY(45deg)', transformStyle: 'preserve-3d' }}>
+            <Tabs.Root value={3}>
+              <Tabs.List
+                data-testid="tab-list"
+                style={{
+                  width: '240px',
+                  display: 'flex',
+                  gap: '8px',
+                  overflowX: 'auto',
+                  border: '6px solid black',
+                  padding: '4px',
+                }}
+              >
+                <Tabs.Tab value={1} style={{ flex: '0 0 120px' }}>
+                  One
+                </Tabs.Tab>
+                <Tabs.Tab value={2} style={{ flex: '0 0 120px' }}>
+                  Two
+                </Tabs.Tab>
+                <Tabs.Tab value={3} style={{ flex: '0 0 120px' }}>
+                  Three
+                </Tabs.Tab>
+                <Tabs.Tab value={4} style={{ flex: '0 0 120px' }}>
+                  Four
+                </Tabs.Tab>
+                <Tabs.Tab value={5} style={{ flex: '0 0 120px' }}>
+                  Five
+                </Tabs.Tab>
+                <Tabs.Indicator data-testid="bubble" />
+              </Tabs.List>
+            </Tabs.Root>
+          </div>
         </div>,
       );
 
