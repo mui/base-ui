@@ -167,7 +167,7 @@
     --color-line-highlight-strong-mark: oklch(80% 28% 264deg / 50%);
 
     /* Syntax highlighting */
-    --color-gray: var(--color-gray-600);
+    --color-gray: var(--gray-t1);
     --color-navy: oklch(31% 25% 264deg);
     --color-green: oklch(46% 30% 150deg);
     --color-violet: oklch(40% 60% 300deg);
@@ -289,7 +289,6 @@
       --color-line-highlight-strong-mark: oklch(50% 50% 264deg / 50%);
 
       /* Syntax highlighting */
-      --color-gray: var(--color-gray-600);
       --color-green: oklch(75% 25% 150deg);
       --color-navy: oklch(85% 25% 264deg);
       --color-violet: oklch(80% 60% 280deg);
