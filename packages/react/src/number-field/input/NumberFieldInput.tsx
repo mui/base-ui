@@ -175,7 +175,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      // If an explicit precision is requested, round the committed numeric value.
+      // Avoid applying Intl's default precision unless the format opts into it.
       const hasExplicitPrecision = hasExplicitNumberFormatPrecision(formatOptions);
 
       const committed = hasExplicitPrecision
