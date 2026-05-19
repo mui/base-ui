@@ -140,16 +140,19 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
     const { highlightedChipIndex } = comboboxChipsContext;
     const renderedChipsCount = comboboxChipsContext.chipsRef.current.length;
+    const isRtl = direction === 'rtl';
+    const previousChipKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
+    const nextChipKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
 
     if (highlightedChipIndex !== undefined) {
-      if (event.key === 'ArrowLeft') {
+      if (event.key === previousChipKey) {
         event.preventDefault();
         if (highlightedChipIndex > 0) {
           nextIndex = highlightedChipIndex - 1;
         } else {
           nextIndex = undefined;
         }
-      } else if (event.key === 'ArrowRight') {
+      } else if (event.key === nextChipKey) {
         event.preventDefault();
         if (highlightedChipIndex < renderedChipsCount - 1) {
           nextIndex = highlightedChipIndex + 1;
@@ -172,7 +175,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
     // Handle navigation when no chip is highlighted
     if (
-      event.key === 'ArrowLeft' &&
+      event.key === previousChipKey &&
       (event.currentTarget.selectionStart ?? 0) === 0 &&
       selectedValue.length > 0
     ) {

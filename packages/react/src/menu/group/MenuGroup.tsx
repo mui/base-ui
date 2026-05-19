@@ -18,8 +18,6 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
 
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
 
-  const context = React.useMemo(() => ({ setLabelId }), [setLabelId]);
-
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     props: {
@@ -29,7 +27,7 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
     },
   });
 
-  return <MenuGroupContext.Provider value={context}>{element}</MenuGroupContext.Provider>;
+  return <MenuGroupContext.Provider value={setLabelId}>{element}</MenuGroupContext.Provider>;
 });
 
 export interface MenuGroupProps extends BaseUIComponentProps<'div', MenuGroupState> {

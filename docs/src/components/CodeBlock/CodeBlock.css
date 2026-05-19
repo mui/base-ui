@@ -51,7 +51,7 @@
     /* Scroll containers may be focusable */
     &:focus-visible {
       position: relative;
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
       z-index: 1;
     }
@@ -73,7 +73,15 @@
   }
 
   .CodeBlockViewport {
+    outline: 0;
+    border-bottom-right-radius: var(--radius-6);
+    border-bottom-left-radius: var(--radius-6);
     overscroll-behavior-x: contain;
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: 0;
+    }
   }
 
   .CodeBlockPreInline {
