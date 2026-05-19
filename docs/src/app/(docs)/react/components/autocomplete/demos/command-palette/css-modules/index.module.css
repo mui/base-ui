@@ -3,34 +3,53 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 2.5rem;
-  padding: 0 0.875rem;
+  gap: 0.5rem;
+  height: 2rem;
+  padding: 0 0.75rem;
   margin: 0;
   outline: 0;
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.375rem;
-  background-color: var(--color-gray-50);
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.5rem;
-  color: var(--color-gray-900);
+  line-height: 1;
+  white-space: nowrap;
+  color: oklch(14.5% 0 0deg);
   user-select: none;
   cursor: default;
 
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
   @media (hover: hover) {
     &:hover {
-      background-color: var(--color-gray-100);
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
     }
   }
 
   &:active {
-    background-color: var(--color-gray-100);
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -49,6 +68,10 @@
   &[data-ending-style] {
     opacity: 0;
   }
+
+  @supports (-webkit-touch-callout: none) {
+    position: absolute;
+  }
 }
 
 .Viewport {
@@ -66,63 +89,73 @@
   position: relative;
   width: calc(100vw - 1rem);
   max-width: 28rem;
-  border-radius: 1rem;
   background-color: white;
-  color: var(--color-gray-900);
+  color: oklch(14.5% 0 0deg);
   transition:
     transform 150ms,
     opacity 150ms;
   max-height: min(36rem, calc(100dvh - 5rem));
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  border: 1px solid oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    border: 1px solid white;
+    box-shadow: none;
+  }
 
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
     transform: translateY(-1rem) scale(0.95);
   }
-
-  outline: 1px solid rgb(0 0 0 / 0.04);
-  box-shadow:
-    0 0.5px 1px rgb(0 0 0 / 0.12),
-    0 1px 3px -1px rgb(0 0 0 / 0.04),
-    0 2px 4px -1px rgb(0 0 0 / 0.04),
-    0 4px 8px -2px rgb(0 0 0 / 0.04),
-    0 12px 14px -4px rgb(0 0 0 / 0.04),
-    0 24px 64px -8px rgb(0 0 0 / 0.04),
-    0 40px 48px -32px rgb(0 0 0 / 0.04);
-
-  @media (prefers-color-scheme: dark) {
-    background-color: oklch(20% 0.5% 264deg);
-    outline: 1px solid rgb(255 255 255 / 0.25);
-  }
 }
 
 .Input {
   box-sizing: border-box;
-  padding: 1rem;
+  position: relative;
+  z-index: 1;
+  padding: 0 0.75rem;
   margin: 0;
   border: none;
-  border-bottom: 1px solid var(--color-gray-100);
   width: 100%;
-  height: auto;
+  height: 2.5rem;
   border-radius: 0;
   font-family: inherit;
-  font-size: 1rem;
-  background-color: transparent;
-  color: var(--color-gray-900);
-  letter-spacing: 0.016em;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
   outline: none;
 
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
   &::placeholder {
-    font-weight: 400;
-    color: var(--color-gray-500);
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
   }
 
   &:focus {
-    border-bottom-color: var(--color-gray-100);
-    outline: none;
+    outline: 2px solid oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
@@ -133,6 +166,11 @@
   min-height: 0;
   max-height: min(60dvh, 24rem);
   overflow: hidden;
+  border-top: 1px solid oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+  }
 }
 
 .ListViewport {
@@ -143,14 +181,18 @@
   scroll-padding-block: 0.25rem;
 
   &:focus-visible {
-    outline: 1px solid var(--color-blue);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
 .List {
   box-sizing: border-box;
-  padding: 0.5rem;
+  padding: 0.25rem 0;
 
   &:empty {
     padding: 0;
@@ -167,17 +209,20 @@
 
 .GroupLabel {
   outline: 0;
-  cursor: default;
   user-select: none;
   display: flex;
   align-items: center;
   min-height: 2rem;
-  padding: 0 0.875rem;
-  font-size: 0.9375rem;
-  letter-spacing: 0.00625em;
+  margin: 0;
+  padding: 0 1.5rem 0 0.75rem;
+  font-size: 0.875rem;
   line-height: 1;
   font-weight: 400;
-  color: var(--color-gray-600);
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
 }
 
 .Item {
@@ -187,19 +232,21 @@
   user-select: none;
   scroll-margin-block: 0.25rem;
   min-height: 2rem;
-  padding: 0 0.75rem 0 2.25rem;
-  border-radius: 0.375rem;
+  padding: 0 1.5rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.5rem;
   align-items: center;
-  font-size: 0.9375rem;
-  letter-spacing: 0.016em;
+  font-size: 0.875rem;
   line-height: 1.25;
   font-weight: 400;
 
   &[data-highlighted] {
-    background-color: var(--color-gray-100);
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
   }
 }
 
@@ -213,12 +260,19 @@
 
 .ItemType {
   font-size: 0.875rem;
-  color: var(--color-gray-500);
-  letter-spacing: 0.00625em;
+  color: oklch(55.6% 0 0deg);
   white-space: nowrap;
 
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
   [data-highlighted] & {
-    color: var(--color-gray-700);
+    color: oklch(37.1% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(87% 0 0deg);
+    }
   }
 }
 
@@ -226,35 +280,36 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  font-size: 0.925rem;
+  justify-content: flex-start;
+  padding: 1rem 1rem 1rem 0.5rem;
+  font-size: 0.875rem;
   line-height: 1rem;
-  color: var(--color-gray-600);
+  color: oklch(55.6% 0 0deg);
   min-height: 8rem;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
 }
 
 .Scrollbar {
   display: flex;
   justify-content: center;
-  width: 1.5rem;
-  margin-right: -0.25rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  background-color: rgb(0 0 0 / 12%);
+  width: 1rem;
+  transition: opacity 150ms;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: rgb(255 255 255 / 12%);
+  }
 }
 
 .ScrollbarThumb {
-  display: flex;
-  justify-content: center;
   width: 100%;
+  background-color: oklch(14.5% 0 0deg);
 
-  &::before {
-    content: '';
-    display: block;
-    height: 100%;
-    width: 0.25rem;
-    border-radius: 0.25rem;
-    background-color: var(--color-gray-400);
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
   }
 }
 
@@ -263,18 +318,23 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.625rem 0.75rem;
-  border-top: 1px solid var(--color-gray-200);
+  border-top: 1px solid oklch(14.5% 0 0deg);
   font-size: 0.75rem;
-  color: var(--color-gray-600);
-  background-color: var(--color-gray-50);
-  border-radius: 0 0 1rem 1rem;
+  color: oklch(43.9% 0 0deg);
+  background-color: white;
+
+  @media (prefers-color-scheme: dark) {
+    border-top: 1px solid white;
+    color: oklch(70.8% 0 0deg);
+    background-color: oklch(14.5% 0 0deg);
+  }
 }
 
 .FooterLeft,
 .FooterRight {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .Kbd {
@@ -289,10 +349,15 @@
     ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
   font-weight: 400;
   line-height: 1;
-  color: var(--color-gray-700);
-  background-color: var(--color-gray-100);
-  border: 1px solid var(--color-gray-300);
-  border-radius: 0.25rem;
+  color: oklch(43.9% 0 0deg);
+  background-color: oklch(97% 0 0deg);
+  border: 1px solid oklch(70.8% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+    background-color: oklch(20.5% 0 0deg);
+    border: 1px solid oklch(43.9% 0 0deg);
+  }
 }
 
 .VisuallyHiddenClose {

@@ -110,7 +110,6 @@ To create a submenu, nest another menu inside the parent menu with `<Menu.Submen
   <Menu.Portal>
     <Menu.Positioner>
       <Menu.Popup>
-        <Menu.Arrow />
         <Menu.Item />
 
         {/* @highlight-start */}
@@ -302,6 +301,14 @@ The `onOpenChange` callback receives `eventDetails`, which includes the DOM elem
 import { DemoMenuDetachedTriggersControlled } from './demos/detached-triggers-controlled';
 
 <DemoMenuDetachedTriggersControlled compact />
+
+### Arrow
+
+Use the `<Menu.Arrow>` part inside the popup to visually connect the menu to its trigger.
+
+import { DemoMenuArrow } from './demos/arrow';
+
+<DemoMenuArrow compact />
 
 ### Animating the Menu
 

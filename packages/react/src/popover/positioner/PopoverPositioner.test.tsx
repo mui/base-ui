@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
@@ -148,6 +149,31 @@ describe('<Popover.Positioner />', () => {
 
       // correctly flips the side in the browser
       expect(side).toBe('inline-end');
+    });
+
+    it('reads logical side inside sideOffset in RTL mode', async () => {
+      let side = 'none';
+      await render(
+        <DirectionProvider direction="rtl">
+          <Popover.Root open>
+            <Trigger style={triggerStyle}>Trigger</Trigger>
+            <Popover.Portal>
+              <Popover.Positioner
+                side="inline-start"
+                data-testid="positioner"
+                sideOffset={(data) => {
+                  side = data.side;
+                  return 0;
+                }}
+              >
+                <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </DirectionProvider>,
+      );
+
+      expect(side).toBe('inline-start');
     });
   });
 
