@@ -463,9 +463,15 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
           onFocus() {
             inputRef.current?.focus();
           },
-          onChange(event) {
+          onChange(
+            event: React.ChangeEvent<HTMLInputElement> & {
+              preventBaseUIHandler?: (() => void) | undefined;
+            },
+          ) {
             // Workaround for https://github.com/facebook/react/issues/9023
-            if (event.nativeEvent.defaultPrevented) {
+            if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
+              // Outside Field.Root, the event is not wrapped by mergeProps.
+              event.preventBaseUIHandler?.();
               return;
             }
 
