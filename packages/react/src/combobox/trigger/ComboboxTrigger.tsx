@@ -118,7 +118,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     activeIndex,
     selectedIndex,
     onMatch(index) {
-      const nextSelectedValue = store.state.valuesRef.current[index];
+      const itemValues = store.state.items ? store.state.itemValues : store.state.valuesRef.current;
+      const nextSelectedValue = itemValues[index];
       if (nextSelectedValue !== undefined) {
         store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
       }

@@ -3159,7 +3159,7 @@ describe('<Combobox.Root />', () => {
       });
     });
 
-    it('does not force-mount rendered items for closed trigger typeahead', async () => {
+    it('uses rendered object values from a detached closed trigger typeahead list', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root<FruitItem> items={items} onValueChange={onValueChange}>
@@ -3192,13 +3192,13 @@ describe('<Combobox.Root />', () => {
 
       await waitFor(() => {
         expect(onValueChange).toHaveBeenCalledWith(
-          'banana',
+          items[1],
           expect.objectContaining({ reason: REASONS.none }),
         );
       });
     });
 
-    it('does not force-mount manually indexed items for closed trigger typeahead', async () => {
+    it('uses manually indexed rendered values from a detached closed trigger typeahead list', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(
         <Combobox.Root<FruitItem> items={items} onValueChange={onValueChange}>
@@ -3231,7 +3231,7 @@ describe('<Combobox.Root />', () => {
 
       await waitFor(() => {
         expect(onValueChange).toHaveBeenCalledWith(
-          'banana',
+          items[1],
           expect.objectContaining({ reason: REASONS.none }),
         );
       });
@@ -3408,9 +3408,10 @@ describe('<Combobox.Root />', () => {
     expect(screen.queryByRole('option', { name: 'Banana' })).toBe(null);
   });
 
-  it('unmounts a force-mounted closed popup without an items prop after trigger blur', async () => {
-    await render(
-      <Combobox.Root>
+  it('uses a detached force-mounted closed popup without an items prop for trigger typeahead', async () => {
+    const onValueChange = vi.fn();
+    const { user } = await render(
+      <Combobox.Root onValueChange={onValueChange}>
         <Combobox.Trigger data-testid="trigger">
           <Combobox.Value />
         </Combobox.Trigger>
@@ -3432,7 +3433,16 @@ describe('<Combobox.Root />', () => {
       await wait(0);
     });
 
-    expect(screen.getByRole('listbox', { hidden: true })).not.toBe(null);
+    expect(screen.queryByRole('listbox', { hidden: true })).toBe(null);
+
+    await user.keyboard('b');
+
+    await waitFor(() => {
+      expect(onValueChange).toHaveBeenCalledWith(
+        'banana',
+        expect.objectContaining({ reason: REASONS.none }),
+      );
+    });
 
     act(() => {
       screen.getByTestId('trigger').blur();

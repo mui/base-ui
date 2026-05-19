@@ -317,9 +317,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (filterQuery === '') {
       return limit > -1
         ? flatItems.slice(0, limit)
-        : // This branch is only reached when the `items` prop is provided.
-          // `flatItemValues` is a mutable copy used by list navigation refs, while
-          // `flatItems` remains the source list used for filtering and rendering.
+        : // The cast is only needed because `flatItems` is readonly, while
+          // `filteredItems` is typed as a mutable array for downstream consumers.
           (flatItems as Value[]);
     }
 
@@ -481,17 +480,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const forceMount = useStableCallback(() => {
     if (items) {
-      // Ensure typeahead works on a closed list.
+      // Labels can be inferred synchronously; values must come from rendered items.
       labelsRef.current = flatFilteredItems.map((item) =>
         stringifyComboboxItemLabel(item, itemToStringLabel),
       );
-      valuesRef.current = flatFilteredItemValues.slice();
-      return;
     }
 
-    // Rendering is still needed when item metadata cannot be inferred from the
-    // `items` prop, for example object-valued rendered items used by closed
-    // trigger typeahead.
     store.set('forceMounted', true);
   });
 
@@ -809,6 +803,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useIsoLayoutEffect(() => {
     if (items) {
+      // Indexed item registration mutates `valuesRef.current`, so keep it as a
+      // working copy instead of pointing at the memoized derived item-value array.
       valuesRef.current = flatFilteredItemValues.slice();
       store.update({
         itemValues: EMPTY_ARRAY,
@@ -1355,9 +1351,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
 
             forceMount();
-            if (items) {
-              store.set('forceMounted', true);
-            }
             queueMicrotask(handleChange);
           },
         })}

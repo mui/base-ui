@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
@@ -22,16 +23,27 @@ export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
   const store = useComboboxRootContext();
 
   const mounted = useStore(store, selectors.mounted);
+  const open = useStore(store, selectors.open);
   const forceMounted = useStore(store, selectors.forceMounted);
+  const detachedContainerRef = React.useRef<HTMLDivElement | null>(null);
 
   const shouldRender = mounted || keepMounted || forceMounted;
   if (!shouldRender) {
     return null;
   }
 
+  const container =
+    forceMounted && !open && !mounted && !keepMounted
+      ? // Safe during render: this lazily creates a detached element only. It
+        // does not mutate the live DOM, measure layout, or update shared state.
+        (detachedContainerRef.current ??= ownerDocument(store.state.triggerElement).createElement(
+          'div',
+        ))
+      : portalProps.container;
+
   return (
     <ComboboxPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
+      <FloatingPortal ref={forwardedRef} {...portalProps} container={container} />
     </ComboboxPortalContext.Provider>
   );
 });

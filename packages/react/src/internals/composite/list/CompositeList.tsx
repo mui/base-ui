@@ -52,10 +52,10 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     disableEslintWarning(mapTick);
 
     const newMap = new Map<Element, CompositeMetadata<Metadata>>();
-    // Filter out disconnected elements before sorting to avoid inconsistent
-    // compareDocumentPosition results when elements are detached from the DOM.
+    // Loose disconnected nodes cannot be sorted reliably. Nodes inside a
+    // detached subtree still have a stable tree order.
     const sortedNodes = Array.from(map.keys())
-      .filter((node) => node.isConnected)
+      .filter((node) => node.isConnected || node.getRootNode() !== node)
       .sort(sortByDocumentPosition);
 
     sortedNodes.forEach((node, index) => {
