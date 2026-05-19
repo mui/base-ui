@@ -13,7 +13,7 @@ export const releases: Release[] = [
     versionSlug: 'v1-5-0',
     date: '2026-05-19',
     highlights: [
-      'Up to 50% closed mount performance for popups, 85% unmounting.',
+      'Improve closed popup mount performance by up to 50% and unmounting performance by up to 85%.',
       'Allow Persian digits in `NumberField`.',
       'Support `Ctrl` and `Cmd` shortcuts in `OTPField`.',
       'Rename `sanitizeValue` to `normalizeValue` and allow composing with validation in `<OTPField.Root>`.',
