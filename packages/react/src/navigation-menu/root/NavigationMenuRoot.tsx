@@ -116,43 +116,16 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     abortController: null,
     owner: null,
   });
-  const nextOpenRef = React.useRef(open);
-  const closeTransitionSnapshotRef = React.useRef(false);
-
-  nextOpenRef.current = open;
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  const freezePopupSizeForClose = useStableCallback(() => {
-    if (closeTransitionSnapshotRef.current) {
+  useIsoLayoutEffect(() => {
+    if (open || !positionerElement || !popupElement) {
       return;
     }
 
-    if (positionerElement && popupElement) {
-      setSharedFixedSize(popupElement, positionerElement);
-      closeTransitionSnapshotRef.current = true;
-    }
-  });
-
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      return undefined;
-    }
-
-    return () => {
-      // Controlled value changes bypass `setValue`, so snapshot before content
-      // unmounts and the popup dimensions can collapse.
-      if (!nextOpenRef.current) {
-        freezePopupSizeForClose();
-      }
-    };
-  }, [open, freezePopupSizeForClose]);
-
-  useIsoLayoutEffect(() => {
-    if (open) {
-      closeTransitionSnapshotRef.current = false;
-    }
-  }, [open]);
+    setSharedFixedSize(popupElement, positionerElement);
+  }, [open, popupElement, positionerElement]);
 
   React.useEffect(() => {
     setViewportInert(false);
@@ -167,8 +140,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
         closeReasonRef.current = eventDetails.reason;
         setActivationDirection(null);
         setFloatingRootContext(undefined);
-
-        freezePopupSizeForClose();
       }
 
       if (nextValue !== value) {
