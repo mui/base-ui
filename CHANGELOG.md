@@ -123,7 +123,7 @@ _May 19, 2026_
 ### Toast
 
 - Reuse `getDisplacement()` (#4748) by @sai6855
-- Re-use `getElementTransform` and remove local implementation (#4749) by @sai6855
+- Re-use `getElementTransform()` and remove local implementation (#4749) by @sai6855
 - Fix stuck drag state on release (#4742) by @aeterno-caspian
 - Remove memoized selector (#4751) by @atomiks
 
