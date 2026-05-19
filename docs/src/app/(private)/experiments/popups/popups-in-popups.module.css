@@ -37,6 +37,7 @@
   font-weight: 500;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (hover: hover) {
@@ -199,6 +200,7 @@
   transform: translateY(var(--drawer-swipe-movement-y));
 
   &[data-swiping] {
+    -webkit-user-select: none;
     user-select: none;
   }
 
@@ -291,6 +293,7 @@
   font-size: 1rem;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
   min-width: 10rem;
 
@@ -317,6 +320,7 @@
 .SelectPositioner {
   outline: none;
   z-index: 1;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -379,6 +383,7 @@
   align-items: center;
   grid-template-columns: 0.75rem 1fr;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
 
   @media (pointer: coarse) {
@@ -512,6 +517,7 @@
 .MenuItem {
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1rem;
@@ -544,6 +550,7 @@
 .SubmenuTrigger {
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1rem;
@@ -718,6 +725,7 @@
   box-sizing: border-box;
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1rem;

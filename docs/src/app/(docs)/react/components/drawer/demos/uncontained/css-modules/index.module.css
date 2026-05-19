@@ -15,6 +15,7 @@
   line-height: 1;
   white-space: nowrap;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -118,6 +119,7 @@
   will-change: transform;
 
   &[data-swiping] {
+    -webkit-user-select: none;
     user-select: none;
   }
 
@@ -174,6 +176,7 @@
   line-height: 1.25rem;
   text-align: center;
   color: inherit;
+  -webkit-user-select: none;
   user-select: none;
 
   @media (hover: hover) {
@@ -231,6 +234,7 @@
   line-height: 1.25rem;
   text-align: center;
   color: oklch(50% 55% 31deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (hover: hover) {

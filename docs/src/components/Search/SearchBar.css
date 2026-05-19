@@ -44,6 +44,7 @@
     font-weight: var(--font-weight-400);
     line-height: 1.5;
     color: var(--gray-t2);
+    -webkit-user-select: none;
     user-select: none;
     outline: none;
 
@@ -240,6 +241,7 @@
     font-weight: var(--font-weight-400);
     line-height: 1;
     color: var(--gray-t1);
+    -webkit-user-select: none;
     user-select: none;
   }
 
@@ -256,6 +258,7 @@
     line-height: 1;
     color: var(--gray-t2);
     cursor: default;
+    -webkit-user-select: none;
     user-select: none;
     outline: none;
   }
