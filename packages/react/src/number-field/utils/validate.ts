@@ -20,25 +20,40 @@ export function hasExplicitNumberFormatPrecision(format?: NumberFormatOptionsWit
   );
 }
 
+export function hasNumberFormatRoundingOptions(format?: NumberFormatOptionsWithRounding) {
+  return (
+    hasExplicitNumberFormatPrecision(format) ||
+    format?.roundingIncrement != null ||
+    format?.roundingMode != null ||
+    format?.roundingPriority != null
+  );
+}
+
 export function removeFloatingPointErrors(value: number, format?: NumberFormatOptionsWithRounding) {
   if (!Number.isFinite(value)) {
     return value;
   }
 
-  const minimumFractionDigits = format?.minimumFractionDigits ?? 0;
+  const hasRoundingOptions = hasNumberFormatRoundingOptions(format);
+  const resolvedOptions =
+    format && (hasRoundingOptions || format.minimumFractionDigits != null)
+      ? getFormatter('en-US', format).resolvedOptions()
+      : undefined;
+  const minimumFractionDigits =
+    format?.minimumFractionDigits ?? resolvedOptions?.minimumFractionDigits ?? 0;
   const digits = Math.min(
     Math.max(
       format?.maximumFractionDigits ??
-        (format?.minimumFractionDigits == null
-          ? 3
-          : (getFormatter('en-US', format).resolvedOptions().maximumFractionDigits ?? 20)),
+        (hasRoundingOptions || format?.minimumFractionDigits != null
+          ? (resolvedOptions?.maximumFractionDigits ?? 3)
+          : 3),
       minimumFractionDigits,
       0,
     ),
     20,
   );
   // Percent values are stored as fractions, so rounding must happen at the displayed scale.
-  const scale = format?.style === 'percent' && hasExplicitNumberFormatPrecision(format) ? 100 : 1;
+  const scale = format?.style === 'percent' && hasRoundingOptions ? 100 : 1;
   let valueToRound = value * scale;
 
   if (!Number.isFinite(valueToRound)) {
@@ -52,13 +67,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     valueToRound = Number(valueToRound.toFixed(Math.min(digits + 6, 20)));
   }
 
-  if (
-    format?.maximumSignificantDigits != null ||
-    format?.minimumSignificantDigits != null ||
-    format?.roundingIncrement != null ||
-    format?.roundingMode != null ||
-    format?.roundingPriority != null
-  ) {
+  if (hasRoundingOptions) {
     return (
       Number(
         getFormatter('en-US', {
