@@ -11,7 +11,7 @@ const ruleName = 'base-ui/no-unknown-demo-colors';
 
 const messages = stylelint.utils.ruleMessages(ruleName, {
   rejected: (color) =>
-    `Unexpected demo color "${color}". Use raw color values defined in docs/src/css/index.css @theme in CSS Modules demos.`,
+    `Unexpected demo color "${color}". In CSS Modules demos, use raw color values defined in docs/src/css/index.css @theme.`,
 });
 
 const allowedKeywords = new Set([
@@ -191,10 +191,9 @@ const namedColors = new Set([
 ]);
 
 const hexColorRegex = /#[\da-f]{3,8}\b/gi;
-const colorVariableRegex = /var\(\s*(--color-[\w-]+)[^)]*\)/gi;
-const namedColorRegex = new RegExp(`(?<![-\\w])(?:${[...namedColors].join('|')})(?![-\\w])`, 'gi');
+const cssVariableRegex = /var\(\s*--[\w-]+[^)]*\)/gi;
+const wordRegex = /[a-z]+/gi;
 const themeColorsCache = new Map();
-const namedColorPropertyCache = new Map();
 
 function normalizeColor(value) {
   return value
@@ -234,15 +233,9 @@ function readThemeColors(themePath) {
 }
 
 function canContainNamedColor(property) {
-  const cachedResult = namedColorPropertyCache.get(property);
-
-  if (cachedResult !== undefined) {
-    return cachedResult;
-  }
-
   const normalizedProperty = property.toLowerCase();
 
-  const result =
+  return (
     normalizedProperty !== 'print-color-adjust' &&
     !normalizedProperty.includes('radius') &&
     (normalizedProperty === 'color' ||
@@ -252,11 +245,19 @@ function canContainNamedColor(property) {
       normalizedProperty === 'filter' ||
       normalizedProperty === 'stroke' ||
       /^(?:background|border|outline|text-decoration)(?:-|$)/.test(normalizedProperty) ||
-      /(?:^|-)(?:shadow)$/.test(normalizedProperty));
+      /(?:^|-)(?:shadow)$/.test(normalizedProperty))
+  );
+}
 
-  namedColorPropertyCache.set(property, result);
+function shouldValidateBareColorValue(property) {
+  const normalizedProperty = property.toLowerCase();
 
-  return result;
+  return (
+    normalizedProperty === 'color' ||
+    normalizedProperty.endsWith('-color') ||
+    normalizedProperty === 'fill' ||
+    normalizedProperty === 'stroke'
+  );
 }
 
 function findClosingParenthesis(value, openParenthesisIndex) {
@@ -287,14 +288,21 @@ function stripStringsAndUrls(value) {
 }
 
 function stripStringsAndUrlsIfNeeded(value) {
-  if (!/[("']|url\(/i.test(value)) {
+  if (!/["']|url\(/i.test(value)) {
     return value;
   }
 
   return stripStringsAndUrls(value);
 }
 
-function pushColorMixArguments(value, usages) {
+function isStandaloneWord(value, startIndex, endIndex) {
+  const previousCharacter = value[startIndex - 1];
+  const nextCharacter = value[endIndex];
+
+  return !/[-\w]/.test(previousCharacter ?? '') && !/[-\w]/.test(nextCharacter ?? '');
+}
+
+function pushColorMixArguments(value, onUsage) {
   let depth = 0;
   let start = 0;
   let isFirstArgument = true;
@@ -311,7 +319,7 @@ function pushColorMixArguments(value, usages) {
         const argumentValue = stripColorMixPercentage(value.slice(start, index));
 
         if (argumentValue) {
-          usages.push({ type: 'color-mix-argument', value: argumentValue });
+          onUsage({ type: 'color-mix-argument', value: argumentValue });
         }
       }
 
@@ -323,11 +331,11 @@ function pushColorMixArguments(value, usages) {
   const argumentValue = isFirstArgument ? '' : stripColorMixPercentage(value.slice(start));
 
   if (argumentValue) {
-    usages.push({ type: 'color-mix-argument', value: argumentValue });
+    onUsage({ type: 'color-mix-argument', value: argumentValue });
   }
 }
 
-function pushFunctionUsages(value, usages) {
+function pushFunctionUsages(value, shouldScanColorMix, onUsage) {
   const functionRegex = /\b([a-z-]+)\(/gi;
 
   let match = functionRegex.exec(value);
@@ -343,19 +351,45 @@ function pushFunctionUsages(value, usages) {
     }
 
     if (colorFunctionNames.has(functionName)) {
-      usages.push({
+      onUsage({
         type: 'function',
         value: value.slice(match.index, closeParenthesisIndex + 1),
       });
     }
 
-    if (functionName === 'color-mix') {
-      pushColorMixArguments(value.slice(openParenthesisIndex + 1, closeParenthesisIndex), usages);
+    if (shouldScanColorMix && functionName === 'color-mix') {
+      pushColorMixArguments(value.slice(openParenthesisIndex + 1, closeParenthesisIndex), onUsage);
     }
 
     functionRegex.lastIndex = openParenthesisIndex + 1;
     match = functionRegex.exec(value);
   }
+}
+
+function replaceFunctionCallsWithSpaces(value) {
+  let sanitizedValue = '';
+  let index = 0;
+  const functionRegex = /\b([a-z-]+)\(/gi;
+
+  let match = functionRegex.exec(value);
+
+  while (match) {
+    const openParenthesisIndex = match.index + match[0].length - 1;
+    const closeParenthesisIndex = findClosingParenthesis(value, openParenthesisIndex);
+
+    if (closeParenthesisIndex === -1) {
+      match = functionRegex.exec(value);
+      continue;
+    }
+
+    sanitizedValue += value.slice(index, match.index);
+    sanitizedValue += ' '.repeat(closeParenthesisIndex + 1 - match.index);
+    index = closeParenthesisIndex + 1;
+    functionRegex.lastIndex = openParenthesisIndex + 1;
+    match = functionRegex.exec(value);
+  }
+
+  return sanitizedValue + value.slice(index);
 }
 
 function stripColorMixPercentage(value) {
@@ -365,39 +399,65 @@ function stripColorMixPercentage(value) {
     .trim();
 }
 
-function getColorUsages(value, property) {
-  const shouldScanNamedColors = canContainNamedColor(property);
+function walkColorUsages(value, property, onUsage) {
+  const hasFunction = value.includes('(');
+  const hasHex = value.includes('#');
+  const hasCssVariable = value.includes('var(');
+  const hasWord = /[a-z]/i.test(value);
+  const shouldScanNamedColors = hasWord && canContainNamedColor(property);
+  const shouldValidateBareColors = hasWord && shouldValidateBareColorValue(property);
+  const shouldScanCssVariables = hasCssVariable && (shouldScanNamedColors || shouldValidateBareColors);
 
-  if (!value.includes('#') && !value.includes('(') && !shouldScanNamedColors) {
-    return [];
+  if (
+    !hasFunction &&
+    !hasHex &&
+    !shouldScanCssVariables &&
+    !shouldScanNamedColors &&
+    !shouldValidateBareColors
+  ) {
+    return;
   }
 
   const valueWithoutStrings = stripStringsAndUrlsIfNeeded(value);
-  const usages = [];
+  const shouldScanColorMix = /color-mix\(/i.test(valueWithoutStrings);
 
-  if (valueWithoutStrings.includes('(')) {
-    pushFunctionUsages(valueWithoutStrings, usages);
+  if (hasFunction && valueWithoutStrings.includes('(')) {
+    pushFunctionUsages(valueWithoutStrings, shouldScanColorMix, onUsage);
   }
 
-  if (valueWithoutStrings.includes('#')) {
+  if (hasHex && valueWithoutStrings.includes('#')) {
     for (const match of valueWithoutStrings.matchAll(hexColorRegex)) {
-      usages.push({ type: 'hex', value: match[0] });
+      onUsage({ type: 'hex', value: match[0] });
     }
   }
 
-  if (valueWithoutStrings.includes('--color-')) {
-    for (const match of valueWithoutStrings.matchAll(colorVariableRegex)) {
-      usages.push({ type: 'custom-property', value: match[0] });
+  if (shouldScanCssVariables && valueWithoutStrings.includes('var(')) {
+    for (const match of valueWithoutStrings.matchAll(cssVariableRegex)) {
+      onUsage({ type: 'custom-property', value: match[0] });
     }
   }
 
   if (shouldScanNamedColors) {
-    for (const match of valueWithoutStrings.matchAll(namedColorRegex)) {
-      usages.push({ type: 'keyword', value: match[0].toLowerCase() });
+    const namedColorValue = hasFunction
+      ? replaceFunctionCallsWithSpaces(valueWithoutStrings)
+      : valueWithoutStrings;
+
+    for (const match of namedColorValue.matchAll(wordRegex)) {
+      const word = match[0].toLowerCase();
+      const endIndex = match.index + match[0].length;
+
+      if (
+        namedColorValue[endIndex] !== '(' &&
+        isStandaloneWord(namedColorValue, match.index, endIndex)
+      ) {
+        if (namedColors.has(word)) {
+          onUsage({ type: 'keyword', value: word });
+        } else if (shouldValidateBareColors) {
+          onUsage({ type: 'bare-word', value: word });
+        }
+      }
     }
   }
-
-  return usages;
 }
 
 function isAllowedColorMixArgument(value, themeColors) {
@@ -440,11 +500,15 @@ function isAllowedUsage(usage, themeColors) {
     return false;
   }
 
+  if (usage.type === 'bare-word') {
+    return allowedKeywords.has(normalizedValue);
+  }
+
   if (usage.type === 'color-mix-argument') {
     return isAllowedColorMixArgument(usage.value, themeColors);
   }
 
-  if (themeColors.values.has(normalizedValue) || allowedKeywords.has(normalizedValue)) {
+  if (themeColors.values.has(normalizedValue)) {
     return true;
   }
 
@@ -470,14 +534,13 @@ const plugin = stylelint.createPlugin(ruleName, (primary, secondaryOptions = {})
     const themeColors = readThemeColors(themePath);
 
     root.walkDecls((declaration) => {
-      const usages = getColorUsages(declaration.value, declaration.prop);
       const reportedValues = new Set();
 
-      for (const usage of usages) {
+      walkColorUsages(declaration.value, declaration.prop, (usage) => {
         const normalizedValue = normalizeColor(usage.value);
 
         if (reportedValues.has(normalizedValue) || isAllowedUsage(usage, themeColors)) {
-          continue;
+          return;
         }
 
         reportedValues.add(normalizedValue);
@@ -489,7 +552,7 @@ const plugin = stylelint.createPlugin(ruleName, (primary, secondaryOptions = {})
           ruleName,
           word: usage.value,
         });
-      }
+      });
     });
   };
 });
