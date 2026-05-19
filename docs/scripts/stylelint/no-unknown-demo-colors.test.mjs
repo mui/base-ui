@@ -102,4 +102,15 @@ describe(ruleName, () => {
 
     expect(warnings).toEqual([]);
   });
+
+  it('does not treat strings or URLs as colors', async () => {
+    const warnings = await lint(`
+      .Test {
+        background-image: url("#red");
+        content: "blue";
+      }
+    `);
+
+    expect(warnings).toEqual([]);
+  });
 });
