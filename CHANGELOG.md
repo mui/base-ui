@@ -26,9 +26,6 @@ _May 19, 2026_
 
 - Submit the associated form when pressing <kbd>Enter</kbd> (#4713) by @michaldudak
 
-### Collapsible
-
-- Refactor panel logic (#4565) by @mj12albert
 
 ### Combobox
 
