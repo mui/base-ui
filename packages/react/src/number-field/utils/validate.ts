@@ -147,20 +147,20 @@ export function toValidatedNumber(
     return value;
   }
 
-  let result = value;
+  let nextValue = value;
 
   if (step != null && snapOnStep && step !== 0) {
     const base =
       small || minWithDefault === Number.MIN_SAFE_INTEGER ? minWithZeroDefault : minWithDefault;
 
     // Snap before clamping so non-step-aligned boundaries stay reachable.
-    result = snapToStep(result, base, step, small ? 'nearest' : 'directional');
+    nextValue = snapToStep(nextValue, base, step, small ? 'nearest' : 'directional');
   }
 
   if (shouldClamp) {
-    result = clamp(result, minWithDefault, maxWithDefault);
+    nextValue = clamp(nextValue, minWithDefault, maxWithDefault);
   }
 
-  const roundedValue = removeFloatingPointErrors(result, format);
+  const roundedValue = removeFloatingPointErrors(nextValue, format);
   return shouldClamp ? clamp(roundedValue, minWithDefault, maxWithDefault) : roundedValue;
 }
