@@ -481,6 +481,12 @@ function isTokenDerivedRgb(value, themeValues) {
     return false;
   }
 
+  const hasAlpha = /\//.test(match[1]) || /^rgba\(/i.test(value);
+
+  if (!hasAlpha) {
+    return false;
+  }
+
   const [red, green, blue] = match[1]
     .replace(/\s*\/.*$/, '')
     .split(/[\s,]+/)
