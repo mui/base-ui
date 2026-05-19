@@ -13,7 +13,7 @@ export const releases: Release[] = [
     versionSlug: 'v1-5-0',
     date: '2026-05-19',
     highlights: [
-      'Rename `sanitizeValue` to `normalizeValue` and allow composing with validation i `<OTPField.Root>`.',
+      'Rename `sanitizeValue` to `normalizeValue` and allow composing with validation in `<OTPField.Root>`.',
       'Many accessibility, performance, and bug fixes.',
     ],
   },
