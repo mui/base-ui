@@ -118,7 +118,6 @@ _May 19, 2026_
 ### Tooltip
 
 - Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
-- Integrate inline positioning (#2074) by @atomiks
 - Fix flickering when nesting tooltip inside another tooltip's trigger (#4501) by @michaldudak
 
 All contributors of this release in alphabetical order: @aeterno-caspian, @arturbien, @atomiks, @flaviendelangle, @Janpot, @lunaxislu, @lyzno1, @mattrothenberg, @michaldudak, @mj12albert, @nami8824, @sai6855, @stefee, @twillhorn
