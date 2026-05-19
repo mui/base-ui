@@ -16,9 +16,7 @@ import type { AlertDialogHandle } from '../handle';
 export const AlertDialogTrigger = DialogTrigger as AlertDialogTrigger;
 
 export interface AlertDialogTrigger {
-  <Payload>(
-    componentProps: AlertDialogTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
-  ): React.JSX.Element;
+  <Payload>(componentProps: AlertDialogTriggerProps<Payload>): React.JSX.Element;
 }
 
 export interface AlertDialogTriggerProps<Payload = unknown> extends Omit<
