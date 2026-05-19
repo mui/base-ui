@@ -4,8 +4,6 @@ import { getFormatter } from '../../utils/formatNumber';
 const STEP_EPSILON_FACTOR = 1e-10;
 // Matches Intl.NumberFormat's decimal maximumFractionDigits default.
 const DEFAULT_DIGITS = 3;
-// Keep committed-value normalization aligned with Number Field's max-precision display path.
-const MAX_DIGITS = 20;
 // Keeps binary scale/unscale noise out of committed percent values while preserving meaningful input.
 const FLOATING_POINT_SIGNIFICANT_DIGITS = 15;
 
@@ -36,15 +34,15 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     return value;
   }
 
-  const hasRoundingOptions = hasNumberFormatRoundingOptions(format);
-  if (!hasRoundingOptions) {
+  if (!hasNumberFormatRoundingOptions(format)) {
     return Number(value.toFixed(DEFAULT_DIGITS));
   }
 
-  const resolvedOptions = getFormatter('en-US', format).resolvedOptions();
   const digits = Math.min(
-    format.maximumFractionDigits ?? resolvedOptions.maximumFractionDigits ?? DEFAULT_DIGITS,
-    MAX_DIGITS,
+    format.maximumFractionDigits ??
+      getFormatter('en-US', format).resolvedOptions().maximumFractionDigits ??
+      DEFAULT_DIGITS,
+    20,
   );
 
   // Percent values are stored as fractions, so rounding must happen at the displayed scale.
@@ -62,8 +60,6 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     valueToRound = removeFloatingPointNoise(valueToRound);
   }
 
-  const notation = format.notation;
-  const supportsNumericNotation = notation === 'scientific' || notation === 'engineering';
   const roundedValue = Number(
     getFormatter('en-US', {
       // Keep style/unit/compact notation out so the formatted string parses back as a plain number.
@@ -72,7 +68,10 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
       maximumFractionDigits: digits,
       minimumSignificantDigits: format.minimumSignificantDigits,
       maximumSignificantDigits: format.maximumSignificantDigits,
-      notation: supportsNumericNotation ? notation : undefined,
+      notation:
+        format.notation === 'scientific' || format.notation === 'engineering'
+          ? format.notation
+          : undefined,
       roundingIncrement: format.roundingIncrement,
       roundingMode: format.roundingMode,
       roundingPriority: format.roundingPriority,
@@ -97,28 +96,18 @@ function snapToStep(
   step: number,
   mode: 'directional' | 'nearest' = 'directional',
 ) {
-  if (step === 0) {
-    return clampedValue;
-  }
-
   const stepSize = Math.abs(step);
   const direction = Math.sign(step);
   const tolerance = stepSize * STEP_EPSILON_FACTOR * direction;
-  const divisor = mode === 'nearest' ? step : stepSize;
-  const rawSteps = (clampedValue - base + tolerance) / divisor;
+  const rawSteps = clampedValue - base + tolerance;
 
-  let snappedSteps: number;
   if (mode === 'nearest') {
-    snappedSteps = Math.round(rawSteps);
-  } else if (direction > 0) {
-    snappedSteps = Math.floor(rawSteps);
-  } else {
-    snappedSteps = Math.ceil(rawSteps);
+    return base + Math.round(rawSteps / step) * step;
   }
 
-  const stepForResult = mode === 'nearest' ? step : stepSize;
-
-  return base + snappedSteps * stepForResult;
+  const snappedSteps =
+    direction > 0 ? Math.floor(rawSteps / stepSize) : Math.ceil(rawSteps / stepSize);
+  return base + snappedSteps * stepSize;
 }
 
 export function toValidatedNumber(

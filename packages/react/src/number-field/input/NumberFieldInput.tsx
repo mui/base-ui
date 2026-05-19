@@ -185,20 +185,21 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Avoid applying Intl's default precision unless the format opts into rounding.
       const hasRoundingOptions = hasNumberFormatRoundingOptions(formatOptions);
 
-      const committed = hasRoundingOptions
+      let committed = hasRoundingOptions
         ? removeFloatingPointErrors(parsedValue, formatOptions)
         : parsedValue;
 
       const nextEventDetails = createGenericEventDetails(REASONS.inputBlur, event.nativeEvent);
-      const shouldUpdateValue = value !== committed;
-      const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
+      let shouldCommit = hadManualInput || hadPendingProgrammaticChange;
 
-      if (validationMode === 'onBlur') {
-        validation.commit(committed);
-      }
-      if (shouldUpdateValue) {
+      if (value !== committed) {
+        shouldCommit = true;
         blockRevalidationRef.current = true;
         setValue(committed, createChangeEventDetails(REASONS.inputBlur, event.nativeEvent));
+        committed = lastChangedValueRef.current ?? committed;
+      }
+      if (validationMode === 'onBlur') {
+        validation.commit(committed);
       }
       if (shouldCommit) {
         onValueCommitted(committed, nextEventDetails);

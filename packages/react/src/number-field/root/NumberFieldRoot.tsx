@@ -234,6 +234,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         small: eventWithOptionalKeyState?.altKey ?? false,
         clamp: shouldClampValue,
       });
+      lastChangedValueRef.current = validatedValue;
 
       // Determine whether we should notify about a change even if the numeric value is unchanged.
       // This is needed when the user input is clamped/snapped to the same current value, or when
@@ -249,7 +250,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         (isInputReason && (unvalidatedValue !== value || allowInputSyncRef.current === false));
 
       if (shouldFireChange) {
-        lastChangedValueRef.current = validatedValue;
         onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
