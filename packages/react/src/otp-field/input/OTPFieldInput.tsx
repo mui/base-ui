@@ -190,7 +190,8 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       const firstIndex = 0;
-      const lastFilledIndex = Math.max(value.length - 1, 0);
+      const lastIndex = Math.max(length - 1, firstIndex);
+      const endTargetIndex = Math.min(value.length, lastIndex);
       const hasBoundaryModifier = (event.ctrlKey || event.metaKey) && !event.altKey;
 
       if (event.key === 'ArrowLeft') {
@@ -201,7 +202,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       if (event.key === 'ArrowRight') {
         stopEvent(event);
-        focusInput(hasBoundaryModifier ? lastFilledIndex : Math.min(length - 1, index + 1));
+        focusInput(hasBoundaryModifier ? endTargetIndex : Math.min(lastIndex, index + 1));
         return;
       }
 
@@ -211,13 +212,9 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
-      const isEnd = event.key === 'End';
-
-      if (isEnd || event.key === 'ArrowDown') {
+      if (event.key === 'End' || event.key === 'ArrowDown') {
         stopEvent(event);
-        if (isEnd || slotValue !== '') {
-          focusInput(lastFilledIndex);
-        }
+        focusInput(endTargetIndex);
         return;
       }
 
