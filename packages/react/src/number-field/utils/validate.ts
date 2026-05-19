@@ -11,18 +11,14 @@ type NumberFormatOptionsWithRounding = Intl.NumberFormatOptions & {
   roundingPriority?: string | undefined;
 };
 
-export function hasExplicitNumberFormatPrecision(format?: NumberFormatOptionsWithRounding) {
+export function hasNumberFormatRoundingOptions(
+  format?: NumberFormatOptionsWithRounding,
+): format is NumberFormatOptionsWithRounding {
   return (
     format?.maximumFractionDigits != null ||
     format?.minimumFractionDigits != null ||
     format?.maximumSignificantDigits != null ||
-    format?.minimumSignificantDigits != null
-  );
-}
-
-export function hasNumberFormatRoundingOptions(format?: NumberFormatOptionsWithRounding) {
-  return (
-    hasExplicitNumberFormatPrecision(format) ||
+    format?.minimumSignificantDigits != null ||
     format?.roundingIncrement != null ||
     format?.roundingMode != null ||
     format?.roundingPriority != null
@@ -35,25 +31,18 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   }
 
   const hasRoundingOptions = hasNumberFormatRoundingOptions(format);
-  const resolvedOptions =
-    format && (hasRoundingOptions || format.minimumFractionDigits != null)
-      ? getFormatter('en-US', format).resolvedOptions()
-      : undefined;
-  const minimumFractionDigits =
-    format?.minimumFractionDigits ?? resolvedOptions?.minimumFractionDigits ?? 0;
+  if (!hasRoundingOptions) {
+    return +value.toFixed(3);
+  }
+
+  const resolvedOptions = getFormatter('en-US', format).resolvedOptions();
   const digits = Math.min(
-    Math.max(
-      format?.maximumFractionDigits ??
-        (hasRoundingOptions || format?.minimumFractionDigits != null
-          ? (resolvedOptions?.maximumFractionDigits ?? 3)
-          : 3),
-      minimumFractionDigits,
-      0,
-    ),
+    format.maximumFractionDigits ?? resolvedOptions.maximumFractionDigits ?? 3,
     20,
   );
+
   // Percent values are stored as fractions, so rounding must happen at the displayed scale.
-  const scale = format?.style === 'percent' && hasRoundingOptions ? 100 : 1;
+  const scale = format.style === 'percent' ? 100 : 1;
   let valueToRound = value * scale;
 
   if (!Number.isFinite(valueToRound)) {
@@ -61,31 +50,25 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     return value;
   }
 
-  if (scale !== 1) {
+  if (scale > 1) {
     // Directional Intl rounding has no tolerance for the binary noise introduced by `value * 100`.
     // Clean a few extra decimal places first so exact typed boundaries like 0.46% stay exact.
-    valueToRound = Number(valueToRound.toFixed(Math.min(digits + 6, 20)));
+    valueToRound = +valueToRound.toFixed(Math.min(digits + 6, 20));
   }
 
-  if (hasRoundingOptions) {
-    return (
-      Number(
-        getFormatter('en-US', {
-          // Keep style/unit/notation out so the formatted string parses back as a plain number.
-          useGrouping: false,
-          minimumFractionDigits: digits,
-          maximumFractionDigits: digits,
-          minimumSignificantDigits: format?.minimumSignificantDigits,
-          maximumSignificantDigits: format?.maximumSignificantDigits,
-          roundingIncrement: format?.roundingIncrement,
-          roundingMode: format?.roundingMode,
-          roundingPriority: format?.roundingPriority,
-        } as NumberFormatOptionsWithRounding).format(valueToRound),
-      ) / scale
-    );
-  }
-
-  return Number(valueToRound.toFixed(digits)) / scale;
+  return (
+    +getFormatter('en-US', {
+      // Keep style/unit/notation out so the formatted string parses back as a plain number.
+      useGrouping: false,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+      minimumSignificantDigits: format.minimumSignificantDigits,
+      maximumSignificantDigits: format.maximumSignificantDigits,
+      roundingIncrement: format.roundingIncrement,
+      roundingMode: format.roundingMode,
+      roundingPriority: format.roundingPriority,
+    } as NumberFormatOptionsWithRounding).format(valueToRound) / scale
+  );
 }
 
 function snapToStep(
