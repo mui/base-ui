@@ -33,7 +33,7 @@ import {
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { REASONS } from '../../internals/reasons';
-import { hasExplicitNumberFormatPrecision, removeFloatingPointErrors } from '../utils/validate';
+import { hasNumberFormatRoundingOptions, removeFloatingPointErrors } from '../utils/validate';
 
 const stateAttributesMapping = {
   ...fieldValidityMapping,
@@ -175,10 +175,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      // Avoid applying Intl's default precision unless the format opts into it.
-      const hasExplicitPrecision = hasExplicitNumberFormatPrecision(formatOptions);
+      // Avoid applying Intl's default precision unless the format opts into rounding.
+      const hasRoundingOptions = hasNumberFormatRoundingOptions(formatOptions);
 
-      const committed = hasExplicitPrecision
+      const committed = hasRoundingOptions
         ? removeFloatingPointErrors(parsedValue, formatOptions)
         : parsedValue;
 
@@ -203,7 +203,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Normalize only the displayed text
       const canonicalText = formatNumber(committedValue, locale, formatOptions);
       const shouldPreserveFullPrecision =
-        !hasExplicitPrecision &&
+        !hasRoundingOptions &&
         parsedValue === value &&
         inputValue === formatNumberMaxPrecision(parsedValue, locale, formatOptions);
 

@@ -734,6 +734,23 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(12345));
   });
 
+  it('should commit roundingMode values on blur without explicit precision', async () => {
+    const format = {
+      minimumIntegerDigits: 1,
+      roundingMode: 'floor',
+    };
+
+    const { input, onValueChange, onValueCommitted, user } =
+      await renderControlledNumberField(format);
+
+    await user.keyboard('1.2399');
+    fireEvent.blur(input);
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(1.239);
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(1.239);
+    expect(input).toHaveValue(new Intl.NumberFormat('en-US', format).format(1.2399));
+  });
+
   it.each([
     [
       'percent',

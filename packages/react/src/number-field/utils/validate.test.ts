@@ -122,6 +122,20 @@ describe('NumberField validate', () => {
       ).toBe(0.0123);
     });
 
+    it('uses percent fraction defaults when significant digits use roundingPriority', () => {
+      const format = {
+        style: 'percent',
+        maximumSignificantDigits: 3,
+        roundingPriority: 'morePrecision',
+      } as const;
+      const rounded = removeFloatingPointErrors(0.0123456, format);
+
+      expect(rounded).toBe(0.0123);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(0.0123456),
+      );
+    });
+
     it('respects roundingPriority when fraction and significant digits are provided', () => {
       expect(
         removeFloatingPointErrors(1.2345, {
@@ -153,6 +167,15 @@ describe('NumberField validate', () => {
           roundingMode: 'floor',
         }),
       ).toBe(1.23);
+    });
+
+    it('respects roundingMode when no precision is provided', () => {
+      expect(
+        removeFloatingPointErrors(1.2399, {
+          minimumIntegerDigits: 1,
+          roundingMode: 'floor',
+        }),
+      ).toBe(1.239);
     });
 
     it('respects roundingIncrement when maximumFractionDigits is provided', () => {

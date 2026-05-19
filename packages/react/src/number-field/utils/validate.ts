@@ -20,28 +20,13 @@ export function hasExplicitNumberFormatPrecision(format?: NumberFormatOptionsWit
   );
 }
 
-function getMaximumFractionDigits(format?: NumberFormatOptionsWithRounding) {
-  // Preserve the old decimal defaults unless min-only precision needs style-specific defaults.
-  const minimumFractionDigits = format?.minimumFractionDigits ?? 0;
-
-  if (format?.maximumFractionDigits != null) {
-    return Math.max(format.maximumFractionDigits, minimumFractionDigits);
-  }
-
-  if (format?.minimumFractionDigits == null) {
-    return 3;
-  }
-
-  // Some invalid Intl option combinations throw when constructing the formatter. Rendering usually
-  // fails first for those configs, but keep blur-time rounding on the safe decimal fallback.
-  try {
-    return Math.max(
-      getFormatter('en-US', format).resolvedOptions().maximumFractionDigits ?? 20,
-      minimumFractionDigits,
-    );
-  } catch {
-    return Math.max(3, minimumFractionDigits);
-  }
+export function hasNumberFormatRoundingOptions(format?: NumberFormatOptionsWithRounding) {
+  return (
+    hasExplicitNumberFormatPrecision(format) ||
+    format?.roundingIncrement != null ||
+    format?.roundingMode != null ||
+    format?.roundingPriority != null
+  );
 }
 
 export function removeFloatingPointErrors(value: number, format?: NumberFormatOptionsWithRounding) {
@@ -49,13 +34,26 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     return value;
   }
 
-  const digits = Math.min(Math.max(getMaximumFractionDigits(format), 0), 20);
-  const hasSignificantPrecision =
-    format?.maximumSignificantDigits != null || format?.minimumSignificantDigits != null;
+  const hasRoundingOptions = hasNumberFormatRoundingOptions(format);
+  const resolvedOptions =
+    format && (hasRoundingOptions || format.minimumFractionDigits != null)
+      ? getFormatter('en-US', format).resolvedOptions()
+      : undefined;
+  const minimumFractionDigits =
+    format?.minimumFractionDigits ?? resolvedOptions?.minimumFractionDigits ?? 0;
+  const digits = Math.min(
+    Math.max(
+      format?.maximumFractionDigits ??
+        (hasRoundingOptions || format?.minimumFractionDigits != null
+          ? (resolvedOptions?.maximumFractionDigits ?? 3)
+          : 3),
+      minimumFractionDigits,
+      0,
+    ),
+    20,
+  );
   // Percent values are stored as fractions, so rounding must happen at the displayed scale.
-  const isPercentWithExplicitPrecision =
-    format?.style === 'percent' && hasExplicitNumberFormatPrecision(format);
-  const scale = isPercentWithExplicitPrecision ? 100 : 1;
+  const scale = format?.style === 'percent' && hasRoundingOptions ? 100 : 1;
   let valueToRound = value * scale;
 
   if (!Number.isFinite(valueToRound)) {
@@ -69,36 +67,25 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     valueToRound = Number(valueToRound.toFixed(Math.min(digits + 6, 20)));
   }
 
-  const roundedFallback = Number(valueToRound.toFixed(digits)) / scale;
-
-  if (
-    !hasSignificantPrecision &&
-    format?.roundingIncrement == null &&
-    format?.roundingMode == null &&
-    format?.roundingPriority == null
-  ) {
-    return roundedFallback;
+  if (hasRoundingOptions) {
+    return (
+      Number(
+        getFormatter('en-US', {
+          // Keep style/unit/notation out so the formatted string parses back as a plain number.
+          useGrouping: false,
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits,
+          minimumSignificantDigits: format?.minimumSignificantDigits,
+          maximumSignificantDigits: format?.maximumSignificantDigits,
+          roundingIncrement: format?.roundingIncrement,
+          roundingMode: format?.roundingMode,
+          roundingPriority: format?.roundingPriority,
+        } as NumberFormatOptionsWithRounding).format(valueToRound),
+      ) / scale
+    );
   }
 
-  try {
-    // Keep style/unit/notation out so the formatted string parses back as a plain number.
-    const roundingFormatOptions = {
-      useGrouping: false,
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits,
-      minimumSignificantDigits: format?.minimumSignificantDigits,
-      maximumSignificantDigits: format?.maximumSignificantDigits,
-      roundingIncrement: format?.roundingIncrement,
-      roundingMode: format?.roundingMode,
-      roundingPriority: format?.roundingPriority,
-    } satisfies NumberFormatOptionsWithRounding;
-
-    const roundedValue = Number(getFormatter('en-US', roundingFormatOptions).format(valueToRound));
-
-    return Number.isFinite(roundedValue) ? roundedValue / scale : roundedFallback;
-  } catch {
-    return roundedFallback;
-  }
+  return Number(valueToRound.toFixed(digits)) / scale;
 }
 
 function snapToStep(
