@@ -148,24 +148,18 @@ export function toValidatedNumber(
   }
 
   const clampedValue = shouldClamp ? clamp(value, minWithDefault, maxWithDefault) : value;
+  let nextValue = clampedValue;
 
-  if (step != null && snapOnStep) {
-    if (step === 0) {
-      const roundedValue = removeFloatingPointErrors(clampedValue, format);
-      return shouldClamp ? clamp(roundedValue, minWithDefault, maxWithDefault) : roundedValue;
-    }
-
+  if (step != null && step !== 0 && snapOnStep) {
     // If a real minimum is provided, use it
     let base = minWithZeroDefault;
     if (!small && minWithDefault !== Number.MIN_SAFE_INTEGER) {
       base = minWithDefault;
     }
 
-    const snappedValue = snapToStep(clampedValue, base, step, small ? 'nearest' : 'directional');
-    const roundedValue = removeFloatingPointErrors(snappedValue, format);
-    return shouldClamp ? clamp(roundedValue, minWithDefault, maxWithDefault) : roundedValue;
+    nextValue = snapToStep(clampedValue, base, step, small ? 'nearest' : 'directional');
   }
 
-  const roundedValue = removeFloatingPointErrors(clampedValue, format);
+  const roundedValue = removeFloatingPointErrors(nextValue, format);
   return shouldClamp ? clamp(roundedValue, minWithDefault, maxWithDefault) : roundedValue;
 }
