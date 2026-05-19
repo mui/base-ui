@@ -164,6 +164,7 @@
   box-sizing: border-box;
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 0.5rem;

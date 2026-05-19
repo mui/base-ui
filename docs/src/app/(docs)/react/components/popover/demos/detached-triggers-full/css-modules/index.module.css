@@ -208,6 +208,7 @@
     justify-content: center;
     align-items: center;
     vertical-align: middle;
+    -webkit-user-select: none;
     user-select: none;
     font-weight: 700;
     color: oklch(14.5% 0 0deg);

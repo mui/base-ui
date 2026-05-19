@@ -221,6 +221,7 @@
   background: var(--color-gray-50);
   padding: 1rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 }
 

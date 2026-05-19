@@ -12,6 +12,7 @@
   border-radius: 0;
   background-color: white;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -92,6 +93,7 @@
   line-height: 1;
   white-space: nowrap;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -182,6 +184,7 @@
 .Item {
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1rem;
@@ -224,6 +227,7 @@
 }
 
 .Label {
+  -webkit-user-select: none;
   user-select: none;
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
