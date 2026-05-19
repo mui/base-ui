@@ -35,10 +35,10 @@ const blockedReturnFocusReasons = new Set<string>([
   REASONS.focusOut,
 ]);
 
-type Size = {
+interface Size {
   width: number;
   height: number;
-};
+}
 
 function getNonZeroSize(element: HTMLElement): Size | null {
   const { width, height } = getCssDimensions(element);
@@ -132,20 +132,10 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useIsoLayoutEffect(() => {
-    if (open) {
-      closeTransitionSizeRef.current = null;
-      return;
-    }
-
-    if (!positionerElement || !popupElement) {
-      closeTransitionSizeRef.current = null;
-      return;
-    }
-
     const closeTransitionSize = closeTransitionSizeRef.current;
     closeTransitionSizeRef.current = null;
 
-    if (!closeTransitionSize) {
+    if (open || !positionerElement || !popupElement || !closeTransitionSize) {
       return;
     }
 
