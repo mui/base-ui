@@ -6,12 +6,13 @@ _May 19, 2026_
 
 ### General changes
 
+- Improve closed popup mount performance by up to 50% and unmounting performance by up to 85%.
+- Improve mount performance with interaction splitting (#4661) by @atomiks
 - Use local document for virtual arrow (#4662) by @lyzno1
 - Fix macOS Safari and Firefox minimizing fullscreen when closing popups with <kbd>Esc</kbd> (#4695) by @arturbien
 - Drop unnecessary memoization (#4693) by @flaviendelangle
 - Do not use `Math.random()` in `useStableCallback()` (#4732) by @michaldudak
 - Fix return focus when reference disconnects (#4655) by @atomiks
-- Improve mount performance with interaction splitting (#4661) by @atomiks
 - Don't steal initial focus if focus already moved inside a popup (#4775) by @stefee
 
 ### Alert Dialog
