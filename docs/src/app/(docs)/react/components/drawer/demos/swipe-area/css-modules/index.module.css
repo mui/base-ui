@@ -1,4 +1,5 @@
 .Root {
+  box-sizing: border-box;
   position: relative;
   width: 100%;
   min-height: 20rem;
@@ -15,6 +16,7 @@
 }
 
 .Center {
+  box-sizing: border-box;
   min-height: 20rem;
   display: flex;
   align-items: center;
@@ -31,6 +33,7 @@
 }
 
 .Hint {
+  box-sizing: border-box;
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -44,13 +47,13 @@
 }
 
 .SwipeArea {
+  box-sizing: border-box;
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   width: 2.5rem;
   z-index: 1;
-  box-sizing: border-box;
   border-left: 2px dashed oklch(45% 50% 264deg);
   background-color: color-mix(in oklch, oklch(45% 50% 264deg), transparent 90%);
 }
