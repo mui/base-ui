@@ -16,7 +16,7 @@ export const releases: Release[] = [
       'Allow Persian digits in `NumberField`.',
       'Support `Ctrl` and `Cmd` shortcuts in `OTPField`.',
       'Rename `sanitizeValue` to `normalizeValue` and allow composing with validation in `<OTPField.Root>`.',
-      'Add `data-popup-side` to `<Select.Trigger>`',
+      'Add `data-popup-side` to `<Select.Trigger>`.',
       'Submit the associated form when pressing `Enter` on `Checkbox`.',
       'Integrate inline positioning in `PreviewCard`.',
       'Many accessibility, performance, and bug fixes.',
