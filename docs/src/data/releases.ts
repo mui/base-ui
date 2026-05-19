@@ -9,6 +9,15 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.5.0',
+    versionSlug: 'v1-5-0',
+    date: '2026-05-19',
+    highlights: [
+      'Rename `sanitizeValue` to `normalizeValue` and allow composing with validation i `<OTPField.Root>`.',
+      'Many accessibility, performance, and bug fixes.',
+    ],
+  },
+  {
     version: 'v1.4.1',
     versionSlug: 'v1-4-1',
     date: '2026-04-20',
