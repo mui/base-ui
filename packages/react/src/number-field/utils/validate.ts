@@ -38,7 +38,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
 
   const hasRoundingOptions = hasNumberFormatRoundingOptions(format);
   if (!hasRoundingOptions) {
-    return +value.toFixed(DEFAULT_DIGITS);
+    return Number(value.toFixed(DEFAULT_DIGITS));
   }
 
   const resolvedOptions = getFormatter('en-US', format).resolvedOptions();
@@ -59,21 +59,25 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   if (scale > 1) {
     // Directional Intl rounding has no tolerance for the binary noise introduced by `value * 100`.
     // Clean a few extra decimal places first so exact typed boundaries like 0.46% stay exact.
-    valueToRound = +valueToRound.toFixed(Math.min(digits + PERCENT_GUARD_DIGITS, MAX_DIGITS));
+    valueToRound = Number(
+      valueToRound.toFixed(Math.min(digits + PERCENT_GUARD_DIGITS, MAX_DIGITS)),
+    );
   }
 
   return (
-    +getFormatter('en-US', {
-      // Keep style/unit/notation out so the formatted string parses back as a plain number.
-      useGrouping: false,
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits,
-      minimumSignificantDigits: format.minimumSignificantDigits,
-      maximumSignificantDigits: format.maximumSignificantDigits,
-      roundingIncrement: format.roundingIncrement,
-      roundingMode: format.roundingMode,
-      roundingPriority: format.roundingPriority,
-    } as NumberFormatOptionsWithRounding).format(valueToRound) / scale
+    Number(
+      getFormatter('en-US', {
+        // Keep style/unit/notation out so the formatted string parses back as a plain number.
+        useGrouping: false,
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits,
+        minimumSignificantDigits: format.minimumSignificantDigits,
+        maximumSignificantDigits: format.maximumSignificantDigits,
+        roundingIncrement: format.roundingIncrement,
+        roundingMode: format.roundingMode,
+        roundingPriority: format.roundingPriority,
+      } as NumberFormatOptionsWithRounding).format(valueToRound),
+    ) / scale
   );
 }
 
