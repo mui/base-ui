@@ -113,7 +113,6 @@ _May 19, 2026_
 
 - Refactor key handling to use `COMPOSITE_KEYS` for consistency (#4744) by @sai6855
 
-### Switch
 
 ### Tabs
 
