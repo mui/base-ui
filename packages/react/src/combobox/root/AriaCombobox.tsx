@@ -353,16 +353,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return filteredItems as Value[];
   }, [filteredItems, isGrouped]);
 
-  const flatItemValues = React.useMemo(() => flatItems.map(inferItemValue), [flatItems]);
-
-  const flatFilteredItemValues = React.useMemo(() => {
-    if (flatFilteredItems === flatItems) {
-      return flatItemValues;
-    }
-
-    return flatFilteredItems.map(inferItemValue);
-  }, [flatFilteredItems, flatItems, flatItemValues]);
-
   const store = useRefWithInit(
     () =>
       new Store<StoreState>({
@@ -804,14 +794,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   useIsoLayoutEffect(() => {
     if (items) {
       // Indexed item registration mutates `valuesRef.current`, so keep it as a
-      // working copy instead of pointing at the memoized derived item-value array.
-      valuesRef.current = flatFilteredItemValues.slice();
+      // working copy instead of pointing at the derived filtered items.
+      valuesRef.current = flatFilteredItems.map(inferItemValue);
       store.update({
         itemValues: EMPTY_ARRAY,
         allItemValues: flatItems,
       });
     }
-  }, [items, flatFilteredItemValues, flatItems, store]);
+  }, [items, flatFilteredItems, flatItems, store]);
 
   useIsoLayoutEffect(() => {
     // Snapshot the selected value while the popup list is closed. Inline lists stay
