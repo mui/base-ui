@@ -267,6 +267,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
       activeTriggerId: null,
       activeTriggerElement: null,
       mounted: false,
+      preventUnmountingOnClose: false,
     } as Partial<State>);
     onUnmount?.();
     store.context.onOpenChangeComplete?.(false);
