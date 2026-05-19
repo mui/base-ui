@@ -8,6 +8,7 @@ import {
   useCompositeListItem,
 } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
@@ -68,6 +69,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const direction = useDirection();
 
   const slotValue = value[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
@@ -192,14 +194,17 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       const firstIndex = 0;
       const lastFilledIndex = Math.max(value.length - 1, 0);
       const hasBoundaryModifier = (event.ctrlKey || event.metaKey) && !event.altKey;
+      const isRtl = direction === 'rtl';
+      const previousKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
+      const nextKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
 
-      if (event.key === 'ArrowLeft') {
+      if (event.key === previousKey) {
         stopEvent(event);
         focusInput(hasBoundaryModifier ? firstIndex : Math.max(firstIndex, index - 1));
         return;
       }
 
-      if (event.key === 'ArrowRight') {
+      if (event.key === nextKey) {
         stopEvent(event);
         focusInput(hasBoundaryModifier ? lastFilledIndex : Math.min(length - 1, index + 1));
         return;

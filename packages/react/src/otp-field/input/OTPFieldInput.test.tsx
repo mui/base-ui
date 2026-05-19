@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<OTPField.Input />', () => {
@@ -85,6 +86,26 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[2]);
 
     fireEvent.keyDown(inputs[2], { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(inputs[1]);
+  });
+
+  it('moves focus with arrow keys in RTL', async () => {
+    await render(
+      <DirectionProvider direction="rtl">
+        <OTPFieldTest defaultValue="12" />
+      </DirectionProvider>,
+    );
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[1].focus();
+    });
+
+    fireEvent.keyDown(inputs[1], { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(inputs[2]);
+
+    fireEvent.keyDown(inputs[2], { key: 'ArrowRight' });
     expect(document.activeElement).toBe(inputs[1]);
   });
 
@@ -240,6 +261,29 @@ describe('<OTPField.Input />', () => {
 
       fireEvent.keyDown(inputs[0], { key: 'ArrowRight', ...modifierKey });
       expect(document.activeElement).toBe(inputs[3]);
+    },
+  );
+
+  it.each(modifierKeys)(
+    'moves focus to the field boundaries with %s + arrow keys in RTL',
+    async (_, modifierKey) => {
+      await render(
+        <DirectionProvider direction="rtl">
+          <OTPFieldTest defaultValue="1234" />
+        </DirectionProvider>,
+      );
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        inputs[2].focus();
+      });
+
+      fireEvent.keyDown(inputs[2], { key: 'ArrowLeft', ...modifierKey });
+      expect(document.activeElement).toBe(inputs[3]);
+
+      fireEvent.keyDown(inputs[3], { key: 'ArrowRight', ...modifierKey });
+      expect(document.activeElement).toBe(inputs[0]);
     },
   );
 
