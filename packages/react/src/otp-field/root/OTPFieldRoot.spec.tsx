@@ -79,7 +79,7 @@ const otpFieldEventNarrowing = (
     form="verification-form"
     mask
     validationType="alphanumeric"
-    sanitizeValue={(value) => value.toUpperCase()}
+    normalizeValue={(value) => value.toUpperCase()}
     onValueChange={handleOTPFieldChange}
     onValueInvalid={handleOTPFieldInvalid}
     onValueComplete={handleOTPFieldComplete}
@@ -100,3 +100,14 @@ const customInputModeWithBuiltInValidation = (
   <OTPField.Root length={6} validationType="numeric" inputMode="tel" />
 );
 void customInputModeWithBuiltInValidation;
+
+const normalizesValue = (
+  <OTPField.Root length={6} validationType="alphanumeric" normalizeValue={(value) => value} />
+);
+void normalizesValue;
+
+const removedSanitizeValue = (
+  // @ts-expect-error - sanitizeValue was renamed to normalizeValue
+  <OTPField.Root length={6} validationType="alphanumeric" sanitizeValue={(value) => value} />
+);
+void removedSanitizeValue;

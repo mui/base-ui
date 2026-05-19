@@ -4,7 +4,7 @@ import { Combobox } from '@base-ui/react/combobox';
 import { Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Drawer.Viewport />', () => {
   beforeAll(function beforeHook() {
@@ -14,6 +14,17 @@ describe('<Drawer.Viewport />', () => {
   });
 
   const { render } = createRenderer();
+
+  describeConformance(<Drawer.Viewport />, () => ({
+    refInstanceof: window.HTMLDivElement,
+    render(node) {
+      return render(
+        <Drawer.Root open>
+          <Drawer.Portal>{node}</Drawer.Portal>
+        </Drawer.Root>,
+      );
+    },
+  }));
 
   function createTouch(target: EventTarget, point: { clientX: number; clientY: number }) {
     if (typeof Touch === 'function') {

@@ -41,7 +41,7 @@ import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from '.
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { HTMLProps } from '../../internals/types';
+import type { MaybeBaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
@@ -60,6 +60,7 @@ import {
   selectedValueIncludes,
 } from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 /**
  * @internal
@@ -132,6 +133,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     validation,
   } = useFieldRootContext();
 
+  const direction = useDirection();
   const id = useLabelableId({ id: idProp });
   const collatorFilter = useCoreFilter({ locale });
 
@@ -1072,6 +1074,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
     cols: grid ? 2 : 1,
     orientation: grid ? 'horizontal' : undefined,
+    rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY as number[],
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
@@ -1258,9 +1261,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             (inputRef.current || triggerElement)?.focus();
           },
           // Handle browser autofill.
-          onChange(event: React.ChangeEvent<HTMLInputElement>) {
+          onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
             // Workaround for https://github.com/facebook/react/issues/9023
-            if (event.nativeEvent.defaultPrevented) {
+            if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
+              // Outside Field.Root, the event is not wrapped by mergeProps.
+              event.preventBaseUIHandler?.();
               return;
             }
 
