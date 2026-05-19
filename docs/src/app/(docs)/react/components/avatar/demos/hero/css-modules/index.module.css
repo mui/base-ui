@@ -6,13 +6,18 @@
   border-radius: 100%;
   user-select: none;
   font-weight: 400;
-  color: var(--color-gray-900);
-  background-color: var(--color-gray-100);
-  font-size: 1rem;
+  color: oklch(14.5% 0 0deg);
+  background-color: oklch(92.2% 0 0deg);
+  font-size: 0.875rem;
   line-height: 1;
   overflow: hidden;
-  height: 3rem;
-  width: 3rem;
+  height: 2rem;
+  width: 2rem;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+    background-color: oklch(26.9% 0 0deg);
+  }
 }
 
 .Image {
@@ -27,5 +32,5 @@
   justify-content: center;
   height: 100%;
   width: 100%;
-  font-size: 1rem;
+  font-size: 0.875rem;
 }

@@ -5,7 +5,7 @@ export default function ExampleInput() {
   return (
     <label className={styles.Label}>
       Name
-      <Input placeholder="Enter your name" className={styles.Input} />
+      <Input placeholder="e.g. Colm Tuite" className={styles.Input} />
     </label>
   );
 }

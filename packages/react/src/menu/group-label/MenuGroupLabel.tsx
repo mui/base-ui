@@ -20,7 +20,7 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(
 
   const id = useBaseUiId(idProp);
 
-  const { setLabelId } = useMenuGroupRootContext();
+  const setLabelId = useMenuGroupRootContext();
 
   useIsoLayoutEffect(() => {
     setLabelId(id);

@@ -444,6 +444,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (details && Number.isFinite(details.deltaY)) {
           const baseOffset = activeSnapPointOffset ?? snapPointRange.minOffset;
           const nextOffset = clamp(baseOffset + details.deltaY, 0, popupHeight);
+
           resolvedProgress = clamp(
             (nextOffset - snapPointRange.minOffset) / snapPointRange.range,
             0,
@@ -456,6 +457,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           const baseOffset = activeSnapPointOffset ?? snapPointRange.minOffset;
           const nextOffset =
             currentDirection === 'down' ? baseOffset + displacement : baseOffset - displacement;
+
           resolvedProgress = clamp(
             (nextOffset - snapPointRange.minOffset) / snapPointRange.range,
             0,
@@ -777,6 +779,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const swipePointerProps = swipe.getPointerProps();
   const swipeTouchProps = swipe.getTouchProps();
   const resetSwipe = swipe.reset;
+
   resetSwipeRef.current = resetSwipe;
 
   React.useEffect(() => {
@@ -784,6 +787,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     if (!rootElement) {
       return undefined;
     }
+
     const resolvedRootElement: HTMLElement = rootElement;
 
     const doc = ownerDocument(resolvedRootElement);
@@ -964,6 +968,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     <DialogViewport
       ref={forwardedRef}
       className={className}
+      style={style}
       render={render}
       {...mergeProps<'div'>(elementProps, {
         onPointerDown(event) {
@@ -1044,6 +1049,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
           const doc = ownerDocument(event.currentTarget);
           const elementAtPoint = getElementAtPoint(doc, touch.clientX, touch.clientY);
+
           ignoreTouchSwipeRef.current = isSwipeIgnoredTarget(elementAtPoint);
           if (ignoreTouchSwipeRef.current) {
             touchScrollStateRef.current = null;
@@ -1070,6 +1076,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           let allowSwipe: boolean | null = null;
           if (scrollTarget) {
             const canSwipeFromEdge = isAtSwipeStartEdge(scrollTarget, scrollAxis, swipeDirection);
+
             allowSwipe = canSwipeFromEdge ? null : false;
           }
 

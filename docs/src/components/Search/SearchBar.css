@@ -101,7 +101,7 @@
   }
 
   .SearchTrigger:focus-visible {
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid var(--gray-t2);
     outline-offset: -1px;
   }
 
@@ -219,7 +219,7 @@
     font-size: var(--font-size-16);
     font-weight: var(--font-weight-400);
     color: var(--gray-t2);
-    outline: none;
+    outline: 0;
   }
 
   .SearchInput::placeholder {
@@ -331,7 +331,6 @@
   .SearchPopupContained {
     max-height: min(29.5rem, calc(100vh - 6rem));
     width: min(34rem, calc(100vw - 2rem));
-    overflow: hidden;
   }
 
   .SearchPopupDefault {
@@ -358,6 +357,7 @@
   .SearchHeadContained {
     flex-shrink: 0;
     border-bottom: 1px solid var(--gray-c1);
+    border-radius: 1rem 1rem 0 0;
     padding: 0.5rem 0.5rem 0.375rem;
   }
 
@@ -378,6 +378,11 @@
     min-height: 0;
     flex: 1;
     overflow: hidden;
+
+    &:has(.SearchScrollAreaViewport:focus-visible) {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: -1px;
+    }
   }
 
   .SearchScrollAreaViewport {
@@ -387,6 +392,7 @@
     overscroll-behavior: contain;
     scroll-padding-top: 2.25rem;
     scroll-padding-bottom: 0.5rem;
+    outline: none;
   }
 
   .SearchList {
@@ -433,6 +439,11 @@
   .SearchRootScrollable {
     height: 100%;
     overscroll-behavior: contain;
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: -2px;
+    }
   }
 
   .SearchRootScrollable[data-ending-style] {

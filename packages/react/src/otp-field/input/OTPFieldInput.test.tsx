@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<OTPField.Input />', () => {
@@ -85,6 +86,26 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[2]);
 
     fireEvent.keyDown(inputs[2], { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(inputs[1]);
+  });
+
+  it('moves focus with arrow keys in RTL', async () => {
+    await render(
+      <DirectionProvider direction="rtl">
+        <OTPFieldTest defaultValue="12" />
+      </DirectionProvider>,
+    );
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[1].focus();
+    });
+
+    fireEvent.keyDown(inputs[1], { key: 'ArrowLeft' });
+    expect(document.activeElement).toBe(inputs[2]);
+
+    fireEvent.keyDown(inputs[2], { key: 'ArrowRight' });
     expect(document.activeElement).toBe(inputs[1]);
   });
 
@@ -196,6 +217,90 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[2]);
   });
 
+  it.each([
+    ['ArrowUp', 0],
+    ['ArrowDown', 4],
+  ] as const)('moves focus to the field boundary with %s', async (key, targetIndex) => {
+    await render(<OTPFieldTest defaultValue="1234" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[1].focus();
+    });
+
+    expect(fireEvent.keyDown(inputs[1], { key })).toBe(false);
+    expect(inputs[targetIndex]).toHaveFocus();
+  });
+
+  it('stops propagation when ArrowDown moves focus to the empty end slot', async () => {
+    const onKeyDown = vi.fn();
+
+    await render(
+      <div onKeyDown={onKeyDown}>
+        <OTPFieldTest defaultValue="1234" />
+      </div>,
+    );
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[1].focus();
+    });
+
+    expect(fireEvent.keyDown(inputs[1], { key: 'ArrowDown' })).toBe(false);
+    expect(onKeyDown).not.toHaveBeenCalled();
+    expect(inputs[4]).toHaveFocus();
+  });
+
+  it('keeps focus on the empty end slot with ArrowDown', async () => {
+    await render(<OTPFieldTest defaultValue="12" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[2].focus();
+    });
+
+    expect(fireEvent.keyDown(inputs[2], { key: 'ArrowDown' })).toBe(false);
+    expect(inputs[2]).toHaveFocus();
+  });
+
+  it('keeps focus on the final slot with ArrowDown when the value is complete', async () => {
+    await render(<OTPFieldTest defaultValue="123456" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    await act(async () => {
+      inputs[5].focus();
+    });
+
+    expect(fireEvent.keyDown(inputs[5], { key: 'ArrowDown' })).toBe(false);
+    expect(inputs[5]).toHaveFocus();
+  });
+
+  it('does not reselect the final slot when typing the same character', async () => {
+    const { user } = await render(<OTPFieldTest defaultValue="123456" />);
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+    const lastInput = inputs[5];
+
+    await act(async () => {
+      lastInput.focus();
+    });
+
+    const select = vi.spyOn(lastInput, 'select');
+
+    try {
+      await user.keyboard('6');
+
+      expect(select).not.toHaveBeenCalled();
+      expect(lastInput).toHaveFocus();
+    } finally {
+      select.mockRestore();
+    }
+  });
+
   it('moves focus to the first slot with Home', async () => {
     await render(<OTPFieldTest defaultValue="1234" />);
 
@@ -210,7 +315,7 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[0]);
   });
 
-  it('moves focus to the last filled slot with End', async () => {
+  it('moves focus to the empty end slot with End', async () => {
     await render(<OTPFieldTest defaultValue="1234" />);
 
     const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
@@ -221,7 +326,7 @@ describe('<OTPField.Input />', () => {
 
     fireEvent.keyDown(inputs[0], { key: 'End' });
 
-    expect(document.activeElement).toBe(inputs[3]);
+    expect(document.activeElement).toBe(inputs[4]);
   });
 
   it.each(modifierKeys)(
@@ -239,7 +344,30 @@ describe('<OTPField.Input />', () => {
       expect(document.activeElement).toBe(inputs[0]);
 
       fireEvent.keyDown(inputs[0], { key: 'ArrowRight', ...modifierKey });
-      expect(document.activeElement).toBe(inputs[3]);
+      expect(document.activeElement).toBe(inputs[4]);
+    },
+  );
+
+  it.each(modifierKeys)(
+    'moves focus to the field boundaries with %s + arrow keys in RTL',
+    async (_, modifierKey) => {
+      await render(
+        <DirectionProvider direction="rtl">
+          <OTPFieldTest defaultValue="1234" />
+        </DirectionProvider>,
+      );
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        inputs[2].focus();
+      });
+
+      fireEvent.keyDown(inputs[2], { key: 'ArrowLeft', ...modifierKey });
+      expect(document.activeElement).toBe(inputs[4]);
+
+      fireEvent.keyDown(inputs[4], { key: 'ArrowRight', ...modifierKey });
+      expect(document.activeElement).toBe(inputs[0]);
     },
   );
 
@@ -259,7 +387,40 @@ describe('<OTPField.Input />', () => {
     expect(document.activeElement).toBe(inputs[0]);
 
     fireEvent.keyDown(inputs[0], { key: 'End' });
-    expect(document.activeElement).toBe(inputs[3]);
+    expect(document.activeElement).toBe(inputs[4]);
+
+    fireEvent.keyDown(inputs[4], { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(inputs[0]);
+
+    fireEvent.keyDown(inputs[0], { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(inputs[4]);
+  });
+
+  it('leaves vertical arrow navigation unhandled in disabled mode', async () => {
+    const onKeyDown = vi.fn();
+
+    await render(
+      <div onKeyDown={onKeyDown}>
+        <OTPFieldTest defaultValue="12" disabled />
+      </div>,
+    );
+
+    const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+    const arrowUpEvent = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'ArrowUp',
+    });
+    const arrowDownEvent = new KeyboardEvent('keydown', {
+      bubbles: true,
+      cancelable: true,
+      key: 'ArrowDown',
+    });
+
+    expect(inputs[1].dispatchEvent(arrowUpEvent)).toBe(true);
+    expect(inputs[1].dispatchEvent(arrowDownEvent)).toBe(true);
+    expect(onKeyDown).toHaveBeenCalledTimes(2);
   });
 
   it('blocks Delete and Backspace from changing the value in readonly mode', async () => {
