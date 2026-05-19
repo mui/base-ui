@@ -81,6 +81,7 @@ _May 19, 2026_
 - Avoid `flushSync` during validation (#4685) by @atomiks
 - Support <kbd>Ctrl</kbd> and <kbd>Cmd</kbd> shortcuts (#4606) by @atomiks
 - Fire `onValueComplete()` for full paste (#4690) by @atomiks
+- Fix vertical arrow slot navigation (#4844) by @atomiks
 - Ignore hidden input changes while readonly or disabled (#4806) by @lunaxislu
 - Prevent locked hidden autofill validation (#4827) by @lunaxislu
 - Fix RTL arrow navigation (#4847) by @atomiks
