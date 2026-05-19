@@ -104,6 +104,7 @@
 
 .GroupLabel {
   box-sizing: border-box;
+  -webkit-user-select: none;
   user-select: none;
   padding: 0.5rem;
   font-size: 0.875rem;
@@ -119,6 +120,7 @@
   box-sizing: border-box;
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding: 0.5rem;
   display: flex;

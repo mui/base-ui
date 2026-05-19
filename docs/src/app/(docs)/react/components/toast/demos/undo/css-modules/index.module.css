@@ -38,6 +38,7 @@
   bottom: 0;
   left: auto;
   margin-right: 0;
+  -webkit-user-select: none;
   user-select: none;
   transition:
     transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
@@ -238,6 +239,7 @@
   line-height: 1;
   white-space: nowrap;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {

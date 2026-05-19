@@ -76,6 +76,7 @@
     height: 2.25rem;
     padding: 0;
     padding-inline-start: 0.75rem;
+    -webkit-user-select: none;
     user-select: none;
 
     /* Scroll */
@@ -282,6 +283,7 @@
     border-bottom: 1px solid transparent;
     background-clip: padding-box;
     margin-bottom: -1px;
+    -webkit-user-select: none;
     user-select: none;
 
     &[data-sticky] {

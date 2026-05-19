@@ -13,6 +13,7 @@
     background-color: var(--color-popup);
     overflow: hidden;
     cursor: default;
+    -webkit-user-select: none;
     user-select: none;
     padding-block: 0.25rem;
 

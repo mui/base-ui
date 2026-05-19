@@ -33,6 +33,7 @@
   font-weight: 400;
   line-height: 1;
   white-space: nowrap;
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {

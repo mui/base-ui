@@ -139,6 +139,7 @@ This example shows how to implement the component using CSS Modules.
   font-weight: 400;
   line-height: 1.25rem;
   text-align: left;
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -426,6 +427,7 @@ This example shows how to implement the component using CSS Modules.
   font-weight: 400;
   line-height: 1.25rem;
   text-align: left;
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -959,6 +961,7 @@ This example shows how to implement the component using CSS Modules.
   width: 14rem;
   padding-block: 0.75rem;
   touch-action: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -966,6 +969,7 @@ This example shows how to implement the component using CSS Modules.
   width: 100%;
   height: 0.25rem;
   background-color: oklch(92.2% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -975,6 +979,7 @@ This example shows how to implement the component using CSS Modules.
 
 .Indicator {
   background-color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -988,6 +993,7 @@ This example shows how to implement the component using CSS Modules.
   height: 1rem;
   border: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {

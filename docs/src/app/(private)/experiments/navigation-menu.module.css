@@ -52,6 +52,7 @@
   font-weight: 500;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
   text-decoration: none;
 
@@ -509,6 +510,7 @@
   line-height: 1.5rem;
   font-weight: 500;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 }
 
