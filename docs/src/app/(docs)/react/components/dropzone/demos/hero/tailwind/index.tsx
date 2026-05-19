@@ -13,7 +13,7 @@ export default function ExampleDropzone() {
   return (
     <div className="w-full rounded-xl border border-gray-200 bg-white p-8">
       <Dropzone.Root
-        className="block rounded-xl border-2 border-dashed border-gray-400 bg-gray-50 px-6 py-10 text-center transition-colors hover:border-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 data-dragging:border-blue-600 data-dragging:bg-blue-100 data-disabled:cursor-not-allowed data-disabled:opacity-65"
+        className="block rounded-xl border-2 border-dashed border-gray-400 bg-gray-50 px-6 py-10 text-center transition-colors hover:border-blue-600 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-dragging:border-blue-600 data-dragging:bg-blue-100 data-disabled:cursor-not-allowed data-disabled:opacity-65"
         onFilesDrop={(droppedFiles) => appendFiles(droppedFiles)}
       >
         <Dropzone.HiddenInput

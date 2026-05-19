@@ -1,6 +1,6 @@
 import { Dropzone, type DropzoneHiddenInput } from '@base-ui/react/dropzone';
 
-export type DropzoneProps = Dropzone.Props;
-export type DropzoneState = Dropzone.State;
+export type DropzoneRootProps = Dropzone.Root.Props;
+export type DropzoneRootState = Dropzone.Root.State;
 export type DropzoneHiddenInputProps = DropzoneHiddenInput.Props;
 export type DropzoneHiddenInputState = DropzoneHiddenInput.State;

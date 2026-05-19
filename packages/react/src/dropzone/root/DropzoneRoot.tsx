@@ -37,7 +37,9 @@ export interface DropzoneRootProps extends Omit<
    */
   onDraggingChange?: ((dragging: boolean) => void) | undefined;
   /**
-   * Called when the dropzone is activated by click or keyboard.
+   * Called when the dropzone is activated by click or keyboard and no
+   * `Dropzone.HiddenInput` is present. Use this as an escape hatch to
+   * open a custom file picker when the built-in hidden input is not used.
    */
   onOpen?: (() => void) | undefined;
   /**

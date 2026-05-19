@@ -18,7 +18,6 @@ export default function ExampleDropzone() {
         onFilesDrop={(droppedFiles) => appendFiles(droppedFiles)}
       >
         <Dropzone.HiddenInput
-          className={styles.input}
           multiple
           onChange={(event) => {
             const selected = Array.from(event.currentTarget.files ?? []);
