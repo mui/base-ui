@@ -95,6 +95,7 @@
 }
 
 .Popup {
+  box-sizing: border-box;
   position: relative;
   height: var(--popup-height, auto);
   width: var(--popup-width, auto);
