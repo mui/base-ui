@@ -617,6 +617,7 @@ describe('<NumberField.Input />', () => {
   async function renderControlledNumberField(
     format: Intl.NumberFormatOptions,
     locale: Intl.LocalesArgument = 'en-US',
+    rootProps: { min?: number; max?: number; allowOutOfRange?: boolean } = {},
   ) {
     const onValueChange = vi.fn();
     const onValueCommitted = vi.fn();
@@ -633,6 +634,7 @@ describe('<NumberField.Input />', () => {
           onValueCommitted={onValueCommitted}
           format={format}
           locale={locale}
+          {...rootProps}
         >
           <NumberField.Input />
         </NumberField.Root>
@@ -830,6 +832,25 @@ describe('<NumberField.Input />', () => {
     expect(onValueChange.mock.lastCall?.[0]).toBe(0.0046);
     expect(onValueCommitted.mock.lastCall?.[0]).toBe(0.0046);
     expect(input).toHaveValue('0.46%');
+  });
+
+  it('should commit the clamped value when blur rounding crosses a boundary', async () => {
+    const format = {
+      style: 'percent',
+      maximumFractionDigits: 2,
+    } as const;
+
+    const { input, onValueChange, onValueCommitted, user } = await renderControlledNumberField(
+      format,
+      'en-US',
+      { max: 0.01235 },
+    );
+
+    await user.keyboard('1.236%');
+    fireEvent.blur(input);
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.01235);
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(0.01235);
   });
 
   it('should round currency values on blur without percent scaling', async () => {
