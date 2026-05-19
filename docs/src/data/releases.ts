@@ -17,6 +17,7 @@ export const releases: Release[] = [
       'Support `Ctrl` and `Cmd` shortcuts in `OTPField`.',
       'Rename `sanitizeValue` to `normalizeValue` and allow composing with validation in `<OTPField.Root>`.',
       'Add `data-popup-side` to `<Select.Trigger>`',
+      'Submit the associated form when pressing `Enter` on `Checkbox`.',
       'Many accessibility, performance, and bug fixes.',
     ],
   },
