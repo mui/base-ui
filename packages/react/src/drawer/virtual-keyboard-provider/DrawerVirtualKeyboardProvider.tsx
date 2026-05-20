@@ -113,20 +113,12 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     }px`;
   });
 
-  const cancelKeyboardFocusAlignment = useStableCallback(() => {
-    keyboardFocusFrame.cancel();
-  });
-
-  const cancelKeyboardScrollAnimation = useStableCallback(() => {
-    keyboardScrollFrame.cancel();
-  });
-
   const animateKeyboardScroll = useStableCallback((element: HTMLElement, scrollTop: number) => {
     const startScrollTop = element.scrollTop;
     const distance = scrollTop - startScrollTop;
     const win = ownerWindow(element);
 
-    cancelKeyboardScrollAnimation();
+    keyboardScrollFrame.cancel();
 
     if (Math.abs(distance) <= 1 || win.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
       element.scrollTop = scrollTop;
@@ -161,27 +153,26 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     if (!mounted || !open) {
       focusedKeyboardTargetRef.current = null;
       restoreKeyboardScrollAdjustment();
-      cancelKeyboardFocusAlignment();
-      cancelKeyboardScrollAnimation();
+      keyboardFocusFrame.cancel();
+      keyboardScrollFrame.cancel();
       return undefined;
     }
 
     const rootElement = viewportElement ?? popupElementState;
-    const popupElement = store.context.popupRef.current;
-    if (!rootElement || !popupElement) {
+    if (!rootElement) {
       restoreKeyboardScrollAdjustment();
       return undefined;
     }
 
-    const doc = ownerDocument(popupElement);
-    const win = ownerWindow(popupElement);
+    const doc = ownerDocument(rootElement);
+    const win = ownerWindow(rootElement);
     const visualViewport = win.visualViewport;
 
     const clearFocusedKeyboardTarget = () => {
       focusedKeyboardTargetRef.current = null;
       restoreKeyboardScrollAdjustment();
-      cancelKeyboardFocusAlignment();
-      cancelKeyboardScrollAnimation();
+      keyboardFocusFrame.cancel();
+      keyboardScrollFrame.cancel();
     };
 
     const alignFocusedKeyboardTarget = () => {
@@ -285,8 +276,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       clearFocusedKeyboardTarget();
     };
   }, [
-    cancelKeyboardFocusAlignment,
-    cancelKeyboardScrollAnimation,
     animateKeyboardScroll,
     keyboardFocusFrame,
     keyboardScrollFrame,
@@ -296,7 +285,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     popupElementState,
     restoreKeyboardScrollAdjustment,
     setKeyboardScrollSlack,
-    store.context.popupRef,
     viewportElement,
   ]);
 

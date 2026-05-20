@@ -146,16 +146,6 @@
   transform: translateY(var(--drawer-swipe-movement-y));
   will-change: transform;
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: var(--bleed);
-    background-color: inherit;
-    pointer-events: none;
-  }
-
   @media (prefers-color-scheme: dark) {
     border-top: 1px solid white;
     background-color: oklch(14.5% 0 0deg);
