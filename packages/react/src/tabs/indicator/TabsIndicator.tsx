@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { useIsHydrating } from '../../utils/useIsHydrating';
+import { hasDistortingTransform } from './hasDistortingTransform';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -20,118 +20,6 @@ const stateAttributesMapping = {
   activeTabPosition: () => null,
   activeTabSize: () => null,
 };
-
-type ElementOffset = [left: number, top: number];
-
-function getElementOffset(element: HTMLElement) {
-  let offsetParent: Element | null = element.offsetParent;
-
-  if (!offsetParent) {
-    return null;
-  }
-
-  const HTMLElementCtor = ownerDocument(element).defaultView?.HTMLElement;
-
-  if (HTMLElementCtor == null) {
-    return null;
-  }
-
-  let left = element.offsetLeft;
-  let top = element.offsetTop;
-
-  while (offsetParent) {
-    if (!(offsetParent instanceof HTMLElementCtor)) {
-      return null;
-    }
-
-    left += offsetParent.offsetLeft + offsetParent.clientLeft;
-    top += offsetParent.offsetTop + offsetParent.clientTop;
-    offsetParent = offsetParent.offsetParent;
-  }
-
-  return [left, top] satisfies ElementOffset;
-}
-
-function getTranslateOffset(element: HTMLElement): ElementOffset | null {
-  const win = ownerDocument(element).defaultView;
-  const DOMMatrixReadOnlyCtor = win?.DOMMatrixReadOnly;
-  const style = win?.getComputedStyle(element);
-
-  if (DOMMatrixReadOnlyCtor == null || style == null || style.transform === 'none') {
-    return null;
-  }
-
-  const matrix = new DOMMatrixReadOnlyCtor(style.transform);
-
-  return matrix.is2D && matrix.a === 1 && matrix.b === 0 && matrix.c === 0 && matrix.d === 1
-    ? [matrix.e, matrix.f]
-    : null;
-}
-
-function getIndicatorOffset(element: HTMLElement, ancestor: HTMLElement): ElementOffset {
-  // Measure both the visual rectangle and the layout offset chain. DOMRects keep
-  // fractional offsets, but 3D transforms can skew their projected coordinates.
-  const elementOffset = getElementOffset(element);
-  const ancestorOffset = getElementOffset(ancestor);
-  const { width: ancestorWidth, height: ancestorHeight } = getCssDimensions(ancestor);
-  const elementRect = element.getBoundingClientRect();
-  const ancestorRect = ancestor.getBoundingClientRect();
-  const scaleX = ancestorWidth > 0 ? ancestorRect.width / ancestorWidth : 1;
-  const scaleY = ancestorHeight > 0 ? ancestorRect.height / ancestorHeight : 1;
-
-  // Convert the visual rect delta back into the tab list's content box. This
-  // preserves sub-pixel positioning and handles normal 2D scale transforms.
-  const rectOffset = (
-    scaleX > Number.EPSILON && scaleY > Number.EPSILON
-      ? [
-          (elementRect.left - ancestorRect.left) / scaleX +
-            ancestor.scrollLeft -
-            ancestor.clientLeft,
-          (elementRect.top - ancestorRect.top) / scaleY + ancestor.scrollTop - ancestor.clientTop,
-        ]
-      : [element.offsetLeft, element.offsetTop]
-  ) satisfies ElementOffset;
-
-  if (!elementOffset || !ancestorOffset) {
-    return rectOffset;
-  }
-
-  // The offset chain is layout-based, so it remains stable when 3D transforms
-  // distort getBoundingClientRect().
-  const layoutOffset = [
-    elementOffset[0] - ancestorOffset[0] - ancestor.clientLeft,
-    elementOffset[1] - ancestorOffset[1] - ancestor.clientTop,
-  ] satisfies ElementOffset;
-
-  const rectMatchesLayout =
-    Math.abs(rectOffset[0] - layoutOffset[0]) <= 1 &&
-    Math.abs(rectOffset[1] - layoutOffset[1]) <= 1;
-
-  if (rectMatchesLayout) {
-    return rectOffset;
-  }
-
-  // A pure translate on the tab can legitimately move its visual box away from
-  // layout. Add that local shift to the layout fallback instead of trusting a
-  // projected DOMRect from a 3D ancestor.
-  const translateOffset = getTranslateOffset(element);
-
-  if (!translateOffset) {
-    return layoutOffset;
-  }
-
-  const translatedLayoutOffset = [
-    layoutOffset[0] + translateOffset[0],
-    layoutOffset[1] + translateOffset[1],
-  ] satisfies ElementOffset;
-
-  // If the rect agrees with the translated layout offset, keep its fractional
-  // precision. Otherwise, the mismatch is projection skew.
-  return Math.abs(rectOffset[0] - translatedLayoutOffset[0]) <= 1 &&
-    Math.abs(rectOffset[1] - translatedLayoutOffset[1]) <= 1
-    ? rectOffset
-    : translatedLayoutOffset;
-}
 
 /**
  * A visual indicator that can be styled to match the position of the currently active tab.
@@ -181,8 +69,35 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
 
     if (activeTab != null) {
       const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
+      const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabsListElement);
+      const tabRect = activeTab.getBoundingClientRect();
+      const tabsListRect = tabsListElement.getBoundingClientRect();
+      const scaleX = tabListWidth > 0 ? tabsListRect.width / tabListWidth : 1;
+      const scaleY = tabListHeight > 0 ? tabsListRect.height / tabListHeight : 1;
+      const hasNonZeroScale =
+        Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
-      [left, top] = getIndicatorOffset(activeTab, tabsListElement);
+      // A rotation, skew, or 3D transform on the tab or any ancestor warps the bounding
+      // rects non-linearly, so the rect-based fast path can't recover the tab's position.
+      // Such transforms always change the projected (bounding-box) size, so only run the
+      // ancestor walk when the scale deviates from 1. (Pure flips and 180° rotations keep
+      // the scale at 1 and aren't handled — flipped tabs aren't a real-world case.)
+      const scaleDeviates = Math.abs(scaleX - 1) > 0.01 || Math.abs(scaleY - 1) > 0.01;
+      const useOffsetPath =
+        !hasNonZeroScale || (scaleDeviates && hasDistortingTransform(activeTab));
+
+      if (useOffsetPath) {
+        // Layout offsets are immune to transforms, but lose sub-pixel precision.
+        left = activeTab.offsetLeft;
+        top = activeTab.offsetTop;
+      } else {
+        const tabLeftDelta = tabRect.left - tabsListRect.left;
+        const tabTopDelta = tabRect.top - tabsListRect.top;
+
+        left = tabLeftDelta / scaleX + tabsListElement.scrollLeft - tabsListElement.clientLeft;
+        top = tabTopDelta / scaleY + tabsListElement.scrollTop - tabsListElement.clientTop;
+      }
+
       width = computedWidth;
       height = computedHeight;
       right = tabsListElement.scrollWidth - left - width;

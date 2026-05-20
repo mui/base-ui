@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 import { waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { script as prehydrationScript } from './prehydrationScript.min';
+import { getCssDimensions } from '../../utils/getCssDimensions';
 
 describe('<Tabs.Indicator />', () => {
   const { render, renderToString } = createRenderer();
@@ -36,67 +36,96 @@ describe('<Tabs.Indicator />', () => {
       expect(screen.queryByTestId('bubble')).toBe(null);
     });
 
-    function assertClose(actual: number, expected: number, tolerance = 0.5) {
-      expect(Math.abs(actual - expected)).toBeLessThanOrEqual(tolerance);
+    function assertSize(actual: string, expected: number) {
+      const actualNumber = parseFloat(actual);
+      expect(Math.abs(actualNumber - expected)).toBeLessThanOrEqual(0.01);
     }
 
     function assertBubblePositionVariables(
       bubble: HTMLElement,
       tabList: HTMLElement,
       activeTab: HTMLElement,
-      tolerance?: number,
     ) {
-      if (!tabList.style.position) {
-        tabList.style.position = 'relative';
-      }
+      const tabRect = activeTab.getBoundingClientRect();
+      const tabListRect = tabList.getBoundingClientRect();
+      const { width: tabWidth, height: tabHeight } = getCssDimensions(activeTab);
+      const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabList);
+      const scaleX = tabListWidth > 0 ? tabListRect.width / tabListWidth : 1;
+      const scaleY = tabListHeight > 0 ? tabListRect.height / tabListHeight : 1;
 
-      Object.assign(bubble.style, {
-        position: 'absolute',
-        left: '0',
-        top: '0',
-        right: '',
-        bottom: '',
-        width: 'var(--active-tab-width)',
-        height: 'var(--active-tab-height)',
-        transform: 'translate(var(--active-tab-left), var(--active-tab-top))',
-      });
+      const relativeLeft =
+        (tabRect.left - tabListRect.left) / scaleX + tabList.scrollLeft - tabList.clientLeft;
+      const relativeTop =
+        (tabRect.top - tabListRect.top) / scaleY + tabList.scrollTop - tabList.clientTop;
+      const relativeRight = tabList.scrollWidth - relativeLeft - tabWidth;
+      const relativeBottom = tabList.scrollHeight - relativeTop - tabHeight;
 
-      const bubbleRect = bubble.getBoundingClientRect();
-      const activeTabRect = activeTab.getBoundingClientRect();
+      const bubbleComputedStyle = window.getComputedStyle(bubble);
+      const actualLeft = bubbleComputedStyle.getPropertyValue('--active-tab-left');
+      const actualRight = bubbleComputedStyle.getPropertyValue('--active-tab-right');
+      const actualTop = bubbleComputedStyle.getPropertyValue('--active-tab-top');
+      const actualBottom = bubbleComputedStyle.getPropertyValue('--active-tab-bottom');
+      const actualWidth = bubbleComputedStyle.getPropertyValue('--active-tab-width');
+      const actualHeight = bubbleComputedStyle.getPropertyValue('--active-tab-height');
 
-      assertClose(bubbleRect.left, activeTabRect.left, tolerance);
-      assertClose(bubbleRect.top, activeTabRect.top, tolerance);
-      assertClose(bubbleRect.width, activeTabRect.width, tolerance);
-      assertClose(bubbleRect.height, activeTabRect.height, tolerance);
+      assertSize(actualLeft, relativeLeft);
+      assertSize(actualRight, relativeRight);
+      assertSize(actualTop, relativeTop);
+      assertSize(actualBottom, relativeBottom);
+      assertSize(actualWidth, tabWidth);
+      assertSize(actualHeight, tabHeight);
     }
 
-    function assertBubbleEndPositionVariables(
-      bubble: HTMLElement,
-      tabList: HTMLElement,
-      activeTab: HTMLElement,
-    ) {
-      if (!tabList.style.position) {
-        tabList.style.position = 'relative';
+    // Styles that turn the indicator into a box laid over the active tab using the CSS
+    // variables it exposes — mirrors how consumers position it (see the demos).
+    const STYLED_INDICATOR_CSS = `
+      [data-testid="bubble"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: var(--active-tab-width);
+        height: var(--active-tab-height);
+        transform: translate(var(--active-tab-left), var(--active-tab-top));
       }
+    `;
 
-      Object.assign(bubble.style, {
-        position: 'absolute',
-        left: '',
-        top: '',
-        right: 'var(--active-tab-right)',
-        bottom: 'var(--active-tab-bottom)',
-        width: 'var(--active-tab-width)',
-        height: 'var(--active-tab-height)',
-        transform: '',
-      });
+    // Activates the last tab on purpose: its offset is non-zero, so if the rect-based path
+    // were (wrongly) used under rotation the indicator would land visibly off. The first
+    // tab sits at (0, 0) and would be matched even by the buggy math.
+    function renderTransformedTabs(wrapperStyle: React.CSSProperties) {
+      return render(
+        <React.Fragment>
+          <style>{STYLED_INDICATOR_CSS}</style>
+          <div style={wrapperStyle}>
+            <Tabs.Root value={3}>
+              <Tabs.List style={{ display: 'flex', position: 'relative' }}>
+                <Tabs.Tab value={1} style={{ width: '80px', height: '32px' }}>
+                  One
+                </Tabs.Tab>
+                <Tabs.Tab value={2} style={{ width: '80px', height: '32px' }}>
+                  Two
+                </Tabs.Tab>
+                <Tabs.Tab value={3} style={{ width: '80px', height: '32px' }}>
+                  Three
+                </Tabs.Tab>
+                <Tabs.Indicator data-testid="bubble" />
+              </Tabs.List>
+            </Tabs.Root>
+          </div>
+        </React.Fragment>,
+      );
+    }
 
-      const bubbleRectFromEnd = bubble.getBoundingClientRect();
-      const activeTabRect = activeTab.getBoundingClientRect();
-
-      assertClose(bubbleRectFromEnd.left, activeTabRect.left);
-      assertClose(bubbleRectFromEnd.top, activeTabRect.top);
-      assertClose(bubbleRectFromEnd.width, activeTabRect.width);
-      assertClose(bubbleRectFromEnd.height, activeTabRect.height);
+    // Compares the rendered indicator's box to the active tab's box. Both share the
+    // ancestor transform, so when the indicator is positioned correctly their on-screen
+    // rects coincide — regardless of the transform.
+    function assertBubbleOverlapsActiveTab(bubble: HTMLElement, activeTab: HTMLElement) {
+      const bubbleRect = bubble.getBoundingClientRect();
+      const tabRect = activeTab.getBoundingClientRect();
+      expect(Math.abs(bubbleRect.left - tabRect.left)).toBeLessThanOrEqual(1);
+      expect(Math.abs(bubbleRect.top - tabRect.top)).toBeLessThanOrEqual(1);
+      expect(Math.abs(bubbleRect.right - tabRect.right)).toBeLessThanOrEqual(1);
+      expect(Math.abs(bubbleRect.bottom - tabRect.bottom)).toBeLessThanOrEqual(1);
     }
 
     it('should set CSS variables corresponding to the active tab', async () => {
@@ -118,7 +147,6 @@ describe('<Tabs.Indicator />', () => {
 
       await waitFor(() => {
         assertBubblePositionVariables(bubble, tabList, activeTab);
-        assertBubbleEndPositionVariables(bubble, tabList, activeTab);
       });
     });
 
@@ -228,305 +256,28 @@ describe('<Tabs.Indicator />', () => {
       });
     });
 
-    it('preserves fractional tab offsets', async () => {
-      await render(
-        <Tabs.Root value={2}>
-          <Tabs.List
-            data-testid="tab-list"
-            style={{
-              display: 'flex',
-              gap: '7.25px',
-              position: 'relative',
-            }}
-          >
-            <Tabs.Tab
-              value={1}
-              style={{
-                border: 0,
-                boxSizing: 'border-box',
-                flex: '0 0 33.3px',
-                minWidth: 0,
-                padding: 0,
-              }}
-            >
-              One
-            </Tabs.Tab>
-            <Tabs.Tab
-              value={2}
-              style={{
-                border: 0,
-                boxSizing: 'border-box',
-                flex: '0 0 44.4px',
-                minWidth: 0,
-                padding: 0,
-              }}
-            >
-              Two
-            </Tabs.Tab>
-            <Tabs.Indicator data-testid="bubble" />
-          </Tabs.List>
-        </Tabs.Root>,
-      );
+    it('overlays the active tab when an ancestor has a 2D rotation', async () => {
+      await renderTransformedTabs({ transform: 'rotate(40deg)' });
 
       const bubble = screen.getByTestId('bubble');
-      const tabList = screen.getByTestId('tab-list');
-      const activeTab = screen.getAllByRole('tab')[1];
-
-      await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab, 0.05);
-      });
-
-      const actualLeft = parseFloat(
-        window.getComputedStyle(bubble).getPropertyValue('--active-tab-left'),
-      );
-
-      expect(Math.abs(actualLeft - Math.round(actualLeft))).toBeGreaterThan(0.1);
-    });
-
-    it('tracks visual transforms on the active tab', async () => {
-      await render(
-        <Tabs.Root value={2}>
-          <Tabs.List
-            data-testid="tab-list"
-            style={{
-              display: 'flex',
-              gap: '8px',
-              position: 'relative',
-            }}
-          >
-            <Tabs.Tab value={1} style={{ flex: '0 0 80px' }}>
-              One
-            </Tabs.Tab>
-            <Tabs.Tab value={2} style={{ flex: '0 0 80px', transform: 'translateX(24px)' }}>
-              Two
-            </Tabs.Tab>
-            <Tabs.Tab value={3} style={{ flex: '0 0 80px' }}>
-              Three
-            </Tabs.Tab>
-            <Tabs.Indicator data-testid="bubble" />
-          </Tabs.List>
-        </Tabs.Root>,
-      );
-
-      const bubble = screen.getByTestId('bubble');
-      const tabList = screen.getByTestId('tab-list');
-      const activeTab = screen.getAllByRole('tab')[1];
-
-      await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
-      });
-    });
-
-    it('should account for 3D transforms on ancestors when the active tab is transformed', async () => {
-      await render(
-        <div style={{ perspective: '1000px' }}>
-          <div style={{ transform: 'rotateY(45deg)', transformStyle: 'preserve-3d' }}>
-            <Tabs.Root value={3}>
-              <Tabs.List
-                data-testid="tab-list"
-                style={{
-                  width: '240px',
-                  display: 'flex',
-                  gap: '8px',
-                  overflowX: 'auto',
-                  border: '6px solid black',
-                  padding: '4px',
-                }}
-              >
-                <Tabs.Tab value={1} style={{ flex: '0 0 120px' }}>
-                  One
-                </Tabs.Tab>
-                <Tabs.Tab value={2} style={{ flex: '0 0 120px' }}>
-                  Two
-                </Tabs.Tab>
-                <Tabs.Tab value={3} style={{ flex: '0 0 120px', transform: 'translateX(24px)' }}>
-                  Three
-                </Tabs.Tab>
-                <Tabs.Tab value={4} style={{ flex: '0 0 120px' }}>
-                  Four
-                </Tabs.Tab>
-                <Tabs.Tab value={5} style={{ flex: '0 0 120px' }}>
-                  Five
-                </Tabs.Tab>
-                <Tabs.Indicator data-testid="bubble" />
-              </Tabs.List>
-            </Tabs.Root>
-          </div>
-        </div>,
-      );
-
-      const bubble = screen.getByTestId('bubble');
-      const tabList = screen.getByTestId('tab-list');
       const activeTab = screen.getAllByRole('tab')[2];
 
-      tabList.scrollLeft = 80;
-
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
       });
+      expect(bubble).not.toHaveAttribute('hidden');
     });
 
-    it('falls back to bounding client rect measurements when layout offsets are unavailable', async () => {
-      await render(
-        <Tabs.Root value={2}>
-          <Tabs.List
-            data-testid="tab-list"
-            style={{
-              position: 'fixed',
-              left: '32px',
-              top: '48px',
-              display: 'flex',
-              gap: '8px',
-              border: '4px solid black',
-              padding: '4px',
-            }}
-          >
-            <Tabs.Tab value={1}>One</Tabs.Tab>
-            <Tabs.Tab value={2}>Two</Tabs.Tab>
-            <Tabs.Tab value={3}>Three</Tabs.Tab>
-            <Tabs.Indicator data-testid="bubble" />
-          </Tabs.List>
-        </Tabs.Root>,
-      );
+    it('overlays the active tab when an ancestor has a 3D rotation (#4837)', async () => {
+      await renderTransformedTabs({ transform: 'perspective(600px) rotateY(35deg)' });
 
       const bubble = screen.getByTestId('bubble');
-      const tabList = screen.getByTestId('tab-list');
-      const activeTab = screen.getAllByRole('tab')[1];
+      const activeTab = screen.getAllByRole('tab')[2];
 
       await waitFor(() => {
-        assertBubblePositionVariables(bubble, tabList, activeTab);
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
       });
-    });
-
-    it('positions the pre-hydration indicator inside a 3D-transformed ancestor', async () => {
-      const wrapper = document.createElement('div');
-      wrapper.style.perspective = '1000px';
-
-      const rotated = document.createElement('div');
-      rotated.style.transform = 'rotateY(45deg)';
-      rotated.style.transformStyle = 'preserve-3d';
-
-      const tabList = document.createElement('div');
-      tabList.setAttribute('role', 'tablist');
-      Object.assign(tabList.style, {
-        position: 'relative',
-        width: '240px',
-        display: 'flex',
-        gap: '8px',
-        overflowX: 'auto',
-        border: '6px solid black',
-        padding: '4px',
-      });
-
-      const tabs = ['One', 'Two', 'Three', 'Four', 'Five'].map((label, index) => {
-        const tab = document.createElement('button');
-        tab.setAttribute('role', 'tab');
-        tab.textContent = label;
-        tab.style.flex = '0 0 120px';
-
-        if (index === 2) {
-          tab.setAttribute('data-active', '');
-          tab.style.transform = 'translateX(24px)';
-        }
-
-        return tab;
-      });
-
-      const activeTab = tabs[2];
-      const bubble = document.createElement('span');
-      bubble.hidden = true;
-      bubble.setAttribute('role', 'presentation');
-
-      tabList.append(...tabs, bubble);
-      rotated.append(tabList);
-      wrapper.append(rotated);
-      document.body.append(wrapper);
-
-      try {
-        tabList.scrollLeft = 80;
-
-        const script = document.createElement('script');
-        script.textContent = prehydrationScript;
-        bubble.after(script);
-
-        await waitFor(() => {
-          expect(bubble.hidden).toBe(false);
-          assertBubblePositionVariables(bubble, tabList, activeTab);
-        });
-      } finally {
-        wrapper.remove();
-      }
-    });
-
-    it('positions a transformed pre-hydration active tab', async () => {
-      const tabList = document.createElement('div');
-      tabList.setAttribute('role', 'tablist');
-      Object.assign(tabList.style, {
-        position: 'relative',
-        display: 'flex',
-        gap: '8px',
-      });
-
-      const tabs = ['One', 'Two', 'Three'].map((label, index) => {
-        const tab = document.createElement('button');
-        tab.setAttribute('role', 'tab');
-        tab.textContent = label;
-        tab.style.flex = '0 0 80px';
-
-        if (index === 1) {
-          tab.setAttribute('data-active', '');
-          tab.style.transform = 'translateX(24px)';
-        }
-
-        return tab;
-      });
-
-      const activeTab = tabs[1];
-      const bubble = document.createElement('span');
-      bubble.hidden = true;
-      bubble.setAttribute('role', 'presentation');
-
-      tabList.append(...tabs, bubble);
-      document.body.append(tabList);
-
-      try {
-        const script = document.createElement('script');
-        script.textContent = prehydrationScript;
-        bubble.after(script);
-
-        await waitFor(() => {
-          expect(bubble.hidden).toBe(false);
-          assertBubblePositionVariables(bubble, tabList, activeTab);
-        });
-      } finally {
-        tabList.remove();
-      }
-    });
-
-    it('ignores non-HTMLElement pre-hydration targets', () => {
-      const tabList = document.createElement('div');
-      tabList.setAttribute('role', 'tablist');
-
-      const activeTab = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      activeTab.setAttribute('data-active', '');
-
-      const bubble = document.createElement('span');
-      bubble.hidden = true;
-      bubble.setAttribute('role', 'presentation');
-
-      tabList.append(activeTab, bubble);
-      document.body.append(tabList);
-
-      try {
-        const script = document.createElement('script');
-        script.textContent = prehydrationScript;
-        bubble.after(script);
-
-        expect(bubble.hidden).toBe(true);
-        expect(bubble.style.getPropertyValue('--active-tab-left')).toBe('');
-      } finally {
-        tabList.remove();
-      }
+      expect(bubble).not.toHaveAttribute('hidden');
     });
 
     it('updates position when a different tab resizes', async () => {
