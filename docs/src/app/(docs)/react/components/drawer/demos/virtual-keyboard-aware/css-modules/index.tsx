@@ -49,7 +49,7 @@ export default function ExampleDrawerVirtualKeyboardAware() {
 
               <div className={styles.Footer}>
                 <Drawer.Close className={styles.Button}>Close</Drawer.Close>
-                <button className={styles.PrimaryButton} type="button">
+                <button className={styles.Button} type="button">
                   Save
                 </button>
               </div>

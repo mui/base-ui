@@ -275,7 +275,7 @@ describe('<Drawer.Viewport />', () => {
   });
 
   it.skipIf(isJSDOM)(
-    'adds scroll slack and reveals the focused input while the visual viewport is reduced',
+    'adds scroll slack and centers the focused input while the visual viewport is reduced',
     async () => {
       const restoreInnerHeight = mockWindowInnerHeight(800);
       const visualViewport = mockVisualViewport(800);
@@ -346,7 +346,7 @@ describe('<Drawer.Viewport />', () => {
         await waitFor(() => {
           expect(scroll.style.paddingBottom).toBe('288px');
           expect(scroll.style.scrollPaddingBottom).toBe('16px');
-          expect(scroll.scrollTop).toBeGreaterThan(150);
+          expect(scroll.scrollTop).toBeCloseTo(270, 0);
         });
 
         await act(async () => {
