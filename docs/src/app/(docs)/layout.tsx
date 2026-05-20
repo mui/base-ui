@@ -112,7 +112,10 @@ export default function Layout({ children }: React.PropsWithChildren) {
 
 export const metadata: Metadata = {
   // Title and description are pulled from <h1> and <Subtitle> in the MDX.
-  title: null,
+  title: {
+    template: '%s · Base UI',
+    default: 'Base UI',
+  },
   description: null,
   twitter: {
     site: '@base_ui',
