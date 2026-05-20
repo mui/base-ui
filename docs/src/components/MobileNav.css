@@ -217,6 +217,7 @@
   .MobileNavBadge {
     color: var(--poppy-t1);
     line-height: inherit;
+    -webkit-user-select: none;
     user-select: none;
     text-transform: uppercase;
     font-size: 0.6875rem;

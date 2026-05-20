@@ -16,6 +16,7 @@
   font-weight: 500;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (hover: hover) {
@@ -136,6 +137,7 @@
 .SubmenuTrigger {
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1rem;
@@ -210,6 +212,7 @@
 .RadioItem {
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 0.625rem;
@@ -265,6 +268,7 @@
 
 .GroupLabel {
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1.875rem;

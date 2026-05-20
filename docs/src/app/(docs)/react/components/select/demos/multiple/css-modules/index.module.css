@@ -44,6 +44,7 @@
   white-space: nowrap;
   font-weight: 400;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
   min-width: 14rem;
 
@@ -155,6 +156,7 @@
   align-items: center;
   grid-template-columns: 1rem 1fr;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   scroll-margin-block: 0.25rem;
 

@@ -44,6 +44,7 @@
   white-space: nowrap;
   font-weight: 400;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
   min-width: 11rem;
 
@@ -102,6 +103,7 @@
 .Positioner {
   outline: none;
   z-index: 10;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -166,6 +168,7 @@
   padding-right: 1rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
+  -webkit-user-select: none;
   user-select: none;
   color: oklch(55.6% 0 0deg);
 
@@ -187,6 +190,7 @@
   align-items: center;
   grid-template-columns: 1rem 1fr;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
 
   &[data-highlighted] {

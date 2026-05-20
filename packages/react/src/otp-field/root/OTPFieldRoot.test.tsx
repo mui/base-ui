@@ -71,6 +71,9 @@ describe('<OTPFieldPreview />', () => {
 
       expect(inputs.map((input) => input.value)).toEqual(['1', '2', '3', '4', '5', '6']);
       expect(inputs[0]).toHaveAttribute('maxlength', '6');
+      inputs.slice(1).forEach((input) => {
+        expect(input).not.toHaveAttribute('maxlength');
+      });
       expect(hiddenInput).toHaveValue('123456');
     });
 
@@ -803,6 +806,16 @@ describe('<OTPFieldPreview />', () => {
         fireEvent.change(firstInput, { target: { value: '123456' } });
 
         expect(getValues()).toBe('123456');
+      });
+
+      it('replaces consecutive slots when typing multiple characters into a later input', async () => {
+        await render(<OTPField defaultValue="123456" />);
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        fireEvent.change(inputs[2], { target: { value: '99' } });
+
+        expect(getValues()).toBe('129956');
       });
     });
 

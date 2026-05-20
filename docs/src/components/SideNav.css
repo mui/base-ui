@@ -114,6 +114,7 @@
     border-block: 1px solid transparent; /* Maintain a 1px gap between active an inactive item */
     background-clip: padding-box;
     border-radius: var(--radius-6);
+    -webkit-user-select: none;
     user-select: none;
 
     @media (hover: hover) {
@@ -143,6 +144,7 @@
   .SideNavBadge {
     color: var(--poppy-t1);
     line-height: inherit;
+    -webkit-user-select: none;
     user-select: none;
     text-transform: uppercase;
     font-size: 0.625rem;

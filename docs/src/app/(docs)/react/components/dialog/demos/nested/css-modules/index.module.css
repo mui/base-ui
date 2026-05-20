@@ -15,6 +15,7 @@
   line-height: 1;
   white-space: nowrap;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -77,6 +78,7 @@
   font-weight: 400;
   line-height: 1.25rem;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
