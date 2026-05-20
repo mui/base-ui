@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 import { waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { getCssDimensions } from '../../utils/getCssDimensions';
+import { script as prehydrationScript } from './prehydrationScript.min';
 
 describe('<Tabs.Indicator />', () => {
   const { render, renderToString } = createRenderer();
@@ -36,59 +36,67 @@ describe('<Tabs.Indicator />', () => {
       expect(screen.queryByTestId('bubble')).toBe(null);
     });
 
-    function assertSize(actual: string, expected: number) {
-      const actualNumber = parseFloat(actual);
-      expect(Math.abs(actualNumber - expected)).toBeLessThanOrEqual(0.01);
-    }
-
-    function getElementOffset(element: HTMLElement) {
-      let left = element.offsetLeft;
-      let top = element.offsetTop;
-      let offsetParent = element.offsetParent as HTMLElement | null;
-
-      while (offsetParent) {
-        left += offsetParent.offsetLeft + offsetParent.clientLeft;
-        top += offsetParent.offsetTop + offsetParent.clientTop;
-        offsetParent = offsetParent.offsetParent as HTMLElement | null;
-      }
-
-      return { left, top };
-    }
-
-    function getRelativeLayoutOffset(element: HTMLElement, ancestor: HTMLElement) {
-      const elementOffset = getElementOffset(element);
-      const ancestorOffset = getElementOffset(ancestor);
-
-      return {
-        left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
-        top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
-      };
+    function assertClose(actual: number, expected: number, tolerance = 0.5) {
+      expect(Math.abs(actual - expected)).toBeLessThanOrEqual(tolerance);
     }
 
     function assertBubblePositionVariables(
       bubble: HTMLElement,
       tabList: HTMLElement,
       activeTab: HTMLElement,
+      tolerance?: number,
     ) {
-      const { width: tabWidth, height: tabHeight } = getCssDimensions(activeTab);
-      const { left: relativeLeft, top: relativeTop } = getRelativeLayoutOffset(activeTab, tabList);
-      const relativeRight = tabList.scrollWidth - relativeLeft - tabWidth;
-      const relativeBottom = tabList.scrollHeight - relativeTop - tabHeight;
+      if (!tabList.style.position) {
+        tabList.style.position = 'relative';
+      }
 
-      const bubbleComputedStyle = window.getComputedStyle(bubble);
-      const actualLeft = bubbleComputedStyle.getPropertyValue('--active-tab-left');
-      const actualRight = bubbleComputedStyle.getPropertyValue('--active-tab-right');
-      const actualTop = bubbleComputedStyle.getPropertyValue('--active-tab-top');
-      const actualBottom = bubbleComputedStyle.getPropertyValue('--active-tab-bottom');
-      const actualWidth = bubbleComputedStyle.getPropertyValue('--active-tab-width');
-      const actualHeight = bubbleComputedStyle.getPropertyValue('--active-tab-height');
+      Object.assign(bubble.style, {
+        position: 'absolute',
+        left: '0',
+        top: '0',
+        right: '',
+        bottom: '',
+        width: 'var(--active-tab-width)',
+        height: 'var(--active-tab-height)',
+        transform: 'translate(var(--active-tab-left), var(--active-tab-top))',
+      });
 
-      assertSize(actualLeft, relativeLeft);
-      assertSize(actualRight, relativeRight);
-      assertSize(actualTop, relativeTop);
-      assertSize(actualBottom, relativeBottom);
-      assertSize(actualWidth, tabWidth);
-      assertSize(actualHeight, tabHeight);
+      const bubbleRect = bubble.getBoundingClientRect();
+      const activeTabRect = activeTab.getBoundingClientRect();
+
+      assertClose(bubbleRect.left, activeTabRect.left, tolerance);
+      assertClose(bubbleRect.top, activeTabRect.top, tolerance);
+      assertClose(bubbleRect.width, activeTabRect.width, tolerance);
+      assertClose(bubbleRect.height, activeTabRect.height, tolerance);
+    }
+
+    function assertBubbleEndPositionVariables(
+      bubble: HTMLElement,
+      tabList: HTMLElement,
+      activeTab: HTMLElement,
+    ) {
+      if (!tabList.style.position) {
+        tabList.style.position = 'relative';
+      }
+
+      Object.assign(bubble.style, {
+        position: 'absolute',
+        left: '',
+        top: '',
+        right: 'var(--active-tab-right)',
+        bottom: 'var(--active-tab-bottom)',
+        width: 'var(--active-tab-width)',
+        height: 'var(--active-tab-height)',
+        transform: '',
+      });
+
+      const bubbleRectFromEnd = bubble.getBoundingClientRect();
+      const activeTabRect = activeTab.getBoundingClientRect();
+
+      assertClose(bubbleRectFromEnd.left, activeTabRect.left);
+      assertClose(bubbleRectFromEnd.top, activeTabRect.top);
+      assertClose(bubbleRectFromEnd.width, activeTabRect.width);
+      assertClose(bubbleRectFromEnd.height, activeTabRect.height);
     }
 
     it('should set CSS variables corresponding to the active tab', async () => {
@@ -110,6 +118,7 @@ describe('<Tabs.Indicator />', () => {
 
       await waitFor(() => {
         assertBubblePositionVariables(bubble, tabList, activeTab);
+        assertBubbleEndPositionVariables(bubble, tabList, activeTab);
       });
     });
 
@@ -219,6 +228,61 @@ describe('<Tabs.Indicator />', () => {
       });
     });
 
+    it('preserves fractional tab offsets', async () => {
+      await render(
+        <Tabs.Root value={2}>
+          <Tabs.List
+            data-testid="tab-list"
+            style={{
+              display: 'flex',
+              gap: '7.25px',
+              position: 'relative',
+            }}
+          >
+            <Tabs.Tab
+              value={1}
+              style={{
+                border: 0,
+                boxSizing: 'border-box',
+                flex: '0 0 33.3px',
+                minWidth: 0,
+                padding: 0,
+              }}
+            >
+              One
+            </Tabs.Tab>
+            <Tabs.Tab
+              value={2}
+              style={{
+                border: 0,
+                boxSizing: 'border-box',
+                flex: '0 0 44.4px',
+                minWidth: 0,
+                padding: 0,
+              }}
+            >
+              Two
+            </Tabs.Tab>
+            <Tabs.Indicator data-testid="bubble" />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab, 0.05);
+      });
+
+      const actualLeft = parseFloat(
+        window.getComputedStyle(bubble).getPropertyValue('--active-tab-left'),
+      );
+
+      expect(Math.abs(actualLeft - Math.round(actualLeft))).toBeGreaterThan(0.1);
+    });
+
     it('should account for 3D transforms on ancestors', async () => {
       await render(
         <div style={{ perspective: '1000px' }}>
@@ -266,6 +330,123 @@ describe('<Tabs.Indicator />', () => {
       await waitFor(() => {
         assertBubblePositionVariables(bubble, tabList, activeTab);
       });
+    });
+
+    it('falls back to bounding client rect measurements when layout offsets are unavailable', async () => {
+      await render(
+        <Tabs.Root value={2}>
+          <Tabs.List
+            data-testid="tab-list"
+            style={{
+              position: 'fixed',
+              left: '32px',
+              top: '48px',
+              display: 'flex',
+              gap: '8px',
+              border: '4px solid black',
+              padding: '4px',
+            }}
+          >
+            <Tabs.Tab value={1}>One</Tabs.Tab>
+            <Tabs.Tab value={2}>Two</Tabs.Tab>
+            <Tabs.Tab value={3}>Three</Tabs.Tab>
+            <Tabs.Indicator data-testid="bubble" />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
+    });
+
+    it('positions the pre-hydration indicator', async () => {
+      const wrapper = document.createElement('div');
+      wrapper.style.perspective = '1000px';
+
+      const rotated = document.createElement('div');
+      rotated.style.transform = 'rotateY(45deg)';
+      rotated.style.transformStyle = 'preserve-3d';
+
+      const tabList = document.createElement('div');
+      tabList.setAttribute('role', 'tablist');
+      Object.assign(tabList.style, {
+        position: 'relative',
+        width: '240px',
+        display: 'flex',
+        gap: '8px',
+        overflowX: 'auto',
+        border: '6px solid black',
+        padding: '4px',
+      });
+
+      const tabs = ['One', 'Two', 'Three', 'Four', 'Five'].map((label, index) => {
+        const tab = document.createElement('button');
+        tab.setAttribute('role', 'tab');
+        tab.textContent = label;
+        tab.style.flex = '0 0 120px';
+
+        if (index === 2) {
+          tab.setAttribute('data-active', '');
+        }
+
+        return tab;
+      });
+
+      const activeTab = tabs[2];
+      const bubble = document.createElement('span');
+      bubble.hidden = true;
+      bubble.setAttribute('role', 'presentation');
+
+      tabList.append(...tabs, bubble);
+      rotated.append(tabList);
+      wrapper.append(rotated);
+      document.body.append(wrapper);
+
+      try {
+        tabList.scrollLeft = 80;
+
+        const script = document.createElement('script');
+        script.textContent = prehydrationScript;
+        bubble.after(script);
+
+        await waitFor(() => {
+          expect(bubble.hidden).toBe(false);
+          assertBubblePositionVariables(bubble, tabList, activeTab);
+        });
+      } finally {
+        wrapper.remove();
+      }
+    });
+
+    it('ignores non-HTMLElement pre-hydration targets', () => {
+      const tabList = document.createElement('div');
+      tabList.setAttribute('role', 'tablist');
+
+      const activeTab = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      activeTab.setAttribute('data-active', '');
+
+      const bubble = document.createElement('span');
+      bubble.hidden = true;
+      bubble.setAttribute('role', 'presentation');
+
+      tabList.append(activeTab, bubble);
+      document.body.append(tabList);
+
+      try {
+        const script = document.createElement('script');
+        script.textContent = prehydrationScript;
+        bubble.after(script);
+
+        expect(bubble.hidden).toBe(true);
+        expect(bubble.style.getPropertyValue('--active-tab-left')).toBe('');
+      } finally {
+        tabList.remove();
+      }
     });
 
     it('updates position when a different tab resizes', async () => {

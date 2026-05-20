@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { useIsHydrating } from '../../utils/useIsHydrating';
@@ -20,28 +21,79 @@ const stateAttributesMapping = {
   activeTabSize: () => null,
 };
 
-function getElementOffset(element: HTMLElement) {
-  let left = element.offsetLeft;
-  let top = element.offsetTop;
-  let offsetParent = element.offsetParent as HTMLElement | null;
+type ElementOffset = [left: number, top: number];
 
-  while (offsetParent) {
-    left += offsetParent.offsetLeft + offsetParent.clientLeft;
-    top += offsetParent.offsetTop + offsetParent.clientTop;
-    offsetParent = offsetParent.offsetParent as HTMLElement | null;
+function getElementOffset(element: HTMLElement) {
+  let offsetParent: Element | null = element.offsetParent;
+
+  if (!offsetParent) {
+    return null;
   }
 
-  return { left, top };
+  const HTMLElementCtor = ownerDocument(element).defaultView?.HTMLElement;
+
+  if (HTMLElementCtor == null) {
+    return null;
+  }
+
+  let left = element.offsetLeft;
+  let top = element.offsetTop;
+
+  while (offsetParent) {
+    if (!(offsetParent instanceof HTMLElementCtor)) {
+      return null;
+    }
+
+    left += offsetParent.offsetLeft + offsetParent.clientLeft;
+    top += offsetParent.offsetTop + offsetParent.clientTop;
+    offsetParent = offsetParent.offsetParent;
+  }
+
+  return [left, top] satisfies ElementOffset;
 }
 
-function getRelativeLayoutOffset(element: HTMLElement, ancestor: HTMLElement) {
+function getIndicatorOffset(element: HTMLElement, ancestor: HTMLElement): ElementOffset {
+  // Measure both the visual rectangle and the layout offset chain. DOMRects keep
+  // fractional offsets, it's not suitable for transformed geometry, as 3D transforms
+  // can skew their projected coordinates.
   const elementOffset = getElementOffset(element);
   const ancestorOffset = getElementOffset(ancestor);
+  const { width: ancestorWidth, height: ancestorHeight } = getCssDimensions(ancestor);
+  const elementRect = element.getBoundingClientRect();
+  const ancestorRect = ancestor.getBoundingClientRect();
+  const scaleX = ancestorWidth > 0 ? ancestorRect.width / ancestorWidth : 1;
+  const scaleY = ancestorHeight > 0 ? ancestorRect.height / ancestorHeight : 1;
 
-  return {
-    left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
-    top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
-  };
+  // Convert the visual rect delta back into the tab list's content box. This
+  // preserves sub-pixel positioning and handles normal 2D scale transforms.
+  const rectOffset = (
+    scaleX > Number.EPSILON && scaleY > Number.EPSILON
+      ? [
+          (elementRect.left - ancestorRect.left) / scaleX +
+            ancestor.scrollLeft -
+            ancestor.clientLeft,
+          (elementRect.top - ancestorRect.top) / scaleY + ancestor.scrollTop - ancestor.clientTop,
+        ]
+      : [element.offsetLeft, element.offsetTop]
+  ) satisfies ElementOffset;
+
+  if (!elementOffset || !ancestorOffset) {
+    return rectOffset;
+  }
+
+  // The offset chain is layout-based, so it remains stable when 3D transforms
+  // distort getBoundingClientRect().
+  const layoutOffset = [
+    elementOffset[0] - ancestorOffset[0] - ancestor.clientLeft,
+    elementOffset[1] - ancestorOffset[1] - ancestor.clientTop,
+  ] satisfies ElementOffset;
+
+  // Prefer the fractional rect result when it matches layout within rounding
+  // noise. A larger mismatch means projection skew, so fall back to layout.
+  return Math.abs(rectOffset[0] - layoutOffset[0]) <= 1 &&
+    Math.abs(rectOffset[1] - layoutOffset[1]) <= 1
+    ? rectOffset
+    : layoutOffset;
 }
 
 /**
@@ -92,10 +144,8 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
 
     if (activeTab != null) {
       const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
-      const layoutOffset = getRelativeLayoutOffset(activeTab, tabsListElement);
 
-      left = layoutOffset.left;
-      top = layoutOffset.top;
+      [left, top] = getIndicatorOffset(activeTab, tabsListElement);
       width = computedWidth;
       height = computedHeight;
       right = tabsListElement.scrollWidth - left - width;
