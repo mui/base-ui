@@ -60,15 +60,18 @@
     return [offsetLeft, offsetTop];
   }
 
-  function hasTransform(element) {
+  function getTranslateOffset(element) {
     const style = getComputedStyle(element);
 
-    return (
-      style.transform !== 'none' ||
-      (!!style.translate && style.translate !== 'none') ||
-      (!!style.rotate && style.rotate !== 'none') ||
-      (!!style.scale && style.scale !== 'none')
-    );
+    if (typeof DOMMatrixReadOnly === 'undefined' || style.transform === 'none') {
+      return null;
+    }
+
+    const matrix = new DOMMatrixReadOnly(style.transform);
+
+    return matrix.is2D && matrix.a === 1 && matrix.b === 0 && matrix.c === 0 && matrix.d === 1
+      ? [matrix.e, matrix.f]
+      : null;
   }
 
   function getIndicatorOffset(element, ancestor) {
@@ -105,14 +108,34 @@
       elementOffset[1] - ancestorOffset[1] - ancestor.clientTop,
     ];
 
-    // Prefer the fractional rect result when it matches layout within rounding noise.
-    // If the tab itself is transformed, keep following its visual position. Otherwise,
-    // a larger mismatch means projection skew, so fall back to layout.
-    return hasTransform(element) ||
-      (Math.abs(rectOffset[0] - layoutOffset[0]) <= 1 &&
-        Math.abs(rectOffset[1] - layoutOffset[1]) <= 1)
+    const rectMatchesLayout =
+      Math.abs(rectOffset[0] - layoutOffset[0]) <= 1 &&
+      Math.abs(rectOffset[1] - layoutOffset[1]) <= 1;
+
+    if (rectMatchesLayout) {
+      return rectOffset;
+    }
+
+    // A pure translate on the tab can legitimately move its visual box away from
+    // layout. Add that local shift to the layout fallback instead of trusting a
+    // projected DOMRect from a 3D ancestor.
+    const translateOffset = getTranslateOffset(element);
+
+    if (!translateOffset) {
+      return layoutOffset;
+    }
+
+    const translatedLayoutOffset = [
+      layoutOffset[0] + translateOffset[0],
+      layoutOffset[1] + translateOffset[1],
+    ];
+
+    // If the rect agrees with the translated layout offset, keep its fractional
+    // precision. Otherwise, the mismatch is projection skew.
+    return Math.abs(rectOffset[0] - translatedLayoutOffset[0]) <= 1 &&
+      Math.abs(rectOffset[1] - translatedLayoutOffset[1]) <= 1
       ? rectOffset
-      : layoutOffset;
+      : translatedLayoutOffset;
   }
 
   const [width, height] = getCssDimensions(activeTab);

@@ -317,7 +317,7 @@ describe('<Tabs.Indicator />', () => {
       });
     });
 
-    it('should account for 3D transforms on ancestors', async () => {
+    it('should account for 3D transforms on ancestors when the active tab is transformed', async () => {
       await render(
         <div style={{ perspective: '1000px' }}>
           <div style={{ transform: 'rotateY(45deg)', transformStyle: 'preserve-3d' }}>
@@ -339,7 +339,7 @@ describe('<Tabs.Indicator />', () => {
                 <Tabs.Tab value={2} style={{ flex: '0 0 120px' }}>
                   Two
                 </Tabs.Tab>
-                <Tabs.Tab value={3} style={{ flex: '0 0 120px' }}>
+                <Tabs.Tab value={3} style={{ flex: '0 0 120px', transform: 'translateX(24px)' }}>
                   Three
                 </Tabs.Tab>
                 <Tabs.Tab value={4} style={{ flex: '0 0 120px' }}>
@@ -398,7 +398,7 @@ describe('<Tabs.Indicator />', () => {
       });
     });
 
-    it('positions the pre-hydration indicator', async () => {
+    it('positions the pre-hydration indicator inside a 3D-transformed ancestor', async () => {
       const wrapper = document.createElement('div');
       wrapper.style.perspective = '1000px';
 
@@ -426,6 +426,7 @@ describe('<Tabs.Indicator />', () => {
 
         if (index === 2) {
           tab.setAttribute('data-active', '');
+          tab.style.transform = 'translateX(24px)';
         }
 
         return tab;
