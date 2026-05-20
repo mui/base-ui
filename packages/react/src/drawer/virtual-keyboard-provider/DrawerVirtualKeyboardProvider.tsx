@@ -497,7 +497,7 @@ function findKeyboardScrollTarget(target: HTMLElement, root: HTMLElement): HTMLE
 }
 
 function findPotentialScrollAncestor(target: HTMLElement, root: HTMLElement): HTMLElement | null {
-  let element: HTMLElement | null = target;
+  let element: HTMLElement | null = target.parentElement;
   while (element) {
     if (isPotentialKeyboardScrollContainer(element)) {
       return element;
