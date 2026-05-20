@@ -364,6 +364,89 @@ describe('<Drawer.Viewport />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'adds keyboard scroll slack to a potential scroll ancestor for textareas',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup>
+                    <div
+                      data-testid="scroll"
+                      style={{
+                        height: 420,
+                        overflowY: 'auto',
+                        paddingBottom: 20,
+                      }}
+                    >
+                      <div style={{ height: 300 }} />
+                      <textarea data-testid="textarea" />
+                    </div>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const scroll = screen.getByTestId('scroll');
+        const textarea = screen.getByTestId('textarea');
+
+        Object.defineProperties(scroll, {
+          clientHeight: { configurable: true, value: 420 },
+          scrollHeight: { configurable: true, value: 420 },
+        });
+        Object.defineProperties(textarea, {
+          clientHeight: { configurable: true, value: 88 },
+          scrollHeight: { configurable: true, value: 88 },
+        });
+        scroll.getBoundingClientRect = () =>
+          ({
+            top: 300,
+            bottom: 720,
+            height: 420,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: 300,
+            toJSON: () => {},
+          }) as DOMRect;
+        textarea.getBoundingClientRect = () =>
+          ({
+            top: 650,
+            bottom: 690,
+            height: 40,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: 650,
+            toJSON: () => {},
+          }) as DOMRect;
+
+        await act(async () => {
+          textarea.focus();
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          expect(scroll.style.paddingBottom).toBe('288px');
+          expect(textarea.style.paddingBottom).toBe('');
+        });
+      } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
   it.skipIf(isJSDOM)('does not add keyboard scroll slack by default', async () => {
     const restoreInnerHeight = mockWindowInnerHeight(800);
     const visualViewport = mockVisualViewport(800);
