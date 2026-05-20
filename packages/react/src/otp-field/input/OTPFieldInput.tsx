@@ -101,8 +101,8 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     autoCorrect: 'off',
     spellCheck: 'false',
     enterKeyHint: index === length - 1 ? 'done' : 'next',
-    // Allow the first slot to accept a full code so browser paste/autofill can target it directly.
-    maxLength: index === 0 ? length : 1,
+    // Only the first slot has a max length to avoid password manager bubbles appearing after later inputs.
+    maxLength: index === 0 ? length : undefined,
     tabIndex: activeIndex === index ? 0 : -1,
     disabled,
     form,
