@@ -60,6 +60,17 @@
     return [offsetLeft, offsetTop];
   }
 
+  function hasTransform(element) {
+    const style = getComputedStyle(element);
+
+    return (
+      style.transform !== 'none' ||
+      (!!style.translate && style.translate !== 'none') ||
+      (!!style.rotate && style.rotate !== 'none') ||
+      (!!style.scale && style.scale !== 'none')
+    );
+  }
+
   function getIndicatorOffset(element, ancestor) {
     // Measure both the visual rectangle and the layout offset chain. DOMRects keep
     // fractional offsets, but 3D transforms can skew their projected coordinates.
@@ -94,10 +105,12 @@
       elementOffset[1] - ancestorOffset[1] - ancestor.clientTop,
     ];
 
-    // Prefer the fractional rect result when it matches layout within rounding
-    // noise. A larger mismatch means projection skew, so fall back to layout.
-    return Math.abs(rectOffset[0] - layoutOffset[0]) <= 1 &&
-      Math.abs(rectOffset[1] - layoutOffset[1]) <= 1
+    // Prefer the fractional rect result when it matches layout within rounding noise.
+    // If the tab itself is transformed, keep following its visual position. Otherwise,
+    // a larger mismatch means projection skew, so fall back to layout.
+    return hasTransform(element) ||
+      (Math.abs(rectOffset[0] - layoutOffset[0]) <= 1 &&
+        Math.abs(rectOffset[1] - layoutOffset[1]) <= 1)
       ? rectOffset
       : layoutOffset;
   }

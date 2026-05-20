@@ -52,10 +52,22 @@ function getElementOffset(element: HTMLElement) {
   return [left, top] satisfies ElementOffset;
 }
 
+function hasTransform(element: HTMLElement) {
+  const win = ownerDocument(element).defaultView;
+  const style = win?.getComputedStyle(element);
+
+  return (
+    style != null &&
+    (style.transform !== 'none' ||
+      (!!style.translate && style.translate !== 'none') ||
+      (!!style.rotate && style.rotate !== 'none') ||
+      (!!style.scale && style.scale !== 'none'))
+  );
+}
+
 function getIndicatorOffset(element: HTMLElement, ancestor: HTMLElement): ElementOffset {
   // Measure both the visual rectangle and the layout offset chain. DOMRects keep
-  // fractional offsets, it's not suitable for transformed geometry, as 3D transforms
-  // can skew their projected coordinates.
+  // fractional offsets, but 3D transforms can skew their projected coordinates.
   const elementOffset = getElementOffset(element);
   const ancestorOffset = getElementOffset(ancestor);
   const { width: ancestorWidth, height: ancestorHeight } = getCssDimensions(ancestor);
@@ -88,10 +100,12 @@ function getIndicatorOffset(element: HTMLElement, ancestor: HTMLElement): Elemen
     elementOffset[1] - ancestorOffset[1] - ancestor.clientTop,
   ] satisfies ElementOffset;
 
-  // Prefer the fractional rect result when it matches layout within rounding
-  // noise. A larger mismatch means projection skew, so fall back to layout.
-  return Math.abs(rectOffset[0] - layoutOffset[0]) <= 1 &&
-    Math.abs(rectOffset[1] - layoutOffset[1]) <= 1
+  // Prefer the fractional rect result when it matches layout within rounding noise.
+  // If the tab itself is transformed, keep following its visual position. Otherwise,
+  // a larger mismatch means projection skew, so fall back to layout.
+  return hasTransform(element) ||
+    (Math.abs(rectOffset[0] - layoutOffset[0]) <= 1 &&
+      Math.abs(rectOffset[1] - layoutOffset[1]) <= 1)
     ? rectOffset
     : layoutOffset;
 }

@@ -283,6 +283,40 @@ describe('<Tabs.Indicator />', () => {
       expect(Math.abs(actualLeft - Math.round(actualLeft))).toBeGreaterThan(0.1);
     });
 
+    it('tracks visual transforms on the active tab', async () => {
+      await render(
+        <Tabs.Root value={2}>
+          <Tabs.List
+            data-testid="tab-list"
+            style={{
+              display: 'flex',
+              gap: '8px',
+              position: 'relative',
+            }}
+          >
+            <Tabs.Tab value={1} style={{ flex: '0 0 80px' }}>
+              One
+            </Tabs.Tab>
+            <Tabs.Tab value={2} style={{ flex: '0 0 80px', transform: 'translateX(24px)' }}>
+              Two
+            </Tabs.Tab>
+            <Tabs.Tab value={3} style={{ flex: '0 0 80px' }}>
+              Three
+            </Tabs.Tab>
+            <Tabs.Indicator data-testid="bubble" />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+      const activeTab = screen.getAllByRole('tab')[1];
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
+    });
+
     it('should account for 3D transforms on ancestors', async () => {
       await render(
         <div style={{ perspective: '1000px' }}>
@@ -420,6 +454,51 @@ describe('<Tabs.Indicator />', () => {
         });
       } finally {
         wrapper.remove();
+      }
+    });
+
+    it('positions a transformed pre-hydration active tab', async () => {
+      const tabList = document.createElement('div');
+      tabList.setAttribute('role', 'tablist');
+      Object.assign(tabList.style, {
+        position: 'relative',
+        display: 'flex',
+        gap: '8px',
+      });
+
+      const tabs = ['One', 'Two', 'Three'].map((label, index) => {
+        const tab = document.createElement('button');
+        tab.setAttribute('role', 'tab');
+        tab.textContent = label;
+        tab.style.flex = '0 0 80px';
+
+        if (index === 1) {
+          tab.setAttribute('data-active', '');
+          tab.style.transform = 'translateX(24px)';
+        }
+
+        return tab;
+      });
+
+      const activeTab = tabs[1];
+      const bubble = document.createElement('span');
+      bubble.hidden = true;
+      bubble.setAttribute('role', 'presentation');
+
+      tabList.append(...tabs, bubble);
+      document.body.append(tabList);
+
+      try {
+        const script = document.createElement('script');
+        script.textContent = prehydrationScript;
+        bubble.after(script);
+
+        await waitFor(() => {
+          expect(bubble.hidden).toBe(false);
+          assertBubblePositionVariables(bubble, tabList, activeTab);
+        });
+      } finally {
+        tabList.remove();
       }
     });
 
