@@ -127,14 +127,20 @@
 }
 
 .Popup {
+  --bleed: 3rem;
+  --ios-chrome-nudge: 1px;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: calc(100dvh - var(--top-margin));
-  padding-bottom: max(0px, calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y)));
+  max-height: calc(100dvh - var(--top-margin) + var(--bleed));
+  margin-bottom: calc(-1 * var(--bleed));
+  padding-bottom: max(
+    var(--bleed),
+    calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y) + var(--bleed))
+  );
   border-top: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   color: oklch(14.5% 0 0deg);
@@ -145,7 +151,9 @@
   transition:
     transform 450ms cubic-bezier(0.32, 0.72, 0, 1),
     box-shadow 450ms cubic-bezier(0.32, 0.72, 0, 1);
-  transform: translateY(calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y)));
+  transform: translateY(
+    calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y) - var(--ios-chrome-nudge))
+  );
   will-change: transform;
 
   @media (prefers-color-scheme: dark) {
@@ -155,16 +163,6 @@
     box-shadow: none;
   }
 
-  &::after {
-    content: '';
-    position: absolute;
-    inset-inline: 0;
-    top: 100%;
-    height: var(--bleed);
-    background-color: inherit;
-    pointer-events: none;
-  }
-
   &[data-swiping] {
     -webkit-user-select: none;
     user-select: none;
@@ -172,8 +170,8 @@
 
   &[data-starting-style],
   &[data-ending-style] {
-    transform: translateY(calc(100% + 2px));
-    padding-bottom: 0;
+    transform: translateY(calc(100% - var(--bleed) + 2px));
+    padding-bottom: var(--bleed);
     box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 0%);
   }
 

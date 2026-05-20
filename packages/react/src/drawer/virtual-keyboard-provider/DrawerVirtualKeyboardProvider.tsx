@@ -221,13 +221,9 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
 
       const targetRect = target.getBoundingClientRect();
-      let nextScrollTop = scrollTarget.scrollTop;
-
-      if (targetRect.bottom > visibleBottom) {
-        nextScrollTop += targetRect.bottom - visibleBottom;
-      } else if (targetRect.top < visibleTop) {
-        nextScrollTop -= visibleTop - targetRect.top;
-      }
+      const targetCenter = (targetRect.top + targetRect.bottom) / 2;
+      const visibleCenter = (visibleTop + visibleBottom) / 2;
+      const nextScrollTop = scrollTarget.scrollTop + targetCenter - visibleCenter;
 
       animateKeyboardScroll(scrollTarget, clamp(nextScrollTop, 0, maxScrollTop));
     };

@@ -13,53 +13,57 @@ const fields = [
 export default function ExampleDrawerVirtualKeyboardAware() {
   return (
     <Drawer.Root>
-      <Drawer.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+      <Drawer.Trigger className="flex h-8 items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
         Open keyboard-aware drawer
       </Drawer.Trigger>
       <Drawer.VirtualKeyboardProvider>
         <Drawer.Portal>
-          <Drawer.Backdrop className="[--backdrop-opacity:0.2] dark:[--backdrop-opacity:0.7] fixed inset-0 min-h-dvh bg-black opacity-[calc(var(--backdrop-opacity)*(1-var(--drawer-swipe-progress)))] transition-opacity duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-[swiping]:duration-0 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)]" />
-          <Drawer.Viewport className="fixed inset-0 flex items-end justify-center touch-none">
-            <Drawer.Popup className="relative flex max-h-[min(42rem,calc(100dvh-2rem))] w-full flex-col overflow-hidden rounded-t-2xl bg-white text-gray-900 outline outline-1 outline-gray-200 touch-none shadow-[0_-16px_48px_rgb(0_0_0/0.12),0_6px_18px_rgb(0_0_0/0.06)] [transform:translateY(var(--drawer-swipe-movement-y))] transition-[transform,box-shadow] duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform data-[swiping]:select-none data-[ending-style]:[transform:translateY(calc(100%+2px))] data-[starting-style]:[transform:translateY(calc(100%+2px))] data-[starting-style]:shadow-[0_-16px_48px_rgb(0_0_0/0),0_6px_18px_rgb(0_0_0/0)] data-[ending-style]:shadow-[0_-16px_48px_rgb(0_0_0/0),0_6px_18px_rgb(0_0_0/0)] data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)]">
-              <div className="shrink-0 border-b border-gray-200 px-6 pt-3.5 pb-3 touch-none select-none">
-                <div className="mx-auto mb-2.5 h-1 w-12 rounded-full bg-gray-300" />
-                <Drawer.Title className="m-0 text-center text-lg font-bold">
+          <Drawer.Backdrop className="[--backdrop-opacity:0.2] [--bleed:3rem] dark:[--backdrop-opacity:0.7] fixed inset-0 min-h-dvh bg-black opacity-[calc(var(--backdrop-opacity)*(1-var(--drawer-swipe-progress)))] transition-opacity duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-swiping:duration-0 data-ending-style:opacity-0 data-starting-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] supports-[-webkit-touch-callout:none]:absolute" />
+          <Drawer.Viewport className="fixed inset-0 flex items-end justify-center touch-none [--bleed:3rem] after:pointer-events-none after:fixed after:inset-x-0 after:bottom-0 after:h-[var(--bleed)] after:bg-white after:content-[''] dark:after:bg-neutral-950">
+            <Drawer.Popup className="relative z-1 -mb-[var(--bleed)] flex h-[calc(100%-1rem+var(--bleed))] max-h-[calc(100%-1rem+var(--bleed))] w-full flex-col overflow-visible border-t border-neutral-950 bg-white text-neutral-950 outline-none touch-none shadow-[0.25rem_0.25rem_0] shadow-black/12 [--bleed:3rem] [transform:translateY(var(--drawer-swipe-movement-y))] transition-[transform,box-shadow] duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-[var(--bleed)] after:bg-[inherit] after:content-[''] data-swiping:select-none data-ending-style:[transform:translateY(calc(100%-var(--bleed)+2px))] data-starting-style:[transform:translateY(calc(100%-var(--bleed)+2px))] data-starting-style:shadow-[0.25rem_0.25rem_0] data-starting-style:shadow-black/0 data-ending-style:shadow-[0.25rem_0.25rem_0] data-ending-style:shadow-black/0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
+              <div className="shrink-0 border-b border-neutral-300 px-6 pt-3.5 pb-4 touch-none select-none dark:border-neutral-700">
+                <div className="mx-auto mb-2.5 h-1 w-12 shrink-0 bg-neutral-300 dark:bg-neutral-700" />
+                <Drawer.Title className="cursor-default text-center text-base font-bold">
                   Delivery details
                 </Drawer.Title>
-                <Drawer.Description className="mx-auto mt-1 max-w-[28rem] text-center text-[0.9375rem] leading-6 text-gray-600">
+                <Drawer.Description className="mx-auto mt-1 max-w-90 text-center text-sm text-neutral-600 dark:text-neutral-400">
                   Edit the address and delivery instructions.
                 </Drawer.Description>
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-auto px-6 py-4">
-                <div className="mx-auto grid w-full max-w-[28rem] gap-3.5">
+                <div className="mx-auto grid w-full max-w-90 gap-3">
                   {fields.map(([label, placeholder]) => (
-                    <label className="flex flex-col gap-2" key={label}>
-                      <span className="text-sm leading-5 font-semibold">{label}</span>
+                    <label className="flex w-full flex-col items-start gap-1" key={label}>
+                      <span className="text-sm font-bold text-neutral-950 dark:text-white">
+                        {label}
+                      </span>
                       <input
-                        className="h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-inherit outline-0 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                        className="h-8 w-full border border-neutral-950 bg-white px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
                         placeholder={placeholder}
                         type="text"
                       />
                     </label>
                   ))}
 
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm leading-5 font-semibold">Instructions</span>
+                  <label className="flex w-full flex-col items-start gap-1">
+                    <span className="text-sm font-bold text-neutral-950 dark:text-white">
+                      Instructions
+                    </span>
                     <textarea
-                      className="min-h-[5.5rem] w-full resize-y rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-inherit outline-0 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                      className="min-h-22 w-full resize-y border border-neutral-950 bg-white px-2 py-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
                       placeholder="Gate code, drop-off spot, or anything else the driver should know"
                     />
                   </label>
                 </div>
               </div>
 
-              <div className="flex shrink-0 justify-end gap-3 border-t border-gray-200 bg-white px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
-                <Drawer.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-normal text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
+              <div className="flex shrink-0 justify-end gap-3 border-t border-neutral-300 bg-white px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px)+var(--bleed))] dark:border-neutral-700 dark:bg-neutral-950">
+                <Drawer.Close className="flex h-8 items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
                   Close
                 </Drawer.Close>
                 <button
-                  className="flex h-10 items-center justify-center rounded-md border border-gray-900 bg-gray-900 px-3.5 text-base font-normal text-white select-none hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-700"
+                  className="flex h-8 items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
                   type="button"
                 >
                   Save
