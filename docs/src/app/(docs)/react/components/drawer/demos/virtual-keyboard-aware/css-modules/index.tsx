@@ -1,9 +1,15 @@
 'use client';
-import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import styles from './index.module.css';
 
-const TOP_MARGIN_REM = 2;
+const fields = [
+  ['Name', 'Ada Lovelace'],
+  ['Phone', '+1 (555) 123-4567'],
+  ['Street address', '12 Computing Way'],
+  ['Apartment', 'Unit 4B'],
+  ['Delivery window', 'After 6 PM'],
+  ['Backup contact', 'Grace Hopper'],
+];
 
 export default function ExampleDrawerVirtualKeyboardAware() {
   return (
@@ -13,41 +19,39 @@ export default function ExampleDrawerVirtualKeyboardAware() {
         <Drawer.Portal>
           <Drawer.Backdrop className={styles.Backdrop} />
           <Drawer.Viewport className={styles.Viewport}>
-            <Drawer.Popup
-              className={styles.Popup}
-              style={{ '--top-margin': `${TOP_MARGIN_REM}rem` } as React.CSSProperties}
-            >
-              <div className={styles.Chrome}>
+            <Drawer.Popup className={styles.Popup}>
+              <div className={styles.Header}>
                 <div className={styles.Handle} />
-                <Drawer.Title className={styles.Title}>Delivery checklist</Drawer.Title>
+                <Drawer.Title className={styles.Title}>Delivery details</Drawer.Title>
                 <Drawer.Description className={styles.Description}>
-                  The list scrolls independently while the note field stays pinned to the bottom.
+                  Edit the address and delivery instructions.
                 </Drawer.Description>
               </div>
 
-              <Drawer.Content className={styles.Scroll}>
-                <div className={styles.List}>
-                  {Array.from({ length: 16 }, (_, index) => (
-                    <div aria-hidden className={styles.Card} key={index} />
+              <div className={styles.Scroll}>
+                <div className={styles.Form}>
+                  {fields.map(([label, placeholder]) => (
+                    <label className={styles.Field} key={label}>
+                      <span className={styles.FieldLabel}>{label}</span>
+                      <input className={styles.Input} placeholder={placeholder} type="text" />
+                    </label>
                   ))}
-                </div>
-              </Drawer.Content>
 
-              <div className={styles.Footer}>
-                <div className={styles.FooterInner}>
                   <label className={styles.Field}>
-                    <span className={styles.FieldLabel}>Driver message</span>
-                    <input
-                      className={styles.Input}
-                      placeholder="Leave gate code or drop-off instructions"
-                      type="text"
+                    <span className={styles.FieldLabel}>Instructions</span>
+                    <textarea
+                      className={styles.Textarea}
+                      placeholder="Gate code, drop-off spot, or anything else the driver should know"
                     />
                   </label>
-
-                  <div className={styles.Actions}>
-                    <Drawer.Close className={styles.Button}>Close</Drawer.Close>
-                  </div>
                 </div>
+              </div>
+
+              <div className={styles.Footer}>
+                <Drawer.Close className={styles.Button}>Close</Drawer.Close>
+                <button className={styles.PrimaryButton} type="button">
+                  Save
+                </button>
               </div>
             </Drawer.Popup>
           </Drawer.Viewport>

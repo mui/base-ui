@@ -2,8 +2,6 @@
 import * as React from 'react';
 
 export interface DrawerVirtualKeyboardContext {
-  availableHeight: number | null;
-  keyboardInset: number;
   onTouchStart: (event: React.TouchEvent<Element>) => void;
   onTouchEnd: (event: React.TouchEvent<Element>) => boolean;
   onTouchCancel: () => void;

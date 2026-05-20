@@ -275,20 +275,29 @@ describe('<Drawer.Viewport />', () => {
   });
 
   it.skipIf(isJSDOM)(
-    'exposes virtual keyboard CSS variables while the visual viewport is reduced',
+    'adds scroll slack and reveals the focused input while the visual viewport is reduced',
     async () => {
       const restoreInnerHeight = mockWindowInnerHeight(800);
       const visualViewport = mockVisualViewport(800);
-      let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
 
       try {
         await render(
           <Drawer.Root open modal={false}>
             <Drawer.VirtualKeyboardProvider>
               <Drawer.Portal>
-                <Drawer.Viewport data-testid="viewport">
+                <Drawer.Viewport>
                   <Drawer.Popup>
-                    <input data-testid="input" type="text" />
+                    <Drawer.Content
+                      data-testid="scroll"
+                      style={{
+                        height: 420,
+                        overflowY: 'auto',
+                        paddingBottom: 20,
+                      }}
+                    >
+                      <div style={{ height: 900 }} />
+                      <input data-testid="input" type="text" />
+                    </Drawer.Content>
                   </Drawer.Popup>
                 </Drawer.Viewport>
               </Drawer.Portal>
@@ -296,108 +305,153 @@ describe('<Drawer.Viewport />', () => {
           </Drawer.Root>,
         );
 
-        const viewport = screen.getByTestId('viewport');
+        const scroll = screen.getByTestId('scroll');
         const input = screen.getByTestId('input');
-        activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
-        activeElementSpy.mockReturnValue(input);
+
+        Object.defineProperties(scroll, {
+          clientHeight: { configurable: true, value: 420 },
+          scrollHeight: { configurable: true, value: 1200 },
+        });
+        scroll.getBoundingClientRect = () =>
+          ({
+            top: 300,
+            bottom: 720,
+            height: 420,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: 300,
+            toJSON: () => {},
+          }) as DOMRect;
+        input.getBoundingClientRect = () =>
+          ({
+            top: 650,
+            bottom: 690,
+            height: 40,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: 650,
+            toJSON: () => {},
+          }) as DOMRect;
 
         await act(async () => {
+          input.focus();
+          scroll.scrollTop = 0;
           visualViewport.resize(500);
         });
 
         await waitFor(() => {
-          expect(viewport.style.getPropertyValue('--available-height')).toBe('500px');
-          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+          expect(scroll.style.paddingBottom).toBe('288px');
+          expect(scroll.style.scrollPaddingBottom).toBe('16px');
+          expect(scroll.scrollTop).toBeGreaterThan(150);
+        });
+
+        await act(async () => {
+          input.blur();
+        });
+
+        await waitFor(() => {
+          expect(scroll.style.paddingBottom).toBe('20px');
+          expect(scroll.style.scrollPaddingBottom).toBe('');
         });
       } finally {
-        activeElementSpy?.mockRestore();
         visualViewport.restore();
         restoreInnerHeight();
       }
     },
   );
 
-  it.skipIf(isJSDOM)('does not expose virtual keyboard CSS variables by default', async () => {
+  it.skipIf(isJSDOM)('does not add keyboard scroll slack by default', async () => {
     const restoreInnerHeight = mockWindowInnerHeight(800);
     const visualViewport = mockVisualViewport(800);
-    let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
 
     try {
       await render(
         <Drawer.Root open modal={false}>
           <Drawer.Portal>
-            <Drawer.Viewport data-testid="viewport">
+            <Drawer.Viewport>
               <Drawer.Popup>
-                <input data-testid="input" type="text" />
+                <Drawer.Content
+                  data-testid="scroll"
+                  style={{ height: 420, overflowY: 'auto', paddingBottom: 20 }}
+                >
+                  <div style={{ height: 900 }} />
+                  <input data-testid="input" type="text" />
+                </Drawer.Content>
               </Drawer.Popup>
             </Drawer.Viewport>
           </Drawer.Portal>
         </Drawer.Root>,
       );
 
-      const viewport = screen.getByTestId('viewport');
+      const scroll = screen.getByTestId('scroll');
       const input = screen.getByTestId('input');
-      activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
-      activeElementSpy.mockReturnValue(input);
 
       await act(async () => {
+        input.focus();
+        scroll.scrollTop = 0;
         visualViewport.resize(500);
       });
 
       await waitFor(() => {
-        expect(viewport.style.getPropertyValue('--available-height')).toBe('');
-        expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('');
+        expect(scroll.style.paddingBottom).toBe('20px');
+        expect(scroll.style.scrollPaddingBottom).toBe('');
+        expect(scroll.scrollTop).toBe(0);
       });
     } finally {
-      activeElementSpy?.mockRestore();
       visualViewport.restore();
       restoreInnerHeight();
     }
   });
 
-  it.skipIf(isJSDOM)(
-    'does not expose virtual keyboard CSS variables while pinch-zoomed',
-    async () => {
-      const restoreInnerHeight = mockWindowInnerHeight(800);
-      const visualViewport = mockVisualViewport(800);
-      let activeElementSpy: ReturnType<typeof vi.spyOn> | null = null;
+  it.skipIf(isJSDOM)('does not add keyboard scroll slack while pinch-zoomed', async () => {
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(800);
 
-      try {
-        await render(
-          <Drawer.Root open modal={false}>
-            <Drawer.VirtualKeyboardProvider>
-              <Drawer.Portal>
-                <Drawer.Viewport data-testid="viewport">
-                  <Drawer.Popup>
+    try {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <Drawer.Content
+                    data-testid="scroll"
+                    style={{ height: 420, overflowY: 'auto', paddingBottom: 20 }}
+                  >
+                    <div style={{ height: 900 }} />
                     <input data-testid="input" type="text" />
-                  </Drawer.Popup>
-                </Drawer.Viewport>
-              </Drawer.Portal>
-            </Drawer.VirtualKeyboardProvider>
-          </Drawer.Root>,
-        );
+                  </Drawer.Content>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
 
-        const viewport = screen.getByTestId('viewport');
-        const input = screen.getByTestId('input');
-        activeElementSpy = vi.spyOn(document, 'activeElement', 'get');
-        activeElementSpy.mockReturnValue(input);
+      const scroll = screen.getByTestId('scroll');
+      const input = screen.getByTestId('input');
 
-        await act(async () => {
-          visualViewport.setScale(1.5);
-          visualViewport.resize(500);
-        });
+      await act(async () => {
+        input.focus();
+        scroll.scrollTop = 0;
+        visualViewport.setScale(1.5);
+        visualViewport.resize(500);
+      });
 
-        await waitFor(() => {
-          expect(viewport.style.getPropertyValue('--available-height')).toBe('');
-          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('');
-        });
-      } finally {
-        activeElementSpy?.mockRestore();
-        visualViewport.restore();
-        restoreInnerHeight();
-      }
-    },
-  );
+      await waitFor(() => {
+        expect(scroll.style.paddingBottom).toBe('20px');
+        expect(scroll.style.scrollPaddingBottom).toBe('');
+        expect(scroll.scrollTop).toBe(0);
+      });
+    } finally {
+      visualViewport.restore();
+      restoreInnerHeight();
+    }
+  });
 
   it.skipIf(isJSDOM)('preserves native taps on an already-focused keyboard input', async () => {
     await render(
