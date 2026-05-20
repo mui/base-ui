@@ -145,22 +145,19 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     SwipeDirection | undefined
   >(undefined);
   const [isSwiping, setIsSwiping] = React.useState(false);
-  const [isRealSwipe, setIsRealSwipe] = React.useState(false);
   const [dragDismissed, setDragDismissed] = React.useState(false);
-  const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
-  const [initialTransform, setInitialTransform] = React.useState({ x: 0, y: 0, scale: 1 });
-  const [lockedDirection, setLockedDirection] = React.useState<'horizontal' | 'vertical' | null>(
-    null,
-  );
 
   const dragStartPosRef = React.useRef({ x: 0, y: 0 });
   const dragOffsetRef = React.useRef({ x: 0, y: 0 });
   const lastMovePosRef = React.useRef<{ x: number; y: number } | null>(null);
   const initialTransformRef = React.useRef({ x: 0, y: 0, scale: 1 });
+  const currentSwipeDirectionRef = React.useRef<SwipeDirection | undefined>(undefined);
   const intendedSwipeDirectionRef = React.useRef<SwipeDirection | undefined>(undefined);
   const maxSwipeDisplacementRef = React.useRef(0);
   const cancelledSwipeRef = React.useRef(false);
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
+  const isRealSwipeRef = React.useRef(false);
+  const lockedDirectionRef = React.useRef<'horizontal' | 'vertical' | null>(null);
   const isFirstPointerMoveRef = React.useRef(false);
   const pendingSwipeRef = React.useRef(false);
   const pendingSwipeStartPosRef = React.useRef<{ x: number; y: number } | null>(null);
@@ -183,6 +180,15 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     isSwipingRef.current = nextSwiping;
     setIsSwiping(nextSwiping);
     onSwipingChange?.(nextSwiping);
+  });
+
+  const setSwipeDirection = useStableCallback((direction: SwipeDirection | undefined) => {
+    if (currentSwipeDirectionRef.current === direction) {
+      return;
+    }
+
+    currentSwipeDirectionRef.current = direction;
+    setCurrentSwipeDirection(direction);
   });
 
   function resolveSwipeThreshold(direction: SwipeDirection | undefined) {
@@ -235,6 +241,33 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     },
   );
 
+  const syncDragStyles = useStableCallback((swiping = isSwipingRef.current) => {
+    if (!trackDrag) {
+      return;
+    }
+
+    const element = elementRef.current;
+    if (!element) {
+      return;
+    }
+
+    const dragOffset = dragOffsetRef.current;
+    const initialTransform = initialTransformRef.current;
+    const deltaX = dragOffset.x - initialTransform.x;
+    const deltaY = dragOffset.y - initialTransform.y;
+
+    if (swiping) {
+      element.style.transition = 'none';
+      element.style.transform = `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`;
+    } else {
+      element.style.removeProperty('transition');
+      element.style.removeProperty('transform');
+    }
+
+    element.style.setProperty(movementCssVars.x, `${deltaX}px`);
+    element.style.setProperty(movementCssVars.y, `${deltaY}px`);
+  });
+
   function recordDragSample(offset: { x: number; y: number }, timeStamp: number | null) {
     if (timeStamp === null) {
       return;
@@ -254,13 +287,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   }
 
   const reset = React.useCallback(() => {
-    setCurrentSwipeDirection(undefined);
+    setSwipeDirection(undefined);
     setSwiping(false);
-    setIsRealSwipe(false);
     setDragDismissed(false);
-    setDragOffset({ x: 0, y: 0 });
-    setInitialTransform({ x: 0, y: 0, scale: 1 });
-    setLockedDirection(null);
     updateSwipeProgress(0);
 
     swipeThresholdRef.current = swipeThresholdDefault;
@@ -271,6 +300,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     maxSwipeDisplacementRef.current = 0;
     cancelledSwipeRef.current = false;
     swipeCancelBaselineRef.current = { x: 0, y: 0 };
+    isRealSwipeRef.current = false;
+    lockedDirectionRef.current = null;
     isFirstPointerMoveRef.current = false;
     lastMovePosRef.current = null;
     pendingSwipeRef.current = false;
@@ -282,7 +313,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     lastDragSampleRef.current = null;
     lastDragVelocityRef.current = { x: 0, y: 0 };
     lastProgressDetailsRef.current = null;
-  }, [setSwiping, swipeThresholdDefault, updateSwipeProgress]);
+    syncDragStyles(false);
+  }, [setSwipeDirection, setSwiping, swipeThresholdDefault, syncDragStyles, updateSwipeProgress]);
 
   React.useEffect(() => {
     if (typeof swipeThresholdProp !== 'function') {
@@ -387,8 +419,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
       initialTransformRef.current = transform;
       dragOffsetRef.current = { x: transform.x, y: transform.y };
-      setInitialTransform(transform);
-      setDragOffset({ x: transform.x, y: transform.y });
       recordDragSample({ x: transform.x, y: transform.y }, swipeStartTimeRef.current);
 
       if (!('touches' in event)) {
@@ -399,10 +429,11 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     onSwipeStart?.(event.nativeEvent as SwipeDismissNativeEvent);
 
     setSwiping(true);
-    setIsRealSwipe(false);
-    setLockedDirection(null);
+    isRealSwipeRef.current = false;
+    lockedDirectionRef.current = null;
     isFirstPointerMoveRef.current = true;
     updateSwipeProgress(0);
+    syncDragStyles(true);
 
     return true;
   }
@@ -426,15 +457,15 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     setSwiping(false);
-    setIsRealSwipe(false);
-    setLockedDirection(null);
+    isRealSwipeRef.current = false;
+    lockedDirectionRef.current = null;
 
-    const resolvedInitialTransform = trackDrag ? initialTransform : initialTransformRef.current;
+    const resolvedInitialTransform = initialTransformRef.current;
 
     dragOffsetRef.current = { x: resolvedInitialTransform.x, y: resolvedInitialTransform.y };
-    setDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
-    setCurrentSwipeDirection(undefined);
+    setSwipeDirection(undefined);
     sawPrimaryButtonsOnMoveRef.current = false;
+    syncDragStyles(false);
 
     const element = elementRef.current;
     if (element) {
@@ -600,21 +631,22 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
     const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
 
-    if (!isRealSwipe) {
+    if (!isRealSwipeRef.current) {
       const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       if (movementDistance >= MIN_DRAG_THRESHOLD) {
-        setIsRealSwipe(true);
-        if (lockedDirection === null) {
+        isRealSwipeRef.current = true;
+        if (lockedDirectionRef.current === null) {
           if (hasHorizontal && hasVertical) {
             const absX = Math.abs(deltaX);
             const absY = Math.abs(deltaY);
-            setLockedDirection(absX > absY ? 'horizontal' : 'vertical');
+            lockedDirectionRef.current = absX > absY ? 'horizontal' : 'vertical';
           }
         }
       }
     }
 
     let candidate: SwipeDirection | undefined;
+    const lockedDirection = lockedDirectionRef.current;
     if (!intendedSwipeDirectionRef.current) {
       if (lockedDirection === 'vertical') {
         if (deltaY > 0) {
@@ -643,7 +675,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
         if (isAllowed) {
           intendedSwipeDirectionRef.current = candidate;
           maxSwipeDisplacementRef.current = getDisplacement(candidate, deltaX, deltaY);
-          setCurrentSwipeDirection(candidate);
+          setSwipeDirection(candidate);
           resolveSwipeThreshold(candidate);
         }
       }
@@ -652,7 +684,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       const currentDisplacement = getDisplacement(direction, cancelDeltaX, cancelDeltaY);
       if (currentDisplacement > swipeThresholdRef.current) {
         cancelledSwipeRef.current = false;
-        setCurrentSwipeDirection(direction);
+        setSwipeDirection(direction);
       } else if (
         !(allowLeft && allowRight) &&
         !(allowUp && allowDown) &&
@@ -685,9 +717,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     dragOffsetRef.current = { x: newOffsetX, y: newOffsetY };
-    if (trackDrag) {
-      setDragOffset({ x: newOffsetX, y: newOffsetY });
-    }
+    syncDragStyles(true);
     recordDragSample({ x: newOffsetX, y: newOffsetY }, getValidTimeStamp(event.timeStamp));
     const dragDeltaX = newOffsetX - initialTransformRef.current.x;
     const dragDeltaY = newOffsetY - initialTransformRef.current.y;
@@ -856,7 +886,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const progressDetails: SwipeProgressDetailsInternal = {
       deltaX: releaseDeltaX,
       deltaY: releaseDeltaY,
-      direction: currentSwipeDirection ?? intendedSwipeDirectionRef.current,
+      direction: currentSwipeDirectionRef.current ?? intendedSwipeDirectionRef.current,
     };
 
     if (!isSwipingRef.current) {
@@ -866,8 +896,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     setSwiping(false);
-    setIsRealSwipe(false);
-    setLockedDirection(null);
+    isRealSwipeRef.current = false;
+    lockedDirectionRef.current = null;
     resetPendingSwipeState();
     sawPrimaryButtonsOnMoveRef.current = false;
 
@@ -912,7 +942,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
     const releaseDecision = onRelease?.({
       event: event.nativeEvent as SwipeDismissNativeEvent,
-      direction: currentSwipeDirection ?? intendedSwipeDirectionRef.current,
+      direction: currentSwipeDirectionRef.current ?? intendedSwipeDirectionRef.current,
       deltaX,
       deltaY,
       velocityX,
@@ -924,8 +954,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
     if (cancelledSwipeRef.current && !hasReleaseDecision) {
       dragOffsetRef.current = { x: resolvedInitialTransform.x, y: resolvedInitialTransform.y };
-      setDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
-      setCurrentSwipeDirection(undefined);
+      setSwipeDirection(undefined);
+      syncDragStyles(false);
       updateSwipeProgress(0, progressDetails);
       return;
     }
@@ -936,7 +966,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     if (hasReleaseDecision) {
       shouldClose = releaseDecision;
       dismissDirection =
-        currentSwipeDirection ?? intendedSwipeDirectionRef.current ?? primaryDirection;
+        currentSwipeDirectionRef.current ?? intendedSwipeDirectionRef.current ?? primaryDirection;
     } else {
       for (const direction of directions) {
         switch (direction) {
@@ -974,47 +1004,42 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
 
     if (shouldClose && dismissDirection) {
-      setCurrentSwipeDirection(dismissDirection);
+      setSwipeDirection(dismissDirection);
       setDragDismissed(true);
+      syncDragStyles(false);
       onDismiss?.(event.nativeEvent as SwipeDismissNativeEvent, { direction: dismissDirection });
     } else {
       dragOffsetRef.current = { x: resolvedInitialTransform.x, y: resolvedInitialTransform.y };
-      setDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
-      setCurrentSwipeDirection(undefined);
+      setSwipeDirection(undefined);
+      syncDragStyles(false);
       updateSwipeProgress(0, progressDetails);
     }
   });
 
   const getDragStyles = React.useCallback((): React.CSSProperties => {
-    const resolvedDragOffset = trackDrag ? dragOffset : dragOffsetRef.current;
-    const resolvedInitialTransform = trackDrag ? initialTransform : initialTransformRef.current;
+    const dragOffset = dragOffsetRef.current;
+    const initialTransform = initialTransformRef.current;
+    const deltaX = dragOffset.x - initialTransform.x;
+    const deltaY = dragOffset.y - initialTransform.y;
 
-    if (
-      !isSwiping &&
-      resolvedDragOffset.x === resolvedInitialTransform.x &&
-      resolvedDragOffset.y === resolvedInitialTransform.y &&
-      !dragDismissed
-    ) {
+    if (!isSwiping && deltaX === 0 && deltaY === 0 && !dragDismissed) {
       return {
         [movementCssVars.x]: '0px',
         [movementCssVars.y]: '0px',
       } as React.CSSProperties;
     }
 
-    const deltaX = resolvedDragOffset.x - resolvedInitialTransform.x;
-    const deltaY = resolvedDragOffset.y - resolvedInitialTransform.y;
-
     return {
       transition: isSwiping ? 'none' : undefined,
       // While swiping, freeze the element at its current visual transform so it doesn't snap to the
       // end position.
       transform: isSwiping
-        ? `translateX(${resolvedDragOffset.x}px) translateY(${resolvedDragOffset.y}px) scale(${resolvedInitialTransform.scale})`
+        ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`
         : undefined,
       [movementCssVars.x]: `${deltaX}px`,
       [movementCssVars.y]: `${deltaY}px`,
     } as React.CSSProperties;
-  }, [dragDismissed, dragOffset, initialTransform, isSwiping, movementCssVars, trackDrag]);
+  }, [dragDismissed, isSwiping, movementCssVars]);
 
   const getPointerProps = React.useCallback(() => {
     if (!enabled) {
