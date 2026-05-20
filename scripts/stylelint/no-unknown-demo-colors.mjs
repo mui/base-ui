@@ -294,13 +294,7 @@ function walkColorUsages(value, property, onUsage) {
   const scanBareWords = hasWord && isStrictColorProperty(property);
   const scanCssVariables = hasCssVariable && (scanNamedColors || scanBareWords);
 
-  if (
-    !hasFunction &&
-    !hasHex &&
-    !scanCssVariables &&
-    !scanNamedColors &&
-    !scanBareWords
-  ) {
+  if (!hasFunction && !hasHex && !scanCssVariables && !scanNamedColors && !scanBareWords) {
     return;
   }
 
