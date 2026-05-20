@@ -118,8 +118,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const touchScrollStateRef = React.useRef<TouchScrollState | null>(null);
 
   const virtualKeyboard = useDrawerVirtualKeyboardContext();
-  const availableHeight = virtualKeyboard?.availableHeight ?? null;
-  const keyboardInset = virtualKeyboard?.keyboardInset ?? 0;
 
   const snapPointRange = React.useMemo(() => {
     if (!snapPoints || snapPoints.length < 2) {
@@ -1143,15 +1141,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         // Drawer popups use drawer-specific nested state attributes.
         // Suppress DialogViewport's generic nested dialog attribute.
         ['data-nested-dialog-open' as string]: undefined,
-        style:
-          virtualKeyboard && (availableHeight !== null || keyboardInset > 0)
-            ? ({
-                [DrawerPopupCssVars.availableHeight]:
-                  availableHeight !== null ? `${availableHeight}px` : undefined,
-                [DrawerPopupCssVars.keyboardInset]:
-                  keyboardInset > 0 ? `${keyboardInset}px` : undefined,
-              } as React.CSSProperties)
-            : undefined,
       })}
     >
       <DrawerViewportContext.Provider value={swipeProviderValue}>

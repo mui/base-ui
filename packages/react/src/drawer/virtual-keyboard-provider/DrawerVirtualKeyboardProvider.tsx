@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { isHTMLElement } from '@floating-ui/utils/dom';
+import { getComputedStyle, isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
-import { isTypeableElement } from '../../floating-ui-react/utils/element';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import {
@@ -14,7 +14,10 @@ import {
   type DrawerVirtualKeyboardContext as DrawerVirtualKeyboardContextValue,
 } from './DrawerVirtualKeyboardContext';
 
-const KEYBOARD_INSET_THRESHOLD = 60;
+const KEYBOARD_RESIZE_THRESHOLD = 60;
+const KEYBOARD_VISIBILITY_MARGIN = 16;
+const KEYBOARD_SCROLL_SLACK = 48;
+const KEYBOARD_SCROLL_DURATION = 180;
 const INPUT_TAP_MOVE_THRESHOLD = 10;
 const INPUT_TAP_HIT_SLOP = 16;
 const NON_TEXT_INPUT_TYPES = new Set([
@@ -30,8 +33,17 @@ const NON_TEXT_INPUT_TYPES = new Set([
   'submit',
 ]);
 
+interface ScrollAdjustment {
+  element: HTMLElement;
+  overflowAnchor: string;
+  paddingBottom: string;
+  scrollPaddingBottom: string;
+  computedPaddingBottom: number;
+  computedScrollPaddingBottom: number;
+}
+
 /**
- * Enables visible viewport sizing and keyboard-aware focus behavior for software keyboards.
+ * Enables keyboard-aware focus and scroll handling for software keyboards.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
@@ -49,51 +61,95 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
   const nestedDrawerOpen = nestedOpenDialogCount > 0;
 
-  const [{ availableHeight, keyboardInset }, setMetrics] = React.useState({
-    availableHeight: null as number | null,
-    keyboardInset: 0,
-  });
-
   const pendingKeyboardFocusMovedRef = React.useRef(false);
   const keyboardTouchStartRef = React.useRef<{ x: number; y: number } | null>(null);
   const focusedKeyboardTargetRef = React.useRef<HTMLElement | null>(null);
-  const keepKeyboardScrollBottomAnchoredRef = React.useRef(false);
-  const keyboardFocusSettleFrameRef = React.useRef(0);
+  const keyboardScrollAdjustmentRef = React.useRef<ScrollAdjustment | null>(null);
+  const keyboardFocusFrame = useAnimationFrame();
+  const keyboardScrollFrame = useAnimationFrame();
 
-  const syncVirtualKeyboardMetrics = useStableCallback(() => {
-    const popupElement = store.context.popupRef.current;
-    if (!popupElement) {
-      setMetrics((prevMetrics) =>
-        prevMetrics.availableHeight === null && prevMetrics.keyboardInset === 0
-          ? prevMetrics
-          : { availableHeight: null, keyboardInset: 0 },
-      );
+  const restoreKeyboardScrollAdjustment = useStableCallback(() => {
+    const adjustment = keyboardScrollAdjustmentRef.current;
+    if (!adjustment) {
+      return;
+    }
+    adjustment.element.style.overflowAnchor = adjustment.overflowAnchor;
+    adjustment.element.style.paddingBottom = adjustment.paddingBottom;
+    adjustment.element.style.scrollPaddingBottom = adjustment.scrollPaddingBottom;
+    keyboardScrollAdjustmentRef.current = null;
+  });
+
+  const setKeyboardScrollSlack = useStableCallback((element: HTMLElement, slack: number) => {
+    const roundedSlack = Math.max(0, Math.ceil(slack));
+    let adjustment = keyboardScrollAdjustmentRef.current;
+
+    if (roundedSlack === 0) {
+      restoreKeyboardScrollAdjustment();
       return;
     }
 
-    const { availableHeight: nextAvailableHeight, keyboardInset: nextKeyboardInset } =
-      getKeyboardMetrics(ownerWindow(popupElement), popupElement, nestedDrawerOpen);
+    if (adjustment && adjustment.element !== element) {
+      restoreKeyboardScrollAdjustment();
+      adjustment = null;
+    }
 
-    setMetrics((prevMetrics) =>
-      prevMetrics.availableHeight === nextAvailableHeight &&
-      prevMetrics.keyboardInset === nextKeyboardInset
-        ? prevMetrics
-        : { availableHeight: nextAvailableHeight, keyboardInset: nextKeyboardInset },
-    );
+    if (!adjustment) {
+      const styles = getComputedStyle(element);
+      adjustment = {
+        element,
+        overflowAnchor: element.style.overflowAnchor,
+        paddingBottom: element.style.paddingBottom,
+        scrollPaddingBottom: element.style.scrollPaddingBottom,
+        computedPaddingBottom: Number.parseFloat(styles.paddingBottom) || 0,
+        computedScrollPaddingBottom: Number.parseFloat(styles.scrollPaddingBottom) || 0,
+      };
+      keyboardScrollAdjustmentRef.current = adjustment;
+    }
+
+    element.style.overflowAnchor = 'none';
+    element.style.paddingBottom = `${adjustment.computedPaddingBottom + roundedSlack}px`;
+    element.style.scrollPaddingBottom = `${
+      adjustment.computedScrollPaddingBottom + KEYBOARD_VISIBILITY_MARGIN
+    }px`;
   });
 
   const cancelKeyboardFocusAlignment = useStableCallback(() => {
-    if (!keyboardFocusSettleFrameRef.current) {
+    keyboardFocusFrame.cancel();
+  });
+
+  const cancelKeyboardScrollAnimation = useStableCallback(() => {
+    keyboardScrollFrame.cancel();
+  });
+
+  const animateKeyboardScroll = useStableCallback((element: HTMLElement, scrollTop: number) => {
+    const startScrollTop = element.scrollTop;
+    const distance = scrollTop - startScrollTop;
+    const win = ownerWindow(element);
+
+    cancelKeyboardScrollAnimation();
+
+    if (Math.abs(distance) <= 1 || win.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      element.scrollTop = scrollTop;
       return;
     }
 
-    const popupElement = store.context.popupRef.current;
-    if (!popupElement) {
-      return;
-    }
+    const startTime = win.performance.now();
 
-    ownerWindow(popupElement).cancelAnimationFrame(keyboardFocusSettleFrameRef.current);
-    keyboardFocusSettleFrameRef.current = 0;
+    const step = () => {
+      const elapsed = win.performance.now() - startTime;
+      const progress = clamp(elapsed / KEYBOARD_SCROLL_DURATION, 0, 1);
+      const easedProgress = 1 - (1 - progress) ** 3;
+
+      element.scrollTop = startScrollTop + distance * easedProgress;
+
+      if (progress < 1) {
+        keyboardScrollFrame.request(step);
+      } else {
+        element.scrollTop = scrollTop;
+      }
+    };
+
+    keyboardScrollFrame.request(step);
   });
 
   const resetTouchTrackingState = useStableCallback(() => {
@@ -103,17 +159,17 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
   React.useEffect(() => {
     if (!mounted || !open) {
-      setMetrics({ availableHeight: null, keyboardInset: 0 });
       focusedKeyboardTargetRef.current = null;
-      keepKeyboardScrollBottomAnchoredRef.current = false;
+      restoreKeyboardScrollAdjustment();
       cancelKeyboardFocusAlignment();
+      cancelKeyboardScrollAnimation();
       return undefined;
     }
 
     const rootElement = viewportElement ?? popupElementState;
     const popupElement = store.context.popupRef.current;
-    if (!popupElement) {
-      setMetrics({ availableHeight: null, keyboardInset: 0 });
+    if (!rootElement || !popupElement) {
+      restoreKeyboardScrollAdjustment();
       return undefined;
     }
 
@@ -121,96 +177,87 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     const win = ownerWindow(popupElement);
     const visualViewport = win.visualViewport;
 
-    syncVirtualKeyboardMetrics();
-
-    if (!visualViewport) {
-      return () => {
-        setMetrics({ availableHeight: null, keyboardInset: 0 });
-      };
-    }
-
     const clearFocusedKeyboardTarget = () => {
       focusedKeyboardTargetRef.current = null;
-      keepKeyboardScrollBottomAnchoredRef.current = false;
+      restoreKeyboardScrollAdjustment();
       cancelKeyboardFocusAlignment();
+      cancelKeyboardScrollAnimation();
     };
 
     const alignFocusedKeyboardTarget = () => {
       const target = focusedKeyboardTargetRef.current;
-      if (!rootElement || !target || !contains(rootElement, target)) {
+      if (nestedDrawerOpen || !target || !contains(rootElement, target)) {
+        restoreKeyboardScrollAdjustment();
         return;
       }
 
-      const scrollTarget = findScrollableTouchTarget(target, rootElement, 'vertical');
-      if (!scrollTarget) {
+      const keyboardViewport = getKeyboardVisualViewport(win);
+      if (!keyboardViewport) {
+        restoreKeyboardScrollAdjustment();
         return;
       }
+
+      const scrollTarget = findKeyboardScrollTarget(target, rootElement);
+      if (!scrollTarget) {
+        restoreKeyboardScrollAdjustment();
+        return;
+      }
+
+      const scrollTargetRect = scrollTarget.getBoundingClientRect();
+      const clippedBottom = Math.min(scrollTargetRect.bottom, keyboardViewport.bottom);
+      const overlap = Math.max(0, scrollTargetRect.bottom - keyboardViewport.bottom);
+      setKeyboardScrollSlack(scrollTarget, overlap > 0 ? overlap + KEYBOARD_SCROLL_SLACK : 0);
 
       const maxScrollTop = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
       if (maxScrollTop <= 0) {
         return;
       }
 
-      if (keepKeyboardScrollBottomAnchoredRef.current) {
-        scrollTarget.scrollTop = maxScrollTop;
+      const clippedTop = Math.max(scrollTargetRect.top, keyboardViewport.top);
+      const visibleTop = clippedTop + KEYBOARD_VISIBILITY_MARGIN;
+      const visibleBottom = clippedBottom - KEYBOARD_VISIBILITY_MARGIN;
+      if (visibleBottom <= visibleTop) {
         return;
       }
 
-      const scrollTargetRect = scrollTarget.getBoundingClientRect();
       const targetRect = target.getBoundingClientRect();
-      const targetOffsetTop = targetRect.top - scrollTargetRect.top + scrollTarget.scrollTop;
+      let nextScrollTop = scrollTarget.scrollTop;
 
-      scrollTarget.scrollTop = clamp(
-        targetOffsetTop - (scrollTarget.clientHeight - targetRect.height) / 2,
-        0,
-        maxScrollTop,
-      );
+      if (targetRect.bottom > visibleBottom) {
+        nextScrollTop += targetRect.bottom - visibleBottom;
+      } else if (targetRect.top < visibleTop) {
+        nextScrollTop -= visibleTop - targetRect.top;
+      }
+
+      animateKeyboardScroll(scrollTarget, clamp(nextScrollTop, 0, maxScrollTop));
     };
 
     const scheduleKeyboardFocusAlignment = () => {
-      cancelKeyboardFocusAlignment();
-
-      let remainingFrames = 2;
-      const tick = () => {
-        alignFocusedKeyboardTarget();
-        remainingFrames -= 1;
-
-        if (remainingFrames > 0) {
-          keyboardFocusSettleFrameRef.current = win.requestAnimationFrame(tick);
-        } else {
-          keyboardFocusSettleFrameRef.current = 0;
-        }
-      };
-
-      keyboardFocusSettleFrameRef.current = win.requestAnimationFrame(tick);
+      keyboardFocusFrame.request(alignFocusedKeyboardTarget);
     };
 
     const captureFocusedKeyboardTarget = (target: EventTarget | null) => {
-      if (!rootElement || !isKeyboardInputTarget(target) || !contains(rootElement, target)) {
+      if (nestedDrawerOpen || !isKeyboardInputTarget(target) || !contains(rootElement, target)) {
         return false;
       }
 
-      const scrollTarget = findScrollableTouchTarget(target, rootElement, 'vertical');
+      const scrollTarget = findKeyboardScrollTarget(target, rootElement);
       if (!scrollTarget) {
+        restoreKeyboardScrollAdjustment();
         return false;
       }
 
       focusedKeyboardTargetRef.current = target;
-      keepKeyboardScrollBottomAnchoredRef.current = isElementScrolledToBottom(scrollTarget);
       return true;
     };
 
     const handleFocusIn = (event: FocusEvent) => {
-      syncVirtualKeyboardMetrics();
-
       if (captureFocusedKeyboardTarget(event.target)) {
         scheduleKeyboardFocusAlignment();
       }
     };
 
     const handleFocusOut = (event: FocusEvent) => {
-      syncVirtualKeyboardMetrics();
-
       if (captureFocusedKeyboardTarget(event.relatedTarget)) {
         scheduleKeyboardFocusAlignment();
         return;
@@ -220,33 +267,40 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     };
 
     const handleViewportUpdate = () => {
-      syncVirtualKeyboardMetrics();
-
-      if (focusedKeyboardTargetRef.current) {
+      if (focusedKeyboardTargetRef.current || captureFocusedKeyboardTarget(activeElement(doc))) {
         scheduleKeyboardFocusAlignment();
       }
     };
 
-    visualViewport.addEventListener('resize', handleViewportUpdate);
-    visualViewport.addEventListener('scroll', handleViewportUpdate);
+    visualViewport?.addEventListener('resize', handleViewportUpdate);
+    visualViewport?.addEventListener('scroll', handleViewportUpdate);
     doc.addEventListener('focusin', handleFocusIn, true);
     doc.addEventListener('focusout', handleFocusOut, true);
 
+    if (captureFocusedKeyboardTarget(activeElement(doc))) {
+      scheduleKeyboardFocusAlignment();
+    }
+
     return () => {
-      visualViewport.removeEventListener('resize', handleViewportUpdate);
-      visualViewport.removeEventListener('scroll', handleViewportUpdate);
+      visualViewport?.removeEventListener('resize', handleViewportUpdate);
+      visualViewport?.removeEventListener('scroll', handleViewportUpdate);
       doc.removeEventListener('focusin', handleFocusIn, true);
       doc.removeEventListener('focusout', handleFocusOut, true);
-      setMetrics({ availableHeight: null, keyboardInset: 0 });
       clearFocusedKeyboardTarget();
     };
   }, [
     cancelKeyboardFocusAlignment,
+    cancelKeyboardScrollAnimation,
+    animateKeyboardScroll,
+    keyboardFocusFrame,
+    keyboardScrollFrame,
     mounted,
+    nestedDrawerOpen,
     open,
     popupElementState,
+    restoreKeyboardScrollAdjustment,
+    setKeyboardScrollSlack,
     store.context.popupRef,
-    syncVirtualKeyboardMetrics,
     viewportElement,
   ]);
 
@@ -341,13 +395,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
   const contextValue = React.useMemo<DrawerVirtualKeyboardContextValue>(
     () => ({
-      availableHeight,
-      keyboardInset,
       onTouchStart,
       onTouchEnd,
       onTouchCancel,
     }),
-    [availableHeight, keyboardInset, onTouchCancel, onTouchEnd, onTouchStart],
+    [onTouchCancel, onTouchEnd, onTouchStart],
   );
 
   return (
@@ -366,10 +418,6 @@ export interface DrawerVirtualKeyboardProviderProps {
 export namespace DrawerVirtualKeyboardProvider {
   export type State = DrawerVirtualKeyboardProviderState;
   export type Props = DrawerVirtualKeyboardProviderProps;
-}
-
-function isElementScrolledToBottom(element: HTMLElement): boolean {
-  return element.scrollTop + element.clientHeight >= element.scrollHeight - 2;
 }
 
 function isKeyboardInputElement(element: HTMLElement): boolean {
@@ -426,44 +474,65 @@ function resolveKeyboardInputTargetFromPoint(
 }
 
 function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
+  const previousOpacity = target.style.opacity;
   const previousTransform = target.style.transform;
   const previousTransition = target.style.transition;
 
-  target.style.transform = 'translateY(-2000px)';
   target.style.transition = 'none';
+  target.style.opacity = '0';
+  target.style.transform = 'translateY(-2000px)';
   try {
     target.focus({ preventScroll: true });
   } finally {
+    target.style.opacity = previousOpacity;
     target.style.transform = previousTransform;
     target.style.transition = previousTransition;
   }
 }
 
-function getKeyboardMetrics(
-  win: Window,
-  popupElement: HTMLElement,
-  nestedDrawerOpen: boolean,
-): { availableHeight: number | null; keyboardInset: number } {
-  const visualViewport = win.visualViewport;
-  const focusedElement = ownerDocument(popupElement).activeElement;
+function findKeyboardScrollTarget(target: HTMLElement, root: HTMLElement): HTMLElement | null {
+  return (
+    findScrollableTouchTarget(target, root, 'vertical') ?? findPotentialScrollAncestor(target, root)
+  );
+}
 
-  if (
-    nestedDrawerOpen ||
-    !isTypeableElement(focusedElement) ||
-    !contains(popupElement, focusedElement) ||
-    !visualViewport ||
-    visualViewport.scale !== 1
-  ) {
-    return { availableHeight: null, keyboardInset: 0 };
+function findPotentialScrollAncestor(target: HTMLElement, root: HTMLElement): HTMLElement | null {
+  let element: HTMLElement | null = target;
+  while (element) {
+    if (isPotentialKeyboardScrollContainer(element)) {
+      return element;
+    }
+
+    if (element === root) {
+      break;
+    }
+
+    element = element.parentElement;
+  }
+
+  return null;
+}
+
+function isPotentialKeyboardScrollContainer(element: HTMLElement): boolean {
+  const styles = getComputedStyle(element);
+  return (styles.overflowY === 'auto' || styles.overflowY === 'scroll') && element.clientHeight > 0;
+}
+
+function getKeyboardVisualViewport(win: Window): { top: number; bottom: number } | null {
+  const visualViewport = win.visualViewport;
+
+  if (!visualViewport || visualViewport.scale !== 1) {
+    return null;
   }
 
   const reducedHeight = win.innerHeight - visualViewport.height;
-  if (reducedHeight <= KEYBOARD_INSET_THRESHOLD) {
-    return { availableHeight: null, keyboardInset: 0 };
+  if (reducedHeight <= KEYBOARD_RESIZE_THRESHOLD) {
+    return null;
   }
 
+  const top = Math.max(0, visualViewport.offsetTop);
   return {
-    availableHeight: Math.round(visualViewport.height),
-    keyboardInset: isKeyboardInputTarget(focusedElement) ? Math.round(reducedHeight) : 0,
+    top,
+    bottom: Math.min(win.innerHeight, top + visualViewport.height),
   };
 }

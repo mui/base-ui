@@ -15,18 +15,6 @@ export enum DrawerPopupCssVars {
    */
   frontmostHeight = '--drawer-frontmost-height',
   /**
-   * The available visible viewport height for the drawer popup
-   * (when wrapped in `Drawer.VirtualKeyboardProvider`).
-   * @type {CSS length}
-   */
-  availableHeight = '--available-height',
-  /**
-   * The distance needed to lift the drawer above the software keyboard
-   * (when wrapped in `Drawer.VirtualKeyboardProvider`).
-   * @type {CSS length}
-   */
-  keyboardInset = '--drawer-keyboard-inset',
-  /**
    * The swipe movement on the X axis.
    * @type {CSS length}
    */
