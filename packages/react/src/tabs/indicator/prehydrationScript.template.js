@@ -72,17 +72,14 @@
 
   /**
    * Checks transform longhands that aren't reflected in the computed `transform` matrix.
-   * `rotate` can be an axis-angle value (`x y z angle`), so the last angle token is used.
    */
   function hasDistortingTransformLonghand(css) {
     const rotate = css.getPropertyValue('rotate').trim();
-    const angles = rotate.match(/-?(?:\d+|\d*\.\d+)(?:e[-+]?\d+)?(?:deg|rad|grad|turn)/gi);
-    const angle = angles && angles[angles.length - 1];
 
     return (
       (rotate !== '' &&
         rotate !== 'none' &&
-        (angle == null || Math.abs(parseFloat(angle)) > 1e-6)) ||
+        (parseFloat(rotate) !== 0 || rotate.includes(' '))) ||
       parseFloat(css.getPropertyValue('perspective')) > 0
     );
   }
