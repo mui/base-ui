@@ -203,9 +203,13 @@ function getContextElement(reference: Element | VirtualElement): Element | undef
 export function getInlineRectTriggerProps(
   coordsRef: React.RefObject<InlineRectCoords | undefined>,
   isOpen: boolean,
+  onCoordsChange?: (() => void) | undefined,
 ): Pick<React.HTMLAttributes<Element>, 'onFocus' | 'onMouseEnter' | 'onMouseMove'> {
   function updateCoords(event: React.MouseEvent<Element>) {
     updateInlineRectCoords(coordsRef, event.currentTarget, event.clientX, event.clientY);
+    if (isOpen) {
+      onCoordsChange?.();
+    }
   }
 
   function updateCoordsOnMove(event: React.MouseEvent<Element>) {

@@ -148,6 +148,40 @@ describe('inlineRect', () => {
     expect(coordsRef.current).toEqual({ x: 5, y: 25, lineIndex: 1, element: trigger });
   });
 
+  it('notifies when stored coords update while open', () => {
+    const trigger = createTrigger([
+      { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },
+      { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
+    ]);
+    const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = {
+      current: { x: 1, y: 1, lineIndex: 0, element: trigger },
+    };
+    const onCoordsChange = vi.fn();
+
+    getInlineRectTriggerProps(coordsRef, true, onCoordsChange).onMouseEnter?.(
+      createMouseEvent(trigger, 5, 25),
+    );
+
+    expect(onCoordsChange).toHaveBeenCalledOnce();
+  });
+
+  it('does not notify when stored coords update while closed', () => {
+    const trigger = createTrigger([
+      { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },
+      { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
+    ]);
+    const coordsRef: React.MutableRefObject<InlineRectCoords | undefined> = {
+      current: { x: 1, y: 1, lineIndex: 0, element: trigger },
+    };
+    const onCoordsChange = vi.fn();
+
+    getInlineRectTriggerProps(coordsRef, false, onCoordsChange).onMouseEnter?.(
+      createMouseEvent(trigger, 5, 25),
+    );
+
+    expect(onCoordsChange).not.toHaveBeenCalled();
+  });
+
   it('updates stored coords from a native mouse event while open', () => {
     const trigger = createTrigger([
       { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },

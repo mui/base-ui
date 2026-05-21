@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -83,9 +84,13 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   const state: PreviewCardTriggerState = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const updateInlineRectPositioner = useStableCallback(() => {
+    store.context.inlineRectPositionerUpdateRef.current?.();
+  });
   const inlineRectTriggerProps = getInlineRectTriggerProps(
     inlineRectCoordsRef,
     isOpenedByThisTrigger,
+    updateInlineRectPositioner,
   );
 
   const element = useRenderElement('a', componentProps, {

@@ -81,6 +81,16 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   const updatePosition = positioning.update;
 
   useIsoLayoutEffect(() => {
+    store.context.inlineRectPositionerUpdateRef.current = updatePosition;
+
+    return () => {
+      if (store.context.inlineRectPositionerUpdateRef.current === updatePosition) {
+        store.context.inlineRectPositionerUpdateRef.current = undefined;
+      }
+    };
+  }, [store, updatePosition]);
+
+  useIsoLayoutEffect(() => {
     if (open && mounted) {
       updatePosition();
     }
