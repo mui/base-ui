@@ -234,6 +234,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   const syncDragStyles = useStableCallback((swiping: boolean) => {
     const element = elementRef.current;
     if (!trackDrag || !element) {
+      if (!swiping) {
+        dragStyleSnapshotRef.current = null;
+      }
       return;
     }
 
