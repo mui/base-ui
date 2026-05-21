@@ -626,6 +626,20 @@ function CanceledSwipeCloseSnapPointCase() {
   );
 }
 
+function SnapPointOvershootCase() {
+  return (
+    <Drawer.Root open defaultSnapPoint={1} snapPoints={['100px', 1]} swipeDirection="down">
+      <Drawer.Portal>
+        <Drawer.Viewport data-testid="viewport" style={{ height: 400 }}>
+          <Drawer.Popup data-testid="popup" style={{ height: 400 }}>
+            Drawer
+          </Drawer.Popup>
+        </Drawer.Viewport>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
+}
+
 function SnapPointSwipeCase({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
   const snapPoints = ['100px', '300px', 1];
   const [open, setOpen] = React.useState(true);
@@ -967,6 +981,75 @@ describe('<Drawer.Root />', () => {
         expect(popup).not.toHaveAttribute('data-swipe-dismiss');
         expect(popup).not.toHaveAttribute('data-ending-style');
         expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
+      } finally {
+        env.cleanup();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'damps active snap point overshoot after the swipe direction is established',
+    async () => {
+      const env = setupSwipeTestEnv();
+
+      try {
+        await render(<SnapPointOvershootCase />);
+        await flushMicrotasks();
+
+        const viewport = screen.getByTestId('viewport');
+        const popup = screen.getByTestId('popup');
+
+        env.pointAt(popup);
+
+        fireEvent.pointerDown(viewport, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 200,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 200,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 100,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 50,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        expect(popup.style.transform).toBe('');
+        expect(
+          Number.parseFloat(popup.style.getPropertyValue('--drawer-swipe-movement-y')),
+        ).toBeCloseTo(-Math.sqrt(150));
       } finally {
         env.cleanup();
       }

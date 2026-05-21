@@ -18,7 +18,7 @@ import {
   type SwipeDirection,
   type UseSwipeDismissProgressDetails,
 } from '../../utils/useSwipeDismiss';
-import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
+import { DrawerPopupCssVars, getSnapPointSwipeMovement } from '../popup/DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
@@ -106,6 +106,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const resetSwipeRef = React.useRef<(() => void) | null>(null);
   const controlledDismissFrame = useAnimationFrame();
 
+  const swipingRef = React.useRef(false);
   const nestedSwipeActiveRef = React.useRef(false);
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
   const ignoreNextTouchStartFromPenRef = React.useRef(false);
@@ -191,6 +192,25 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     nestedSwipeActiveRef.current = false;
     notifyParentSwipingChange?.(false);
   });
+
+  const syncSnapPointSwipeStyles = useStableCallback(
+    (details: UseSwipeDismissProgressDetails | undefined) => {
+      if (!swipingRef.current || swipeDirection !== 'down' || !snapPoints?.length || !details) {
+        return;
+      }
+
+      const popupElement = store.context.popupRef.current;
+      if (!popupElement) {
+        return;
+      }
+
+      popupElement.style.removeProperty('transform');
+      popupElement.style.setProperty(
+        DrawerPopupCssVars.swipeMovementY,
+        `${getSnapPointSwipeMovement(activeSnapPointOffset ?? 0, details.deltaY)}px`,
+      );
+    },
+  );
 
   const applySwipeProgress = useStableCallback(
     ({
@@ -390,6 +410,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       selection.removeAllRanges();
     },
     onSwipingChange(swiping) {
+      swipingRef.current = swiping;
       setBackdropSwipingAttribute(store.context.backdropRef.current, swiping);
 
       if (!swiping && !notifyParentSwipeProgressChange) {
@@ -427,6 +448,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     },
     onProgress(progress, details) {
       updateNestedSwipeActive(details);
+      syncSnapPointSwipeStyles(details);
 
       const currentDirection = details?.direction ?? swipe.swipeDirection;
       const isDismissSwipe = currentDirection === undefined || currentDirection === swipeDirection;
