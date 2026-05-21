@@ -7,6 +7,19 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<NumberField.Input />', () => {
   const { render } = createRenderer();
 
+  function pasteWithError(target: HTMLElement, error: Error) {
+    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(pasteEvent, 'clipboardData', {
+      value: {
+        getData() {
+          throw error;
+        },
+      },
+    });
+
+    fireEvent(target, pasteEvent);
+  }
+
   describeConformance(<NumberField.Input />, () => ({
     refInstanceof: window.HTMLInputElement,
     render(node) {
@@ -677,5 +690,30 @@ describe('<NumberField.Input />', () => {
     expect(onValueChange.mock.calls[0][0]).toBe(1234.5);
 
     expect(input.value).toBe((1234.5).toLocaleString('fr-FR'));
+  });
+
+  it('warns in development when clipboard text cannot be read during paste handling', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <NumberField.Root defaultValue={12}>
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      pasteWithError(input, new DOMException('Blocked', 'SecurityError'));
+
+      expect(input).toHaveValue('12');
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0]?.[0]).toContain(
+        'Base UI: <NumberField.Input> could not read clipboard text during paste handling.',
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 });
