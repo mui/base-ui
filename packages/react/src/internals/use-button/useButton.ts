@@ -159,7 +159,8 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               }
 
               if (!isNativeButton && isEnterKey) {
-                externalOnClick?.(event);
+                currentTarget.click();
+                event.preventBaseUIHandler();
               }
             }
           },
@@ -195,7 +196,8 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               !isCompositeItem &&
               event.key === ' '
             ) {
-              externalOnClick?.(event);
+              (event.currentTarget as HTMLElement).click();
+              event.preventBaseUIHandler();
             }
           },
           onPointerDown(event: React.PointerEvent) {
