@@ -15,13 +15,13 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
-import { DrawerPopupCssVars, getSnapPointSwipeMovement } from './DrawerPopupCssVars';
+import { DrawerPopupCssVars } from './DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from './DrawerPopupDataAttributes';
 import { useDialogPortalContext } from '../../dialog/portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
-import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
+import { getSnapPointSwipeMovement, useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 

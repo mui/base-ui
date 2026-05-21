@@ -10,7 +10,7 @@ import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
 import { mergeProps } from '../../merge-props';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
-import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
+import { getSnapPointSwipeMovement, useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { clamp } from '../../internals/clamp';
 import {
@@ -18,7 +18,7 @@ import {
   type SwipeDirection,
   type UseSwipeDismissProgressDetails,
 } from '../../utils/useSwipeDismiss';
-import { DrawerPopupCssVars, getSnapPointSwipeMovement } from '../popup/DrawerPopupCssVars';
+import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
@@ -192,25 +192,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     nestedSwipeActiveRef.current = false;
     notifyParentSwipingChange?.(false);
   });
-
-  const syncSnapPointSwipeStyles = useStableCallback(
-    (details: UseSwipeDismissProgressDetails | undefined) => {
-      if (!swipingRef.current || swipeDirection !== 'down' || !snapPoints?.length || !details) {
-        return;
-      }
-
-      const popupElement = store.context.popupRef.current;
-      if (!popupElement) {
-        return;
-      }
-
-      popupElement.style.removeProperty('transform');
-      popupElement.style.setProperty(
-        DrawerPopupCssVars.swipeMovementY,
-        `${getSnapPointSwipeMovement(activeSnapPointOffset ?? 0, details.deltaY)}px`,
-      );
-    },
-  );
 
   const applySwipeProgress = useStableCallback(
     ({
@@ -448,11 +429,21 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     },
     onProgress(progress, details) {
       updateNestedSwipeActive(details);
-      syncSnapPointSwipeStyles(details);
+
+      const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
+      if (swipingRef.current && swipeDirection === 'down' && hasSnapPoints && details) {
+        const popupElement = store.context.popupRef.current;
+        if (popupElement) {
+          popupElement.style.removeProperty('transform');
+          popupElement.style.setProperty(
+            DrawerPopupCssVars.swipeMovementY,
+            `${getSnapPointSwipeMovement(activeSnapPointOffset ?? 0, details.deltaY)}px`,
+          );
+        }
+      }
 
       const currentDirection = details?.direction ?? swipe.swipeDirection;
       const isDismissSwipe = currentDirection === undefined || currentDirection === swipeDirection;
-      const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
       const isVerticalSwipe = swipeDirection === 'down' || swipeDirection === 'up';
       const shouldTrackProgress =
         (hasSnapPoints && isVerticalSwipe) ||

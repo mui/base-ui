@@ -994,7 +994,6 @@ describe('<Drawer.Root />', () => {
 
       try {
         await render(<SnapPointOvershootCase />);
-        await flushMicrotasks();
 
         const viewport = screen.getByTestId('viewport');
         const popup = screen.getByTestId('popup');

@@ -376,6 +376,96 @@ describe('useSwipeDismiss', () => {
     expect(element.style.getPropertyValue('--y')).not.toBe('0px');
   });
 
+  it('preserves inline transform and transition when resetting drag styles', async () => {
+    function SwipeBoxWithInlineStyles() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+      });
+
+      return (
+        <React.Fragment>
+          <button type="button" onClick={swipe.reset}>
+            Reset
+          </button>
+          <div
+            data-testid="styled"
+            ref={ref}
+            style={{
+              ...swipe.getDragStyles(),
+              transform: 'scale(0.9)',
+              transition: 'opacity 200ms ease',
+            }}
+            {...swipe.getPointerProps()}
+          />
+        </React.Fragment>
+      );
+    }
+
+    await render(<SwipeBoxWithInlineStyles />);
+    const element = screen.getByTestId('styled');
+    const initialTransform = element.style.transform;
+    const initialTransition = element.style.transition;
+
+    async function moveTo(clientY: number, movementY: number) {
+      fireEvent.pointerMove(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY,
+        bubbles: true,
+        pointerType: 'mouse',
+        movementX: 0,
+        movementY,
+      });
+
+      await flushMicrotasks();
+    }
+
+    expect(initialTransform).not.toBe('');
+    expect(initialTransition).not.toBe('');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+    await flushMicrotasks();
+
+    expect(element.style.transform).toBe(initialTransform);
+    expect(element.style.transition).toBe(initialTransition);
+
+    fireEvent.pointerDown(element, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    await moveTo(0, 0);
+    await moveTo(12, 12);
+    await moveTo(16, 4);
+
+    fireEvent.pointerUp(element, {
+      pointerId: 1,
+      clientX: 0,
+      clientY: 16,
+      bubbles: true,
+    });
+
+    await flushMicrotasks();
+
+    expect(element.style.transform).toBe(initialTransform);
+    expect(element.style.transition).toBe(initialTransition);
+  });
+
   it('respects custom swipeThreshold', async () => {
     const onDismiss = vi.fn();
 

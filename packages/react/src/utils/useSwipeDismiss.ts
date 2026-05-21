@@ -169,6 +169,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   const lastDragVelocityRef = React.useRef({ x: 0, y: 0 });
   const lastProgressDetailsRef = React.useRef<SwipeProgressDetailsInternal | null>(null);
   const isSwipingRef = React.useRef(false);
+  const dragStyleSnapshotRef = React.useRef<[string, string] | null>(null);
 
   const setSwiping = useStableCallback((nextSwiping: boolean) => {
     if (isSwipingRef.current === nextSwiping) {
@@ -230,14 +231,23 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     },
   );
 
-  const syncDragStyles = useStableCallback((swiping = isSwipingRef.current) => {
-    if (!trackDrag) {
+  const syncDragStyles = useStableCallback((swiping: boolean) => {
+    const element = elementRef.current;
+    if (!trackDrag || !element) {
       return;
     }
 
-    const element = elementRef.current;
-    if (!element) {
-      return;
+    const style = element.style;
+    const dragStyleSnapshot = dragStyleSnapshotRef.current;
+    if (swiping) {
+      if (!dragStyleSnapshot) {
+        dragStyleSnapshotRef.current = [style.transition, style.transform];
+      }
+
+      style.transition = 'none';
+    } else if (dragStyleSnapshot) {
+      [style.transition, style.transform] = dragStyleSnapshot;
+      dragStyleSnapshotRef.current = null;
     }
 
     const dragOffset = dragOffsetRef.current;
@@ -246,15 +256,11 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const deltaY = dragOffset.y - initialTransform.y;
 
     if (swiping) {
-      element.style.transition = 'none';
-      element.style.transform = `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`;
-    } else {
-      element.style.removeProperty('transition');
-      element.style.removeProperty('transform');
+      style.transform = `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`;
     }
 
-    element.style.setProperty(movementCssVars.x, `${deltaX}px`);
-    element.style.setProperty(movementCssVars.y, `${deltaY}px`);
+    style.setProperty(movementCssVars.x, `${deltaX}px`);
+    style.setProperty(movementCssVars.y, `${deltaY}px`);
   });
 
   function recordDragSample(offset: { x: number; y: number }, timeStamp: number | null) {

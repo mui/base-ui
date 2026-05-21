@@ -14,6 +14,15 @@ export interface ResolvedDrawerSnapPoint {
   offset: number;
 }
 
+export function getSnapPointSwipeMovement(baseOffset: number, movementValue: number) {
+  const nextOffset = baseOffset + movementValue;
+  if (nextOffset >= 0) {
+    return movementValue;
+  }
+
+  return -Math.sqrt(-nextOffset) - baseOffset;
+}
+
 function resolveSnapPointValue(
   snapPoint: DrawerSnapPoint,
   viewportHeight: number,

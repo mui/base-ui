@@ -35,12 +35,3 @@ export enum DrawerPopupCssVars {
    */
   swipeStrength = '--drawer-swipe-strength',
 }
-
-export function getSnapPointSwipeMovement(baseOffset: number, movementValue: number) {
-  const nextOffset = baseOffset + movementValue;
-  if (nextOffset >= 0) {
-    return movementValue;
-  }
-
-  return -Math.sqrt(-nextOffset) - baseOffset;
-}
