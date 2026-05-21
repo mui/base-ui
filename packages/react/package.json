@@ -44,6 +44,7 @@
     "./field": "./src/field/index.ts",
     "./fieldset": "./src/fieldset/index.ts",
     "./form": "./src/form/index.ts",
+    "./fullscreen": "./src/fullscreen/index.ts",
     "./input": "./src/input/index.ts",
     "./menu": "./src/menu/index.ts",
     "./menubar": "./src/menubar/index.ts",

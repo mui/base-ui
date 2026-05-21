@@ -15,6 +15,7 @@ export * from './drawer';
 export * from './field';
 export * from './fieldset';
 export * from './form';
+export * from './fullscreen';
 export * from './input';
 export * from './menu';
 export * from './menubar';

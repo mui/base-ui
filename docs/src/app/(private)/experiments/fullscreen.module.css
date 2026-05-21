@@ -1,0 +1,257 @@
+.Page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 48rem;
+  padding: 2rem 1.5rem;
+  color: var(--color-gray-900);
+  font-size: 0.9375rem;
+  line-height: 1.5rem;
+}
+
+.Title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.SectionTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.Lead {
+  margin: 0;
+  color: var(--color-gray-600);
+}
+
+.Section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.Section:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Make it obvious when an arbitrary element (like the experiment section) is
+   being fullscreened. The browser would otherwise paint the element on a black
+   default backdrop with no other styling cue. */
+.Section:fullscreen {
+  background: var(--color-gray-50, #fff);
+  padding: 2.5rem 3rem;
+  gap: 1.25rem;
+  overflow: auto;
+}
+
+.Fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 1rem 1.25rem 1.25rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  background-color: var(--color-gray-50);
+}
+
+.Legend {
+  padding: 0 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.Row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.RowLabel {
+  font-size: 0.8125rem;
+  color: var(--color-gray-700);
+}
+
+.RadioLabel,
+.CheckboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-800);
+  cursor: pointer;
+}
+
+.Status {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-gray-600);
+}
+
+.Code {
+  padding: 0.0625rem 0.3125rem;
+  border-radius: 0.25rem;
+  background-color: var(--color-gray-100);
+  font-family:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.8125rem;
+  color: var(--color-gray-800);
+}
+
+.Button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2rem;
+  margin: 0;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
+.Button:hover {
+  background-color: var(--color-gray-100);
+}
+
+.Button:active {
+  background-color: var(--color-gray-100);
+}
+
+.Button:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
+}
+
+.Button[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.Container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 26rem;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  background-color: var(--color-gray-50);
+  background-image: radial-gradient(circle at 50% 30%, var(--color-gray-100) 0%, transparent 70%);
+  color: var(--color-gray-900);
+  overflow: hidden;
+}
+
+.Container[data-fullscreen] {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  aspect-ratio: auto;
+  border-radius: 0;
+  border-color: transparent;
+}
+
+.PortalContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--color-gray-50);
+  background-image: radial-gradient(circle at 50% 30%, var(--color-gray-100) 0%, transparent 70%);
+  color: var(--color-gray-900);
+}
+
+.ContainerLabel {
+  font-size: 0.875rem;
+  color: var(--color-gray-700);
+}
+
+.PortalTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+}
+
+.PortalDescription {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5rem;
+  color: var(--color-gray-600);
+  max-width: 24rem;
+  text-align: center;
+}
+
+.CornerTrigger {
+  position: absolute;
+  bottom: 0.625rem;
+  right: 0.625rem;
+}
+
+.CornerTrigger[data-fullscreen] {
+  display: none;
+}
+
+.CornerClose {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+}
+
+.CornerClose[data-not-fullscreen] {
+  display: none;
+}
+
+.PortalClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.DialogBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgb(0 0 0 / 0.4);
+}
+
+.DialogPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 18rem;
+  padding: 1.25rem 1.25rem 1rem;
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+}
