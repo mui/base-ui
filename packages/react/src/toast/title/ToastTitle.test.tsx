@@ -46,6 +46,20 @@ describe('<Toast.Title />', () => {
     expect(rootElement.getAttribute('aria-labelledby')).toBe(titleId);
   });
 
+  it('has the toast type data attribute', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ ...toast, type: 'success' }}>
+            <Toast.Title data-testid="title">Title</Toast.Title>
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByTestId('title')).toHaveAttribute('data-type', 'success');
+  });
+
   it('does not render if it has no children', async () => {
     function AddButton() {
       const { add } = Toast.useToastManager();

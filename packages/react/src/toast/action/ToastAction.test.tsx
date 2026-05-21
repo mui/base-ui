@@ -44,6 +44,20 @@ describe('<Toast.Action />', () => {
     expect(screen.getByTestId('action').id).toBe('action');
   });
 
+  it('has the toast type data attribute', async () => {
+    await render(
+      <Toast.Provider>
+        <Toast.Viewport>
+          <Toast.Root toast={{ ...toast, type: 'success' }}>
+            <Toast.Action data-testid="action">Action</Toast.Action>
+          </Toast.Root>
+        </Toast.Viewport>
+      </Toast.Provider>,
+    );
+
+    expect(screen.getByTestId('action')).toHaveAttribute('data-type', 'success');
+  });
+
   it('does not render if it has no children', async () => {
     function AddButton() {
       const { add } = Toast.useToastManager();

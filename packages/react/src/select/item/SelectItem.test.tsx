@@ -72,11 +72,7 @@ describe('<Select.Item />', () => {
     );
 
     fireEvent.click(screen.getByTestId('trigger'));
-    await flushMicrotasks();
-
-    await waitFor(() => {
-      expect(screen.getByRole('listbox')).not.toBe(null);
-    });
+    await screen.findByRole('listbox');
     await waitFor(() => {
       expect(screen.getByText('one')).toHaveFocus();
     });
@@ -374,9 +370,7 @@ describe('<Select.Item />', () => {
       // Open on mousedown and keep the mouse button "held" (no mouseup yet).
       fireEvent.mouseDown(trigger);
 
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.toBe(null);
-      });
+      await screen.findByRole('listbox');
 
       const option = screen.getByRole('option', { name: 'Sans-serif' });
       fireEvent.mouseMove(option);
@@ -415,7 +409,7 @@ describe('<Select.Item />', () => {
       expect(value.textContent).toBe('one');
 
       fireEvent.mouseDown(trigger);
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       const option = screen.getByRole('option', { name: 'two' });
       await clock.tickAsync(250);
@@ -448,7 +442,7 @@ describe('<Select.Item />', () => {
 
       const trigger = screen.getByTestId('trigger');
       fireEvent.mouseDown(trigger);
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       const option = screen.getByRole('option', { name: 'one' });
       fireEvent.pointerEnter(option, { pointerType: 'mouse' });
@@ -492,7 +486,7 @@ describe('<Select.Item />', () => {
 
       const trigger = screen.getByTestId('trigger');
       fireEvent.mouseDown(trigger);
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       const optionTwo = screen.getByRole('option', { name: 'two' });
       fireEvent.pointerEnter(optionTwo, { pointerType: 'mouse' });
@@ -539,7 +533,7 @@ describe('<Select.Item />', () => {
 
       const trigger = screen.getByTestId('trigger');
       fireEvent.mouseDown(trigger);
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       const option = screen.getByRole('option', { name: 'two' });
       fireEvent.pointerEnter(option, { pointerType: 'mouse' });
@@ -584,7 +578,7 @@ describe('<Select.Item />', () => {
       expect(value.textContent).toBe('one');
 
       fireEvent.mouseDown(trigger);
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       const option = screen.getByRole('option', { name: 'two' });
       fireEvent.pointerEnter(option, { pointerType: 'mouse' });
@@ -623,7 +617,7 @@ describe('<Select.Item />', () => {
 
       const trigger = screen.getByTestId('trigger');
       fireEvent.mouseDown(trigger);
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       const option = screen.getByRole('option', { name: 'two' });
       fireEvent.pointerEnter(option, { pointerType: 'mouse' });
@@ -663,7 +657,7 @@ describe('<Select.Item />', () => {
       const trigger = screen.getByTestId('trigger');
       fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
       fireEvent.mouseDown(trigger);
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       const option = screen.getByRole('option', { name: 'one' });
       fireEvent.mouseUp(option);
@@ -696,7 +690,7 @@ describe('<Select.Item />', () => {
 
       const trigger = screen.getByTestId('trigger');
       fireEvent.mouseDown(trigger);
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       const option = screen.getByRole('option', { name: 'one' });
       fireEvent.pointerEnter(option, { pointerType: 'mouse' });
@@ -718,8 +712,8 @@ describe('<Select.Item />', () => {
     });
   });
 
-  describe.skipIf(!isJSDOM)('style hooks', () => {
-    it('should apply data-highlighted attribute when item is highlighted', async () => {
+  describe.skipIf(!isJSDOM)('state attributes', () => {
+    it('adds data-highlighted when item is highlighted', async () => {
       const { user } = await render(
         <Select.Root defaultValue="a">
           <Select.Trigger data-testid="trigger" />
@@ -747,7 +741,7 @@ describe('<Select.Item />', () => {
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-highlighted', '');
     });
 
-    it('should apply data-selected attribute when item is selected', async () => {
+    it('adds data-selected when item is selected', async () => {
       await render(
         <Select.Root>
           <Select.Trigger data-testid="trigger" />

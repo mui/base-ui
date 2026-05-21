@@ -242,6 +242,200 @@ describe('<Accordion.Root />', () => {
     });
   });
 
+  describe('prop: orientation', () => {
+    it('sets the orientation data attribute', async () => {
+      const { container, setProps } = await render(<Accordion.Root orientation="vertical" />);
+      const root = container.firstElementChild as HTMLElement;
+
+      expect(root).toHaveAttribute('data-orientation', 'vertical');
+
+      await setProps({ orientation: 'horizontal' });
+
+      expect(root).toHaveAttribute('data-orientation', 'horizontal');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: multiple', () => {
+    it('multiple items can be open when `multiple = true`', async () => {
+      const { user } = await render(
+        <Accordion.Root multiple>
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const [trigger1, trigger2] = screen.getAllByRole('button');
+
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
+      expect(trigger2).not.toHaveAttribute('data-panel-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+      expect(screen.queryByText(PANEL_CONTENT_2)).toBe(null);
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
+
+      expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
+      expect(screen.queryByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
+      expect(trigger1).toHaveAttribute('data-panel-open');
+      expect(trigger2).toHaveAttribute('data-panel-open');
+    });
+
+    it('when false only one item can be open', async () => {
+      const { user } = await render(
+        <Accordion.Root multiple={false}>
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const [trigger1, trigger2] = screen.getAllByRole('button');
+
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+      expect(screen.queryByText(PANEL_CONTENT_2)).toBe(null);
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
+      expect(trigger2).not.toHaveAttribute('data-panel-open');
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+
+      expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
+      expect(trigger1).toHaveAttribute('data-panel-open');
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
+
+      expect(screen.queryByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
+      expect(trigger2).toHaveAttribute('data-panel-open');
+      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
+      expect(trigger1).not.toHaveAttribute('data-panel-open');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('prop: onValueChange', () => {
+    it('default item value', async () => {
+      const onValueChange = vi.fn();
+
+      const { user } = await render(
+        <Accordion.Root onValueChange={onValueChange} multiple>
+          <Accordion.Item value={0}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>1</Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value={1}>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>2</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const [trigger1, trigger2] = screen.getAllByRole('button');
+
+      expect(onValueChange.mock.calls.length).toBe(0);
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.lastCall?.[0]).toEqual([0]);
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
+
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.lastCall?.[0]).toEqual([0, 1]);
+    });
+
+    it('custom item value', async () => {
+      const onValueChange = vi.fn();
+
+      const { user } = await render(
+        <Accordion.Root onValueChange={onValueChange} multiple>
+          <Accordion.Item value="one">
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>1</Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value="two">
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>2</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const [trigger1, trigger2] = screen.getAllByRole('button');
+
+      expect(onValueChange.mock.calls.length).toBe(0);
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toEqual(['two']);
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[1][0]).toEqual(['two', 'one']);
+    });
+
+    it('`multiple` is false', async () => {
+      const onValueChange = vi.fn();
+
+      const { user } = await render(
+        <Accordion.Root onValueChange={onValueChange} multiple={false}>
+          <Accordion.Item value="one">
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>1</Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item value="two">
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>2</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const [trigger1, trigger2] = screen.getAllByRole('button');
+
+      expect(onValueChange.mock.calls.length).toBe(0);
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toEqual(['one']);
+
+      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
+
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
+    });
+  });
+
   it('allows onMouseUp to call preventBaseUIHandler on the trigger', async () => {
     await render(
       <Accordion.Root>
@@ -598,80 +792,6 @@ describe('<Accordion.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('prop: multiple', () => {
-    it('multiple items can be open when `multiple = true`', async () => {
-      const { user } = await render(
-        <Accordion.Root multiple>
-          <Accordion.Item>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
-          </Accordion.Item>
-          <Accordion.Item>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
-          </Accordion.Item>
-        </Accordion.Root>,
-      );
-
-      const [trigger1, trigger2] = screen.getAllByRole('button');
-
-      expect(trigger1).not.toHaveAttribute('data-panel-open');
-      expect(trigger2).not.toHaveAttribute('data-panel-open');
-      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
-      expect(screen.queryByText(PANEL_CONTENT_2)).toBe(null);
-
-      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
-      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
-
-      expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
-      expect(screen.queryByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
-      expect(trigger1).toHaveAttribute('data-panel-open');
-      expect(trigger2).toHaveAttribute('data-panel-open');
-    });
-
-    it('when false only one item can be open', async () => {
-      const { user } = await render(
-        <Accordion.Root multiple={false}>
-          <Accordion.Item>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
-          </Accordion.Item>
-          <Accordion.Item>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>{PANEL_CONTENT_2}</Accordion.Panel>
-          </Accordion.Item>
-        </Accordion.Root>,
-      );
-
-      const [trigger1, trigger2] = screen.getAllByRole('button');
-
-      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
-      expect(screen.queryByText(PANEL_CONTENT_2)).toBe(null);
-      expect(trigger1).not.toHaveAttribute('data-panel-open');
-      expect(trigger2).not.toHaveAttribute('data-panel-open');
-
-      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
-
-      expect(screen.queryByText(PANEL_CONTENT_1)).toHaveAttribute('data-open');
-      expect(trigger1).toHaveAttribute('data-panel-open');
-
-      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
-
-      expect(screen.queryByText(PANEL_CONTENT_2)).toHaveAttribute('data-open');
-      expect(trigger2).toHaveAttribute('data-panel-open');
-      expect(screen.queryByText(PANEL_CONTENT_1)).toBe(null);
-      expect(trigger1).not.toHaveAttribute('data-panel-open');
-    });
-  });
-
   describe.skipIf(isJSDOM)('horizontal orientation', () => {
     it('ArrowLeft/Right moves focus in horizontal orientation', async () => {
       const { user } = await render(
@@ -747,113 +867,6 @@ describe('<Accordion.Root />', () => {
         await user.keyboard('[ArrowLeft]');
         expect(trigger1).toHaveFocus();
       });
-    });
-  });
-
-  describe.skipIf(isJSDOM)('prop: onValueChange', () => {
-    it('default item value', async () => {
-      const onValueChange = vi.fn();
-
-      const { user } = await render(
-        <Accordion.Root onValueChange={onValueChange} multiple>
-          <Accordion.Item value={0}>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>1</Accordion.Panel>
-          </Accordion.Item>
-          <Accordion.Item value={1}>
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>2</Accordion.Panel>
-          </Accordion.Item>
-        </Accordion.Root>,
-      );
-
-      const [trigger1, trigger2] = screen.getAllByRole('button');
-
-      expect(onValueChange.mock.calls.length).toBe(0);
-
-      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
-
-      expect(onValueChange.mock.calls.length).toBe(1);
-      expect(onValueChange.mock.lastCall?.[0]).toEqual([0]);
-
-      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
-
-      expect(onValueChange.mock.calls.length).toBe(2);
-      expect(onValueChange.mock.lastCall?.[0]).toEqual([0, 1]);
-    });
-
-    it('custom item value', async () => {
-      const onValueChange = vi.fn();
-
-      const { user } = await render(
-        <Accordion.Root onValueChange={onValueChange} multiple>
-          <Accordion.Item value="one">
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>1</Accordion.Panel>
-          </Accordion.Item>
-          <Accordion.Item value="two">
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>2</Accordion.Panel>
-          </Accordion.Item>
-        </Accordion.Root>,
-      );
-
-      const [trigger1, trigger2] = screen.getAllByRole('button');
-
-      expect(onValueChange.mock.calls.length).toBe(0);
-
-      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
-
-      expect(onValueChange.mock.calls.length).toBe(1);
-      expect(onValueChange.mock.calls[0][0]).toEqual(['two']);
-
-      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
-
-      expect(onValueChange.mock.calls.length).toBe(2);
-      expect(onValueChange.mock.calls[1][0]).toEqual(['two', 'one']);
-    });
-
-    it('`multiple` is false', async () => {
-      const onValueChange = vi.fn();
-
-      const { user } = await render(
-        <Accordion.Root onValueChange={onValueChange} multiple={false}>
-          <Accordion.Item value="one">
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 1</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>1</Accordion.Panel>
-          </Accordion.Item>
-          <Accordion.Item value="two">
-            <Accordion.Header>
-              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
-            </Accordion.Header>
-            <Accordion.Panel>2</Accordion.Panel>
-          </Accordion.Item>
-        </Accordion.Root>,
-      );
-
-      const [trigger1, trigger2] = screen.getAllByRole('button');
-
-      expect(onValueChange.mock.calls.length).toBe(0);
-
-      await user.pointer({ keys: '[MouseLeft]', target: trigger1 });
-
-      expect(onValueChange.mock.calls.length).toBe(1);
-      expect(onValueChange.mock.calls[0][0]).toEqual(['one']);
-
-      await user.pointer({ keys: '[MouseLeft]', target: trigger2 });
-
-      expect(onValueChange.mock.calls.length).toBe(2);
-      expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
     });
   });
 });

@@ -93,9 +93,7 @@ describe('<Menubar />', () => {
 
         await user.hover(editTrigger!);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('edit-menu');
 
         // The file menu should now be closed
         expect(screen.queryByTestId('file-menu')).toBe(null);
@@ -104,9 +102,7 @@ describe('<Menubar />', () => {
         const viewTrigger = screen.getByTestId('view-trigger');
         await user.hover(viewTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('view-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('view-menu');
 
         // The edit menu should now be closed
         expect(screen.queryByTestId('edit-menu')).toBe(null);
@@ -122,9 +118,7 @@ describe('<Menubar />', () => {
         const fileTrigger = screen.getByTestId('file-trigger');
         await user.click(fileTrigger);
 
-        await waitFor(() => {
-          expect(screen.getByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
         await waitFor(() => {
           expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
@@ -136,9 +130,7 @@ describe('<Menubar />', () => {
         await user.hover(shareTrigger);
 
         // The share submenu should open
-        await waitFor(() => {
-          expect(screen.queryByTestId('share-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('share-menu');
       });
 
       it('should open another menu on hover when a nested submenu is open', async () => {
@@ -151,9 +143,7 @@ describe('<Menubar />', () => {
         const fileTrigger = screen.getByTestId('file-trigger');
         await user.click(fileTrigger);
 
-        await waitFor(() => {
-          expect(screen.getByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
         await waitFor(() => {
           expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
@@ -163,9 +153,7 @@ describe('<Menubar />', () => {
         await user.hover(shareTrigger);
 
         // The share submenu should open
-        await waitFor(() => {
-          expect(screen.queryByTestId('share-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('share-menu');
 
         // Hover over the first item in the share submenu
         await user.hover(screen.getByTestId('share-item-1'));
@@ -174,9 +162,7 @@ describe('<Menubar />', () => {
         const editTrigger = screen.getByTestId('edit-trigger');
         await user.hover(editTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('edit-menu');
 
         expect(screen.queryByTestId('file-menu')).toBe(null);
         expect(screen.queryByTestId('share-menu')).toBe(null);
@@ -198,9 +184,7 @@ describe('<Menubar />', () => {
         await wait(50);
 
         await user.keyboard('{Enter}');
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
       });
     });
 
@@ -230,9 +214,7 @@ describe('<Menubar />', () => {
         await user.click(layoutItem2, { delay: 30 });
 
         // The layout menu should not close after clicking an item
-        await waitFor(() => {
-          expect(screen.queryByTestId('layout-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('layout-menu');
       });
 
       // https://github.com/mui/base-ui/issues/2092
@@ -260,9 +242,7 @@ describe('<Menubar />', () => {
         await user.click(layoutItem2, { delay: 30 });
 
         // The layout menu should not close after clicking an item
-        await waitFor(() => {
-          expect(screen.queryByTestId('layout-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('layout-menu');
       });
     });
 
@@ -305,9 +285,7 @@ describe('<Menubar />', () => {
         await user.keyboard(' ');
 
         // Menu should be open
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
       });
 
       it('should navigate within the menu using arrow keys', async () => {
@@ -321,9 +299,7 @@ describe('<Menubar />', () => {
         await user.keyboard('{Enter}');
 
         // File menu should be open
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
 
         // First item should be focused automatically
         const firstItem = screen.getByTestId('file-item-1');
@@ -355,9 +331,7 @@ describe('<Menubar />', () => {
           fileTrigger.focus();
         });
         await user.keyboard('{Enter}');
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
 
         await waitFor(() => {
           expect(screen.getByTestId('file-item-1')).toHaveFocus();
@@ -377,9 +351,7 @@ describe('<Menubar />', () => {
         await user.keyboard('{ArrowRight}');
 
         // Share submenu should be open
-        await waitFor(() => {
-          expect(screen.queryByTestId('share-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('share-menu');
 
         // First submenu item should be focused
         const submenuItem = screen.getByTestId('share-item-1');
@@ -400,9 +372,7 @@ describe('<Menubar />', () => {
         await user.keyboard('{Enter}');
 
         // Menu should be open
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
 
         // Press Escape to close
         await user.keyboard('{Escape}');
@@ -441,9 +411,7 @@ describe('<Menubar />', () => {
 
         // Open submenu
         await user.keyboard('{ArrowRight}');
-        await waitFor(() => {
-          expect(screen.queryByTestId('share-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('share-menu');
 
         // Close submenu with left arrow
         await user.keyboard('{ArrowLeft}');
@@ -561,9 +529,7 @@ describe('<Menubar />', () => {
           await user.keyboard('{Enter}');
 
           // File menu should be open
-          await waitFor(() => {
-            expect(screen.queryByTestId('file-menu')).not.toBe(null);
-          });
+          await screen.findByTestId('file-menu');
 
           // Navigate right to edit menu
           await user.keyboard('{ArrowRight}');
@@ -572,9 +538,7 @@ describe('<Menubar />', () => {
           await waitFor(() => {
             expect(screen.queryByTestId('file-menu')).toBe(null);
           });
-          await waitFor(() => {
-            expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-          });
+          await screen.findByTestId('edit-menu');
         },
       );
     });
@@ -588,9 +552,7 @@ describe('<Menubar />', () => {
         await user.click(fileTrigger);
 
         // Menu should be open
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
 
         // Navigate with keyboard
         await user.keyboard('{ArrowDown}');
@@ -614,9 +576,7 @@ describe('<Menubar />', () => {
         const fileTrigger = screen.getByTestId('file-trigger');
         await user.click(fileTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
 
         // Navigate to edit menu with keyboard
         await user.keyboard('{ArrowRight}');
@@ -625,9 +585,7 @@ describe('<Menubar />', () => {
         await waitFor(() => {
           expect(screen.queryByTestId('file-menu')).toBe(null);
         });
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('edit-menu');
       });
     });
 
@@ -845,9 +803,7 @@ describe('<Menubar />', () => {
           });
 
           await user.keyboard('{ArrowRight}');
-          await waitFor(() => {
-            expect(screen.queryByTestId('edit-trigger')).not.toBe(null);
-          });
+          await screen.findByTestId('edit-trigger');
 
           await user.keyboard('{ArrowRight}');
 
@@ -905,18 +861,14 @@ describe('<Menubar />', () => {
         const editTrigger = screen.getByTestId('edit-trigger');
         await user.click(fileTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
         await waitFor(() => {
           expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         await user.hover(editTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('edit-menu');
 
         await user.click(editTrigger);
 
@@ -929,18 +881,14 @@ describe('<Menubar />', () => {
 
         await user.click(fileTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('file-menu');
         await waitFor(() => {
           expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
         });
 
         await user.hover(editTrigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+        await screen.findByTestId('edit-menu');
       },
     );
 

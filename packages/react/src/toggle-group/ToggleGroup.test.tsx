@@ -21,7 +21,7 @@ describe('<ToggleGroup />', () => {
   });
 
   describe('uncontrolled', () => {
-    it('pressed state', async ({ skip }) => {
+    it('updates pressed state from user input', async ({ skip }) => {
       if (isJSDOM) {
         skip();
       }
@@ -51,25 +51,27 @@ describe('<ToggleGroup />', () => {
       expect(button1).toHaveAttribute('aria-pressed', 'false');
     });
 
-    it('prop: defaultValue', async () => {
-      const { user } = await render(
-        <ToggleGroup defaultValue={['two']}>
-          <Toggle value="one" />
-          <Toggle value="two" />
-        </ToggleGroup>,
-      );
+    describe('prop: defaultValue', () => {
+      it('sets the initial pressed item', async () => {
+        const { user } = await render(
+          <ToggleGroup defaultValue={['two']}>
+            <Toggle value="one" />
+            <Toggle value="two" />
+          </ToggleGroup>,
+        );
 
-      const [button1, button2] = screen.getAllByRole('button');
+        const [button1, button2] = screen.getAllByRole('button');
 
-      expect(button2).toHaveAttribute('aria-pressed', 'true');
-      expect(button2).toHaveAttribute('data-pressed');
-      expect(button1).toHaveAttribute('aria-pressed', 'false');
+        expect(button2).toHaveAttribute('aria-pressed', 'true');
+        expect(button2).toHaveAttribute('data-pressed');
+        expect(button1).toHaveAttribute('aria-pressed', 'false');
 
-      await user.pointer({ keys: '[MouseLeft]', target: button1 });
+        await user.pointer({ keys: '[MouseLeft]', target: button1 });
 
-      expect(button1).toHaveAttribute('aria-pressed', 'true');
-      expect(button1).toHaveAttribute('data-pressed');
-      expect(button2).toHaveAttribute('aria-pressed', 'false');
+        expect(button1).toHaveAttribute('aria-pressed', 'true');
+        expect(button1).toHaveAttribute('data-pressed');
+        expect(button2).toHaveAttribute('aria-pressed', 'false');
+      });
     });
 
     it('when Toggles omit value', async () => {
@@ -94,7 +96,7 @@ describe('<ToggleGroup />', () => {
       expect(button2).toHaveAttribute('aria-pressed', 'true');
     });
 
-    it('should warn if Toggle value is not set and ToggleGroup value is defined', async () => {
+    it('warns when Toggle value is missing and ToggleGroup value is defined', async () => {
       vi.spyOn(console, 'error')
         .mockName('console.error')
         .mockImplementation(() => {});
@@ -113,7 +115,7 @@ describe('<ToggleGroup />', () => {
   });
 
   describe('controlled', () => {
-    it('pressed state', async () => {
+    it('updates pressed state from prop changes', async () => {
       const { setProps } = await render(
         <ToggleGroup value={['two']}>
           <Toggle value="one" />
@@ -140,25 +142,27 @@ describe('<ToggleGroup />', () => {
       expect(button1).toHaveAttribute('aria-pressed', 'false');
     });
 
-    it('prop: value', async () => {
-      const { setProps } = await render(
-        <ToggleGroup value={['two']}>
-          <Toggle value="one" />
-          <Toggle value="two" />
-        </ToggleGroup>,
-      );
+    describe('prop: value', () => {
+      it('sets the pressed item', async () => {
+        const { setProps } = await render(
+          <ToggleGroup value={['two']}>
+            <Toggle value="one" />
+            <Toggle value="two" />
+          </ToggleGroup>,
+        );
 
-      const [button1, button2] = screen.getAllByRole('button');
+        const [button1, button2] = screen.getAllByRole('button');
 
-      expect(button2).toHaveAttribute('aria-pressed', 'true');
-      expect(button2).toHaveAttribute('data-pressed');
-      expect(button1).toHaveAttribute('aria-pressed', 'false');
+        expect(button2).toHaveAttribute('aria-pressed', 'true');
+        expect(button2).toHaveAttribute('data-pressed');
+        expect(button1).toHaveAttribute('aria-pressed', 'false');
 
-      await setProps({ value: ['one'] });
+        await setProps({ value: ['one'] });
 
-      expect(button1).toHaveAttribute('aria-pressed', 'true');
-      expect(button1).toHaveAttribute('data-pressed');
-      expect(button2).toHaveAttribute('aria-pressed', 'false');
+        expect(button1).toHaveAttribute('aria-pressed', 'true');
+        expect(button1).toHaveAttribute('data-pressed');
+        expect(button2).toHaveAttribute('aria-pressed', 'false');
+      });
     });
   });
 
@@ -219,8 +223,10 @@ describe('<ToggleGroup />', () => {
         </ToggleGroup>,
       );
 
+      const group = screen.getByRole('group');
       const [button1, button2] = screen.getAllByRole('button');
 
+      expect(group).toHaveAttribute('data-multiple', '');
       expect(button1).toHaveAttribute('aria-pressed', 'true');
       expect(button2).toHaveAttribute('aria-pressed', 'false');
 
@@ -238,8 +244,10 @@ describe('<ToggleGroup />', () => {
         </ToggleGroup>,
       );
 
+      const group = screen.getByRole('group');
       const [button1, button2] = screen.getAllByRole('button');
 
+      expect(group).not.toHaveAttribute('data-multiple');
       expect(button1).toHaveAttribute('aria-pressed', 'true');
       expect(button2).toHaveAttribute('aria-pressed', 'false');
 
@@ -276,7 +284,73 @@ describe('<ToggleGroup />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('keyboard interactions', () => {
+  describe('prop: onValueChange', () => {
+    it('fires when an Item is clicked', async () => {
+      const onValueChange = vi.fn();
+
+      const { user } = await render(
+        <ToggleGroup onValueChange={onValueChange}>
+          <Toggle value="one" />
+          <Toggle value="two" />
+        </ToggleGroup>,
+      );
+
+      const [button1, button2] = screen.getAllByRole('button');
+
+      expect(onValueChange.mock.calls.length).toBe(0);
+
+      await user.pointer({ keys: '[MouseLeft]', target: button1 });
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toEqual(['one']);
+
+      await user.pointer({ keys: '[MouseLeft]', target: button2 });
+
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
+    });
+
+    ['Enter', 'Space'].forEach((key) => {
+      it(`fires when the ${key} is pressed`, async ({ skip }) => {
+        if (isJSDOM) {
+          skip();
+        }
+
+        const onValueChange = vi.fn();
+
+        const { user } = await render(
+          <ToggleGroup onValueChange={onValueChange}>
+            <Toggle value="one" />
+            <Toggle value="two" />
+          </ToggleGroup>,
+        );
+
+        const [button1, button2] = screen.getAllByRole('button');
+
+        expect(onValueChange.mock.calls.length).toBe(0);
+
+        await act(async () => {
+          button1.focus();
+        });
+
+        await user.keyboard(`[${key}]`);
+
+        expect(onValueChange.mock.calls.length).toBe(1);
+        expect(onValueChange.mock.calls[0][0]).toEqual(['one']);
+
+        await act(async () => {
+          button2.focus();
+        });
+
+        await user.keyboard(`[${key}]`);
+
+        expect(onValueChange.mock.calls.length).toBe(2);
+        expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
+      });
+    });
+  });
+
+  describe('keyboard interactions', () => {
     [
       ['ltr', 'horizontal', 'ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'],
       ['ltr', 'vertical', 'ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'],
@@ -423,72 +497,6 @@ describe('<ToggleGroup />', () => {
         await user.keyboard(`[${key}]`);
 
         expect(button1).toHaveAttribute('aria-pressed', 'false');
-      });
-    });
-  });
-
-  describe('prop: onValueChange', () => {
-    it('fires when an Item is clicked', async () => {
-      const onValueChange = vi.fn();
-
-      const { user } = await render(
-        <ToggleGroup onValueChange={onValueChange}>
-          <Toggle value="one" />
-          <Toggle value="two" />
-        </ToggleGroup>,
-      );
-
-      const [button1, button2] = screen.getAllByRole('button');
-
-      expect(onValueChange.mock.calls.length).toBe(0);
-
-      await user.pointer({ keys: '[MouseLeft]', target: button1 });
-
-      expect(onValueChange.mock.calls.length).toBe(1);
-      expect(onValueChange.mock.calls[0][0]).toEqual(['one']);
-
-      await user.pointer({ keys: '[MouseLeft]', target: button2 });
-
-      expect(onValueChange.mock.calls.length).toBe(2);
-      expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
-    });
-
-    ['Enter', 'Space'].forEach((key) => {
-      it(`fires when the ${key} is pressed`, async ({ skip }) => {
-        if (isJSDOM) {
-          skip();
-        }
-
-        const onValueChange = vi.fn();
-
-        const { user } = await render(
-          <ToggleGroup onValueChange={onValueChange}>
-            <Toggle value="one" />
-            <Toggle value="two" />
-          </ToggleGroup>,
-        );
-
-        const [button1, button2] = screen.getAllByRole('button');
-
-        expect(onValueChange.mock.calls.length).toBe(0);
-
-        await act(async () => {
-          button1.focus();
-        });
-
-        await user.keyboard(`[${key}]`);
-
-        expect(onValueChange.mock.calls.length).toBe(1);
-        expect(onValueChange.mock.calls[0][0]).toEqual(['one']);
-
-        await act(async () => {
-          button2.focus();
-        });
-
-        await user.keyboard(`[${key}]`);
-
-        expect(onValueChange.mock.calls.length).toBe(2);
-        expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
       });
     });
   });

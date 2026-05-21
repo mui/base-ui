@@ -13,6 +13,23 @@ describe('<Progress.Value />', () => {
     refInstanceof: window.HTMLSpanElement,
   }));
 
+  it('has progress state attributes', async () => {
+    const { setProps } = await render(
+      <Progress.Root value={40}>
+        <Progress.Value data-testid="value" />
+      </Progress.Root>,
+    );
+
+    const value = screen.getByTestId('value');
+    expect(value).toHaveAttribute('data-progressing', '');
+
+    await setProps({ value: 100 });
+    expect(value).toHaveAttribute('data-complete', '');
+
+    await setProps({ value: null });
+    expect(value).toHaveAttribute('data-indeterminate', '');
+  });
+
   describe('prop: children', () => {
     it('renders the value when children is not provided', async () => {
       await render(

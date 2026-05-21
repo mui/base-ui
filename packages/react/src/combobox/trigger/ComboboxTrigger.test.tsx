@@ -137,7 +137,7 @@ describe('<Combobox.Trigger />', () => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
 
-    it('should not toggle when readOnly=false (control)', async () => {
+    it('toggles popup when readOnly is false', async () => {
       const { user } = await render(
         <Combobox.Root readOnly={false}>
           <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
@@ -617,7 +617,7 @@ describe('<Combobox.Trigger />', () => {
 
       await user.click(trigger);
 
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
       expect(trigger).toHaveAttribute('data-popup-side', 'right');
 
       await user.click(document.body);
@@ -644,7 +644,7 @@ describe('<Combobox.Trigger />', () => {
 
       await user.click(trigger);
 
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
       expect(trigger).toHaveAttribute('data-list-empty');
     });
 

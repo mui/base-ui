@@ -6,12 +6,12 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<NavigationMenu.Content />', () => {
   const { render } = createRenderer();
 
-  describeConformance.skip(<NavigationMenu.Content />, () => ({
+  describeConformance(<NavigationMenu.Content />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
       return render(
         <NavigationMenu.Root value="test">
-          <NavigationMenu.Item>{node}</NavigationMenu.Item>
+          <NavigationMenu.Item value="test">{node}</NavigationMenu.Item>
           <NavigationMenu.Portal>
             <NavigationMenu.Positioner>
               <NavigationMenu.Popup>
@@ -167,11 +167,7 @@ describe('<NavigationMenu.Content />', () => {
     expect(list.contains(content1)).toBe(false);
 
     fireEvent.click(screen.getByRole('button', { name: 'Item 2' }));
-    await flushMicrotasks();
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('content-2')).not.toBe(null);
-    });
+    await screen.findByTestId('content-2');
 
     const content1After = screen.queryByTestId('content-1');
     const content2 = screen.queryByTestId('content-2');
@@ -210,8 +206,6 @@ describe('<NavigationMenu.Content />', () => {
     expect(viewport.contains(screen.getByTestId('content-1'))).toBe(true);
 
     await user.keyboard('{Escape}');
-    await flushMicrotasks();
-
     await waitFor(() => {
       expect(screen.getByTestId('content-1')).toHaveAttribute('hidden');
     });

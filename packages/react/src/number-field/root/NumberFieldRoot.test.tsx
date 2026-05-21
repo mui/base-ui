@@ -7,7 +7,7 @@ import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
-describe('<NumberField />', () => {
+describe('<NumberField.Root />', () => {
   const { render } = createRenderer();
 
   function pasteText(target: HTMLElement, value: string) {
@@ -90,81 +90,6 @@ describe('<NumberField />', () => {
       fireEvent.change(input, { target: { value: '  ' } });
       expect(onValueChange.mock.calls[0][0]).toBe(null);
     });
-  });
-
-  it('blocks submission when step mismatch occurs', async () => {
-    await render(
-      <form data-testid="form">
-        <NumberFieldBase.Root name="quantity" min={0} step={0.1}>
-          <NumberFieldBase.Group>
-            <NumberFieldBase.Input />
-          </NumberFieldBase.Group>
-        </NumberFieldBase.Root>
-        <button type="submit">Submit</button>
-      </form>,
-    );
-
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: '0.11' } });
-
-    const hiddenInput = document.querySelector(
-      'input[type="number"][name="quantity"]',
-    ) as HTMLInputElement;
-    expect(hiddenInput).not.toBe(null);
-    expect(hiddenInput.validity.stepMismatch).toBe(true);
-
-    const form = screen.getByTestId<HTMLFormElement>('form');
-    expect(form.checkValidity()).toBe(false);
-  });
-
-  it.skipIf(isJSDOM)('blocks submission when step mismatch occurs with default step', async () => {
-    await render(
-      <form data-testid="form">
-        <NumberFieldBase.Root name="quantity" min={0}>
-          <NumberFieldBase.Group>
-            <NumberFieldBase.Input />
-          </NumberFieldBase.Group>
-        </NumberFieldBase.Root>
-        <button type="submit">Submit</button>
-      </form>,
-    );
-
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: '0.11' } });
-
-    const hiddenInput = document.querySelector(
-      'input[type="number"][name="quantity"]',
-    ) as HTMLInputElement;
-    expect(hiddenInput).not.toBe(null);
-    expect(hiddenInput.validity.stepMismatch).toBe(true);
-
-    const form = screen.getByTestId<HTMLFormElement>('form');
-    expect(form.checkValidity()).toBe(false);
-  });
-
-  it('does not block submission when step="any"', async () => {
-    await render(
-      <form data-testid="form">
-        <NumberFieldBase.Root name="quantity" min={0} step="any">
-          <NumberFieldBase.Group>
-            <NumberFieldBase.Input />
-          </NumberFieldBase.Group>
-        </NumberFieldBase.Root>
-        <button type="submit">Submit</button>
-      </form>,
-    );
-
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: '0.11' } });
-
-    const hiddenInput = document.querySelector(
-      'input[type="number"][name="quantity"]',
-    ) as HTMLInputElement;
-    expect(hiddenInput).not.toBe(null);
-    expect(hiddenInput.validity.stepMismatch).toBe(false);
-
-    const form = screen.getByTestId<HTMLFormElement>('form');
-    expect(form.checkValidity()).toBe(true);
   });
 
   describe('prop: onValueChange', () => {
@@ -325,283 +250,6 @@ describe('<NumberField />', () => {
         NumberFieldBase.Root.ChangeEventDetails,
       ];
       expect(details.reason).toBe('wheel');
-    });
-  });
-
-  describe('typing behavior (parseable changes)', () => {
-    it('fires onValueChange for each parseable change while typing', async () => {
-      const onValueChange = vi.fn();
-      const onValueCommitted = vi.fn();
-      await render(
-        <NumberField onValueChange={onValueChange} onValueCommitted={onValueCommitted} />,
-      );
-      const input = screen.getByRole('textbox');
-
-      // Type '1' -> parseable
-      fireEvent.change(input, { target: { value: '1' } });
-      // Type '12' -> parseable
-      fireEvent.change(input, { target: { value: '12' } });
-      // Type '12.' -> parseable (treated as 12)
-      fireEvent.change(input, { target: { value: '12.' } });
-      // Type '12.a' -> not parseable, should not fire
-      fireEvent.change(input, { target: { value: '12.a' } });
-
-      expect(onValueChange.mock.calls.length).toBe(3);
-      expect(onValueChange.mock.calls[0][0]).toBe(1);
-      expect(onValueChange.mock.calls[1][0]).toBe(12);
-      expect(onValueChange.mock.calls[2][0]).toBe(12);
-
-      expect(onValueCommitted.mock.calls.length).toBe(0);
-    });
-
-    it('does not fire onValueChange for non-numeric composition/partial input', async () => {
-      const onValueChange = vi.fn();
-      const onValueCommitted = vi.fn();
-      await render(
-        <NumberField onValueChange={onValueChange} onValueCommitted={onValueCommitted} />,
-      );
-      const input = screen.getByRole('textbox');
-
-      // Simulate IME composition of non-numeric text; intermediate values like 'ni'
-      fireEvent.compositionStart(input);
-      fireEvent.change(input, { target: { value: 'n' } });
-      fireEvent.change(input, { target: { value: 'ni' } });
-      fireEvent.compositionEnd(input);
-
-      expect(onValueChange.mock.calls.length).toBe(0);
-
-      // Now enter a Han numeral which is parseable
-      fireEvent.change(input, { target: { value: '一' } });
-      expect(onValueChange.mock.calls.length).toBe(1);
-      expect(onValueChange.mock.calls[0][0]).toBe(1);
-
-      expect(onValueCommitted.mock.calls.length).toBe(0);
-      fireEvent.blur(input);
-      expect(onValueCommitted.mock.calls.length).toBe(1);
-      expect(onValueCommitted.mock.calls[0][0]).toBe(1);
-    });
-
-    it('handles sign and decimal partials vs. parseable numbers', async () => {
-      const onValueChange = vi.fn();
-      const onValueCommitted = vi.fn();
-      await render(
-        <NumberField onValueChange={onValueChange} onValueCommitted={onValueCommitted} min={-10} />,
-      );
-      const input = screen.getByRole('textbox');
-
-      // '-' or '.' alone aren't parseable
-      fireEvent.change(input, { target: { value: '-' } });
-      fireEvent.change(input, { target: { value: '.' } });
-      // '0.' is parseable (-> 0)
-      fireEvent.change(input, { target: { value: '0.' } });
-      fireEvent.change(input, { target: { value: '-1' } });
-      fireEvent.change(input, { target: { value: '-1.5' } });
-
-      expect(onValueChange.mock.calls.length).toBe(3);
-      expect(onValueChange.mock.calls[0][0]).toBe(0);
-      expect(onValueChange.mock.calls[1][0]).toBe(-1);
-      expect(onValueChange.mock.calls[2][0]).toBe(-1.5);
-
-      // No commit until blur
-      expect(onValueCommitted.mock.calls.length).toBe(0);
-
-      fireEvent.blur(input);
-      expect(onValueCommitted.mock.calls.length).toBe(1);
-      expect(onValueCommitted.mock.calls[0][0]).toBe(-1.5);
-    });
-
-    it('allows typing a decimal while replacing a selection', async () => {
-      await render(<NumberField defaultValue={12.3} locale="en-US" />);
-      const input = screen.getByRole<HTMLInputElement>('textbox');
-
-      await act(async () => {
-        input.focus();
-      });
-
-      const decimalIndex = input.value.indexOf('.');
-      expect(decimalIndex).toBeGreaterThan(-1);
-      await act(async () => {
-        input.setSelectionRange(1, decimalIndex + 2);
-      });
-
-      const keydownResult = fireEvent.keyDown(input, { key: '.' });
-      expect(keydownResult).toBe(true);
-    });
-
-    it('accepts grouping while typing and parses progressively', async () => {
-      const onValueChange = vi.fn();
-      const onValueCommitted = vi.fn();
-      await render(
-        <NumberField onValueChange={onValueChange} onValueCommitted={onValueCommitted} />,
-      );
-      const input = screen.getByRole('textbox');
-
-      fireEvent.change(input, { target: { value: '1' } }); // 1
-      fireEvent.change(input, { target: { value: '1,' } }); // 1 (group symbol)
-      fireEvent.change(input, { target: { value: '1,2' } }); // 12
-      fireEvent.change(input, { target: { value: '1,23' } }); // 123
-      fireEvent.change(input, { target: { value: '1,234' } }); // 1234
-
-      expect(onValueChange.mock.calls.length).toBe(5);
-      expect(onValueChange.mock.calls[0][0]).toBe(1);
-      expect(onValueChange.mock.calls[1][0]).toBe(1);
-      expect(onValueChange.mock.calls[2][0]).toBe(12);
-      expect(onValueChange.mock.calls[3][0]).toBe(123);
-      expect(onValueChange.mock.calls[4][0]).toBe(1234);
-
-      expect(onValueCommitted.mock.calls.length).toBe(0);
-      fireEvent.blur(input);
-      expect(onValueCommitted.mock.calls.length).toBe(1);
-      expect(onValueCommitted.mock.calls[0][0]).toBe(1234);
-    });
-
-    it('respects locale decimal separator while typing (de-DE)', async () => {
-      const onValueChange = vi.fn();
-      const onValueCommitted = vi.fn();
-      await render(
-        <NumberField
-          onValueChange={onValueChange}
-          onValueCommitted={onValueCommitted}
-          locale="de-DE"
-        />,
-      );
-      const input = screen.getByRole('textbox');
-
-      fireEvent.change(input, { target: { value: '1' } }); // 1
-      fireEvent.change(input, { target: { value: '1,' } }); // 1 (decimal separator typed)
-      fireEvent.change(input, { target: { value: '1,5' } }); // 1.5
-
-      expect(onValueChange.mock.calls.length).toBe(3);
-      expect(onValueChange.mock.calls[0][0]).toBe(1);
-      expect(onValueChange.mock.calls[1][0]).toBe(1);
-      expect(onValueChange.mock.calls[2][0]).toBe(1.5);
-
-      fireEvent.blur(input);
-      expect(onValueCommitted.mock.calls.length).toBe(1);
-      expect(onValueCommitted.mock.calls[0][0]).toBe(1.5);
-    });
-
-    it('parses percent while typing and commits canonical percent value', async () => {
-      const onValueChange = vi.fn();
-      const onValueCommitted = vi.fn();
-      await render(
-        <NumberField
-          onValueChange={onValueChange}
-          onValueCommitted={onValueCommitted}
-          format={{ style: 'percent' }}
-        />,
-      );
-      const input = screen.getByRole('textbox');
-
-      // Typing digits in percent style represents a fraction (12 -> 0.12)
-      fireEvent.change(input, { target: { value: '12' } });
-      // Typing with explicit percent sign also remains 0.12
-      fireEvent.change(input, { target: { value: '12%' } });
-
-      expect(onValueChange.mock.calls.length).toBe(2);
-      expect(onValueChange.mock.calls[0][0]).toBe(0.12);
-      expect(onValueChange.mock.calls[1][0]).toBe(0.12);
-      expect(onValueCommitted.mock.calls.length).toBe(0);
-
-      fireEvent.blur(input);
-      expect(onValueCommitted.mock.calls.length).toBe(1);
-      expect(onValueCommitted.mock.calls[0][0]).toBe(0.12);
-    });
-
-    it('accepts currency symbol while typing and parses numeric value', async () => {
-      const onValueChange = vi.fn();
-      await render(
-        <NumberField
-          onValueChange={onValueChange}
-          format={{ style: 'currency', currency: 'USD' }}
-        />,
-      );
-      const input = screen.getByRole('textbox');
-
-      fireEvent.change(input, { target: { value: '$1' } });
-      fireEvent.change(input, { target: { value: '$1,2' } });
-
-      expect(onValueChange.mock.calls.length).toBe(2);
-      expect(onValueChange.mock.calls[0][0]).toBe(1);
-      expect(onValueChange.mock.calls[1][0]).toBe(12);
-    });
-
-    it('allows deleting trailing currency symbols with locale literals', async () => {
-      const onValueChange = vi.fn();
-      const format: Intl.NumberFormatOptions = {
-        style: 'currency',
-        currency: 'EUR',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      };
-      const formatter = new Intl.NumberFormat('de-DE', format);
-
-      await render(
-        <NumberField
-          defaultValue={12.34}
-          locale="de-DE"
-          format={format}
-          onValueChange={onValueChange}
-        />,
-      );
-      const input = screen.getByRole('textbox');
-      const formatted = formatter.format(12.34);
-      const withoutCurrency = formatted.replace('€', '');
-
-      fireEvent.change(input, { target: { value: withoutCurrency } });
-
-      expect(input).toHaveValue(withoutCurrency);
-      expect(onValueChange.mock.calls.length).toBe(1);
-      expect(onValueChange.mock.calls[0][0]).toBe(12.34);
-    });
-
-    it('allows backspace to remove trailing currency symbol that follows a locale literal', async () => {
-      const onValueChange = vi.fn();
-      const format: Intl.NumberFormatOptions = {
-        style: 'currency',
-        currency: 'EUR',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      };
-      const formatter = new Intl.NumberFormat('de-DE', format);
-
-      await render(
-        <NumberField
-          defaultValue={12.34}
-          locale="de-DE"
-          format={format}
-          onValueChange={onValueChange}
-        />,
-      );
-
-      const input = screen.getByRole('textbox');
-      const formatted = formatter.format(12.34);
-      const afterBackspace = formatted.slice(0, -1);
-
-      await act(async () => {
-        input.focus();
-      });
-
-      const keydownResult = fireEvent.keyDown(input, { key: 'Backspace' });
-      expect(keydownResult).toBe(true);
-
-      fireEvent.change(input, { target: { value: afterBackspace } });
-
-      expect(input).toHaveValue(afterBackspace);
-      expect(onValueChange.mock.calls.length).toBe(1);
-      expect(onValueChange.mock.calls[0][0]).toBe(12.34);
-    });
-
-    it('does not commit on blur for invalid input', async () => {
-      const onValueCommitted = vi.fn();
-      await render(<NumberField onValueCommitted={onValueCommitted} />);
-      const input = screen.getByRole('textbox');
-
-      fireEvent.change(input, { target: { value: '.' } });
-      expect(input).toHaveValue('.');
-      fireEvent.blur(input);
-
-      expect(onValueCommitted.mock.calls.length).toBe(0);
     });
   });
 
@@ -1126,7 +774,399 @@ describe('<NumberField />', () => {
     });
   });
 
-  describe('Form', () => {
+  describe('prop: inputMode', () => {
+    it('should set the inputMode to numeric', async () => {
+      await render(<NumberField />);
+      const input = screen.getByRole('textbox');
+      expect(input).toHaveAttribute('inputmode', 'numeric');
+    });
+  });
+
+  describe('prop: locale', () => {
+    it('should set the locale of the input', async () => {
+      await render(<NumberField defaultValue={1000.5} locale="de-DE" />);
+      const input = screen.getByRole('textbox');
+
+      // In German locale, numbers use dot as thousands separator and comma as decimal separator
+      const expectedValue = new Intl.NumberFormat('de-DE').format(1000.5);
+      expect(input).toHaveValue(expectedValue);
+    });
+
+    it('should use the default locale if no locale is provided', async () => {
+      await render(<NumberField defaultValue={1000.5} />);
+      const input = screen.getByRole('textbox');
+      const expectedValue = new Intl.NumberFormat().format(1000.5);
+      expect(input).toHaveValue(expectedValue);
+    });
+
+    it('should handle locales using space as the thousands separator', async () => {
+      await render(<NumberField defaultValue={12345.5} locale="pl" />);
+
+      const input = screen.getByRole('textbox');
+      const expectedValue = new Intl.NumberFormat('pl').format(12345.5);
+      expect(input).toHaveValue(expectedValue);
+
+      const incrementButton = screen.getByLabelText('Increase');
+      fireEvent.click(incrementButton);
+
+      const newExpectedValue = new Intl.NumberFormat('pl').format(12346.5);
+      expect(input).toHaveValue(newExpectedValue);
+    });
+  });
+
+  it('blocks submission when step mismatch occurs', async () => {
+    await render(
+      <form data-testid="form">
+        <NumberFieldBase.Root name="quantity" min={0} step={0.1}>
+          <NumberFieldBase.Group>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Group>
+        </NumberFieldBase.Root>
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '0.11' } });
+
+    const hiddenInput = document.querySelector(
+      'input[type="number"][name="quantity"]',
+    ) as HTMLInputElement;
+    expect(hiddenInput).not.toBe(null);
+    expect(hiddenInput.validity.stepMismatch).toBe(true);
+
+    const form = screen.getByTestId<HTMLFormElement>('form');
+    expect(form.checkValidity()).toBe(false);
+  });
+
+  it.skipIf(isJSDOM)('blocks submission when step mismatch occurs with default step', async () => {
+    await render(
+      <form data-testid="form">
+        <NumberFieldBase.Root name="quantity" min={0}>
+          <NumberFieldBase.Group>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Group>
+        </NumberFieldBase.Root>
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '0.11' } });
+
+    const hiddenInput = document.querySelector(
+      'input[type="number"][name="quantity"]',
+    ) as HTMLInputElement;
+    expect(hiddenInput).not.toBe(null);
+    expect(hiddenInput.validity.stepMismatch).toBe(true);
+
+    const form = screen.getByTestId<HTMLFormElement>('form');
+    expect(form.checkValidity()).toBe(false);
+  });
+
+  it('does not block submission when step="any"', async () => {
+    await render(
+      <form data-testid="form">
+        <NumberFieldBase.Root name="quantity" min={0} step="any">
+          <NumberFieldBase.Group>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Group>
+        </NumberFieldBase.Root>
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '0.11' } });
+
+    const hiddenInput = document.querySelector(
+      'input[type="number"][name="quantity"]',
+    ) as HTMLInputElement;
+    expect(hiddenInput).not.toBe(null);
+    expect(hiddenInput.validity.stepMismatch).toBe(false);
+
+    const form = screen.getByTestId<HTMLFormElement>('form');
+    expect(form.checkValidity()).toBe(true);
+  });
+
+  describe('typing behavior (parseable changes)', () => {
+    it('fires onValueChange for each parseable change while typing', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField onValueChange={onValueChange} onValueCommitted={onValueCommitted} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      // Type '1' -> parseable
+      fireEvent.change(input, { target: { value: '1' } });
+      // Type '12' -> parseable
+      fireEvent.change(input, { target: { value: '12' } });
+      // Type '12.' -> parseable (treated as 12)
+      fireEvent.change(input, { target: { value: '12.' } });
+      // Type '12.a' -> not parseable, should not fire
+      fireEvent.change(input, { target: { value: '12.a' } });
+
+      expect(onValueChange.mock.calls.length).toBe(3);
+      expect(onValueChange.mock.calls[0][0]).toBe(1);
+      expect(onValueChange.mock.calls[1][0]).toBe(12);
+      expect(onValueChange.mock.calls[2][0]).toBe(12);
+
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+    });
+
+    it('does not fire onValueChange for non-numeric composition/partial input', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField onValueChange={onValueChange} onValueCommitted={onValueCommitted} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      // Simulate IME composition of non-numeric text; intermediate values like 'ni'
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'n' } });
+      fireEvent.change(input, { target: { value: 'ni' } });
+      fireEvent.compositionEnd(input);
+
+      expect(onValueChange.mock.calls.length).toBe(0);
+
+      // Now enter a Han numeral which is parseable
+      fireEvent.change(input, { target: { value: '一' } });
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(1);
+
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+      fireEvent.blur(input);
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(1);
+    });
+
+    it('handles sign and decimal partials vs. parseable numbers', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField onValueChange={onValueChange} onValueCommitted={onValueCommitted} min={-10} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      // '-' or '.' alone aren't parseable
+      fireEvent.change(input, { target: { value: '-' } });
+      fireEvent.change(input, { target: { value: '.' } });
+      // '0.' is parseable (-> 0)
+      fireEvent.change(input, { target: { value: '0.' } });
+      fireEvent.change(input, { target: { value: '-1' } });
+      fireEvent.change(input, { target: { value: '-1.5' } });
+
+      expect(onValueChange.mock.calls.length).toBe(3);
+      expect(onValueChange.mock.calls[0][0]).toBe(0);
+      expect(onValueChange.mock.calls[1][0]).toBe(-1);
+      expect(onValueChange.mock.calls[2][0]).toBe(-1.5);
+
+      // No commit until blur
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+
+      fireEvent.blur(input);
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(-1.5);
+    });
+
+    it('allows typing a decimal while replacing a selection', async () => {
+      await render(<NumberField defaultValue={12.3} locale="en-US" />);
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        input.focus();
+      });
+
+      const decimalIndex = input.value.indexOf('.');
+      expect(decimalIndex).toBeGreaterThan(-1);
+      await act(async () => {
+        input.setSelectionRange(1, decimalIndex + 2);
+      });
+
+      const keydownResult = fireEvent.keyDown(input, { key: '.' });
+      expect(keydownResult).toBe(true);
+    });
+
+    it('accepts grouping while typing and parses progressively', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField onValueChange={onValueChange} onValueCommitted={onValueCommitted} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '1' } }); // 1
+      fireEvent.change(input, { target: { value: '1,' } }); // 1 (group symbol)
+      fireEvent.change(input, { target: { value: '1,2' } }); // 12
+      fireEvent.change(input, { target: { value: '1,23' } }); // 123
+      fireEvent.change(input, { target: { value: '1,234' } }); // 1234
+
+      expect(onValueChange.mock.calls.length).toBe(5);
+      expect(onValueChange.mock.calls[0][0]).toBe(1);
+      expect(onValueChange.mock.calls[1][0]).toBe(1);
+      expect(onValueChange.mock.calls[2][0]).toBe(12);
+      expect(onValueChange.mock.calls[3][0]).toBe(123);
+      expect(onValueChange.mock.calls[4][0]).toBe(1234);
+
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+      fireEvent.blur(input);
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(1234);
+    });
+
+    it('respects locale decimal separator while typing (de-DE)', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+          locale="de-DE"
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '1' } }); // 1
+      fireEvent.change(input, { target: { value: '1,' } }); // 1 (decimal separator typed)
+      fireEvent.change(input, { target: { value: '1,5' } }); // 1.5
+
+      expect(onValueChange.mock.calls.length).toBe(3);
+      expect(onValueChange.mock.calls[0][0]).toBe(1);
+      expect(onValueChange.mock.calls[1][0]).toBe(1);
+      expect(onValueChange.mock.calls[2][0]).toBe(1.5);
+
+      fireEvent.blur(input);
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(1.5);
+    });
+
+    it('parses percent while typing and commits canonical percent value', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+          format={{ style: 'percent' }}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      // Typing digits in percent style represents a fraction (12 -> 0.12)
+      fireEvent.change(input, { target: { value: '12' } });
+      // Typing with explicit percent sign also remains 0.12
+      fireEvent.change(input, { target: { value: '12%' } });
+
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[0][0]).toBe(0.12);
+      expect(onValueChange.mock.calls[1][0]).toBe(0.12);
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+
+      fireEvent.blur(input);
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(0.12);
+    });
+
+    it('accepts currency symbol while typing and parses numeric value', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          onValueChange={onValueChange}
+          format={{ style: 'currency', currency: 'USD' }}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '$1' } });
+      fireEvent.change(input, { target: { value: '$1,2' } });
+
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[0][0]).toBe(1);
+      expect(onValueChange.mock.calls[1][0]).toBe(12);
+    });
+
+    it('allows deleting trailing currency symbols with locale literals', async () => {
+      const onValueChange = vi.fn();
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      const formatter = new Intl.NumberFormat('de-DE', format);
+
+      await render(
+        <NumberField
+          defaultValue={12.34}
+          locale="de-DE"
+          format={format}
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      const formatted = formatter.format(12.34);
+      const withoutCurrency = formatted.replace('€', '');
+
+      fireEvent.change(input, { target: { value: withoutCurrency } });
+
+      expect(input).toHaveValue(withoutCurrency);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(12.34);
+    });
+
+    it('allows backspace to remove trailing currency symbol that follows a locale literal', async () => {
+      const onValueChange = vi.fn();
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      const formatter = new Intl.NumberFormat('de-DE', format);
+
+      await render(
+        <NumberField
+          defaultValue={12.34}
+          locale="de-DE"
+          format={format}
+          onValueChange={onValueChange}
+        />,
+      );
+
+      const input = screen.getByRole('textbox');
+      const formatted = formatter.format(12.34);
+      const afterBackspace = formatted.slice(0, -1);
+
+      await act(async () => {
+        input.focus();
+      });
+
+      const keydownResult = fireEvent.keyDown(input, { key: 'Backspace' });
+      expect(keydownResult).toBe(true);
+
+      fireEvent.change(input, { target: { value: afterBackspace } });
+
+      expect(input).toHaveValue(afterBackspace);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(12.34);
+    });
+
+    it('does not commit on blur for invalid input', async () => {
+      const onValueCommitted = vi.fn();
+      await render(<NumberField onValueCommitted={onValueCommitted} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '.' } });
+      expect(input).toHaveValue('.');
+      fireEvent.blur(input);
+
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+    });
+  });
+
+  describe('Form integration', () => {
     it('should include the input value in the form submission', async ({ skip }) => {
       if (isJSDOM) {
         // FormData is not available in JSDOM
@@ -1350,10 +1390,9 @@ describe('<NumberField />', () => {
       );
 
       const input = screen.getByRole('textbox');
-      const hiddenInput = document.querySelector('input[type="number"][name="quantity"]');
+      const hiddenInput = screen.getByRole('spinbutton', { hidden: true });
 
-      expect(hiddenInput).not.toBe(null);
-      fireEvent.change(hiddenInput!, { target: { value: '42' } });
+      fireEvent.change(hiddenInput, { target: { value: '42' } });
 
       expect(onValueChange.mock.calls.length).toBe(1);
       expect(onValueChange.mock.calls[0][0]).toBe(42);
@@ -1417,8 +1456,8 @@ describe('<NumberField />', () => {
     );
   });
 
-  describe('Field', () => {
-    it('[data-touched]', async () => {
+  describe('Field integration', () => {
+    it('adds data-touched after blur', async () => {
       await render(
         <Field.Root>
           <NumberFieldBase.Root>
@@ -1435,7 +1474,7 @@ describe('<NumberField />', () => {
       expect(input).toHaveAttribute('data-touched', '');
     });
 
-    it('[data-dirty]', async () => {
+    it('adds data-dirty after the value changes', async () => {
       await render(
         <Field.Root>
           <NumberFieldBase.Root>
@@ -1453,8 +1492,8 @@ describe('<NumberField />', () => {
       expect(input).toHaveAttribute('data-dirty', '');
     });
 
-    describe('[data-filled]', () => {
-      it('adds [data-filled] attribute when filled', async () => {
+    describe('field state attribute: data-filled', () => {
+      it('adds data-filled when filled', async () => {
         await render(
           <Field.Root>
             <NumberFieldBase.Root>
@@ -1476,7 +1515,7 @@ describe('<NumberField />', () => {
         expect(input).not.toHaveAttribute('data-filled');
       });
 
-      it('has [data-filled] attribute when already filled', async () => {
+      it('has data-filled when already filled', async () => {
         await render(
           <Field.Root>
             <NumberFieldBase.Root defaultValue={1}>
@@ -1495,7 +1534,7 @@ describe('<NumberField />', () => {
       });
     });
 
-    it('[data-filled]', async () => {
+    it('adds data-focused while focused', async () => {
       await render(
         <Field.Root>
           <NumberFieldBase.Root>
@@ -1517,7 +1556,7 @@ describe('<NumberField />', () => {
       expect(input).not.toHaveAttribute('data-focused');
     });
 
-    it('adds [data-focused] attribute on every focus', async () => {
+    it('adds data-focused on every focus', async () => {
       await render(
         <Field.Root>
           <NumberFieldBase.Root>
@@ -1538,28 +1577,30 @@ describe('<NumberField />', () => {
       expect(input).toHaveAttribute('data-focused', '');
     });
 
-    it('prop: validate', async () => {
-      await render(
-        <Field.Root validationMode="onBlur" validate={() => 'error'}>
-          <NumberFieldBase.Root>
-            <NumberFieldBase.Input />
-          </NumberFieldBase.Root>
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
+    describe('prop: validate', () => {
+      it('applies aria-invalid after blur', async () => {
+        await render(
+          <Field.Root validationMode="onBlur" validate={() => 'error'}>
+            <NumberFieldBase.Root>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
 
-      const input = screen.getByRole('textbox');
+        const input = screen.getByRole('textbox');
 
-      expect(input).not.toHaveAttribute('aria-invalid');
+        expect(input).not.toHaveAttribute('aria-invalid');
 
-      fireEvent.focus(input);
-      fireEvent.blur(input);
+        fireEvent.focus(input);
+        fireEvent.blur(input);
 
-      expect(input).toHaveAttribute('aria-invalid', 'true');
+        expect(input).toHaveAttribute('aria-invalid', 'true');
+      });
     });
 
     describe('prop: validationMode', () => {
-      it('onSubmit', async () => {
+      it('validates when validationMode is onSubmit', async () => {
         await render(
           <Form>
             <Field.Root validate={(value) => (value === 1 ? 'custom error' : null)}>
@@ -1615,7 +1656,7 @@ describe('<NumberField />', () => {
         expect(screen.queryByTestId('error')).toHaveTextContent('valueMissing error');
       });
 
-      it('onChange', async () => {
+      it('validates when validationMode is onChange', async () => {
         await render(
           <Field.Root
             validationMode="onChange"
@@ -1675,7 +1716,7 @@ describe('<NumberField />', () => {
         expect(input).toHaveAttribute('aria-invalid', 'true');
       });
 
-      it('onBlur', async () => {
+      it('validates when validationMode is onBlur', async () => {
         await render(
           <Field.Root
             validationMode="onBlur"
@@ -1802,7 +1843,7 @@ describe('<NumberField />', () => {
       expect(input).not.toHaveAttribute('disabled');
     });
 
-    it('is validated with latest value when validationMode=onBlur', async () => {
+    it('validates with the latest value when validationMode is onBlur', async () => {
       const validate = vi.fn(() => 'error');
 
       await render(
@@ -1852,14 +1893,6 @@ describe('<NumberField />', () => {
         'aria-describedby',
         screen.getByTestId('description').id,
       );
-    });
-  });
-
-  describe('prop: inputMode', () => {
-    it('should set the inputMode to numeric', async () => {
-      await render(<NumberField />);
-      const input = screen.getByRole('textbox');
-      expect(input).toHaveAttribute('inputmode', 'numeric');
     });
   });
 
@@ -2131,38 +2164,6 @@ describe('<NumberField />', () => {
       const preventDefaultSpy = vi.fn();
       fireEvent.keyDown(input, { key, preventDefault: preventDefaultSpy });
       expect(preventDefaultSpy).toHaveBeenCalledTimes(0);
-    });
-  });
-
-  describe('prop: locale', () => {
-    it('should set the locale of the input', async () => {
-      await render(<NumberField defaultValue={1000.5} locale="de-DE" />);
-      const input = screen.getByRole('textbox');
-
-      // In German locale, numbers use dot as thousands separator and comma as decimal separator
-      const expectedValue = new Intl.NumberFormat('de-DE').format(1000.5);
-      expect(input).toHaveValue(expectedValue);
-    });
-
-    it('should use the default locale if no locale is provided', async () => {
-      await render(<NumberField defaultValue={1000.5} />);
-      const input = screen.getByRole('textbox');
-      const expectedValue = new Intl.NumberFormat().format(1000.5);
-      expect(input).toHaveValue(expectedValue);
-    });
-
-    it('should handle locales using space as the thousands separator', async () => {
-      await render(<NumberField defaultValue={12345.5} locale="pl" />);
-
-      const input = screen.getByRole('textbox');
-      const expectedValue = new Intl.NumberFormat('pl').format(12345.5);
-      expect(input).toHaveValue(expectedValue);
-
-      const incrementButton = screen.getByLabelText('Increase');
-      fireEvent.click(incrementButton);
-
-      const newExpectedValue = new Intl.NumberFormat('pl').format(12346.5);
-      expect(input).toHaveValue(newExpectedValue);
     });
   });
 });

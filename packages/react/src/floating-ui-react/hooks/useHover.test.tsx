@@ -176,9 +176,6 @@ describe.skipIf(!isJSDOM)('useHover', () => {
 
     fireEvent.pointerDown(screen.getByRole('button'), { pointerType: 'touch' });
     fireEvent.mouseMove(screen.getByRole('button'));
-
-    await flushMicrotasks();
-
     await waitFor(() => {
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });

@@ -164,7 +164,7 @@ describe('<Combobox.Input />', () => {
 
       const input = screen.getByTestId('input');
       await user.click(input);
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       await waitFor(() => {
         screen.getByRole('option', { name: 'a' });
@@ -249,7 +249,7 @@ describe('<Combobox.Input />', () => {
       expect(input.value).toBe('');
 
       await user.type(input, 'a');
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       const options = screen.getAllByRole('option');
       options.forEach((opt) => {
@@ -377,15 +377,11 @@ describe('<Combobox.Input />', () => {
 
       await user.type(input, 'a');
 
-      await waitFor(() => {
-        expect(screen.getByRole('listbox')).not.toBe(null);
-      });
+      await screen.findByRole('listbox');
       await user.click(screen.getByRole('option', { name: 'apple' }));
 
       await user.type(input, 'a');
-      await waitFor(() => {
-        expect(screen.getByRole('listbox')).not.toBe(null);
-      });
+      await screen.findByRole('listbox');
 
       await user.keyboard('{Escape}');
 
@@ -596,9 +592,7 @@ describe('<Combobox.Input />', () => {
 
       await user.click(input);
 
-      await waitFor(() => {
-        expect(screen.getByRole('listbox')).not.toBe(null);
-      });
+      await screen.findByRole('listbox');
 
       await user.tab();
 
@@ -609,9 +603,7 @@ describe('<Combobox.Input />', () => {
 
       await user.click(input);
 
-      await waitFor(() => {
-        expect(screen.getByRole('listbox')).not.toBe(null);
-      });
+      await screen.findByRole('listbox');
 
       await user.tab();
 
@@ -648,7 +640,7 @@ describe('<Combobox.Input />', () => {
 
       await user.click(input);
 
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
       expect(input).toHaveAttribute('data-popup-side', 'right');
 
       await user.click(document.body);
@@ -675,7 +667,7 @@ describe('<Combobox.Input />', () => {
 
       await user.click(input);
 
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
       expect(input).toHaveAttribute('data-list-empty');
     });
   });

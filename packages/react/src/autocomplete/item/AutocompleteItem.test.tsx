@@ -60,7 +60,7 @@ describe('<Autocomplete.Item />', () => {
 
       const input = screen.getByTestId('input');
       await user.click(input);
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       // Move highlight to an option then press Enter to select it
       await user.keyboard('{ArrowDown}');

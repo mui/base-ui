@@ -4,7 +4,7 @@ import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/interna
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM, wait } from '#test-utils';
 
-describe('<MenuRoot />', () => {
+describe('<Menu.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
@@ -1057,9 +1057,7 @@ describe('<MenuRoot />', () => {
       await act(async () => {
         menuHandle.open('trigger');
       });
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.toBe(null);
-      });
+      await screen.findByRole('menu');
 
       expect(screen.getByTestId('content').textContent).toBe('Content');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -1105,9 +1103,7 @@ describe('<MenuRoot />', () => {
       await act(async () => {
         menuHandle.open('trigger2');
       });
-      await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.toBe(null);
-      });
+      await screen.findByRole('menu');
 
       expect(screen.getByTestId('content').textContent).toBe('2');
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');

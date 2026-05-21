@@ -37,13 +37,19 @@ describe('<Toolbar.Group />', () => {
 
   describe('ARIA attributes', () => {
     it('renders a group', async () => {
-      await render(
-        <Toolbar.Root>
+      const { setProps } = await render(
+        <Toolbar.Root orientation="horizontal">
           <Toolbar.Group data-testid="group" />
         </Toolbar.Root>,
       );
 
-      expect(screen.getByTestId('group')).toBe(screen.getByRole('group'));
+      const group = screen.getByTestId('group');
+      expect(group).toBe(screen.getByRole('group'));
+      expect(group).toHaveAttribute('data-orientation', 'horizontal');
+
+      await setProps({ orientation: 'vertical' });
+
+      expect(group).toHaveAttribute('data-orientation', 'vertical');
     });
   });
 

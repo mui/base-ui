@@ -1,5 +1,4 @@
 import { expect, test, vi } from 'vitest';
-import * as React from 'react';
 import { flushMicrotasks, render } from '@mui/internal-test-utils';
 import { PopupTriggerMap } from '../../utils/popups';
 import { FloatingRootStore } from '../components/FloatingRootStore';

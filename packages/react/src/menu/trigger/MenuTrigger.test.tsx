@@ -147,8 +147,8 @@ describe('<Menu.Trigger />', () => {
     });
   });
 
-  describe('style hooks', () => {
-    it('should have the data-popup-open and data-pressed attributes when open', async () => {
+  describe('state attributes', () => {
+    it('adds data-popup-open and data-pressed when open', async () => {
       await render(
         <Menu.Root>
           <Menu.Trigger />

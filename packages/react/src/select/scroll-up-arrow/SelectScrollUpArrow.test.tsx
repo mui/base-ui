@@ -17,6 +17,18 @@ describe('<Select.ScrollUpArrow />', () => {
     },
   }));
 
+  it('has the up direction data attribute', async () => {
+    await render(
+      <Select.Root open>
+        <Select.Positioner>
+          <Select.ScrollUpArrow keepMounted data-testid="arrow" />
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    expect(screen.getByTestId('arrow')).toHaveAttribute('data-direction', 'up');
+  });
+
   it('keeps advancing when the previous item top is fractionally within the visible top', async () => {
     let scrollTop = 72.18181610107422;
 

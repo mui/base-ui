@@ -2,7 +2,7 @@ import { expect } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance } from '#test-utils';
 import { type Orientation } from '../../internals/types';
 
 describe('<Toolbar.Root />', () => {
@@ -19,9 +19,20 @@ describe('<Toolbar.Root />', () => {
 
       expect(container.firstElementChild as HTMLElement).toHaveAttribute('role', 'toolbar');
     });
+
+    it('has orientation data attributes', async () => {
+      const { setProps } = await render(<Toolbar.Root orientation="horizontal" />);
+      const toolbar = screen.getByRole('toolbar');
+
+      expect(toolbar).toHaveAttribute('data-orientation', 'horizontal');
+
+      await setProps({ orientation: 'vertical' });
+
+      expect(toolbar).toHaveAttribute('data-orientation', 'vertical');
+    });
   });
 
-  describe.skipIf(isJSDOM)('keyboard navigation', () => {
+  describe('keyboard navigation', () => {
     [
       ['ltr', 'horizontal', 'ArrowRight', 'ArrowLeft'],
       ['ltr', 'vertical', 'ArrowDown', 'ArrowUp'],
@@ -109,7 +120,7 @@ describe('<Toolbar.Root />', () => {
     });
   });
 
-  describe.skipIf(isJSDOM)('prop: focusableWhenDisabled', () => {
+  describe('prop: focusableWhenDisabled', () => {
     function expectFocusedWhenDisabled(element: Element) {
       expect(element).toHaveAttribute('data-disabled');
       expect(element).toHaveAttribute('aria-disabled', 'true');

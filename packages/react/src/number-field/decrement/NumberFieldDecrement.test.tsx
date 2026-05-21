@@ -17,7 +17,7 @@ describe('<NumberField.Decrement />', () => {
     },
   }));
 
-  it('has decrease label', async () => {
+  it('has the default "Decrease" label', async () => {
     await render(
       <NumberField.Root>
         <NumberField.Decrement />
@@ -26,7 +26,7 @@ describe('<NumberField.Decrement />', () => {
     expect(screen.queryByLabelText('Decrease')).not.toBe(null);
   });
 
-  it('decrements starting from 0 click', async () => {
+  it('keeps an empty value at 0 when clicked', async () => {
     await render(
       <NumberField.Root>
         <NumberField.Decrement />
@@ -39,7 +39,7 @@ describe('<NumberField.Decrement />', () => {
     expect(screen.getByRole('textbox')).toHaveValue('0');
   });
 
-  it('decrements to -1 starting from defaultValue=0 click', async () => {
+  it('decrements from defaultValue=0 to -1 when clicked', async () => {
     await render(
       <NumberField.Root defaultValue={0}>
         <NumberField.Decrement />
@@ -52,7 +52,7 @@ describe('<NumberField.Decrement />', () => {
     expect(screen.getByRole('textbox')).toHaveValue('-1');
   });
 
-  it('first decrement after external controlled update', async () => {
+  it('decrements from an external controlled update', async () => {
     function Controlled() {
       const [value, setValue] = React.useState<number | null>(null);
       return (
@@ -66,12 +66,12 @@ describe('<NumberField.Decrement />', () => {
 
     const { user } = await render(<Controlled />);
     const input = screen.getByRole('textbox');
-    const increase = screen.getByLabelText('Decrease');
+    const decrement = screen.getByLabelText('Decrease');
 
     await user.click(screen.getByText('external'));
     expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
 
-    await user.click(increase);
+    await user.click(decrement);
     expect(input).toHaveValue((0.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
   });
 
@@ -445,7 +445,7 @@ describe('<NumberField.Decrement />', () => {
     });
   });
 
-  describe('disabled state', () => {
+  describe('prop: disabled', () => {
     it('should not decrement when root is disabled', async () => {
       const handleValueChange = vi.fn();
       await render(
@@ -478,31 +478,31 @@ describe('<NumberField.Decrement />', () => {
       expect(handleValueChange.mock.calls.length).toBe(0);
       expect(input).toHaveValue('0');
     });
+  });
 
-    describe('prop: className', () => {
-      it('when root is disabled', async () => {
-        const classNameSpy = vi.fn();
-        await render(
-          <NumberField.Root disabled>
-            <NumberField.Decrement className={classNameSpy} />
-            <NumberField.Input />
-          </NumberField.Root>,
-        );
+  describe('prop: className', () => {
+    it('receives disabled state when the root is disabled', async () => {
+      const classNameSpy = vi.fn();
+      await render(
+        <NumberField.Root disabled>
+          <NumberField.Decrement className={classNameSpy} />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
 
-        expect(classNameSpy.mock.lastCall?.[0]).toHaveProperty('disabled', true);
-      });
+      expect(classNameSpy.mock.lastCall?.[0]).toHaveProperty('disabled', true);
+    });
 
-      it('when button is disabled', async () => {
-        const classNameSpy = vi.fn();
-        await render(
-          <NumberField.Root>
-            <NumberField.Decrement disabled className={classNameSpy} />
-            <NumberField.Input />
-          </NumberField.Root>,
-        );
+    it('receives disabled state when the button is disabled', async () => {
+      const classNameSpy = vi.fn();
+      await render(
+        <NumberField.Root>
+          <NumberField.Decrement disabled className={classNameSpy} />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
 
-        expect(classNameSpy.mock.lastCall?.[0]).toHaveProperty('disabled', true);
-      });
+      expect(classNameSpy.mock.lastCall?.[0]).toHaveProperty('disabled', true);
     });
   });
 });

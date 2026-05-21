@@ -26,6 +26,15 @@ describe('<Menu.Positioner />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  const baselineX = 10;
+  const baselineY = 36;
+  const popupWidth = 52;
+  const popupHeight = 24;
+  const anchorWidth = 72;
+  const anchorHeight = 36;
+  const triggerStyle = { width: anchorWidth, height: anchorHeight };
+  const popupStyle = { width: popupWidth, height: popupHeight };
+
   describe.skipIf(isJSDOM)('prop: anchor', () => {
     it('should be placed near the specified element when a ref is passed', async () => {
       function TestComponent() {
@@ -327,15 +336,11 @@ describe('<Menu.Positioner />', () => {
       expect(screen.queryByRole('menu', { hidden: true })).toBeInaccessible();
 
       await user.click(trigger, { delay: 20 });
-      await waitFor(() => {
-        expect(screen.queryByRole('menu', { hidden: false })).not.toBe(null);
-      });
+      await screen.findByRole('menu', { hidden: false });
       expect(screen.queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
       await user.click(trigger, { delay: 20 });
-      await waitFor(() => {
-        expect(screen.queryByRole('menu', { hidden: true })).not.toBe(null);
-      });
+      await screen.findByRole('menu', { hidden: true });
       await waitFor(() => {
         expect(screen.queryByRole('menu', { hidden: true })).toBeInaccessible();
       });
@@ -364,10 +369,7 @@ describe('<Menu.Positioner />', () => {
       expect(screen.queryByRole('menu', { hidden: true })).toBe(null);
 
       await user.click(trigger, { delay: 20 });
-      await flushMicrotasks();
-      await waitFor(() => {
-        expect(screen.queryByRole('menu', { hidden: false })).not.toBe(null);
-      });
+      await screen.findByRole('menu', { hidden: false });
       expect(screen.queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
       await user.click(trigger, { delay: 20 });
@@ -376,15 +378,6 @@ describe('<Menu.Positioner />', () => {
       });
     });
   });
-
-  const baselineX = 10;
-  const baselineY = 36;
-  const popupWidth = 52;
-  const popupHeight = 24;
-  const anchorWidth = 72;
-  const anchorHeight = 36;
-  const triggerStyle = { width: anchorWidth, height: anchorHeight };
-  const popupStyle = { width: popupWidth, height: popupHeight };
 
   describe.skipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {

@@ -121,10 +121,12 @@ describe('<Checkbox.Root />', () => {
     it('should update its state if the underlying input is toggled', async () => {
       await render(<Checkbox.Root />);
       const checkbox = screen.getByRole('checkbox');
-      const internalInput = document.querySelector<HTMLInputElement>('input[type="checkbox"]');
+      const [, internalInput] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
 
       await act(async () => {
-        internalInput?.click();
+        internalInput.click();
       });
 
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
@@ -184,7 +186,7 @@ describe('<Checkbox.Root />', () => {
       expect(screen.getAllByRole('checkbox')[0]).toHaveAttribute('aria-readonly', 'true');
     });
 
-    it('should not have the aria attribute when `readOnly` is not set', async () => {
+    it('does not set aria-readonly when readOnly is not set', async () => {
       await render(<Checkbox.Root />);
       expect(screen.getAllByRole('checkbox')[0]).not.toHaveAttribute('aria-readonly');
     });
@@ -241,7 +243,7 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).toHaveAttribute('aria-checked', 'mixed');
     });
 
-    it('should not have the aria attribute when `indeterminate` is not set', async () => {
+    it('does not set aria-checked to mixed when indeterminate is not set', async () => {
       await render(<Checkbox.Root />);
       expect(screen.getAllByRole('checkbox')[0]).not.toHaveAttribute('aria-checked', 'mixed');
     });
@@ -266,7 +268,7 @@ describe('<Checkbox.Root />', () => {
     expect(checkbox).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('should place the style hooks on the root and the indicator', async () => {
+  it('adds state attributes to the root and indicator', async () => {
     const { setProps } = await render(
       <Checkbox.Root defaultChecked disabled readOnly required>
         <Checkbox.Indicator />
@@ -367,7 +369,7 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
-  describe('Form', () => {
+  describe('Form integration', () => {
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>
@@ -950,8 +952,8 @@ describe('<Checkbox.Root />', () => {
     );
   });
 
-  describe('Field', () => {
-    it('should receive disabled prop from Field.Root', async () => {
+  describe('Field integration', () => {
+    it('receives the disabled prop from Field.Root', async () => {
       await render(
         <Field.Root disabled>
           <Checkbox.Root />
@@ -962,7 +964,7 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should receive name prop from Field.Root', async () => {
+    it('receives the name prop from Field.Root', async () => {
       await render(
         <Field.Root name="field-checkbox">
           <Checkbox.Root />
@@ -975,7 +977,7 @@ describe('<Checkbox.Root />', () => {
       expect(input).toHaveAttribute('name', 'field-checkbox');
     });
 
-    it('[data-touched]', async () => {
+    it('adds data-touched after blur', async () => {
       await render(
         <Field.Root>
           <Checkbox.Root data-testid="button" />
@@ -990,7 +992,7 @@ describe('<Checkbox.Root />', () => {
       expect(button).toHaveAttribute('data-touched', '');
     });
 
-    it('[data-dirty]', async () => {
+    it('adds data-dirty after the value changes', async () => {
       await render(
         <Field.Root>
           <Checkbox.Root data-testid="button" />
@@ -1006,8 +1008,8 @@ describe('<Checkbox.Root />', () => {
       expect(button).toHaveAttribute('data-dirty', '');
     });
 
-    describe('[data-filled]', () => {
-      it('adds [data-filled] attribute when checked after being initially unchecked', async () => {
+    describe('field state attribute: data-filled', () => {
+      it('adds data-filled when checked after being initially unchecked', async () => {
         await render(
           <Field.Root>
             <Checkbox.Root data-testid="button" />
@@ -1027,7 +1029,7 @@ describe('<Checkbox.Root />', () => {
         expect(button).not.toHaveAttribute('data-filled');
       });
 
-      it('removes [data-filled] attribute when unchecked after being initially checked', async () => {
+      it('removes data-filled when unchecked after being initially checked', async () => {
         await render(
           <Field.Root>
             <Checkbox.Root data-testid="button" defaultChecked />
@@ -1043,7 +1045,7 @@ describe('<Checkbox.Root />', () => {
         expect(button).not.toHaveAttribute('data-filled', '');
       });
 
-      it('adds [data-filled] attribute when any checkbox is filled when inside a group', async () => {
+      it('adds data-filled when any checkbox is filled when inside a group', async () => {
         await render(
           <Field.Root>
             <CheckboxGroup defaultValue={['1', '2']}>
@@ -1071,7 +1073,7 @@ describe('<Checkbox.Root />', () => {
       });
     });
 
-    it('[data-focused]', async () => {
+    it('adds data-focused while focused', async () => {
       await render(
         <Field.Root>
           <Checkbox.Root data-testid="button" />
@@ -1091,7 +1093,7 @@ describe('<Checkbox.Root />', () => {
       expect(button).not.toHaveAttribute('data-focused');
     });
 
-    it('[data-invalid]', async () => {
+    it('adds data-invalid when the field is invalid', async () => {
       await render(
         <Field.Root invalid>
           <Checkbox.Root data-testid="button" />
@@ -1103,7 +1105,7 @@ describe('<Checkbox.Root />', () => {
       expect(button).toHaveAttribute('data-invalid', '');
     });
 
-    it('[data-valid]', async () => {
+    it('adds data-valid after validation succeeds', async () => {
       await render(
         <Field.Root validationMode="onBlur">
           <Checkbox.Root data-testid="button" required />
@@ -1124,122 +1126,128 @@ describe('<Checkbox.Root />', () => {
       expect(button).not.toHaveAttribute('data-invalid');
     });
 
-    it('prop: validationMode=onSubmit', async () => {
-      await render(
-        <Form>
-          <Field.Root>
-            <Checkbox.Root required />
-            <Field.Error data-testid="error" />
-          </Field.Root>
-          <button type="submit">submit</button>
-        </Form>,
-      );
-
-      const checkbox = screen.getByRole('checkbox');
-      expect(checkbox).not.toHaveAttribute('aria-invalid');
-
-      fireEvent.click(checkbox);
-      expect(checkbox).toHaveAttribute('data-checked', '');
-      fireEvent.click(checkbox);
-      expect(checkbox).toHaveAttribute('data-unchecked', '');
-      expect(checkbox).not.toHaveAttribute('aria-invalid');
-
-      fireEvent.click(screen.getByText('submit'));
-      expect(checkbox).toHaveAttribute('aria-invalid', 'true');
-
-      fireEvent.click(checkbox);
-      expect(checkbox).toHaveAttribute('data-checked', '');
-      expect(checkbox).not.toHaveAttribute('aria-invalid');
-
-      fireEvent.click(checkbox);
-      expect(checkbox).toHaveAttribute('data-unchecked', '');
-      expect(checkbox).toHaveAttribute('aria-invalid');
-
-      fireEvent.click(checkbox);
-      expect(checkbox).toHaveAttribute('data-checked', '');
-      expect(checkbox).not.toHaveAttribute('aria-invalid');
-    });
-
-    it('props: validationMode=onChange', async () => {
-      await render(
-        <Field.Root
-          validationMode="onChange"
-          validate={(value) => {
-            const checked = value as boolean;
-            return checked ? 'error' : null;
-          }}
-        >
-          <Checkbox.Root data-testid="button" />
-        </Field.Root>,
-      );
-
-      const button = screen.getByTestId('button');
-
-      expect(button).not.toHaveAttribute('aria-invalid');
-
-      fireEvent.click(button);
-
-      expect(button).toHaveAttribute('aria-invalid', 'true');
-    });
-
-    it('revalidates when a controlled value changes externally', async () => {
-      const validateSpy = vi.fn((value: unknown) => ((value as boolean) ? 'error' : null));
-
-      function App() {
-        const [checked, setChecked] = React.useState(false);
-
-        return (
-          <React.Fragment>
-            <Field.Root validationMode="onChange" validate={validateSpy} name="terms">
-              <Checkbox.Root data-testid="button" checked={checked} onCheckedChange={setChecked} />
+    describe('prop: validationMode', () => {
+      it('validates when validationMode is onSubmit', async () => {
+        await render(
+          <Form>
+            <Field.Root>
+              <Checkbox.Root required />
+              <Field.Error data-testid="error" />
             </Field.Root>
-            <button type="button" onClick={() => setChecked((prev) => !prev)}>
-              Toggle externally
-            </button>
-          </React.Fragment>
+            <button type="submit">submit</button>
+          </Form>,
         );
-      }
 
-      await render(<App />);
+        const checkbox = screen.getByRole('checkbox');
+        expect(checkbox).not.toHaveAttribute('aria-invalid');
 
-      const button = screen.getByTestId('button');
-      const toggle = screen.getByText('Toggle externally');
+        fireEvent.click(checkbox);
+        expect(checkbox).toHaveAttribute('data-checked', '');
+        fireEvent.click(checkbox);
+        expect(checkbox).toHaveAttribute('data-unchecked', '');
+        expect(checkbox).not.toHaveAttribute('aria-invalid');
 
-      expect(button).not.toHaveAttribute('aria-invalid');
-      const initialCallCount = validateSpy.mock.calls.length;
+        fireEvent.click(screen.getByText('submit'));
+        expect(checkbox).toHaveAttribute('aria-invalid', 'true');
 
-      fireEvent.click(toggle);
+        fireEvent.click(checkbox);
+        expect(checkbox).toHaveAttribute('data-checked', '');
+        expect(checkbox).not.toHaveAttribute('aria-invalid');
 
-      expect(validateSpy.mock.calls.length).toBe(initialCallCount + 1);
-      expect(validateSpy.mock.lastCall?.[0]).toBe(true);
-      expect(button).toHaveAttribute('aria-invalid', 'true');
+        fireEvent.click(checkbox);
+        expect(checkbox).toHaveAttribute('data-unchecked', '');
+        expect(checkbox).toHaveAttribute('aria-invalid');
+
+        fireEvent.click(checkbox);
+        expect(checkbox).toHaveAttribute('data-checked', '');
+        expect(checkbox).not.toHaveAttribute('aria-invalid');
+      });
+
+      it('validates when validationMode is onChange', async () => {
+        await render(
+          <Field.Root
+            validationMode="onChange"
+            validate={(value) => {
+              const checked = value as boolean;
+              return checked ? 'error' : null;
+            }}
+          >
+            <Checkbox.Root data-testid="button" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.toHaveAttribute('aria-invalid');
+
+        fireEvent.click(button);
+
+        expect(button).toHaveAttribute('aria-invalid', 'true');
+      });
+
+      it('revalidates when a controlled value changes externally', async () => {
+        const validateSpy = vi.fn((value: unknown) => ((value as boolean) ? 'error' : null));
+
+        function App() {
+          const [checked, setChecked] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <Field.Root validationMode="onChange" validate={validateSpy} name="terms">
+                <Checkbox.Root
+                  data-testid="button"
+                  checked={checked}
+                  onCheckedChange={setChecked}
+                />
+              </Field.Root>
+              <button type="button" onClick={() => setChecked((prev) => !prev)}>
+                Toggle externally
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+
+        const button = screen.getByTestId('button');
+        const toggle = screen.getByText('Toggle externally');
+
+        expect(button).not.toHaveAttribute('aria-invalid');
+        const initialCallCount = validateSpy.mock.calls.length;
+
+        fireEvent.click(toggle);
+
+        expect(validateSpy.mock.calls.length).toBe(initialCallCount + 1);
+        expect(validateSpy.mock.lastCall?.[0]).toBe(true);
+        expect(button).toHaveAttribute('aria-invalid', 'true');
+      });
+
+      it('validates when validationMode is onBlur', async () => {
+        await render(
+          <Field.Root
+            validationMode="onBlur"
+            validate={(value) => {
+              const checked = value as boolean;
+              return checked ? 'error' : null;
+            }}
+          >
+            <Checkbox.Root data-testid="button" />
+            <Field.Error data-testid="error" />
+          </Field.Root>,
+        );
+
+        const button = screen.getByTestId('button');
+
+        expect(button).not.toHaveAttribute('aria-invalid');
+
+        fireEvent.click(button);
+        fireEvent.blur(button);
+
+        expect(button).toHaveAttribute('aria-invalid', 'true');
+      });
     });
 
-    it('prop: validationMode=onBlur', async () => {
-      await render(
-        <Field.Root
-          validationMode="onBlur"
-          validate={(value) => {
-            const checked = value as boolean;
-            return checked ? 'error' : null;
-          }}
-        >
-          <Checkbox.Root data-testid="button" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
-
-      const button = screen.getByTestId('button');
-
-      expect(button).not.toHaveAttribute('aria-invalid');
-
-      fireEvent.click(button);
-      fireEvent.blur(button);
-
-      expect(button).toHaveAttribute('aria-invalid', 'true');
-    });
-
-    describe('Field.Label', () => {
+    describe('Field.Label integration', () => {
       describe('explicit association', () => {
         it('when label and checkbox are siblings', async () => {
           await render(
@@ -1252,7 +1260,7 @@ describe('<Checkbox.Root />', () => {
           const label = screen.getByText('Label');
           expect(label.getAttribute('id')).not.toBe(null);
 
-          const input = document.querySelector('input[type="checkbox"]');
+          const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', { hidden: true });
           expect(label.getAttribute('for')).toBe(input?.getAttribute('id'));
 
           const checkbox = screen.getByRole('checkbox');
@@ -1276,7 +1284,7 @@ describe('<Checkbox.Root />', () => {
           );
 
           const label = screen.getByTestId('label');
-          const input = document.querySelector('input[type="checkbox"]');
+          const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', { hidden: true });
           expect(label.getAttribute('for')).not.toBe(null);
           expect(label.getAttribute('for')).toBe(input?.getAttribute('id'));
 

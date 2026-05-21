@@ -92,7 +92,7 @@ describe('<Combobox.Item />', () => {
 
       const input = screen.getByTestId('input');
       await user.click(input);
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
 
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{Enter}');
@@ -176,7 +176,7 @@ describe('<Combobox.Item />', () => {
 
     const input = screen.getByTestId('input');
     await user.click(input);
-    await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+    expect(await screen.findByRole('listbox')).not.toBe(null);
     await user.keyboard('{ArrowDown}');
     await user.keyboard('{Enter}');
 
@@ -264,9 +264,7 @@ describe('<Combobox.Item />', () => {
 
     const input = screen.getByTestId('input');
     await user.click(input);
-    await waitFor(() => {
-      expect(screen.getByRole('listbox')).not.toBe(null);
-    });
+    await screen.findByRole('listbox');
 
     const a = screen.getByRole('option', { name: 'a' });
     await user.click(a);
@@ -296,7 +294,7 @@ describe('<Combobox.Item />', () => {
 
     const input = screen.getByTestId('input');
     await user.click(input);
-    await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+    expect(await screen.findByRole('listbox')).not.toBe(null);
     await waitFor(() =>
       expect(screen.getByRole('option', { name: 'two' })).toHaveAttribute('aria-selected', 'true'),
     );

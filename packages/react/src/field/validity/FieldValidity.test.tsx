@@ -6,8 +6,8 @@ import { Form } from '@base-ui/react/form';
 describe('<Field.Validity />', () => {
   const { render } = createRenderer();
 
-  describe('validationMode=onSubmit', () => {
-    it('should pass validity data', () => {
+  describe('validationMode: onSubmit', () => {
+    it('passes validity data', () => {
       const handleValidity = vi.fn();
 
       render(
@@ -39,8 +39,8 @@ describe('<Field.Validity />', () => {
     });
   });
 
-  describe('validationMode=onBlur', () => {
-    it('should pass validity data', () => {
+  describe('validationMode: onBlur', () => {
+    it('passes validity data', () => {
       const handleValidity = vi.fn();
 
       render(
@@ -63,7 +63,7 @@ describe('<Field.Validity />', () => {
       expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(false);
     });
 
-    it('should correctly pass errors when validate function returns a string', () => {
+    it('passes errors when validate returns a string', () => {
       const handleValidity = vi.fn();
 
       render(
@@ -82,7 +82,7 @@ describe('<Field.Validity />', () => {
       expect(handleValidity.mock.lastCall?.[0].errors).toEqual(['error']);
     });
 
-    it('should correctly pass errors when validate function returns an array of strings', () => {
+    it('passes errors when validate returns an array of strings', () => {
       const handleValidity = vi.fn();
 
       render(

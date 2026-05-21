@@ -17,6 +17,18 @@ describe('<Select.ScrollDownArrow />', () => {
     },
   }));
 
+  it('has the down direction data attribute', async () => {
+    await render(
+      <Select.Root open>
+        <Select.Positioner>
+          <Select.ScrollDownArrow keepMounted data-testid="arrow" />
+        </Select.Positioner>
+      </Select.Root>,
+    );
+
+    expect(screen.getByTestId('arrow')).toHaveAttribute('data-direction', 'down');
+  });
+
   it('snaps hover scrolling to the true bottom when the remaining space is fractional', async () => {
     let scrollTop = 19.5;
 

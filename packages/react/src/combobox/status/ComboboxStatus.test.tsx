@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from '../utils/useInitialLiveRegionTextMutation';
 
 describe('<Combobox.Status />', () => {
@@ -34,7 +34,7 @@ describe('<Combobox.Status />', () => {
 
     expect(screen.queryByTestId('status')).toBe(null);
     await user.click(screen.getByTestId('input'));
-    await waitFor(() => expect(screen.getByTestId('status')).not.toBe(null));
+    await screen.findByTestId('status');
   });
 
   describe('a11y', () => {

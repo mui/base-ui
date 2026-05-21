@@ -46,9 +46,7 @@ describe('<Avatar.Fallback />', () => {
       </Avatar.Root>,
     );
 
-    await waitFor(() => {
-      expect(screen.queryByText('AC')).not.toBe(null);
-    });
+    await screen.findByText('AC');
   });
 
   describe.skipIf(!isJSDOM)('prop: delay', () => {

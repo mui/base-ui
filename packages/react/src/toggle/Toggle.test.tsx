@@ -15,7 +15,7 @@ describe('<Toggle />', () => {
     render,
   }));
 
-  describe('pressed state', () => {
+  describe('prop: pressed', () => {
     it('controlled', async () => {
       function App() {
         const [pressed, setPressed] = React.useState(false);
@@ -32,17 +32,20 @@ describe('<Toggle />', () => {
       const button = screen.getByRole('button');
 
       expect(button).toHaveAttribute('aria-pressed', 'false');
+      expect(button).not.toHaveAttribute('data-pressed');
       await act(async () => {
         checkbox.click();
       });
 
       expect(button).toHaveAttribute('aria-pressed', 'true');
+      expect(button).toHaveAttribute('data-pressed', '');
 
       await act(async () => {
         checkbox.click();
       });
 
       expect(button).toHaveAttribute('aria-pressed', 'false');
+      expect(button).not.toHaveAttribute('data-pressed');
     });
 
     it('uncontrolled', async () => {
@@ -51,17 +54,20 @@ describe('<Toggle />', () => {
       const button = screen.getByRole('button');
 
       expect(button).toHaveAttribute('aria-pressed', 'false');
+      expect(button).not.toHaveAttribute('data-pressed');
       await act(async () => {
         button.click();
       });
 
       expect(button).toHaveAttribute('aria-pressed', 'true');
+      expect(button).toHaveAttribute('data-pressed', '');
 
       await act(async () => {
         button.click();
       });
 
       expect(button).toHaveAttribute('aria-pressed', 'false');
+      expect(button).not.toHaveAttribute('data-pressed');
     });
   });
 

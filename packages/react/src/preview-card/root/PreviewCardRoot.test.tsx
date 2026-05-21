@@ -306,64 +306,6 @@ describe('<PreviewCard.Root />', () => {
       });
     });
 
-    describe('BaseUIChangeEventDetails', () => {
-      it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-        await render(
-          <TestPreviewCard
-            rootProps={{
-              onOpenChange: (nextOpen, eventDetails) => {
-                if (nextOpen) {
-                  eventDetails.cancel();
-                }
-              },
-            }}
-          />,
-        );
-
-        const trigger = screen.getByRole('link', { name: 'Link' });
-        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
-        await flushMicrotasks();
-
-        expect(screen.queryByText('Content')).toBe(null);
-      });
-    });
-
-    describe('dismissal', () => {
-      clock.withFakeTimers();
-
-      it('reopens on hover after Escape closes it', async () => {
-        await render(<TestPreviewCard triggerProps={{ delay: 100 }} />);
-
-        const trigger = screen.getByRole('link', { name: 'Link' });
-
-        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
-
-        clock.tick(100);
-        await flushMicrotasks();
-
-        expect(screen.getByText('Content')).not.toBe(null);
-
-        fireEvent.keyDown(document.body, { key: 'Escape' });
-        await flushMicrotasks();
-
-        expect(screen.queryByText('Content')).toBe(null);
-
-        // Re-enter with mouse events only. A fresh pointerenter can be missed
-        // after the click-driven close, but hover should still work.
-        fireEvent.mouseEnter(trigger);
-        fireEvent.mouseMove(trigger);
-
-        clock.tick(100);
-        await flushMicrotasks();
-
-        expect(screen.getByText('Content')).not.toBe(null);
-      });
-    });
-
     describe.skipIf(!isJSDOM)('prop: actionsRef', () => {
       it('unmounts the preview card when the `unmount` method is called', async () => {
         const actionsRef = {
@@ -391,15 +333,11 @@ describe('<PreviewCard.Root />', () => {
         const trigger = screen.getByRole('link', { name: 'Link' });
         await user.hover(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('positioner')).not.toBe(null);
-        });
+        await screen.findByTestId('positioner');
 
         await user.unhover(trigger);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('positioner')).not.toBe(null);
-        });
+        await screen.findByTestId('positioner');
 
         await act(async () => actionsRef.current.unmount());
 
@@ -606,9 +544,7 @@ describe('<PreviewCard.Root />', () => {
         const openButton = screen.getByText('Open');
         await user.click(openButton);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).not.toBe(null);
-        });
+        await screen.findByTestId('popup');
 
         expect(onOpenChangeComplete.mock.calls.length).toBe(2);
         expect(onOpenChangeComplete.mock.calls[0][0]).toBe(true);
@@ -677,6 +613,64 @@ describe('<PreviewCard.Root />', () => {
         );
 
         expect(onOpenChangeComplete.mock.calls.length).toBe(0);
+      });
+    });
+
+    describe('BaseUIChangeEventDetails', () => {
+      it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+        await render(
+          <TestPreviewCard
+            rootProps={{
+              onOpenChange: (nextOpen, eventDetails) => {
+                if (nextOpen) {
+                  eventDetails.cancel();
+                }
+              },
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('link', { name: 'Link' });
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+    });
+
+    describe('dismissal', () => {
+      clock.withFakeTimers();
+
+      it('reopens on hover after Escape closes it', async () => {
+        await render(<TestPreviewCard triggerProps={{ delay: 100 }} />);
+
+        const trigger = screen.getByRole('link', { name: 'Link' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(100);
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
+
+        fireEvent.keyDown(document.body, { key: 'Escape' });
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+
+        // Re-enter with mouse events only. A fresh pointerenter can be missed
+        // after the click-driven close, but hover should still work.
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(100);
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
       });
     });
   });
@@ -763,9 +757,7 @@ describe('<PreviewCard.Root />', () => {
       fireEvent.pointerDown(childPopup, { pointerType: 'mouse', button: 0 });
       fireEvent.click(outside);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('parent-popup')).not.toBe(null);
-      });
+      await screen.findByTestId('parent-popup');
       expect(screen.queryByTestId('child-popup')).not.toBe(null);
     });
 

@@ -72,11 +72,11 @@ describe('<RadioGroup />', () => {
       expect(screen.getByRole('radiogroup')).toHaveAttribute('aria-disabled', 'true');
       expect(screen.getByRole('radio')).toHaveAttribute('aria-disabled', 'true');
       expect(screen.getByRole('radio')).toHaveAttribute('data-disabled');
-      const input = document.querySelector('input[type="radio"]');
+      const [, input] = screen.getAllByRole<HTMLInputElement>('radio', { hidden: true });
       expect(input).toHaveAttribute('disabled');
     });
 
-    it('should not have the aria attribute when `disabled` is not set', async () => {
+    it('does not set aria-disabled when disabled is not set', async () => {
       await render(<RadioGroup />);
       expect(screen.getByRole('radiogroup')).not.toHaveAttribute('aria-disabled');
     });
@@ -105,7 +105,7 @@ describe('<RadioGroup />', () => {
       expect(group).toHaveAttribute('aria-readonly', 'true');
     });
 
-    it('should not have the aria attribute when `readOnly` is not set', async () => {
+    it('does not set aria-readonly when readOnly is not set', async () => {
       await render(<RadioGroup />);
       const group = screen.getByRole('radiogroup');
       expect(group).not.toHaveAttribute('aria-readonly');
@@ -135,17 +135,15 @@ describe('<RadioGroup />', () => {
       </RadioGroup>,
     );
 
-    const group = screen.getByTestId('root');
     const item = screen.getByTestId('item');
-
-    const input = group.querySelector<HTMLInputElement>('input')!;
+    const [, input] = screen.getAllByRole<HTMLInputElement>('radio', { hidden: true });
 
     fireEvent.click(input);
 
     expect(item).toHaveAttribute('aria-checked', 'true');
   });
 
-  it('should place the style hooks on the root and subcomponents', async () => {
+  it('adds state attributes to the root and subcomponents', async () => {
     await render(
       <RadioGroup defaultValue="1" disabled readOnly required>
         <Radio.Root value="1" data-testid="item">
@@ -532,8 +530,8 @@ describe('<RadioGroup />', () => {
     });
   });
 
-  describe('style hooks', () => {
-    it('should apply data-checked and data-unchecked to radio root and indicator', async () => {
+  describe('state attributes', () => {
+    it('adds data-checked and data-unchecked to radio root and indicator', async () => {
       await render(
         <RadioGroup>
           <Radio.Root value="a" data-testid="a">
@@ -667,7 +665,7 @@ describe('<RadioGroup />', () => {
     });
   });
 
-  describe('Field', () => {
+  describe('Field integration', () => {
     it('passes the `name` prop to the radio input', async () => {
       await render(
         <Field.Root name="test" data-testid="field">
@@ -685,8 +683,8 @@ describe('<RadioGroup />', () => {
       expect(input).toHaveAttribute('name', 'test');
     });
 
-    describe('Field.Root', () => {
-      it('should receive disabled prop from Field.Root', async () => {
+    describe('Field.Root integration', () => {
+      it('receives the disabled prop from Field.Root', async () => {
         await render(
           <Field.Root disabled>
             <RadioGroup>
@@ -706,7 +704,7 @@ describe('<RadioGroup />', () => {
         expect(radio).toHaveAttribute('data-disabled');
       });
 
-      it('should receive name prop from Field.Root', async () => {
+      it('receives the name prop from Field.Root', async () => {
         await render(
           <Field.Root name="field-radio">
             <RadioGroup value="a">
@@ -767,7 +765,7 @@ describe('<RadioGroup />', () => {
       });
     });
 
-    describe('Field.Label', () => {
+    describe('Field.Label integration', () => {
       it('associates implicitly', async () => {
         const changeSpy = vi.fn((newValue) => newValue);
         await render(
@@ -826,7 +824,7 @@ describe('<RadioGroup />', () => {
         const radios = screen.getAllByRole('radio');
         const labels = screen.getAllByTestId('label');
         const descriptions = screen.getAllByTestId('description');
-        const inputs = document.querySelectorAll('input[type="radio"]');
+        const inputs = document.querySelectorAll<HTMLInputElement>('input[type="radio"]');
 
         radios.forEach((radio, index) => {
           const label = labels[index];
@@ -844,7 +842,7 @@ describe('<RadioGroup />', () => {
       });
     });
 
-    describe('Field.Description', () => {
+    describe('Field.Description integration', () => {
       it('links the group and individual radios', async () => {
         await render(
           <Field.Root name="apple">
@@ -875,7 +873,7 @@ describe('<RadioGroup />', () => {
     });
 
     describe('prop: validationMode', () => {
-      it('onSubmit', async () => {
+      it('validates when validationMode is onSubmit', async () => {
         const { user } = await render(
           <Form>
             <Field.Root
@@ -922,7 +920,7 @@ describe('<RadioGroup />', () => {
     });
   });
 
-  describe('Fieldset', () => {
+  describe('Fieldset integration', () => {
     it('labels the radio group from the fieldset legend', async () => {
       await render(
         <Field.Root name="test">
@@ -942,7 +940,7 @@ describe('<RadioGroup />', () => {
     });
   });
 
-  describe('Form', () => {
+  describe('Form integration', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {
         shouldAdvanceTime: true,

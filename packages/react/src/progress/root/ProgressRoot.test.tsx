@@ -47,11 +47,34 @@ describe('<Progress.Root />', () => {
       expect(progressbar.getAttribute('aria-labelledby')).toBe(label.getAttribute('id'));
     });
 
-    it('should update aria-valuenow when value changes', async () => {
+    it('updates aria-valuenow when value changes', async () => {
       const { setProps } = await render(<TestProgress value={50} />);
       const progressbar = screen.getByRole('progressbar');
       await setProps({ value: 77 });
       expect(progressbar).toHaveAttribute('aria-valuenow', '77');
+    });
+  });
+
+  describe('state attributes', () => {
+    it('indicates progressing, complete, and indeterminate states', async () => {
+      const { setProps } = await render(<TestProgress value={50} />);
+      const progressbar = screen.getByRole('progressbar');
+
+      expect(progressbar).toHaveAttribute('data-progressing', '');
+      expect(progressbar).not.toHaveAttribute('data-complete');
+      expect(progressbar).not.toHaveAttribute('data-indeterminate');
+
+      await setProps({ value: 100 });
+
+      expect(progressbar).toHaveAttribute('data-complete', '');
+      expect(progressbar).not.toHaveAttribute('data-progressing');
+      expect(progressbar).not.toHaveAttribute('data-indeterminate');
+
+      await setProps({ value: null });
+
+      expect(progressbar).toHaveAttribute('data-indeterminate', '');
+      expect(progressbar).not.toHaveAttribute('data-complete');
+      expect(progressbar).not.toHaveAttribute('data-progressing');
     });
   });
 

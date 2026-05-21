@@ -33,7 +33,7 @@ describe('<Meter.Root />', () => {
       );
     });
 
-    it('should update aria-valuenow when value changes', async () => {
+    it('updates aria-valuenow when value changes', async () => {
       const { setProps } = await render(
         <Meter.Root value={50}>
           <Meter.Track>

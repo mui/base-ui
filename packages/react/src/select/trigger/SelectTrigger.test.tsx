@@ -141,7 +141,7 @@ describe('<Select.Trigger />', () => {
       expect(value.textContent).toBe('Select font');
     });
 
-    it('should not have the data-placeholder attribute when provided a value', async () => {
+    it('does not add data-placeholder when provided a value', async () => {
       await render(
         <Select.Root defaultValue="a">
           <Select.Trigger data-testid="trigger">
@@ -157,7 +157,7 @@ describe('<Select.Trigger />', () => {
       expect(value).not.toHaveAttribute('data-placeholder');
     });
 
-    it('should not have the data-placeholder attribute when multiple mode has a default value', async () => {
+    it('does not add data-placeholder when multiple mode has a default value', async () => {
       await render(
         <Select.Root multiple defaultValue={['a']}>
           <Select.Trigger data-testid="trigger">
@@ -174,7 +174,7 @@ describe('<Select.Trigger />', () => {
     });
   });
 
-  describe('style hooks', () => {
+  describe('state attributes', () => {
     it.skipIf(isJSDOM)('sets data-popup-side to the current popup side', async () => {
       const { user } = await render(
         <Select.Root>
@@ -194,7 +194,7 @@ describe('<Select.Trigger />', () => {
 
       await user.click(trigger);
 
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(await screen.findByRole('listbox')).not.toBe(null);
       expect(trigger).toHaveAttribute('data-popup-side', 'right');
 
       await user.click(document.body);

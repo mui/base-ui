@@ -717,6 +717,495 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
+  describe('prop: onValueChange', () => {
+    it.skipIf(isJSDOM)('is called when clicking on the control', async () => {
+      const handleValueChange = vi.fn();
+      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
+
+      const sliderControl = screen.getByTestId('control');
+
+      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(sliderControl, {
+        buttons: 1,
+        clientX: 41,
+      });
+
+      expect(handleValueChange.mock.calls.length).toBe(1);
+    });
+
+    it('is not called when clicking on the thumb', async () => {
+      const handleValueChange = vi.fn();
+      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
+
+      const sliderControl = screen.getByTestId('control');
+      const sliderThumb = screen.getByTestId('thumb');
+
+      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(sliderThumb, {
+        buttons: 1,
+        clientX: 51,
+      });
+
+      expect(handleValueChange.mock.calls.length).toBe(0);
+    });
+
+    it('should not react to right clicks', async () => {
+      const handleValueChange = vi.fn();
+      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
+
+      const sliderControl = screen.getByTestId('control');
+
+      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(sliderControl, {
+        button: 2,
+        clientX: 41,
+      });
+
+      expect(handleValueChange.mock.calls.length).toBe(0);
+    });
+
+    it('provides the change reason for input events', async () => {
+      const handleValueChange = vi.fn();
+      await render(<TestSlider defaultValue={30} onValueChange={handleValueChange} />);
+
+      const slider = screen.getByRole('slider');
+      fireEvent.change(slider, { target: { value: '35' } });
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      const [, details] = handleValueChange.mock.calls[0] as [
+        number,
+        SliderRoot.ChangeEventDetails,
+      ];
+      expect(details.reason).toBe(REASONS.inputChange);
+      expect(details.activeThumbIndex).toBe(0);
+    });
+
+    it('provides the change reason for keyboard interactions', async () => {
+      const handleValueChange = vi.fn();
+      await render(<TestSlider defaultValue={40} onValueChange={handleValueChange} />);
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      const [, details] = handleValueChange.mock.calls[0] as [
+        number,
+        SliderRoot.ChangeEventDetails,
+      ];
+      expect(details.reason).toBe('keyboard');
+    });
+
+    it.skipIf(isJSDOM || isWebKit)(
+      'shows :focus-visible after keyboard interaction following a pointer press',
+      async () => {
+        await render(<TestSlider defaultValue={40} />);
+
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+
+        const slider = screen.getByRole('slider');
+
+        fireEvent.pointerDown(sliderControl, {
+          pointerId: 1,
+          pointerType: 'mouse',
+          button: 0,
+          buttons: 1,
+          clientX: 40,
+          clientY: 0,
+        });
+
+        await waitFor(() => {
+          expect(slider).toHaveFocus();
+        });
+
+        expect(slider.matches(':focus-visible')).toBe(false);
+
+        fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+
+        await waitFor(() => {
+          expect(slider.matches(':focus-visible')).toBe(true);
+        });
+      },
+    );
+
+    it('provides the change reason for track presses', async () => {
+      const handleValueChange = vi.fn();
+      await render(<TestSlider defaultValue={0} onValueChange={handleValueChange} />);
+
+      const sliderControl = screen.getByTestId('control');
+      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(sliderControl, {
+        pointerId: 1,
+        pointerType: 'mouse',
+        button: 0,
+        buttons: 1,
+        clientX: 80,
+        clientY: 0,
+      });
+
+      await waitFor(() => {
+        expect(handleValueChange.mock.calls.length).toBe(1);
+      });
+      const [, details] = handleValueChange.mock.calls[0] as [
+        number | number[],
+        SliderRoot.ChangeEventDetails,
+      ];
+      expect(details.reason).toBe(REASONS.trackPress);
+    });
+
+    it.skipIf(isJSDOM)('drags the intended thumb when 3 thumbs are present', async () => {
+      const handleValueChange = vi.fn();
+
+      await render(
+        <TestMultiThumbSlider
+          defaultValue={[10, 40, 60]}
+          min={0}
+          max={100}
+          onValueChange={handleValueChange}
+        />,
+      );
+
+      const sliderControl = screen.getByTestId('control');
+      const thirdThumb = screen.getAllByTestId('thumb')[2];
+
+      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+      vi.spyOn(thirdThumb, 'getBoundingClientRect').mockImplementation(() => ({
+        width: 0,
+        height: 0,
+        bottom: 0,
+        left: 60,
+        right: 60,
+        top: 0,
+        x: 60,
+        y: 0,
+        toJSON() {},
+      }));
+
+      fireEvent.pointerDown(thirdThumb, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 60,
+      });
+
+      fireEvent.pointerMove(document, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 80,
+      });
+
+      expect(handleValueChange.mock.calls.length).toBeGreaterThan(0);
+
+      const [newValue] = handleValueChange.mock.lastCall ?? [];
+      expect(handleValueChange.mock.lastCall?.[1].activeThumbIndex).toBe(2);
+      expect(newValue[0]).toBe(10);
+      expect(newValue[1]).toBe(40);
+      expect(newValue[2]).not.toBe(60);
+    });
+
+    it.skipIf(isJSDOM)('should fire only when the value changes', async () => {
+      const handleValueChange = vi.fn();
+      await render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
+
+      const sliderControl = screen.getByTestId('control');
+
+      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(sliderControl, {
+        buttons: 1,
+        clientX: 21,
+      });
+
+      fireEvent.pointerMove(document.body, {
+        buttons: 1,
+        clientX: 22,
+      });
+      // Sometimes another event with the same position is fired by the browser.
+      fireEvent.pointerMove(document.body, {
+        buttons: 1,
+        clientX: 22,
+      });
+
+      expect(handleValueChange.mock.calls.length).toBe(2);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(21);
+      expect(handleValueChange.mock.calls[1][0]).toEqual(22);
+    });
+
+    type Values = Array<[string, number[]]>;
+
+    const values = [
+      ['readonly range', Object.freeze([2, 1])],
+      ['range', [2, 1]],
+    ] as Values;
+    values.forEach(([valueLabel, value]) => {
+      it.skipIf(isJSDOM)(`is called even if the ${valueLabel} did not change`, async () => {
+        const handleValueChange = vi.fn();
+
+        await render(
+          <TestRangeSlider
+            min={0}
+            max={5}
+            onValueChange={handleValueChange}
+            value={value}
+            style={{ width: '100px' }}
+          />,
+        );
+
+        const sliderControl = screen.getByTestId('control');
+
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+
+        // pixel:  0   20  40  60  80  100
+        // slider: |---|---|---|---|---|
+        // values: 0   1   2   3   4   5
+        // value:      ��   ��
+        // mouse:           ��
+
+        fireEvent.pointerDown(sliderControl, {
+          buttons: 1,
+          clientX: 41,
+        });
+
+        expect(handleValueChange.mock.calls.length).toBe(1);
+        expect(handleValueChange.mock.calls[0][0]).not.toBe(value);
+        expect(handleValueChange.mock.calls[0][0]).toEqual(value.slice().sort((a, b) => a - b));
+      });
+    });
+
+    it('passes name and value on the onValueChange event target', async () => {
+      const handleValueChange = vi
+        .fn()
+        .mockImplementation((newValue, data) => (data as any).event.target);
+
+      await render(
+        <TestSlider onValueChange={handleValueChange} name="change-testing" value={3} />,
+      );
+
+      const slider = screen.getByRole('slider');
+
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.change(slider, {
+        target: {
+          value: 4,
+        },
+      });
+
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      const target = handleValueChange.mock.results[0]?.value;
+      expect(target).toEqual({
+        name: 'change-testing',
+        value: 4,
+      });
+    });
+
+    it.skipIf(!isJSDOM)(
+      'should not rely on the global event when cloning change events',
+      async () => {
+        const hadGlobalEvent = Object.prototype.hasOwnProperty.call(globalThis, 'event');
+        const previousDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'event');
+        const globalEventConstructor = class {
+          constructor() {
+            throw new Error('Should not construct global event');
+          }
+        };
+        const fakeGlobalEvent = {
+          type: 'click',
+          constructor: globalEventConstructor,
+        };
+
+        Object.defineProperty(globalThis, 'event', {
+          configurable: true,
+          get() {
+            return fakeGlobalEvent;
+          },
+          set() {
+            // Ignore assignments from the event system to ensure we never use it.
+          },
+        });
+
+        try {
+          const handleValueChange = vi.fn();
+
+          await render(
+            <TestSlider onValueChange={handleValueChange} name="change-testing" value={3} />,
+          );
+
+          const slider = screen.getByRole('slider');
+
+          await act(async () => {
+            slider.focus();
+          });
+
+          expectVitest(() => {
+            fireEvent.change(slider, {
+              target: {
+                value: 4,
+              },
+            });
+          }).not.toThrow();
+
+          expectVitest(handleValueChange).toHaveBeenCalledTimes(1);
+        } finally {
+          if (hadGlobalEvent && previousDescriptor) {
+            Object.defineProperty(globalThis, 'event', previousDescriptor);
+          } else {
+            delete (globalThis as any).event;
+          }
+        }
+      },
+    );
+
+    it.skipIf(isJSDOM)('should handle keyboard changes inside a shadow root', async () => {
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+      const container = document.createElement('div');
+      shadowRoot.appendChild(container);
+
+      try {
+        const handleValueChange = vi.fn();
+
+        await render(<TestSlider onValueChange={handleValueChange} name="shadow" value={3} />, {
+          container,
+        });
+
+        const slider = shadowRoot.querySelector('input[type="range"]');
+        expectVitest(slider).toBeTruthy();
+
+        if (!slider) {
+          return;
+        }
+
+        await act(async () => {
+          (slider as HTMLInputElement).focus();
+        });
+
+        await act(async () => {
+          slider.dispatchEvent(new KeyboardEvent('keydown', { key: ARROW_RIGHT, bubbles: true }));
+        });
+
+        expectVitest(handleValueChange).toHaveBeenCalledTimes(1);
+      } finally {
+        await act(async () => {
+          host.remove();
+        });
+      }
+    });
+
+    it.skipIf(isJSDOM)(
+      'onValueCommitted is called with the same value as the latest onValueChange when pointerUp occurs at a different location than onValueChange',
+      async () => {
+        const handleValueChange = vi.fn();
+        const handleValueCommitted = vi.fn();
+
+        await render(
+          <TestSlider
+            onValueChange={handleValueChange}
+            onValueCommitted={handleValueCommitted}
+            defaultValue={0}
+          />,
+        );
+
+        const sliderControl = screen.getByTestId('control');
+
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+
+        fireEvent.pointerDown(sliderControl, {
+          buttons: 1,
+          clientX: 10,
+        });
+        fireEvent.pointerMove(sliderControl, {
+          buttons: 1,
+          clientX: 15,
+        });
+        fireEvent.pointerUp(sliderControl, {
+          buttons: 1,
+          clientX: 20,
+        });
+
+        expect(handleValueChange.mock.calls.length).toBe(2);
+        expect(handleValueChange.mock.calls[0][0]).toBe(10);
+        expect(handleValueChange.mock.calls[1][0]).toBe(15);
+        expect(handleValueCommitted.mock.calls.length).toBe(1);
+        expect(handleValueCommitted.mock.calls[0][0]).toBe(15);
+        expect(handleValueCommitted.mock.calls[0][1].reason).toBe('drag');
+      },
+    );
+  });
+
+  describe('prop: format', () => {
+    it('formats the value', async () => {
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
+      }
+
+      await render(<TestSlider defaultValue={50} format={USD_NUMBER_FORMAT} />);
+
+      const value = screen.getByTestId('value');
+      const slider = screen.getByRole('slider');
+      expect(value).toHaveTextContent(formatValue(50));
+      expect(slider).toHaveAttribute('aria-valuetext', formatValue(50));
+    });
+
+    it('formats range values', async () => {
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
+      }
+
+      await render(<TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} />);
+
+      const value = screen.getByTestId('value');
+      expect(value).toHaveTextContent(`${formatValue(50)} – ${formatValue(75)}`);
+      const [slider1, slider2] = screen.getAllByRole('slider');
+      expect(slider1).toHaveAttribute('aria-valuetext', `${formatValue(50)} start range`);
+      expect(slider2).toHaveAttribute('aria-valuetext', `${formatValue(75)} end range`);
+    });
+  });
+
+  describe('prop: locale', () => {
+    it('sets the locale when formatting a single value', async () => {
+      const format: Intl.NumberFormatOptions = {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      const expectedValue = new Intl.NumberFormat('de-DE', format).format(70.51);
+
+      await render(<TestSlider value={70.51} format={format} step={0.01} locale="de-DE" />);
+
+      expect(screen.getByTestId('value')).toHaveTextContent(expectedValue);
+    });
+
+    it('sets the locale when formatting a range value', async () => {
+      const format: Intl.NumberFormatOptions = {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      const expectedValue = `${new Intl.NumberFormat('de-DE', format).format(24.8)} – ${new Intl.NumberFormat('de-DE', format).format(70.51)}`;
+
+      await render(
+        <TestRangeSlider value={[24.8, 70.51]} format={format} step={0.01} locale="de-DE" />,
+      );
+
+      expect(screen.getByTestId('value')).toHaveTextContent(expectedValue);
+    });
+  });
+
   describe('events', () => {
     it.skipIf(isJSDOM)('should call handlers', async () => {
       const handleValueChange = vi.fn();
@@ -1037,7 +1526,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
     });
 
-    it('should apply data-dragging for dragging modality', async () => {
+    it('adds data-dragging for dragging modality', async () => {
       await render(<TestSlider defaultValue={90} />);
 
       const sliderControl = screen.getByTestId('control');
@@ -1068,436 +1557,6 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       fireEvent.touchEnd(document.body, createTouches([{ identifier: 1, clientX: 0, clientY: 0 }]));
       expect(sliderControl).not.toHaveAttribute('data-dragging');
     });
-  });
-
-  describe('prop: onValueChange', () => {
-    it.skipIf(isJSDOM)('is called when clicking on the control', async () => {
-      const handleValueChange = vi.fn();
-      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
-
-      const sliderControl = screen.getByTestId('control');
-
-      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
-
-      fireEvent.pointerDown(sliderControl, {
-        buttons: 1,
-        clientX: 41,
-      });
-
-      expect(handleValueChange.mock.calls.length).toBe(1);
-    });
-
-    it('is not called when clicking on the thumb', async () => {
-      const handleValueChange = vi.fn();
-      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
-
-      const sliderControl = screen.getByTestId('control');
-      const sliderThumb = screen.getByTestId('thumb');
-
-      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
-
-      fireEvent.pointerDown(sliderThumb, {
-        buttons: 1,
-        clientX: 51,
-      });
-
-      expect(handleValueChange.mock.calls.length).toBe(0);
-    });
-
-    it('should not react to right clicks', async () => {
-      const handleValueChange = vi.fn();
-      await render(<TestSlider defaultValue={50} onValueChange={handleValueChange} />);
-
-      const sliderControl = screen.getByTestId('control');
-
-      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
-
-      fireEvent.pointerDown(sliderControl, {
-        button: 2,
-        clientX: 41,
-      });
-
-      expect(handleValueChange.mock.calls.length).toBe(0);
-    });
-
-    it('provides the change reason for input events', async () => {
-      const handleValueChange = vi.fn();
-      await render(<TestSlider defaultValue={30} onValueChange={handleValueChange} />);
-
-      const slider = screen.getByRole('slider');
-      fireEvent.change(slider, { target: { value: '35' } });
-
-      expect(handleValueChange).toHaveBeenCalledTimes(1);
-      const [, details] = handleValueChange.mock.calls[0] as [
-        number,
-        SliderRoot.ChangeEventDetails,
-      ];
-      expect(details.reason).toBe(REASONS.inputChange);
-      expect(details.activeThumbIndex).toBe(0);
-    });
-
-    it('provides the change reason for keyboard interactions', async () => {
-      const handleValueChange = vi.fn();
-      await render(<TestSlider defaultValue={40} onValueChange={handleValueChange} />);
-
-      const slider = screen.getByRole('slider');
-      await act(async () => {
-        slider.focus();
-      });
-      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
-
-      expect(handleValueChange).toHaveBeenCalledTimes(1);
-      const [, details] = handleValueChange.mock.calls[0] as [
-        number,
-        SliderRoot.ChangeEventDetails,
-      ];
-      expect(details.reason).toBe('keyboard');
-    });
-
-    it.skipIf(isJSDOM || isWebKit)(
-      'shows :focus-visible after keyboard interaction following a pointer press',
-      async () => {
-        await render(<TestSlider defaultValue={40} />);
-
-        const sliderControl = screen.getByTestId('control');
-        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
-          getHorizontalSliderRect,
-        );
-
-        const slider = screen.getByRole('slider');
-
-        fireEvent.pointerDown(sliderControl, {
-          pointerId: 1,
-          pointerType: 'mouse',
-          button: 0,
-          buttons: 1,
-          clientX: 40,
-          clientY: 0,
-        });
-
-        await waitFor(() => {
-          expect(slider).toHaveFocus();
-        });
-
-        expect(slider.matches(':focus-visible')).toBe(false);
-
-        fireEvent.keyDown(slider, { key: ARROW_RIGHT });
-
-        await waitFor(() => {
-          expect(slider.matches(':focus-visible')).toBe(true);
-        });
-      },
-    );
-
-    it('provides the change reason for track presses', async () => {
-      const handleValueChange = vi.fn();
-      await render(<TestSlider defaultValue={0} onValueChange={handleValueChange} />);
-
-      const sliderControl = screen.getByTestId('control');
-      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
-
-      fireEvent.pointerDown(sliderControl, {
-        pointerId: 1,
-        pointerType: 'mouse',
-        button: 0,
-        buttons: 1,
-        clientX: 80,
-        clientY: 0,
-      });
-
-      await waitFor(() => {
-        expect(handleValueChange.mock.calls.length).toBe(1);
-      });
-      const [, details] = handleValueChange.mock.calls[0] as [
-        number | number[],
-        SliderRoot.ChangeEventDetails,
-      ];
-      expect(details.reason).toBe(REASONS.trackPress);
-    });
-
-    it.skipIf(isJSDOM)('drags the intended thumb when 3 thumbs are present', async () => {
-      const handleValueChange = vi.fn();
-
-      await render(
-        <TestMultiThumbSlider
-          defaultValue={[10, 40, 60]}
-          min={0}
-          max={100}
-          onValueChange={handleValueChange}
-        />,
-      );
-
-      const sliderControl = screen.getByTestId('control');
-      const thirdThumb = screen.getAllByTestId('thumb')[2];
-
-      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
-      vi.spyOn(thirdThumb, 'getBoundingClientRect').mockImplementation(() => ({
-        width: 0,
-        height: 0,
-        bottom: 0,
-        left: 60,
-        right: 60,
-        top: 0,
-        x: 60,
-        y: 0,
-        toJSON() {},
-      }));
-
-      fireEvent.pointerDown(thirdThumb, {
-        pointerId: 1,
-        buttons: 1,
-        clientX: 60,
-      });
-
-      fireEvent.pointerMove(document, {
-        pointerId: 1,
-        buttons: 1,
-        clientX: 80,
-      });
-
-      expect(handleValueChange.mock.calls.length).toBeGreaterThan(0);
-
-      const [newValue] = handleValueChange.mock.lastCall ?? [];
-      expect(handleValueChange.mock.lastCall?.[1].activeThumbIndex).toBe(2);
-      expect(newValue[0]).toBe(10);
-      expect(newValue[1]).toBe(40);
-      expect(newValue[2]).not.toBe(60);
-    });
-
-    it.skipIf(isJSDOM)('should fire only when the value changes', async () => {
-      const handleValueChange = vi.fn();
-      await render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
-
-      const sliderControl = screen.getByTestId('control');
-
-      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
-
-      fireEvent.pointerDown(sliderControl, {
-        buttons: 1,
-        clientX: 21,
-      });
-
-      fireEvent.pointerMove(document.body, {
-        buttons: 1,
-        clientX: 22,
-      });
-      // Sometimes another event with the same position is fired by the browser.
-      fireEvent.pointerMove(document.body, {
-        buttons: 1,
-        clientX: 22,
-      });
-
-      expect(handleValueChange.mock.calls.length).toBe(2);
-      expect(handleValueChange.mock.calls[0][0]).toEqual(21);
-      expect(handleValueChange.mock.calls[1][0]).toEqual(22);
-    });
-
-    type Values = Array<[string, number[]]>;
-
-    const values = [
-      ['readonly range', Object.freeze([2, 1])],
-      ['range', [2, 1]],
-    ] as Values;
-    values.forEach(([valueLabel, value]) => {
-      it.skipIf(isJSDOM)(`is called even if the ${valueLabel} did not change`, async () => {
-        const handleValueChange = vi.fn();
-
-        await render(
-          <TestRangeSlider
-            min={0}
-            max={5}
-            onValueChange={handleValueChange}
-            value={value}
-            style={{ width: '100px' }}
-          />,
-        );
-
-        const sliderControl = screen.getByTestId('control');
-
-        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
-          getHorizontalSliderRect,
-        );
-
-        // pixel:  0   20  40  60  80  100
-        // slider: |---|---|---|---|---|
-        // values: 0   1   2   3   4   5
-        // value:      ��   ��
-        // mouse:           ��
-
-        fireEvent.pointerDown(sliderControl, {
-          buttons: 1,
-          clientX: 41,
-        });
-
-        expect(handleValueChange.mock.calls.length).toBe(1);
-        expect(handleValueChange.mock.calls[0][0]).not.toBe(value);
-        expect(handleValueChange.mock.calls[0][0]).toEqual(value.slice().sort((a, b) => a - b));
-      });
-    });
-
-    it('should pass "name" and "value" as part of the event.target for onValueChange', async () => {
-      const handleValueChange = vi
-        .fn()
-        .mockImplementation((newValue, data) => (data as any).event.target);
-
-      await render(
-        <TestSlider onValueChange={handleValueChange} name="change-testing" value={3} />,
-      );
-
-      const slider = screen.getByRole('slider');
-
-      await act(async () => {
-        slider.focus();
-      });
-      fireEvent.change(slider, {
-        target: {
-          value: 4,
-        },
-      });
-
-      expect(handleValueChange.mock.calls.length).toBe(1);
-      const target = handleValueChange.mock.results[0]?.value;
-      expect(target).toEqual({
-        name: 'change-testing',
-        value: 4,
-      });
-    });
-
-    it.skipIf(!isJSDOM)(
-      'should not rely on the global event when cloning change events',
-      async () => {
-        const hadGlobalEvent = Object.prototype.hasOwnProperty.call(globalThis, 'event');
-        const previousDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'event');
-        const globalEventConstructor = class {
-          constructor() {
-            throw new Error('Should not construct global event');
-          }
-        };
-        const fakeGlobalEvent = {
-          type: 'click',
-          constructor: globalEventConstructor,
-        };
-
-        Object.defineProperty(globalThis, 'event', {
-          configurable: true,
-          get() {
-            return fakeGlobalEvent;
-          },
-          set() {
-            // Ignore assignments from the event system to ensure we never use it.
-          },
-        });
-
-        try {
-          const handleValueChange = vi.fn();
-
-          await render(
-            <TestSlider onValueChange={handleValueChange} name="change-testing" value={3} />,
-          );
-
-          const slider = screen.getByRole('slider');
-
-          await act(async () => {
-            slider.focus();
-          });
-
-          expectVitest(() => {
-            fireEvent.change(slider, {
-              target: {
-                value: 4,
-              },
-            });
-          }).not.toThrow();
-
-          expectVitest(handleValueChange).toHaveBeenCalledTimes(1);
-        } finally {
-          if (hadGlobalEvent && previousDescriptor) {
-            Object.defineProperty(globalThis, 'event', previousDescriptor);
-          } else {
-            delete (globalThis as any).event;
-          }
-        }
-      },
-    );
-
-    it.skipIf(isJSDOM)('should handle keyboard changes inside a shadow root', async () => {
-      const host = document.createElement('div');
-      document.body.appendChild(host);
-      const shadowRoot = host.attachShadow({ mode: 'open' });
-      const container = document.createElement('div');
-      shadowRoot.appendChild(container);
-
-      try {
-        const handleValueChange = vi.fn();
-
-        await render(<TestSlider onValueChange={handleValueChange} name="shadow" value={3} />, {
-          container,
-        });
-
-        const slider = shadowRoot.querySelector('input[type="range"]');
-        expectVitest(slider).toBeTruthy();
-
-        if (!slider) {
-          return;
-        }
-
-        await act(async () => {
-          (slider as HTMLInputElement).focus();
-        });
-
-        await act(async () => {
-          slider.dispatchEvent(new KeyboardEvent('keydown', { key: ARROW_RIGHT, bubbles: true }));
-        });
-
-        expectVitest(handleValueChange).toHaveBeenCalledTimes(1);
-      } finally {
-        await act(async () => {
-          host.remove();
-        });
-      }
-    });
-
-    it.skipIf(isJSDOM)(
-      'onValueCommitted is called with the same value as the latest onValueChange when pointerUp occurs at a different location than onValueChange',
-      async () => {
-        const handleValueChange = vi.fn();
-        const handleValueCommitted = vi.fn();
-
-        await render(
-          <TestSlider
-            onValueChange={handleValueChange}
-            onValueCommitted={handleValueCommitted}
-            defaultValue={0}
-          />,
-        );
-
-        const sliderControl = screen.getByTestId('control');
-
-        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
-          getHorizontalSliderRect,
-        );
-
-        fireEvent.pointerDown(sliderControl, {
-          buttons: 1,
-          clientX: 10,
-        });
-        fireEvent.pointerMove(sliderControl, {
-          buttons: 1,
-          clientX: 15,
-        });
-        fireEvent.pointerUp(sliderControl, {
-          buttons: 1,
-          clientX: 20,
-        });
-
-        expect(handleValueChange.mock.calls.length).toBe(2);
-        expect(handleValueChange.mock.calls[0][0]).toBe(10);
-        expect(handleValueChange.mock.calls[1][0]).toBe(15);
-        expect(handleValueCommitted.mock.calls.length).toBe(1);
-        expect(handleValueCommitted.mock.calls[0][0]).toBe(15);
-        expect(handleValueCommitted.mock.calls[0][1].reason).toBe('drag');
-      },
-    );
   });
 
   describe('keyboard interactions', () => {
@@ -2099,66 +2158,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe('prop: format', () => {
-    it('formats the value', async () => {
-      function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
-      }
-
-      await render(<TestSlider defaultValue={50} format={USD_NUMBER_FORMAT} />);
-
-      const value = screen.getByTestId('value');
-      const slider = screen.getByRole('slider');
-      expect(value).toHaveTextContent(formatValue(50));
-      expect(slider).toHaveAttribute('aria-valuetext', formatValue(50));
-    });
-
-    it('formats range values', async () => {
-      function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
-      }
-
-      await render(<TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} />);
-
-      const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent(`${formatValue(50)} – ${formatValue(75)}`);
-      const [slider1, slider2] = screen.getAllByRole('slider');
-      expect(slider1).toHaveAttribute('aria-valuetext', `${formatValue(50)} start range`);
-      expect(slider2).toHaveAttribute('aria-valuetext', `${formatValue(75)} end range`);
-    });
-  });
-
-  describe('prop: locale', () => {
-    it('sets the locale when formatting a single value', async () => {
-      const format: Intl.NumberFormatOptions = {
-        style: 'decimal',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      };
-      const expectedValue = new Intl.NumberFormat('de-DE', format).format(70.51);
-
-      await render(<TestSlider value={70.51} format={format} step={0.01} locale="de-DE" />);
-
-      expect(screen.getByTestId('value')).toHaveTextContent(expectedValue);
-    });
-
-    it('sets the locale when formatting a range value', async () => {
-      const format: Intl.NumberFormatOptions = {
-        style: 'decimal',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      };
-      const expectedValue = `${new Intl.NumberFormat('de-DE', format).format(24.8)} – ${new Intl.NumberFormat('de-DE', format).format(70.51)}`;
-
-      await render(
-        <TestRangeSlider value={[24.8, 70.51]} format={format} step={0.01} locale="de-DE" />,
-      );
-
-      expect(screen.getByTestId('value')).toHaveTextContent(expectedValue);
-    });
-  });
-
-  describe('Form', () => {
+  describe('Form integration', () => {
     it('clears external errors on change', async () => {
       const { user } = await render(
         <Form
@@ -2267,8 +2267,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
-  describe('Field', () => {
-    it('should receive disabled prop from Field.Root', async () => {
+  describe('Field integration', () => {
+    it('receives the disabled prop from Field.Root', async () => {
       await render(
         <Field.Root disabled>
           <Slider.Root data-testid="root">
@@ -2283,7 +2283,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(root).toHaveAttribute('data-disabled', '');
     });
 
-    it('should receive name prop from Field.Root', async () => {
+    it('receives the name prop from Field.Root', async () => {
       await render(
         <Field.Root name="field-slider">
           <Slider.Root>
@@ -2297,7 +2297,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(screen.getByRole('slider')).toHaveAttribute('name', 'field-slider');
     });
 
-    it('[data-touched]', async () => {
+    it('adds data-touched after blur', async () => {
       await render(
         <Field.Root>
           <Slider.Root data-testid="root">
@@ -2317,7 +2317,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(root).toHaveAttribute('data-touched', '');
     });
 
-    it('[data-dirty]', async () => {
+    it('adds data-dirty after the value changes', async () => {
       await render(
         <Field.Root>
           <Slider.Root data-testid="root">
@@ -2338,7 +2338,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(root).toHaveAttribute('data-dirty', '');
     });
 
-    it('[data-focused]', async () => {
+    it('adds data-focused while focused', async () => {
       await render(
         <Field.Root>
           <Slider.Root data-testid="root">
@@ -2364,7 +2364,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
 
     describe('prop: validate', () => {
-      it('validationMode=onSubmit', async () => {
+      it('validates when validationMode is onSubmit', async () => {
         await render(
           <Form>
             <Field.Root validate={(val) => ((val as number) > 90 ? 'error' : null)}>
@@ -2412,7 +2412,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         expect(screen.queryByTestId('error')).toBe(null);
       });
 
-      it('validationMode=onBlur', async () => {
+      it('validates when validationMode is onBlur', async () => {
         await render(
           <Field.Root
             validationMode="onBlur"
@@ -2437,7 +2437,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         expect(input).toHaveAttribute('aria-invalid', 'true');
       });
 
-      it('validationMode=onChange', async () => {
+      it('validates when validationMode is onChange', async () => {
         await render(
           <Field.Root
             validationMode="onChange"

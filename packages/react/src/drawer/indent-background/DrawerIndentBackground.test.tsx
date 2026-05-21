@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import { Drawer } from '@base-ui/react/drawer';
 import { screen } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, describeConformance } from '#test-utils';
 
 interface TestCaseProps {
   open: boolean;
@@ -22,6 +22,13 @@ function TestCase(props: TestCaseProps) {
 
 describe('<Drawer.IndentBackground />', () => {
   const { render } = createRenderer();
+
+  describeConformance(<Drawer.IndentBackground />, () => ({
+    refInstanceof: window.HTMLDivElement,
+    render(node) {
+      return render(<Drawer.Provider>{node}</Drawer.Provider>);
+    },
+  }));
 
   it('sets data-active when any drawer is open', async () => {
     const { setProps } = await render(<TestCase open={false} />);
