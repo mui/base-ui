@@ -30,7 +30,7 @@ function TestNavigationMenu(props: NavigationMenu.Root.Props) {
 
       <NavigationMenu.Portal>
         <NavigationMenu.Positioner data-testid="top-level-positioner">
-          <NavigationMenu.Popup>
+          <NavigationMenu.Popup data-testid="popup-root">
             <NavigationMenu.Viewport />
           </NavigationMenu.Popup>
         </NavigationMenu.Positioner>
@@ -1511,6 +1511,63 @@ describe('<NavigationMenu.Root />', () => {
       trigger1 = screen.getByTestId('trigger-1');
       expect(trigger1).toHaveAttribute('aria-expanded', 'false');
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('preserves popup size when controlled value closes externally', async () => {
+      const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      try {
+        function ControlledNavigationMenu() {
+          const [value, setValue] = React.useState<string | null>('item-1');
+
+          return (
+            <React.Fragment>
+              <button type="button" data-testid="external-close" onClick={() => setValue(null)}>
+                Close externally
+              </button>
+              <TestNavigationMenu value={value} />
+            </React.Fragment>
+          );
+        }
+
+        await render(<ControlledNavigationMenu />);
+
+        const positioner = screen.getByTestId('top-level-positioner');
+        const popupRoot = screen.getByTestId('popup-root');
+        const animations = mockAnimations(popupRoot);
+        const externalClose = screen.getByTestId('external-close');
+
+        function isPopupOpen() {
+          return screen.queryByTestId('popup-1')?.hasAttribute('data-open') ?? false;
+        }
+
+        Object.defineProperty(popupRoot, 'offsetWidth', {
+          configurable: true,
+          get: () => (isPopupOpen() ? 675 : 0),
+        });
+        Object.defineProperty(popupRoot, 'offsetHeight', {
+          configurable: true,
+          get: () => (isPopupOpen() ? 220 : 0),
+        });
+
+        animations.start();
+        fireEvent.click(externalClose);
+        await flushMicrotasks();
+
+        expect(popupRoot).toHaveAttribute('data-ending-style');
+        expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('675px');
+        expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('220px');
+        expect(positioner.style.getPropertyValue('--positioner-width')).toBe('675px');
+        expect(positioner.style.getPropertyValue('--positioner-height')).toBe('220px');
+
+        await act(async () => {
+          animations.finish();
+          await flushMicrotasks();
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+      }
     });
   });
 
@@ -3044,7 +3101,7 @@ describe('<NavigationMenu.Root />', () => {
         }
       });
 
-      it('does not collapse popup size to zero on close if a measurement temporarily returns 0', async () => {
+      it('does not collapse auto-sized popup to zero on close if measurement temporarily returns 0', async () => {
         await render(<TestInlineNestedNavigationMenuWithDynamicContent />);
         const trigger1 = screen.getByTestId('trigger-1');
 
@@ -3054,18 +3111,15 @@ describe('<NavigationMenu.Root />', () => {
         const popupRoot = screen.getByTestId('popup-root');
         const positioner = screen.getByTestId('positioner');
 
-        popupRoot.style.setProperty('--popup-width', '250px');
-        popupRoot.style.setProperty('--popup-height', '120px');
-        positioner.style.setProperty('--positioner-width', '250px');
-        positioner.style.setProperty('--positioner-height', '120px');
+        primeOpenPopupSize(popupRoot, positioner, 250, 120);
 
         Object.defineProperty(popupRoot, 'offsetWidth', {
           configurable: true,
-          get: () => 0,
+          get: () => (screen.queryByTestId('popup-1')?.hasAttribute('data-open') ? 250 : 0),
         });
         Object.defineProperty(popupRoot, 'offsetHeight', {
           configurable: true,
-          get: () => 0,
+          get: () => (screen.queryByTestId('popup-1')?.hasAttribute('data-open') ? 120 : 0),
         });
         Object.defineProperty(positioner, 'offsetWidth', {
           configurable: true,

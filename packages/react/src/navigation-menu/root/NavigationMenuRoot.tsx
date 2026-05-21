@@ -3,6 +3,7 @@ import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
   FloatingNode,
@@ -34,12 +35,23 @@ const blockedReturnFocusReasons = new Set<string>([
   REASONS.focusOut,
 ]);
 
-function setSharedFixedSize(popupElement: HTMLElement, positionerElement: HTMLElement) {
-  const { width, height } = getCssDimensions(popupElement);
+interface Size {
+  width: number;
+  height: number;
+}
+
+function getNonZeroSize(element: HTMLElement): Size | null {
+  const { width, height } = getCssDimensions(element);
 
   if (width === 0 || height === 0) {
-    return;
+    return null;
   }
+
+  return { width, height };
+}
+
+function setSharedFixedSize(popupElement: HTMLElement, positionerElement: HTMLElement, size: Size) {
+  const { width, height } = size;
 
   popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
   popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
@@ -109,6 +121,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const afterInsideRef = React.useRef<HTMLSpanElement | null>(null);
   const beforeOutsideRef = React.useRef<HTMLSpanElement | null>(null);
   const afterOutsideRef = React.useRef<HTMLSpanElement | null>(null);
+  const closeTransitionSizeRef = React.useRef<Size | null>(null);
   // Shared across triggers so a newly active trigger can cancel a stale
   // popup auto-size reset scheduled by the previously active trigger.
   const popupAutoSizeResetRef = React.useRef<NavigationMenuPopupAutoSizeResetState>({
@@ -117,6 +130,17 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+
+  useIsoLayoutEffect(() => {
+    const closeTransitionSize = closeTransitionSizeRef.current;
+    closeTransitionSizeRef.current = null;
+
+    if (open || !positionerElement || !popupElement || !closeTransitionSize) {
+      return;
+    }
+
+    setSharedFixedSize(popupElement, positionerElement, closeTransitionSize);
+  }, [open, popupElement, positionerElement]);
 
   React.useEffect(() => {
     setViewportInert(false);
@@ -129,12 +153,9 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     ) => {
       if (!nextValue) {
         closeReasonRef.current = eventDetails.reason;
+        closeTransitionSizeRef.current = popupElement ? getNonZeroSize(popupElement) : null;
         setActivationDirection(null);
         setFloatingRootContext(undefined);
-
-        if (positionerElement && popupElement) {
-          setSharedFixedSize(popupElement, positionerElement);
-        }
       }
 
       if (nextValue !== value) {
