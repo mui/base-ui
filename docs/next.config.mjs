@@ -33,7 +33,6 @@ const withMdx = nextMdx({
       [
         transformMarkdownMetadata,
         {
-          titleSuffix: ' · Base UI',
           extractToIndex: {
             include: ['src/app/react'],
             exclude: [
