@@ -274,6 +274,74 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('uses the event target for non-keyboard touch scroll arbitration', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <button type="button" data-testid="button">
+                  Action
+                </button>
+                <div style={{ height: 120 }} />
+              </div>
+              <div data-testid="other-scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <div style={{ height: 120 }} />
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const button = screen.getByTestId('button');
+    const scroll = screen.getByTestId('scroll');
+    const otherScroll = screen.getByTestId('other-scroll');
+    const backdrop = screen.getByTestId('backdrop');
+
+    Object.defineProperty(scroll, 'scrollHeight', { value: 160, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+    scroll.scrollTop = 0;
+    Object.defineProperty(otherScroll, 'scrollHeight', { value: 160, configurable: true });
+    Object.defineProperty(otherScroll, 'clientHeight', { value: 40, configurable: true });
+    otherScroll.scrollTop = 40;
+
+    const originalElementFromPoint = document.elementFromPoint;
+    let hitTestCount = 0;
+    document.elementFromPoint = () => {
+      hitTestCount += 1;
+      return hitTestCount === 1 ? otherScroll : button;
+    };
+
+    try {
+      fireEvent.touchStart(button, {
+        touches: [
+          createTouch(button, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(button, {
+        touches: [
+          createTouch(button, {
+            clientX: 0,
+            clientY: 40,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
   it.skipIf(isJSDOM)(
     'adds scroll slack and centers the focused input while the visual viewport is reduced',
     async () => {
@@ -292,6 +360,7 @@ describe('<Drawer.Viewport />', () => {
                       style={{
                         height: 420,
                         overflowY: 'auto',
+                        overflowAnchor: 'auto',
                         paddingBottom: 20,
                       }}
                     >
@@ -324,29 +393,38 @@ describe('<Drawer.Viewport />', () => {
             y: 300,
             toJSON: () => {},
           }) as DOMRect;
-        input.getBoundingClientRect = () =>
-          ({
-            top: 650,
-            bottom: 690,
+        input.getBoundingClientRect = () => {
+          const top = 650 - scroll.scrollTop;
+          return {
+            top,
+            bottom: top + 40,
             height: 40,
             left: 0,
             right: 320,
             width: 320,
             x: 0,
-            y: 650,
+            y: top,
             toJSON: () => {},
-          }) as DOMRect;
+          } as DOMRect;
+        };
 
+        const keyboardViewportHeight = 500;
         await act(async () => {
           input.focus();
           scroll.scrollTop = 0;
-          visualViewport.resize(500);
+          visualViewport.resize(keyboardViewportHeight);
         });
 
         await waitFor(() => {
-          expect(scroll.style.paddingBottom).toBe('288px');
-          expect(scroll.style.scrollPaddingBottom).toBe('16px');
-          expect(scroll.scrollTop).toBeCloseTo(270, 0);
+          const scrollRect = scroll.getBoundingClientRect();
+          const inputRect = input.getBoundingClientRect();
+          const inputCenter = (inputRect.top + inputRect.bottom) / 2;
+          const visibleCenter = (scrollRect.top + keyboardViewportHeight) / 2;
+
+          expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
+          expect(scroll.style.scrollPaddingBottom).not.toBe('');
+          expect(scroll.style.overflowAnchor).toBe('none');
+          expect(inputCenter).toBeCloseTo(visibleCenter, 0);
         });
 
         await act(async () => {
@@ -356,6 +434,7 @@ describe('<Drawer.Viewport />', () => {
         await waitFor(() => {
           expect(scroll.style.paddingBottom).toBe('20px');
           expect(scroll.style.scrollPaddingBottom).toBe('');
+          expect(scroll.style.overflowAnchor).toBe('auto');
         });
       } finally {
         visualViewport.restore();
@@ -437,7 +516,7 @@ describe('<Drawer.Viewport />', () => {
         });
 
         await waitFor(() => {
-          expect(scroll.style.paddingBottom).toBe('288px');
+          expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
           expect(textarea.style.paddingBottom).toBe('');
         });
       } finally {
@@ -490,6 +569,95 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it.skipIf(isJSDOM)('restores keyboard scroll slack when the drawer closes', async () => {
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(800);
+
+    function TestCase(props: { open: boolean }) {
+      return (
+        <Drawer.Root open={props.open} modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <Drawer.Content
+                    data-testid="scroll"
+                    style={{
+                      height: 420,
+                      overflowY: 'auto',
+                      overflowAnchor: 'auto',
+                      paddingBottom: 20,
+                    }}
+                  >
+                    <div style={{ height: 900 }} />
+                    <input data-testid="input" type="text" />
+                  </Drawer.Content>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>
+      );
+    }
+
+    try {
+      const { setProps } = await render(<TestCase open />);
+
+      const scroll = screen.getByTestId('scroll');
+      const input = screen.getByTestId('input');
+
+      Object.defineProperties(scroll, {
+        clientHeight: { configurable: true, value: 420 },
+        scrollHeight: { configurable: true, value: 1200 },
+      });
+      scroll.getBoundingClientRect = () =>
+        ({
+          top: 300,
+          bottom: 720,
+          height: 420,
+          left: 0,
+          right: 320,
+          width: 320,
+          x: 0,
+          y: 300,
+          toJSON: () => {},
+        }) as DOMRect;
+      input.getBoundingClientRect = () =>
+        ({
+          top: 650,
+          bottom: 690,
+          height: 40,
+          left: 0,
+          right: 320,
+          width: 320,
+          x: 0,
+          y: 650,
+          toJSON: () => {},
+        }) as DOMRect;
+
+      await act(async () => {
+        input.focus();
+        visualViewport.resize(500);
+      });
+
+      await waitFor(() => {
+        expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
+        expect(scroll.style.overflowAnchor).toBe('none');
+      });
+
+      await setProps({ open: false });
+
+      await waitFor(() => {
+        expect(scroll.style.paddingBottom).toBe('20px');
+        expect(scroll.style.scrollPaddingBottom).toBe('');
+        expect(scroll.style.overflowAnchor).toBe('auto');
+      });
+    } finally {
+      visualViewport.restore();
+      restoreInnerHeight();
+    }
+  });
+
   it.skipIf(isJSDOM)('does not add keyboard scroll slack while pinch-zoomed', async () => {
     const restoreInnerHeight = mockWindowInnerHeight(800);
     const visualViewport = mockVisualViewport(800);
@@ -535,6 +703,68 @@ describe('<Drawer.Viewport />', () => {
       restoreInnerHeight();
     }
   });
+
+  it.skipIf(isJSDOM)(
+    'focuses an unfocused keyboard input on touchend without page scroll',
+    async () => {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <input
+                    data-testid="input"
+                    style={{
+                      opacity: 0.5,
+                      transform: 'scale(1)',
+                      transition: 'opacity 1s',
+                    }}
+                    type="text"
+                  />
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const focusSpy = vi.spyOn(input, 'focus');
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => input;
+
+      try {
+        fireEvent.touchStart(input, {
+          touches: [
+            createTouch(input, {
+              clientX: 0,
+              clientY: 0,
+            }),
+          ],
+        });
+
+        const touchEnd = createNativeTouchEnd(input, {
+          clientX: 0,
+          clientY: 0,
+        });
+
+        await act(async () => {
+          input.dispatchEvent(touchEnd);
+          await flushMicrotasks();
+        });
+
+        expect(touchEnd.defaultPrevented).toBe(true);
+        expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+        expect(input.style.opacity).toBe('0.5');
+        expect(input.style.transform).toBe('scale(1)');
+        expect(input.style.transition).toBe('opacity 1s');
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+        focusSpy.mockRestore();
+      }
+    },
+  );
 
   it.skipIf(isJSDOM)('preserves native taps on an already-focused keyboard input', async () => {
     await render(

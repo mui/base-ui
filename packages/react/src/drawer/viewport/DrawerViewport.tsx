@@ -1063,8 +1063,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
           const rootElement = viewportElement ?? popupElementState;
           const eventTarget = getTarget(event.nativeEvent);
-          const fallbackTarget = isElement(eventTarget) ? eventTarget : null;
-          const target = isElement(elementAtPoint) ? elementAtPoint : fallbackTarget;
+          const target = isElement(eventTarget) ? eventTarget : null;
           if (rootElement && target && !contains(rootElement, target)) {
             ignoreTouchSwipeRef.current = true;
             touchScrollStateRef.current = null;

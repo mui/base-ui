@@ -46,7 +46,7 @@ import { Drawer } from '@base-ui/react/drawer';
 
 Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer. Add `data-base-ui-swipe-ignore` to a descendant when you need to opt that element out of swipe dismissal for all input types.
 
-Use `<Drawer.VirtualKeyboardProvider>` when a drawer contains form fields and you want Base UI to manage keyboard-aware focus and scroll handling for software keyboards. Existing drawers keep the legacy behavior by default.
+Use `<Drawer.VirtualKeyboardProvider>` when a drawer contains form fields and you want Base UI to manage keyboard-aware focus and scroll handling for software keyboards. Drawers without this provider are unaffected.
 
 ## Examples
 

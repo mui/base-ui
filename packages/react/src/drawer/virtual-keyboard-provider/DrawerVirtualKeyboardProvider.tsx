@@ -34,12 +34,17 @@ const NON_TEXT_INPUT_TYPES = new Set([
 ]);
 
 interface ScrollAdjustment {
-  element: HTMLElement;
-  overflowAnchor: string;
-  paddingBottom: string;
-  scrollPaddingBottom: string;
-  computedPaddingBottom: number;
-  computedScrollPaddingBottom: number;
+  readonly element: HTMLElement;
+  readonly overflowAnchor: string;
+  readonly paddingBottom: string;
+  readonly scrollPaddingBottom: string;
+  readonly computedPaddingBottom: number;
+  readonly computedScrollPaddingBottom: number;
+}
+
+interface KeyboardVisualViewport {
+  top: number;
+  bottom: number;
 }
 
 /**
@@ -73,10 +78,13 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     if (!adjustment) {
       return;
     }
-    adjustment.element.style.overflowAnchor = adjustment.overflowAnchor;
-    adjustment.element.style.paddingBottom = adjustment.paddingBottom;
-    adjustment.element.style.scrollPaddingBottom = adjustment.scrollPaddingBottom;
-    keyboardScrollAdjustmentRef.current = null;
+    try {
+      adjustment.element.style.overflowAnchor = adjustment.overflowAnchor;
+      adjustment.element.style.paddingBottom = adjustment.paddingBottom;
+      adjustment.element.style.scrollPaddingBottom = adjustment.scrollPaddingBottom;
+    } finally {
+      keyboardScrollAdjustmentRef.current = null;
+    }
   });
 
   const setKeyboardScrollSlack = useStableCallback((element: HTMLElement, slack: number) => {
@@ -438,6 +446,7 @@ function resolveKeyboardInputTargetFromPoint(
   clientX: number,
   clientY: number,
 ): HTMLElement | null {
+  // iOS can retarget taps while the page is reacting to the keyboard; probe nearby points too.
   for (const [offsetX, offsetY] of [
     [0, 0],
     [0, INPUT_TAP_HIT_SLOP],
@@ -462,6 +471,7 @@ function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
   const previousTransform = target.style.transform;
   const previousTransition = target.style.transition;
 
+  // Move the input off-screen only for the synchronous focus call to avoid Safari page scrolling.
   target.style.transition = 'none';
   target.style.opacity = '0';
   target.style.transform = 'translateY(-2000px)';
@@ -498,11 +508,12 @@ function findPotentialScrollAncestor(target: HTMLElement, root: HTMLElement): HT
 }
 
 function isPotentialKeyboardScrollContainer(element: HTMLElement): boolean {
+  // Keyboard slack can make a same-height container scrollable, so overflow intent is enough here.
   const styles = getComputedStyle(element);
   return (styles.overflowY === 'auto' || styles.overflowY === 'scroll') && element.clientHeight > 0;
 }
 
-function getKeyboardVisualViewport(win: Window): { top: number; bottom: number } | null {
+function getKeyboardVisualViewport(win: Window): KeyboardVisualViewport | null {
   const visualViewport = win.visualViewport;
 
   if (!visualViewport || visualViewport.scale !== 1) {
@@ -510,6 +521,7 @@ function getKeyboardVisualViewport(win: Window): { top: number; bottom: number }
   }
 
   const reducedHeight = win.innerHeight - visualViewport.height;
+  // Treat small viewport changes as browser chrome movement, not the software keyboard.
   if (reducedHeight <= KEYBOARD_RESIZE_THRESHOLD) {
     return null;
   }
