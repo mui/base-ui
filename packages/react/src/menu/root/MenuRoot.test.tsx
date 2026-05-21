@@ -1646,17 +1646,28 @@ describe('<Menu.Root />', () => {
           expect(firstItem).toHaveAttribute('tabindex', '0');
         });
 
-        it('focuses the last item when called with `last` while opening programmatically', async () => {
+        it('focuses and scrolls the last item when called with `last` while opening programmatically', async () => {
+          const scrollIntoView = vi.fn();
+          const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+          HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
           const App = createApp('last');
           const { user } = await render(<App />);
 
-          await user.click(screen.getByRole('button', { name: 'external' }));
+          try {
+            await user.click(screen.getByRole('button', { name: 'external' }));
 
-          const lastItem = await screen.findByTestId('item-5');
-          await waitFor(() => {
-            expect(lastItem).toHaveFocus();
-          });
-          expect(lastItem).toHaveAttribute('tabindex', '0');
+            const lastItem = await screen.findByTestId('item-5');
+            await waitFor(() => {
+              expect(lastItem).toHaveFocus();
+            });
+            expect(lastItem).toHaveAttribute('tabindex', '0');
+            await waitFor(() => {
+              expect(scrollIntoView).toHaveBeenCalled();
+            });
+          } finally {
+            HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+          }
         });
 
         it('focuses the popup when called with `none`', async () => {
@@ -1666,6 +1677,49 @@ describe('<Menu.Root />', () => {
           await user.click(screen.getByRole('button', { name: 'external' }));
 
           const popup = await screen.findByRole('menu');
+          await waitFor(() => {
+            expect(popup).toHaveFocus();
+          });
+          screen.getAllByRole('menuitem').forEach((item) => {
+            expect(item).toHaveAttribute('tabindex', '-1');
+          });
+        });
+
+        it('moves focus to the popup when called with `none` while open', async () => {
+          const actionsRef: React.RefObject<Menu.Root.Actions | null> = { current: null };
+
+          function App() {
+            const [open, setOpen] = React.useState(false);
+            return (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(true);
+                    actionsRef.current?.highlightItem('first');
+                  }}
+                >
+                  external
+                </button>
+                <TestMenu rootProps={{ open, onOpenChange: setOpen, actionsRef }} />
+              </div>
+            );
+          }
+
+          const { user } = await render(<App />);
+
+          await user.click(screen.getByRole('button', { name: 'external' }));
+
+          const firstItem = await screen.findByTestId('item-1');
+          await waitFor(() => {
+            expect(firstItem).toHaveFocus();
+          });
+
+          await act(async () => {
+            actionsRef.current?.highlightItem('none');
+          });
+
+          const popup = screen.getByRole('menu');
           await waitFor(() => {
             expect(popup).toHaveFocus();
           });

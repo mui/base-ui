@@ -431,6 +431,9 @@ export function useListNavigation(
         }
 
         indexRef.current = focusLast ? getMaxListIndex(listRef) : getMinListIndex(listRef);
+        if (pendingHighlightItem != null) {
+          forceScrollIntoViewRef.current = true;
+        }
         keyRef.current = null;
         onNavigate();
         onDone?.();
@@ -456,6 +459,11 @@ export function useListNavigation(
       if (pendingHighlightItem === 'none') {
         indexRef.current = -1;
         onNavigate();
+
+        if (!virtual) {
+          floatingFocusElementRef.current?.focus({ preventScroll: true });
+        }
+
         clearPendingHighlightItem();
         return undefined;
       }
@@ -509,6 +517,8 @@ export function useListNavigation(
     onNavigate,
     clearPendingHighlightItem,
     focusItem,
+    floatingFocusElementRef,
+    virtual,
   ]);
 
   // Ensure the parent floating element has focus when a nested child closes
