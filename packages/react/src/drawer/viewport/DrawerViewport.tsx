@@ -32,6 +32,7 @@ import { BASE_UI_SWIPE_IGNORE_SELECTOR } from '../../internals/constants';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { useDrawerVirtualKeyboardContext } from '../virtual-keyboard-provider/DrawerVirtualKeyboardContext';
 
 const MIN_SWIPE_THRESHOLD = 10;
 const FAST_SWIPE_VELOCITY = 0.5;
@@ -70,6 +71,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const { render, className, style, children, ...elementProps } = props;
 
   const { store } = useDialogRootContext();
+  const popupRef = store.context.popupRef;
+  const backdropRef = store.context.backdropRef;
+
   const {
     swipeDirection,
     notifyParentSwipingChange,
@@ -102,6 +106,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const crossScrollAxis: ScrollAxis = isVerticalScrollAxis ? 'horizontal' : 'vertical';
 
   const [swipeRelease, setSwipeRelease] = React.useState<number | null>(null);
+
   const pendingSwipeCloseSnapPointRef = React.useRef<typeof activeSnapPoint>(undefined);
   const resetSwipeRef = React.useRef<(() => void) | null>(null);
   const controlledDismissFrame = useAnimationFrame();
@@ -111,6 +116,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const ignoreNextTouchStartFromPenRef = React.useRef(false);
   const ignoreTouchSwipeRef = React.useRef(false);
   const touchScrollStateRef = React.useRef<TouchScrollState | null>(null);
+
+  const virtualKeyboard = useDrawerVirtualKeyboardContext();
 
   const snapPointRange = React.useMemo(() => {
     if (!snapPoints || snapPoints.length < 2) {
@@ -170,16 +177,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   }, [snapPoints, swipeDirection]);
 
   const setSwipeDismissed = useStableCallback((dismissed: boolean) => {
-    setSwipeDismissedElements(
-      store.context.popupRef.current,
-      store.context.backdropRef.current,
-      dismissed,
-    );
+    setSwipeDismissedElements(popupRef.current, backdropRef.current, dismissed);
   });
 
   const clearSwipeRelease = useStableCallback(() => {
     setSwipeDismissed(false);
-    store.context.popupRef.current?.removeAttribute(TransitionStatusDataAttributes.endingStyle);
+    popupRef.current?.removeAttribute(TransitionStatusDataAttributes.endingStyle);
     setSwipeRelease(null);
   });
 
@@ -219,7 +222,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         frontmostHeight: swipeProgress > 0 ? frontmostHeight : 0,
       });
 
-      const backdropElement = store.context.backdropRef.current;
+      const backdropElement = backdropRef.current;
       if (!backdropElement) {
         return;
       }
@@ -365,7 +368,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      const popupElement = store.context.popupRef.current;
+      const popupElement = popupRef.current;
       if (!popupElement) {
         return;
       }
@@ -940,12 +943,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   }, [clearSwipeRelease, open, resetSwipe]);
 
   React.useEffect(() => {
+    const backdropElement = backdropRef.current;
+
     return () => {
       visualStateStore?.set({ swipeProgress: 0, frontmostHeight: 0 });
-      setBackdropSwipingAttribute(store.context.backdropRef.current, false);
+      setBackdropSwipingAttribute(backdropElement, false);
       finishNestedSwipe();
     };
-  }, [finishNestedSwipe, store, visualStateStore]);
+  }, [backdropRef, finishNestedSwipe, visualStateStore]);
 
   const swipeProviderValue = React.useMemo(
     () => ({
@@ -1065,6 +1070,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             return;
           }
 
+          virtualKeyboard?.onTouchStart(event);
+
           let scrollTarget: HTMLElement | null = null;
           let hasCrossAxisScrollableContent = false;
           if (rootElement && target) {
@@ -1117,10 +1124,16 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           swipeTouchProps.onTouchMove?.(event);
         },
         onTouchEnd(event) {
+          if (virtualKeyboard?.onTouchEnd(event)) {
+            resetTouchTrackingState();
+            return;
+          }
+
           resetTouchTrackingState();
           swipeTouchProps.onTouchEnd?.(event);
         },
         onTouchCancel(event) {
+          virtualKeyboard?.onTouchCancel();
           resetTouchTrackingState();
           swipeTouchProps.onTouchCancel?.(event);
         },

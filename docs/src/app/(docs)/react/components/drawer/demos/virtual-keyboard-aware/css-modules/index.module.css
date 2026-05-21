@@ -74,6 +74,10 @@
   transition-property: opacity;
   transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 
+  @supports (-webkit-touch-callout: none) {
+    position: absolute;
+  }
+
   @media (prefers-color-scheme: dark) {
     --backdrop-opacity: 0.7;
   }
@@ -118,27 +122,17 @@
   }
 }
 
-.Content {
-  width: 100%;
-  max-width: 22.5rem;
-  margin: 0 auto;
-}
-
 .Popup {
   --bleed: 3rem;
-  --ios-chrome-nudge: 1px;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: calc(100dvh - var(--top-margin) + var(--bleed));
+  height: calc(100% - 1rem + var(--bleed));
+  max-height: calc(100% - 1rem + var(--bleed));
   margin-bottom: calc(-1 * var(--bleed));
-  padding-bottom: max(
-    var(--bleed),
-    calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y) + var(--bleed))
-  );
   border-top: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   color: oklch(14.5% 0 0deg);
@@ -149,9 +143,7 @@
   transition:
     transform 450ms cubic-bezier(0.32, 0.72, 0, 1),
     box-shadow 450ms cubic-bezier(0.32, 0.72, 0, 1);
-  transform: translateY(
-    calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y) - var(--ios-chrome-nudge))
-  );
+  transform: translateY(var(--drawer-swipe-movement-y));
   will-change: transform;
 
   @media (prefers-color-scheme: dark) {
@@ -169,7 +161,6 @@
   &[data-starting-style],
   &[data-ending-style] {
     transform: translateY(calc(100% - var(--bleed) + 2px));
-    padding-bottom: var(--bleed);
     box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 0%);
   }
 
@@ -178,24 +169,17 @@
   }
 }
 
-.DragArea {
+.Header {
   flex-shrink: 0;
   padding: 0.875rem 1.5rem 1rem;
   border-bottom: 1px solid oklch(87% 0 0deg);
   touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 
   @media (prefers-color-scheme: dark) {
     border-bottom: 1px solid oklch(37.1% 0 0deg);
   }
-}
-
-.Scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  touch-action: auto;
-  padding: 1rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 .Handle {
@@ -220,7 +204,8 @@
 }
 
 .Description {
-  margin: 0 0 1.5rem;
+  margin: 0.25rem auto 0;
+  max-width: 22.5rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: oklch(43.9% 0 0deg);
@@ -231,32 +216,107 @@
   }
 }
 
-.Meta {
-  margin: 0 0 1.5rem;
-  font-size: 0.9375rem;
-  line-height: 1.5rem;
-  color: oklch(50% 55% 31deg);
-  text-align: center;
+.Scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: auto;
+  padding: 1rem 1.5rem;
 }
 
-.Cards {
+.Form {
   display: grid;
   gap: 0.75rem;
-  margin: 0 0 1.5rem;
+  width: 100%;
+  max-width: 22.5rem;
+  margin: 0 auto;
 }
 
-.Card {
-  height: 3rem;
-  background-color: oklch(92.2% 0 0deg);
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.FieldLabel {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
-    background-color: oklch(37.1% 0 0deg);
+    color: white;
   }
 }
 
-.Actions {
+.Input,
+.Textarea {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &::placeholder {
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Input {
+  height: 2rem;
+  padding: 0 0.5rem;
+}
+
+.Textarea {
+  min-height: 5.5rem;
+  padding: 0.5rem;
+  resize: vertical;
+}
+
+.Footer {
   display: flex;
-  align-items: center;
-  justify-content: end;
-  gap: 1rem;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom, 0px) + var(--bleed));
+  border-top: 1px solid oklch(87% 0 0deg);
+  background-color: white;
+
+  @media (prefers-color-scheme: dark) {
+    border-top: 1px solid oklch(37.1% 0 0deg);
+    background-color: oklch(14.5% 0 0deg);
+  }
 }

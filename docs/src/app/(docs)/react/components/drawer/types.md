@@ -615,6 +615,27 @@ type DrawerSwipeAreaState = {
 };
 ```
 
+### VirtualKeyboardProvider
+
+Enables keyboard-aware focus and scroll handling for software keyboards.
+Doesn't render its own HTML element.
+
+**VirtualKeyboardProvider Props:**
+
+| Prop     | Type              | Default | Description |
+| :------- | :---------------- | :------ | :---------- |
+| children | `React.ReactNode` | -       | -           |
+
+### VirtualKeyboardProvider.Props
+
+Re-export of [VirtualKeyboardProvider](#virtualkeyboardprovider) props.
+
+### VirtualKeyboardProvider.State
+
+```typescript
+type DrawerVirtualKeyboardProviderState = {};
+```
+
 ## External Types
 
 ### InteractionType
@@ -668,10 +689,11 @@ type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 - `Drawer.SwipeArea`: `Drawer.SwipeArea`, `Drawer.SwipeArea.Props`, `Drawer.SwipeArea.State`
 - `Drawer.Title`: `Drawer.Title`, `Drawer.Title.Props`, `Drawer.Title.State`
 - `Drawer.Trigger`: `Drawer.Trigger`, `Drawer.Trigger.Props`, `Drawer.Trigger.State`
+- `Drawer.VirtualKeyboardProvider`: `Drawer.VirtualKeyboardProvider`, `Drawer.VirtualKeyboardProvider.State`, `Drawer.VirtualKeyboardProvider.Props`
 - `Drawer.Viewport`: `Drawer.Viewport`, `Drawer.Viewport.Props`, `Drawer.Viewport.State`
 - `Drawer.createHandle`
 - `Drawer.Handle`
-- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`
+- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
 
 ## Canonical Types
 
@@ -708,5 +730,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Drawer.Title.State`: `DrawerTitleState`
 - `Drawer.Trigger.Props`: `DrawerTriggerProps`
 - `Drawer.Trigger.State`: `DrawerTriggerState`
+- `Drawer.VirtualKeyboardProvider.State`: `DrawerVirtualKeyboardProviderState`
+- `Drawer.VirtualKeyboardProvider.Props`: `DrawerVirtualKeyboardProviderProps`
 - `Drawer.Viewport.Props`: `DrawerViewportProps`
 - `Drawer.Viewport.State`: `DrawerViewportState`
