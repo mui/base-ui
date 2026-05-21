@@ -93,12 +93,31 @@
 }
 
 .Viewport {
+  --bleed: 3rem;
   position: fixed;
   inset: 0;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   touch-action: none;
+
+  &::after {
+    content: '';
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    height: var(--bleed);
+    background-color: white;
+    pointer-events: none;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(14.5% 0 0deg);
+    }
+  }
+
+  &[data-closed]::after {
+    opacity: 0;
+  }
 }
 
 .Content {
@@ -108,9 +127,9 @@
 }
 
 .Popup {
-  --bleed: 3rem;
   box-sizing: border-box;
   position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   width: 100%;
