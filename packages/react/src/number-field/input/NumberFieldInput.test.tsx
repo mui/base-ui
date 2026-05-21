@@ -18,6 +18,8 @@ describe('<NumberField.Input />', () => {
     });
 
     fireEvent(target, pasteEvent);
+
+    return pasteEvent;
   }
 
   describeConformance(<NumberField.Input />, () => ({
@@ -705,9 +707,10 @@ describe('<NumberField.Input />', () => {
       const input = screen.getByRole('textbox');
       await act(async () => input.focus());
 
-      pasteWithError(input, new DOMException('Blocked', 'SecurityError'));
+      const pasteEvent = pasteWithError(input, new DOMException('Blocked', 'SecurityError'));
 
       expect(input).toHaveValue('12');
+      expect(pasteEvent.defaultPrevented).toBe(false);
       expect(warnSpy).toHaveBeenCalledTimes(1);
       expect(warnSpy.mock.calls[0]?.[0]).toContain(
         'Base UI: <NumberField.Input> could not read clipboard text during paste handling.',
