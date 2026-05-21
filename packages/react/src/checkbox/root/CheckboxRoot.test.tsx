@@ -1294,7 +1294,7 @@ describe('<Checkbox.Root />', () => {
     it('Field.Description', async () => {
       await render(
         <Field.Root>
-          <Checkbox.Root data-testid="button" />
+          <Checkbox.Root data-testid="button" aria-describedby="external-description" />
           <Field.Description data-testid="description" />
         </Field.Root>,
       );
@@ -1303,7 +1303,7 @@ describe('<Checkbox.Root />', () => {
 
       expect(internalInput).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });

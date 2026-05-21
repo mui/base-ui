@@ -1842,7 +1842,7 @@ describe('<NumberField />', () => {
       await render(
         <Field.Root>
           <NumberFieldBase.Root>
-            <NumberFieldBase.Input />
+            <NumberFieldBase.Input aria-describedby="external-description" />
           </NumberFieldBase.Root>
           <Field.Description data-testid="description" />
         </Field.Root>,
@@ -1850,7 +1850,7 @@ describe('<NumberField />', () => {
 
       expect(screen.getByRole('textbox')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });

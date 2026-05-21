@@ -963,16 +963,18 @@ describe('<Switch.Root />', () => {
     it('Field.Description', async () => {
       await render(
         <Field.Root>
-          <Switch.Root data-testid="button" />
+          <Switch.Root data-testid="button" aria-describedby="external-description" />
           <Field.Description data-testid="description" />
         </Field.Root>,
       );
 
       const internalInput = screen.queryByRole<HTMLInputElement>('checkbox', { hidden: true });
+      const description = screen.getByTestId('description');
 
-      expect(internalInput).toHaveAttribute(
+      expect(internalInput).toHaveAttribute('aria-describedby', description.id);
+      expect(screen.getByRole('switch')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${description.id}`,
       );
     });
   });
