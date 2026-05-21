@@ -120,6 +120,10 @@
       background-color: oklch(14.5% 0 0deg);
     }
   }
+
+  &[data-closed]::after {
+    opacity: 0;
+  }
 }
 
 .Popup {
