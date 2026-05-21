@@ -93,7 +93,9 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   // 2) Closing because another tooltip opened (reason === 'none')
   // Otherwise, allow the animation to play. In particular, do not disable animations
   // during the 'ending' phase unless it's due to a sibling opening.
-  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  const previousInstantTypeRef = React.useRef<'delay' | 'focus' | 'dismiss' | undefined | null>(
+    null,
+  );
 
   useIsoLayoutEffect(() => {
     if (openState && disabled) {
