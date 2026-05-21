@@ -12,6 +12,12 @@ let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
 
+function isPageScrollLocked(win: Window, html: Element, body: Element) {
+  return /hidden|clip/.test(
+    win.getComputedStyle(html).overflowY + win.getComputedStyle(body).overflowY,
+  );
+}
+
 function hasInsetScrollbars(referenceElement: Element | null) {
   if (typeof document === 'undefined') {
     return false;
@@ -242,6 +248,42 @@ class ScrollLocker {
     }
   };
 
+  private observePageScrollUnlock(referenceElement: Element | null) {
+    if (typeof MutationObserver !== 'function') {
+      return NOOP;
+    }
+
+    const doc = ownerDocument(referenceElement);
+    const win = ownerWindow(doc);
+    const html = doc.documentElement;
+    const body = doc.body;
+
+    let observer: MutationObserver;
+
+    function disconnect() {
+      observer.disconnect();
+    }
+
+    observer = new MutationObserver(() => {
+      if (
+        this.lockCount === 0 ||
+        this.restore !== disconnect ||
+        isPageScrollLocked(win, html, body)
+      ) {
+        return;
+      }
+
+      disconnect();
+      this.restore = null;
+      this.lock(referenceElement);
+    });
+
+    observer.observe(html, { attributes: true });
+    observer.observe(body, { attributes: true });
+
+    return disconnect;
+  }
+
   private lock(referenceElement: Element | null) {
     if (this.lockCount === 0 || this.restore !== null) {
       return;
@@ -249,11 +291,11 @@ class ScrollLocker {
 
     const doc = ownerDocument(referenceElement);
     const html = doc.documentElement;
-    const htmlOverflowY = ownerWindow(html).getComputedStyle(html).overflowY;
+    const body = doc.body;
+    const win = ownerWindow(html);
 
-    // If the site author already hid overflow on <html>, respect it and bail out.
-    if (htmlOverflowY === 'hidden' || htmlOverflowY === 'clip') {
-      this.restore = NOOP;
+    if (isPageScrollLocked(win, html, body)) {
+      this.restore = this.observePageScrollUnlock(referenceElement);
       return;
     }
 
