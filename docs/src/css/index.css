@@ -228,9 +228,6 @@
       0 10px 32px var(--blackA-5), 0 1px 1px var(--blackA-1), 0 4px 6px var(--blackA-2),
       0 1px 1px var(--blackA-2), 0 24px 68px var(--blackA-4);
 
-    /* Breakpoints (use custom-media.css where possible) */
-    --breakpoint-max-layout-width: 89rem; /* 1424px - this is a 1440px device minus 16px scrollbar */
-
     --ease-out-fast: cubic-bezier(0.45, 1.005, 0, 1.005);
     --ease-in-slow: cubic-bezier(0.375, 0.015, 0.545, 0.455);
     --header-height: 3rem;
@@ -389,8 +386,6 @@
     --ease-out-fast: initial;
     --ease-in-slow: initial;
     --header-height: initial;
-
-    --breakpoint-max-layout-width: initial;
   }
 }
 
