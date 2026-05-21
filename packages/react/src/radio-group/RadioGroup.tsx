@@ -51,7 +51,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   const {
     setTouched: setFieldTouched,
     setFocused,
-    shouldValidateOnChange,
     validationMode,
     name: fieldName,
     disabled: fieldDisabled,
@@ -146,7 +145,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return undefined;
   });
 
-  useRegisterFieldControl(controlRef, id, checkedValue ?? null);
+  useRegisterFieldControl(controlRef, id, checkedValue ?? null, undefined, true, name);
 
   useValueChanged(checkedValue, () => {
     clearErrors(name);
@@ -154,11 +153,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     setDirty(checkedValue !== validityData.initialValue);
     setFilled(checkedValue != null);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(checkedValue);
-    } else {
-      validation.commit(checkedValue, true);
-    }
+    validation.change(checkedValue);
 
     const fallbackInput = firstEnabledInputRef.current;
     if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
@@ -243,7 +238,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
         className={className}
         style={style}
         state={state}
-        props={[defaultProps, validation.getValidationProps, elementProps]}
+        props={[defaultProps, elementProps, validation.getValidationProps]}
         refs={[forwardedRef]}
         stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}

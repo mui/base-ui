@@ -94,27 +94,17 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
-  useRegisterFieldControl(inputRef, id, value);
+  useRegisterFieldControl(inputRef, id, value, undefined, true, name);
 
-  useValueChanged(value, (previousValue) => {
-    const validateOnChange = shouldValidateOnChange();
-
+  useValueChanged(value, () => {
     clearErrors(name);
 
-    if (validateOnChange) {
-      validation.commit(value);
-    }
-
-    if (previousValue === value || validateOnChange) {
-      return;
-    }
-
-    if (blockRevalidationRef.current) {
+    if (blockRevalidationRef.current && !shouldValidateOnChange()) {
       blockRevalidationRef.current = false;
       return;
     }
 
-    validation.commit(value, true);
+    validation.change(value);
   });
 
   const inputProps: React.ComponentProps<'input'> = {
@@ -415,7 +405,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
     state,
-    props: [inputProps, validation.getValidationProps(), elementProps],
+    props: [inputProps, elementProps, validation.getValidationProps],
     stateAttributesMapping,
   });
 

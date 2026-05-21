@@ -98,7 +98,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const value = isControlled ? valueUnwrapped : undefined;
   const getValueFromInput = useStableCallback(() => validation.inputRef.current?.value);
 
-  useRegisterFieldControl(validation.inputRef, id, value, getValueFromInput);
+  useRegisterFieldControl(validation.inputRef, id, value, getValueFromInput, true, name);
 
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
@@ -136,8 +136,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
           }
         },
       },
-      validation.getInputValidationProps(),
-      elementProps,
+      validation.getInputValidationProps(elementProps),
     ],
     stateAttributesMapping: fieldValidityMapping,
   });
