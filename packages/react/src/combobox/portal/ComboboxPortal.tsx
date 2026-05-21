@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
-import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';
 import { selectors } from '../store';
 
@@ -20,9 +20,11 @@ export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
   const { keepMounted = false, ...portalProps } = props;
 
   const store = useComboboxRootContext();
+  const floatingRootContext = useComboboxFloatingContext();
 
   const mounted = useStore(store, selectors.mounted);
   const forceMounted = useStore(store, selectors.forceMounted);
+  const anchorElement = floatingRootContext.useState('domAnchorElement');
 
   const shouldRender = mounted || keepMounted || forceMounted;
   if (!shouldRender) {
@@ -31,7 +33,7 @@ export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
 
   return (
     <ComboboxPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
+      <FloatingPortal ref={forwardedRef} referenceElement={anchorElement} {...portalProps} />
     </ComboboxPortalContext.Provider>
   );
 });

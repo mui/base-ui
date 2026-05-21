@@ -23,6 +23,8 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
   const mounted = store.useState('mounted');
   const modal = store.useState('modal');
   const open = store.useState('open');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const anchorElement = floatingRootContext.useState('domAnchorElement');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -31,7 +33,7 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
 
   return (
     <DialogPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps}>
+      <FloatingPortal ref={forwardedRef} referenceElement={anchorElement} {...portalProps}>
         {mounted && modal === true && (
           <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
         )}

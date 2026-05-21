@@ -27,6 +27,37 @@ function App(props: AppProps) {
   );
 }
 
+interface AppWithReferenceProps {
+  testId?: string;
+}
+
+function AppWithReference(props: AppWithReferenceProps) {
+  const { testId = 'app' } = props;
+  const [open, setOpen] = React.useState(false);
+  const [reference, setReference] = React.useState<HTMLElement | null>(null);
+  const { refs } = useFloating({
+    open,
+    onOpenChange: setOpen,
+    elements: { reference },
+  });
+
+  return (
+    <React.Fragment>
+      <button
+        data-testid={`${testId}-reference`}
+        ref={(node) => {
+          setReference(node);
+          refs.setReference(node);
+        }}
+        onClick={() => setOpen(!open)}
+      />
+      <FloatingPortal referenceElement={reference}>
+        {open && <div ref={refs.setFloating} data-testid={`${testId}-floating`} />}
+      </FloatingPortal>
+    </React.Fragment>
+  );
+}
+
 describe.skipIf(!isJSDOM)('FloatingPortal', () => {
   test('allows custom containers', async () => {
     const customRoot = document.createElement('div');
@@ -282,6 +313,93 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
         await flushMicrotasks();
 
         fireEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating').parentElement?.parentElement).toBe(fsContainer);
+      } finally {
+        fsContainer.remove();
+      }
+    });
+
+    test('does not reroute when the referenceElement is outside the fullscreen subtree', async () => {
+      // Real-world edge case: two sibling elements A and B. The user opens a
+      // dropdown inside A whose item programmatically fullscreens B. The
+      // dropdown is still open but its trigger lives in A (now invisible).
+      // Rerouting the portal into B would make the popup visible but anchored
+      // to an off-screen trigger.
+      const siblingA = document.createElement('div');
+      const siblingB = document.createElement('div');
+      document.body.appendChild(siblingA);
+      document.body.appendChild(siblingB);
+
+      try {
+        render(
+          <div>
+            <AppWithReference testId="a" />
+          </div>,
+          { container: siblingA },
+        );
+
+        fireEvent.click(screen.getByTestId('a-reference'));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('a-floating').parentElement?.parentElement).toBe(document.body);
+
+        await act(async () => {
+          setFullscreenElement(siblingB);
+        });
+        await flushMicrotasks();
+
+        // Trigger is in siblingA, not in siblingB's fullscreen subtree, so the
+        // portal must stay in body rather than reroute into siblingB.
+        expect(screen.getByTestId('a-floating').parentElement?.parentElement).toBe(document.body);
+        expect(siblingB.contains(screen.getByTestId('a-floating'))).toBe(false);
+      } finally {
+        siblingA.remove();
+        siblingB.remove();
+      }
+    });
+
+    test('reroutes when the referenceElement is inside the fullscreen subtree', async () => {
+      // Normal case: the fullscreen element is an ancestor of the trigger, so
+      // rerouting into it keeps the popup visible AND correctly anchored.
+      const fsContainer = document.createElement('div');
+      document.body.appendChild(fsContainer);
+
+      try {
+        render(<AppWithReference />, { container: fsContainer });
+
+        fireEvent.click(screen.getByTestId('app-reference'));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('app-floating').parentElement?.parentElement).toBe(document.body);
+
+        await act(async () => {
+          setFullscreenElement(fsContainer);
+        });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('app-floating').parentElement?.parentElement).toBe(fsContainer);
+      } finally {
+        fsContainer.remove();
+      }
+    });
+
+    test('falls back to the default heuristic when referenceElement is not provided', async () => {
+      // Direct FloatingPortal users who don't pass a trigger still get the
+      // existing "container outside fullscreen -> reroute" behaviour so they
+      // remain visible during fullscreen mode.
+      const fsContainer = document.createElement('div');
+      document.body.appendChild(fsContainer);
+
+      try {
+        render(<App />);
+        fireEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        await act(async () => {
+          setFullscreenElement(fsContainer);
+        });
         await flushMicrotasks();
 
         expect(screen.getByTestId('floating').parentElement?.parentElement).toBe(fsContainer);

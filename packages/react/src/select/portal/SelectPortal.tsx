@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
 
 /**
@@ -18,8 +18,10 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { store } = useSelectRootContext();
+  const floatingRootContext = useSelectFloatingContext();
   const mounted = useStore(store, selectors.mounted);
   const forceMount = useStore(store, selectors.forceMount);
+  const anchorElement = floatingRootContext.useState('domAnchorElement');
 
   const shouldRender = mounted || forceMount;
   if (!shouldRender) {
@@ -28,7 +30,7 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
 
   return (
     <SelectPortalContext.Provider value>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
+      <FloatingPortal ref={forwardedRef} referenceElement={anchorElement} {...portalProps} />
     </SelectPortalContext.Provider>
   );
 });

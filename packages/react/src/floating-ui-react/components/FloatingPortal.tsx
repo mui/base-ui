@@ -154,6 +154,20 @@ export interface UseFloatingPortalNodeProps {
     | null
     | React.RefObject<HTMLElement | ShadowRoot | null>
     | undefined;
+  /**
+   * The element that triggers the floating element (the popup's anchor).
+   *
+   * When provided, it controls whether the portal is rerouted into an active
+   * `document.fullscreenElement`: rerouting only happens if the trigger is
+   * itself inside the fullscreen subtree. Without this information we'd risk
+   * mounting a popup that is visible but anchored to an off-screen trigger.
+   *
+   * Base UI's own portal wrappers (Menu, Dialog, Popover, etc.) thread this
+   * through automatically. Direct users of `FloatingPortal` who don't pass
+   * it fall back to the simpler "container is outside fullscreen subtree"
+   * heuristic.
+   */
+  referenceElement?: Element | null | undefined;
   componentProps?: UseRenderElementComponentProps<any> | undefined;
   elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
 }
@@ -166,7 +180,13 @@ export interface UseFloatingPortalNodeResult {
 export function useFloatingPortalNode(
   props: UseFloatingPortalNodeProps = {},
 ): UseFloatingPortalNodeResult {
-  const { ref, container: containerProp, componentProps = EMPTY_OBJECT, elementProps } = props;
+  const {
+    ref,
+    container: containerProp,
+    referenceElement,
+    componentProps = EMPTY_OBJECT,
+    elementProps,
+  } = props;
 
   const uniqueId = useId();
   const portalContext = usePortalContext();
@@ -221,11 +241,20 @@ export function useFloatingPortalNode(
     // into the DOM but never paint. Reroute to the fullscreen element so
     // popups, menus, and dialogs remain visible. The user's explicit
     // `container` prop is always respected.
+    //
+    // When the caller has told us where the trigger lives, only reroute if
+    // the trigger is also inside the fullscreen subtree. Rerouting otherwise
+    // would render the popup visible but anchored to an off-screen trigger
+    // (e.g. dropdown in element A whose item programmatically fullscreens a
+    // sibling element B — A and its trigger are unpainted, B is on screen).
+    // Falling back to the simpler heuristic when no trigger is known keeps
+    // direct `FloatingPortal` users working.
     if (
       !userContainer &&
       fullscreenElement &&
       resolvedContainer instanceof Element &&
-      !contains(fullscreenElement, resolvedContainer)
+      !contains(fullscreenElement, resolvedContainer) &&
+      (referenceElement == null || contains(fullscreenElement, referenceElement))
     ) {
       resolvedContainer = fullscreenElement as HTMLElement;
     }
@@ -244,7 +273,7 @@ export function useFloatingPortalNode(
       setPortalNode(null);
       setContainerElement(resolvedContainer);
     }
-  }, [containerProp, parentPortalNode, uniqueId, fullscreenElement]);
+  }, [containerProp, parentPortalNode, uniqueId, fullscreenElement, referenceElement]);
 
   const portalElement = useRenderElement('div', componentProps, {
     ref: [ref, setPortalNodeRef],
@@ -283,11 +312,20 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean | undefined },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, container, renderGuards, ...elementProps } =
-    componentProps;
+  const {
+    render,
+    className,
+    style,
+    children,
+    container,
+    referenceElement,
+    renderGuards,
+    ...elementProps
+  } = componentProps;
 
   const { portalNode, portalSubtree } = useFloatingPortalNode({
     container,
+    referenceElement,
     ref: forwardedRef,
     componentProps,
     elementProps,
@@ -419,5 +457,13 @@ export namespace FloatingPortal {
      * A parent element to render the portal element into.
      */
     container?: UseFloatingPortalNodeProps['container'] | undefined;
+    /**
+     * The trigger element associated with the floating content. Used to scope
+     * the fullscreen rerouting heuristic: rerouting into an active
+     * `document.fullscreenElement` only happens when the trigger lives inside
+     * that fullscreen subtree. When omitted, the simpler default-container
+     * heuristic is used.
+     */
+    referenceElement?: UseFloatingPortalNodeProps['referenceElement'] | undefined;
   }
 }

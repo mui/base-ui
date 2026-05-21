@@ -12,10 +12,12 @@ export const FloatingPortalLite = React.forwardRef(function FloatingPortalLite(
   componentProps: FloatingPortalLite.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, container, className, render, style, ...elementProps } = componentProps;
+  const { children, container, referenceElement, className, render, style, ...elementProps } =
+    componentProps;
 
   const { portalNode, portalSubtree } = useFloatingPortalNode({
     container,
+    referenceElement,
     ref: forwardedRef,
     componentProps,
     elementProps,

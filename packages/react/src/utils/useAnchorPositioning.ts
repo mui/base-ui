@@ -413,6 +413,7 @@ export function useAnchorPositioning(
         floatingElement: null,
         domReferenceElement: null,
         positionReference: null,
+        domAnchorElement: null,
       });
     }
   }, [mounted, floatingRootContext]);
@@ -467,6 +468,22 @@ export function useAnchorPositioning(
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 
+  // Mirrors the resolved DOM anchor onto the FloatingRootStore so consumers
+  // outside the positioner (notably FloatingPortal's fullscreen rerouting
+  // heuristic) can reason about the element the popup is visually attached
+  // to, not just the trigger.
+  const syncDomAnchorElement = useStableCallback(
+    (resolvedRef: Element | VirtualElement | null) => {
+      if (!floatingRootContext) {
+        return;
+      }
+      const domAnchor = resolvedRef instanceof Element ? resolvedRef : null;
+      if (floatingRootContext.state.domAnchorElement !== domAnchor) {
+        floatingRootContext.set('domAnchorElement', domAnchor);
+      }
+    },
+  );
+
   useIsoLayoutEffect(() => {
     if (!mounted) {
       return;
@@ -482,7 +499,9 @@ export function useAnchorPositioning(
       refs.setPositionReference(finalAnchor);
       registeredPositionReferenceRef.current = finalAnchor;
     }
-  }, [mounted, refs, anchorDep, anchorValueRef]);
+
+    syncDomAnchorElement(finalAnchor);
+  }, [mounted, refs, anchorDep, anchorValueRef, syncDomAnchorElement]);
 
   React.useEffect(() => {
     if (!mounted) {
@@ -500,8 +519,9 @@ export function useAnchorPositioning(
     if (isRef(anchorValue) && anchorValue.current !== registeredPositionReferenceRef.current) {
       refs.setPositionReference(anchorValue.current);
       registeredPositionReferenceRef.current = anchorValue.current;
+      syncDomAnchorElement(anchorValue.current);
     }
-  }, [mounted, refs, anchorDep, anchorValueRef]);
+  }, [mounted, refs, anchorDep, anchorValueRef, syncDomAnchorElement]);
 
   React.useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {

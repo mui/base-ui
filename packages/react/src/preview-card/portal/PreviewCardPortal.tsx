@@ -19,6 +19,8 @@ export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
 
   const store = usePreviewCardRootContext();
   const mounted = store.useState('mounted');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const anchorElement = floatingRootContext.useState('domAnchorElement');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -27,7 +29,7 @@ export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
 
   return (
     <PreviewCardPortalContext.Provider value={keepMounted}>
-      <FloatingPortalLite ref={forwardedRef} {...portalProps} />
+      <FloatingPortalLite ref={forwardedRef} referenceElement={anchorElement} {...portalProps} />
     </PreviewCardPortalContext.Provider>
   );
 });

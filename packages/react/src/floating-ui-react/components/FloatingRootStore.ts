@@ -16,6 +16,15 @@ export interface FloatingRootState {
   floatingElement: HTMLElement | null;
   positionReference: ReferenceType | null;
   /**
+   * The DOM element the popup is visually anchored to, after resolving any
+   * custom `anchor` prop on the positioner. Falls back to the trigger when no
+   * custom anchor is set. Updated by `useAnchorPositioning` so consumers of
+   * this store (notably `FloatingPortal`'s fullscreen rerouting heuristic) can
+   * reason about where the popup will actually appear, not just where the
+   * trigger lives.
+   */
+  domAnchorElement: Element | null;
+  /**
    * The ID of the floating element.
    */
   floatingId: string | undefined;
@@ -37,6 +46,15 @@ const selectors = {
   domReferenceElement: createSelector((state: FloatingRootState) => state.domReferenceElement),
   referenceElement: createSelector(
     (state: FloatingRootState) => state.positionReference ?? state.referenceElement,
+  ),
+  /**
+   * Resolves the DOM element the popup is anchored to. Prefers the explicit
+   * anchor set via the positioner's `anchor` prop, falling back to the
+   * trigger. This is the element to consult for "is the popup attached to
+   * something visible" decisions.
+   */
+  domAnchorElement: createSelector(
+    (state: FloatingRootState) => state.domAnchorElement ?? state.domReferenceElement,
   ),
   floatingElement: createSelector((state: FloatingRootState) => state.floatingElement),
   floatingId: createSelector((state: FloatingRootState) => state.floatingId),
@@ -75,6 +93,7 @@ export class FloatingRootStore extends ReactStore<
         ...initialState,
         positionReference: initialState.referenceElement,
         domReferenceElement: initialState.referenceElement as Element | null,
+        domAnchorElement: null,
       },
       {
         onOpenChange,

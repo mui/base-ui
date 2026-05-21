@@ -19,6 +19,8 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
 
   const { store } = useMenuRootContext();
   const mounted = store.useState('mounted');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const anchorElement = floatingRootContext.useState('domAnchorElement');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
@@ -27,7 +29,7 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
 
   return (
     <MenuPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
+      <FloatingPortal ref={forwardedRef} referenceElement={anchorElement} {...portalProps} />
     </MenuPortalContext.Provider>
   );
 });
