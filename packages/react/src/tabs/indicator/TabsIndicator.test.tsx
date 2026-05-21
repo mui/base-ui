@@ -92,13 +92,16 @@ describe('<Tabs.Indicator />', () => {
     // Activates the last tab on purpose: its offset is non-zero, so if the rect-based path
     // were (wrongly) used under rotation the indicator would land visibly off. The first
     // tab sits at (0, 0) and would be matched even by the buggy math.
-    function renderTransformedTabs(wrapperStyle: React.CSSProperties) {
+    function renderTransformedTabs(
+      wrapperStyle: React.CSSProperties,
+      tabsListStyle: React.CSSProperties = { display: 'flex', position: 'relative' },
+    ) {
       return render(
         <React.Fragment>
           <style>{STYLED_INDICATOR_CSS}</style>
           <div style={wrapperStyle}>
             <Tabs.Root value={3}>
-              <Tabs.List style={{ display: 'flex', position: 'relative' }}>
+              <Tabs.List style={tabsListStyle}>
                 <Tabs.Tab value={1} style={{ width: '80px', height: '32px' }}>
                   One
                 </Tabs.Tab>
@@ -258,6 +261,33 @@ describe('<Tabs.Indicator />', () => {
 
     it('overlays the active tab when an ancestor has a 2D rotation', async () => {
       await renderTransformedTabs({ transform: 'rotate(40deg)' });
+
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      await waitFor(() => {
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
+      });
+      expect(bubble).not.toHaveAttribute('hidden');
+    });
+
+    it('sets transformed offsets relative to the tab list when the list is not the offset parent', async () => {
+      await renderTransformedTabs(
+        { position: 'relative', transform: 'rotate(40deg)' },
+        { display: 'flex', marginLeft: '40px' },
+      );
+
+      const bubble = screen.getByTestId('bubble');
+
+      await waitFor(() => {
+        const bubbleComputedStyle = window.getComputedStyle(bubble);
+        assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-left'), 160);
+        assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-top'), 0);
+      });
+    });
+
+    it('overlays the active tab when an ancestor uses the rotate longhand', async () => {
+      await renderTransformedTabs({ rotate: '40deg' });
 
       const bubble = screen.getByTestId('bubble');
       const activeTab = screen.getAllByRole('tab')[2];

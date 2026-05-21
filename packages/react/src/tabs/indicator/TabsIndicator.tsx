@@ -88,8 +88,9 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
 
       if (useOffsetPath) {
         // Layout offsets are immune to transforms, but lose sub-pixel precision.
-        left = activeTab.offsetLeft;
-        top = activeTab.offsetTop;
+        const offset = getLayoutOffset(activeTab, tabsListElement);
+        left = offset.left;
+        top = offset.top;
       } else {
         const tabLeftDelta = tabRect.left - tabsListRect.left;
         const tabTopDelta = tabRect.top - tabsListRect.top;
@@ -192,4 +193,35 @@ export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsInd
 export namespace TabsIndicator {
   export type State = TabsIndicatorState;
   export type Props = TabsIndicatorProps;
+}
+
+function getLayoutOffset(element: HTMLElement, ancestor: HTMLElement) {
+  const elementOffset = getCumulativeOffset(element);
+  const ancestorOffset = getCumulativeOffset(ancestor);
+
+  return {
+    left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
+    top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
+  };
+}
+
+function getCumulativeOffset(element: HTMLElement) {
+  let left = 0;
+  let top = 0;
+  let currentElement: HTMLElement | null = element;
+
+  while (currentElement != null) {
+    left += currentElement.offsetLeft;
+    top += currentElement.offsetTop;
+
+    const offsetParent = currentElement.offsetParent as HTMLElement | null;
+    if (offsetParent != null) {
+      left += offsetParent.clientLeft;
+      top += offsetParent.clientTop;
+    }
+
+    currentElement = offsetParent;
+  }
+
+  return { left, top };
 }

@@ -48,16 +48,68 @@
   function hasDistortingTransform(element) {
     let node = element;
     while (node != null) {
-      const transform = getComputedStyle(node).transform;
+      const css = getComputedStyle(node);
+      const transform = css.transform;
       if (transform && transform !== 'none') {
         const matrix = new DOMMatrix(transform);
         if (!matrix.is2D || Math.abs(matrix.b) > 1e-6 || Math.abs(matrix.c) > 1e-6) {
           return true;
         }
       }
+      if (hasDistortingTransformLonghand(css)) {
+        return true;
+      }
       node = node.parentElement;
     }
     return false;
+  }
+
+  /**
+   * Checks transform longhands that aren't reflected in the computed `transform` matrix.
+   * `rotate` can be an axis-angle value (`x y z angle`), so the last angle token is used.
+   */
+  function hasDistortingTransformLonghand(css) {
+    const rotate = css.getPropertyValue('rotate').trim();
+    const angles = rotate.match(/-?(?:\d+|\d*\.\d+)(?:e[-+]?\d+)?(?:deg|rad|grad|turn)/gi);
+    const angle = angles && angles[angles.length - 1];
+
+    return (
+      (rotate !== '' &&
+        rotate !== 'none' &&
+        (angle == null || Math.abs(parseFloat(angle)) > 1e-6)) ||
+      parseFloat(css.getPropertyValue('perspective')) > 0
+    );
+  }
+
+  function getLayoutOffset(element, ancestor) {
+    const elementOffset = getCumulativeOffset(element);
+    const ancestorOffset = getCumulativeOffset(ancestor);
+
+    return {
+      left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
+      top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
+    };
+  }
+
+  function getCumulativeOffset(element) {
+    let offsetLeft = 0;
+    let offsetTop = 0;
+    let currentElement = element;
+
+    while (currentElement != null) {
+      offsetLeft += currentElement.offsetLeft;
+      offsetTop += currentElement.offsetTop;
+
+      const offsetParent = currentElement.offsetParent;
+      if (offsetParent != null) {
+        offsetLeft += offsetParent.clientLeft;
+        offsetTop += offsetParent.clientTop;
+      }
+
+      currentElement = offsetParent;
+    }
+
+    return { left: offsetLeft, top: offsetTop };
   }
 
   if (activeTab != null && tabsList != null) {
@@ -72,8 +124,9 @@
     const useOffsetPath = !hasNonZeroScale || (scaleDeviates && hasDistortingTransform(activeTab));
 
     if (useOffsetPath) {
-      left = activeTab.offsetLeft;
-      top = activeTab.offsetTop;
+      const offset = getLayoutOffset(activeTab, tabsList);
+      left = offset.left;
+      top = offset.top;
     } else {
       const tabLeftDelta = tabRect.left - tabsListRect.left;
       const tabTopDelta = tabRect.top - tabsListRect.top;
