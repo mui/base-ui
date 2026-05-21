@@ -1,6 +1,6 @@
-import { expect } from 'vitest';
+import { afterEach, beforeEach, expect, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { FloatingPortal, useFloating } from '../index';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
@@ -149,5 +149,173 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
 
     const portal = document.querySelector('[data-testid="lite-portal"]');
     expect(portal).not.toBeNull();
+  });
+
+  describe('fullscreen rerouting', () => {
+    let fullscreenElement: Element | null = null;
+    const originalDescriptor = Object.getOwnPropertyDescriptor(
+      Document.prototype,
+      'fullscreenElement',
+    );
+
+    beforeEach(() => {
+      fullscreenElement = null;
+      Object.defineProperty(Document.prototype, 'fullscreenElement', {
+        configurable: true,
+        get: () => fullscreenElement,
+      });
+    });
+
+    afterEach(() => {
+      fullscreenElement = null;
+      if (originalDescriptor) {
+        Object.defineProperty(Document.prototype, 'fullscreenElement', originalDescriptor);
+      } else {
+        Reflect.deleteProperty(Document.prototype, 'fullscreenElement');
+      }
+    });
+
+    function setFullscreenElement(element: Element | null) {
+      fullscreenElement = element;
+      document.dispatchEvent(new Event('fullscreenchange'));
+    }
+
+    test('reroutes the portal into the fullscreen element when default container is outside it', async () => {
+      const fsContainer = document.createElement('div');
+      fsContainer.id = 'fs-container';
+      document.body.appendChild(fsContainer);
+
+      try {
+        render(<App />);
+        fireEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating').parentElement?.parentElement).toBe(document.body);
+
+        await act(async () => {
+          setFullscreenElement(fsContainer);
+        });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating').parentElement?.parentElement).toBe(fsContainer);
+      } finally {
+        fsContainer.remove();
+      }
+    });
+
+    test('does not reroute when the default container is already inside the fullscreen element', async () => {
+      render(<App />);
+      fireEvent.click(screen.getByTestId('reference'));
+      await flushMicrotasks();
+
+      await act(async () => {
+        setFullscreenElement(document.documentElement);
+      });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('floating').parentElement?.parentElement).toBe(document.body);
+    });
+
+    test('respects an explicit `container` prop even while in fullscreen', async () => {
+      const fsContainer = document.createElement('div');
+      const explicitContainer = document.createElement('div');
+      explicitContainer.id = 'explicit';
+      document.body.appendChild(fsContainer);
+      document.body.appendChild(explicitContainer);
+
+      try {
+        render(<App container={explicitContainer} />);
+        fireEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating').parentElement?.parentElement).toBe(explicitContainer);
+
+        await act(async () => {
+          setFullscreenElement(fsContainer);
+        });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating').parentElement?.parentElement).toBe(explicitContainer);
+      } finally {
+        fsContainer.remove();
+        explicitContainer.remove();
+      }
+    });
+
+    test('moves the portal back to body when fullscreen exits', async () => {
+      const fsContainer = document.createElement('div');
+      document.body.appendChild(fsContainer);
+
+      try {
+        render(<App />);
+        fireEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        await act(async () => {
+          setFullscreenElement(fsContainer);
+        });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating').parentElement?.parentElement).toBe(fsContainer);
+
+        await act(async () => {
+          setFullscreenElement(null);
+        });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating').parentElement?.parentElement).toBe(document.body);
+      } finally {
+        fsContainer.remove();
+      }
+    });
+
+    test('mounts directly into the fullscreen element when opened while fullscreen is already active', async () => {
+      const fsContainer = document.createElement('div');
+      document.body.appendChild(fsContainer);
+
+      try {
+        render(<App />);
+
+        await act(async () => {
+          setFullscreenElement(fsContainer);
+        });
+        await flushMicrotasks();
+
+        fireEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating').parentElement?.parentElement).toBe(fsContainer);
+      } finally {
+        fsContainer.remove();
+      }
+    });
+
+    test('shares a single document fullscreenchange subscription across multiple portals', async () => {
+      // Mount one portal first so the singleton store attaches its listener
+      // (if it isn't already) and we can spy on additions made afterwards.
+      render(<App />);
+      await flushMicrotasks();
+
+      const addSpy = vi.spyOn(document, 'addEventListener');
+
+      try {
+        render(<App />);
+        render(<App />);
+        render(<App />);
+        for (const reference of screen.getAllByTestId('reference')) {
+          fireEvent.click(reference);
+        }
+        await flushMicrotasks();
+
+        const fullscreenCalls = addSpy.mock.calls.filter(
+          ([type]) => type === 'fullscreenchange' || type === 'webkitfullscreenchange',
+        );
+        // Mounting more portals must not attach additional document listeners
+        // because all subscribers share the singleton fullscreen store.
+        expect(fullscreenCalls).toHaveLength(0);
+      } finally {
+        addSpy.mockRestore();
+      }
+    });
   });
 });
