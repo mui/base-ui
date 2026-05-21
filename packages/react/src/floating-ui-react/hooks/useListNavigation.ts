@@ -135,6 +135,15 @@ export interface UseListNavigationProps {
    */
   focusItemOnHover?: boolean | undefined;
   /**
+   * A pending imperative item highlight request to resolve against the list.
+   * @default null
+   */
+  pendingHighlightItem?: UseListNavigationHighlightItem | null | undefined;
+  /**
+   * Callback fired when a pending imperative item highlight request has been consumed.
+   */
+  onPendingHighlightItemClear?: (() => void) | undefined;
+  /**
    * Whether pressing an arrow key on the navigation's main axis opens the
    * floating element.
    * @default true
@@ -223,6 +232,8 @@ export interface UseListNavigationProps {
   externalTree?: FloatingTreeStore | undefined;
 }
 
+export type UseListNavigationHighlightItem = 'first' | 'last' | 'none';
+
 /**
  * Adds arrow key-based navigation of a list of items, either using real DOM
  * focus or virtual focus.
@@ -245,6 +256,8 @@ export function useListNavigation(
     virtual = false,
     focusItemOnOpen = 'auto',
     focusItemOnHover = true,
+    pendingHighlightItem,
+    onPendingHighlightItemClear,
     openOnArrowKeyDown = true,
     disabledIndices = undefined,
     orientation = 'vertical',
@@ -298,6 +311,10 @@ export function useListNavigation(
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
+  const clearPendingHighlightItem = useStableCallback(() => {
+    onPendingHighlightItemClear?.();
+  });
+
   const previousOnNavigateRef = React.useRef(onNavigate);
   const previousMountedRef = React.useRef(!!floatingElement);
   const previousOpenRef = React.useRef(open);
@@ -311,7 +328,6 @@ export function useListNavigation(
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
 
   const focusFrame = useAnimationFrame();
-  const waitForListPopulatedFrame = useAnimationFrame();
 
   const focusItem = useStableCallback(() => {
     function runFocus(item: HTMLElement) {
@@ -391,21 +407,67 @@ export function useListNavigation(
   // open.
   useIsoLayoutEffect(() => {
     if (!enabled) {
-      return;
+      return undefined;
     }
     if (!open) {
       forceSyncFocusRef.current = false;
-      return;
+      return undefined;
     }
     if (!floatingElement) {
-      return;
+      return undefined;
+    }
+
+    const resolveFocusItem = (focusLast: boolean, onDone?: () => void) => {
+      let cancelled = false;
+
+      const waitForListPopulated = () => {
+        if (cancelled) {
+          return;
+        }
+
+        if (listRef.current[0] == null) {
+          onDone?.();
+          return;
+        }
+
+        indexRef.current = focusLast ? getMaxListIndex(listRef) : getMinListIndex(listRef);
+        keyRef.current = null;
+        onNavigate();
+        onDone?.();
+      };
+
+      if (listRef.current[0] == null) {
+        // Some composed items register after their indexes are assigned by
+        // CompositeList, which can land one layout-effect flush after the
+        // popup opens. Retry once before clearing the pending request.
+        queueMicrotask(waitForListPopulated);
+      } else {
+        waitForListPopulated();
+      }
+
+      return () => {
+        cancelled = true;
+      };
+    };
+
+    if (pendingHighlightItem != null) {
+      forceSyncFocusRef.current = false;
+
+      if (pendingHighlightItem === 'none') {
+        indexRef.current = -1;
+        onNavigate();
+        clearPendingHighlightItem();
+        return undefined;
+      }
+
+      return resolveFocusItem(pendingHighlightItem === 'last', clearPendingHighlightItem);
     }
 
     if (activeIndex == null) {
       forceSyncFocusRef.current = false;
 
       if (selectedIndexRef.current != null) {
-        return;
+        return undefined;
       }
 
       // Reset while the floating element was open (e.g. the list changed).
@@ -420,52 +482,33 @@ export function useListNavigation(
         focusItemOnOpenRef.current &&
         (keyRef.current != null || (focusItemOnOpenRef.current === true && keyRef.current == null))
       ) {
-        let runs = 0;
-        const waitForListPopulated = () => {
-          if (listRef.current[0] == null) {
-            // Avoid letting the browser paint if possible on the first try,
-            // otherwise use rAF. Don't try more than twice, since something
-            // is wrong otherwise.
-            if (runs < 2) {
-              const scheduler = runs
-                ? (callback: () => void) => waitForListPopulatedFrame.request(callback)
-                : queueMicrotask;
-              scheduler(waitForListPopulated);
-            }
-            runs += 1;
-          } else {
-            // initially focus the first non-disabled item
-            indexRef.current =
-              keyRef.current == null ||
-              isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
-              nested
-                ? getMinListIndex(listRef)
-                : getMaxListIndex(listRef);
-            keyRef.current = null;
-            onNavigate();
-          }
-        };
-
-        waitForListPopulated();
+        return resolveFocusItem(
+          keyRef.current != null &&
+            !isMainOrientationToEndKey(keyRef.current, orientation, rtl) &&
+            !nested,
+        );
       }
     } else if (!isIndexOutOfListBounds(listRef.current, activeIndex)) {
       indexRef.current = activeIndex;
       focusItem();
       forceScrollIntoViewRef.current = false;
     }
+
+    return undefined;
   }, [
     enabled,
     open,
     floatingElement,
     activeIndex,
+    pendingHighlightItem,
     selectedIndexRef,
     nested,
     listRef,
     orientation,
     rtl,
     onNavigate,
+    clearPendingHighlightItem,
     focusItem,
-    waitForListPopulatedFrame,
   ]);
 
   // Ensure the parent floating element has focus when a nested child closes

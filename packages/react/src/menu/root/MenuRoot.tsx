@@ -256,6 +256,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       onOpenChange?.(nextOpen, eventDetails as MenuRoot.ChangeEventDetails);
 
       if (eventDetails.isCanceled) {
+        if (nextOpen) {
+          store.set('pendingHighlightItem', null);
+        }
         return;
       }
 
@@ -365,10 +368,31 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }, [store]);
 
+  const setActiveIndex = React.useCallback(
+    (index: number | null) => {
+      if (store.select('activeIndex') === index) {
+        return;
+      }
+      store.set('activeIndex', index);
+    },
+    [store],
+  );
+
+  const handleImperativeHighlightItem = React.useCallback(
+    (target: MenuRoot.HighlightItem) => {
+      store.set('pendingHighlightItem', target);
+    },
+    [store],
+  );
+
   React.useImperativeHandle(
     actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
+    () => ({
+      unmount: forceUnmount,
+      close: handleImperativeClose,
+      highlightItem: handleImperativeHighlightItem,
+    }),
+    [forceUnmount, handleImperativeClose, handleImperativeHighlightItem],
   );
 
   let ctx: ContextMenuRootContext | undefined;
@@ -398,16 +422,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   const direction = useDirection();
-
-  const setActiveIndex = React.useCallback(
-    (index: number | null) => {
-      if (store.select('activeIndex') === index) {
-        return;
-      }
-      store.set('activeIndex', index);
-    },
-    [store],
-  );
+  const pendingHighlightItem = store.useState('pendingHighlightItem');
 
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
@@ -423,6 +438,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     openOnArrowKeyDown: parent.type !== 'context-menu',
     externalTree: nested ? floatingTreeRoot : undefined,
     focusItemOnHover: highlightItemOnHover,
+    pendingHighlightItem,
+    onPendingHighlightItemClear() {
+      store.set('pendingHighlightItem', null);
+    },
   });
 
   const onTyping = React.useCallback(
@@ -620,6 +639,9 @@ export interface MenuRootProps<Payload = unknown> {
    *    Instead, the `unmount` function must be called to unmount the menu manually.
    *   Useful when the menu's animation is controlled by an external library.
    * - `close`: When specified, the menu can be closed imperatively.
+   * - `highlightItem`: Highlight the `'first'` or `'last'` item, or `'none'` to clear the highlight.
+   *   Useful when opening the menu programmatically from a custom interaction
+   *   so that the first item is highlighted instead of the popup container receiving focus.
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
   /**
@@ -648,7 +670,10 @@ export interface MenuRootProps<Payload = unknown> {
 export interface MenuRootActions {
   unmount: () => void;
   close: () => void;
+  highlightItem: (target: MenuRoot.HighlightItem) => void;
 }
+
+export type MenuRootHighlightItem = 'first' | 'last' | 'none';
 
 export type MenuRootChangeEventReason =
   | typeof REASONS.triggerHover
@@ -697,6 +722,7 @@ export namespace MenuRoot {
   export type State = MenuRootState;
   export type Props<Payload = unknown> = MenuRootProps<Payload>;
   export type Actions = MenuRootActions;
+  export type HighlightItem = MenuRootHighlightItem;
   export type ChangeEventReason = MenuRootChangeEventReason;
   export type ChangeEventDetails = MenuRootChangeEventDetails;
   export type Orientation = MenuRootOrientation;
