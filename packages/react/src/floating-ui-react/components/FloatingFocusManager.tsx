@@ -730,9 +730,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     const doc = ownerDocument(floatingFocusElement);
-    const previouslyFocusedElement = activeElement(doc);
+    const elementFocusedBeforeOpen = activeElement(doc);
+    const preferPreviousFocus = openInteractionTypeRef.current == null;
 
-    addPreviouslyFocusedElement(previouslyFocusedElement);
+    addPreviouslyFocusedElement(elementFocusedBeforeOpen);
 
     // Dismissing via outside press should always ignore `returnFocus` to
     // prevent unwanted scrolling.
@@ -793,17 +794,21 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         resolvedReturnFocusValue = true;
       }
 
-      if (typeof resolvedReturnFocusValue === 'boolean') {
-        if (domReference?.isConnected) {
-          return domReference;
-        }
-
-        return getPreviouslyFocusedElement() || null;
+      const referenceReturnElement = domReference?.isConnected ? domReference : null;
+      let previousReturnElement = elementFocusedBeforeOpen;
+      if (!previousReturnElement?.isConnected || getNodeName(previousReturnElement) === 'body') {
+        previousReturnElement = getPreviouslyFocusedElement() || null;
       }
 
-      const fallback = domReference?.isConnected ? domReference : getPreviouslyFocusedElement();
+      const defaultReturnElement = preferPreviousFocus
+        ? previousReturnElement || referenceReturnElement
+        : referenceReturnElement || previousReturnElement;
 
-      return resolveRef(resolvedReturnFocusValue) || fallback || null;
+      if (typeof resolvedReturnFocusValue === 'boolean') {
+        return defaultReturnElement;
+      }
+
+      return resolveRef(resolvedReturnFocusValue) || defaultReturnElement || null;
     }
 
     return () => {
@@ -850,6 +855,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floating,
     floatingFocusElement,
     returnFocusRef,
+    openInteractionTypeRef,
     events,
     tree,
     domReference,

@@ -190,6 +190,7 @@ describe('<Popover.Root />', () => {
                     <Popover.Positioner>
                       <Popover.Popup>
                         <span data-testid="content">{payload as number}</span>
+                        <Popover.Close>Close</Popover.Close>
                       </Popover.Popup>
                     </Popover.Positioner>
                   </Popover.Portal>
@@ -212,7 +213,7 @@ describe('<Popover.Root />', () => {
             >
               Open Trigger 2
             </button>
-            <button onClick={() => setOpen(false)}>Close</button>
+            <button onClick={() => setOpen(false)}>Close externally</button>
           </div>
         );
       }
@@ -220,10 +221,12 @@ describe('<Popover.Root />', () => {
       const { user } = await render(<Test />);
       await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
       expect(screen.getByTestId('content').textContent).toBe('1');
-      await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
+      const openTrigger2Button = screen.getByRole('button', { name: 'Open Trigger 2' });
+      await user.click(openTrigger2Button);
       expect(screen.getByTestId('content').textContent).toBe('2');
       await user.click(screen.getByRole('button', { name: 'Close' }));
       expect(screen.queryByTestId('content')).toBe(null);
+      expect(openTrigger2Button).toHaveFocus();
     });
 
     it('allows setting an initially open popover', async () => {
