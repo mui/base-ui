@@ -14,14 +14,15 @@
 
 @layer components {
   .RootLayout {
+    --main-content-width: 44.75rem;
+    --sidebar-width: 17.5rem;
+
     z-index: 0;
     position: relative;
-
-    --root-layout-padding-x: 0rem;
-    padding-inline: var(--root-layout-padding-x);
+    padding-inline: 0;
 
     @media (--show-side-nav) {
-      --root-layout-padding-x: 3rem;
+      padding-inline: 3rem;
 
       &::before,
       &::after {
@@ -52,7 +53,7 @@
     flex-direction: column;
     margin-inline: auto;
     min-height: 100dvh;
-    max-width: calc(var(--breakpoint-max-layout-width) - var(--root-layout-padding-x) * 2);
+    max-width: calc(var(--sidebar-width) + var(--main-content-width) + var(--sidebar-width));
 
     @media (--show-side-nav) {
       padding-block: var(--header-height);
@@ -101,8 +102,6 @@
   }
 
   .ContentLayoutRoot {
-    --sidebar-width: 17.5rem;
-
     display: grid;
     align-items: start;
     padding-top: var(--header-height);
@@ -126,7 +125,7 @@
 
   .ContentLayoutMain {
     min-width: 0;
-    max-width: 48rem;
+    max-width: var(--main-content-width);
     width: 100%;
 
     margin: 0 auto;
