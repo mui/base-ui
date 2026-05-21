@@ -54,8 +54,13 @@
   bottom: 0;
   width: 2.5rem;
   z-index: 1;
-  border-left: 2px dashed oklch(45% 50% 264deg);
-  background-color: color-mix(in oklch, oklch(45% 50% 264deg), transparent 90%);
+  border-left: 2px dashed oklch(42.4% 0.199 265.638deg);
+  background-color: color-mix(in oklch, oklch(42.4% 0.199 265.638deg), transparent 90%);
+
+  @media (prefers-color-scheme: dark) {
+    border-left-color: oklch(62.3% 0.214 259.815deg);
+    background-color: color-mix(in oklch, oklch(62.3% 0.214 259.815deg), transparent 90%);
+  }
 }
 
 .SwipeLabel {
@@ -70,9 +75,13 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: oklch(45% 50% 264deg);
+  color: oklch(42.4% 0.199 265.638deg);
   white-space: nowrap;
   pointer-events: none;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(62.3% 0.214 259.815deg);
+  }
 }
 
 .Button {
