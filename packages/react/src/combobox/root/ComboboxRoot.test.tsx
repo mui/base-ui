@@ -6418,7 +6418,7 @@ describe('<Combobox.Root />', () => {
       await render(
         <Field.Root>
           <Combobox.Root>
-            <Combobox.Input data-testid="input" />
+            <Combobox.Input data-testid="input" aria-describedby="external-description" />
             <Combobox.Portal>
               <Combobox.Positioner />
             </Combobox.Portal>
@@ -6429,7 +6429,7 @@ describe('<Combobox.Root />', () => {
 
       expect(screen.getByTestId('input')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });

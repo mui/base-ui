@@ -480,7 +480,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
             setValue(parsedValue, details);
 
             if (shouldValidateOnChange()) {
-              validation.commit(parsedValue);
+              validation.change(parsedValue);
             }
           },
         })}

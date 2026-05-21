@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { FieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import {
@@ -54,8 +55,14 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const dirty = dirtyProp ?? dirtyState;
   const touched = touchedProp ?? touchedState;
 
-  const markedDirtyRef = React.useRef(false);
+  const markedDirtyRef = React.useRef(dirty);
   const registeredFieldIdRef = React.useRef<string | undefined>(undefined);
+
+  useIsoLayoutEffect(() => {
+    if (dirtyProp !== undefined) {
+      markedDirtyRef.current = dirtyProp;
+    }
+  }, [dirtyProp]);
 
   const getRegisteredFieldId = React.useCallback(() => registeredFieldIdRef.current, []);
   const setRegisteredFieldId = React.useCallback((id: string | undefined) => {
@@ -86,7 +93,8 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       (validationMode === 'onSubmit' && submitAttemptedRef.current),
   );
 
-  const hasFormError = !!name && Object.hasOwn(errors, name) && errors[name] !== undefined;
+  const formError = name ? errors[name] : null;
+  const hasFormError = !!(Array.isArray(formError) ? formError.length : formError);
   const invalid = invalidProp === true || hasFormError;
 
   const [validityData, setValidityData] = React.useState<FieldValidityData>({
@@ -124,14 +132,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     getRegisteredFieldId,
   });
 
-  const validityValue = validityData.value;
-
-  const handleImperativeValidate = React.useCallback(() => {
-    markedDirtyRef.current = true;
-    validation.commit(validityValue);
-  }, [validation, validityValue]);
-
-  const registerFieldControl = useFieldControlRegistration({
+  const [validateFieldControl, registerFieldControl] = useFieldControlRegistration({
     commit: validation.commit,
     invalid,
     markedDirtyRef,
@@ -141,8 +142,8 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     validityData,
   });
 
-  React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
-    handleImperativeValidate,
+  React.useImperativeHandle(actionsRef, () => ({ validate: validateFieldControl }), [
+    validateFieldControl,
   ]);
 
   const contextValue: FieldRootContext = React.useMemo(
