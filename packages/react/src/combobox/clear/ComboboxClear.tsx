@@ -115,17 +115,12 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
               Array.isArray(selectedValue) ? [] : null,
               createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
             );
-            store.state.setIndices({
-              activeIndex: null,
-              selectedIndex: null,
-              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-            });
-          } else {
-            store.state.setIndices({
-              activeIndex: null,
-              type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
-            });
           }
+
+          store.state.setIndices({
+            activeIndex: null,
+            type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+          });
 
           store.state.inputRef.current?.focus();
         },

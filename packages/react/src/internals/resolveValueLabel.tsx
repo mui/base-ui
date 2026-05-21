@@ -5,8 +5,8 @@ import { serializeValue } from './serializeValue';
 type ItemRecord = Record<string, React.ReactNode>;
 type ItemsInput = ItemRecord | ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>> | undefined;
 
-interface LabeledItem {
-  value: any;
+export interface LabeledItem<Value = any> {
+  value: Value;
   label: React.ReactNode;
 }
 
@@ -76,22 +76,35 @@ export function stringifyAsValue(item: any, itemToStringValue?: (item: any) => s
   if (itemToStringValue && item != null) {
     return itemToStringValue(item) ?? '';
   }
-  if (item && typeof item === 'object' && 'value' in item && 'label' in item) {
+  if (isLabeledItem(item)) {
     return serializeValue(item.value);
   }
   return serializeValue(item);
+}
+
+export function isLabeledItem<Value = any>(item: any): item is LabeledItem<Value> {
+  return item && typeof item === 'object' && 'value' in item && 'label' in item;
+}
+
+export function inferItemValue<Value>(item: Value | LabeledItem<Value>): Value {
+  if (isLabeledItem<Value>(item)) {
+    return item.value;
+  }
+
+  return item as Value;
 }
 
 export function resolveSelectedLabel(
   value: any,
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
+  isItemEqualToValue?: (itemValue: any, value: any) => boolean,
 ): React.ReactNode {
   function fallback() {
     return stringifyAsLabel(value, itemToStringLabel);
   }
 
-  if (itemToStringLabel && value != null) {
+  if (itemToStringLabel && value != null && typeof value === 'object') {
     return itemToStringLabel(value);
   }
 
@@ -112,19 +125,21 @@ export function resolveSelectedLabel(
       ? arrayItems.flatMap((group) => group.items)
       : arrayItems;
 
-    if (value == null || typeof value !== 'object') {
-      const match = flatItems.find((item) => item.value === value);
-      if (match && match.label != null) {
-        return match.label;
-      }
-      return fallback();
+    const match = flatItems.find((item) => {
+      const itemValue = inferItemValue(item);
+      return isItemEqualToValue && itemValue != null && value != null
+        ? isItemEqualToValue(itemValue, value)
+        : itemValue === value;
+    });
+    if (match?.label != null) {
+      return match.label;
     }
 
     // Object without explicit label: try matching by its `value` property
-    if ('value' in value) {
-      const match = flatItems.find((item) => item && item.value === value.value);
-      if (match && match.label != null) {
-        return match.label;
+    if (value && typeof value === 'object' && 'value' in value) {
+      const valueMatch = flatItems.find((item) => item && item.value === value.value);
+      if (valueMatch && valueMatch.label != null) {
+        return valueMatch.label;
       }
     }
   }
@@ -136,6 +151,7 @@ export function resolveMultipleLabels(
   values: any[],
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
+  isItemEqualToValue?: (itemValue: any, value: any) => boolean,
 ): React.ReactNode {
   return values.reduce((acc, value, index) => {
     if (index > 0) {
@@ -143,7 +159,7 @@ export function resolveMultipleLabels(
     }
     acc.push(
       <React.Fragment key={index}>
-        {resolveSelectedLabel(value, items, itemToStringLabel)}
+        {resolveSelectedLabel(value, items, itemToStringLabel, isItemEqualToValue)}
       </React.Fragment>,
     );
     return acc;

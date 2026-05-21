@@ -14,10 +14,11 @@ import {
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
-import { selectors } from '../store';
+import { findMatchingItemIndex, selectors, type ComboboxStore, writeItemValues } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { findItemIndex } from '../../internals/itemEquality';
+import { ComboboxPortalContext } from '../portal/ComboboxPortalContext';
 
 /**
  * An individual item in the list.
@@ -43,17 +44,19 @@ export const ComboboxItem = React.memo(
 
     const didPointerDownRef = React.useRef(false);
     const textRef = React.useRef<HTMLElement | null>(null);
+    const itemMetadata = React.useMemo(() => ({ value: itemValue }), [itemValue]);
     const listItem = useCompositeListItem({
       index: indexProp,
+      metadata: itemMetadata,
       textRef,
       indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
     const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
+    const keepPortalMounted = React.useContext(ComboboxPortalContext);
     const { flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
 
-    const open = useStore(store, selectors.open);
     const selectionMode = useStore(store, selectors.selectionMode);
     const readOnly = useStore(store, selectors.readOnly);
     const virtualized = useStore(store, selectors.virtualized);
@@ -61,10 +64,9 @@ export const ComboboxItem = React.memo(
 
     const selectable = selectionMode !== 'none';
     const index =
-      indexProp ??
-      (virtualized
-        ? findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
-        : listItem.index);
+      indexProp == null && virtualized
+        ? resolveVirtualIndex(hasItems, flatFilteredItems, itemValue, isItemEqualToValue)
+        : (indexProp ?? listItem.index);
     const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);
@@ -73,63 +75,30 @@ export const ComboboxItem = React.memo(
     const itemProps = useStore(store, selectors.itemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-
     const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
     const selected = matchesSelectedValue && selectable;
+    const manuallyIndexed = indexProp != null;
+    const shouldRegisterVirtualItem = hasRegistered && virtualized;
+    const shouldRegisterManuallyIndexedItem = hasRegistered && manuallyIndexed && !virtualized;
 
     useIsoLayoutEffect(() => {
-      const shouldRun = hasRegistered && (virtualized || indexProp != null);
-      if (!shouldRun) {
+      if (!shouldRegisterVirtualItem) {
         return undefined;
       }
 
-      const list = store.state.listRef.current;
-      list[index] = itemRef.current;
+      return registerIndexedItem(store, hasItems, index, itemValue, itemRef, keepPortalMounted);
+    }, [hasItems, index, itemValue, keepPortalMounted, shouldRegisterVirtualItem, store]);
 
-      return () => {
-        delete list[index];
-      };
-    }, [hasRegistered, virtualized, index, indexProp, store]);
-
-    useIsoLayoutEffect(() => {
-      if (!hasRegistered || hasItems) {
+    // Manual indexes opt out of the CompositeList metadata map, but still render
+    // inside it. Register after its layout effects so its length sync cannot
+    // truncate these explicit slots.
+    React.useEffect(() => {
+      if (!shouldRegisterManuallyIndexedItem) {
         return undefined;
       }
 
-      const visibleMap = store.state.valuesRef.current;
-      visibleMap[index] = itemValue;
-
-      // Stable registry that doesn't depend on filtering. Assume that no
-      // filtering had occurred at this point; otherwise, an `items` prop is
-      // required.
-      if (selectionMode !== 'none') {
-        store.state.allValuesRef.current.push(itemValue);
-      }
-
-      return () => {
-        delete visibleMap[index];
-      };
-    }, [hasRegistered, hasItems, index, itemValue, store, selectionMode]);
-
-    useIsoLayoutEffect(() => {
-      if (!open) {
-        didPointerDownRef.current = false;
-        return;
-      }
-
-      if (!hasRegistered || hasItems) {
-        return;
-      }
-
-      const selectedValue = store.state.selectedValue;
-      const lastSelectedValue = Array.isArray(selectedValue)
-        ? selectedValue[selectedValue.length - 1]
-        : selectedValue;
-
-      if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
-        store.set('selectedIndex', index);
-      }
-    }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
+      return registerIndexedItem(store, hasItems, index, itemValue, itemRef, keepPortalMounted);
+    }, [hasItems, index, itemValue, keepPortalMounted, shouldRegisterManuallyIndexedItem, store]);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
@@ -212,6 +181,46 @@ export const ComboboxItem = React.memo(
     );
   }),
 );
+
+function resolveVirtualIndex(
+  hasItems: boolean,
+  flatFilteredItems: readonly any[],
+  itemValue: any,
+  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean,
+) {
+  return hasItems
+    ? findMatchingItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
+    : findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue);
+}
+
+function registerIndexedItem(
+  store: ComboboxStore,
+  hasItems: boolean,
+  index: number,
+  itemValue: any,
+  itemRef: React.RefObject<HTMLDivElement | null>,
+  keepMounted: boolean | undefined,
+) {
+  const list = store.state.listRef.current;
+  const visibleMap = store.state.valuesRef.current;
+
+  list[index] = itemRef.current;
+  visibleMap[index] = itemValue;
+  writeItemValues(store, hasItems, visibleMap.slice());
+
+  return () => {
+    delete list[index];
+    const registryActive =
+      store.state.inline || store.state.open || keepMounted || store.state.forceMounted;
+
+    if (!registryActive) {
+      return;
+    }
+
+    delete visibleMap[index];
+    writeItemValues(store, hasItems, visibleMap.slice());
+  };
+}
 
 export interface ComboboxItemState {
   /**

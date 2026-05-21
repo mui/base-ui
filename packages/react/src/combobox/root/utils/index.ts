@@ -1,4 +1,4 @@
-import { stringifyAsLabel } from '../../../internals/resolveValueLabel';
+import { isLabeledItem, stringifyAsLabel } from '../../../internals/resolveValueLabel';
 import type { Filter } from './useFilter';
 
 /**
@@ -15,8 +15,7 @@ export function createCollatorItemFilter(
     if (item == null) {
       return false;
     }
-
-    const itemString = stringifyAsLabel(item, itemToStringLabel);
+    const itemString = stringifyComboboxItemLabel(item, itemToStringLabel);
     return collatorFilter.contains(itemString, query);
   };
 }
@@ -29,7 +28,12 @@ export function createSingleSelectionCollatorFilter(
   collatorFilter: Filter,
   itemToStringLabel?: (item: any) => string,
   selectedValue?: any,
+  selectedString?: string,
 ) {
+  const resolvedSelectedString =
+    selectedString ??
+    (selectedValue != null ? stringifyAsLabel(selectedValue, itemToStringLabel) : '');
+
   return (item: any, query: string) => {
     if (item == null) {
       return false;
@@ -38,19 +42,25 @@ export function createSingleSelectionCollatorFilter(
       return true;
     }
 
-    const itemString = stringifyAsLabel(item, itemToStringLabel);
-    const selectedString =
-      selectedValue != null ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+    const itemString = stringifyComboboxItemLabel(item, itemToStringLabel);
 
     // Handle case-insensitive matching consistently
     if (
-      selectedString &&
-      collatorFilter.contains(selectedString, query) &&
-      selectedString.length === query.length
+      resolvedSelectedString &&
+      collatorFilter.contains(resolvedSelectedString, query) &&
+      resolvedSelectedString.length === query.length
     ) {
       return true;
     }
 
     return collatorFilter.contains(itemString, query);
   };
+}
+
+export function stringifyComboboxItemLabel(item: any, itemToStringLabel?: (item: any) => string) {
+  if (isLabeledItem(item)) {
+    return String(item.label ?? '');
+  }
+
+  return stringifyAsLabel(item, itemToStringLabel);
 }

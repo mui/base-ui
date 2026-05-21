@@ -17,6 +17,7 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
   const store = useComboboxRootContext();
 
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
+  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
   const selectedValue = useStore(store, selectors.selectedValue);
   const items = useStore(store, selectors.items);
   const multiple = useStore(store, selectors.selectionMode) === 'multiple';
@@ -33,9 +34,9 @@ export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
   } else if (!hasSelectedValue && placeholder != null && !hasNullLabel) {
     children = placeholder;
   } else if (multiple && Array.isArray(selectedValue)) {
-    children = resolveMultipleLabels(selectedValue, items, itemToStringLabel);
+    children = resolveMultipleLabels(selectedValue, items, itemToStringLabel, isItemEqualToValue);
   } else {
-    children = resolveSelectedLabel(selectedValue, items, itemToStringLabel);
+    children = resolveSelectedLabel(selectedValue, items, itemToStringLabel, isItemEqualToValue);
   }
 
   return <React.Fragment>{children}</React.Fragment>;
