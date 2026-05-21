@@ -29,7 +29,7 @@ import {
 } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { DEFAULT_STEP } from '../utils/constants';
-import { toValidatedNumber } from '../utils/validate';
+import { hasNumberFormatRoundingOptions, toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
 import {
@@ -234,6 +234,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         small: eventWithOptionalKeyState?.altKey ?? false,
         clamp: shouldClampValue,
       });
+      lastChangedValueRef.current = validatedValue;
 
       // Determine whether we should notify about a change even if the numeric value is unchanged.
       // This is needed when the user input is clamped/snapped to the same current value, or when
@@ -249,7 +250,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         (isInputReason && (unvalidatedValue !== value || allowInputSyncRef.current === false));
 
       if (shouldFireChange) {
-        lastChangedValueRef.current = validatedValue;
         onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
@@ -696,9 +696,7 @@ function getControlledInputValue(
   locale: Intl.LocalesArgument,
   format: Intl.NumberFormatOptions | undefined,
 ) {
-  const explicitPrecision =
-    format?.maximumFractionDigits != null || format?.minimumFractionDigits != null;
-  return explicitPrecision
+  return hasNumberFormatRoundingOptions(format)
     ? formatNumber(value, locale, format)
     : formatNumberMaxPrecision(value, locale, format);
 }

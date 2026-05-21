@@ -2,30 +2,92 @@ import { clamp } from '../../internals/clamp';
 import { getFormatter } from '../../utils/formatNumber';
 
 const STEP_EPSILON_FACTOR = 1e-10;
+// Matches Intl.NumberFormat's decimal maximumFractionDigits default.
+const DEFAULT_DIGITS = 3;
+// Keeps binary scale/unscale noise out of committed percent values while preserving meaningful input.
+const FLOATING_POINT_SIGNIFICANT_DIGITS = 15;
 
-function getFractionDigits(format?: Intl.NumberFormatOptions) {
-  const defaultOptions = getFormatter('en-US').resolvedOptions();
-  const minimumFractionDigits =
-    format?.minimumFractionDigits ?? defaultOptions.minimumFractionDigits ?? 0;
-  const maximumFractionDigits = Math.max(
-    format?.maximumFractionDigits ?? defaultOptions.maximumFractionDigits ?? 20,
-    minimumFractionDigits,
+// The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
+// Delete this once tsconfig.base.json includes es2023.
+type NumberFormatOptionsWithRounding = Intl.NumberFormatOptions & {
+  roundingIncrement?: number | undefined;
+  roundingMode?: string | undefined;
+  roundingPriority?: string | undefined;
+};
+
+export function hasNumberFormatRoundingOptions(
+  format?: NumberFormatOptionsWithRounding,
+): format is NumberFormatOptionsWithRounding {
+  return (
+    format?.maximumFractionDigits != null ||
+    format?.minimumFractionDigits != null ||
+    format?.maximumSignificantDigits != null ||
+    format?.minimumSignificantDigits != null ||
+    format?.roundingIncrement != null ||
+    format?.roundingMode != null ||
+    format?.roundingPriority != null
   );
-  return { maximumFractionDigits, minimumFractionDigits };
 }
 
-function roundToFractionDigits(value: number, maximumFractionDigits: number) {
+export function removeFloatingPointErrors(value: number, format?: NumberFormatOptionsWithRounding) {
   if (!Number.isFinite(value)) {
     return value;
   }
 
-  const digits = Math.min(Math.max(maximumFractionDigits, 0), 20);
-  return Number(value.toFixed(digits));
+  if (!hasNumberFormatRoundingOptions(format)) {
+    return Number(value.toFixed(DEFAULT_DIGITS));
+  }
+
+  const digits = Math.min(
+    format.maximumFractionDigits ??
+      getFormatter('en-US', format).resolvedOptions().maximumFractionDigits ??
+      DEFAULT_DIGITS,
+    20,
+  );
+
+  // Percent values are stored as fractions, so rounding must happen at the displayed scale.
+  const scale = format.style === 'percent' ? 100 : 1;
+  let valueToRound = value * scale;
+
+  if (!Number.isFinite(valueToRound)) {
+    // Percent scaling can overflow for extreme finite values; fall back to the unscaled value.
+    return value;
+  }
+
+  if (scale > 1) {
+    // Directional Intl rounding has no tolerance for the binary noise introduced by `value * 100`.
+    // Keep real precision while removing artifacts like 0.45999999999999996 for typed 0.46%.
+    valueToRound = removeFloatingPointNoise(valueToRound);
+  }
+
+  const roundedValue = Number(
+    getFormatter('en-US', {
+      // Keep style/unit/compact notation out so the formatted string parses back as a plain number.
+      useGrouping: false,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+      minimumSignificantDigits: format.minimumSignificantDigits,
+      maximumSignificantDigits: format.maximumSignificantDigits,
+      notation:
+        format.notation === 'scientific' || format.notation === 'engineering'
+          ? format.notation
+          : undefined,
+      roundingIncrement: format.roundingIncrement,
+      roundingMode: format.roundingMode,
+      roundingPriority: format.roundingPriority,
+    } as NumberFormatOptionsWithRounding).format(valueToRound),
+  );
+
+  if (!Number.isFinite(roundedValue)) {
+    return value;
+  }
+
+  const nextValue = roundedValue / scale;
+  return scale > 1 ? removeFloatingPointNoise(nextValue) : nextValue;
 }
 
-export function removeFloatingPointErrors(value: number, format?: Intl.NumberFormatOptions) {
-  const { maximumFractionDigits } = getFractionDigits(format);
-  return roundToFractionDigits(value, maximumFractionDigits);
+function removeFloatingPointNoise(value: number) {
+  return Number(value.toPrecision(FLOATING_POINT_SIGNIFICANT_DIGITS));
 }
 
 function snapToStep(
@@ -34,28 +96,18 @@ function snapToStep(
   step: number,
   mode: 'directional' | 'nearest' = 'directional',
 ) {
-  if (step === 0) {
-    return clampedValue;
-  }
-
   const stepSize = Math.abs(step);
   const direction = Math.sign(step);
   const tolerance = stepSize * STEP_EPSILON_FACTOR * direction;
-  const divisor = mode === 'nearest' ? step : stepSize;
-  const rawSteps = (clampedValue - base + tolerance) / divisor;
+  const rawSteps = clampedValue - base + tolerance;
 
-  let snappedSteps: number;
   if (mode === 'nearest') {
-    snappedSteps = Math.round(rawSteps);
-  } else if (direction > 0) {
-    snappedSteps = Math.floor(rawSteps);
-  } else {
-    snappedSteps = Math.ceil(rawSteps);
+    return base + Math.round(rawSteps / step) * step;
   }
 
-  const stepForResult = mode === 'nearest' ? step : stepSize;
-
-  return base + snappedSteps * stepForResult;
+  const snappedSteps =
+    direction > 0 ? Math.floor(rawSteps / stepSize) : Math.ceil(rawSteps / stepSize);
+  return base + snappedSteps * stepSize;
 }
 
 export function toValidatedNumber(
@@ -74,7 +126,7 @@ export function toValidatedNumber(
     minWithDefault: number;
     maxWithDefault: number;
     minWithZeroDefault: number;
-    format: Intl.NumberFormatOptions | undefined;
+    format: NumberFormatOptionsWithRounding | undefined;
     snapOnStep: boolean;
     small: boolean;
     clamp: boolean;
@@ -85,21 +137,18 @@ export function toValidatedNumber(
   }
 
   const clampedValue = shouldClamp ? clamp(value, minWithDefault, maxWithDefault) : value;
+  let nextValue = clampedValue;
 
-  if (step != null && snapOnStep) {
-    if (step === 0) {
-      return removeFloatingPointErrors(clampedValue, format);
-    }
-
+  if (step != null && step !== 0 && snapOnStep) {
     // If a real minimum is provided, use it
     let base = minWithZeroDefault;
     if (!small && minWithDefault !== Number.MIN_SAFE_INTEGER) {
       base = minWithDefault;
     }
 
-    const snappedValue = snapToStep(clampedValue, base, step, small ? 'nearest' : 'directional');
-    return removeFloatingPointErrors(snappedValue, format);
+    nextValue = snapToStep(clampedValue, base, step, small ? 'nearest' : 'directional');
   }
 
-  return removeFloatingPointErrors(clampedValue, format);
+  const roundedValue = removeFloatingPointErrors(nextValue, format);
+  return shouldClamp ? clamp(roundedValue, minWithDefault, maxWithDefault) : roundedValue;
 }

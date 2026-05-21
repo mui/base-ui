@@ -25,6 +25,220 @@ describe('NumberField validate', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1, { maximumFractionDigits: 1 })).toBe(0.3);
     });
 
+    it('respects roundingMode when maximumFractionDigits is provided', () => {
+      expect(
+        removeFloatingPointErrors(1.239, {
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(1.23);
+    });
+
+    it('respects half-even rounding at ties', () => {
+      expect(
+        removeFloatingPointErrors(1.235, {
+          maximumFractionDigits: 2,
+          roundingMode: 'halfEven',
+        }),
+      ).toBe(1.24);
+      expect(
+        removeFloatingPointErrors(1.245, {
+          maximumFractionDigits: 2,
+          roundingMode: 'halfEven',
+        }),
+      ).toBe(1.24);
+    });
+
+    it('respects rounding mode differences for negative values', () => {
+      expect(
+        removeFloatingPointErrors(-1.239, {
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(-1.24);
+      expect(
+        removeFloatingPointErrors(-1.239, {
+          maximumFractionDigits: 2,
+          roundingMode: 'trunc',
+        }),
+      ).toBe(-1.23);
+    });
+
+    it('rounds percent values at display scale when maximumFractionDigits is provided', () => {
+      expect(
+        removeFloatingPointErrors(0.01236, {
+          style: 'percent',
+          maximumFractionDigits: 2,
+        }),
+      ).toBe(0.0124);
+      expect(
+        removeFloatingPointErrors(0.01239, {
+          style: 'percent',
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(0.0123);
+    });
+
+    it.each(['floor', 'ceil', 'trunc', 'expand'] as const)(
+      'preserves exact percent precision boundaries with roundingMode: %s',
+      (roundingMode) => {
+        expect(
+          removeFloatingPointErrors(0.0046, {
+            style: 'percent',
+            maximumFractionDigits: 2,
+            roundingMode,
+          }),
+        ).toBe(0.0046);
+      },
+    );
+
+    it('rounds percent values at display scale when only minimumFractionDigits is provided', () => {
+      expect(
+        removeFloatingPointErrors(0.01239, {
+          style: 'percent',
+          minimumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(0.0123);
+    });
+
+    it('rounds values with significant digit precision', () => {
+      expect(
+        removeFloatingPointErrors(12345, {
+          maximumSignificantDigits: 3,
+          roundingMode: 'floor',
+        }),
+      ).toBe(12300);
+    });
+
+    it('rounds percent values at display scale when significant digits are provided', () => {
+      expect(
+        removeFloatingPointErrors(0.01239, {
+          style: 'percent',
+          maximumSignificantDigits: 3,
+          roundingMode: 'floor',
+        }),
+      ).toBe(0.0123);
+    });
+
+    it('rounds percent significant digit values without reintroducing binary noise', () => {
+      const format = {
+        style: 'percent',
+        maximumSignificantDigits: 2,
+        roundingMode: 'floor',
+      } as const;
+      const rounded = removeFloatingPointErrors(0.009995, format);
+
+      expect(rounded).toBe(0.0099);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(0.009995),
+      );
+    });
+
+    it('preserves meaningful percent precision above directional rounding boundaries', () => {
+      const format = {
+        style: 'percent',
+        maximumFractionDigits: 2,
+        roundingMode: 'ceil',
+      } as const;
+      const rounded = removeFloatingPointErrors(0.01230000001, format);
+
+      expect(rounded).toBe(0.0124);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(0.01230000001),
+      );
+    });
+
+    it('uses percent fraction defaults when significant digits use roundingPriority', () => {
+      const format = {
+        style: 'percent',
+        maximumSignificantDigits: 3,
+        roundingPriority: 'morePrecision',
+      } as const;
+      const rounded = removeFloatingPointErrors(0.0123456, format);
+
+      expect(rounded).toBe(0.0123);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(0.0123456),
+      );
+    });
+
+    it('respects roundingPriority when fraction and significant digits are provided', () => {
+      expect(
+        removeFloatingPointErrors(1.2345, {
+          minimumFractionDigits: 2,
+          maximumSignificantDigits: 3,
+          roundingMode: 'floor',
+          roundingPriority: 'morePrecision',
+        }),
+      ).toBe(1.234);
+    });
+
+    it('does not scale unit percent values when maximumFractionDigits is provided', () => {
+      expect(
+        removeFloatingPointErrors(1.239, {
+          style: 'unit',
+          unit: 'percent',
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(1.23);
+    });
+
+    it('rounds currency values without percent scaling', () => {
+      expect(
+        removeFloatingPointErrors(1.239, {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(1.23);
+    });
+
+    it('respects roundingMode when no precision is provided', () => {
+      expect(
+        removeFloatingPointErrors(1.2399, {
+          minimumIntegerDigits: 1,
+          roundingMode: 'floor',
+        }),
+      ).toBe(1.239);
+    });
+
+    it('respects roundingIncrement when maximumFractionDigits is provided', () => {
+      expect(
+        removeFloatingPointErrors(1.26, {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+          roundingIncrement: 5,
+        }),
+      ).toBe(1.5);
+    });
+
+    it('keeps the original finite value when percent scaling overflows before Intl rounding', () => {
+      expect(
+        removeFloatingPointErrors(Number.MAX_VALUE, {
+          style: 'percent',
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        }),
+      ).toBe(Number.MAX_VALUE);
+    });
+
+    it('rounds scientific notation values at their formatted scale', () => {
+      const format = {
+        notation: 'scientific',
+        maximumFractionDigits: 2,
+      } as const;
+      const rounded = removeFloatingPointErrors(0.000123456, format);
+
+      expect(rounded).toBe(0.000123);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(0.000123456),
+      );
+    });
+
     it('returns 1000 for 1000, ignoring grouping', () => {
       expect(removeFloatingPointErrors(1000)).toBe(1000);
     });
@@ -172,6 +386,52 @@ describe('NumberField validate', () => {
         ).toBe(12.3);
       });
     });
+  });
+
+  it('applies roundingMode after step validation', () => {
+    expect(
+      toValidatedNumber(1.239, {
+        ...defaultOptions,
+        step: 0.001,
+        snapOnStep: true,
+        format: {
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        },
+      }),
+    ).toBe(1.23);
+  });
+
+  it('clamps the final value after percent rounding crosses max', () => {
+    expect(
+      toValidatedNumber(0.01236, {
+        ...defaultOptions,
+        step: undefined,
+        snapOnStep: false,
+        maxWithDefault: 0.01235,
+        format: {
+          style: 'percent',
+          maximumFractionDigits: 2,
+        },
+      }),
+    ).toBe(0.01235);
+  });
+
+  it('clamps the final value after directional percent rounding crosses min', () => {
+    expect(
+      toValidatedNumber(0.01234, {
+        ...defaultOptions,
+        step: undefined,
+        snapOnStep: false,
+        minWithDefault: 0.01235,
+        minWithZeroDefault: 0.01235,
+        format: {
+          style: 'percent',
+          maximumFractionDigits: 2,
+          roundingMode: 'floor',
+        },
+      }),
+    ).toBe(0.01235);
   });
 
   it('removes floating point errors by default', () => {
