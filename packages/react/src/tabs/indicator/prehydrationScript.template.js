@@ -77,9 +77,7 @@
     const rotate = css.getPropertyValue('rotate').trim();
 
     return (
-      (rotate !== '' &&
-        rotate !== 'none' &&
-        (parseFloat(rotate) !== 0 || rotate.includes(' '))) ||
+      (rotate !== '' && rotate !== 'none' && (parseFloat(rotate) !== 0 || rotate.includes(' '))) ||
       parseFloat(css.getPropertyValue('perspective')) > 0
     );
   }
