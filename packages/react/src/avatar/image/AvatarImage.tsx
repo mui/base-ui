@@ -32,16 +32,17 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     className,
     render,
     onLoadingStatusChange: onLoadingStatusChangeProp,
-    referrerPolicy,
-    crossOrigin,
     style,
     ...elementProps
   } = componentProps;
+  const { crossOrigin, referrerPolicy, sizes, src, srcSet } = elementProps;
 
-  const context = useAvatarRootContext();
-  const imageLoadingStatus = useImageLoadingStatus(componentProps.src, {
+  const { setImageLoadingStatus } = useAvatarRootContext();
+  const imageLoadingStatus = useImageLoadingStatus(src, {
     referrerPolicy,
     crossOrigin,
+    sizes,
+    srcSet,
   });
 
   const isVisible = imageLoadingStatus === 'loaded';
@@ -51,7 +52,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
-    context.setImageLoadingStatus(status);
+    setImageLoadingStatus(status);
   });
 
   useIsoLayoutEffect(() => {
@@ -59,6 +60,10 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
       handleLoadingStatusChange(imageLoadingStatus);
     }
   }, [imageLoadingStatus, handleLoadingStatusChange]);
+
+  useIsoLayoutEffect(() => {
+    return () => setImageLoadingStatus('idle');
+  }, [setImageLoadingStatus]);
 
   useOpenChangeComplete({
     open: isVisible,
