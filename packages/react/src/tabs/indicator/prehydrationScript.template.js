@@ -44,6 +44,75 @@
     };
   }
 
+  // Keep in sync with `hasDistortingTransform.ts`.
+  function hasDistortingTransform(element) {
+    let node = element;
+    while (node != null) {
+      const css = getComputedStyle(node);
+      const transform = css.transform;
+      if (transform && transform !== 'none') {
+        const matrix = new DOMMatrix(transform);
+        if (
+          !matrix.is2D ||
+          Math.abs(matrix.b) > 1e-6 ||
+          Math.abs(matrix.c) > 1e-6 ||
+          matrix.a < -1e-6 ||
+          matrix.d < -1e-6
+        ) {
+          return true;
+        }
+      }
+      if (hasDistortingTransformLonghand(css)) {
+        return true;
+      }
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  /**
+   * Checks transform longhands that aren't reflected in the computed `transform` matrix.
+   */
+  function hasDistortingTransformLonghand(css) {
+    const rotate = css.getPropertyValue('rotate').trim();
+
+    return (
+      (rotate !== '' && rotate !== 'none' && (parseFloat(rotate) !== 0 || rotate.includes(' '))) ||
+      parseFloat(css.getPropertyValue('perspective')) > 0
+    );
+  }
+
+  function getLayoutOffset(element, ancestor) {
+    const elementOffset = getCumulativeOffset(element);
+    const ancestorOffset = getCumulativeOffset(ancestor);
+
+    return {
+      left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
+      top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
+    };
+  }
+
+  function getCumulativeOffset(element) {
+    let offsetLeft = 0;
+    let offsetTop = 0;
+    let currentElement = element;
+
+    while (currentElement != null) {
+      offsetLeft += currentElement.offsetLeft;
+      offsetTop += currentElement.offsetTop;
+
+      const offsetParent = currentElement.offsetParent;
+      if (offsetParent != null) {
+        offsetLeft += offsetParent.clientLeft;
+        offsetTop += offsetParent.clientTop;
+      }
+
+      currentElement = offsetParent;
+    }
+
+    return { left: offsetLeft, top: offsetTop };
+  }
+
   if (activeTab != null && tabsList != null) {
     const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
     const { width: tabsListWidth, height: tabsListHeight } = getCssDimensions(tabsList);
@@ -52,16 +121,18 @@
     const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
     const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
     const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
+    const useOffsetPath = !hasNonZeroScale || hasDistortingTransform(activeTab);
 
-    if (hasNonZeroScale) {
+    if (useOffsetPath) {
+      const offset = getLayoutOffset(activeTab, tabsList);
+      left = offset.left;
+      top = offset.top;
+    } else {
       const tabLeftDelta = tabRect.left - tabsListRect.left;
       const tabTopDelta = tabRect.top - tabsListRect.top;
 
       left = tabLeftDelta / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
       top = tabTopDelta / scaleY + tabsList.scrollTop - tabsList.clientTop;
-    } else {
-      left = activeTab.offsetLeft;
-      top = activeTab.offsetTop;
     }
 
     width = computedWidth;

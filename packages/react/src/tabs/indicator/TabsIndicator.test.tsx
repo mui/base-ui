@@ -76,6 +76,61 @@ describe('<Tabs.Indicator />', () => {
       assertSize(actualHeight, tabHeight);
     }
 
+    // Styles that turn the indicator into a box laid over the active tab using the CSS
+    // variables it exposes — mirrors how consumers position it (see the demos).
+    const STYLED_INDICATOR_CSS = `
+      [data-testid="bubble"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: var(--active-tab-width);
+        height: var(--active-tab-height);
+        transform: translate(var(--active-tab-left), var(--active-tab-top));
+      }
+    `;
+
+    // Activates the last tab on purpose: its offset is non-zero, so if the rect-based path
+    // were (wrongly) used under rotation the indicator would land visibly off. The first
+    // tab sits at (0, 0) and would be matched even by the buggy math.
+    function renderTransformedTabs(
+      wrapperStyle: React.CSSProperties,
+      tabsListStyle: React.CSSProperties = { display: 'flex', position: 'relative' },
+    ) {
+      return render(
+        <React.Fragment>
+          <style>{STYLED_INDICATOR_CSS}</style>
+          <div style={wrapperStyle}>
+            <Tabs.Root value={3}>
+              <Tabs.List style={tabsListStyle}>
+                <Tabs.Tab value={1} style={{ width: '80px', height: '32px' }}>
+                  One
+                </Tabs.Tab>
+                <Tabs.Tab value={2} style={{ width: '80px', height: '32px' }}>
+                  Two
+                </Tabs.Tab>
+                <Tabs.Tab value={3} style={{ width: '80px', height: '32px' }}>
+                  Three
+                </Tabs.Tab>
+                <Tabs.Indicator data-testid="bubble" />
+              </Tabs.List>
+            </Tabs.Root>
+          </div>
+        </React.Fragment>,
+      );
+    }
+
+    // Compares the rendered indicator's box to the active tab's box. Both share the
+    // ancestor transform, so when the indicator is positioned correctly their on-screen
+    // rects coincide — regardless of the transform.
+    function assertBubbleOverlapsActiveTab(bubble: HTMLElement, activeTab: HTMLElement) {
+      const bubbleRect = bubble.getBoundingClientRect();
+      const tabRect = activeTab.getBoundingClientRect();
+      expect(Math.abs(bubbleRect.left - tabRect.left)).toBeLessThanOrEqual(1);
+      expect(Math.abs(bubbleRect.top - tabRect.top)).toBeLessThanOrEqual(1);
+      expect(Math.abs(bubbleRect.right - tabRect.right)).toBeLessThanOrEqual(1);
+      expect(Math.abs(bubbleRect.bottom - tabRect.bottom)).toBeLessThanOrEqual(1);
+    }
+
     it('should set CSS variables corresponding to the active tab', async () => {
       await render(
         <Tabs.Root value={2}>
@@ -202,6 +257,69 @@ describe('<Tabs.Indicator />', () => {
       await waitFor(() => {
         assertBubblePositionVariables(bubble, tabList, activeTab);
       });
+    });
+
+    it('overlays the active tab when an ancestor has a 2D rotation', async () => {
+      await renderTransformedTabs({ transform: 'rotate(40deg)' });
+
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      await waitFor(() => {
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
+      });
+      expect(bubble).not.toHaveAttribute('hidden');
+    });
+
+    it('overlays the active tab when an ancestor has a size-preserving flip', async () => {
+      await renderTransformedTabs({ transform: 'scaleX(-1)' });
+
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      await waitFor(() => {
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
+      });
+      expect(bubble).not.toHaveAttribute('hidden');
+    });
+
+    it('sets transformed offsets relative to the tab list when the list is not the offset parent', async () => {
+      await renderTransformedTabs(
+        { position: 'relative', transform: 'rotate(40deg)' },
+        { display: 'flex', marginLeft: '40px' },
+      );
+
+      const bubble = screen.getByTestId('bubble');
+
+      await waitFor(() => {
+        const bubbleComputedStyle = window.getComputedStyle(bubble);
+        assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-left'), 160);
+        assertSize(bubbleComputedStyle.getPropertyValue('--active-tab-top'), 0);
+      });
+    });
+
+    it('overlays the active tab when an ancestor uses the rotate longhand', async () => {
+      await renderTransformedTabs({ rotate: '40deg' });
+
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      await waitFor(() => {
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
+      });
+      expect(bubble).not.toHaveAttribute('hidden');
+    });
+
+    it('overlays the active tab when an ancestor has a 3D rotation (#4837)', async () => {
+      await renderTransformedTabs({ transform: 'perspective(600px) rotateY(35deg)' });
+
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      await waitFor(() => {
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
+      });
+      expect(bubble).not.toHaveAttribute('hidden');
     });
 
     it('updates position when a different tab resizes', async () => {

@@ -4,6 +4,7 @@ import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { useIsHydrating } from '../../utils/useIsHydrating';
+import { hasDistortingTransform } from './hasDistortingTransform';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -76,15 +77,21 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
       const hasNonZeroScale =
         Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
-      if (hasNonZeroScale) {
+      // A rotation, skew, flip, or 3D transform on the tab or any ancestor warps the
+      // bounding rects, so the rect-based fast path can't recover the tab's position.
+      const useOffsetPath = !hasNonZeroScale || hasDistortingTransform(activeTab);
+
+      if (useOffsetPath) {
+        // Layout offsets are immune to transforms, but lose sub-pixel precision.
+        const offset = getLayoutOffset(activeTab, tabsListElement);
+        left = offset.left;
+        top = offset.top;
+      } else {
         const tabLeftDelta = tabRect.left - tabsListRect.left;
         const tabTopDelta = tabRect.top - tabsListRect.top;
 
         left = tabLeftDelta / scaleX + tabsListElement.scrollLeft - tabsListElement.clientLeft;
         top = tabTopDelta / scaleY + tabsListElement.scrollTop - tabsListElement.clientTop;
-      } else {
-        left = activeTab.offsetLeft;
-        top = activeTab.offsetTop;
       }
 
       width = computedWidth;
@@ -181,4 +188,35 @@ export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsInd
 export namespace TabsIndicator {
   export type State = TabsIndicatorState;
   export type Props = TabsIndicatorProps;
+}
+
+function getLayoutOffset(element: HTMLElement, ancestor: HTMLElement) {
+  const elementOffset = getCumulativeOffset(element);
+  const ancestorOffset = getCumulativeOffset(ancestor);
+
+  return {
+    left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
+    top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
+  };
+}
+
+function getCumulativeOffset(element: HTMLElement) {
+  let left = 0;
+  let top = 0;
+  let currentElement: HTMLElement | null = element;
+
+  while (currentElement != null) {
+    left += currentElement.offsetLeft;
+    top += currentElement.offsetTop;
+
+    const offsetParent = currentElement.offsetParent as HTMLElement | null;
+    if (offsetParent != null) {
+      left += offsetParent.clientLeft;
+      top += offsetParent.clientTop;
+    }
+
+    currentElement = offsetParent;
+  }
+
+  return { left, top };
 }
