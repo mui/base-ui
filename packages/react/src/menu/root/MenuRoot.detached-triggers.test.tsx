@@ -1186,5 +1186,54 @@ describe('<MenuRoot />', () => {
         expect(item).toHaveAttribute('tabindex', '-1');
       });
     });
+
+    it('clears a pending highlight when opening is canceled', async () => {
+      const menuHandle = Menu.createHandle();
+      let cancelNextOpen = true;
+
+      await render(
+        <div>
+          <Menu.Trigger handle={menuHandle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+          <Menu.Root
+            handle={menuHandle}
+            onOpenChange={(nextOpen, eventDetails) => {
+              if (nextOpen && cancelNextOpen) {
+                cancelNextOpen = false;
+                eventDetails.cancel();
+              }
+            }}
+          >
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item data-testid="item-1">One</Menu.Item>
+                  <Menu.Item>Two</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </div>,
+      );
+
+      await act(async () => {
+        menuHandle.open('trigger', 'first');
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      await act(async () => {
+        menuHandle.open('trigger');
+      });
+
+      const popup = await screen.findByRole('menu');
+      const firstItem = screen.getByTestId('item-1');
+      await waitFor(() => {
+        expect(popup).toHaveFocus();
+      });
+      expect(firstItem).toHaveAttribute('tabindex', '-1');
+    });
   });
 });
