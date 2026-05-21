@@ -10,7 +10,7 @@ import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
 import { mergeProps } from '../../merge-props';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
-import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
+import { getSnapPointSwipeMovement, useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { clamp } from '../../internals/clamp';
 import {
@@ -106,6 +106,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const resetSwipeRef = React.useRef<(() => void) | null>(null);
   const controlledDismissFrame = useAnimationFrame();
 
+  const swipingRef = React.useRef(false);
   const nestedSwipeActiveRef = React.useRef(false);
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
   const ignoreNextTouchStartFromPenRef = React.useRef(false);
@@ -390,6 +391,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       selection.removeAllRanges();
     },
     onSwipingChange(swiping) {
+      swipingRef.current = swiping;
       setBackdropSwipingAttribute(store.context.backdropRef.current, swiping);
 
       if (!swiping && !notifyParentSwipeProgressChange) {
@@ -428,9 +430,20 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     onProgress(progress, details) {
       updateNestedSwipeActive(details);
 
+      const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
+      if (swipingRef.current && swipeDirection === 'down' && hasSnapPoints && details) {
+        const popupElement = store.context.popupRef.current;
+        if (popupElement) {
+          popupElement.style.removeProperty('transform');
+          popupElement.style.setProperty(
+            DrawerPopupCssVars.swipeMovementY,
+            `${getSnapPointSwipeMovement(activeSnapPointOffset ?? 0, details.deltaY)}px`,
+          );
+        }
+      }
+
       const currentDirection = details?.direction ?? swipe.swipeDirection;
       const isDismissSwipe = currentDirection === undefined || currentDirection === swipeDirection;
-      const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
       const isVerticalSwipe = swipeDirection === 'down' || swipeDirection === 'up';
       const shouldTrackProgress =
         (hasSnapPoints && isVerticalSwipe) ||
