@@ -52,7 +52,13 @@
       const transform = css.transform;
       if (transform && transform !== 'none') {
         const matrix = new DOMMatrix(transform);
-        if (!matrix.is2D || Math.abs(matrix.b) > 1e-6 || Math.abs(matrix.c) > 1e-6) {
+        if (
+          !matrix.is2D ||
+          Math.abs(matrix.b) > 1e-6 ||
+          Math.abs(matrix.c) > 1e-6 ||
+          matrix.a < -1e-6 ||
+          matrix.d < -1e-6
+        ) {
           return true;
         }
       }
@@ -120,8 +126,7 @@
     const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
     const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
     const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
-    const scaleDeviates = Math.abs(scaleX - 1) > 0.01 || Math.abs(scaleY - 1) > 0.01;
-    const useOffsetPath = !hasNonZeroScale || (scaleDeviates && hasDistortingTransform(activeTab));
+    const useOffsetPath = !hasNonZeroScale || hasDistortingTransform(activeTab);
 
     if (useOffsetPath) {
       const offset = getLayoutOffset(activeTab, tabsList);

@@ -77,14 +77,9 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
       const hasNonZeroScale =
         Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
-      // A rotation, skew, or 3D transform on the tab or any ancestor warps the bounding
-      // rects non-linearly, so the rect-based fast path can't recover the tab's position.
-      // Such transforms always change the projected (bounding-box) size, so only run the
-      // ancestor walk when the scale deviates from 1. (Pure flips and 180° rotations keep
-      // the scale at 1 and aren't handled — flipped tabs aren't a real-world case.)
-      const scaleDeviates = Math.abs(scaleX - 1) > 0.01 || Math.abs(scaleY - 1) > 0.01;
-      const useOffsetPath =
-        !hasNonZeroScale || (scaleDeviates && hasDistortingTransform(activeTab));
+      // A rotation, skew, flip, or 3D transform on the tab or any ancestor warps the
+      // bounding rects, so the rect-based fast path can't recover the tab's position.
+      const useOffsetPath = !hasNonZeroScale || hasDistortingTransform(activeTab);
 
       if (useOffsetPath) {
         // Layout offsets are immune to transforms, but lose sub-pixel precision.

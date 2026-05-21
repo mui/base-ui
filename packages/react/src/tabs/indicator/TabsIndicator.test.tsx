@@ -271,6 +271,18 @@ describe('<Tabs.Indicator />', () => {
       expect(bubble).not.toHaveAttribute('hidden');
     });
 
+    it('overlays the active tab when an ancestor has a size-preserving flip', async () => {
+      await renderTransformedTabs({ transform: 'scaleX(-1)' });
+
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      await waitFor(() => {
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
+      });
+      expect(bubble).not.toHaveAttribute('hidden');
+    });
+
     it('sets transformed offsets relative to the tab list when the list is not the offset parent', async () => {
       await renderTransformedTabs(
         { position: 'relative', transform: 'rotate(40deg)' },
