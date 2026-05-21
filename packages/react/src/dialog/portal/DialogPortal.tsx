@@ -23,17 +23,24 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
   const mounted = store.useState('mounted');
   const modal = store.useState('modal');
   const open = store.useState('open');
-  const floatingRootContext = store.useState('floatingRootContext');
-  const anchorElement = floatingRootContext.useState('domAnchorElement');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
     return null;
   }
 
+  // Intentionally NOT passing `referenceElement` to `FloatingPortal`.
+  // Dialogs (modal or non-modal), AlertDialogs and Drawers are not visually
+  // anchored to a trigger the way Popover/Menu/Tooltip popups are - they
+  // cover the viewport, slide in from a screen edge, or center themselves
+  // with their own internal layout. If they're open while a fullscreen
+  // element is active they should always be rerouted into that fullscreen
+  // subtree, regardless of where the trigger lives. Opting out of the
+  // anchor-aware heuristic falls back to FloatingPortal's simpler
+  // "reroute when the default container is outside fullscreen" behaviour.
   return (
     <DialogPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} referenceElement={anchorElement} {...portalProps}>
+      <FloatingPortal ref={forwardedRef} {...portalProps}>
         {mounted && modal === true && (
           <InternalBackdrop ref={store.context.internalBackdropRef} inert={inertValue(!open)} />
         )}
