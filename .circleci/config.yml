@@ -28,7 +28,6 @@ default-job: &default-job
     # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
-    PNPM_CONFIG_ALLOW_BUILD: '@mui/internal-babel-plugin-display-name @vvago/vale core-js esbuild nx sharp unrs-resolver'
   working_directory: /tmp/base-ui
   executor: code-infra/mui-node
 
