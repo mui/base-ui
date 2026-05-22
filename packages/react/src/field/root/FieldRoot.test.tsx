@@ -1179,6 +1179,50 @@ describe('<Field.Root />', () => {
       expect(control).toHaveAttribute('aria-invalid', 'true');
       expect(screen.queryByText('error')).not.toBe(null);
     });
+
+    it('ignores async validation results superseded during debounce', async () => {
+      const resolvers: Record<string, (value: string | null) => void> = {};
+      const validate = vi.fn((value) => {
+        return new Promise<string | null>((resolve) => {
+          resolvers[value as string] = resolve;
+        });
+      });
+
+      await renderFakeTimers(
+        <Field.Root validationDebounceTime={100} validationMode="onChange" validate={validate}>
+          <Field.Control />
+          <Field.Error />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.change(control, { target: { value: 'old' } });
+      clock.tick(100);
+
+      expect(validate.mock.lastCall?.[0]).toBe('old');
+
+      fireEvent.change(control, { target: { value: 'new' } });
+
+      await act(async () => {
+        resolvers.old('old error');
+        await flushMicrotasks();
+      });
+
+      expect(screen.queryByText('old error')).toBe(null);
+      expect(control).not.toHaveAttribute('aria-invalid');
+
+      clock.tick(100);
+
+      await act(async () => {
+        resolvers.new(null);
+        await flushMicrotasks();
+      });
+
+      expect(validate.mock.lastCall?.[0]).toBe('new');
+      expect(screen.queryByText('old error')).toBe(null);
+      expect(control).not.toHaveAttribute('aria-invalid');
+    });
   });
 
   describe('style hooks', () => {

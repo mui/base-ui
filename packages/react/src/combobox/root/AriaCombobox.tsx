@@ -123,7 +123,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const {
     setDirty,
     validityData,
-    shouldValidateOnChange,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
@@ -1263,6 +1262,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               return;
             }
 
+            event.preventBaseUIHandler?.();
+            clearErrors(name);
+
             const nextValue = event.currentTarget.value;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
@@ -1275,10 +1277,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               if (selectionMode === 'none') {
                 setDirty(nextValue !== validityData.initialValue);
                 setInputValue(nextValue, details);
-
-                if (shouldValidateOnChange()) {
-                  validation.change(nextValue);
-                }
+                validation.change(nextValue);
                 return;
               }
 
@@ -1300,10 +1299,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               if (matchingValue != null) {
                 setDirty(matchingValue !== validityData.initialValue);
                 setSelectedValue?.(matchingValue, details);
-
-                if (shouldValidateOnChange()) {
-                  validation.change(matchingValue);
-                }
+                validation.change(matchingValue);
               }
             }
 

@@ -13,6 +13,7 @@ import { isIOS } from '@base-ui/utils/detectBrowser';
 import { activeElement } from '../../floating-ui-react/utils';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useFormContext } from '../../internals/form-context/FormContext';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import type { BaseUIComponentProps, MaybeBaseUIEvent } from '../../internals/types';
@@ -87,8 +88,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     name: fieldName,
     state: fieldState,
     validation,
-    shouldValidateOnChange,
   } = useFieldRootContext();
+  const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -478,10 +479,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
             setDirty(parsedValue !== validityData.initialValue);
             setValue(parsedValue, details);
-
-            if (shouldValidateOnChange()) {
-              validation.change(parsedValue);
-            }
+            clearErrors(name);
+            validation.change(parsedValue);
+            event.preventBaseUIHandler?.();
           },
         })}
         ref={hiddenInputRef}

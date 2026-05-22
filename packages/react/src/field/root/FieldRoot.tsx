@@ -57,6 +57,8 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const markedDirtyRef = React.useRef(dirty);
   const registeredFieldIdRef = React.useRef<string | undefined>(undefined);
+  const [registeredFieldName, setRegisteredFieldName] = React.useState<string>();
+  const effectiveName = name ?? registeredFieldName;
 
   useIsoLayoutEffect(() => {
     if (dirtyProp !== undefined) {
@@ -93,7 +95,8 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       (validationMode === 'onSubmit' && submitAttemptedRef.current),
   );
 
-  const formError = name ? errors[name] : null;
+  const formError =
+    effectiveName && Object.hasOwn(errors, effectiveName) ? errors[effectiveName] : null;
   const hasFormError = !!(Array.isArray(formError) ? formError.length : formError);
   const invalid = invalidProp === true || hasFormError;
 
@@ -127,7 +130,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalid,
     markedDirtyRef,
     state,
-    name,
+    name: effectiveName,
     shouldValidateOnChange,
     getRegisteredFieldId,
   });
@@ -137,6 +140,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalid,
     markedDirtyRef,
     name,
+    setRegisteredFieldName,
     setRegisteredFieldId,
     setValidityData,
     validityData,
@@ -149,7 +153,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
-      name,
+      name: effectiveName,
       validityData,
       setValidityData,
       disabled,
@@ -172,7 +176,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     }),
     [
       invalid,
-      name,
+      effectiveName,
       validityData,
       disabled,
       touched,

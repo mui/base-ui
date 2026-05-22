@@ -20,6 +20,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
     invalid,
     markedDirtyRef,
     name,
+    setRegisteredFieldName,
     setRegisteredFieldId,
     setValidityData,
     validityData,
@@ -127,6 +128,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
           activeFieldControlSourceRef.current = null;
           deleteRegistration();
           registrationRef.current = null;
+          setRegisteredFieldName(undefined);
           setRegisteredFieldId(undefined);
         }
         return;
@@ -136,6 +138,9 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 
       activeFieldControlSourceRef.current = source;
       registrationRef.current = registration;
+      if (!name) {
+        setRegisteredFieldName(registration.name);
+      }
       setRegisteredFieldId(registration.id);
 
       if (previousId && previousId !== registration.id) {
@@ -155,6 +160,7 @@ export interface UseFieldControlRegistrationParameters {
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   name: string | undefined;
+  setRegisteredFieldName: (name: string | undefined) => void;
   setRegisteredFieldId: (id: string | undefined) => void;
   setValidityData: React.Dispatch<React.SetStateAction<FieldValidityData>>;
   validityData: FieldValidityData;

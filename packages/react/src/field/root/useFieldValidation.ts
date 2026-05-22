@@ -253,6 +253,7 @@ export function useFieldValidation(
 
   const change = useStableCallback((value: unknown) => {
     timeout.clear();
+    validationCommitIdRef.current += 1;
 
     if (!shouldValidateOnChange()) {
       commit(value, true);

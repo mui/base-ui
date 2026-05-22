@@ -1360,6 +1360,27 @@ describe('<NumberField />', () => {
       expect(input).toHaveValue('42');
     });
 
+    it('validates the parsed number when handling browser autofill', async () => {
+      const validate = vi.fn((_value: unknown) => null);
+
+      await render(
+        <Field.Root name="quantity" validationMode="onChange" validate={validate}>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const hiddenInput = document.querySelector('input[type="number"][name="quantity"]');
+
+      expect(hiddenInput).not.toBe(null);
+      fireEvent.change(hiddenInput!, { target: { value: '42' } });
+
+      expect(validate).toHaveBeenCalled();
+      expect(validate.mock.calls.every(([value]) => value === 42)).toBe(true);
+      expect(validate.mock.lastCall?.[0]).toBe(42);
+    });
+
     it.each([
       { lockState: 'readOnly', label: 'inside Field', withField: true },
       { lockState: 'disabled', label: 'inside Field', withField: true },

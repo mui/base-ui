@@ -81,7 +81,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     setDirty,
     setTouched,
     setFocused,
-    shouldValidateOnChange,
     validityData,
     setFilled,
     name: fieldName,
@@ -562,6 +561,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 return;
               }
 
+              event.preventBaseUIHandler?.();
+              clearErrors(name);
+
               const nextValue = event.currentTarget.value;
               const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
@@ -590,10 +592,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 if (matchingValue != null) {
                   setDirty(matchingValue !== validityData.initialValue);
                   setValue(matchingValue, details);
-
-                  if (shouldValidateOnChange()) {
-                    validation.change(matchingValue);
-                  }
+                  validation.change(matchingValue);
                 }
               }
 

@@ -145,6 +145,41 @@ describe('<Field.Error />', () => {
       expect(screen.getByTestId('default-error')).toHaveTextContent('Username is reserved');
     });
 
+    it('uses the Field.Control name fallback for Form errors', async () => {
+      await render(
+        <Form errors={{ email: 'Email is already taken' }}>
+          <Field.Root>
+            <Field.Control name="email" />
+            <Field.Error data-testid="default-error" />
+          </Field.Root>
+        </Form>,
+      );
+
+      const control = screen.getByRole('textbox');
+
+      expect(control).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Email is already taken');
+
+      fireEvent.change(control, { target: { value: 'next@example.com' } });
+
+      expect(control).not.toHaveAttribute('aria-invalid');
+      expect(screen.queryByTestId('default-error')).toBe(null);
+    });
+
+    it('ignores inherited Form error properties', async () => {
+      await render(
+        <Form errors={{}}>
+          <Field.Root name="constructor">
+            <Field.Control />
+            <Field.Error data-testid="default-error" />
+          </Field.Root>
+        </Form>,
+      );
+
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
+      expect(screen.queryByTestId('default-error')).toBe(null);
+    });
+
     it('renders Form error arrays as a list', async () => {
       await render(
         <Form errors={{ username: ['Username is reserved', 'Username is too short'] }}>

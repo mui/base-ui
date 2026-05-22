@@ -38,7 +38,7 @@ export const FieldError = React.forwardRef(function FieldError(
 
   const { errors } = useFormContext();
 
-  const formError = name ? errors[name] : null;
+  const formError = name && Object.hasOwn(errors, name) ? errors[name] : null;
   const hasFormError = !!(Array.isArray(formError) ? formError.length : formError);
   const hasSpecificMatch = typeof match === 'string';
 
