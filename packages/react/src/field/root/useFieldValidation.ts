@@ -253,16 +253,15 @@ export function useFieldValidation(
 
   const change = useStableCallback((value: unknown) => {
     timeout.clear();
-    validationCommitIdRef.current += 1;
+    const validateOnChange = shouldValidateOnChange();
 
-    if (!shouldValidateOnChange()) {
-      commit(value, true);
-    } else if (value === '' || !validationDebounceTime) {
-      commit(value);
-    } else {
+    if (validateOnChange && value !== '' && validationDebounceTime) {
+      validationCommitIdRef.current += 1;
       timeout.start(validationDebounceTime, () => {
         commit(value);
       });
+    } else {
+      commit(value, !validateOnChange);
     }
   });
 
