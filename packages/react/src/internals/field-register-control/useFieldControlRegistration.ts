@@ -101,6 +101,8 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       return;
     }
 
+    setRegisteredFieldName(name ? undefined : registration.name);
+
     formRef.current.fields.set(registration.id, {
       getValue: getValueForForm,
       name: name ?? registration.name,
@@ -108,7 +110,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       validityData: getCombinedFieldValidityData(validityData, invalid),
       validate,
     });
-  }, [formRef, getValueForForm, invalid, name, validate, validityData]);
+  }, [formRef, getValueForForm, invalid, name, setRegisteredFieldName, validate, validityData]);
 
   useIsoLayoutEffect(() => {
     const fields = formRef.current.fields;

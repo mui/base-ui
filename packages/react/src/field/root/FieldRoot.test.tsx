@@ -698,6 +698,34 @@ describe('<Field.Root />', () => {
       expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
     });
 
+    it('uses the Field.Control name fallback when the Field.Root name is removed', async () => {
+      function App() {
+        const [rootName, setRootName] = React.useState<string | undefined>('rootEmail');
+
+        return (
+          <Form errors={{ email: 'Email is already taken' }}>
+            <Field.Root name={rootName}>
+              <Field.Control name="email" />
+              <Field.Error data-testid="default-error" />
+            </Field.Root>
+            <button type="button" onClick={() => setRootName(undefined)}>
+              Clear root name
+            </button>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
+      expect(screen.queryByTestId('default-error')).toBe(null);
+
+      fireEvent.click(screen.getByText('Clear root name'));
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Email is already taken');
+    });
+
     it('updates field-aware control name fallbacks when the name changes', async () => {
       const handleSubmit = vi.fn();
 
