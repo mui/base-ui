@@ -12,7 +12,11 @@ import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useS
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { HTMLProps } from '../../internals/types';
-import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   PopupStoreState,
   PopupStoreContext,
@@ -206,7 +210,7 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  * @param store The Store instance managing the popup state.
  */
 export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>(
-  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  store: PopupStoreWithOpen<State, BaseUIChangeEventDetails<typeof REASONS.none>>,
 ) {
   const open = store.useState('open');
   const reactiveTriggerCount = store.useState('triggerCount');
@@ -226,7 +230,27 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       stateUpdates.triggerCount = triggerCount;
     }
 
-    if (!store.select('activeTriggerId') && triggerCount === 1) {
+    const activeTriggerId = store.select('activeTriggerId');
+    let lostActiveTrigger = false;
+
+    if (activeTriggerId) {
+      const activeTriggerElement = store.context.triggerElements.getById(activeTriggerId);
+      if (!activeTriggerElement) {
+        lostActiveTrigger = true;
+        stateUpdates.activeTriggerId = null;
+        stateUpdates.activeTriggerElement = null;
+      } else if (activeTriggerElement !== store.state.activeTriggerElement) {
+        stateUpdates.activeTriggerElement = activeTriggerElement;
+      }
+    }
+
+    const hasControlledTriggerId = store.state.triggerIdProp != null;
+    const nextActiveTriggerId =
+      stateUpdates.activeTriggerId !== undefined && !hasControlledTriggerId
+        ? stateUpdates.activeTriggerId
+        : activeTriggerId;
+
+    if (!lostActiveTrigger && !nextActiveTriggerId && triggerCount === 1) {
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
@@ -237,6 +261,10 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 
     if (stateUpdates.triggerCount !== undefined || stateUpdates.activeTriggerId !== undefined) {
       store.update(stateUpdates as Partial<State>);
+    }
+
+    if (lostActiveTrigger) {
+      store.setOpen(false, createChangeEventDetails(REASONS.none));
     }
   }, [open, store, reactiveTriggerCount]);
 }

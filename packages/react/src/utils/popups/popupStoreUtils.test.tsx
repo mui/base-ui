@@ -17,8 +17,20 @@ import {
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import type { BaseUIChangeEventDetails } from '../../types';
 
+type TestStore = ReactStore<
+  PopupStoreState<unknown>,
+  PopupStoreContext<unknown>,
+  PopupStoreSelectors
+> & {
+  setOpen: (open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void;
+};
+
 function createStore() {
-  return new ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>(
+  const store = new ReactStore<
+    PopupStoreState<unknown>,
+    PopupStoreContext<unknown>,
+    PopupStoreSelectors
+  >(
     createInitialPopupStoreState(),
     {
       triggerElements: new PopupTriggerMap(),
@@ -26,7 +38,13 @@ function createStore() {
       onOpenChangeComplete: undefined,
     },
     popupStoreSelectors,
-  );
+  ) as TestStore;
+
+  store.setOpen = vi.fn((open) => {
+    store.set('open', open);
+  });
+
+  return store;
 }
 
 function TestTrigger({
@@ -75,11 +93,7 @@ function PopupIdTest({
   return null;
 }
 
-function ImplicitActiveTriggerTest({
-  store,
-}: {
-  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
-}) {
+function ImplicitActiveTriggerTest({ store }: { store: TestStore }) {
   useImplicitActiveTrigger(store);
   return null;
 }
@@ -228,6 +242,43 @@ describe('useTriggerRegistration', () => {
     expect(store.state.triggerCount).toBe(1);
     expect(store.state.activeTriggerId).toBe('trigger');
     expect(store.state.activeTriggerElement).toBe(element);
+  });
+
+  it('closes when the active trigger unregisters while open', () => {
+    const store = createStore();
+    const first = document.createElement('button');
+    const second = document.createElement('button');
+
+    store.update({
+      open: true,
+      activeTriggerId: 'first',
+      activeTriggerElement: first,
+    });
+
+    const { rerender } = render(
+      <React.Fragment>
+        <TestTrigger id="first" store={store} element={first} />
+        <TestTrigger id="second" store={store} element={second} />
+        <ImplicitActiveTriggerTest store={store} />
+      </React.Fragment>,
+    );
+
+    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.activeTriggerId).toBe('first');
+    expect(store.state.activeTriggerElement).toBe(first);
+
+    rerender(
+      <React.Fragment>
+        <TestTrigger id="second" store={store} element={second} />
+        <ImplicitActiveTriggerTest store={store} />
+      </React.Fragment>,
+    );
+
+    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.activeTriggerId).toBe(null);
+    expect(store.state.activeTriggerElement).toBe(null);
+    expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
+    expect(store.state.open).toBe(false);
   });
 
   it('resets triggerCount when the popup closes', () => {
