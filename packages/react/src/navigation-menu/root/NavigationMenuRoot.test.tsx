@@ -1605,6 +1605,48 @@ describe('<NavigationMenu.Root />', () => {
     it('preserves popup size when controlled value closes externally with keepMounted portal', async () => {
       await assertPopupSizeIsPreservedWhenControlledValueClosesExternally(true);
     });
+
+    it('clears activation direction when controlled value closes externally after switching triggers', async () => {
+      const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      try {
+        function ControlledNavigationMenu(props: { value: string | null }) {
+          return <TestNavigationMenu value={props.value} />;
+        }
+
+        const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+        const trigger1 = screen.getByTestId('trigger-1');
+        const trigger2 = screen.getByTestId('trigger-2');
+
+        mockBoundingClientRect(trigger1, { x: 0, y: 0, width: 80, height: 32 });
+        mockBoundingClientRect(trigger2, { x: 120, y: 0, width: 80, height: 32 });
+
+        fireEvent.click(trigger2);
+        await rerender(<ControlledNavigationMenu value="item-2" />);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('popup-2')).toHaveAttribute('data-activation-direction', 'right');
+
+        const exitingContent = screen.getByTestId('popup-2');
+        const animations = mockAnimations(exitingContent);
+
+        animations.start();
+        await rerender(<ControlledNavigationMenu value={null} />);
+        await flushMicrotasks();
+
+        expect(exitingContent).toHaveAttribute('data-ending-style');
+        expect(exitingContent).not.toHaveAttribute('data-activation-direction');
+
+        await act(async () => {
+          animations.finish();
+          await flushMicrotasks();
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+      }
+    });
   });
 
   describe('prop: delay', () => {

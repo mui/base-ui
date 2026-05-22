@@ -40,14 +40,16 @@ interface Size {
 }
 
 function getPositionerFixedSize(positionerElement: HTMLElement): Size | null {
-  const width = parseFloat(
-    positionerElement.style.getPropertyValue(NavigationMenuPositionerCssVars.positionerWidth),
-  );
-  const height = parseFloat(
-    positionerElement.style.getPropertyValue(NavigationMenuPositionerCssVars.positionerHeight),
-  );
+  const width =
+    parseFloat(
+      positionerElement.style.getPropertyValue(NavigationMenuPositionerCssVars.positionerWidth),
+    ) || 0;
+  const height =
+    parseFloat(
+      positionerElement.style.getPropertyValue(NavigationMenuPositionerCssVars.positionerHeight),
+    ) || 0;
 
-  if (!Number.isFinite(width) || !Number.isFinite(height) || width === 0 || height === 0) {
+  if (width <= 0 || height <= 0) {
     return null;
   }
 
@@ -135,7 +137,14 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useIsoLayoutEffect(() => {
-    if (open || !positionerElement || !popupElement) {
+    if (open) {
+      return;
+    }
+
+    setActivationDirection(null);
+    setFloatingRootContext(undefined);
+
+    if (!positionerElement || !popupElement) {
       return;
     }
 
@@ -231,6 +240,8 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     },
   });
 
+  const contextActivationDirection = open ? activationDirection : null;
+
   const contextValue: NavigationMenuRootContext<Value> = React.useMemo(
     () => ({
       open,
@@ -246,7 +257,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       setViewportElement,
       viewportTargetElement,
       setViewportTargetElement,
-      activationDirection,
+      activationDirection: contextActivationDirection,
       setActivationDirection,
       floatingRootContext,
       setFloatingRootContext,
@@ -275,7 +286,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       popupElement,
       viewportElement,
       viewportTargetElement,
-      activationDirection,
+      contextActivationDirection,
       floatingRootContext,
       nested,
       delay,
