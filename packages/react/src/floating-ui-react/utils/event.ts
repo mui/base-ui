@@ -57,3 +57,8 @@ export function isClickLikeEvent(event: Event | React.SyntheticEvent) {
   const type = event.type;
   return type === 'click' || type === 'mousedown' || type === 'keydown' || type === 'keyup';
 }
+
+export function isFocusLikeEvent(event: Event | React.SyntheticEvent) {
+  const type = event.type;
+  return type === 'focus' || type === 'focusin';
+}

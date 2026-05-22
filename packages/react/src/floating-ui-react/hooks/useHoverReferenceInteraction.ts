@@ -13,7 +13,7 @@ import { FloatingUIOpenChangeDetails, HTMLProps } from '../../internals/types';
 import { useFloatingTree } from '../components/FloatingTree';
 import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { Delay, FloatingContext, FloatingRootContext } from '../types';
-import { contains, getTarget } from '../utils/element';
+import { activeElement, contains, getTarget } from '../utils/element';
 import { isMouseLikePointerType } from '../utils/event';
 import {
   applySafePolygonPointerEventsMutation,
@@ -94,8 +94,20 @@ export function useHoverReferenceInteraction(
   const shouldOpenRef = useValueAsRef(shouldOpenProp);
   const isClosingRef = useValueAsRef(isClosing);
 
+  const isFocusOwnedOpenEvent = useStableCallback(() => {
+    const domReferenceElement = store.select('domReferenceElement');
+    const floatingElement = store.select('floatingElement');
+    const activeEl = activeElement(ownerDocument(domReferenceElement ?? floatingElement));
+
+    return contains(domReferenceElement, activeEl) || contains(floatingElement, activeEl);
+  });
+
   const isNonHoverOpenEvent = useStableCallback(() => {
-    return isNonHoverOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
+    return isNonHoverOpenEventShared(
+      dataRef.current.openEvent?.type,
+      instance.interactedInside,
+      isFocusOwnedOpenEvent(),
+    );
   });
 
   const checkShouldOpen = useStableCallback(() => {

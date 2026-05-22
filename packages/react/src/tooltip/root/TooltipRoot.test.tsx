@@ -108,6 +108,11 @@ describe('<Tooltip.Root />', () => {
 
           expect(screen.getByText('Content')).not.toBe(null);
 
+          fireEvent.mouseLeave(screen.getByTestId('positioner'), { relatedTarget: document.body });
+          await flushMicrotasks();
+
+          expect(screen.getByText('Content')).not.toBe(null);
+
           fireEvent.mouseLeave(trigger, { relatedTarget: document.body });
           await flushMicrotasks();
 
@@ -136,6 +141,79 @@ describe('<Tooltip.Root />', () => {
           await flushMicrotasks();
 
           expect(screen.queryByText('Content')).toBe(null);
+        },
+      );
+
+      it.skipIf(isJSDOM)(
+        'should keep a hover-opened tooltip open after the trigger receives focus',
+        async () => {
+          await render(<TestTooltip triggerProps={{ delay: 0, closeDelay: 0 }} />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          await flushMicrotasks();
+
+          expect(screen.getByText('Content')).not.toBe(null);
+
+          await act(async () => {
+            trigger.focus();
+          });
+          await flushMicrotasks();
+
+          fireEvent.mouseLeave(trigger, { relatedTarget: document.body });
+          await flushMicrotasks();
+
+          expect(screen.getByText('Content')).not.toBe(null);
+
+          await act(async () => {
+            trigger.blur();
+          });
+          clock.tick(OPEN_DELAY);
+
+          expect(screen.queryByText('Content')).toBe(null);
+        },
+      );
+
+      it.skipIf(isJSDOM)(
+        'should not let a pending hover open override a focus-opened tooltip',
+        async () => {
+          const handleOpenChange = vi.fn();
+
+          await render(
+            <TestTooltip
+              rootProps={{
+                onOpenChange: handleOpenChange,
+              }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+          await flushMicrotasks();
+
+          expect(screen.queryByText('Content')).toBe(null);
+
+          await act(async () => {
+            trigger.focus();
+          });
+          await flushMicrotasks();
+
+          expect(screen.getByText('Content')).not.toBe(null);
+          expect(handleOpenChange).toHaveBeenCalledTimes(1);
+          expect(handleOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.triggerFocus);
+
+          clock.tick(OPEN_DELAY);
+          await flushMicrotasks();
+
+          expect(handleOpenChange).toHaveBeenCalledTimes(1);
+
+          fireEvent.mouseLeave(trigger, { relatedTarget: document.body });
+          await flushMicrotasks();
+
+          expect(screen.getByText('Content')).not.toBe(null);
         },
       );
 

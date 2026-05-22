@@ -5,7 +5,7 @@ import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEvent
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { type FloatingUIOpenChangeDetails } from '../../internals/types';
 import { type PopupTriggerMap } from '../../utils/popups';
-import { isClickLikeEvent } from '../utils';
+import { isClickLikeEvent, isFocusLikeEvent } from '../utils';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 
 export interface FloatingRootState {
@@ -97,8 +97,8 @@ export class FloatingRootStore extends ReactStore<
       !newOpen ||
       !this.state.open ||
       // Prevent a pending hover-open from overwriting a click-open event, while allowing
-      // click events to upgrade a hover-open.
-      (event != null && isClickLikeEvent(event))
+      // click or focus events to upgrade a hover-open.
+      (event != null && (isClickLikeEvent(event) || isFocusLikeEvent(event)))
     ) {
       this.context.dataRef.current.openEvent = newOpen ? event : undefined;
     }

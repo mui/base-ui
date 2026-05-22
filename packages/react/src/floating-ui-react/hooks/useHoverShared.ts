@@ -70,14 +70,21 @@ export function isClickLikeOpenEvent(openEventType: string | undefined, interact
   return interactedInside || openEventType === 'click' || openEventType === 'mousedown';
 }
 
+export function isFocusOpenEvent(openEventType: string | undefined) {
+  return openEventType === 'focus' || openEventType === 'focusin';
+}
+
 /**
- * Returns true if the open event is a click-like event (click or mousedown), a focus event, or if the user interacted inside the floating element.
+ * Returns true if the open event is a click-like event (click or mousedown), a focus-owned event, or if the user interacted inside the floating element.
  */
-export function isNonHoverOpenEvent(openEventType: string | undefined, interactedInside: boolean) {
+export function isNonHoverOpenEvent(
+  openEventType: string | undefined,
+  interactedInside: boolean,
+  focusOwned = true,
+) {
   return (
     isClickLikeOpenEvent(openEventType, interactedInside) ||
-    openEventType === 'focus' ||
-    openEventType === 'focusin'
+    (focusOwned && isFocusOpenEvent(openEventType))
   );
 }
 

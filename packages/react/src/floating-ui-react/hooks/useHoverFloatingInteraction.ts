@@ -11,7 +11,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import type { FloatingContext, FloatingRootContext } from '../types';
-import { contains, getTarget } from '../utils/element';
+import { activeElement, contains, getTarget } from '../utils/element';
 import { getNodeChildren } from '../utils/nodes';
 import {
   applySafePolygonPointerEventsMutation,
@@ -68,8 +68,18 @@ export function useHoverFloatingInteraction(
 
   const childClosedTimeout = useTimeout();
 
+  const isFocusOwnedOpenEvent = useStableCallback(() => {
+    const activeEl = activeElement(ownerDocument(domReferenceElement ?? floatingElement));
+
+    return contains(domReferenceElement, activeEl) || contains(floatingElement, activeEl);
+  });
+
   const isNonHoverOpenEvent = useStableCallback(() => {
-    return isNonHoverOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
+    return isNonHoverOpenEventShared(
+      dataRef.current.openEvent?.type,
+      instance.interactedInside,
+      isFocusOwnedOpenEvent(),
+    );
   });
 
   const isHoverOpen = useStableCallback(() => {
