@@ -185,7 +185,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const controlRef = useValueAsRef(store.state.triggerElement);
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
-  useRegisterFieldControl(controlRef, generatedId, value, getStringifiedValueForForm, true, name);
+  useRegisterFieldControl(
+    controlRef,
+    generatedId,
+    value,
+    getStringifiedValueForForm,
+    true,
+    nameProp,
+  );
 
   const initialValueRef = React.useRef(value);
   const hasSelectedValue = multiple ? Array.isArray(value) && value.length > 0 : value != null;

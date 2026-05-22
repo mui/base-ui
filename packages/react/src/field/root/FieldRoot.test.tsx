@@ -659,6 +659,82 @@ describe('<Field.Root />', () => {
         confirmEmail: 'one@example.com',
       });
     });
+
+    it('updates the Field.Control name fallback when the name changes', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [name, setName] = React.useState<string | undefined>('email');
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root>
+              <Field.Control name={name} defaultValue="one@example.com" />
+            </Field.Root>
+            <button type="button" onClick={() => setName('alternateEmail')}>
+              Change name
+            </button>
+            <button type="button" onClick={() => setName(undefined)}>
+              Clear name
+            </button>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ email: 'one@example.com' });
+
+      fireEvent.click(screen.getByText('Change name'));
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({
+        alternateEmail: 'one@example.com',
+      });
+
+      fireEvent.click(screen.getByText('Clear name'));
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+    });
+
+    it('updates field-aware control name fallbacks when the name changes', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [name, setName] = React.useState<string | undefined>('quantity');
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root>
+              <NumberField.Root name={name} defaultValue={13}>
+                <NumberField.Input />
+              </NumberField.Root>
+            </Field.Root>
+            <button type="button" onClick={() => setName('amount')}>
+              Change name
+            </button>
+            <button type="button" onClick={() => setName(undefined)}>
+              Clear name
+            </button>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ quantity: 13 });
+
+      fireEvent.click(screen.getByText('Change name'));
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ amount: 13 });
+
+      fireEvent.click(screen.getByText('Clear name'));
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+    });
   });
 
   describe('prop: validationMode', () => {

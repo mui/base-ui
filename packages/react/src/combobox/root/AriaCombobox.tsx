@@ -452,7 +452,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     fieldRawValue,
     getStringifiedValueForForm,
     true,
-    name,
+    nameProp,
   );
 
   const forceMount = useStableCallback(() => {
