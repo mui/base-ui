@@ -1,7 +1,7 @@
 import { visit } from 'unist-util-visit';
 
 /** Treat <kbd> as normal tags */
-export function rehypeKbd() {
+export default function rehypeKbd() {
   return (tree) => {
     visit(tree, (node) => {
       if (node.name === 'kbd') {
