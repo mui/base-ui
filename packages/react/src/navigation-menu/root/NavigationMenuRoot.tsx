@@ -142,9 +142,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       return;
     }
 
-    setActivationDirection(null);
-    setFloatingRootContext(undefined);
-
     if (!positionerElement || !popupElement) {
       return;
     }
@@ -185,6 +182,11 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
 
       if (eventDetails.isCanceled) {
         return;
+      }
+
+      if (!nextValue) {
+        setActivationDirection(null);
+        setFloatingRootContext(undefined);
       }
 
       setValueUnwrapped(nextValue);
