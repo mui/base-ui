@@ -7,14 +7,14 @@ packages:
   - examples/*
   - playground/*
 
-onlyBuiltDependencies:
-  - '@mui/internal-babel-plugin-display-name'
-  - '@vvago/vale'
-  - core-js
-  - esbuild
-  - nx
-  - sharp
-  - unrs-resolver
+allowBuilds:
+  '@mui/internal-babel-plugin-display-name': true
+  '@vvago/vale': true
+  core-js: true
+  esbuild: true
+  nx: true
+  sharp: true
+  unrs-resolver: true
 
 enablePrePostScripts: true
 engineStrict: true
