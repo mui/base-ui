@@ -24,6 +24,7 @@
   transform: translateY(calc(var(--toast-index) * 15px)) scale(calc(1 - (var(--toast-index) * 0.1)));
   opacity: 1;
   --gap: 10px;
+  -webkit-user-select: none;
   user-select: none;
 
   &::after {

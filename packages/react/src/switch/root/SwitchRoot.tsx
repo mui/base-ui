@@ -64,7 +64,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     validityData,
     setFilled,
     setFocused,
-    shouldValidateOnChange,
     validationMode,
     disabled: fieldDisabled,
     name: fieldName,
@@ -96,7 +95,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     state: 'checked',
   });
 
-  useRegisterFieldControl(switchRef, id, checked);
+  useRegisterFieldControl(switchRef, id, checked, undefined, true, nameProp);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
@@ -109,11 +108,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     setDirty(checked !== validityData.initialValue);
     setFilled(checked);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(checked);
-    } else {
-      validation.commit(checked, true);
-    }
+    validation.change(checked);
   });
 
   const { getButtonProps, buttonRef } = useButton({
@@ -236,7 +231,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const element = useRenderElement('span', componentProps, {
     state,
     ref: [forwardedRef, switchRef, buttonRef],
-    props: [rootProps, validation.getValidationProps, elementProps, getButtonProps],
+    props: [rootProps, elementProps, getButtonProps, validation.getValidationProps],
     stateAttributesMapping,
   });
 

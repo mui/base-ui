@@ -15,7 +15,6 @@ import {
   useClick,
   useDismiss,
   useFloatingRootContext,
-  useInteractions,
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
@@ -35,8 +34,10 @@ import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
+import type { MaybeBaseUIEvent } from '../../internals/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 
 /**
@@ -80,7 +81,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     setDirty,
     setTouched,
     setFocused,
-    shouldValidateOnChange,
     validityData,
     setFilled,
     name: fieldName,
@@ -122,6 +122,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
+    dragY: 0,
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
@@ -184,7 +185,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const controlRef = useValueAsRef(store.state.triggerElement);
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
-  useRegisterFieldControl(controlRef, generatedId, value, getStringifiedValueForForm);
+  useRegisterFieldControl(
+    controlRef,
+    generatedId,
+    value,
+    getStringifiedValueForForm,
+    true,
+    nameProp,
+  );
 
   const initialValueRef = React.useRef(value);
   const hasSelectedValue = multiple ? Array.isArray(value) && value.length > 0 : value != null;
@@ -245,11 +253,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(value);
-    } else {
-      validation.commit(value, true);
-    }
+    validation.change(value);
   });
 
   const setOpen = useStableCallback(
@@ -354,9 +358,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingContext, {
-    bubbles: false,
-  });
+  const dismiss = useDismiss(floatingContext);
 
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !readOnly && !disabled,
@@ -392,24 +394,46 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-    click,
-    dismiss,
-    listNavigation,
-    typeahead,
+  const mergedTriggerProps = React.useMemo(() => {
+    const triggerInteractionProps = mergeProps(
+      typeahead.reference,
+      listNavigation.reference,
+      dismiss.reference,
+      click.reference,
+      interactionTypeProps,
+    );
+
+    if (generatedId) {
+      triggerInteractionProps.id = generatedId;
+    }
+
+    return triggerInteractionProps;
+  }, [
+    click.reference,
+    typeahead.reference,
+    listNavigation.reference,
+    dismiss.reference,
+    interactionTypeProps,
+    generatedId,
   ]);
 
-  const mergedTriggerProps = React.useMemo(() => {
-    return mergeProps(
-      getReferenceProps(),
-      interactionTypeProps,
-      generatedId ? { id: generatedId } : EMPTY_OBJECT,
-    );
-  }, [getReferenceProps, interactionTypeProps, generatedId]);
+  const popupProps = React.useMemo(
+    () =>
+      mergeProps(
+        FOCUSABLE_POPUP_PROPS,
+        typeahead.floating,
+        listNavigation.floating,
+        dismiss.floating,
+      ),
+    [typeahead.floating, listNavigation.floating, dismiss.floating],
+  );
+
+  const itemProps =
+    (listNavigation.item as React.HTMLProps<HTMLElement> | undefined) ?? EMPTY_OBJECT;
 
   useOnFirstRender(() => {
     store.update({
-      popupProps: getFloatingProps(),
+      popupProps,
       triggerProps: mergedTriggerProps,
     });
   });
@@ -423,7 +447,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       open,
       mounted,
       transitionStatus,
-      popupProps: getFloatingProps(),
+      popupProps,
       triggerProps: mergedTriggerProps,
       items,
       itemToStringLabel,
@@ -440,7 +464,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     open,
     mounted,
     transitionStatus,
-    getFloatingProps,
+    popupProps,
     mergedTriggerProps,
     items,
     itemToStringLabel,
@@ -465,7 +489,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       scrollHandlerRef,
       handleScrollArrowVisibility,
       scrollArrowsMountedCountRef,
-      getItemProps,
+      itemProps,
       events: floatingContext.context.events,
       valueRef,
       valuesRef,
@@ -490,7 +514,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       highlightItemOnHover,
       setValue,
       setOpen,
-      getItemProps,
+      itemProps,
       floatingContext.context.events,
       validation,
       onOpenChangeComplete,
@@ -536,11 +560,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               });
             },
             // Handle browser autofill.
-            onChange(event: React.ChangeEvent<HTMLInputElement>) {
+            onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
               // Workaround for https://github.com/facebook/react/issues/9023
-              if (event.nativeEvent.defaultPrevented) {
+              if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
+                // Outside Field.Root, the event is not wrapped by mergeProps.
+                event.preventBaseUIHandler?.();
                 return;
               }
+
+              event.preventBaseUIHandler?.();
+              clearErrors(name);
 
               const nextValue = event.currentTarget.value;
               const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
@@ -570,10 +599,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 if (matchingValue != null) {
                   setDirty(matchingValue !== validityData.initialValue);
                   setValue(matchingValue, details);
-
-                  if (shouldValidateOnChange()) {
-                    validation.commit(matchingValue);
-                  }
+                  validation.change(matchingValue);
                 }
               }
 

@@ -158,6 +158,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       if (disabled) {
         return;
       }
+
       const target = getTarget(event);
       const targetElement = target as HTMLElement | null;
       if (

@@ -246,10 +246,10 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const refs = [forwardedRef, radioRef, buttonRef, handleControlRef];
   const props = [
     rootProps,
-    getDescriptionProps,
-    validation?.getValidationProps ?? EMPTY_OBJECT,
     elementProps,
     getButtonProps,
+    getDescriptionProps,
+    validation?.getValidationProps ?? EMPTY_OBJECT,
   ];
 
   const element = useRenderElement('span', componentProps, {

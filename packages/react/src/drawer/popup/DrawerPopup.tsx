@@ -24,6 +24,7 @@ import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerR
 import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Drawer components are mounted.
 let drawerSwipeVarsRegistered = false;
@@ -345,6 +346,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       const overshoot = Math.abs(nextOffset);
       const dampedOffset = -Math.sqrt(overshoot);
       const dampedMovement = dampedOffset - baseOffset;
+
       dragStyles = {
         ...dragStyles,
         transform: undefined,
