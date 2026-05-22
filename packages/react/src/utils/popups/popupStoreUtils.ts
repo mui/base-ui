@@ -275,6 +275,12 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
 
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
 
+  useIsoLayoutEffect(() => {
+    if (open && preventUnmountingOnClose) {
+      store.set('preventUnmountingOnClose', false);
+    }
+  }, [open, preventUnmountingOnClose, store]);
+
   useOpenChangeComplete({
     enabled: mounted && !open && !preventUnmountingOnClose,
     open,

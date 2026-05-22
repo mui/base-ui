@@ -290,6 +290,53 @@ describe('<Tooltip.Root />', () => {
       });
     });
 
+    describe('preventUnmountOnClose()', () => {
+      it('does not prevent unmounting on later closes', async () => {
+        let preventNextClose = true;
+        const { user } = await render(
+          <TestTooltip
+            rootProps={{
+              onOpenChange: (open, details) => {
+                if (!open && preventNextClose) {
+                  preventNextClose = false;
+                  details.preventUnmountOnClose();
+                }
+              },
+            }}
+            triggerProps={{
+              delay: 0,
+              closeDelay: 0,
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.hover(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('positioner')).not.toBe(null);
+        });
+
+        await user.unhover(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('positioner')).not.toBe(null);
+        });
+
+        await user.hover(trigger);
+
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('data-popup-open');
+        });
+
+        await user.unhover(trigger);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('positioner')).toBe(null);
+        });
+      });
+    });
+
     describe('prop: actionsRef', () => {
       it('unmounts the tooltip when the `unmount` method is called', async () => {
         const actionsRef = {
