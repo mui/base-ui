@@ -8,6 +8,9 @@ export function Root(props: Fieldset.Root.Props) {
 
 export function Legend({ className, ...props }: Fieldset.Legend.Props) {
   return (
-    <Fieldset.Legend className={clsx('text-sm font-bold text-gray-900', className)} {...props} />
+    <Fieldset.Legend
+      className={clsx('text-sm font-bold text-neutral-950 dark:text-white', className)}
+      {...props}
+    />
   );
 }

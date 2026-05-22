@@ -50,10 +50,12 @@ import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
+import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
 import { mergeProps } from '../../merge-props';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
@@ -106,6 +108,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
   const dismissProps = useNavigationMenuDismissContext();
+  const direction = useDirection();
 
   const stickIfOpenTimeout = useTimeout();
   const focusFrame = useAnimationFrame();
@@ -173,23 +176,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupHeight);
     positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerWidth);
     positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerHeight);
-  }
-
-  function setSharedFixedSizes(width: number, height: number) {
-    if (!popupElement || !positionerElement) {
-      return;
-    }
-
-    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
-    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
-    positionerElement.style.setProperty(
-      NavigationMenuPositionerCssVars.positionerWidth,
-      `${width}px`,
-    );
-    positionerElement.style.setProperty(
-      NavigationMenuPositionerCssVars.positionerHeight,
-      `${height}px`,
-    );
   }
 
   function scheduleAutoSizeReset() {
@@ -291,7 +277,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
-      setSharedFixedSizes(currentWidth, currentHeight);
+      setSharedFixedSize(popupElement, positionerElement, currentWidth, currentHeight);
 
       mutationFrame.request(() => {
         mutationFrame.request(() => {
@@ -301,14 +287,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           const measuredWidth = width || currentWidth || prevSizeRef.current.width;
           const measuredHeight = height || currentHeight || prevSizeRef.current.height;
 
-          setSharedFixedSizes(currentWidth, currentHeight);
+          setSharedFixedSize(popupElement, positionerElement, currentWidth, currentHeight);
 
           sizeFrame.request(() => {
             if (!isActiveItemRef.current) {
               return;
             }
 
-            setSharedFixedSizes(measuredWidth, measuredHeight);
+            setSharedFixedSize(popupElement, positionerElement, measuredWidth, measuredHeight);
             scheduleAutoSizeReset();
           });
         });
@@ -768,8 +754,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
+      const verticalOpenKey = direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight';
       const openHorizontal = orientation === 'horizontal' && event.key === 'ArrowDown';
-      const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
+      const openVertical = orientation === 'vertical' && event.key === verticalOpenKey;
 
       if (openHorizontal || openVertical) {
         setValue(itemValue, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));

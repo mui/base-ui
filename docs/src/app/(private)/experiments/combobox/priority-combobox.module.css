@@ -12,6 +12,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -143,6 +144,7 @@
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   line-height: 1rem;
+  -webkit-user-select: none;
   user-select: none;
   outline: none;
 }

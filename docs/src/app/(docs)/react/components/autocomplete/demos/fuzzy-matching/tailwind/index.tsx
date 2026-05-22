@@ -10,29 +10,29 @@ export default function ExampleFuzzyMatchingAutocomplete() {
       filter={fuzzyFilter}
       itemToStringValue={(item) => item.title}
     >
-      <label className="flex flex-col gap-1 text-sm leading-5 font-bold text-gray-900">
+      <label className="flex flex-col gap-1 text-sm font-bold text-neutral-950 dark:text-white">
         Fuzzy search documentation
         <Autocomplete.Input
           placeholder="e.g. React"
-          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+          className="h-8 w-[16rem] border border-neutral-950 bg-white dark:bg-neutral-950 px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:text-white"
         />
       </label>
 
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-hidden" sideOffset={4}>
-          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),28rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+          <Autocomplete.Popup className="w-(--anchor-width) max-w-(--available-width) border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
             <Autocomplete.Empty>
-              <div className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600">
+              <div className="py-3 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
                 No results found for "{<Autocomplete.Value />}"
               </div>
             </Autocomplete.Empty>
 
-            <Autocomplete.List className="flex flex-col">
+            <Autocomplete.List className="flex max-h-[min(var(--available-height),28rem)] flex-col overflow-y-auto overscroll-contain py-1 scroll-pt-1 scroll-pb-1 empty:p-0">
               {(item: FuzzyItem) => (
                 <Autocomplete.Item
                   key={item.title}
                   value={item}
-                  className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-200"
+                  className="flex cursor-default py-3 pr-2 pl-2 text-sm leading-6 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:before:absolute data-highlighted:before:inset-x-0 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-100 dark:data-highlighted:before:bg-neutral-800"
                 >
                   <Autocomplete.Value>
                     {(value) => (
@@ -42,7 +42,7 @@ export default function ExampleFuzzyMatchingAutocomplete() {
                             {highlightText(item.title, value)}
                           </span>
                         </span>
-                        <span className="text-sm leading-5 text-gray-600">
+                        <span className="text-sm text-neutral-500 dark:text-neutral-400">
                           {highlightText(item.description, value)}
                         </span>
                       </span>
@@ -70,7 +70,7 @@ function highlightText(text: string, query: string): React.ReactNode {
 
   return text.split(regex).map((part, idx) =>
     regex.test(part) ? (
-      <mark key={idx} className="text-blue-800 bg-transparent font-bold">
+      <mark key={idx} className="bg-transparent font-bold text-blue-800 dark:text-blue-500">
         {part}
       </mark>
     ) : (
