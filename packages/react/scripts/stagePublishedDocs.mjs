@@ -6,6 +6,11 @@ const PACKAGE_ROOT = path.resolve(import.meta.dirname, '..');
 const DOCS_PUBLIC = path.resolve(PACKAGE_ROOT, '../../docs/public');
 const STAGE_DIR = path.join(PACKAGE_ROOT, 'published-docs');
 
+if (!process.env.BASE_UI_PUBLISH_DOCS) {
+  console.log('[stage-docs] BASE_UI_PUBLISH_DOCS not set, skipping docs staging.');
+  process.exit(0);
+}
+
 await fs.rm(STAGE_DIR, { recursive: true, force: true });
 
 let count = 0;
