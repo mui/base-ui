@@ -63,8 +63,22 @@ export function getRestMs(value: number | (() => number)) {
   return value;
 }
 
+/**
+ * Returns true if the open event is a click-like event (click or mousedown) or if the user interacted inside the floating element.
+ */
 export function isClickLikeOpenEvent(openEventType: string | undefined, interactedInside: boolean) {
   return interactedInside || openEventType === 'click' || openEventType === 'mousedown';
+}
+
+/**
+ * Returns true if the open event is a click-like event (click or mousedown), a focus event, or if the user interacted inside the floating element.
+ */
+export function isNonHoverOpenEvent(openEventType: string | undefined, interactedInside: boolean) {
+  return (
+    isClickLikeOpenEvent(openEventType, interactedInside) ||
+    openEventType === 'focus' ||
+    openEventType === 'focusin'
+  );
 }
 
 export function isHoverOpenEvent(openEventType: string | undefined) {

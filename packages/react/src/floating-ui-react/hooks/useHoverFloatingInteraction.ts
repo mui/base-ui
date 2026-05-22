@@ -21,9 +21,9 @@ import {
 } from './useHoverInteractionSharedState';
 import {
   getDelay,
-  isClickLikeOpenEvent as isClickLikeOpenEventShared,
   isHoverOpenEvent,
   isInsideEnabledTrigger,
+  isNonHoverOpenEvent as isNonHoverOpenEventShared,
 } from './useHoverShared';
 
 export type UseHoverFloatingInteractionProps = {
@@ -68,8 +68,8 @@ export function useHoverFloatingInteraction(
 
   const childClosedTimeout = useTimeout();
 
-  const isClickLikeOpenEvent = useStableCallback(() => {
-    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
+  const isNonHoverOpenEvent = useStableCallback(() => {
+    return isNonHoverOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
   const isHoverOpen = useStableCallback(() => {
@@ -229,7 +229,7 @@ export function useHoverFloatingInteraction(
       }
 
       clearPointerEvents();
-      if (!isClickLikeOpenEvent()) {
+      if (!isNonHoverOpenEvent()) {
         closeWithDelay(event);
       }
     }
@@ -262,7 +262,7 @@ export function useHoverFloatingInteraction(
     dataRef,
     closeDelayProp,
     nodeIdProp,
-    isClickLikeOpenEvent,
+    isNonHoverOpenEvent,
     clearPointerEvents,
     instance,
     tree,

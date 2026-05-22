@@ -24,8 +24,8 @@ import type { HandleClose, HandleCloseContextBase } from './useHoverShared';
 import {
   getDelay,
   getRestMs,
-  isClickLikeOpenEvent as isClickLikeOpenEventShared,
   isInsideEnabledTrigger,
+  isNonHoverOpenEvent as isNonHoverOpenEventShared,
 } from './useHoverShared';
 
 export interface UseHoverReferenceInteractionProps {
@@ -94,8 +94,8 @@ export function useHoverReferenceInteraction(
   const shouldOpenRef = useValueAsRef(shouldOpenProp);
   const isClosingRef = useValueAsRef(isClosing);
 
-  const isClickLikeOpenEvent = useStableCallback(() => {
-    return isClickLikeOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
+  const isNonHoverOpenEvent = useStableCallback(() => {
+    return isNonHoverOpenEventShared(dataRef.current.openEvent?.type, instance.interactedInside);
   });
 
   const checkShouldOpen = useStableCallback(() => {
@@ -289,7 +289,7 @@ export function useHoverReferenceInteraction(
     }
 
     function onMouseLeave(event: MouseEvent) {
-      if (isClickLikeOpenEvent()) {
+      if (isNonHoverOpenEvent()) {
         clearPointerEvents();
         return;
       }
@@ -324,7 +324,7 @@ export function useHoverReferenceInteraction(
             cleanupMouseMoveHandler();
             if (
               enabledRef.current &&
-              !isClickLikeOpenEvent() &&
+              !isNonHoverOpenEvent() &&
               currentTrigger === store.select('domReferenceElement')
             ) {
               closeWithDelay(event, true);
@@ -371,7 +371,7 @@ export function useHoverReferenceInteraction(
     instance,
     isActiveTrigger,
     isOverInactiveTrigger,
-    isClickLikeOpenEvent,
+    isNonHoverOpenEvent,
     mouseOnly,
     move,
     restMsRef,
@@ -440,9 +440,9 @@ export function useHoverReferenceInteraction(
         function handleMouseMove() {
           instance.restTimeoutPending = false;
 
-          // A delayed hover open should not override a click-like open that happened
+          // A delayed hover open should not override a non-hover open that happened
           // while the hover delay was pending.
-          if (isClickLikeOpenEvent()) {
+          if (isNonHoverOpenEvent()) {
             return;
           }
 
@@ -471,7 +471,7 @@ export function useHoverReferenceInteraction(
   }, [
     enabled,
     instance,
-    isClickLikeOpenEvent,
+    isNonHoverOpenEvent,
     isOverInactiveTrigger,
     mouseOnly,
     store,

@@ -94,6 +94,51 @@ describe('<Tooltip.Root />', () => {
         expect(screen.getByText('Content')).not.toBe(null);
       });
 
+      it.skipIf(isJSDOM)(
+        'should keep a focus-opened tooltip open on mouse leave until blur or Escape',
+        async () => {
+          await render(<TestTooltip triggerProps={{ delay: 0, closeDelay: 0 }} />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          await act(async () => {
+            trigger.focus();
+          });
+          await flushMicrotasks();
+
+          expect(screen.getByText('Content')).not.toBe(null);
+
+          fireEvent.mouseLeave(trigger, { relatedTarget: document.body });
+          await flushMicrotasks();
+
+          expect(screen.getByText('Content')).not.toBe(null);
+
+          await act(async () => {
+            trigger.blur();
+          });
+          clock.tick(OPEN_DELAY);
+
+          expect(screen.queryByText('Content')).toBe(null);
+
+          await act(async () => {
+            trigger.focus();
+          });
+          await flushMicrotasks();
+
+          expect(screen.getByText('Content')).not.toBe(null);
+
+          fireEvent.mouseLeave(trigger, { relatedTarget: document.body });
+          await flushMicrotasks();
+
+          expect(screen.getByText('Content')).not.toBe(null);
+
+          fireEvent.keyDown(trigger, { key: 'Escape' });
+          await flushMicrotasks();
+
+          expect(screen.queryByText('Content')).toBe(null);
+        },
+      );
+
       it('should close when the trigger is blurred', async () => {
         await render(<TestTooltip />);
 
