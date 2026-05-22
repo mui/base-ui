@@ -16,4 +16,5 @@ onlyBuiltDependencies:
   - sharp
   - unrs-resolver
 
+enablePrePostScripts: true
 engineStrict: true
