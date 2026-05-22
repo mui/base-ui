@@ -1625,7 +1625,6 @@ describe('<NavigationMenu.Root />', () => {
 
         fireEvent.click(trigger2);
         await rerender(<ControlledNavigationMenu value="item-2" />);
-        await flushMicrotasks();
 
         expect(screen.getByTestId('popup-2')).toHaveAttribute('data-activation-direction', 'right');
 
@@ -1634,7 +1633,6 @@ describe('<NavigationMenu.Root />', () => {
 
         animations.start();
         await rerender(<ControlledNavigationMenu value={null} />);
-        await flushMicrotasks();
 
         expect(exitingContent).toHaveAttribute('data-ending-style');
         expect(exitingContent).not.toHaveAttribute('data-activation-direction');

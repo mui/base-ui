@@ -177,8 +177,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     ) => {
       if (!nextValue) {
         closeReasonRef.current = eventDetails.reason;
-        setActivationDirection(null);
-        setFloatingRootContext(undefined);
       }
 
       if (nextValue !== value) {
