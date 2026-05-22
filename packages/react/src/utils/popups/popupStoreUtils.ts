@@ -274,9 +274,13 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   });
 
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
+  const previousOpenRef = React.useRef(open);
 
   useIsoLayoutEffect(() => {
-    if (open && preventUnmountingOnClose) {
+    const wasOpen = previousOpenRef.current;
+    previousOpenRef.current = open;
+
+    if (open && !wasOpen && preventUnmountingOnClose) {
       store.set('preventUnmountingOnClose', false);
     }
   }, [open, preventUnmountingOnClose, store]);
