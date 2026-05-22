@@ -34,12 +34,10 @@ const blockedReturnFocusReasons = new Set<string>([
   REASONS.focusOut,
 ]);
 
-interface Size {
-  width: number;
-  height: number;
-}
-
-function getPositionerFixedSize(positionerElement: HTMLElement): Size | null {
+function getPositionerFixedSize(positionerElement: HTMLElement) {
+  // Read the last fixed positioner size rather than measuring the popup now:
+  // during a controlled close, the popup can already be in its exit render and
+  // report 0 before the closing transition gets a stable size to animate from.
   const width =
     parseFloat(
       positionerElement.style.getPropertyValue(NavigationMenuPositionerCssVars.positionerWidth),
@@ -56,9 +54,12 @@ function getPositionerFixedSize(positionerElement: HTMLElement): Size | null {
   return { width, height };
 }
 
-function setSharedFixedSize(popupElement: HTMLElement, positionerElement: HTMLElement, size: Size) {
-  const { width, height } = size;
-
+function setSharedFixedSize(
+  popupElement: HTMLElement,
+  positionerElement: HTMLElement,
+  width: number,
+  height: number,
+) {
   popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
   popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
   positionerElement.style.setProperty(
@@ -157,7 +158,12 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     // No cleanup is needed for this fixed size: if the popup unmounts, the inline
     // styles are removed with it. If it stays mounted, reopening runs the trigger's
     // sizing logic which clears these vars via `clearFixedSizes`/`setAutoSizes`.
-    setSharedFixedSize(popupElement, positionerElement, closeTransitionSize);
+    setSharedFixedSize(
+      popupElement,
+      positionerElement,
+      closeTransitionSize.width,
+      closeTransitionSize.height,
+    );
   }, [open, popupElement, positionerElement]);
 
   React.useEffect(() => {
