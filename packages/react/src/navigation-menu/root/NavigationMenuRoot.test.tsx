@@ -8,9 +8,15 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { OPEN_DELAY } from '../utils/constants';
 
-function TestNavigationMenu(props: NavigationMenu.Root.Props) {
+function TestNavigationMenu(
+  props: NavigationMenu.Root.Props & {
+    keepMountedPortal?: boolean;
+  },
+) {
+  const { keepMountedPortal = false, ...rootProps } = props;
+
   return (
-    <NavigationMenu.Root {...props}>
+    <NavigationMenu.Root {...rootProps}>
       <NavigationMenu.List>
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
@@ -28,7 +34,7 @@ function TestNavigationMenu(props: NavigationMenu.Root.Props) {
         </NavigationMenu.Item>
       </NavigationMenu.List>
 
-      <NavigationMenu.Portal>
+      <NavigationMenu.Portal keepMounted={keepMountedPortal}>
         <NavigationMenu.Positioner data-testid="top-level-positioner">
           <NavigationMenu.Popup data-testid="popup-root">
             <NavigationMenu.Viewport />
@@ -1513,46 +1519,58 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it('preserves popup size when controlled value closes externally', async () => {
+    async function assertPopupSizeIsPreservedWhenControlledValueClosesExternally(
+      keepMountedPortal = false,
+    ) {
       const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      const originalOffsetWidth = Object.getOwnPropertyDescriptor(
+        HTMLElement.prototype,
+        'offsetWidth',
+      );
+      const originalOffsetHeight = Object.getOwnPropertyDescriptor(
+        HTMLElement.prototype,
+        'offsetHeight',
+      );
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       try {
-        function ControlledNavigationMenu() {
-          const [value, setValue] = React.useState<string | null>('item-1');
-
-          return (
-            <React.Fragment>
-              <button type="button" data-testid="external-close" onClick={() => setValue(null)}>
-                Close externally
-              </button>
-              <TestNavigationMenu value={value} />
-            </React.Fragment>
-          );
-        }
-
-        await render(<ControlledNavigationMenu />);
-
-        const positioner = screen.getByTestId('top-level-positioner');
-        const popupRoot = screen.getByTestId('popup-root');
-        const animations = mockAnimations(popupRoot);
-        const externalClose = screen.getByTestId('external-close');
-
         function isPopupOpen() {
           return screen.queryByTestId('popup-1')?.hasAttribute('data-open') ?? false;
         }
 
-        Object.defineProperty(popupRoot, 'offsetWidth', {
+        Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
           configurable: true,
-          get: () => (isPopupOpen() ? 675 : 0),
+          get() {
+            if (this.getAttribute('data-testid') === 'popup-root') {
+              return isPopupOpen() ? 675 : 0;
+            }
+
+            return originalOffsetWidth?.get?.call(this) ?? 0;
+          },
         });
-        Object.defineProperty(popupRoot, 'offsetHeight', {
+        Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
           configurable: true,
-          get: () => (isPopupOpen() ? 220 : 0),
+          get() {
+            if (this.getAttribute('data-testid') === 'popup-root') {
+              return isPopupOpen() ? 220 : 0;
+            }
+
+            return originalOffsetHeight?.get?.call(this) ?? 0;
+          },
         });
 
+        function ControlledNavigationMenu(props: { value: string | null }) {
+          return <TestNavigationMenu value={props.value} keepMountedPortal={keepMountedPortal} />;
+        }
+
+        const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+        const positioner = screen.getByTestId('top-level-positioner');
+        const popupRoot = screen.getByTestId('popup-root');
+        const animations = mockAnimations(popupRoot);
+
         animations.start();
-        fireEvent.click(externalClose);
+        await rerender(<ControlledNavigationMenu value={null} />);
         await flushMicrotasks();
 
         expect(popupRoot).toHaveAttribute('data-ending-style');
@@ -1567,7 +1585,25 @@ describe('<NavigationMenu.Root />', () => {
         });
       } finally {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+        if (originalOffsetWidth) {
+          Object.defineProperty(HTMLElement.prototype, 'offsetWidth', originalOffsetWidth);
+        } else {
+          Reflect.deleteProperty(HTMLElement.prototype, 'offsetWidth');
+        }
+        if (originalOffsetHeight) {
+          Object.defineProperty(HTMLElement.prototype, 'offsetHeight', originalOffsetHeight);
+        } else {
+          Reflect.deleteProperty(HTMLElement.prototype, 'offsetHeight');
+        }
       }
+    }
+
+    it('preserves popup size when controlled value closes externally', async () => {
+      await assertPopupSizeIsPreservedWhenControlledValueClosesExternally();
+    });
+
+    it('preserves popup size when controlled value closes externally with keepMounted portal', async () => {
+      await assertPopupSizeIsPreservedWhenControlledValueClosesExternally(true);
     });
   });
 

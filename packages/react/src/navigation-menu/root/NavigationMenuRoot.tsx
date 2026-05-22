@@ -23,7 +23,6 @@ import {
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { getCssDimensions } from '../../utils/getCssDimensions';
 import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
@@ -40,10 +39,15 @@ interface Size {
   height: number;
 }
 
-function getNonZeroSize(element: HTMLElement): Size | null {
-  const { width, height } = getCssDimensions(element);
+function getPositionerFixedSize(positionerElement: HTMLElement): Size | null {
+  const width = parseFloat(
+    positionerElement.style.getPropertyValue(NavigationMenuPositionerCssVars.positionerWidth),
+  );
+  const height = parseFloat(
+    positionerElement.style.getPropertyValue(NavigationMenuPositionerCssVars.positionerHeight),
+  );
 
-  if (width === 0 || height === 0) {
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width === 0 || height === 0) {
     return null;
   }
 
@@ -121,7 +125,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const afterInsideRef = React.useRef<HTMLSpanElement | null>(null);
   const beforeOutsideRef = React.useRef<HTMLSpanElement | null>(null);
   const afterOutsideRef = React.useRef<HTMLSpanElement | null>(null);
-  const closeTransitionSizeRef = React.useRef<Size | null>(null);
   // Shared across triggers so a newly active trigger can cancel a stale
   // popup auto-size reset scheduled by the previously active trigger.
   const popupAutoSizeResetRef = React.useRef<NavigationMenuPopupAutoSizeResetState>({
@@ -132,13 +135,19 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   useIsoLayoutEffect(() => {
-    const closeTransitionSize = closeTransitionSizeRef.current;
-    closeTransitionSizeRef.current = null;
-
-    if (open || !positionerElement || !popupElement || !closeTransitionSize) {
+    if (open || !positionerElement || !popupElement) {
       return;
     }
 
+    const closeTransitionSize = getPositionerFixedSize(positionerElement);
+
+    if (!closeTransitionSize) {
+      return;
+    }
+
+    // No cleanup is needed for this fixed size: if the popup unmounts, the inline
+    // styles are removed with it. If it stays mounted, reopening runs the trigger's
+    // sizing logic which clears these vars via `clearFixedSizes`/`setAutoSizes`.
     setSharedFixedSize(popupElement, positionerElement, closeTransitionSize);
   }, [open, popupElement, positionerElement]);
 
@@ -153,7 +162,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     ) => {
       if (!nextValue) {
         closeReasonRef.current = eventDetails.reason;
-        closeTransitionSizeRef.current = popupElement ? getNonZeroSize(popupElement) : null;
         setActivationDirection(null);
         setFloatingRootContext(undefined);
       }
