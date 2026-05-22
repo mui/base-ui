@@ -34,6 +34,10 @@ const FloatingDelayGroupContext = React.createContext<ContextValue>({
   currentContextRef: { current: null },
 });
 
+function resetDelayRef(delayRef: React.RefObject<Delay>, initialDelayRef: React.RefObject<Delay>) {
+  delayRef.current = initialDelayRef.current;
+}
+
 export interface FloatingDelayGroupProps {
   children?: React.ReactNode;
   /**
@@ -67,6 +71,20 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
   const currentIdRef = React.useRef<string | null>(null);
   const currentContextRef = React.useRef(null);
   const timeout = useTimeout();
+
+  useIsoLayoutEffect(() => {
+    initialDelayRef.current = delay;
+
+    if (!currentIdRef.current) {
+      delayRef.current = delay;
+      return;
+    }
+
+    delayRef.current = {
+      open: getDelay(delayRef.current, 'open'),
+      close: getDelay(delay, 'close'),
+    };
+  }, [delay, currentIdRef, delayRef, initialDelayRef]);
 
   return (
     <FloatingDelayGroupContext.Provider
@@ -226,9 +244,14 @@ export function useDelayGroup(
 
   useIsoLayoutEffect(() => {
     return () => {
-      currentContextRef.current = null;
+      if (currentIdRef.current === floatingId) {
+        currentIdRef.current = null;
+        currentContextRef.current = null;
+        resetDelayRef(delayRef, initialDelayRef);
+        timeout.clear();
+      }
     };
-  }, [currentContextRef]);
+  }, [currentContextRef, currentIdRef, delayRef, floatingId, initialDelayRef, timeout]);
 
   return React.useMemo(
     () => ({
