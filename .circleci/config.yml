@@ -28,7 +28,6 @@ default-job: &default-job
     # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
-    PNPM_CONFIG_ALLOW_BUILD: '@mui/internal-babel-plugin-display-name @vvago/vale core-js esbuild nx sharp unrs-resolver'
   working_directory: /tmp/base-ui
   executor: code-infra/mui-node
 
@@ -46,6 +45,48 @@ default-context: &default-context
 #     key: v1-repo-{{ .Branch }}-{{ .Revision }}
 
 commands:
+  install-deps-with-overrides:
+    description: 'Installs JavaScript dependencies using pnpm with package overrides'
+    parameters:
+      package-overrides:
+        description: 'A space separated list of package@version to override during installation'
+        type: string
+    steps:
+      - code-infra/install-pnpm
+      - run:
+          name: Install js dependencies
+          command: |
+            packages="<< parameters.package-overrides >>"
+
+            IFS=' '
+            set -- $packages
+            pkg_array=("$@")
+            unset IFS
+
+            filtered=""
+            for pkg in "${pkg_array[@]}"; do
+              if [[ ! "$pkg" =~ @stable$ ]]; then
+                if [[ "$pkg" == *"@"* ]]; then
+                  filtered="$filtered $pkg"
+                fi
+              fi
+            done
+
+            args="${filtered# }"
+            if [ -n "$args" ]; then
+              pnpm dlx \
+                --allow-build=@mui/internal-babel-plugin-display-name \
+                --allow-build=@vvago/vale \
+                --allow-build=core-js \
+                --allow-build=esbuild \
+                --allow-build=nx \
+                --allow-build=sharp \
+                --allow-build=unrs-resolver \
+                @mui/internal-code-infra@canary set-version-overrides --pkg $args
+            else
+              pnpm install
+            fi
+
   build-with-compiler:
     description: 'Build packages with React Compiler'
     steps:
@@ -64,7 +105,7 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - code-infra/install-deps:
+      - install-deps-with-overrides:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on JSDOM
@@ -108,7 +149,7 @@ jobs:
     resource_class: 'medium+'
     steps:
       - checkout
-      - code-infra/install-deps:
+      - install-deps-with-overrides:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Tests TypeScript definitions
@@ -129,7 +170,7 @@ jobs:
     resource_class: 'medium+'
     steps:
       - checkout
-      - code-infra/install-deps:
+      - install-deps-with-overrides:
           package-overrides: typescript@next
       - run:
           name: Tests TypeScript definitions
@@ -157,7 +198,7 @@ jobs:
       playwright-img-version: v1.59.1-noble
     steps:
       - checkout
-      - code-infra/install-deps:
+      - install-deps-with-overrides:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on headless Chromium
