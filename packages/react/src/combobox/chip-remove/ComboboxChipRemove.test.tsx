@@ -20,6 +20,26 @@ describe('<Combobox.ChipRemove />', () => {
     },
   }));
 
+  it('throws a descriptive error when rendered outside <Combobox.Chip>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Combobox.Root multiple>
+            <Combobox.Chips>
+              <Combobox.ChipRemove />
+            </Combobox.Chips>
+          </Combobox.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: ComboboxChipContext is missing. ComboboxChip parts must be placed within <Combobox.Chip>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   describe('prop: disabled', () => {
     it('should render disabled attribute when disabled', async () => {
       await render(

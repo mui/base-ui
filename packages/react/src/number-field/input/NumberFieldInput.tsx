@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { SafeReact } from '@base-ui/utils/safeReact';
+import { warn } from '@base-ui/utils/warn';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -387,11 +389,25 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
+      let pastedData = '';
+
+      try {
+        pastedData = event.clipboardData?.getData('text/plain') ?? '';
+      } catch {
+        if (process.env.NODE_ENV !== 'production') {
+          const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+          warn(
+            '<NumberField.Input> could not read clipboard text during paste handling.',
+            ownerStackMessage,
+          );
+        }
+
+        return;
+      }
+
       // Prevent `onChange` from being called.
       event.preventDefault();
 
-      const clipboardData = event.clipboardData || window.Clipboard;
-      const pastedData = clipboardData.getData('text/plain');
       const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
 
       if (parsedValue !== null) {
