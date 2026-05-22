@@ -1228,6 +1228,84 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    describe('hover close', () => {
+      it('does not close after hovering out of a popup opened without trigger hover', async () => {
+        await render(<TestMenu rootProps={{ defaultOpen: true }} />);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
+
+        const positioner = screen.getByTestId('menu-positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+    });
+
+    describe('controlled open', () => {
+      it('does not close after hovering out of a popup opened externally', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setOpen(true)}>
+                Show
+              </button>
+              <TestMenu rootProps={{ open, onOpenChange: setOpen }} />
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByRole('button', { name: 'Show' }));
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
+
+        const positioner = screen.getByTestId('menu-positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+
+      it('closes after hovering out of a popup opened by its trigger', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <TestMenu
+              rootProps={{ open, onOpenChange: setOpen, modal: false }}
+              triggerProps={{ openOnHover: true, delay: 0 }}
+            />
+          );
+        }
+
+        await render(<App />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        expect(screen.queryByRole('menu')).not.toBe(null);
+
+        const positioner = screen.getByTestId('menu-positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+    });
+
     describe.skipIf(isJSDOM)('scroll locking', () => {
       describe('interaction type tracking (openMethod)', () => {
         it('should not apply scroll lock when opened via touch', async () => {

@@ -132,6 +132,68 @@ describe('<Popover.Root />', () => {
         expect(handleChange.mock.calls[0][0]).toBe(false);
         expect(handleChange.mock.calls[1][0]).toBe(true);
       });
+
+      it('does not close after hovering out of a popup opened externally', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setOpen(true)}>
+                Show
+              </button>
+              <TestPopover
+                rootProps={{ open, onOpenChange: setOpen }}
+                triggerProps={{ openOnHover: true, delay: 0 }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByRole('button', { name: 'Show' }));
+
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        const positioner = screen.getByTestId('positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      it('closes after hovering out of a popup opened by its trigger', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <TestPopover
+              rootProps={{ open, onOpenChange: setOpen }}
+              triggerProps={{ openOnHover: true, delay: 0 }}
+            />
+          );
+        }
+
+        await render(<App />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+
+        const positioner = screen.getByTestId('positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
     });
 
     describe('nested menu interactions', () => {
@@ -290,6 +352,21 @@ describe('<Popover.Root />', () => {
         fireEvent.click(anchor);
 
         expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('does not close after hovering out of a popup opened without trigger hover', async () => {
+        await render(
+          <TestPopover rootProps={{ defaultOpen: true }} triggerProps={{ openOnHover: true }} />,
+        );
+
+        expect(screen.getByText('Content')).not.toBe(null);
+
+        const positioner = screen.getByTestId('positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        expect(screen.getByText('Content')).not.toBe(null);
       });
     });
 

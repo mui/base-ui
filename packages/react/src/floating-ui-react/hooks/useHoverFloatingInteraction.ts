@@ -224,12 +224,14 @@ export function useHoverFloatingInteraction(
 
       // If the safePolygon handler is active, let it handle the close logic.
       if (instance.handler) {
-        instance.handler(event);
+        if (isHoverOpen()) {
+          instance.handler(event);
+        }
         return;
       }
 
       clearPointerEvents();
-      if (!isClickLikeOpenEvent()) {
+      if (isHoverOpen() && !isClickLikeOpenEvent()) {
         closeWithDelay(event);
       }
     }
@@ -262,6 +264,7 @@ export function useHoverFloatingInteraction(
     dataRef,
     closeDelayProp,
     nodeIdProp,
+    isHoverOpen,
     isClickLikeOpenEvent,
     clearPointerEvents,
     instance,
