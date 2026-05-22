@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
-import { act, render } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
@@ -95,6 +95,11 @@ function PopupIdTest({
 
 function ImplicitActiveTriggerTest({ store }: { store: TestStore }) {
   useImplicitActiveTrigger(store);
+  return null;
+}
+
+function CloseOnActiveTriggerUnmountTest({ store }: { store: TestStore }) {
+  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
   return null;
 }
 
@@ -244,7 +249,7 @@ describe('useTriggerRegistration', () => {
     expect(store.state.activeTriggerElement).toBe(element);
   });
 
-  it('closes when the active trigger unregisters while open', () => {
+  it('closes when the active trigger unregisters while open', async () => {
     const store = createStore();
     const first = document.createElement('button');
     const second = document.createElement('button');
@@ -259,7 +264,7 @@ describe('useTriggerRegistration', () => {
       <React.Fragment>
         <TestTrigger id="first" store={store} element={first} />
         <TestTrigger id="second" store={store} element={second} />
-        <ImplicitActiveTriggerTest store={store} />
+        <CloseOnActiveTriggerUnmountTest store={store} />
       </React.Fragment>,
     );
 
@@ -270,15 +275,20 @@ describe('useTriggerRegistration', () => {
     rerender(
       <React.Fragment>
         <TestTrigger id="second" store={store} element={second} />
-        <ImplicitActiveTriggerTest store={store} />
+        <CloseOnActiveTriggerUnmountTest store={store} />
       </React.Fragment>,
     );
 
-    expect(store.state.triggerCount).toBe(0);
-    expect(store.state.activeTriggerId).toBe(null);
-    expect(store.state.activeTriggerElement).toBe(null);
-    expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
-    expect(store.state.open).toBe(false);
+    await waitFor(() => {
+      expect(store.state.triggerCount).toBe(0);
+      expect(store.state.activeTriggerId).toBe(null);
+      expect(store.state.activeTriggerElement).toBe(null);
+      expect(store.setOpen).toHaveBeenCalledWith(
+        false,
+        expect.objectContaining({ reason: 'none' }),
+      );
+      expect(store.state.open).toBe(false);
+    });
   });
 
   it('resets triggerCount when the popup closes', () => {

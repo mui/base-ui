@@ -211,7 +211,11 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  */
 export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>(
   store: PopupStoreWithOpen<State, BaseUIChangeEventDetails<typeof REASONS.none>>,
+  options: {
+    closeOnActiveTriggerUnmount?: boolean | undefined;
+  } = {},
 ) {
+  const { closeOnActiveTriggerUnmount = false } = options;
   const open = store.useState('open');
   const reactiveTriggerCount = store.useState('triggerCount');
 
@@ -231,14 +235,12 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
     }
 
     const activeTriggerId = store.select('activeTriggerId');
-    let lostActiveTrigger = false;
+    let lostActiveTriggerId: string | null = null;
 
     if (activeTriggerId) {
       const activeTriggerElement = store.context.triggerElements.getById(activeTriggerId);
       if (!activeTriggerElement) {
-        lostActiveTrigger = true;
-        stateUpdates.activeTriggerId = null;
-        stateUpdates.activeTriggerElement = null;
+        lostActiveTriggerId = activeTriggerId;
       } else if (activeTriggerElement !== store.state.activeTriggerElement) {
         stateUpdates.activeTriggerElement = activeTriggerElement;
       }
@@ -250,7 +252,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         ? stateUpdates.activeTriggerId
         : activeTriggerId;
 
-    if (!lostActiveTrigger && !nextActiveTriggerId && triggerCount === 1) {
+    if (!lostActiveTriggerId && !nextActiveTriggerId && triggerCount === 1) {
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
@@ -259,14 +261,37 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       }
     }
 
-    if (stateUpdates.triggerCount !== undefined || stateUpdates.activeTriggerId !== undefined) {
+    if (
+      stateUpdates.triggerCount !== undefined ||
+      stateUpdates.activeTriggerId !== undefined ||
+      stateUpdates.activeTriggerElement !== undefined
+    ) {
       store.update(stateUpdates as Partial<State>);
     }
 
-    if (lostActiveTrigger) {
-      store.setOpen(false, createChangeEventDetails(REASONS.none));
+    if (lostActiveTriggerId) {
+      if (closeOnActiveTriggerUnmount) {
+        queueMicrotask(() => {
+          if (
+            store.select('open') &&
+            store.select('activeTriggerId') === lostActiveTriggerId &&
+            !store.context.triggerElements.getById(lostActiveTriggerId)
+          ) {
+            store.update({
+              activeTriggerId: null,
+              activeTriggerElement: null,
+            } as Partial<State>);
+            store.setOpen(false, createChangeEventDetails(REASONS.none));
+          }
+        });
+      } else {
+        store.update({
+          activeTriggerId: null,
+          activeTriggerElement: null,
+        } as Partial<State>);
+      }
     }
-  }, [open, store, reactiveTriggerCount]);
+  }, [open, store, reactiveTriggerCount, closeOnActiveTriggerUnmount]);
 }
 
 /**
