@@ -190,7 +190,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     generatedId,
     value,
     getStringifiedValueForForm,
-    true,
+    !disabled,
     nameProp,
   );
 

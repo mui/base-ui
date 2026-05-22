@@ -2,6 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Form } from '@base-ui/react/form';
 import { Field } from '@base-ui/react/field';
+import { Fieldset } from '@base-ui/react/fieldset';
 import { NumberField } from '@base-ui/react/number-field';
 import { Switch } from '@base-ui/react/switch';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
@@ -181,6 +182,30 @@ describe('<Form />', () => {
     await user.click(screen.getByRole('checkbox'));
     await user.click(submit);
     expect(submitSpy.mock.calls.length).toBe(1);
+  });
+
+  it('excludes disabled fieldset fields from validation and onFormSubmit values', async () => {
+    const handleSubmit = vi.fn();
+
+    render(
+      <Form onFormSubmit={handleSubmit}>
+        <Fieldset.Root disabled>
+          <Field.Root name="disabled">
+            <Field.Control required data-testid="disabled" />
+          </Field.Root>
+        </Fieldset.Root>
+        <Field.Root name="enabled">
+          <Field.Control defaultValue="sent" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(handleSubmit.mock.lastCall?.[0]).toEqual({ enabled: 'sent' });
+    expect(screen.getByTestId('disabled')).not.toHaveAttribute('aria-invalid');
   });
 
   describe('prop: errors', () => {

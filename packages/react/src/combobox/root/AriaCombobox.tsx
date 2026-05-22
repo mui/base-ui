@@ -451,7 +451,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     id,
     fieldRawValue,
     getStringifiedValueForForm,
-    true,
+    !disabled,
     nameProp,
   );
 

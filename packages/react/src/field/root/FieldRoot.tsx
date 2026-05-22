@@ -41,7 +41,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     ...elementProps
   } = componentProps;
 
-  const { disabled: disabledFieldset } = useFieldsetRootContext();
+  const disabledFieldset = useFieldsetRootContext(true)?.disabled;
 
   const validate = useStableCallback(validateProp || (() => null));
 
