@@ -25,8 +25,8 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
+import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 
 const blockedReturnFocusReasons = new Set<string>([
   REASONS.triggerHover,
@@ -52,24 +52,6 @@ function getPositionerFixedSize(positionerElement: HTMLElement) {
   }
 
   return { width, height };
-}
-
-function setSharedFixedSize(
-  popupElement: HTMLElement,
-  positionerElement: HTMLElement,
-  width: number,
-  height: number,
-) {
-  popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
-  popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
-  positionerElement.style.setProperty(
-    NavigationMenuPositionerCssVars.positionerWidth,
-    `${width}px`,
-  );
-  positionerElement.style.setProperty(
-    NavigationMenuPositionerCssVars.positionerHeight,
-    `${height}px`,
-  );
 }
 
 /**

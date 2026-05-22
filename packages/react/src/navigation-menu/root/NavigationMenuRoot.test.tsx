@@ -3085,6 +3085,12 @@ describe('<NavigationMenu.Root />', () => {
             expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
           });
 
+          const productContent = screen
+            .getByText('Product panel')
+            .closest('.test-navigation-menu-content') as HTMLElement;
+          const productContentAnimations = mockAnimations(productContent);
+          const productContentCloseAnimation = productContentAnimations.start();
+
           const closeAnimation = animations.start();
           fireEvent.mouseLeave(triggerProduct, { relatedTarget: topLevelLink });
           fireEvent.mouseEnter(topLevelLink);
@@ -3125,6 +3131,7 @@ describe('<NavigationMenu.Root />', () => {
           expect(reopeningWidthIndex).toBeGreaterThan(exitingWidthIndex);
 
           await act(async () => {
+            await productContentAnimations.finish(productContentCloseAnimation);
             await animations.finish(closeAnimation);
             await animations.finish(reopenAnimation);
             await flushMicrotasks();
@@ -3140,30 +3147,62 @@ describe('<NavigationMenu.Root />', () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
         try {
+          function waitForAnimationFrame() {
+            return new Promise<void>((resolve) => {
+              requestAnimationFrame(() => {
+                resolve();
+              });
+            });
+          }
+
           const onOpenChangeComplete = vi.fn();
-          const { user } = await render(
+          await render(
             <TestNavigationMenuWithScopedPopupExitAnimation
               onOpenChangeComplete={onOpenChangeComplete}
             />,
           );
 
-          await user.click(screen.getByTestId('trigger-product'));
+          const triggerProduct = screen.getByTestId('trigger-product');
+          const triggerLearn = screen.getByTestId('trigger-learn');
+
+          fireEvent.click(triggerProduct);
           await flushMicrotasks();
 
-          await user.click(screen.getByTestId('trigger-learn'));
+          const productContent = screen
+            .getByText('Product panel')
+            .closest('.test-navigation-menu-content') as HTMLElement;
+          const productContentAnimations = mockAnimations(productContent);
+          const productContentCloseAnimation = productContentAnimations.start();
+
+          fireEvent.click(triggerLearn);
           await flushMicrotasks();
 
-          const popupRoot = screen.getByTestId('popup-root');
+          let popupRoot: HTMLElement | null = null;
 
           await waitFor(() => {
-            const hasRunningAnimations = popupRoot
+            popupRoot = screen.getByTestId('popup-root');
+            expect(triggerProduct).toHaveAttribute('aria-expanded', 'false');
+            expect(triggerLearn).toHaveAttribute('aria-expanded', 'true');
+          });
+
+          await act(async () => {
+            await waitForAnimationFrame();
+            await flushMicrotasks();
+            await productContentAnimations.finish(productContentCloseAnimation);
+            await flushMicrotasks();
+          });
+
+          await waitFor(() => {
+            const hasRunningAnimations = popupRoot!
               .getAnimations()
               .some((animation) => animation.playState !== 'finished');
             expect(hasRunningAnimations).toBe(false);
           });
 
+          await act(async () => triggerLearn.focus());
+
           const closeStart = performance.now();
-          fireEvent.keyDown(screen.getByTestId('trigger-learn'), { key: 'Escape' });
+          fireEvent.keyDown(triggerLearn, { key: 'Escape' });
           await flushMicrotasks();
 
           await waitFor(() => {
