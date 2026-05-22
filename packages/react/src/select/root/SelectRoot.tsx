@@ -81,7 +81,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     setDirty,
     setTouched,
     setFocused,
-    shouldValidateOnChange,
     validityData,
     setFilled,
     name: fieldName,
@@ -186,7 +185,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const controlRef = useValueAsRef(store.state.triggerElement);
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
-  useRegisterFieldControl(controlRef, generatedId, value, getStringifiedValueForForm);
+  useRegisterFieldControl(
+    controlRef,
+    generatedId,
+    value,
+    getStringifiedValueForForm,
+    true,
+    nameProp,
+  );
 
   const initialValueRef = React.useRef(value);
   const hasSelectedValue = multiple ? Array.isArray(value) && value.length > 0 : value != null;
@@ -247,11 +253,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(value);
-    } else {
-      validation.commit(value, true);
-    }
+    validation.change(value);
   });
 
   const setOpen = useStableCallback(
@@ -566,6 +568,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 return;
               }
 
+              event.preventBaseUIHandler?.();
+              clearErrors(name);
+
               const nextValue = event.currentTarget.value;
               const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
@@ -594,10 +599,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 if (matchingValue != null) {
                   setDirty(matchingValue !== validityData.initialValue);
                   setValue(matchingValue, details);
-
-                  if (shouldValidateOnChange()) {
-                    validation.commit(matchingValue);
-                  }
+                  validation.change(matchingValue);
                 }
               }
 

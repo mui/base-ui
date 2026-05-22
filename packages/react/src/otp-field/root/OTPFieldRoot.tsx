@@ -83,7 +83,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     state: fieldState,
     validation,
     validationMode,
-    shouldValidateOnChange,
     setFocused,
     setTouched,
   } = useFieldRootContext();
@@ -125,8 +124,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const inputAriaLabelledBy = ariaLabelledByProp == null ? ariaLabelledBy : undefined;
   const fieldDescriptionProps = getDescriptionProps({});
   const ariaDescribedBy = mergeAriaIds(
-    fieldDescriptionProps['aria-describedby'],
     ariaDescribedByProp,
+    fieldDescriptionProps['aria-describedby'],
   );
   const validationConfig = getOTPValidationConfig(validationType);
   const pattern = validationConfig?.slotPattern;
@@ -158,7 +157,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     });
   }
 
-  useRegisterFieldControl(firstInputRef, id, value);
+  useRegisterFieldControl(firstInputRef, id, value, undefined, true, nameProp);
 
   const focusInput = useStableCallback((index: number) => {
     const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
@@ -198,11 +197,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(value);
-    } else {
-      validation.commit(value, true);
-    }
+    validation.change(value);
 
     const pendingCompleteValue = pendingCompleteValueRef.current;
 

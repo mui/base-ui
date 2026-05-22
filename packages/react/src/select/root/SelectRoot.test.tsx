@@ -3213,7 +3213,7 @@ describe('<Select.Root />', () => {
       await render(
         <Field.Root>
           <Select.Root>
-            <Select.Trigger data-testid="trigger" />
+            <Select.Trigger data-testid="trigger" aria-describedby="external-description" />
             <Select.Portal>
               <Select.Positioner />
             </Select.Portal>
@@ -3224,7 +3224,7 @@ describe('<Select.Root />', () => {
 
       expect(screen.getByTestId('trigger')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });

@@ -123,7 +123,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const {
     setDirty,
     validityData,
-    shouldValidateOnChange,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
@@ -452,6 +451,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     id,
     fieldRawValue,
     getStringifiedValueForForm,
+    true,
+    nameProp,
   );
 
   const forceMount = useStableCallback(() => {
@@ -935,11 +936,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     clearErrors(name);
     setDirty(selectedValue !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(selectedValue);
-    } else {
-      validation.commit(selectedValue, true);
-    }
+    validation.change(selectedValue);
 
     if (single && !hasInputValue && !inputInsidePopup) {
       const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
@@ -958,11 +955,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     clearErrors(name);
     setDirty(inputValue !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(inputValue);
-    } else {
-      validation.commit(inputValue, true);
-    }
+    validation.change(inputValue);
   });
 
   useValueChanged(items, () => {
@@ -1269,6 +1262,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               return;
             }
 
+            event.preventBaseUIHandler?.();
+            clearErrors(name);
+
             const nextValue = event.currentTarget.value;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
@@ -1281,10 +1277,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               if (selectionMode === 'none') {
                 setDirty(nextValue !== validityData.initialValue);
                 setInputValue(nextValue, details);
-
-                if (shouldValidateOnChange()) {
-                  validation.commit(nextValue);
-                }
+                validation.change(nextValue);
                 return;
               }
 
@@ -1306,10 +1299,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               if (matchingValue != null) {
                 setDirty(matchingValue !== validityData.initialValue);
                 setSelectedValue?.(matchingValue, details);
-
-                if (shouldValidateOnChange()) {
-                  validation.commit(matchingValue);
-                }
+                validation.change(matchingValue);
               }
             }
 
