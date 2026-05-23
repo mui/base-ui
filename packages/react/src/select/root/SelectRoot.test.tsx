@@ -21,6 +21,7 @@ describe('<Select.Root />', () => {
   });
 
   const { render, renderToString } = createRenderer();
+  const { render: renderStrict } = createRenderer({ strict: true });
 
   describe('conformance', () => {
     beforeEach(() => {
@@ -514,6 +515,39 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).toBe(null);
       });
+    });
+  });
+
+  describe('StrictMode', () => {
+    it('should select an item with the mouse when opened', async () => {
+      const handleValueChange = vi.fn();
+
+      const { user } = await renderStrict(
+        <Select.Root value={null} onValueChange={handleValueChange}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value placeholder="Pick a flavor" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="strawberry">Strawberry</Select.Item>
+                <Select.Item value="pistachio">Pistachio</Select.Item>
+                <Select.Item value="hazelnut">Hazelnut</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+
+      const option = screen.getByRole('option', { name: 'Pistachio' });
+      fireEvent.mouseMove(option);
+      await user.click(option);
+      await flushMicrotasks();
+
+      expect(handleValueChange).toHaveBeenCalledOnce();
+      expect(handleValueChange.mock.calls[0][0]).toBe('pistachio');
     });
   });
 
