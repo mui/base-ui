@@ -10,10 +10,6 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
-
-  .RootLayout ::selection {
-    background-color: var(--color-selection);
-  }
 }
 
 @layer components {

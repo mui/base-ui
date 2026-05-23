@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { FieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import {
@@ -54,8 +55,16 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const dirty = dirtyProp ?? dirtyState;
   const touched = touchedProp ?? touchedState;
 
-  const markedDirtyRef = React.useRef(false);
+  const markedDirtyRef = React.useRef(dirty);
   const registeredFieldIdRef = React.useRef<string | undefined>(undefined);
+  const [registeredFieldName, setRegisteredFieldName] = React.useState<string>();
+  const effectiveName = name ?? registeredFieldName;
+
+  useIsoLayoutEffect(() => {
+    if (dirtyProp !== undefined) {
+      markedDirtyRef.current = dirtyProp;
+    }
+  }, [dirtyProp]);
 
   const getRegisteredFieldId = React.useCallback(() => registeredFieldIdRef.current, []);
   const setRegisteredFieldId = React.useCallback((id: string | undefined) => {
@@ -86,7 +95,9 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       (validationMode === 'onSubmit' && submitAttemptedRef.current),
   );
 
-  const hasFormError = !!name && Object.hasOwn(errors, name) && errors[name] !== undefined;
+  const formError =
+    effectiveName && Object.hasOwn(errors, effectiveName) ? errors[effectiveName] : null;
+  const hasFormError = !!(Array.isArray(formError) ? formError.length : formError);
   const invalid = invalidProp === true || hasFormError;
 
   const [validityData, setValidityData] = React.useState<FieldValidityData>({
@@ -119,36 +130,30 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalid,
     markedDirtyRef,
     state,
-    name,
+    name: effectiveName,
     shouldValidateOnChange,
     getRegisteredFieldId,
   });
 
-  const validityValue = validityData.value;
-
-  const handleImperativeValidate = React.useCallback(() => {
-    markedDirtyRef.current = true;
-    validation.commit(validityValue);
-  }, [validation, validityValue]);
-
-  const registerFieldControl = useFieldControlRegistration({
+  const [validateFieldControl, registerFieldControl] = useFieldControlRegistration({
     commit: validation.commit,
     invalid,
     markedDirtyRef,
     name,
+    setRegisteredFieldName,
     setRegisteredFieldId,
     setValidityData,
     validityData,
   });
 
-  React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
-    handleImperativeValidate,
+  React.useImperativeHandle(actionsRef, () => ({ validate: validateFieldControl }), [
+    validateFieldControl,
   ]);
 
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
-      name,
+      name: effectiveName,
       validityData,
       setValidityData,
       disabled,
@@ -171,7 +176,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     }),
     [
       invalid,
-      name,
+      effectiveName,
       validityData,
       disabled,
       touched,

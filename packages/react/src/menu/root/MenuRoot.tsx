@@ -473,8 +473,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const inactiveTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(listNavigation.trigger, dismiss.trigger, interactionTypeProps);
+
     mergedProps['aria-haspopup'] = 'menu';
     mergedProps['aria-expanded'] = false;
+
     return mergedProps;
   }, [listNavigation.trigger, dismiss.trigger, interactionTypeProps]);
 

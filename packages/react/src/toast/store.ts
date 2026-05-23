@@ -321,6 +321,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       if (item.transitionStatus === 'ending') {
         return item;
       }
+
       const isLimited = activeIndex >= limit;
       activeIndex += 1;
       return item.limited !== isLimited ? { ...item, limited: isLimited } : item;

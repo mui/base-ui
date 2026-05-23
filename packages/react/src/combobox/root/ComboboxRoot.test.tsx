@@ -11,6 +11,7 @@ import {
 } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Combobox } from '@base-ui/react/combobox';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -1456,6 +1457,75 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it.each([
+    { lockState: 'readOnly', label: 'inside Field', withField: true },
+    { lockState: 'disabled', label: 'inside Field', withField: true },
+    { lockState: 'readOnly', label: 'outside Field', withField: false },
+    { lockState: 'disabled', label: 'outside Field', withField: false },
+  ] as const)(
+    'ignores hidden-input autofill when $lockState $label',
+    async ({ lockState, withField }) => {
+      const onValueChange = vi.fn();
+      const onInputValueChange = vi.fn();
+      const combobox = (
+        <Combobox.Root
+          name={withField ? undefined : 'test'}
+          readOnly={lockState === 'readOnly'}
+          disabled={lockState === 'disabled'}
+          onValueChange={onValueChange}
+          onInputValueChange={onInputValueChange}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+
+      await render(
+        withField ? (
+          <Form errors={{ test: 'test' }}>
+            <Field.Root name="test">
+              {combobox}
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>
+        ) : (
+          combobox
+        ),
+      );
+
+      const visibleInput = screen.getByTestId<HTMLInputElement>('input');
+      const hiddenInput = screen
+        .getAllByDisplayValue('')
+        .find((el) => el.getAttribute('name') === 'test') as HTMLInputElement;
+      expect(hiddenInput).not.toBeUndefined();
+
+      if (withField) {
+        expect(screen.getByTestId('error')).toHaveTextContent('test');
+      }
+
+      fireEvent.change(hiddenInput, { target: { value: 'b' } });
+      await flushMicrotasks();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onInputValueChange).not.toHaveBeenCalled();
+      expect(visibleInput.value).toBe('');
+      expect(hiddenInput.value).toBe('');
+
+      if (withField) {
+        expect(screen.getByTestId('error')).toHaveTextContent('test');
+      }
+    },
+  );
+
   it('shows all items when opening after browser autofill', async () => {
     const items = ['a', 'b', 'c'];
     const { user } = await render(
@@ -2487,6 +2557,51 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('5'));
 
       await user.keyboard('{ArrowUp}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
+    });
+
+    it('mirrors horizontal grid navigation in RTL mode', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <DirectionProvider direction="rtl">
+          <Combobox.Root grid onItemHighlighted={onItemHighlighted} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Row>
+                      <Combobox.Item value="1">1</Combobox.Item>
+                      <Combobox.Item value="2">2</Combobox.Item>
+                      <Combobox.Item value="3">3</Combobox.Item>
+                    </Combobox.Row>
+                    <Combobox.Row>
+                      <Combobox.Item value="4">4</Combobox.Item>
+                      <Combobox.Item value="5">5</Combobox.Item>
+                      <Combobox.Item value="6">6</Combobox.Item>
+                    </Combobox.Row>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </DirectionProvider>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('grid')).not.toBe(null));
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('1'));
+
+      await user.keyboard('{ArrowLeft}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
+
+      await user.keyboard('{ArrowLeft}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('3'));
+
+      await user.keyboard('{ArrowRight}');
       await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
     });
 
@@ -4597,6 +4712,60 @@ describe('<Combobox.Root />', () => {
 
   describe('dialog pattern', () => {
     const fruits = ['Apple', 'Apricot', 'Banana', 'Grape', 'Orange'];
+    const asyncFruits = ['apple', 'banana', 'cherry'];
+
+    function AsyncDialogCombobox() {
+      const [loading, setLoading] = React.useState(true);
+      const [value, setValue] = React.useState<string | null>(null);
+
+      React.useEffect(() => {
+        const timeout = setTimeout(() => setLoading(false), 0);
+        return () => clearTimeout(timeout);
+      }, []);
+
+      return (
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Backdrop />
+            <Dialog.Popup>
+              <form>
+                <label htmlFor="name">Name</label>
+                <input id="name" disabled={loading} />
+
+                <label htmlFor="fruit">Fruit</label>
+                <Combobox.Root
+                  items={asyncFruits}
+                  value={value}
+                  onValueChange={setValue}
+                  disabled={loading}
+                >
+                  <Combobox.Input id="fruit" placeholder="Select fruit..." />
+                  <Combobox.Trigger aria-label="Open" />
+                  <Combobox.Portal>
+                    <Combobox.Positioner>
+                      <Combobox.Popup>
+                        <Combobox.List>
+                          {(item: string) => (
+                            <Combobox.Item key={item} value={item}>
+                              {item}
+                            </Combobox.Item>
+                          )}
+                        </Combobox.List>
+                      </Combobox.Popup>
+                    </Combobox.Positioner>
+                  </Combobox.Portal>
+                </Combobox.Root>
+
+                <button type="button">Cancel</button>
+                <button type="submit" disabled={loading}>
+                  Save
+                </button>
+              </form>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
 
     function DialogMultipleCombobox({ defaultOpen = true }: { defaultOpen?: boolean }) {
       const [open, setOpen] = React.useState(defaultOpen);
@@ -4659,6 +4828,46 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>
       );
     }
+
+    it('does not let pending dialog initial focus steal focus from an async-enabled combobox', async () => {
+      // Keep the dialog's initial-focus rAF pending until after the combobox click.
+      // The GitHub repro depends on this timing; otherwise the rAF can fire before the click.
+      const frameCallbacks = new Map<number, FrameRequestCallback>();
+      let frameId = 0;
+      const requestAnimationFrameSpy = vi
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation((callback) => {
+          frameId += 1;
+          frameCallbacks.set(frameId, callback);
+          return frameId;
+        });
+      const cancelAnimationFrameSpy = vi
+        .spyOn(window, 'cancelAnimationFrame')
+        .mockImplementation((id) => {
+          frameCallbacks.delete(id);
+        });
+
+      try {
+        const { user } = await render(<AsyncDialogCombobox />);
+
+        await waitFor(() => expect(screen.getByLabelText('Fruit')).toBeEnabled());
+        await user.click(screen.getByLabelText('Fruit'));
+
+        expect(await screen.findByRole('listbox')).toBeVisible();
+
+        act(() => {
+          const callbacks = Array.from(frameCallbacks.values());
+          frameCallbacks.clear();
+          callbacks.forEach((callback) => callback(performance.now()));
+        });
+
+        expect(screen.getByLabelText('Fruit')).toHaveFocus();
+        expect(screen.getByRole('listbox')).toBeVisible();
+      } finally {
+        requestAnimationFrameSpy.mockRestore();
+        cancelAnimationFrameSpy.mockRestore();
+      }
+    });
 
     describe('multiple', () => {
       it('clears input after filtering, removes filter and highlight', async () => {
@@ -6209,7 +6418,7 @@ describe('<Combobox.Root />', () => {
       await render(
         <Field.Root>
           <Combobox.Root>
-            <Combobox.Input data-testid="input" />
+            <Combobox.Input data-testid="input" aria-describedby="external-description" />
             <Combobox.Portal>
               <Combobox.Positioner />
             </Combobox.Portal>
@@ -6220,7 +6429,7 @@ describe('<Combobox.Root />', () => {
 
       expect(screen.getByTestId('input')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });

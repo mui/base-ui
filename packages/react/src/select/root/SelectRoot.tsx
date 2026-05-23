@@ -34,6 +34,7 @@ import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
+import type { MaybeBaseUIEvent } from '../../internals/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
@@ -80,7 +81,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     setDirty,
     setTouched,
     setFocused,
-    shouldValidateOnChange,
     validityData,
     setFilled,
     name: fieldName,
@@ -185,7 +185,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const controlRef = useValueAsRef(store.state.triggerElement);
   const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
 
-  useRegisterFieldControl(controlRef, generatedId, value, getStringifiedValueForForm);
+  useRegisterFieldControl(
+    controlRef,
+    generatedId,
+    value,
+    getStringifiedValueForForm,
+    true,
+    nameProp,
+  );
 
   const initialValueRef = React.useRef(value);
   const hasSelectedValue = multiple ? Array.isArray(value) && value.length > 0 : value != null;
@@ -246,11 +253,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(value);
-    } else {
-      validation.commit(value, true);
-    }
+    validation.change(value);
   });
 
   const setOpen = useStableCallback(
@@ -355,9 +358,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     event: 'mousedown',
   });
 
-  const dismiss = useDismiss(floatingContext, {
-    bubbles: false,
-  });
+  const dismiss = useDismiss(floatingContext);
 
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !readOnly && !disabled,
@@ -559,11 +560,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               });
             },
             // Handle browser autofill.
-            onChange(event: React.ChangeEvent<HTMLInputElement>) {
+            onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
               // Workaround for https://github.com/facebook/react/issues/9023
-              if (event.nativeEvent.defaultPrevented) {
+              if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
+                // Outside Field.Root, the event is not wrapped by mergeProps.
+                event.preventBaseUIHandler?.();
                 return;
               }
+
+              event.preventBaseUIHandler?.();
+              clearErrors(name);
 
               const nextValue = event.currentTarget.value;
               const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
@@ -593,10 +599,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 if (matchingValue != null) {
                   setDirty(matchingValue !== validityData.initialValue);
                   setValue(matchingValue, details);
-
-                  if (shouldValidateOnChange()) {
-                    validation.commit(matchingValue);
-                  }
+                  validation.change(matchingValue);
                 }
               }
 

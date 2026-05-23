@@ -21,6 +21,7 @@ import { normalizeScrollOffset } from '../../utils/scrollEdges';
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Scroll Area components are mounted.
 let scrollAreaOverflowVarsRegistered = false;
+
 /**
  * Removes inheritance of the scroll area overflow CSS variables, which
  * improves rendering performance in complex scroll areas with deep subtrees.
@@ -130,6 +131,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const scrollLeft = viewportEl.scrollLeft;
     const lastMeasuredViewportMetrics = lastMeasuredViewportMetricsRef.current;
     const isFirstMeasurement = Number.isNaN(lastMeasuredViewportMetrics[0]);
+
     lastMeasuredViewportMetrics[0] = viewportHeight;
     lastMeasuredViewportMetrics[1] = scrollableContentHeight;
     lastMeasuredViewportMetrics[2] = viewportWidth;

@@ -10,6 +10,26 @@ import { REASONS } from '../../internals/reasons';
 describe('<NumberField />', () => {
   const { render } = createRenderer();
 
+  function pasteText(target: HTMLElement, value: string) {
+    if (isJSDOM) {
+      fireEvent.paste(target, {
+        clipboardData: {
+          getData: (type: string) => (type === 'text/plain' ? value : ''),
+        },
+      });
+      return;
+    }
+
+    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(pasteEvent, 'clipboardData', {
+      value: {
+        getData: (type: string) => (type === 'text/plain' ? value : ''),
+      },
+    });
+
+    fireEvent(target, pasteEvent);
+  }
+
   describeConformance(<NumberFieldBase.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
@@ -1085,6 +1105,25 @@ describe('<NumberField />', () => {
       expect(onValueCommitted.mock.calls.length).toBe(1);
       expect(onValueCommitted.mock.calls[0][0]).toBe(5);
     });
+
+    it('syncs the visible input value when using the mouse wheel after pasting', async () => {
+      const onValueChange = vi.fn();
+
+      await render(<NumberField defaultValue={10} allowWheelScrub onValueChange={onValueChange} />);
+
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+      await act(async () => input.focus());
+
+      pasteText(input, '20');
+
+      expect(input).toHaveValue('20');
+      expect(onValueChange.mock.lastCall?.[0]).toBe(20);
+
+      fireEvent.wheel(input, { deltaY: -1 });
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(21);
+      expect(input).toHaveValue('21');
+    });
   });
 
   describe('Form', () => {
@@ -1320,6 +1359,83 @@ describe('<NumberField />', () => {
       expect(onValueChange.mock.calls[0][0]).toBe(42);
       expect(input).toHaveValue('42');
     });
+
+    it('validates the parsed number when handling browser autofill', async () => {
+      const validate = vi.fn((_value: unknown) => null);
+
+      await render(
+        <Field.Root name="quantity" validationMode="onChange" validate={validate}>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const hiddenInput = document.querySelector('input[type="number"][name="quantity"]');
+
+      expect(hiddenInput).not.toBe(null);
+      fireEvent.change(hiddenInput!, { target: { value: '42' } });
+
+      expect(validate).toHaveBeenCalled();
+      expect(validate.mock.calls.every(([value]) => value === 42)).toBe(true);
+      expect(validate.mock.lastCall?.[0]).toBe(42);
+    });
+
+    it.each([
+      { lockState: 'readOnly', label: 'inside Field', withField: true },
+      { lockState: 'disabled', label: 'inside Field', withField: true },
+      { lockState: 'readOnly', label: 'outside Field', withField: false },
+      { lockState: 'disabled', label: 'outside Field', withField: false },
+    ] as const)(
+      'ignores hidden-input autofill when $lockState $label',
+      async ({ lockState, withField }) => {
+        const onValueChange = vi.fn();
+        const numberField = (
+          <NumberFieldBase.Root
+            name={withField ? undefined : 'quantity'}
+            defaultValue={1}
+            readOnly={lockState === 'readOnly'}
+            disabled={lockState === 'disabled'}
+            onValueChange={onValueChange}
+          >
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        );
+
+        await render(
+          withField ? (
+            <Form errors={{ quantity: 'test' }}>
+              <Field.Root name="quantity">
+                {numberField}
+                <Field.Error data-testid="error" />
+              </Field.Root>
+            </Form>
+          ) : (
+            numberField
+          ),
+        );
+
+        const input = screen.getByRole('textbox');
+        const hiddenInput = document.querySelector(
+          'input[type="number"][name="quantity"]',
+        ) as HTMLInputElement;
+
+        expect(hiddenInput).not.toBe(null);
+
+        if (withField) {
+          expect(screen.getByTestId('error')).toHaveTextContent('test');
+        }
+
+        fireEvent.change(hiddenInput, { target: { value: '42' } });
+
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(input).toHaveValue('1');
+
+        if (withField) {
+          expect(screen.getByTestId('error')).toHaveTextContent('test');
+        }
+      },
+    );
   });
 
   describe('Field', () => {
@@ -1747,7 +1863,7 @@ describe('<NumberField />', () => {
       await render(
         <Field.Root>
           <NumberFieldBase.Root>
-            <NumberFieldBase.Input />
+            <NumberFieldBase.Input aria-describedby="external-description" />
           </NumberFieldBase.Root>
           <Field.Description data-testid="description" />
         </Field.Root>,
@@ -1755,7 +1871,7 @@ describe('<NumberField />', () => {
 
       expect(screen.getByRole('textbox')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });

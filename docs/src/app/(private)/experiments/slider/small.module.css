@@ -22,6 +22,7 @@
   width: 100%;
   padding: 0.75rem 0.25rem;
   touch-action: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -32,6 +33,7 @@
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
+  -webkit-user-select: none;
   user-select: none;
 
   &::before {
@@ -47,6 +49,7 @@
 .Indicator {
   border-radius: 0.25rem;
   background-color: var(--color-gray-700);
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -56,6 +59,7 @@
   border-radius: 9999px;
   background-color: white;
   outline: 1px solid var(--color-gray-300);
+  -webkit-user-select: none;
   user-select: none;
 
   &:has(:focus-visible) {

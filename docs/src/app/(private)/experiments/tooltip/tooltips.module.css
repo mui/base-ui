@@ -28,6 +28,7 @@
   border-radius: 0.25rem;
   background-color: transparent;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   &[data-popup-open] {
@@ -74,6 +75,7 @@
   font-weight: 500;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (hover: hover) {

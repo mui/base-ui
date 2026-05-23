@@ -5,7 +5,6 @@ export { DialogDescription as Description } from '../dialog/description/DialogDe
 export { DialogPopup as Popup } from '../dialog/popup/DialogPopup';
 export { DialogPortal as Portal } from '../dialog/portal/DialogPortal';
 export { DialogTitle as Title } from '../dialog/title/DialogTitle';
-export { DialogTrigger as Trigger } from '../dialog/trigger/DialogTrigger';
+export { AlertDialogTrigger as Trigger } from './trigger/AlertDialogTrigger';
 export { DialogViewport as Viewport } from '../dialog/viewport/DialogViewport';
-export { createAlertDialogHandle as createHandle } from './handle';
-export { DialogHandle as Handle } from '../dialog/store/DialogHandle';
+export { AlertDialogHandle as Handle, createAlertDialogHandle as createHandle } from './handle';

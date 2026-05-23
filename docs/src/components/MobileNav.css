@@ -197,7 +197,7 @@
     padding-inline: var(--mobile-nav-item-padding-x);
 
     &:focus-visible {
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
     }
 
@@ -217,6 +217,7 @@
   .MobileNavBadge {
     color: var(--poppy-t1);
     line-height: inherit;
+    -webkit-user-select: none;
     user-select: none;
     text-transform: uppercase;
     font-size: 0.6875rem;
@@ -257,7 +258,7 @@
     backdrop-filter: blur(1rem);
 
     &:focus-visible {
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
     }
 

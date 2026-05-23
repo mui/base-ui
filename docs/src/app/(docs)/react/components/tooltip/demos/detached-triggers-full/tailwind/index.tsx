@@ -1,74 +1,50 @@
 'use client';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { ArrowSvg, InfoIcon, HelpIcon, AlertIcon } from '../../icons-tw';
+import { HeadphonesIcon, StopwatchIcon, TrashIcon } from '../../icons-tw';
 
-const demoTooltip = Tooltip.createHandle<React.ComponentType>();
+const demoTooltip = Tooltip.createHandle<React.ReactNode>();
 
 export default function TooltipDetachedTriggersFullDemo() {
   return (
     <Tooltip.Provider>
       <div className="flex">
         <Tooltip.Trigger
-          className="
-            box-border flex size-10 items-center justify-center
-            border border-gray-200 rounded-l-md
-            bg-gray-50
-            text-base text-gray-900
-            select-none
-            data-popup-open:bg-gray-100
-            focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
-            hover:bg-gray-100
-            active:bg-gray-100"
+          className={triggerClass}
           handle={demoTooltip}
-          payload={InfoContent}
+          payload="Listen to audio preview"
+          aria-label="Listen to audio preview"
         >
-          <InfoIcon aria-label="This is information about the feature" className="size-5" />
+          <HeadphonesIcon aria-hidden="true" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
-          className="
-            box-border flex size-10 items-center justify-center
-            border-y border-r border-gray-200
-            bg-gray-50
-            text-base text-gray-900
-            select-none
-            data-popup-open:bg-gray-100
-            focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
-            hover:bg-gray-100
-            active:bg-gray-100"
+          className={`${triggerClass} border-l-0`}
           handle={demoTooltip}
-          payload={HelpContent}
+          payload="Set a timer"
+          aria-label="Set a timer"
         >
-          <HelpIcon aria-label="Need help?" className="size-5" />
+          <StopwatchIcon aria-hidden="true" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
-          className="
-            box-border flex size-10 items-center justify-center
-            border-y border-r border-gray-200 rounded-r-md
-            bg-gray-50
-            text-base text-gray-900
-            select-none
-            data-popup-open:bg-gray-100
-            focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-600
-            hover:bg-gray-100
-            active:bg-gray-100"
+          className={`${triggerClass} border-l-0`}
           handle={demoTooltip}
-          payload={AlertContent}
+          payload="Delete: This action cannot be undone"
+          aria-label="Delete: This action cannot be undone"
         >
-          <AlertIcon aria-label="Warning: This action cannot be undone" className="size-5" />
+          <TrashIcon aria-hidden="true" />
         </Tooltip.Trigger>
       </div>
 
       <Tooltip.Root handle={demoTooltip}>
-        {({ payload: Payload }) => (
+        {({ payload }) => (
           <Tooltip.Portal>
             <Tooltip.Positioner
-              sideOffset={10}
+              sideOffset={11}
               className="
-                h-(--positioner-height) w-(--positioner-width)
-                max-w-(--available-width)
+                h-[var(--positioner-height)] w-[var(--positioner-width)]
+                max-w-[var(--available-width)]
                 transition-[top,left,right,bottom,transform]
                 duration-[0.35s]
                 ease-[cubic-bezier(0.22,1,0.36,1)]
@@ -77,35 +53,21 @@ export default function TooltipDetachedTriggersFullDemo() {
               <Tooltip.Popup
                 className="
                   relative
-                  h-(--popup-height,auto) w-(--popup-width,auto)
+                  h-[var(--popup-height,auto)] w-[var(--popup-width,auto)]
                   max-w-[500px]
-                  rounded-md
-                  bg-[canvas]
-                  text-sm
-                  origin-(--transform-origin)
-                  shadow-lg shadow-gray-200 outline-1 outline-gray-200
-                  transition-[width,height,opacity,scale]
+                  border border-neutral-950 dark:border-white
+                  bg-white dark:bg-neutral-950
+                  text-sm text-neutral-950 dark:text-white
+                  origin-[var(--transform-origin)]
+                  shadow-[0.25rem_0.25rem_0] shadow-black/12 dark:shadow-none
+                  transition-[width,height,opacity,transform]
                   duration-[0.35s]
                   ease-[cubic-bezier(0.22,1,0.36,1)]
-                  data-ending-style:opacity-0 data-ending-style:scale-90
+                  data-ending-style:opacity-0 data-ending-style:[transform:scale(0.9)]
                   data-instant:transition-none
-                  data-starting-style:opacity-0 data-starting-style:scale-90
-                  dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1"
+                  data-starting-style:opacity-0 data-starting-style:[transform:scale(0.9)]"
               >
-                <Tooltip.Arrow
-                  className="
-                    flex
-                    transition-[left]
-                    duration-[0.35s]
-                    ease-[cubic-bezier(0.22,1,0.36,1)]
-                    data-instant:transition-none
-                    data-[side=bottom]:-top-2 data-[side=bottom]:rotate-0
-                    data-[side=left]:right-[-13px] data-[side=left]:rotate-90
-                    data-[side=right]:left-[-13px] data-[side=right]:-rotate-90
-                    data-[side=top]:-bottom-2 data-[side=top]:rotate-180"
-                >
-                  <ArrowSvg />
-                </Tooltip.Arrow>
+                <Tooltip.Arrow className={arrowClass} />
 
                 <Tooltip.Viewport
                   className="
@@ -137,7 +99,7 @@ export default function TooltipDetachedTriggersFullDemo() {
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0"
                 >
-                  {Payload !== undefined && <Payload />}
+                  {payload}
                 </Tooltip.Viewport>
               </Tooltip.Popup>
             </Tooltip.Positioner>
@@ -148,14 +110,7 @@ export default function TooltipDetachedTriggersFullDemo() {
   );
 }
 
-function InfoContent() {
-  return <span>This is information about the feature</span>;
-}
-
-function HelpContent() {
-  return <span>Need help?</span>;
-}
-
-function AlertContent() {
-  return <span>Warning: This action cannot be undone</span>;
-}
+const triggerClass =
+  'flex size-8 items-center justify-center border border-neutral-950 bg-white text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none data-popup-open:bg-neutral-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white focus-visible:relative hover:bg-neutral-100 active:bg-neutral-200 dark:border-white dark:bg-neutral-950 dark:text-white dark:data-popup-open:bg-neutral-800 dark:hover:bg-neutral-800 dark:active:bg-neutral-700';
+const arrowClass =
+  "relative block w-3 h-1.5 overflow-clip transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-instant:transition-none data-[side=bottom]:top-[-6px] data-[side=left]:right-[-9px] data-[side=left]:rotate-90 data-[side=right]:left-[-9px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-6px] data-[side=top]:rotate-180 before:content-[''] before:absolute before:bottom-0 before:left-1/2 before:w-[calc(6px*sqrt(2))] before:h-[calc(6px*sqrt(2))] before:bg-white dark:before:bg-neutral-950 before:border before:border-neutral-950 dark:before:border-white before:[transform:translate(-50%,50%)_rotate(45deg)]";

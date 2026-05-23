@@ -114,7 +114,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setTouched,
     setDirty,
     validityData,
-    shouldValidateOnChange,
     validation,
   } = useFieldRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
@@ -172,16 +171,12 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   });
 
-  useRegisterFieldControl(controlRef, id, valueUnwrapped);
+  useRegisterFieldControl(controlRef, id, valueUnwrapped, undefined, true, nameProp);
 
   useValueChanged(valueUnwrapped, () => {
     clearErrors(name);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(valueUnwrapped);
-    } else {
-      validation.commit(valueUnwrapped, true);
-    }
+    validation.change(valueUnwrapped);
 
     const initialValue = validityData.initialValue as Value | undefined;
     let isDirty: boolean;
@@ -409,8 +404,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         id,
         role: 'group',
       },
-      validation.getValidationProps,
       elementProps,
+      validation.getValidationProps,
     ],
     stateAttributesMapping: sliderStateAttributesMapping,
   });

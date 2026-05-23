@@ -19,7 +19,7 @@ import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLab
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useValueChanged } from '../../internals/useValueChanged';
-import type { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps, MaybeBaseUIEvent } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -32,7 +32,7 @@ import { rootStateAttributesMapping } from '../utils/stateAttributesMapping';
 import {
   getOTPValidationConfig,
   normalizeOTPValue,
-  stripOTPWhitespace,
+  normalizeOTPValueWithDetails,
   type OTPValidationType,
 } from '../utils/otp';
 
@@ -61,7 +61,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     mask = false,
     inputMode: inputModeProp,
     validationType = 'numeric',
-    sanitizeValue,
+    normalizeValue,
     disabled: disabledProp = false,
     readOnly = false,
     required = false,
@@ -83,7 +83,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     state: fieldState,
     validation,
     validationMode,
-    shouldValidateOnChange,
     setFocused,
     setTouched,
   } = useFieldRootContext();
@@ -125,8 +124,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const inputAriaLabelledBy = ariaLabelledByProp == null ? ariaLabelledBy : undefined;
   const fieldDescriptionProps = getDescriptionProps({});
   const ariaDescribedBy = mergeAriaIds(
-    fieldDescriptionProps['aria-describedby'],
     ariaDescribedByProp,
+    fieldDescriptionProps['aria-describedby'],
   );
   const validationConfig = getOTPValidationConfig(validationType);
   const pattern = validationConfig?.slotPattern;
@@ -134,7 +133,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const inputMode = inputModeProp ?? validationConfig?.inputMode;
   const hasValidLength = Number.isInteger(length) && length > 0;
 
-  const value = normalizeOTPValue(valueUnwrapped, length, validationType, sanitizeValue);
+  const value = normalizeOTPValue(valueUnwrapped, length, validationType, normalizeValue);
   const valueRef = useValueAsRef(value);
   const filled = value !== '';
 
@@ -155,12 +154,10 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     useOTPFieldRootDevWarnings({
       inputCount,
       length,
-      sanitizeValue,
-      validationType,
     });
   }
 
-  useRegisterFieldControl(firstInputRef, id, value);
+  useRegisterFieldControl(firstInputRef, id, value, undefined, true, nameProp);
 
   const focusInput = useStableCallback((index: number) => {
     const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
@@ -200,11 +197,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(value);
-    } else {
-      validation.commit(value, true);
-    }
+    validation.change(value);
 
     const pendingCompleteValue = pendingCompleteValueRef.current;
 
@@ -229,7 +222,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const setValue = useStableCallback(
     (nextValue: string, details: OTPFieldRoot.ChangeEventDetails) => {
-      const normalizedValue = normalizeOTPValue(nextValue, length, validationType, sanitizeValue);
+      const normalizedValue = normalizeOTPValue(nextValue, length, validationType, normalizeValue);
       const completeEventDetails =
         normalizedValue.length === length &&
         (valueRef.current.length !== length || details.reason === REASONS.inputPaste)
@@ -344,7 +337,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       reportValueInvalid,
       readOnly,
       required,
-      sanitizeValue,
+      normalizeValue,
       setValue,
       state,
       validationType,
@@ -369,7 +362,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       readOnly,
       reportValueInvalid,
       required,
-      sanitizeValue,
+      normalizeValue,
       setValue,
       state,
       validationType,
@@ -406,20 +399,22 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
               onFocus() {
                 focusInput(0);
               },
-              onChange(event) {
+              onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
                 if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
+                  // Outside Field.Root, the event is not wrapped by mergeProps.
+                  event.preventBaseUIHandler?.();
                   return;
                 }
 
                 const rawValue = event.currentTarget.value;
-                const normalizedValue = normalizeOTPValue(
+                const [normalizedValue, didRejectCharacters] = normalizeOTPValueWithDetails(
                   rawValue,
                   length,
                   validationType,
-                  sanitizeValue,
+                  normalizeValue,
                 );
 
-                if (stripOTPWhitespace(rawValue).length > normalizedValue.length) {
+                if (didRejectCharacters) {
                   reportValueInvalid(
                     rawValue,
                     createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -517,10 +512,17 @@ export interface OTPFieldRootProps extends Omit<
    */
   validationType?: OTPFieldRoot.ValidationType | undefined;
   /**
-   * Function for custom sanitization when `validationType` is set to `'none'`.
-   * This function runs before updating the OTP value from user interactions.
+   * Function that normalizes the OTP value after whitespace and `validationType` filtering.
+   * It runs whenever OTP Field normalizes a value, including initial/default values, controlled
+   * values, and user edits.
+   *
+   * The returned value is filtered by `validationType` again, then clamped to `length`.
+   * It should be idempotent because OTP Field may normalize the same value more than once while
+   * handling edits, storing state, and rendering controlled or uncontrolled values. Non-idempotent
+   * normalizers can compound across those normalization passes. Characters rejected while
+   * normalizing typed or pasted text are reported through `onValueInvalid`.
    */
-  sanitizeValue?: ((value: string) => string) | undefined;
+  normalizeValue?: ((value: string) => string) | undefined;
   /**
    * Whether the user must enter a value before submitting a form.
    * @default false
@@ -561,10 +563,10 @@ export interface OTPFieldRootProps extends Omit<
     | ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void)
     | undefined;
   /**
-   * Callback fired when entered text contains characters that are rejected by sanitization,
-   * before the OTP value updates.
+   * Callback fired when entered text contains characters that are rejected by validation or
+   * normalization before the OTP value updates.
    *
-   * The `value` argument is the attempted user-entered string before sanitization.
+   * The `value` argument is the attempted user-entered string before normalization.
    */
   onValueInvalid?:
     | ((value: string, eventDetails: OTPFieldRoot.InvalidEventDetails) => void)
@@ -648,12 +650,10 @@ function mergeAriaIds(...values: Array<string | undefined>) {
 interface UseOTPFieldRootDevWarningsParameters {
   inputCount: number;
   length: number;
-  sanitizeValue: ((value: string) => string) | undefined;
-  validationType: OTPFieldRoot.ValidationType;
 }
 
 function useOTPFieldRootDevWarnings(parameters: UseOTPFieldRootDevWarningsParameters) {
-  const { inputCount, length, sanitizeValue, validationType } = parameters;
+  const { inputCount, length } = parameters;
 
   React.useEffect(() => {
     if (!Number.isInteger(length) || length <= 0 || inputCount === 0 || inputCount === length) {
@@ -679,16 +679,4 @@ function useOTPFieldRootDevWarnings(parameters: UseOTPFieldRootDevWarningsParame
       ownerStackMessage,
     );
   }, [length]);
-
-  React.useEffect(() => {
-    if (sanitizeValue == null || validationType === 'none') {
-      return;
-    }
-
-    const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
-    warn(
-      '<OTPField.Root> `sanitizeValue` is only used when `validationType="none"`.',
-      ownerStackMessage,
-    );
-  }, [sanitizeValue, validationType]);
 }
