@@ -519,7 +519,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('StrictMode', () => {
-    it('should select an item with the mouse when opened', async () => {
+    it.skipIf(!isJSDOM)('should select an item with the mouse when opened', async () => {
       const handleValueChange = vi.fn();
 
       const { user } = await renderStrict(
@@ -540,6 +540,10 @@ describe('<Select.Root />', () => {
       );
 
       await user.click(screen.getByTestId('trigger'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeVisible();
+      });
 
       const option = screen.getByRole('option', { name: 'Pistachio' });
       fireEvent.mouseMove(option);

@@ -50,7 +50,7 @@ describe('<CompositeList />', () => {
         const [showExtraItem, setShowExtraItem] = React.useState(false);
 
         return (
-          <>
+          <React.Fragment>
             <button type="button" onClick={() => setShowExtraItem(true)}>
               Add item
             </button>
@@ -60,7 +60,7 @@ describe('<CompositeList />', () => {
               <Item id="c" />
               {showExtraItem ? <Item id="d" /> : null}
             </CompositeList>
-          </>
+          </React.Fragment>
         );
       }
 
