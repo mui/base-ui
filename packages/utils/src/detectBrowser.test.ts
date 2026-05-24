@@ -1,4 +1,5 @@
 import { expect, vi } from 'vitest';
+import { isJSDOM } from './testUtils';
 
 const originalNavigatorDescriptors = new Map<string, PropertyDescriptor | undefined>();
 
@@ -32,7 +33,7 @@ afterEach(() => {
 });
 
 describe('detectBrowser', () => {
-  it('does not parse User-Agent Client Hints brands as the user agent string', async () => {
+  it('uses User-Agent Client Hints brands as structured data', async () => {
     setNavigatorProperty(
       'userAgent',
       'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -41,36 +42,19 @@ describe('detectBrowser', () => {
       brands: [
         { brand: 'Chromium', version: '120' },
         { brand: 'Definitely Firefox', version: '99' },
+        { brand: 'Microsoft Edge', version: '120' },
       ],
       mobile: false,
       platform: 'macOS',
     });
 
-    const { isFirefox } = await importDetectBrowser();
+    const { isEdge, isFirefox } = await importDetectBrowser();
 
+    expect(isEdge).toBe(true);
     expect(isFirefox).toBe(false);
   });
 
-  it('uses User-Agent Client Hints brands for Edge detection', async () => {
-    setNavigatorProperty(
-      'userAgent',
-      'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    );
-    setNavigatorProperty('userAgentData', {
-      brands: [
-        { brand: 'Chromium', version: '120' },
-        { brand: 'Microsoft Edge', version: '120' },
-      ],
-      mobile: false,
-      platform: 'Windows',
-    });
-
-    const { isEdge } = await importDetectBrowser();
-
-    expect(isEdge).toBe(true);
-  });
-
-  it('falls back to the legacy user agent string for Edge detection', async () => {
+  it.skipIf(!isJSDOM)('falls back to the legacy user agent string for Edge detection', async () => {
     setNavigatorProperty(
       'userAgent',
       'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0',
@@ -82,15 +66,18 @@ describe('detectBrowser', () => {
     expect(isEdge).toBe(true);
   });
 
-  it('falls back to the legacy user agent string for legacy Edge detection', async () => {
-    setNavigatorProperty(
-      'userAgent',
-      'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.19582',
-    );
-    setNavigatorProperty('userAgentData', undefined);
+  it.skipIf(!isJSDOM)(
+    'falls back to the legacy user agent string for legacy Edge detection',
+    async () => {
+      setNavigatorProperty(
+        'userAgent',
+        'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.19582',
+      );
+      setNavigatorProperty('userAgentData', undefined);
 
-    const { isEdge } = await importDetectBrowser();
+      const { isEdge } = await importDetectBrowser();
 
-    expect(isEdge).toBe(true);
-  });
+      expect(isEdge).toBe(true);
+    },
+  );
 });
