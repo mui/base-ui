@@ -154,6 +154,7 @@ const nextConfig = {
   devIndicators: false,
   experimental: {
     globalNotFound: true,
+    turbopackFileSystemCacheForBuild: true,
   },
 };
 
