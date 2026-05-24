@@ -230,6 +230,25 @@ describe('e2e', () => {
   });
 
   describe('<Menu />', () => {
+    it('restores focus to the trigger after closing an animated popup with Escape', async () => {
+      await renderFixture('menu/FocusAfterEscape');
+
+      const trigger = page.getByTestId('menu-trigger');
+      await trigger.click();
+
+      const item = page.getByRole('menuitem', { name: 'Add to Playlist' });
+      await item.hover();
+      await expect(item).toBeFocused();
+
+      await page.keyboard.press('Escape');
+      await page.waitForSelector('[role="menu"]', { state: 'detached' });
+
+      const triggerHasFocus = await trigger.evaluate(
+        (element) => element === document.activeElement,
+      );
+      expect(triggerHasFocus).toBe(true);
+    }, 5000);
+
     describe('<Menu.LinkItem />', () => {
       it('navigates on click', async () => {
         await renderFixture('menu/LinkItemNavigation');

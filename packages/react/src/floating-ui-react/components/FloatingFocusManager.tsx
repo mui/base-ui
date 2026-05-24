@@ -295,6 +295,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const portalContext = usePortalContext();
 
   const preventReturnFocusRef = React.useRef(false);
+  const ignoreFocusOutReturnPreventRef = React.useRef(false);
   const isPointerDownRef = React.useRef(false);
   const pointerDownOutsideRef = React.useRef(false);
   const lastFocusedTabbableRef = React.useRef<FocusableElement | null>(null);
@@ -536,8 +537,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // Allow closing when `isUntrappedTypeableCombobox` regardless of the previously focused element.
           (isUntrappedTypeableCombobox || relatedTarget !== getPreviouslyFocusedElement())
         ) {
-          preventReturnFocusRef.current = true;
-          store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+          if (store.select('open') && !ignoreFocusOutReturnPreventRef.current) {
+            preventReturnFocusRef.current = true;
+            store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+          }
         }
       });
     }
@@ -739,10 +742,17 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
         closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
+        ignoreFocusOutReturnPreventRef.current =
+          details.reason !== REASONS.focusOut && details.reason !== REASONS.outsidePress;
       }
 
-      if (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave') {
+      if (
+        details.reason === REASONS.triggerHover &&
+        details.nativeEvent.type === 'mouseleave' &&
+        store.select('open')
+      ) {
         preventReturnFocusRef.current = true;
+        ignoreFocusOutReturnPreventRef.current = false;
       }
 
       if (details.reason !== REASONS.outsidePress) {
@@ -843,6 +853,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         }
 
         preventReturnFocusRef.current = false;
+        ignoreFocusOutReturnPreventRef.current = false;
       });
     };
   }, [
@@ -851,6 +862,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floatingFocusElement,
     returnFocusRef,
     events,
+    store,
     tree,
     domReference,
     getNodeId,
@@ -940,7 +952,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             if (modal) {
               enqueueFocus(getTabbableContent()[0]);
             } else if (portalContext?.portalNode) {
-              if (closeOnFocusOut) {
+              if (closeOnFocusOut && open && !ignoreFocusOutReturnPreventRef.current) {
                 preventReturnFocusRef.current = true;
               }
 

@@ -1,0 +1,37 @@
+.Button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid black;
+  background: white;
+}
+
+.Button:focus-visible {
+  outline: 2px solid black;
+  outline-offset: 2px;
+}
+
+.Popup {
+  padding-block: 0.25rem;
+  border: 1px solid black;
+  background: white;
+  transition: opacity 100ms ease-out;
+}
+
+.Popup[data-ending-style] {
+  opacity: 0;
+}
+
+.Item {
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Item[data-highlighted] {
+  background: black;
+  color: white;
+}
