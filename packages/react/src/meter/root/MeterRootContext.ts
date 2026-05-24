@@ -5,6 +5,10 @@ export type MeterRootContext = {
   formattedValue: string;
   max: number;
   min: number;
+  /**
+   * The value normalized to a `0`–`100` percentage of the range, clamped to those bounds.
+   */
+  percentageValue: number;
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   value: number;
 };
