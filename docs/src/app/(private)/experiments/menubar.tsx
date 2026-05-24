@@ -42,9 +42,9 @@ export default function MenubarExperiment() {
               {...getSubmenuPositionProps(settings.orientation)}
             >
               <Menu.Popup className={menuClasses.Popup}>
-                <Menu.Item className={menuClasses.Item}>Open...</Menu.Item>
+                <Menu.Item className={menuClasses.Item}>Open…</Menu.Item>
                 <Menu.Item className={menuClasses.Item}>Save</Menu.Item>
-                <Menu.Item className={menuClasses.Item}>Save as...</Menu.Item>
+                <Menu.Item className={menuClasses.Item}>Save as…</Menu.Item>
                 <Menu.Separator className={menuClasses.Separator} />
 
                 <Menu.SubmenuRoot>
@@ -97,7 +97,7 @@ export default function MenubarExperiment() {
                   <Menu.Portal>
                     <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
                       <Menu.Popup className={menuClasses.Popup}>
-                        <Menu.Item className={menuClasses.Item}>Find...</Menu.Item>
+                        <Menu.Item className={menuClasses.Item}>Find…</Menu.Item>
                         <Menu.Item className={menuClasses.Item}>Find next</Menu.Item>
                       </Menu.Popup>
                     </Menu.Positioner>
