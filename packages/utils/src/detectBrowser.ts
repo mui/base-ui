@@ -6,9 +6,10 @@ interface NavigatorUAData {
 
 const hasNavigator = typeof navigator !== 'undefined';
 
+const userAgentData = getUserAgentData();
 const nav = getNavigatorData();
 const platform = getPlatform();
-const userAgent = getUserAgent();
+const userAgent = getUserAgentString();
 
 export const isWebKit =
   typeof CSS === 'undefined' || !CSS.supports
@@ -23,7 +24,9 @@ export const isIOS =
 
 export const isFirefox = hasNavigator && /firefox/i.test(userAgent);
 export const isSafari = hasNavigator && /apple/i.test(navigator.vendor);
-export const isEdge = hasNavigator && /Edg/i.test(userAgent);
+export const isEdge =
+  hasUserAgentDataBrand('Microsoft Edge') ||
+  (hasNavigator && /\bEdg(?:e|A|iOS|W)?\//.test(userAgent));
 export const isAndroid = (hasNavigator && /android/i.test(platform)) || /android/i.test(userAgent);
 export const isMac =
   hasNavigator && platform.toLowerCase().startsWith('mac') && !navigator.maxTouchPoints;
@@ -35,11 +38,9 @@ function getNavigatorData(): { platform: string; maxTouchPoints: number } {
     return { platform: '', maxTouchPoints: -1 };
   }
 
-  const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
-
-  if (uaData?.platform) {
+  if (userAgentData?.platform) {
     return {
-      platform: uaData.platform,
+      platform: userAgentData.platform,
       maxTouchPoints: navigator.maxTouchPoints,
     };
   }
@@ -50,15 +51,9 @@ function getNavigatorData(): { platform: string; maxTouchPoints: number } {
   };
 }
 
-function getUserAgent(): string {
+function getUserAgentString(): string {
   if (!hasNavigator) {
     return '';
-  }
-
-  const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
-
-  if (uaData && Array.isArray(uaData.brands)) {
-    return uaData.brands.map(({ brand, version }) => `${brand}/${version}`).join(' ');
   }
 
   return navigator.userAgent;
@@ -69,11 +64,21 @@ function getPlatform(): string {
     return '';
   }
 
-  const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
-
-  if (uaData?.platform) {
-    return uaData.platform;
+  if (userAgentData?.platform) {
+    return userAgentData.platform;
   }
 
   return navigator.platform ?? '';
+}
+
+function getUserAgentData(): NavigatorUAData | undefined {
+  if (!hasNavigator) {
+    return undefined;
+  }
+
+  return (navigator as Navigator & { userAgentData?: NavigatorUAData | undefined }).userAgentData;
+}
+
+function hasUserAgentDataBrand(brandName: string): boolean {
+  return userAgentData?.brands.some(({ brand }) => brand === brandName) ?? false;
 }
