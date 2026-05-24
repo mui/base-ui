@@ -740,7 +740,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     // Dismissing via outside press should always ignore `returnFocus` to
     // prevent unwanted scrolling.
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
-      if (!details.open) {
+      if (details.open) {
+        ignoreFocusOutReturnPreventRef.current = false;
+      } else {
         closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
         ignoreFocusOutReturnPreventRef.current =
           details.reason !== REASONS.focusOut && details.reason !== REASONS.outsidePress;
