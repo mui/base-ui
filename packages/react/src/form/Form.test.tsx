@@ -208,6 +208,77 @@ describe('<Form />', () => {
     expect(screen.getByTestId('disabled')).not.toHaveAttribute('aria-invalid');
   });
 
+  it('clears invalid UI when a fieldset field becomes disabled', async () => {
+    const handleSubmit = vi.fn();
+
+    function App() {
+      const [disabled, setDisabled] = React.useState(false);
+
+      return (
+        <Form onFormSubmit={handleSubmit}>
+          <Fieldset.Root disabled={disabled}>
+            <Field.Root name="disabled">
+              <Field.Control required data-testid="control" />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Fieldset.Root>
+          <button type="button" onClick={() => setDisabled(true)}>
+            Disable
+          </button>
+          <button type="submit">Submit</button>
+        </Form>
+      );
+    }
+
+    const { user } = render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(handleSubmit).not.toHaveBeenCalled();
+    expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByTestId('error')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Disable' }));
+
+    expect(screen.getByTestId('control')).toBeDisabled();
+    expect(screen.getByTestId('control')).not.toHaveAttribute('aria-invalid');
+    expect(screen.queryByTestId('error')).toBe(null);
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+  });
+
+  it('clears invalid attributes when a field control becomes disabled', async () => {
+    function App() {
+      const [disabled, setDisabled] = React.useState(false);
+
+      return (
+        <Form>
+          <Field.Root>
+            <Field.Control disabled={disabled} required data-testid="control" />
+          </Field.Root>
+          <button type="button" onClick={() => setDisabled(true)}>
+            Disable
+          </button>
+          <button type="submit">Submit</button>
+        </Form>
+      );
+    }
+
+    const { user } = render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
+
+    await user.click(screen.getByRole('button', { name: 'Disable' }));
+
+    expect(screen.getByTestId('control')).toBeDisabled();
+    expect(screen.getByTestId('control')).not.toHaveAttribute('aria-invalid');
+  });
+
   describe('prop: errors', () => {
     it('should mark <Field.Control> as invalid and populate <Field.Error>', () => {
       render(

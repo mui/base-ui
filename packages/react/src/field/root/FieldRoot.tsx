@@ -108,7 +108,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     initialValue: null,
   });
 
-  const valid = !invalid && validityData.state.valid;
+  const valid = disabled ? null : !invalid && validityData.state.valid;
 
   const state: FieldRootState = React.useMemo(
     () => ({
