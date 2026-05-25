@@ -171,7 +171,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   });
 
-  useRegisterFieldControl(controlRef, id, valueUnwrapped, undefined, true, nameProp);
+  useRegisterFieldControl(controlRef, id, valueUnwrapped, undefined, !disabled, nameProp);
 
   useValueChanged(valueUnwrapped, () => {
     clearErrors(name);
@@ -405,7 +405,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         role: 'group',
       },
       elementProps,
-      validation.getValidationProps,
+      (props) => validation.getValidationProps(disabled, props),
     ],
     stateAttributesMapping: sliderStateAttributesMapping,
   });

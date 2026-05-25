@@ -462,7 +462,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     <NumberFieldRootContext.Provider value={contextValue}>
       {element}
       <input
-        {...validation.getInputValidationProps({
+        {...validation.getInputValidationProps(disabled, {
           onFocus() {
             inputRef.current?.focus();
           },

@@ -120,7 +120,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   });
 
   const validationProps =
-    hasPositionerParent || !validation ? elementProps : validation.getValidationProps(elementProps);
+    hasPositionerParent || !validation
+      ? elementProps
+      : validation.getValidationProps(disabled, elementProps);
 
   const state: ComboboxInputState = {
     ...fieldStateForInput,

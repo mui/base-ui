@@ -451,7 +451,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     id,
     fieldRawValue,
     getStringifiedValueForForm,
-    true,
+    !disabled,
     nameProp,
   );
 
@@ -1234,16 +1234,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           form={form}
           name={name}
           value={currentSerializedValue}
+          disabled={disabled}
         />
       );
     });
-  }, [multiple, selectedValue, form, name, itemToStringValue]);
+  }, [multiple, selectedValue, form, name, itemToStringValue, disabled]);
 
   const children = (
     <React.Fragment>
       {props.children}
       <input
-        {...validation.getInputValidationProps({
+        {...validation.getInputValidationProps(disabled, {
           // Move focus when the hidden input is focused.
           onFocus() {
             if (inputInsidePopup) {

@@ -71,8 +71,8 @@ export const DEFAULT_FIELD_ROOT_CONTEXT: FieldRootContext = {
   markedDirtyRef: { current: false },
   registerFieldControl: NOOP,
   validation: {
-    getValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,
-    getInputValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,
+    getValidationProps: (_disabled: boolean, props: HTMLProps = EMPTY_OBJECT) => props,
+    getInputValidationProps: (_disabled: boolean, props: HTMLProps = EMPTY_OBJECT) => props,
     inputRef: { current: null },
     commit: async () => {},
     change: NOOP,
