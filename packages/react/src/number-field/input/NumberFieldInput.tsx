@@ -97,7 +97,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
-  useRegisterFieldControl(inputRef, id, value, undefined, true, nameProp);
+  useRegisterFieldControl(inputRef, id, value, undefined, !disabled, nameProp);
 
   useValueChanged(value, () => {
     clearErrors(name);
@@ -122,7 +122,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     autoCorrect: 'off',
     spellCheck: 'false',
     'aria-roledescription': 'Number field',
-    'aria-invalid': invalid || undefined,
+    'aria-invalid': !disabled && invalid ? true : undefined,
     'aria-labelledby': labelId,
     // If the server's locale does not match the client's locale, the formatting may not match,
     // causing a hydration mismatch.
@@ -422,7 +422,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
     state,
-    props: [inputProps, elementProps, validation.getValidationProps],
+    props: [inputProps, elementProps, (props) => validation.getValidationProps(disabled, props)],
     stateAttributesMapping,
   });
 

@@ -190,7 +190,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     generatedId,
     value,
     getStringifiedValueForForm,
-    true,
+    !disabled,
     nameProp,
   );
 
@@ -541,17 +541,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           form={form}
           name={name}
           value={currentSerializedValue}
+          disabled={disabled}
         />
       );
     });
-  }, [multiple, value, form, name, itemToStringValue]);
+  }, [multiple, value, form, name, itemToStringValue, disabled]);
 
   return (
     <SelectRootContext.Provider value={contextValue}>
       <SelectFloatingContext.Provider value={floatingContext}>
         {children}
         <input
-          {...validation.getInputValidationProps({
+          {...validation.getInputValidationProps(disabled, {
             onFocus() {
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus({

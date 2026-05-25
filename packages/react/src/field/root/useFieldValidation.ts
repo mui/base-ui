@@ -266,16 +266,18 @@ export function useFieldValidation(
   });
 
   const getValidationProps = React.useCallback(
-    (externalProps = {}) =>
+    (disabled: boolean, externalProps: HTMLProps = {}) =>
       mergeProps<any>(
         getDescriptionProps(externalProps),
-        state.valid === false ? { 'aria-invalid': true } : EMPTY_OBJECT,
+        state.valid === false && !state.disabled && !disabled
+          ? { 'aria-invalid': true }
+          : EMPTY_OBJECT,
       ),
-    [getDescriptionProps, state.valid],
+    [getDescriptionProps, state.disabled, state.valid],
   );
 
   const getInputValidationProps = React.useCallback(
-    (externalProps = {}) =>
+    (disabled: boolean, externalProps: HTMLProps = {}) =>
       mergeProps<'input'>(
         {
           onChange(event) {
@@ -289,7 +291,7 @@ export function useFieldValidation(
             change(event.currentTarget.value);
           },
         },
-        getValidationProps(externalProps),
+        getValidationProps(disabled, externalProps),
       ),
     [getValidationProps, clearErrors, name, change],
   );
@@ -323,8 +325,8 @@ export interface UseFieldValidationParameters {
 }
 
 export interface UseFieldValidationReturnValue {
-  getValidationProps: (props?: HTMLProps) => HTMLProps;
-  getInputValidationProps: (props?: HTMLProps) => HTMLProps;
+  getValidationProps: (disabled: boolean, props?: HTMLProps) => HTMLProps;
+  getInputValidationProps: (disabled: boolean, props?: HTMLProps) => HTMLProps;
   inputRef: React.RefObject<HTMLInputElement | null>;
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown) => void;
