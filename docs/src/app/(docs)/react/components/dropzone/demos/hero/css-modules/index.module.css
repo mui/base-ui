@@ -63,7 +63,9 @@
 }
 
 .heading {
+  margin: 0;
   font-size: 0.875rem;
+  line-height: 1.25rem;
   font-weight: 600;
   color: oklch(27.4% 0 0deg);
 
@@ -73,8 +75,10 @@
 }
 
 .hint {
+  margin: 0;
   margin-top: 0.25rem;
   font-size: 0.75rem;
+  line-height: 1rem;
   color: oklch(44.6% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
@@ -105,9 +109,11 @@
 }
 
 .empty {
+  margin: 0;
   margin-top: 1rem;
   color: oklch(55.1% 0 0deg);
   font-size: 0.875rem;
+  line-height: 1.25rem;
 
   @media (prefers-color-scheme: dark) {
     color: oklch(65% 0 0deg);
