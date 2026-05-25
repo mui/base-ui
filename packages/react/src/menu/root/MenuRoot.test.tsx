@@ -2144,6 +2144,121 @@ describe('<Menu.Root />', () => {
 
       expect(item2).not.toHaveFocus();
     });
+
+    it('does not highlight submenu triggers from mouse enter when disabled', async () => {
+      await render(
+        <TestMenuContents
+          rootProps={{ open: true, highlightItemOnHover: false }}
+          popupProps={{
+            children: (
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger data-testid="submenu-trigger">Submenu</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Nested item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            ),
+          }}
+        />,
+      );
+
+      const submenuTrigger = screen.getByTestId('submenu-trigger');
+      fireEvent.mouseEnter(submenuTrigger);
+
+      await flushMicrotasks();
+
+      expect(submenuTrigger).not.toHaveAttribute('data-highlighted');
+      expect(submenuTrigger).not.toHaveFocus();
+    });
+  });
+
+  describe('prop: disabled', () => {
+    it('does not highlight items with text navigation when controlled open', async () => {
+      const { user } = await render(
+        <TestMenuContents
+          rootProps={{ open: true, disabled: true }}
+          popupProps={{
+            children: (
+              <React.Fragment>
+                <Menu.Item data-testid="alpha">Alpha</Menu.Item>
+                <Menu.Item data-testid="beta">Beta</Menu.Item>
+              </React.Fragment>
+            ),
+          }}
+        />,
+      );
+
+      const alpha = screen.getByTestId('alpha');
+      const beta = screen.getByTestId('beta');
+
+      await act(async () => {
+        alpha.focus();
+      });
+
+      await user.keyboard('b');
+      await flushMicrotasks();
+
+      expect(beta).not.toHaveAttribute('data-highlighted');
+      expect(beta).not.toHaveFocus();
+    });
+
+    it('does not close or activate items when controlled open', async () => {
+      const handleOpenChange = vi.fn();
+      const handleClick = vi.fn();
+      const { user } = await render(
+        <TestMenuContents
+          rootProps={{ open: true, disabled: true, onOpenChange: handleOpenChange }}
+          popupProps={{
+            children: (
+              <Menu.Item data-testid="item" onClick={handleClick}>
+                Item
+              </Menu.Item>
+            ),
+          }}
+        />,
+      );
+
+      await user.click(screen.getByTestId('item'));
+
+      expect(handleClick).not.toHaveBeenCalled();
+      expect(handleOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('disables submenu triggers when controlled open', async () => {
+      const { user } = await render(
+        <TestMenuContents
+          rootProps={{ open: true, disabled: true }}
+          popupProps={{
+            children: (
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger data-testid="submenu-trigger" openOnHover={false}>
+                  Submenu
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu-popup">
+                      <Menu.Item>Nested item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            ),
+          }}
+        />,
+      );
+
+      const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+      expect(submenuTrigger).toHaveAttribute('data-disabled');
+
+      await user.click(submenuTrigger);
+
+      expect(screen.queryByTestId('submenu-popup')).toBe(null);
+    });
   });
 
   describe('dynamic items', () => {
