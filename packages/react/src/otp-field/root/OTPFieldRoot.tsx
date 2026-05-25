@@ -395,7 +395,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
         {element}
         {hasValidLength && (
           <input
-            {...validation.getInputValidationProps({
+            {...validation.getInputValidationProps(disabled, {
               onFocus() {
                 focusInput(0);
               },

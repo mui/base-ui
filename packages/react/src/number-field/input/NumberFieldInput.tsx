@@ -422,7 +422,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
     state,
-    props: [inputProps, elementProps, validation.getValidationProps],
+    props: [inputProps, elementProps, (props) => validation.getValidationProps(disabled, props)],
     stateAttributesMapping,
   });
 

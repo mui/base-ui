@@ -136,7 +136,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
           }
         },
       },
-      validation.getInputValidationProps({ ...elementProps, disabled }),
+      validation.getInputValidationProps(disabled, elementProps),
     ],
     stateAttributesMapping: fieldValidityMapping,
   });

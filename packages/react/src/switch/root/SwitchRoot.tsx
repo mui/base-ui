@@ -211,7 +211,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         switchRef.current?.focus();
       },
     },
-    validation.getInputValidationProps,
+    (props) => validation.getInputValidationProps(disabled, props),
     // React <19 sets an empty value if `undefined` is passed explicitly
     // To avoid this, we only set the value if it's defined
     value !== undefined ? { value } : EMPTY_OBJECT,
@@ -231,7 +231,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const element = useRenderElement('span', componentProps, {
     state,
     ref: [forwardedRef, switchRef, buttonRef],
-    props: [rootProps, elementProps, getButtonProps, validation.getValidationProps],
+    props: [
+      rootProps,
+      elementProps,
+      getButtonProps,
+      (props) => validation.getValidationProps(disabled, props),
+    ],
     stateAttributesMapping,
   });
 

@@ -14,11 +14,6 @@ import type { FieldValidityData, FieldRootState } from './FieldRoot';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
-type ValidationHTMLProps = HTMLProps & {
-  disabled?: boolean | undefined;
-  'aria-disabled'?: boolean | 'true' | 'false' | undefined;
-};
-
 function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefined) {
   if (!state || state.valid || !state.valueMissing) {
     return false;
@@ -39,15 +34,6 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
   }
 
   return onlyValueMissing;
-}
-
-function isDisabledForValidation(fieldDisabled: boolean, elementProps: ValidationHTMLProps) {
-  return (
-    fieldDisabled ||
-    elementProps.disabled === true ||
-    elementProps['aria-disabled'] === true ||
-    elementProps['aria-disabled'] === 'true'
-  );
 }
 
 export function useFieldValidation(
@@ -280,10 +266,10 @@ export function useFieldValidation(
   });
 
   const getValidationProps = React.useCallback(
-    (externalProps: ValidationHTMLProps = {}) =>
+    (disabled = false, externalProps: HTMLProps = {}) =>
       mergeProps<any>(
         getDescriptionProps(externalProps),
-        state.valid === false && !isDisabledForValidation(state.disabled, externalProps)
+        state.valid === false && !state.disabled && !disabled
           ? { 'aria-invalid': true }
           : EMPTY_OBJECT,
       ),
@@ -291,7 +277,7 @@ export function useFieldValidation(
   );
 
   const getInputValidationProps = React.useCallback(
-    (externalProps: ValidationHTMLProps = {}) =>
+    (disabled = false, externalProps: HTMLProps = {}) =>
       mergeProps<'input'>(
         {
           onChange(event) {
@@ -305,7 +291,7 @@ export function useFieldValidation(
             change(event.currentTarget.value);
           },
         },
-        getValidationProps(externalProps),
+        getValidationProps(disabled, externalProps),
       ),
     [getValidationProps, clearErrors, name, change],
   );
@@ -339,8 +325,8 @@ export interface UseFieldValidationParameters {
 }
 
 export interface UseFieldValidationReturnValue {
-  getValidationProps: (props?: ValidationHTMLProps) => HTMLProps;
-  getInputValidationProps: (props?: ValidationHTMLProps) => HTMLProps;
+  getValidationProps: (disabled?: boolean, props?: HTMLProps) => HTMLProps;
+  getInputValidationProps: (disabled?: boolean, props?: HTMLProps) => HTMLProps;
   inputRef: React.RefObject<HTMLInputElement | null>;
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown) => void;

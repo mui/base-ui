@@ -243,7 +243,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     elementProps,
     getButtonProps,
   );
-  const props = validation.getValidationProps(mergedProps);
+  const props = validation.getValidationProps(disabled, mergedProps);
 
   // ensure nested useButton does not overwrite the combobox role:
   // <Toolbar.Button render={<Select.Trigger />} />

@@ -405,7 +405,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         role: 'group',
       },
       elementProps,
-      validation.getValidationProps,
+      (props) => validation.getValidationProps(disabled, props),
     ],
     stateAttributesMapping: sliderStateAttributesMapping,
   });

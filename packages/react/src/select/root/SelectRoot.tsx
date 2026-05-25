@@ -551,7 +551,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       <SelectFloatingContext.Provider value={floatingContext}>
         {children}
         <input
-          {...validation.getInputValidationProps({
+          {...validation.getInputValidationProps(disabled, {
             onFocus() {
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus({
