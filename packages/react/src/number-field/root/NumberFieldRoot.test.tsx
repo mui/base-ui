@@ -1424,6 +1424,11 @@ describe('<NumberField />', () => {
 
         if (withField) {
           expect(screen.getByTestId('error')).toHaveTextContent('test');
+          if (lockState === 'disabled') {
+            expect(input).not.toHaveAttribute('aria-invalid');
+          } else {
+            expect(input).toHaveAttribute('aria-invalid', 'true');
+          }
         }
 
         fireEvent.change(hiddenInput, { target: { value: '42' } });

@@ -122,7 +122,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     autoCorrect: 'off',
     spellCheck: 'false',
     'aria-roledescription': 'Number field',
-    'aria-invalid': invalid || undefined,
+    'aria-invalid': !disabled && invalid ? true : undefined,
     'aria-labelledby': labelId,
     // If the server's locale does not match the client's locale, the formatting may not match,
     // causing a hydration mismatch.
