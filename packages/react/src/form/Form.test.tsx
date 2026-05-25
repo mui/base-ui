@@ -251,12 +251,14 @@ describe('<Form />', () => {
   });
 
   it('clears invalid attributes when a field control becomes disabled', async () => {
+    const handleSubmit = vi.fn();
+
     function App() {
       const [disabled, setDisabled] = React.useState(false);
 
       return (
-        <Form>
-          <Field.Root>
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="disabled">
             <Field.Control disabled={disabled} required data-testid="control" />
           </Field.Root>
           <button type="button" onClick={() => setDisabled(true)}>
@@ -277,6 +279,60 @@ describe('<Form />', () => {
 
     expect(screen.getByTestId('control')).toBeDisabled();
     expect(screen.getByTestId('control')).not.toHaveAttribute('aria-invalid');
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+  });
+
+  it('re-registers field controls when they become enabled again', async () => {
+    const handleSubmit = vi.fn();
+
+    function App() {
+      const [disabled, setDisabled] = React.useState(false);
+
+      return (
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="control">
+            <Field.Control disabled={disabled} required data-testid="control" />
+          </Field.Root>
+          <button type="button" onClick={() => setDisabled(true)}>
+            Disable
+          </button>
+          <button type="button" onClick={() => setDisabled(false)}>
+            Enable
+          </button>
+          <button type="submit">Submit</button>
+        </Form>
+      );
+    }
+
+    const { user } = render(<App />);
+    const submit = screen.getByRole('button', { name: 'Submit' });
+
+    await user.click(submit);
+
+    expect(handleSubmit).not.toHaveBeenCalled();
+    expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
+
+    await user.click(screen.getByRole('button', { name: 'Disable' }));
+    await user.click(submit);
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+
+    await user.click(screen.getByRole('button', { name: 'Enable' }));
+    await user.click(submit);
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
+
+    await user.type(screen.getByTestId('control'), 'sent');
+    await user.click(submit);
+
+    expect(handleSubmit).toHaveBeenCalledTimes(2);
+    expect(handleSubmit.mock.lastCall?.[0]).toEqual({ control: 'sent' });
   });
 
   describe('prop: errors', () => {

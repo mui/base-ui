@@ -241,7 +241,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
         props={[
           defaultProps,
           elementProps,
-          (props: HTMLProps) => validation.getValidationProps(disabled, props),
+          (props: HTMLProps) => validation.getValidationProps(disabled ?? false, props),
         ]}
         refs={[forwardedRef]}
         stateAttributesMapping={fieldValidityMapping}
