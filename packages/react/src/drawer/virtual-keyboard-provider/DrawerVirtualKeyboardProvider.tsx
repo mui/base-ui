@@ -92,6 +92,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     const roundedSlack = Math.max(0, Math.ceil(slack));
     let adjustment = keyboardScrollAdjustmentRef.current;
 
+    if (adjustment && !adjustment.element.isConnected) {
+      restoreKeyboardScrollAdjustment();
+      adjustment = null;
+    }
+
     if (roundedSlack === 0) {
       restoreKeyboardScrollAdjustment();
       return;
@@ -198,6 +203,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
       const scrollTarget = findKeyboardScrollTarget(target, rootElement);
       if (!scrollTarget) {
+        restoreKeyboardScrollAdjustment();
+        return;
+      }
+
+      if (!scrollTarget.isConnected || !contains(rootElement, scrollTarget)) {
         restoreKeyboardScrollAdjustment();
         return;
       }

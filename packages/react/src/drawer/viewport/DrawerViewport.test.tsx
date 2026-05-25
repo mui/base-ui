@@ -60,6 +60,22 @@ describe('<Drawer.Viewport />', () => {
     return touchEnd;
   }
 
+  function createNativeTouchCancel(
+    target: EventTarget,
+    point: { clientX: number; clientY: number },
+  ) {
+    const touchCancel = new Event('touchcancel', { bubbles: true, cancelable: true });
+    Object.defineProperty(touchCancel, 'changedTouches', {
+      value: [createTouch(target, point)],
+      configurable: true,
+    });
+    Object.defineProperty(touchCancel, 'touches', {
+      value: [],
+      configurable: true,
+    });
+    return touchCancel;
+  }
+
   function mockVisualViewport(height: number) {
     const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'visualViewport');
     const listeners = new Map<string, Set<EventListener>>();
@@ -797,6 +813,126 @@ describe('<Drawer.Viewport />', () => {
     document.elementFromPoint = () => input;
 
     try {
+      const touchEnd = createNativeTouchEnd(input, {
+        clientX: 0,
+        clientY: 0,
+      });
+
+      await act(async () => {
+        input.dispatchEvent(touchEnd);
+        await flushMicrotasks();
+      });
+
+      expect(touchEnd.defaultPrevented).toBe(false);
+      expect(focusSpy).not.toHaveBeenCalled();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      focusSpy.mockRestore();
+    }
+  });
+
+  it.skipIf(isJSDOM)('does not focus a keyboard input after touchcancel', async () => {
+    await render(
+      <Drawer.Root open modal={false}>
+        <Drawer.VirtualKeyboardProvider>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <input data-testid="input" type="text" />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.VirtualKeyboardProvider>
+      </Drawer.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    const focusSpy = vi.spyOn(input, 'focus');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => input;
+
+    try {
+      fireEvent.touchStart(input, {
+        touches: [
+          createTouch(input, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      const touchCancel = createNativeTouchCancel(input, {
+        clientX: 0,
+        clientY: 0,
+      });
+
+      await act(async () => {
+        input.dispatchEvent(touchCancel);
+        await flushMicrotasks();
+      });
+
+      const touchEnd = createNativeTouchEnd(input, {
+        clientX: 0,
+        clientY: 0,
+      });
+
+      await act(async () => {
+        input.dispatchEvent(touchEnd);
+        await flushMicrotasks();
+      });
+
+      expect(touchEnd.defaultPrevented).toBe(false);
+      expect(focusSpy).not.toHaveBeenCalled();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      focusSpy.mockRestore();
+    }
+  });
+
+  it.skipIf(isJSDOM)('does not focus a keyboard input while a nested drawer is open', async () => {
+    await render(
+      <Drawer.Root open modal={false}>
+        <Drawer.VirtualKeyboardProvider>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="parent-popup">
+                <input data-testid="input" type="text" />
+                <Drawer.Root open modal={false}>
+                  <Drawer.Portal>
+                    <Drawer.Viewport>
+                      <Drawer.Popup>
+                        <button type="button">Nested action</button>
+                      </Drawer.Popup>
+                    </Drawer.Viewport>
+                  </Drawer.Portal>
+                </Drawer.Root>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.VirtualKeyboardProvider>
+      </Drawer.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    const parentPopup = screen.getByTestId('parent-popup');
+    const focusSpy = vi.spyOn(input, 'focus');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => input;
+
+    try {
+      await waitFor(() => {
+        expect(parentPopup).toHaveAttribute('data-nested-drawer-open', '');
+      });
+
+      fireEvent.touchStart(input, {
+        touches: [
+          createTouch(input, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
       const touchEnd = createNativeTouchEnd(input, {
         clientX: 0,
         clientY: 0,
