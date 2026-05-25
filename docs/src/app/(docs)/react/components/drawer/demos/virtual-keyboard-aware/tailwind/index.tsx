@@ -23,15 +23,26 @@ export default function ExampleDrawerVirtualKeyboardAware() {
             <Drawer.Popup className="relative z-1 -mb-[var(--bleed)] flex h-[calc(100%-1rem+var(--bleed))] max-h-[calc(100%-1rem+var(--bleed))] w-full flex-col overflow-visible border-t border-neutral-950 bg-white text-neutral-950 outline-none touch-none shadow-[0.25rem_0.25rem_0] shadow-black/12 [--bleed:3rem] [transform:translateY(var(--drawer-swipe-movement-y))] transition-[transform,box-shadow] duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform data-swiping:select-none data-ending-style:[transform:translateY(calc(100%-var(--bleed)+2px))] data-starting-style:[transform:translateY(calc(100%-var(--bleed)+2px))] data-starting-style:shadow-[0.25rem_0.25rem_0] data-starting-style:shadow-black/0 data-ending-style:shadow-[0.25rem_0.25rem_0] data-ending-style:shadow-black/0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none">
               <div className="shrink-0 border-b border-neutral-300 px-6 pt-3.5 pb-4 touch-none select-none dark:border-neutral-700">
                 <div className="mx-auto mb-2.5 h-1 w-12 shrink-0 bg-neutral-300 dark:bg-neutral-700" />
-                <Drawer.Title className="cursor-default text-center text-base font-bold">
-                  Delivery details
-                </Drawer.Title>
+                <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
+                  <Drawer.Close className="flex h-8 min-w-0 items-center justify-center border-0 bg-transparent p-0 text-sm leading-none font-bold whitespace-nowrap text-green-700 select-none justify-self-start focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:text-green-400 dark:focus-visible:outline-white">
+                    Cancel
+                  </Drawer.Close>
+                  <Drawer.Title className="cursor-default text-center text-base font-bold">
+                    Delivery details
+                  </Drawer.Title>
+                  <button
+                    className="flex h-8 min-w-0 items-center justify-center border-0 bg-transparent p-0 text-sm leading-none font-bold whitespace-nowrap text-green-700 select-none justify-self-end focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:text-green-400 dark:focus-visible:outline-white"
+                    type="button"
+                  >
+                    Save
+                  </button>
+                </div>
                 <Drawer.Description className="mx-auto mt-1 max-w-90 text-center text-sm text-neutral-600 dark:text-neutral-400">
                   Edit the address and delivery instructions.
                 </Drawer.Description>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-auto px-6 py-4">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-auto px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px)+var(--bleed))]">
                 <div className="mx-auto grid w-full max-w-90 gap-3">
                   {fields.map(([label, placeholder]) => (
                     <label className="flex w-full flex-col items-start gap-1" key={label}>
@@ -56,18 +67,6 @@ export default function ExampleDrawerVirtualKeyboardAware() {
                     />
                   </label>
                 </div>
-              </div>
-
-              <div className="flex shrink-0 justify-end gap-3 border-t border-neutral-300 bg-white px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px)+var(--bleed))] dark:border-neutral-700 dark:bg-neutral-950">
-                <Drawer.Close className="flex h-8 items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
-                  Close
-                </Drawer.Close>
-                <button
-                  className="flex h-8 items-center justify-center gap-2 border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white"
-                  type="button"
-                >
-                  Save
-                </button>
               </div>
             </Drawer.Popup>
           </Drawer.Viewport>

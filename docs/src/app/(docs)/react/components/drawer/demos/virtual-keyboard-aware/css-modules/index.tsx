@@ -22,7 +22,13 @@ export default function ExampleDrawerVirtualKeyboardAware() {
             <Drawer.Popup className={styles.Popup}>
               <div className={styles.Header}>
                 <div className={styles.Handle} />
-                <Drawer.Title className={styles.Title}>Delivery details</Drawer.Title>
+                <div className={styles.HeaderActions}>
+                  <Drawer.Close className={styles.HeaderButton}>Cancel</Drawer.Close>
+                  <Drawer.Title className={styles.Title}>Delivery details</Drawer.Title>
+                  <button className={styles.HeaderButton} type="button">
+                    Save
+                  </button>
+                </div>
                 <Drawer.Description className={styles.Description}>
                   Edit the address and delivery instructions.
                 </Drawer.Description>
@@ -45,13 +51,6 @@ export default function ExampleDrawerVirtualKeyboardAware() {
                     />
                   </label>
                 </div>
-              </div>
-
-              <div className={styles.Footer}>
-                <Drawer.Close className={styles.Button}>Close</Drawer.Close>
-                <button className={styles.Button} type="button">
-                  Save
-                </button>
               </div>
             </Drawer.Popup>
           </Drawer.Viewport>
