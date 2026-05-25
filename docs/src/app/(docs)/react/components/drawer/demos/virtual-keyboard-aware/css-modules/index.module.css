@@ -174,8 +174,9 @@
 }
 
 .Header {
+  position: relative;
   flex-shrink: 0;
-  padding: 0.875rem 1.5rem 1rem;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid oklch(87% 0 0deg);
   touch-action: none;
   -webkit-user-select: none;
@@ -206,11 +207,15 @@
 }
 
 .Handle {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
   width: 3rem;
   height: 0.25rem;
-  margin: 0 auto 0.625rem;
+  margin: 0;
   flex-shrink: 0;
   background-color: oklch(87% 0 0deg);
+  transform: translateX(-50%);
 
   @media (prefers-color-scheme: dark) {
     background-color: oklch(37.1% 0 0deg);
