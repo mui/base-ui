@@ -17,7 +17,7 @@ import {
 const KEYBOARD_RESIZE_THRESHOLD = 60;
 const KEYBOARD_VISIBILITY_MARGIN = 16;
 const KEYBOARD_SCROLL_SLACK = 48;
-const KEYBOARD_SCROLL_DURATION = 180;
+const KEYBOARD_SCROLL_DURATION = 260;
 const INPUT_TAP_MOVE_THRESHOLD = 10;
 const INPUT_TAP_HIT_SLOP = 16;
 const NON_TEXT_INPUT_TYPES = new Set([
@@ -326,7 +326,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   }, [mounted, open, rootElement]);
 
   const onTouchStart = useStableCallback((event: React.TouchEvent<Element>) => {
-    if (!open || !mounted) {
+    if (!open || !mounted || nestedDrawerOpen) {
       resetTouchTrackingState();
       return;
     }
@@ -341,9 +341,16 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   });
 
   const onTouchEnd = useStableCallback((event: React.TouchEvent<Element>) => {
-    if (!rootElement || pendingKeyboardFocusMovedRef.current) {
+    if (
+      !open ||
+      !mounted ||
+      nestedDrawerOpen ||
+      !rootElement ||
+      !keyboardTouchStartRef.current ||
+      pendingKeyboardFocusMovedRef.current
+    ) {
       resetTouchTrackingState();
-      return false;
+      return;
     }
 
     const touch = event.changedTouches[0] ?? event.touches[0];
@@ -356,23 +363,22 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
     if (keyboardFocusTarget && !contains(rootElement, keyboardFocusTarget)) {
       resetTouchTrackingState();
-      return false;
+      return;
     }
 
     if (keyboardFocusTarget) {
       if (activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget) {
         resetTouchTrackingState();
-        return false;
+        return;
       }
 
       event.preventDefault();
       focusKeyboardInputWithoutPageScroll(keyboardFocusTarget);
       resetTouchTrackingState();
-      return true;
+      return;
     }
 
     resetTouchTrackingState();
-    return false;
   });
 
   const onTouchCancel = useStableCallback(() => {

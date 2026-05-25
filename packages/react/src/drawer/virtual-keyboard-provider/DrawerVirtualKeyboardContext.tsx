@@ -3,11 +3,7 @@ import * as React from 'react';
 
 export interface DrawerVirtualKeyboardContext {
   onTouchStart: (event: React.TouchEvent<Element>) => void;
-  /**
-   * Returns `true` when the provider handled the touch by focusing a keyboard input,
-   * so the caller should skip the normal swipe end handling.
-   */
-  onTouchEnd: (event: React.TouchEvent<Element>) => boolean;
+  onTouchEnd: (event: React.TouchEvent<Element>) => void;
   onTouchCancel: () => void;
 }
 

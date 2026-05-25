@@ -711,6 +711,7 @@ describe('<Drawer.Viewport />', () => {
         <Drawer.Root open modal={false}>
           <Drawer.VirtualKeyboardProvider>
             <Drawer.Portal>
+              <Drawer.Backdrop data-testid="backdrop" />
               <Drawer.Viewport>
                 <Drawer.Popup>
                   <input
@@ -729,6 +730,7 @@ describe('<Drawer.Viewport />', () => {
         </Drawer.Root>,
       );
 
+      const backdrop = screen.getByTestId('backdrop');
       const input = screen.getByTestId('input');
       const focusSpy = vi.spyOn(input, 'focus');
       const originalElementFromPoint = document.elementFromPoint;
@@ -742,6 +744,10 @@ describe('<Drawer.Viewport />', () => {
               clientY: 0,
             }),
           ],
+        });
+
+        await waitFor(() => {
+          expect(backdrop).toHaveAttribute('data-swiping', '');
         });
 
         const touchEnd = createNativeTouchEnd(input, {
@@ -759,12 +765,55 @@ describe('<Drawer.Viewport />', () => {
         expect(input.style.opacity).toBe('0.5');
         expect(input.style.transform).toBe('scale(1)');
         expect(input.style.transition).toBe('opacity 1s');
+
+        await waitFor(() => {
+          expect(backdrop).not.toHaveAttribute('data-swiping');
+        });
       } finally {
         document.elementFromPoint = originalElementFromPoint;
         focusSpy.mockRestore();
       }
     },
   );
+
+  it.skipIf(isJSDOM)('does not focus a keyboard input on touchend without touchstart', async () => {
+    await render(
+      <Drawer.Root open modal={false}>
+        <Drawer.VirtualKeyboardProvider>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <input data-testid="input" type="text" />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.VirtualKeyboardProvider>
+      </Drawer.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    const focusSpy = vi.spyOn(input, 'focus');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => input;
+
+    try {
+      const touchEnd = createNativeTouchEnd(input, {
+        clientX: 0,
+        clientY: 0,
+      });
+
+      await act(async () => {
+        input.dispatchEvent(touchEnd);
+        await flushMicrotasks();
+      });
+
+      expect(touchEnd.defaultPrevented).toBe(false);
+      expect(focusSpy).not.toHaveBeenCalled();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      focusSpy.mockRestore();
+    }
+  });
 
   it.skipIf(isJSDOM)('preserves native taps on an already-focused keyboard input', async () => {
     await render(
@@ -1575,6 +1624,7 @@ describe('<Drawer.Viewport />', () => {
         await flushMicrotasks();
       });
 
+      expect(touchMove.defaultPrevented).toBe(true);
       expect(backdrop).toHaveAttribute('data-swiping');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
@@ -1626,6 +1676,7 @@ describe('<Drawer.Viewport />', () => {
         await flushMicrotasks();
       });
 
+      expect(touchMove.defaultPrevented).toBe(true);
       expect(backdrop).toHaveAttribute('data-swiping');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
@@ -1681,6 +1732,7 @@ describe('<Drawer.Viewport />', () => {
         await flushMicrotasks();
       });
 
+      expect(touchMove.defaultPrevented).toBe(true);
       expect(backdrop).toHaveAttribute('data-swiping');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
@@ -1727,6 +1779,7 @@ describe('<Drawer.Viewport />', () => {
         await flushMicrotasks();
       });
 
+      expect(touchMove.defaultPrevented).toBe(true);
       expect(backdrop).toHaveAttribute('data-swiping');
     } finally {
       document.elementFromPoint = originalElementFromPoint;
