@@ -16,7 +16,6 @@
   "imports": {
     "#formatErrorMessage": "./src/formatErrorMessage.ts"
   },
-  "type": "commonjs",
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "build": "code-infra build --copy .npmignore",
