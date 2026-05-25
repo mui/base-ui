@@ -3,7 +3,7 @@ import { visitParents } from 'unist-util-visit-parents';
 /**
  * Unwrap potential paragraphs inside `<Subtitle>`
  */
-export function rehypeSubtitle() {
+export default function rehypeSubtitle() {
   return (tree) => {
     visitParents(tree, (node, ancestors) => {
       const parent = ancestors.slice(-1)[0];

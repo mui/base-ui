@@ -111,7 +111,6 @@
     "#test-utils": "./test/index.ts",
     "#formatErrorMessage": "@base-ui/utils/formatErrorMessage"
   },
-  "type": "commonjs",
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
     "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore",
