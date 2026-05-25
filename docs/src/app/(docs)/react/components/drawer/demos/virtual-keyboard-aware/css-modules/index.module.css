@@ -194,24 +194,7 @@
 }
 
 .HeaderButton {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   min-width: 0;
-  height: 2rem;
-  padding: 0;
-  margin: 0;
-  border: 0;
-  background-color: transparent;
-  font-family: inherit;
-  font-size: 0.875rem;
-  line-height: 1;
-  font-weight: 700;
-  color: oklch(45% 0.16 142deg);
-  white-space: nowrap;
-  -webkit-user-select: none;
-  user-select: none;
 
   &:first-child {
     justify-self: start;
@@ -219,15 +202,6 @@
 
   &:last-child {
     justify-self: end;
-  }
-
-  &:focus-visible {
-    outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -1px;
-
-    @media (prefers-color-scheme: dark) {
-      outline-color: white;
-    }
   }
 }
 
@@ -250,19 +224,6 @@
   font-weight: 700;
   text-align: center;
   cursor: default;
-}
-
-.Description {
-  margin: 0.25rem auto 0;
-  max-width: 22.5rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: oklch(43.9% 0 0deg);
-  text-align: center;
-
-  @media (prefers-color-scheme: dark) {
-    color: oklch(70.8% 0 0deg);
-  }
 }
 
 .Scroll {

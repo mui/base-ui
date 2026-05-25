@@ -23,15 +23,14 @@ export default function ExampleDrawerVirtualKeyboardAware() {
               <div className={styles.Header}>
                 <div className={styles.Handle} />
                 <div className={styles.HeaderActions}>
-                  <Drawer.Close className={styles.HeaderButton}>Cancel</Drawer.Close>
+                  <Drawer.Close className={`${styles.Button} ${styles.HeaderButton}`}>
+                    Cancel
+                  </Drawer.Close>
                   <Drawer.Title className={styles.Title}>Delivery details</Drawer.Title>
-                  <button className={styles.HeaderButton} type="button">
+                  <button className={`${styles.Button} ${styles.HeaderButton}`} type="button">
                     Save
                   </button>
                 </div>
-                <Drawer.Description className={styles.Description}>
-                  Edit the address and delivery instructions.
-                </Drawer.Description>
               </div>
 
               <div className={styles.Scroll}>
