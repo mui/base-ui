@@ -7,20 +7,21 @@
 ### Root
 
 Interactive drop target and file selection area.
+Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop             | Type                                                                                        | Default | Description                                                                                                                                                                                                       |
-| :--------------- | :------------------------------------------------------------------------------------------ | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| dragging         | `boolean`                                                                                   | -       | Controlled dragging state.                                                                                                                                                                                        |
-| onDraggingChange | `((dragging: boolean) => void)`                                                             | -       | Called when dragging state changes.                                                                                                                                                                               |
-| onFilesDrop      | `((files: File[], event: React.DragEvent<HTMLDivElement>) => void)`                         | -       | Called when files are dropped on the dropzone.                                                                                                                                                                    |
-| onOpen           | `(() => void)`                                                                              | -       | Called when the dropzone is activated by click or keyboard and no&#xA;`Dropzone.HiddenInput` is present. Use this as an escape hatch to&#xA;open a custom file picker when the built-in hidden input is not used. |
-| disabled         | `boolean`                                                                                   | `false` | Whether the dropzone is disabled.                                                                                                                                                                                 |
-| children         | `React.ReactNode \| ((state: { isDragging: boolean }) => React.ReactNode)`                  | -       | The content of the dropzone.&#xA;This can be a React node or a render function that receives the dragging state.                                                                                                  |
-| className        | `string \| ((state: Dropzone.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                          |
-| style            | `React.CSSProperties \| ((state: Dropzone.Root.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                       |
-| render           | `ReactElement \| ((props: HTMLProps, state: Dropzone.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                     |
+| Prop             | Type                                                                                        | Default | Description                                                                                                                                                                                   |
+| :--------------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| dragging         | `boolean`                                                                                   | -       | Whether files are currently being dragged over the dropzone. To render an uncontrolled dropzone, omit this prop.                                                                              |
+| onDraggingChange | `((dragging: boolean) => void)`                                                             | -       | Event handler called when the dragging state changes.                                                                                                                                         |
+| onFilesDrop      | `((files: File[], event: React.DragEvent<HTMLDivElement>) => void)`                         | -       | Event handler called when files are dropped onto the dropzone.                                                                                                                                |
+| onOpen           | `(() => void)`                                                                              | -       | Event handler called when the dropzone is activated without a `Dropzone.HiddenInput` present.&#xA;Use this to open a custom file picker when the built-in hidden input is not used.           |
+| disabled         | `boolean`                                                                                   | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| children         | `React.ReactNode \| ((state: { isDragging: boolean }) => React.ReactNode)`                  | -       | The content of the dropzone.&#xA;A render function can be used to access the dragging state.                                                                                                  |
+| className        | `string \| ((state: Dropzone.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style            | `React.CSSProperties \| ((state: Dropzone.Root.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render           | `ReactElement \| ((props: HTMLProps, state: Dropzone.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
@@ -39,14 +40,15 @@ Re-export of [Root](#root) props.
 type DropzoneRootState = {
   /** Whether files are being dragged over the dropzone. */
   dragging: boolean;
-  /** Whether the dropzone is disabled. */
+  /** Whether the component should ignore user interaction. */
   disabled: boolean;
 };
 ```
 
 ### HiddenInput
 
-Hidden file input that enables file selection.
+Hidden file input that enables file selection via the native file picker.
+Renders an `<input>` element.
 
 **HiddenInput Props:**
 
@@ -64,7 +66,7 @@ Re-export of [HiddenInput](#hiddeninput) props.
 
 ```typescript
 type DropzoneHiddenInputState = {
-  /** Whether the parent dropzone is disabled. */
+  /** Whether the parent dropzone should ignore user interaction. */
   disabled: boolean;
 };
 ```

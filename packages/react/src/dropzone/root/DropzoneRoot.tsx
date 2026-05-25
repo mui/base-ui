@@ -14,7 +14,7 @@ export interface DropzoneRootState {
    */
   dragging: boolean;
   /**
-   * Whether the dropzone is disabled.
+   * Whether the component should ignore user interaction.
    */
   disabled: boolean;
 }
@@ -24,37 +24,41 @@ export interface DropzoneRootProps extends Omit<
   'children'
 > {
   /**
-   * Whether the dropzone is disabled.
+   * Whether the component should ignore user interaction.
    * @default false
    */
   disabled?: boolean | undefined;
   /**
-   * Controlled dragging state.
+   * Whether files are currently being dragged over the dropzone.
+   *
+   * To render an uncontrolled dropzone, omit this prop.
    */
   dragging?: boolean | undefined;
   /**
-   * Called when dragging state changes.
+   * Event handler called when the dragging state changes.
    */
   onDraggingChange?: ((dragging: boolean) => void) | undefined;
   /**
-   * Called when the dropzone is activated by click or keyboard and no
-   * `Dropzone.HiddenInput` is present. Use this as an escape hatch to
-   * open a custom file picker when the built-in hidden input is not used.
+   * Event handler called when the dropzone is activated without a `Dropzone.HiddenInput` present.
+   * Use this to open a custom file picker when the built-in hidden input is not used.
    */
   onOpen?: (() => void) | undefined;
   /**
-   * Called when files are dropped on the dropzone.
+   * Event handler called when files are dropped onto the dropzone.
    */
   onFilesDrop?: ((files: File[], event: React.DragEvent<HTMLDivElement>) => void) | undefined;
   /**
    * The content of the dropzone.
-   * This can be a React node or a render function that receives the dragging state.
+   * A render function can be used to access the dragging state.
    */
   children?: React.ReactNode | ((state: { isDragging: boolean }) => React.ReactNode) | undefined;
 }
 
 /**
  * Interactive drop target and file selection area.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Dropzone](https://base-ui.com/react/components/dropzone)
  */
 export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
   function DropzoneRoot(props, forwardedRef) {

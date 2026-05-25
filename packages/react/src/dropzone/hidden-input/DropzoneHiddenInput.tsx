@@ -8,7 +8,7 @@ import { useDropzoneRootContext } from '../root/DropzoneRootContext';
 
 export interface DropzoneHiddenInputState {
   /**
-   * Whether the parent dropzone is disabled.
+   * Whether the parent dropzone should ignore user interaction.
    */
   disabled: boolean;
 }
@@ -19,7 +19,10 @@ export interface DropzoneHiddenInputProps extends Omit<
 > {}
 
 /**
- * Hidden file input that enables file selection.
+ * Hidden file input that enables file selection via the native file picker.
+ * Renders an `<input>` element.
+ *
+ * Documentation: [Base UI Dropzone](https://base-ui.com/react/components/dropzone)
  */
 export const DropzoneHiddenInput = React.forwardRef(function DropzoneHiddenInput(
   componentProps: DropzoneHiddenInputProps,
