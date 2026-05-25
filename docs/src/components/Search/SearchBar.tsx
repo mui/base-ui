@@ -9,10 +9,10 @@ import type {
   Sitemap,
 } from '@mui/internal-docs-infra/useSearch/types';
 import { Autocomplete } from '@base-ui/react/autocomplete';
-import { Button } from '@base-ui/react/button';
 import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { isMac } from '@base-ui/utils/detectBrowser';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { CornerDownLeft } from 'lucide-react';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
@@ -85,19 +85,21 @@ const EmptyState = React.memo(function EmptyState() {
   return <Autocomplete.Status className="SearchEmptyState">No results found.</Autocomplete.Status>;
 });
 
-export function SearchBar({
-  sitemap: sitemapImport,
-  enableKeyboardShortcut = false,
-  containedScroll = false,
-}: {
+export interface SearchBarProps {
+  handle: Dialog.Handle<unknown>;
   sitemap: () => Promise<{ sitemap?: Sitemap }>;
-  enableKeyboardShortcut?: boolean;
   containedScroll?: boolean;
-}) {
-  const [dialogOpen, setDialogOpen] = React.useState(false);
+}
+
+export function SearchBar({
+  handle,
+  sitemap: sitemapImport,
+  containedScroll = false,
+}: SearchBarProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
   const ga = useGoogleAnalytics();
+  const [open, setOpen] = React.useState(handle.isOpen);
 
   // Search session tracking
   const searchQueryRef = React.useRef('');
@@ -105,16 +107,9 @@ export function SearchBar({
   const attemptRef = React.useRef(0);
   const selectedResultRef = React.useRef<SearchResult | null>(null);
   const lastTrackedQueryRef = React.useRef('');
-  const queryDebounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Clean up pending debounce on unmount
-  React.useEffect(() => {
-    return () => {
-      if (queryDebounceRef.current) {
-        clearTimeout(queryDebounceRef.current);
-      }
-    };
-  }, []);
+  const queryDebounceTimeout = useTimeout();
+  const emptyResultsTimeout = useTimeout();
+  const resetResultsTimeout = useTimeout();
 
   // Use the generic search hook with Base UI specific configuration
   const { results, search, defaultResults, buildResultUrl } = useSearch({
@@ -140,183 +135,147 @@ export function SearchBar({
       setSearchResults(results);
     };
 
+    emptyResultsTimeout.clear();
+
     // Delay empty results to avoid flashing "No results" while typing
     if (results.results.length === 0) {
-      const timeoutId = setTimeout(updateResults, 400);
-      return () => clearTimeout(timeoutId);
+      emptyResultsTimeout.start(400, updateResults);
+      return emptyResultsTimeout.clear;
     }
 
     updateResults();
     return undefined;
-  }, [results]);
+  }, [emptyResultsTimeout, results]);
 
-  const handleOpenDialog = React.useCallback(() => {
+  const handleOpenDialog = useStableCallback(() => {
     // Reset search session tracking
     searchQueryRef.current = '';
     resultCountRef.current = 0;
     attemptRef.current = 0;
     selectedResultRef.current = null;
     lastTrackedQueryRef.current = '';
-    if (queryDebounceRef.current) {
-      clearTimeout(queryDebounceRef.current);
-      queryDebounceRef.current = null;
-    }
+    queryDebounceTimeout.clear();
+    resetResultsTimeout.clear();
     ga?.trackEvent({ category: 'search', action: 'open' });
-    setDialogOpen(true);
-  }, [ga]);
+  });
 
-  const handleCloseDialog = React.useCallback(
-    (open: boolean) => {
-      if (!open) {
-        // Cancel any pending debounced query event
-        if (queryDebounceRef.current) {
-          clearTimeout(queryDebounceRef.current);
-          queryDebounceRef.current = null;
-        }
+  const previousOpenRef = React.useRef(false);
+  React.useEffect(() => {
+    if (open && !previousOpenRef.current) {
+      handleOpenDialog();
+    }
 
-        // Fire final search event for the current query
-        if (searchQueryRef.current) {
-          const selected = selectedResultRef.current;
+    previousOpenRef.current = open;
+  }, [handleOpenDialog, open]);
+
+  const handleOpenChange = useStableCallback((nextOpen: boolean) => {
+    if (!nextOpen) {
+      // Cancel any pending debounced query event
+      queryDebounceTimeout.clear();
+
+      // Fire final search event for the current query
+      if (searchQueryRef.current) {
+        const selected = selectedResultRef.current;
+        ga?.trackEvent({
+          category: 'search',
+          action: selected ? 'select' : 'dismiss',
+          label: searchQueryRef.current,
+          params: {
+            search_term: searchQueryRef.current,
+            result_count: resultCountRef.current,
+            attempt: attemptRef.current,
+            ...(selected
+              ? {
+                  selected_result: selected.title || selected.slug,
+                  selected_type: selected.type || '',
+                }
+              : { failed: searchQueryRef.current }),
+          },
+        });
+        lastTrackedQueryRef.current = searchQueryRef.current;
+      }
+
+      setOpen(false);
+
+      // Wait for the closing animation to complete before resetting state
+      resetResultsTimeout.start(200, () => {
+        setSearchResults(defaultResults);
+      });
+    } else {
+      setOpen(true);
+    }
+  });
+
+  const handleAutocompleteEscape = useStableCallback(
+    (autocompleteOpen: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
+      if (!autocompleteOpen && eventDetails.reason === 'escape-key') {
+        handle.close();
+      }
+    },
+  );
+
+  const handleValueChange = useStableCallback(async (value: string) => {
+    // Cancel any pending debounced query event
+    queryDebounceTimeout.clear();
+
+    const previousLength = searchQueryRef.current?.length ?? 0;
+    searchQueryRef.current = value;
+    if (value) {
+      // Increment attempt when starting a new query (transition from empty to non-empty)
+      if (previousLength === 0 && value.length > 0) {
+        attemptRef.current += 1;
+      }
+
+      // Fire a debounced 'query' event when the user pauses typing
+      queryDebounceTimeout.start(1500, () => {
+        if (searchQueryRef.current && searchQueryRef.current !== lastTrackedQueryRef.current) {
           ga?.trackEvent({
             category: 'search',
-            action: selected ? 'select' : 'dismiss',
+            action: 'query',
             label: searchQueryRef.current,
             params: {
               search_term: searchQueryRef.current,
               result_count: resultCountRef.current,
               attempt: attemptRef.current,
-              ...(selected
-                ? {
-                    selected_result: selected.title || selected.slug,
-                    selected_type: selected.type || '',
-                  }
-                : { failed: searchQueryRef.current }),
             },
           });
           lastTrackedQueryRef.current = searchQueryRef.current;
         }
-
-        setDialogOpen(false);
-
-        // Wait for the closing animation to complete before resetting state
-        setTimeout(() => {
-          setSearchResults(defaultResults);
-        }, 200);
-      } else {
-        handleOpenDialog();
-      }
-    },
-    [handleOpenDialog, defaultResults, ga],
-  );
-
-  const handleAutocompleteEscape = React.useCallback(
-    (open: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
-      if (!open && eventDetails.reason === 'escape-key') {
-        handleCloseDialog(false);
-      }
-    },
-    [handleCloseDialog],
-  );
-
-  React.useEffect(() => {
-    // Only enable keyboard shortcut if explicitly requested (for desktop version)
-    if (!enableKeyboardShortcut) {
-      return undefined;
+      });
     }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-        event.preventDefault();
-        event.stopPropagation();
-
-        // Only open if not already open or in the process of opening/closing
-        if (!dialogOpen) {
-          handleOpenDialog();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [handleOpenDialog, enableKeyboardShortcut, dialogOpen]);
-
-  const handleValueChange = React.useCallback(
-    async (value: string) => {
-      // Cancel any pending debounced query event
-      if (queryDebounceRef.current) {
-        clearTimeout(queryDebounceRef.current);
-        queryDebounceRef.current = null;
-      }
-
-      const previousLength = searchQueryRef.current?.length ?? 0;
-      searchQueryRef.current = value;
-      if (value) {
-        // Increment attempt when starting a new query (transition from empty to non-empty)
-        if (previousLength === 0 && value.length > 0) {
-          attemptRef.current += 1;
-        }
-
-        // Fire a debounced 'query' event when the user pauses typing
-        queryDebounceRef.current = setTimeout(() => {
-          if (searchQueryRef.current && searchQueryRef.current !== lastTrackedQueryRef.current) {
-            ga?.trackEvent({
-              category: 'search',
-              action: 'query',
-              label: searchQueryRef.current,
-              params: {
-                search_term: searchQueryRef.current,
-                result_count: resultCountRef.current,
-                attempt: attemptRef.current,
-              },
-            });
-            lastTrackedQueryRef.current = searchQueryRef.current;
-          }
-        }, 1500);
-      }
-      await search(value, { groupBy: { properties: ['group'], maxResult: 5 } });
-    },
-    [search, ga],
-  );
+    await search(value, { groupBy: { properties: ['group'], maxResult: 5 } });
+  });
 
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
 
-  const handleItemClick = React.useCallback(() => {
+  const handleItemClick = useStableCallback(() => {
     selectedResultRef.current = highlightedResultRef.current ?? null;
-    handleCloseDialog(false);
-  }, [handleCloseDialog]);
+    handle.close();
+  });
 
-  const handleItemHighlighted = React.useCallback((item: SearchResult | undefined) => {
+  const handleItemHighlighted = useStableCallback((item: SearchResult | undefined) => {
     highlightedResultRef.current = item;
-  }, []);
+  });
 
-  const handleKeyDownCapture = React.useCallback(
-    (event: React.KeyboardEvent) => {
-      // Only handle Enter with modifiers
-      if (event.key !== 'Enter' || (!event.metaKey && !event.ctrlKey && !event.altKey)) {
-        return;
-      }
+  const handleKeyDownCapture = useStableCallback((event: React.KeyboardEvent) => {
+    // Only handle Enter with modifiers
+    if (event.key !== 'Enter' || (!event.metaKey && !event.ctrlKey && !event.altKey)) {
+      return;
+    }
 
-      const highlightedResult = highlightedResultRef.current;
-      if (!highlightedResult) {
-        return;
-      }
+    const highlightedResult = highlightedResultRef.current;
+    if (!highlightedResult) {
+      return;
+    }
 
-      // Prevent the Input/List handlers from processing this
-      event.preventDefault();
-      event.stopPropagation();
+    // Prevent the Input/List handlers from processing this
+    event.preventDefault();
+    event.stopPropagation();
 
-      // Open in new tab
-      const url = buildResultUrl(highlightedResult);
-      window.open(url, '_blank', 'noopener,noreferrer');
-    },
-    [buildResultUrl],
-  );
-
-  const showCmdSymbol = React.useSyncExternalStore(
-    () => () => {},
-    () => enableKeyboardShortcut && isMac,
-    () => true, // Show Cmd symbol on server-side render
-  );
+    // Open in new tab
+    const url = buildResultUrl(highlightedResult);
+    window.open(url, '_blank', 'noopener,noreferrer');
+  });
 
   // Memoized search input component
   const searchInput = React.useMemo(
@@ -370,126 +329,110 @@ export function SearchBar({
   );
 
   return (
-    <React.Fragment>
-      <Button onClick={handleOpenDialog} aria-label="Search" className={`SearchTrigger`}>
-        <MagnifyingGlassIcon className="SearchTriggerIcon" />
-        <div className="SearchTriggerKbd">
-          {showCmdSymbol ? (
-            <kbd className="SearchTriggerCmd">⌘</kbd>
-          ) : (
-            <React.Fragment>
-              <kbd className="SearchTriggerCtrl">Ctrl</kbd>
-              <span className="SearchTriggerPlus">+</span>
-            </React.Fragment>
-          )}
-          <kbd className="SearchTriggerK">K</kbd>
-        </div>
-      </Button>
-      <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
-        <Dialog.Portal>
-          <Dialog.Backdrop className="SearchBackdrop" />
-          {containedScroll ? (
-            <Dialog.Viewport className="SearchViewportContained">
-              <Dialog.Popup
-                ref={popupRef}
-                initialFocus={inputRef}
-                data-open={dialogOpen}
-                className="SearchPopupContained"
+    <Dialog.Root handle={handle} onOpenChange={handleOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Backdrop className="SearchBackdrop" />
+        {containedScroll ? (
+          <Dialog.Viewport className="SearchViewportContained">
+            <Dialog.Popup
+              ref={popupRef}
+              initialFocus={inputRef}
+              data-open={open}
+              className="SearchPopupContained"
+            >
+              <Autocomplete.Root
+                items={searchResults.results}
+                onValueChange={handleValueChange}
+                onOpenChange={handleAutocompleteEscape}
+                onItemHighlighted={handleItemHighlighted}
+                open
+                inline
+                itemToStringValue={itemToStringValue}
+                filter={null}
+                autoHighlight="always"
+                keepHighlight
               >
-                <Autocomplete.Root
-                  items={searchResults.results}
-                  onValueChange={handleValueChange}
-                  onOpenChange={handleAutocompleteEscape}
-                  onItemHighlighted={handleItemHighlighted}
-                  open
-                  inline
-                  itemToStringValue={itemToStringValue}
-                  filter={null}
-                  autoHighlight="always"
-                  keepHighlight
-                >
-                  <div className="SearchHeadContained">{searchInput}</div>
-                  <div className="SearchBody">
-                    <ScrollArea.Root className="SearchScrollAreaRoot">
-                      <ScrollArea.Viewport className="SearchScrollAreaViewport">
-                        <ScrollArea.Content style={{ minWidth: '100%' }}>
-                          {searchResults.results.length === 0 ? (
-                            <EmptyState />
-                          ) : (
-                            <Autocomplete.List
-                              className="SearchList"
-                              onKeyDownCapture={handleKeyDownCapture}
-                            >
-                              {renderResultsList}
-                            </Autocomplete.List>
-                          )}
-                        </ScrollArea.Content>
-                      </ScrollArea.Viewport>
-                      <ScrollArea.Scrollbar className="SearchScrollbar ">
-                        <ScrollArea.Thumb className="SearchScrollbarThumb" />
-                      </ScrollArea.Scrollbar>
-                    </ScrollArea.Root>
+                <div className="SearchHeadContained">{searchInput}</div>
+                <div className="SearchBody">
+                  <ScrollArea.Root className="SearchScrollAreaRoot">
+                    <ScrollArea.Viewport className="SearchScrollAreaViewport">
+                      <ScrollArea.Content style={{ minWidth: '100%' }}>
+                        {searchResults.results.length === 0 ? (
+                          <EmptyState />
+                        ) : (
+                          <Autocomplete.List
+                            className="SearchList"
+                            onKeyDownCapture={handleKeyDownCapture}
+                          >
+                            {renderResultsList}
+                          </Autocomplete.List>
+                        )}
+                      </ScrollArea.Content>
+                    </ScrollArea.Viewport>
+                    <ScrollArea.Scrollbar className="SearchScrollbar ">
+                      <ScrollArea.Thumb className="SearchScrollbarThumb" />
+                    </ScrollArea.Scrollbar>
+                  </ScrollArea.Root>
+                </div>
+                <div className="SearchFooter">
+                  <div className="SearchFooterHint">
+                    <kbd aria-label="Enter" className="SearchFooterEnter">
+                      <CornerDownLeft size={12} />
+                    </kbd>
+                    <span>Go to page</span>
                   </div>
-                  <div className="SearchFooter">
-                    <div className="SearchFooterHint">
-                      <kbd aria-label="Enter" className="SearchFooterEnter">
-                        <CornerDownLeft size={12} />
-                      </kbd>
-                      <span>Go to page</span>
-                    </div>
-                  </div>
-                </Autocomplete.Root>
-                <Dialog.Close className="SearchClose">Close</Dialog.Close>
-              </Dialog.Popup>
-            </Dialog.Viewport>
-          ) : (
-            <Dialog.Viewport className="SearchViewportDefault">
-              <ScrollArea.Root style={{ position: undefined }} className="SearchRootScrollable">
-                <ScrollArea.Viewport className="SearchRootScrollable">
-                  <ScrollArea.Content className="SearchContentWrap">
-                    <Dialog.Popup
-                      ref={popupRef}
-                      initialFocus={inputRef}
-                      data-open={dialogOpen}
-                      className="SearchPopupDefault"
+                </div>
+              </Autocomplete.Root>
+              <Dialog.Close className="SearchClose">Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Viewport>
+        ) : (
+          <Dialog.Viewport className="SearchViewportDefault">
+            <ScrollArea.Root style={{ position: undefined }} className="SearchRootScrollable">
+              <ScrollArea.Viewport className="SearchRootScrollable">
+                <ScrollArea.Content className="SearchContentWrap">
+                  <Dialog.Popup
+                    ref={popupRef}
+                    initialFocus={inputRef}
+                    data-open={open}
+                    className="SearchPopupDefault"
+                  >
+                    <Autocomplete.Root
+                      items={searchResults.results}
+                      onValueChange={handleValueChange}
+                      onOpenChange={handleAutocompleteEscape}
+                      onItemHighlighted={handleItemHighlighted}
+                      open
+                      inline
+                      itemToStringValue={itemToStringValue}
+                      filter={null}
+                      autoHighlight
                     >
-                      <Autocomplete.Root
-                        items={searchResults.results}
-                        onValueChange={handleValueChange}
-                        onOpenChange={handleAutocompleteEscape}
-                        onItemHighlighted={handleItemHighlighted}
-                        open
-                        inline
-                        itemToStringValue={itemToStringValue}
-                        filter={null}
-                        autoHighlight
-                      >
-                        <div className="SearchHeadDefault">{searchInput}</div>
-                        <div>
-                          {searchResults.results.length === 0 ? (
-                            <EmptyState />
-                          ) : (
-                            <Autocomplete.List
-                              className="SearchListDefault"
-                              onKeyDownCapture={handleKeyDownCapture}
-                            >
-                              {renderResultsList}
-                            </Autocomplete.List>
-                          )}
-                        </div>
-                      </Autocomplete.Root>
-                      <Dialog.Close className="SearchClose">Close</Dialog.Close>
-                    </Dialog.Popup>
-                  </ScrollArea.Content>
-                </ScrollArea.Viewport>
-                <ScrollArea.Scrollbar className="SearchScrollbar ">
-                  <ScrollArea.Thumb className="SearchScrollbarThumb" />
-                </ScrollArea.Scrollbar>
-              </ScrollArea.Root>
-            </Dialog.Viewport>
-          )}
-        </Dialog.Portal>
-      </Dialog.Root>
-    </React.Fragment>
+                      <div className="SearchHeadDefault">{searchInput}</div>
+                      <div>
+                        {searchResults.results.length === 0 ? (
+                          <EmptyState />
+                        ) : (
+                          <Autocomplete.List
+                            className="SearchListDefault"
+                            onKeyDownCapture={handleKeyDownCapture}
+                          >
+                            {renderResultsList}
+                          </Autocomplete.List>
+                        )}
+                      </div>
+                    </Autocomplete.Root>
+                    <Dialog.Close className="SearchClose">Close</Dialog.Close>
+                  </Dialog.Popup>
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar className="SearchScrollbar ">
+                <ScrollArea.Thumb className="SearchScrollbarThumb" />
+              </ScrollArea.Scrollbar>
+            </ScrollArea.Root>
+          </Dialog.Viewport>
+        )}
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

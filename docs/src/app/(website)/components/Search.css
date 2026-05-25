@@ -1,0 +1,33 @@
+@layer components {
+  .WebsiteSearchTrigger {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font: inherit;
+    color: currentColor;
+    text-align: left;
+    -webkit-user-select: none;
+    user-select: none;
+    outline: 0;
+  }
+
+  .WebsiteSearchTrigger kbd {
+    font: inherit;
+  }
+
+  @media (hover: hover) {
+    .WebsiteSearchTrigger:hover {
+      background-color: var(--gray-c1);
+    }
+  }
+
+  .WebsiteSearchTrigger:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -1px;
+  }
+}
