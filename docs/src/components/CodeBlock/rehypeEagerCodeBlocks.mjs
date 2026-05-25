@@ -2,7 +2,7 @@ import { visit, EXIT, CONTINUE } from 'unist-util-visit';
 
 const EAGER_COUNT = 2;
 
-export function rehypeEagerCodeBlocks() {
+export default function rehypeEagerCodeBlocks() {
   return (tree) => {
     let count = 0;
     visit(tree, 'element', (node) => {
