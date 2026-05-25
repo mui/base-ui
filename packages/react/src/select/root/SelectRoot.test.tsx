@@ -4191,6 +4191,39 @@ describe('<Select.Root />', () => {
       expect(values).toEqual(['a', 'c']);
     });
 
+    it.skipIf(isJSDOM)('does not submit multiple values when disabled', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.getAll('select');
+      });
+
+      const { user } = await render(
+        <form onSubmit={submitSpy}>
+          <Select.Root multiple disabled name="select" value={['a', 'c']}>
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                  <Select.Item value="c">c</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toEqual([]);
+    });
+
     it('should serialize empty array as empty string in multiple mode', async () => {
       const { container } = await render(
         <Select.Root multiple name="select">

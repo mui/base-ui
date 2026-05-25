@@ -541,10 +541,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           form={form}
           name={name}
           value={currentSerializedValue}
+          disabled={disabled}
         />
       );
     });
-  }, [multiple, value, form, name, itemToStringValue]);
+  }, [multiple, value, form, name, itemToStringValue, disabled]);
 
   return (
     <SelectRootContext.Provider value={contextValue}>

@@ -1234,10 +1234,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           form={form}
           name={name}
           value={currentSerializedValue}
+          disabled={disabled}
         />
       );
     });
-  }, [multiple, selectedValue, form, name, itemToStringValue]);
+  }, [multiple, selectedValue, form, name, itemToStringValue, disabled]);
 
   const children = (
     <React.Fragment>

@@ -244,7 +244,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     <SwitchRootContext.Provider value={state}>
       {element}
       {!checked && name && uncheckedValue !== undefined && (
-        <input type="hidden" form={form} name={name} value={uncheckedValue} />
+        <input type="hidden" form={form} name={name} value={uncheckedValue} disabled={disabled} />
       )}
       <input {...inputProps} suppressHydrationWarning />
     </SwitchRootContext.Provider>
