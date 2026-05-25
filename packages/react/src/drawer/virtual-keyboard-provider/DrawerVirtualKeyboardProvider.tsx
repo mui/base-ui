@@ -64,6 +64,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   const viewportElement = store.useState('viewportElement');
   const popupElementState = store.useState('popupElement');
 
+  const rootElement = viewportElement ?? popupElementState;
   const nestedDrawerOpen = nestedOpenDialogCount > 0;
 
   const pendingKeyboardFocusMovedRef = React.useRef(false);
@@ -166,7 +167,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       return undefined;
     }
 
-    const rootElement = viewportElement ?? popupElementState;
     if (!rootElement) {
       restoreKeyboardScrollAdjustment();
       return undefined;
@@ -290,14 +290,12 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     mounted,
     nestedDrawerOpen,
     open,
-    popupElementState,
     restoreKeyboardScrollAdjustment,
+    rootElement,
     setKeyboardScrollSlack,
-    viewportElement,
   ]);
 
   React.useEffect(() => {
-    const rootElement = viewportElement ?? popupElementState;
     if (!rootElement || !open || !mounted) {
       return undefined;
     }
@@ -325,7 +323,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     return () => {
       doc.removeEventListener('touchmove', handleNativeTouchMove, { capture: true });
     };
-  }, [mounted, open, popupElementState, viewportElement]);
+  }, [mounted, open, rootElement]);
 
   const onTouchStart = useStableCallback((event: React.TouchEvent<Element>) => {
     if (!open || !mounted) {
@@ -343,7 +341,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   });
 
   const onTouchEnd = useStableCallback((event: React.TouchEvent<Element>) => {
-    const rootElement = viewportElement ?? popupElementState;
     if (!rootElement || pendingKeyboardFocusMovedRef.current) {
       resetTouchTrackingState();
       return false;
@@ -351,14 +348,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
     const touch = event.changedTouches[0] ?? event.touches[0];
     const doc = ownerDocument(event.currentTarget);
-    const elementAtPoint = touch ? getElementAtPoint(doc, touch.clientX, touch.clientY) : null;
     const nativeEventTarget = getTarget(event.nativeEvent);
-    const fallbackTouchTarget = isHTMLElement(nativeEventTarget) ? nativeEventTarget : null;
-    const touchTarget = isHTMLElement(elementAtPoint) ? elementAtPoint : fallbackTouchTarget;
     const keyboardFocusTarget =
       touch &&
       (resolveKeyboardInputTargetFromPoint(doc, touch.clientX, touch.clientY) ??
-        (touchTarget ? resolveKeyboardInputTarget(touchTarget) : null));
+        resolveKeyboardInputTarget(nativeEventTarget));
 
     if (keyboardFocusTarget && !contains(rootElement, keyboardFocusTarget)) {
       resetTouchTrackingState();
