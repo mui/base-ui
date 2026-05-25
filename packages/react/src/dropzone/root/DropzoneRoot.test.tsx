@@ -153,27 +153,14 @@ describe('Dropzone.Root', () => {
     expect(screen.getByText('idle')).toBeInTheDocument();
   });
 
-  it('supports controlled dragging state', () => {
+  it('calls onDraggingChange when dragging state changes', () => {
     const onDraggingChange = vi.fn();
 
-    function ControlledDropzone() {
-      const [dragging, setDragging] = React.useState(false);
-
-      return (
-        <Dropzone.Root
-          data-testid="dropzone"
-          dragging={dragging}
-          onDraggingChange={(nextDragging) => {
-            onDraggingChange(nextDragging);
-            setDragging(nextDragging);
-          }}
-        >
-          {({ isDragging }) => <span>{isDragging ? 'dragging' : 'idle'}</span>}
-        </Dropzone.Root>
-      );
-    }
-
-    render(<ControlledDropzone />);
+    render(
+      <Dropzone.Root data-testid="dropzone" onDraggingChange={onDraggingChange}>
+        {({ isDragging }) => <span>{isDragging ? 'dragging' : 'idle'}</span>}
+      </Dropzone.Root>,
+    );
 
     const dropzone = screen.getByTestId('dropzone');
 

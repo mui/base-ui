@@ -29,12 +29,6 @@ export interface DropzoneRootProps extends Omit<
    */
   disabled?: boolean | undefined;
   /**
-   * Whether files are currently being dragged over the dropzone.
-   *
-   * To render an uncontrolled dropzone, omit this prop.
-   */
-  dragging?: boolean | undefined;
-  /**
    * Event handler called when the dragging state changes.
    */
   onDraggingChange?: ((dragging: boolean) => void) | undefined;
@@ -68,29 +62,25 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
       style,
       children,
       disabled = false,
-      dragging: draggingProp,
       onDraggingChange,
       onOpen,
       onFilesDrop,
       ...elementProps
     } = props;
 
-    const [draggingUncontrolled, setDraggingUncontrolled] = React.useState(false);
+    const [dragging, setDraggingState] = React.useState(false);
     const [announcement, setAnnouncement] = React.useState<{ text: string; key: number }>({
       text: '',
       key: 0,
     });
     const inputElementRef = React.useRef<HTMLInputElement | null>(null);
-    const dragging = draggingProp ?? draggingUncontrolled;
 
     const setInputElement = useStableCallback((node: HTMLInputElement | null) => {
       inputElementRef.current = node;
     });
 
     const setDragging = useStableCallback((nextDragging: boolean) => {
-      if (draggingProp == null) {
-        setDraggingUncontrolled(nextDragging);
-      }
+      setDraggingState(nextDragging);
       onDraggingChange?.(nextDragging);
     });
 
