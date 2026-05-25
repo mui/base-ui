@@ -531,7 +531,7 @@ export interface NumberFieldRootProps extends Omit<
    */
   allowOutOfRange?: boolean | undefined;
   /**
-   * The small step value of the input element when incrementing while the meta key is held. Snaps
+   * The small step value of the input element when incrementing while the alt key is held. Snaps
    * to multiples of this value.
    * @default 0.1
    */

@@ -189,19 +189,22 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const shouldUpdateValue = value !== committed;
       const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
 
-      if (validationMode === 'onBlur') {
-        validation.commit(committed);
-      }
+      // Use the stored value after `setValue` clamps it.
+      let committedValue = committed;
       if (shouldUpdateValue) {
         blockRevalidationRef.current = true;
         setValue(committed, createChangeEventDetails(REASONS.inputBlur, event.nativeEvent));
+        committedValue = lastChangedValueRef.current ?? committed;
+      }
+      if (validationMode === 'onBlur') {
+        validation.commit(committedValue);
       }
       if (shouldCommit) {
-        onValueCommitted(committed, nextEventDetails);
+        onValueCommitted(committedValue, nextEventDetails);
       }
 
       // Normalize only the displayed text
-      const canonicalText = formatNumber(committed, locale, formatOptions);
+      const canonicalText = formatNumber(committedValue, locale, formatOptions);
       const shouldPreserveFullPrecision =
         !hasExplicitPrecision &&
         parsedValue === value &&
@@ -331,13 +334,15 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const isPersianNumeral = PERSIAN_DETECT_RE.test(event.key);
       const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
+      // Alt+ArrowUp/ArrowDown selects smallStep, so don't treat it as a bypass modifier.
+      const isStepKey = event.key === 'ArrowUp' || event.key === 'ArrowDown';
 
       if (
         // Allow composition events (e.g., pinyin)
         // event.nativeEvent.isComposing does not work in Safari:
         // https://bugs.webkit.org/show_bug.cgi?id=165004
         event.which === 229 ||
-        event.altKey ||
+        (event.altKey && !isStepKey) ||
         event.ctrlKey ||
         event.metaKey ||
         isAllowedNonNumericKey ||
