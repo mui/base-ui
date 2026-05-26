@@ -472,6 +472,26 @@ describe('<Switch.Root />', () => {
       expect(submitSpy.mock.results.at(-1)?.value).toBe('off');
     });
 
+    it.skipIf(isJSDOM)('does not submit uncheckedValue when disabled', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-switch');
+      });
+
+      const { user } = await render(
+        <form onSubmit={submitSpy}>
+          <Switch.Root name="test-switch" uncheckedValue="off" disabled />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe(null);
+    });
+
     it.skipIf(isJSDOM)('matches native checkbox form submission behavior', async () => {
       const nativeSubmitSpy = vi.fn((event) => {
         event.preventDefault();
@@ -963,16 +983,18 @@ describe('<Switch.Root />', () => {
     it('Field.Description', async () => {
       await render(
         <Field.Root>
-          <Switch.Root data-testid="button" />
+          <Switch.Root data-testid="button" aria-describedby="external-description" />
           <Field.Description data-testid="description" />
         </Field.Root>,
       );
 
       const internalInput = screen.queryByRole<HTMLInputElement>('checkbox', { hidden: true });
+      const description = screen.getByTestId('description');
 
-      expect(internalInput).toHaveAttribute(
+      expect(internalInput).toHaveAttribute('aria-describedby', description.id);
+      expect(screen.getByRole('switch')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${description.id}`,
       );
     });
   });

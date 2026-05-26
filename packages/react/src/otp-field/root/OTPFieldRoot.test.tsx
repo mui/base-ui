@@ -666,7 +666,7 @@ describe('<OTPFieldPreview />', () => {
         <Field.Root>
           <Field.Label data-testid="label">Verification code</Field.Label>
           <Field.Description data-testid="description">Enter the code.</Field.Description>
-          <OTPField />
+          <OTPField aria-describedby="external-description" />
         </Field.Root>,
       );
 
@@ -675,7 +675,7 @@ describe('<OTPFieldPreview />', () => {
       const group = screen.getByRole('group', { name: 'Verification code' });
 
       expect(group).toHaveAttribute('aria-labelledby', label.id);
-      expect(group).toHaveAttribute('aria-describedby', description.id);
+      expect(group).toHaveAttribute('aria-describedby', `external-description ${description.id}`);
     });
   });
 
@@ -1113,6 +1113,14 @@ describe('<OTPFieldPreview />', () => {
 
         if (withField) {
           expect(screen.getByTestId('error')).toHaveTextContent('test');
+          const inputs = screen.getAllByRole('textbox');
+          inputs.forEach((input) => {
+            if (lockState === 'disabled') {
+              expect(input).not.toHaveAttribute('aria-invalid');
+            } else {
+              expect(input).toHaveAttribute('aria-invalid', 'true');
+            }
+          });
         }
 
         fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });

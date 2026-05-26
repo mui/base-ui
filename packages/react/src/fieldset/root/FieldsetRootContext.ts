@@ -7,11 +7,7 @@ export interface FieldsetRootContext {
   disabled: boolean | undefined;
 }
 
-export const FieldsetRootContext = React.createContext<FieldsetRootContext>({
-  legendId: undefined,
-  setLegendId: () => {},
-  disabled: undefined,
-});
+export const FieldsetRootContext = React.createContext<FieldsetRootContext | undefined>(undefined);
 
 export function useFieldsetRootContext(optional: true): FieldsetRootContext | undefined;
 export function useFieldsetRootContext(optional?: false): FieldsetRootContext;

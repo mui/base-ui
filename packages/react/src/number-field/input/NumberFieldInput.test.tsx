@@ -7,6 +7,21 @@ import { createRenderer, describeConformance } from '#test-utils';
 describe('<NumberField.Input />', () => {
   const { render } = createRenderer();
 
+  function pasteWithError(target: HTMLElement, error: Error) {
+    const pasteEvent = new Event('paste', { bubbles: true, cancelable: true });
+    Object.defineProperty(pasteEvent, 'clipboardData', {
+      value: {
+        getData() {
+          throw error;
+        },
+      },
+    });
+
+    fireEvent(target, pasteEvent);
+
+    return pasteEvent;
+  }
+
   describeConformance(<NumberField.Input />, () => ({
     refInstanceof: window.HTMLInputElement,
     render(node) {
@@ -105,6 +120,20 @@ describe('<NumberField.Input />', () => {
     await act(async () => input.focus());
     fireEvent.keyDown(input, { key: 'End' });
     expect(input).toHaveValue('10');
+  });
+
+  it('uses smallStep and snapOnStep when holding Alt with ArrowUp/ArrowDown', async () => {
+    await render(
+      <NumberField.Root defaultValue={0.15} smallStep={0.1} snapOnStep>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+    fireEvent.keyDown(input, { key: 'ArrowUp', altKey: true });
+    expect(input).toHaveValue('0.3');
+    fireEvent.keyDown(input, { key: 'ArrowDown', altKey: true });
+    expect(input).toHaveValue('0.2');
   });
 
   it('allows unicode plus/minus, permille and fullwidth digits on keydown when formatted as percent', async () => {
@@ -677,5 +706,31 @@ describe('<NumberField.Input />', () => {
     expect(onValueChange.mock.calls[0][0]).toBe(1234.5);
 
     expect(input.value).toBe((1234.5).toLocaleString('fr-FR'));
+  });
+
+  it('warns in development when clipboard text cannot be read during paste handling', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <NumberField.Root defaultValue={12}>
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      const pasteEvent = pasteWithError(input, new DOMException('Blocked', 'SecurityError'));
+
+      expect(input).toHaveValue('12');
+      expect(pasteEvent.defaultPrevented).toBe(false);
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy.mock.calls[0]?.[0]).toContain(
+        'Base UI: <NumberField.Input> could not read clipboard text during paste handling.',
+      );
+    } finally {
+      warnSpy.mockRestore();
+    }
   });
 });

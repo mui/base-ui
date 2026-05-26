@@ -1018,6 +1018,56 @@ describe('<Menu.Root />', () => {
       });
 
       it.skipIf(isJSDOM)(
+        'focuses the trigger after Escape when the closing menu receives mouseleave',
+        async () => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+          const { user } = await render(
+            <React.Fragment>
+              <style>
+                {`
+                  .transition-test-indicator {
+                    transition:
+                      transform 100ms ease-out,
+                      opacity 100ms ease-out;
+                  }
+
+                  .transition-test-indicator[data-ending-style] {
+                    opacity: 0;
+                    transform: scale(0.98);
+                  }
+                `}
+              </style>
+              <TestMenu popupProps={{ className: 'transition-test-indicator' }} />
+            </React.Fragment>,
+          );
+
+          const button = screen.getByRole('button', { name: 'Toggle' });
+          await user.click(button);
+
+          const firstItem = await screen.findByTestId('item-1');
+          await user.hover(firstItem);
+
+          await waitFor(() => {
+            expect(firstItem).toHaveFocus();
+          });
+
+          await user.keyboard('[Escape]');
+
+          // During an exit transition, the positioner can receive a mouseleave after Escape
+          // when pointer-events change while the pointer rests over the popup.
+          fireEvent.mouseLeave(screen.getByTestId('menu-positioner'), {
+            relatedTarget: document.body,
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByRole('menu')).toBe(null);
+          });
+          expect(button).toHaveFocus();
+        },
+      );
+
+      it.skipIf(isJSDOM)(
         'focuses the trigger after the menu is closed but not unmounted',
         async () => {
           const { user } = await render(
@@ -1225,6 +1275,84 @@ describe('<Menu.Root />', () => {
         const positioner = screen.getByTestId('menu-positioner');
 
         expect(positioner.previousElementSibling).toBe(null);
+      });
+    });
+
+    describe('hover close', () => {
+      it('does not close after hovering out of a popup opened without trigger hover', async () => {
+        await render(<TestMenu rootProps={{ defaultOpen: true }} />);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
+
+        const positioner = screen.getByTestId('menu-positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+    });
+
+    describe('controlled open', () => {
+      it('does not close after hovering out of a popup opened externally', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setOpen(true)}>
+                Show
+              </button>
+              <TestMenu rootProps={{ open, onOpenChange: setOpen }} />
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByRole('button', { name: 'Show' }));
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
+
+        const positioner = screen.getByTestId('menu-positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+
+      it('closes after hovering out of a popup opened by its trigger', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <TestMenu
+              rootProps={{ open, onOpenChange: setOpen, modal: false }}
+              triggerProps={{ openOnHover: true, delay: 0 }}
+            />
+          );
+        }
+
+        await render(<App />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        expect(screen.queryByRole('menu')).not.toBe(null);
+
+        const positioner = screen.getByTestId('menu-positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        expect(screen.queryByRole('menu')).toBe(null);
       });
     });
 
@@ -2143,6 +2271,121 @@ describe('<Menu.Root />', () => {
       await flushMicrotasks();
 
       expect(item2).not.toHaveFocus();
+    });
+
+    it('does not highlight submenu triggers from mouse enter when disabled', async () => {
+      await render(
+        <TestMenuContents
+          rootProps={{ open: true, highlightItemOnHover: false }}
+          popupProps={{
+            children: (
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger data-testid="submenu-trigger">Submenu</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Nested item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            ),
+          }}
+        />,
+      );
+
+      const submenuTrigger = screen.getByTestId('submenu-trigger');
+      fireEvent.mouseEnter(submenuTrigger);
+
+      await flushMicrotasks();
+
+      expect(submenuTrigger).not.toHaveAttribute('data-highlighted');
+      expect(submenuTrigger).not.toHaveFocus();
+    });
+  });
+
+  describe('prop: disabled', () => {
+    it('does not highlight items with text navigation when controlled open', async () => {
+      const { user } = await render(
+        <TestMenuContents
+          rootProps={{ open: true, disabled: true }}
+          popupProps={{
+            children: (
+              <React.Fragment>
+                <Menu.Item data-testid="alpha">Alpha</Menu.Item>
+                <Menu.Item data-testid="beta">Beta</Menu.Item>
+              </React.Fragment>
+            ),
+          }}
+        />,
+      );
+
+      const alpha = screen.getByTestId('alpha');
+      const beta = screen.getByTestId('beta');
+
+      await act(async () => {
+        alpha.focus();
+      });
+
+      await user.keyboard('b');
+      await flushMicrotasks();
+
+      expect(beta).not.toHaveAttribute('data-highlighted');
+      expect(beta).not.toHaveFocus();
+    });
+
+    it('does not close or activate items when controlled open', async () => {
+      const handleOpenChange = vi.fn();
+      const handleClick = vi.fn();
+      const { user } = await render(
+        <TestMenuContents
+          rootProps={{ open: true, disabled: true, onOpenChange: handleOpenChange }}
+          popupProps={{
+            children: (
+              <Menu.Item data-testid="item" onClick={handleClick}>
+                Item
+              </Menu.Item>
+            ),
+          }}
+        />,
+      );
+
+      await user.click(screen.getByTestId('item'));
+
+      expect(handleClick).not.toHaveBeenCalled();
+      expect(handleOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('disables submenu triggers when controlled open', async () => {
+      const { user } = await render(
+        <TestMenuContents
+          rootProps={{ open: true, disabled: true }}
+          popupProps={{
+            children: (
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger data-testid="submenu-trigger" openOnHover={false}>
+                  Submenu
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu-popup">
+                      <Menu.Item>Nested item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            ),
+          }}
+        />,
+      );
+
+      const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+      expect(submenuTrigger).toHaveAttribute('data-disabled');
+
+      await user.click(submenuTrigger);
+
+      expect(screen.queryByTestId('submenu-popup')).toBe(null);
     });
   });
 
