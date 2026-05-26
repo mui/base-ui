@@ -224,9 +224,7 @@ export function useHoverFloatingInteraction(
 
       // If the safePolygon handler is active, let it handle the close logic.
       if (instance.handler) {
-        if (isHoverOpen()) {
-          instance.handler(event);
-        }
+        instance.handler(event);
         return;
       }
 

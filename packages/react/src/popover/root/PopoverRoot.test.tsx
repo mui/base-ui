@@ -194,6 +194,57 @@ describe('<Popover.Root />', () => {
 
         expect(screen.queryByRole('dialog')).toBe(null);
       });
+
+      it('cleans up the safe polygon handler after a hover-opened popup becomes click-sticky', async () => {
+        const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+        const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
+
+        try {
+          await render(
+            <TestPopover
+              rootProps={{ modal: false }}
+              triggerProps={{ openOnHover: true, delay: 0, closeDelay: 0 }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+
+          const positioner = screen.getByTestId('positioner');
+
+          fireEvent.mouseLeave(trigger, { relatedTarget: positioner });
+          fireEvent.mouseEnter(positioner);
+
+          let documentMouseMoveHandler: EventListenerOrEventListenerObject | undefined;
+          for (let i = addEventListenerSpy.mock.calls.length - 1; i >= 0; i -= 1) {
+            const [eventName, listener] = addEventListenerSpy.mock.calls[i];
+            if (eventName === 'mousemove') {
+              documentMouseMoveHandler = listener;
+              break;
+            }
+          }
+
+          expect(documentMouseMoveHandler).toEqual(expect.any(Function));
+
+          fireEvent.click(trigger);
+          await flushMicrotasks();
+
+          fireEvent.mouseLeave(positioner);
+
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+          expect(removeEventListenerSpy).toHaveBeenCalledWith(
+            'mousemove',
+            documentMouseMoveHandler,
+          );
+        } finally {
+          addEventListenerSpy.mockRestore();
+          removeEventListenerSpy.mockRestore();
+        }
+      });
     });
 
     describe('nested menu interactions', () => {
