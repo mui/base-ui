@@ -30,7 +30,7 @@ describe('Dropzone.Root', () => {
     expect(() => {
       render(<Dropzone.HiddenInput />);
     }).toThrow(
-      'Base UI: DropzoneContext is missing. Dropzone parts must be placed within <Dropzone.Root>.',
+      'Base UI: DropzoneRootContext is missing. Dropzone parts must be placed within <Dropzone.Root>.',
     );
 
     consoleSpy.mockRestore();
@@ -72,7 +72,7 @@ describe('Dropzone.Root', () => {
 
     await user.click(dropzone);
     fireEvent.keyDown(dropzone, { key: 'Enter' });
-    fireEvent.keyDown(dropzone, { key: ' ' });
+    fireEvent.keyUp(dropzone, { key: ' ' });
 
     expect(onOpen).toHaveBeenCalledTimes(3);
   });
@@ -92,9 +92,10 @@ describe('Dropzone.Root', () => {
 
     await user.click(dropzone);
     fireEvent.keyDown(dropzone, { key: 'Enter' });
-    fireEvent.keyDown(dropzone, { key: ' ' });
+    fireEvent.keyUp(dropzone, { key: ' ' });
 
     expect(inputClick).toHaveBeenCalledTimes(3);
+    inputClick.mockRestore();
   });
 
   it('does not open when disabled', async () => {

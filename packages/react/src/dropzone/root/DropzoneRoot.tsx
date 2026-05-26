@@ -4,7 +4,8 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { contains, getTarget } from '../../floating-ui-react/utils/element';
 import { useRenderElement } from '../../internals/useRenderElement';
-import type { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import { useButton } from '../../internals/use-button/useButton';
 import { DropzoneRootContext } from './DropzoneRootContext';
 import { dropzoneRootStateAttributesMapping } from './stateAttributesMapping';
 
@@ -22,7 +23,7 @@ export interface DropzoneRootState {
 export interface DropzoneRootProps extends Omit<
   BaseUIComponentProps<'div', DropzoneRootState>,
   'children'
-> {
+>, NonNativeButtonProps {
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -62,6 +63,7 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
       style,
       children,
       disabled = false,
+      nativeButton = false,
       onDraggingChange,
       onOpen,
       onFilesDrop,
@@ -80,8 +82,17 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
     });
 
     const setDragging = useStableCallback((nextDragging: boolean) => {
-      setDraggingState(nextDragging);
-      onDraggingChange?.(nextDragging);
+      setDraggingState((prev) => {
+        if (prev !== nextDragging) {
+          onDraggingChange?.(nextDragging);
+        }
+        return nextDragging;
+      });
+    });
+
+    const { getButtonProps, buttonRef } = useButton({
+      disabled,
+      native: nativeButton,
     });
 
     const handleDragEnter = useStableCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -170,17 +181,6 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
       openPicker();
     });
 
-    const handleKeyDown = useStableCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (disabled) {
-        return;
-      }
-
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        openPicker();
-      }
-    });
-
     const contextValue = React.useMemo(
       () => ({
         disabled,
@@ -193,18 +193,14 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
       <DropzoneRootContext.Provider value={contextValue}>
         {useRenderElement('div', props, {
           state: { dragging, disabled },
-          ref: forwardedRef,
+          ref: [forwardedRef, buttonRef],
           props: [
             {
-              role: 'button',
-              tabIndex: disabled ? -1 : 0,
-              'aria-disabled': disabled || undefined,
               onDragEnter: handleDragEnter,
               onDragLeave: handleDragLeave,
               onDragOver: handleDragOver,
               onDrop: handleDrop,
               onClick: handleClick,
-              onKeyDown: handleKeyDown,
               children: (
                 <React.Fragment>
                   <div
@@ -227,6 +223,7 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
               ),
             },
             elementProps,
+            getButtonProps,
           ],
           stateAttributesMapping: dropzoneRootStateAttributesMapping,
         })}
