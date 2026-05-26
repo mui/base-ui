@@ -1689,6 +1689,77 @@ describe('<Popover.Root />', () => {
     });
 
     describe('nested popup interactions', () => {
+      it('returns focus through nested programmatic popovers in close order', async () => {
+        function Test() {
+          const [childOpen, setChildOpen] = React.useState(false);
+
+          return (
+            <Popover.Root>
+              <Popover.Trigger>Parent trigger</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="parent-popup">
+                    <button type="button" onClick={() => setChildOpen(true)}>
+                      Open child programmatically
+                    </button>
+
+                    <Popover.Root
+                      open={childOpen}
+                      triggerId="child-reference"
+                      onOpenChange={setChildOpen}
+                    >
+                      <Popover.Trigger id="child-reference">Child reference</Popover.Trigger>
+                      <Popover.Portal>
+                        <Popover.Positioner>
+                          <Popover.Popup data-testid="child-popup">
+                            <Popover.Close>Close child</Popover.Close>
+                          </Popover.Popup>
+                        </Popover.Positioner>
+                      </Popover.Portal>
+                    </Popover.Root>
+
+                    <Popover.Close>Close parent</Popover.Close>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const parentTrigger = screen.getByRole('button', { name: 'Parent trigger' });
+        await user.click(parentTrigger);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('parent-popup')).not.toBe(null);
+        });
+
+        const childOpener = screen.getByRole('button', {
+          name: 'Open child programmatically',
+        });
+        await user.click(childOpener);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('child-popup')).not.toBe(null);
+        });
+
+        await user.click(screen.getByRole('button', { name: 'Close child' }));
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('child-popup')).toBe(null);
+        });
+        expect(childOpener).toHaveFocus();
+        expect(screen.queryByTestId('parent-popup')).not.toBe(null);
+
+        await user.click(screen.getByRole('button', { name: 'Close parent' }));
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('parent-popup')).toBe(null);
+        });
+        expect(parentTrigger).toHaveFocus();
+      });
+
       it('keeps the parent popover open when press starts in nested popover and ends outside', async () => {
         function Test() {
           return (

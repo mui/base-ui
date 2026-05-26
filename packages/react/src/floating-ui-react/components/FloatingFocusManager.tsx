@@ -731,6 +731,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     const doc = ownerDocument(floatingFocusElement);
     const elementFocusedBeforeOpen = activeElement(doc);
+    // Only nullish interaction types represent programmatic opens. The empty
+    // string default is intentionally not treated as programmatic.
     const preferPreviousFocus = openInteractionTypeRef.current == null;
 
     addPreviouslyFocusedElement(elementFocusedBeforeOpen);

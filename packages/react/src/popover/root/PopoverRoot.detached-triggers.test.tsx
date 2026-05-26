@@ -213,7 +213,6 @@ describe('<Popover.Root />', () => {
             >
               Open Trigger 2
             </button>
-            <button onClick={() => setOpen(false)}>Close externally</button>
           </div>
         );
       }
@@ -297,6 +296,61 @@ describe('<Popover.Root />', () => {
       await waitFor(() => {
         expect(trigger2).toHaveFocus();
       });
+    });
+
+    it('returns focus to the previous element when the trigger unmounts while open', async () => {
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        const [showTrigger, setShowTrigger] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <button type="button">Focus fallback</button>
+
+            <Popover.Root
+              open={open}
+              onOpenChange={(nextOpen) => {
+                if (nextOpen) {
+                  setShowTrigger(false);
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              {showTrigger && (
+                <Popover.Trigger onMouseDown={(event) => event.preventDefault()}>
+                  Disappearing trigger
+                </Popover.Trigger>
+              )}
+
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <span data-testid="content">Content</span>
+                    <Popover.Close>Close</Popover.Close>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const fallback = screen.getByRole('button', { name: 'Focus fallback' });
+      await user.click(fallback);
+      expect(fallback).toHaveFocus();
+
+      await user.click(screen.getByRole('button', { name: 'Disappearing trigger' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('content')).toBeVisible();
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
+      expect(fallback).toHaveFocus();
     });
 
     it('allows setting an initially open popover', async () => {

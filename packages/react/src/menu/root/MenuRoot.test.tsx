@@ -722,6 +722,97 @@ describe('<Menu.Root />', () => {
           expect(screen.queryByTestId('level-3')).toBe(null);
         });
       });
+
+      it.skipIf(isJSDOM)(
+        'returns focus to submenu triggers when closing nested menus',
+        async () => {
+          const { user } = await render(<TestMenu />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+          await user.click(trigger);
+
+          await screen.findByTestId('menu');
+
+          await user.keyboard('[ArrowDown]');
+          await user.keyboard('[ArrowDown]');
+          await user.keyboard('[ArrowDown]');
+          await user.keyboard('[ArrowDown]');
+
+          const submenuTrigger = await screen.findByTestId('submenu-trigger');
+          await waitFor(() => {
+            expect(submenuTrigger).toHaveFocus();
+          });
+
+          await user.keyboard('[ArrowRight]');
+
+          const nestedSubmenuTrigger = await screen.findByTestId('nested-submenu-trigger');
+          await user.keyboard('[ArrowDown]');
+          await user.keyboard('[ArrowDown]');
+
+          await waitFor(() => {
+            expect(nestedSubmenuTrigger).toHaveFocus();
+          });
+
+          await user.keyboard('[ArrowRight]');
+          await screen.findByTestId('nested-submenu');
+
+          await user.keyboard('[ArrowLeft]');
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('nested-submenu')).toBe(null);
+          });
+          expect(nestedSubmenuTrigger).toHaveFocus();
+
+          await user.keyboard('[ArrowLeft]');
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('submenu')).toBe(null);
+          });
+          expect(submenuTrigger).toHaveFocus();
+        },
+      );
+    });
+
+    describe('controlled open', () => {
+      it('returns focus to the opener when a menu is opened programmatically', async () => {
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setOpen(true)}>
+                Open menu programmatically
+              </button>
+              <Menu.Root open={open} triggerId="menu-trigger" onOpenChange={setOpen}>
+                <Menu.Trigger id="menu-trigger">Menu trigger</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Close menu</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const opener = screen.getByRole('button', { name: 'Open menu programmatically' });
+        await user.click(opener);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
+
+        await user.click(screen.getByRole('menuitem', { name: 'Close menu' }));
+
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).toBe(null);
+        });
+        expect(opener).toHaveFocus();
+      });
     });
 
     describe('nested popups', () => {
