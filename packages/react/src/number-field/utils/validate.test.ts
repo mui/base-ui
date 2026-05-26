@@ -251,4 +251,30 @@ describe('NumberField validate', () => {
       ).toBe(-0.2);
     });
   });
+
+  it('clamps to a non-step-aligned max after snapping so the boundary is reachable', () => {
+    // Incrementing past max (raw 13) must land on max=10, not snap down to 9.
+    expect(
+      toValidatedNumber(13, {
+        ...defaultOptions,
+        step: 3,
+        minWithDefault: 0,
+        minWithZeroDefault: 0,
+        maxWithDefault: 10,
+      }),
+    ).toBe(10);
+  });
+
+  it('clamps to a non-step-aligned min after snapping so the boundary is reachable', () => {
+    // Decrementing past min (raw -13) must land on min=-10, not stay below the boundary.
+    expect(
+      toValidatedNumber(-13, {
+        ...defaultOptions,
+        step: -3,
+        minWithDefault: -10,
+        minWithZeroDefault: -10,
+        maxWithDefault: 0,
+      }),
+    ).toBe(-10);
+  });
 });
