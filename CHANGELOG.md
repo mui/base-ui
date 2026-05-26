@@ -1,10 +1,127 @@
 # Versions
 
+## v1.5.0
+
+_May 19, 2026_
+
+### General changes
+
+- Improve mount performance with interaction splitting, including closed popup mount performance by up to 50% and unmounting performance by up to 85% (#4661) by @atomiks
+- Use local document for virtual arrow (#4662) by @lyzno1
+- Fix macOS Safari and Firefox minimizing fullscreen when closing popups with <kbd>Esc</kbd> (#4695) by @arturbien
+- Drop unnecessary memoization (#4693) by @flaviendelangle
+- Do not use `Math.random()` in `useStableCallback()` (#4732) by @michaldudak
+- Fix return focus when reference disconnects (#4655) by @atomiks
+- Don't steal initial focus if focus already moved inside a popup (#4775) by @stefee
+
+### Alert Dialog
+
+- Fix handle defaults (#4834) by @atomiks
+
+### Autocomplete
+
+- Fix native `FormData` for popup inputs (#4725) by @lunaxislu
+
+### Checkbox
+
+- Submit the associated form when pressing <kbd>Enter</kbd> (#4713) by @michaldudak
+
+### Combobox
+
+- Expose clear visibility state (#4664) by @atomiks
+- Fix popup input form submit (#4687) by @atomiks
+- Preserve `closeQuery` when closing multiple input-inside-popup combobox (#4715) by @mj12albert
+- Fix RTL component behavior (#4840) by @atomiks
+- Ignore hidden-input changes while readonly or disabled (#4810) by @lunaxislu
+
+### Dialog
+
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+
+### Drawer
+
+- Forward `style` prop in `<Drawer.Viewport>` (#4841) by @atomiks
+
+### Field
+
+- Avoid `flushSync` during validation (#4685) by @atomiks
+
+### Form
+
+- Avoid `flushSync` during validation (#4685) by @atomiks
+
+### Menu
+
+- Fix submenu pointer-events scope for `keepMounted` portals (#4723) by @twillhorn
+- Support `<Menu.GroupLabel>` in `<Menu.RadioGroup>` (#4826) by @nami8824
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+
+### Navigation Menu
+
+- Fix RTL component behavior (#4840) by @atomiks
+- Fix `keepMounted` content sizing (#4817) by @atomiks
+
+### Number Field
+
+- Allow Persian digits in keyboard input (#4719) by @lunaxislu
+- Sync pasted input during step interactions (#4824) by @lunaxislu
+
+### OTP Field
+
+- **Breaking change:** Rename `sanitizeValue()` to `normalizeValue()` and allow composing with validation (#4717) by @atomiks
+- Avoid `flushSync` during validation (#4685) by @atomiks
+- Support <kbd>Ctrl</kbd> and <kbd>Cmd</kbd> shortcuts (#4606) by @atomiks
+- Fire `onValueComplete()` for full paste (#4690) by @atomiks
+- Fix vertical arrow slot navigation (#4844) by @atomiks
+- Ignore hidden input changes while readonly or disabled (#4806) by @lunaxislu
+- Prevent locked hidden autofill validation (#4827) by @lunaxislu
+- Fix RTL arrow navigation (#4847) by @atomiks
+
+### Popover
+
+- Fix RTL component behavior (#4840) by @atomiks
+- Preserve active trigger on close press (#4741) by @mj12albert
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+
+### Preview Card
+
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+- Integrate inline positioning (#2074) by @atomiks
+
+### Scroll Area
+
+- Fix RTL component behavior (#4840) by @atomiks
+
+### Select
+
+- Clear stale item text ref (#4683) by @atomiks
+- Add `data-popup-side` to trigger (#4671) by @mj12albert
+- Allow mouse selection without highlight (#4699) by @atomiks
+- Ignore hidden-input changes while readonly or disabled (#4810) by @lunaxislu
+- Fix nested Select requiring extra outside clicks to dismiss parent (#4820) by @mattrothenberg
+
+### Tabs
+
+- Fire `onValueChange()` for automatic tab selection (#4704) by @michaldudak
+
+### Toast
+
+- Re-use `getElementTransform()` and remove local implementation (#4749) by @sai6855
+- Fix stuck drag state on release (#4742) by @aeterno-caspian
+- Remove memoized selector (#4751) by @atomiks
+
+### Tooltip
+
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+- Fix flickering when nesting tooltip inside another tooltip's trigger (#4501) by @michaldudak
+
+All contributors of this release in alphabetical order: @aeterno-caspian, @arturbien, @atomiks, @flaviendelangle, @Janpot, @lunaxislu, @lyzno1, @mattrothenberg, @michaldudak, @mj12albert, @nami8824, @sai6855, @stefee, @twillhorn
+
 ## v1.4.1
 
 _Apr 20, 2026_
 
-### General Changes
+### General changes
 
 - Clear highlight on pointer leave when item is clipped by scroll container (#4604) by @atomiks
 - Fix `display: contents` tabbability (#4642) by @atomiks
@@ -15,13 +132,13 @@ _Apr 20, 2026_
 
 - Fix stale popup size on rapid trigger hover (#4646) by @atomiks
 
-All contributors of this release in alphabetical order : @atomiks, @LukasTy
+All contributors of this release in alphabetical order: @atomiks, @LukasTy
 
 ## v1.4.0
 
 _Apr 13, 2026_
 
-### General Changes
+### General changes
 
 - Improve `render` prop warning accuracy (#4324, #4363) by @atomiks
 - Fix `preventBaseUIHandler` runtime wrapping (#4330) by @atomiks
@@ -146,13 +263,13 @@ _Apr 13, 2026_
 
 - Fix incorrect keyboard nav on cross axis (#4488) by @mj12albert
 
-All contributors of this release in alphabetical order : @arturbien, @atomiks, @CiscoFran10, @devxoul, @flaviendelangle, @kyrregjerstad, @LukasTy, @lunaxislu, @mattrothenberg, @mdm317, @michaldudak, @mj12albert, @Profesor08, @ryanrhee, @sai6855, @tsbehlman
+All contributors of this release in alphabetical order: @arturbien, @atomiks, @CiscoFran10, @devxoul, @flaviendelangle, @kyrregjerstad, @LukasTy, @lunaxislu, @mattrothenberg, @mdm317, @michaldudak, @mj12albert, @Profesor08, @ryanrhee, @sai6855, @tsbehlman
 
 ## v1.3.0
 
 _Mar 12, 2026_
 
-### General Changes
+### General changes
 
 - Warn when a component function is rendered directly (#4077) by @atomiks
 - Reset `openMethod` after close transition (#4128) by @atomiks
@@ -293,7 +410,7 @@ _Mar 12, 2026_
 
 - Add `closeOnClick` prop (#4140) by @atomiks
 
-All contributors of this release in alphabetical order : @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
 
 ## v1.2.0
 
@@ -466,7 +583,7 @@ _Feb 12, 2026_
 - Fix broken scale transition with detached triggers (#3810) by @michaldudak
 - Fix disabled prop on Triggers (#4049) by @michaldudak
 
-All contributors of this release in alphabetical order : @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
+All contributors of this release in alphabetical order: @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
 
 ## v1.1.0
 
@@ -1229,6 +1346,7 @@ _Sep 3, 2025_
   Custom event callbacks provide BaseUIEventDetails object as their second parameter.
   This object contains the source event, reason and methods to customize the behavior (where applicable).
   For example, `onOpenChange(open, event, reason)` becomes `onOpenChange(open, eventDetails)`, where `eventDetails` contains `event` and `reason` properties.
+
   ```diff
   -onOpenChange: (open, event, reason) => {
   +onOpenChange: (open, eventDetails) => {
@@ -1238,6 +1356,7 @@ _Sep 3, 2025_
      }
    }
   ```
+
   (#2382) by @atomiks
 
 ### Alert Dialog
@@ -2099,7 +2218,7 @@ _Mar 20, 2025_
 - Mention Progress.Value in API reference (#1429) @aarongarciah
 - Update release instructions (#1417) @michaldudak
 
-### Core
+### Internal
 
 - [code-infra] Polish VS Code DX (#1238) @oliviertassinari
 - [code-infra] Fix build:types not copying on some setups (#1482) @Janpot

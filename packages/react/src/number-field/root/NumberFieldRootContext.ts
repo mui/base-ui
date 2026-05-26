@@ -24,6 +24,7 @@ export interface NumberFieldRootContext {
   lastChangedValueRef: React.RefObject<number | null>;
   hasPendingCommitRef: React.RefObject<boolean>;
   name: string | undefined;
+  nameProp: string | undefined;
   required: boolean;
   invalid: boolean | undefined;
   inputMode: InputMode;

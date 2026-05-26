@@ -44,6 +44,7 @@
   font-weight: 400;
   line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (hover: hover) {
@@ -163,4 +164,8 @@
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+.previewCardPopup {
+  width: 200px;
 }

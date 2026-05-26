@@ -1,4 +1,5 @@
 import { expect } from 'vitest';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { screen, fireEvent, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
@@ -187,6 +188,149 @@ describe('<ScrollArea.Scrollbar />', () => {
       fireEvent(verticalScrollbar, event);
 
       expect(viewport.scrollTop).toBe(0);
+    });
+  });
+
+  describe('wheel', () => {
+    async function renderWheelTest(props: {
+      direction?: TextDirection;
+      orientation?: 'horizontal' | 'vertical';
+      scrollLeft?: number;
+      scrollTop?: number;
+    }) {
+      const {
+        direction = 'ltr',
+        orientation = 'horizontal',
+        scrollLeft = 0,
+        scrollTop = 0,
+      } = props;
+
+      await render(
+        <DirectionProvider direction={direction}>
+          <ScrollArea.Root style={{ width: 200, height: 200, direction }}>
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: 1000, height: 1000 }} />
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation={orientation} data-testid="scrollbar" keepMounted />
+          </ScrollArea.Root>
+        </DirectionProvider>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const scrollbar = screen.getByTestId('scrollbar');
+
+      Object.defineProperties(viewport, {
+        clientHeight: {
+          configurable: true,
+          value: 200,
+        },
+        clientWidth: {
+          configurable: true,
+          value: 200,
+        },
+        scrollHeight: {
+          configurable: true,
+          value: 1000,
+        },
+        scrollWidth: {
+          configurable: true,
+          value: 1000,
+        },
+        scrollLeft: {
+          configurable: true,
+          writable: true,
+          value: scrollLeft,
+        },
+        scrollTop: {
+          configurable: true,
+          writable: true,
+          value: scrollTop,
+        },
+      });
+
+      return { viewport, scrollbar };
+    }
+
+    it('allows horizontal scrolling away from the RTL start edge', async () => {
+      const { viewport, scrollbar } = await renderWheelTest({ direction: 'rtl' });
+
+      fireEvent.wheel(scrollbar, { deltaX: -50 });
+
+      expect(viewport.scrollLeft).toBe(-50);
+    });
+
+    it('clamps horizontal LTR wheel scrolling at both edges', async () => {
+      const { viewport, scrollbar } = await renderWheelTest({ direction: 'ltr' });
+
+      fireEvent.wheel(scrollbar, { deltaX: -50 });
+      expect(viewport.scrollLeft).toBe(0);
+
+      viewport.scrollLeft = 790;
+      fireEvent.wheel(scrollbar, { deltaX: 50 });
+      expect(viewport.scrollLeft).toBe(800);
+
+      fireEvent.wheel(scrollbar, { deltaX: 50 });
+      expect(viewport.scrollLeft).toBe(800);
+    });
+
+    it('clamps horizontal RTL wheel scrolling at both edges', async () => {
+      const { viewport, scrollbar } = await renderWheelTest({ direction: 'rtl' });
+
+      fireEvent.wheel(scrollbar, { deltaX: 50 });
+      expect(viewport.scrollLeft).toBe(0);
+
+      viewport.scrollLeft = -100;
+      fireEvent.wheel(scrollbar, { deltaX: 50 });
+      expect(viewport.scrollLeft).toBe(-50);
+
+      viewport.scrollLeft = -790;
+      fireEvent.wheel(scrollbar, { deltaX: -50 });
+      expect(viewport.scrollLeft).toBe(-800);
+
+      fireEvent.wheel(scrollbar, { deltaX: -50 });
+      expect(viewport.scrollLeft).toBe(-800);
+
+      viewport.scrollLeft = -10;
+      fireEvent.wheel(scrollbar, { deltaX: 50 });
+      expect(viewport.scrollLeft).toBe(0);
+    });
+
+    it('clamps vertical wheel scrolling at both edges', async () => {
+      const { viewport, scrollbar } = await renderWheelTest({ orientation: 'vertical' });
+
+      fireEvent.wheel(scrollbar, { deltaY: -50 });
+      expect(viewport.scrollTop).toBe(0);
+
+      viewport.scrollTop = 790;
+      fireEvent.wheel(scrollbar, { deltaY: 50 });
+      expect(viewport.scrollTop).toBe(800);
+
+      fireEvent.wheel(scrollbar, { deltaY: 50 });
+      expect(viewport.scrollTop).toBe(800);
+    });
+
+    it.skipIf(isJSDOM)('registers after the horizontal scrollbar becomes visible', async () => {
+      await render(
+        <DirectionProvider direction="rtl">
+          <ScrollArea.Root style={{ width: 200, height: 200, direction: 'rtl' }}>
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: 1000, height: 200 }} />
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal">
+              <ScrollArea.Thumb />
+            </ScrollArea.Scrollbar>
+          </ScrollArea.Root>
+        </DirectionProvider>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const horizontalScrollbar = await screen.findByTestId('horizontal');
+
+      await waitFor(() => expect(horizontalScrollbar).toHaveAttribute('data-has-overflow-x'));
+
+      fireEvent.wheel(horizontalScrollbar, { deltaX: -50 });
+
+      expect(viewport.scrollLeft).toBe(-50);
     });
   });
 

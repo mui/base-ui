@@ -11,9 +11,11 @@ import {
 } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Combobox } from '@base-ui/react/combobox';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Dialog } from '@base-ui/react/dialog';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
+import { Input } from '@base-ui/react/input';
 import { useStore } from '@base-ui/utils/store';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
@@ -901,6 +903,28 @@ describe('<Combobox.Root />', () => {
         });
       });
 
+      it.skipIf(isJSDOM)('does not submit multiple values when disabled', async () => {
+        const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          return formData.getAll('languages');
+        });
+
+        const { user } = await render(
+          <form onSubmit={submitSpy}>
+            <Combobox.Root multiple disabled value={['a', 'b']} name="languages">
+              <Combobox.Input />
+            </Combobox.Root>
+            <button type="submit">Submit</button>
+          </form>,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+        expect(submitSpy.mock.calls.length).toBe(1);
+        expect(submitSpy.mock.results.at(-1)?.value).toEqual([]);
+      });
+
       it('should handle disabled state with chips', async () => {
         const { user } = await render(
           <Combobox.Root multiple disabled defaultValue={['a', 'b']}>
@@ -1454,6 +1478,75 @@ describe('<Combobox.Root />', () => {
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('aria-selected', 'true');
     });
   });
+
+  it.each([
+    { lockState: 'readOnly', label: 'inside Field', withField: true },
+    { lockState: 'disabled', label: 'inside Field', withField: true },
+    { lockState: 'readOnly', label: 'outside Field', withField: false },
+    { lockState: 'disabled', label: 'outside Field', withField: false },
+  ] as const)(
+    'ignores hidden-input autofill when $lockState $label',
+    async ({ lockState, withField }) => {
+      const onValueChange = vi.fn();
+      const onInputValueChange = vi.fn();
+      const combobox = (
+        <Combobox.Root
+          name={withField ? undefined : 'test'}
+          readOnly={lockState === 'readOnly'}
+          disabled={lockState === 'disabled'}
+          onValueChange={onValueChange}
+          onInputValueChange={onInputValueChange}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+
+      await render(
+        withField ? (
+          <Form errors={{ test: 'test' }}>
+            <Field.Root name="test">
+              {combobox}
+              <Field.Error data-testid="error" />
+            </Field.Root>
+          </Form>
+        ) : (
+          combobox
+        ),
+      );
+
+      const visibleInput = screen.getByTestId<HTMLInputElement>('input');
+      const hiddenInput = screen
+        .getAllByDisplayValue('')
+        .find((el) => el.getAttribute('name') === 'test') as HTMLInputElement;
+      expect(hiddenInput).not.toBeUndefined();
+
+      if (withField) {
+        expect(screen.getByTestId('error')).toHaveTextContent('test');
+      }
+
+      fireEvent.change(hiddenInput, { target: { value: 'b' } });
+      await flushMicrotasks();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onInputValueChange).not.toHaveBeenCalled();
+      expect(visibleInput.value).toBe('');
+      expect(hiddenInput.value).toBe('');
+
+      if (withField) {
+        expect(screen.getByTestId('error')).toHaveTextContent('test');
+      }
+    },
+  );
 
   it('shows all items when opening after browser autofill', async () => {
     const items = ['a', 'b', 'c'];
@@ -2489,6 +2582,51 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
     });
 
+    it('mirrors horizontal grid navigation in RTL mode', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <DirectionProvider direction="rtl">
+          <Combobox.Root grid onItemHighlighted={onItemHighlighted} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Row>
+                      <Combobox.Item value="1">1</Combobox.Item>
+                      <Combobox.Item value="2">2</Combobox.Item>
+                      <Combobox.Item value="3">3</Combobox.Item>
+                    </Combobox.Row>
+                    <Combobox.Row>
+                      <Combobox.Item value="4">4</Combobox.Item>
+                      <Combobox.Item value="5">5</Combobox.Item>
+                      <Combobox.Item value="6">6</Combobox.Item>
+                    </Combobox.Row>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </DirectionProvider>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('grid')).not.toBe(null));
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('1'));
+
+      await user.keyboard('{ArrowLeft}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
+
+      await user.keyboard('{ArrowLeft}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('3'));
+
+      await user.keyboard('{ArrowRight}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
+    });
+
     it('supports uneven rows navigation', async () => {
       const onItemHighlighted = vi.fn();
       const { user } = await render(
@@ -2714,6 +2852,174 @@ describe('<Combobox.Root />', () => {
       });
       expect(input).toHaveValue('');
     });
+
+    it.skipIf(isJSDOM)(
+      'keeps filtered popup content stable while closing with input inside popup',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const style = `
+          @keyframes combobox-close-test {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: combobox-close-test 100ms linear;
+          }
+        `;
+
+        const items = ['apple', 'apricot', 'banana'];
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Combobox.Root multiple items={items}>
+              <Combobox.Trigger data-testid="trigger">
+                <Combobox.Value />
+              </Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup
+                    data-testid="popup"
+                    className="animation-test-popup"
+                    aria-label="Fruits"
+                  >
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.Empty>No matches</Combobox.Empty>
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
+
+        const input = await screen.findByTestId('input');
+        await user.type(input, 'zz');
+
+        await waitFor(() => {
+          expect(screen.getByRole('status')).toHaveTextContent('No matches');
+        });
+        expect(screen.queryByText('apple')).toBe(null);
+
+        await user.keyboard('{Escape}');
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+
+        expect(screen.getByRole('status')).toHaveTextContent('No matches');
+        expect(screen.queryByText('apple')).toBe(null);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        await user.click(trigger);
+
+        const reopenedInput = await screen.findByTestId('input');
+        expect(reopenedInput).toHaveValue('');
+        expect(screen.getByText('apple')).not.toBe(null);
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'clears the deferred popup input when reopening during close animation',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const style = `
+          @keyframes combobox-close-test {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: combobox-close-test 100ms linear;
+          }
+        `;
+
+        const items = ['apple', 'apricot', 'banana'];
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Combobox.Root multiple items={items}>
+              <Combobox.Trigger data-testid="trigger">
+                <Combobox.Value />
+              </Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup
+                    data-testid="popup"
+                    className="animation-test-popup"
+                    aria-label="Fruits"
+                  >
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.Empty>No matches</Combobox.Empty>
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
+
+        const input = await screen.findByTestId('input');
+        await user.type(input, 'zz');
+
+        await waitFor(() => {
+          expect(screen.getByRole('status')).toHaveTextContent('No matches');
+        });
+
+        await user.keyboard('{Escape}');
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(popup).not.toHaveAttribute('data-ending-style');
+        });
+
+        expect(screen.getByTestId('input')).toHaveValue('');
+        expect(screen.getByText('apple')).not.toBe(null);
+        expect(screen.getByText('banana')).not.toBe(null);
+      },
+    );
 
     it('"multiple" clears typed input on close when no selection made', async () => {
       const onInput = vi.fn();
@@ -4428,6 +4734,60 @@ describe('<Combobox.Root />', () => {
 
   describe('dialog pattern', () => {
     const fruits = ['Apple', 'Apricot', 'Banana', 'Grape', 'Orange'];
+    const asyncFruits = ['apple', 'banana', 'cherry'];
+
+    function AsyncDialogCombobox() {
+      const [loading, setLoading] = React.useState(true);
+      const [value, setValue] = React.useState<string | null>(null);
+
+      React.useEffect(() => {
+        const timeout = setTimeout(() => setLoading(false), 0);
+        return () => clearTimeout(timeout);
+      }, []);
+
+      return (
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Backdrop />
+            <Dialog.Popup>
+              <form>
+                <label htmlFor="name">Name</label>
+                <input id="name" disabled={loading} />
+
+                <label htmlFor="fruit">Fruit</label>
+                <Combobox.Root
+                  items={asyncFruits}
+                  value={value}
+                  onValueChange={setValue}
+                  disabled={loading}
+                >
+                  <Combobox.Input id="fruit" placeholder="Select fruit..." />
+                  <Combobox.Trigger aria-label="Open" />
+                  <Combobox.Portal>
+                    <Combobox.Positioner>
+                      <Combobox.Popup>
+                        <Combobox.List>
+                          {(item: string) => (
+                            <Combobox.Item key={item} value={item}>
+                              {item}
+                            </Combobox.Item>
+                          )}
+                        </Combobox.List>
+                      </Combobox.Popup>
+                    </Combobox.Positioner>
+                  </Combobox.Portal>
+                </Combobox.Root>
+
+                <button type="button">Cancel</button>
+                <button type="submit" disabled={loading}>
+                  Save
+                </button>
+              </form>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
 
     function DialogMultipleCombobox({ defaultOpen = true }: { defaultOpen?: boolean }) {
       const [open, setOpen] = React.useState(defaultOpen);
@@ -4490,6 +4850,46 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>
       );
     }
+
+    it('does not let pending dialog initial focus steal focus from an async-enabled combobox', async () => {
+      // Keep the dialog's initial-focus rAF pending until after the combobox click.
+      // The GitHub repro depends on this timing; otherwise the rAF can fire before the click.
+      const frameCallbacks = new Map<number, FrameRequestCallback>();
+      let frameId = 0;
+      const requestAnimationFrameSpy = vi
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation((callback) => {
+          frameId += 1;
+          frameCallbacks.set(frameId, callback);
+          return frameId;
+        });
+      const cancelAnimationFrameSpy = vi
+        .spyOn(window, 'cancelAnimationFrame')
+        .mockImplementation((id) => {
+          frameCallbacks.delete(id);
+        });
+
+      try {
+        const { user } = await render(<AsyncDialogCombobox />);
+
+        await waitFor(() => expect(screen.getByLabelText('Fruit')).toBeEnabled());
+        await user.click(screen.getByLabelText('Fruit'));
+
+        expect(await screen.findByRole('listbox')).toBeVisible();
+
+        act(() => {
+          const callbacks = Array.from(frameCallbacks.values());
+          frameCallbacks.clear();
+          callbacks.forEach((callback) => callback(performance.now()));
+        });
+
+        expect(screen.getByLabelText('Fruit')).toHaveFocus();
+        expect(screen.getByRole('listbox')).toBeVisible();
+      } finally {
+        requestAnimationFrameSpy.mockRestore();
+        cancelAnimationFrameSpy.mockRestore();
+      }
+    });
 
     describe('multiple', () => {
       it('clears input after filtering, removes filter and highlight', async () => {
@@ -4971,7 +5371,7 @@ describe('<Combobox.Root />', () => {
               <Combobox.Portal>
                 <Combobox.Positioner>
                   <Combobox.Popup>
-                    <Combobox.Input data-testid="input" />
+                    <Combobox.Input render={<Input data-testid="input" />} />
                     <Combobox.List>
                       <Combobox.Item value="a">a</Combobox.Item>
                       <Combobox.Item value="b">b</Combobox.Item>
@@ -5006,6 +5406,90 @@ describe('<Combobox.Root />', () => {
 
       const input = await screen.findByTestId('input');
       expect(input).not.toHaveAttribute('data-invalid');
+    });
+
+    it('submits when input renders a field-aware input', async () => {
+      const handleFormSubmit = vi.fn();
+
+      const { user } = await render(
+        <Form onFormSubmit={handleFormSubmit}>
+          <Field.Root name="country">
+            <Combobox.Root items={['France', 'Germany']} required>
+              <Combobox.Input render={<Input data-testid="input" />} />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByTestId('input');
+      expect(input).toHaveAttribute('name', 'country');
+
+      await user.click(input);
+      await user.click(screen.getByRole('option', { name: 'France' }));
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleFormSubmit.mock.calls.length).toBe(1);
+      expect(handleFormSubmit.mock.calls[0][0]).toEqual({ country: 'France' });
+    });
+
+    it('submits when input inside popup renders a field-aware input', async () => {
+      const handleFormSubmit = vi.fn();
+
+      const { user } = await render(
+        <Form onFormSubmit={handleFormSubmit}>
+          <Field.Root name="country">
+            <Combobox.Root items={['France', 'Germany']} required>
+              <Combobox.Trigger>
+                <Combobox.Value />
+              </Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.Input render={<Input data-testid="input" />} />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      const input = await screen.findByTestId('input');
+      expect(input).not.toHaveAttribute('name');
+
+      await user.click(screen.getByRole('option', { name: 'France' }));
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      expect(hiddenInput).toHaveAttribute('name', 'country');
+      expect(hiddenInput).toHaveValue('France');
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleFormSubmit.mock.calls.length).toBe(1);
+      expect(handleFormSubmit.mock.calls[0][0]).toEqual({ country: 'France' });
     });
 
     it('clears external errors on change', async () => {
@@ -5956,7 +6440,7 @@ describe('<Combobox.Root />', () => {
       await render(
         <Field.Root>
           <Combobox.Root>
-            <Combobox.Input data-testid="input" />
+            <Combobox.Input data-testid="input" aria-describedby="external-description" />
             <Combobox.Portal>
               <Combobox.Positioner />
             </Combobox.Portal>
@@ -5967,7 +6451,7 @@ describe('<Combobox.Root />', () => {
 
       expect(screen.getByTestId('input')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });

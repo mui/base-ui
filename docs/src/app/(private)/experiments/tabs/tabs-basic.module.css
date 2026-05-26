@@ -41,6 +41,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
+  -webkit-user-select: none;
   user-select: none;
   white-space: nowrap;
   word-break: keep-all;
@@ -53,6 +54,8 @@
   }
 
   &[data-active] {
+    background: var(--color-gray-100);
+    border-radius: 0.25rem;
     color: var(--color-gray-900);
   }
 

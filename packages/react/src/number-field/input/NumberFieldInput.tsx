@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { SafeReact } from '@base-ui/utils/safeReact';
+import { warn } from '@base-ui/utils/warn';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -72,6 +74,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     max,
     min,
     name,
+    nameProp,
     readOnly,
     required,
     setValue,
@@ -94,27 +97,17 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
-  useRegisterFieldControl(inputRef, id, value);
+  useRegisterFieldControl(inputRef, id, value, undefined, !disabled, nameProp);
 
-  useValueChanged(value, (previousValue) => {
-    const validateOnChange = shouldValidateOnChange();
-
+  useValueChanged(value, () => {
     clearErrors(name);
 
-    if (validateOnChange) {
-      validation.commit(value);
-    }
-
-    if (previousValue === value || validateOnChange) {
-      return;
-    }
-
-    if (blockRevalidationRef.current) {
+    if (blockRevalidationRef.current && !shouldValidateOnChange()) {
       blockRevalidationRef.current = false;
       return;
     }
 
-    validation.commit(value, true);
+    validation.change(value);
   });
 
   const inputProps: React.ComponentProps<'input'> = {
@@ -129,7 +122,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     autoCorrect: 'off',
     spellCheck: 'false',
     'aria-roledescription': 'Number field',
-    'aria-invalid': invalid || undefined,
+    'aria-invalid': !disabled && invalid ? true : undefined,
     'aria-labelledby': labelId,
     // If the server's locale does not match the client's locale, the formatting may not match,
     // causing a hydration mismatch.
@@ -335,6 +328,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const isAsciiDigit = event.key >= '0' && event.key <= '9';
       const isArabicNumeral = ARABIC_DETECT_RE.test(event.key);
       const isHanNumeral = HAN_DETECT_RE.test(event.key);
+      const isPersianNumeral = PERSIAN_DETECT_RE.test(event.key);
       const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
 
@@ -351,6 +345,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         isArabicNumeral ||
         isFullwidthNumeral ||
         isHanNumeral ||
+        isPersianNumeral ||
         isNavigateKey
       ) {
         return;
@@ -395,11 +390,25 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
+      let pastedData = '';
+
+      try {
+        pastedData = event.clipboardData?.getData('text/plain') ?? '';
+      } catch {
+        if (process.env.NODE_ENV !== 'production') {
+          const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+          warn(
+            '<NumberField.Input> could not read clipboard text during paste handling.',
+            ownerStackMessage,
+          );
+        }
+
+        return;
+      }
+
       // Prevent `onChange` from being called.
       event.preventDefault();
 
-      const clipboardData = event.clipboardData || window.Clipboard;
-      const pastedData = clipboardData.getData('text/plain');
       const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
 
       if (parsedValue !== null) {
@@ -413,7 +422,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
     state,
-    props: [inputProps, validation.getValidationProps(), elementProps],
+    props: [inputProps, elementProps, (props) => validation.getValidationProps(disabled, props)],
     stateAttributesMapping,
   });
 

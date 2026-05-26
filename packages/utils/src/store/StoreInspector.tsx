@@ -76,8 +76,8 @@ const STYLES = `
   display: flex;
   align-items: center;
   cursor: move;
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
   touch-action: none;
   padding: 4px 8px 8px 8px;
   gap: 8px;

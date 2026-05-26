@@ -20,7 +20,7 @@ export enum PopoverViewportDataAttributes {
   transitioning = 'data-transitioning',
   /**
    * Present if animations should be instant.
-   * @type {'dismiss' | 'click'}
+   * @type {'click' | 'dismiss' | 'focus' | 'trigger-change'}
    */
   instant = 'data-instant',
 }

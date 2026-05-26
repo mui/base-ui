@@ -126,7 +126,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
               onClick={() => {
                 toastIdRef.current = add({
                   id: 'save',
-                  title: 'Saving...',
+                  title: 'Saving…',
                   timeout: 0,
                 });
               }}
@@ -168,7 +168,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       );
 
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
-      expect(screen.getByTestId('title')).toHaveTextContent('Saving...');
+      expect(screen.getByTestId('title')).toHaveTextContent('Saving…');
       expect(screen.queryAllByTestId('root')).toHaveLength(1);
 
       fireEvent.click(screen.getByRole('button', { name: 'close' }));
@@ -192,7 +192,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
               onClick={() => {
                 toastIdRef.current = add({
                   id: 'save',
-                  title: 'Saving...',
+                  title: 'Saving…',
                   timeout: 0,
                   onRemove: onRemoveSpy,
                 });
@@ -260,7 +260,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
               onClick={() => {
                 toastIdRef.current = add({
                   id: 'save',
-                  title: 'Saving...',
+                  title: 'Saving…',
                   timeout: 0,
                   onRemove: onRemoveSpy,
                 });
@@ -324,7 +324,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
               onClick={() => {
                 add({
                   id: 'save',
-                  title: 'Saving...',
+                  title: 'Saving…',
                   timeout: 0,
                 });
               }}
@@ -360,7 +360,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       );
 
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
-      expect(screen.getByTestId('title-value')).toHaveTextContent('Saving...');
+      expect(screen.getByTestId('title-value')).toHaveTextContent('Saving…');
       expect(screen.getByTestId('transition-status')).toHaveTextContent('starting');
 
       fireEvent.click(screen.getByRole('button', { name: 'upsert' }));
@@ -1830,7 +1830,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
             ))}
             <button
               onClick={() => {
-                add({ id: 'save', title: 'Saving...', timeout: 0 });
+                add({ id: 'save', title: 'Saving…', timeout: 0 });
               }}
             >
               add save
@@ -1862,7 +1862,7 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       );
 
       fireEvent.click(screen.getByRole('button', { name: 'add save' }));
-      const savingToast = screen.getByTestId('Saving...');
+      const savingToast = screen.getByTestId('Saving…');
       expect(savingToast).not.toHaveAttribute('data-limited');
 
       fireEvent.click(screen.getByRole('button', { name: 'add other' }));

@@ -62,6 +62,11 @@
 
     /* Scroll containers are focusable */
     outline: 0;
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: -2px;
+    }
   }
 
   .QuickNavScrollbar {
@@ -119,7 +124,7 @@
 
     &:focus-visible {
       z-index: 1;
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -2px;
     }
 

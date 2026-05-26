@@ -116,10 +116,18 @@ export function useHoverFloatingInteraction(
         parentFloating.style.pointerEvents = '';
       }
 
+      // A keep-mounted submenu can appear in the tree before it opens, so a
+      // cached scope or parent lookup may resolve to the submenu itself. That
+      // would not shield sibling items in the parent menu.
+      const cachedScopeElement =
+        instance.pointerEventsScopeElement !== floatingEl
+          ? instance.pointerEventsScopeElement
+          : null;
+      const parentScopeElement = parentFloating !== floatingEl ? parentFloating : null;
       const scopeElement =
         instance.handleCloseOptions?.getScope?.() ??
-        instance.pointerEventsScopeElement ??
-        parentFloating ??
+        cachedScopeElement ??
+        parentScopeElement ??
         (ref.closest('[data-rootownerid]') as HTMLElement | SVGSVGElement | null) ??
         doc.body;
 

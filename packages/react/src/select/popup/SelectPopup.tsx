@@ -57,6 +57,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     onOpenChangeComplete,
     setOpen,
     valueRef,
+    firstItemTextRef,
     selectedItemTextRef,
     keyboardActiveRef,
     multiple,
@@ -285,7 +286,16 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     popupElement.style.removeProperty('--transform-origin');
 
     try {
-      const textElement = selectedItemTextRef.current;
+      let textElement = selectedItemTextRef.current;
+
+      if (!textElement?.isConnected) {
+        const hasSelectedValue = selectors.hasSelectedValue(store.state);
+        textElement =
+          !hasSelectedValue && firstItemTextRef.current?.isConnected
+            ? firstItemTextRef.current
+            : null;
+      }
+
       const valueElement = valueRef.current;
 
       const positionerStyles = getComputedStyle(positionerElement);
@@ -425,6 +435,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     positionerElement,
     triggerElement,
     valueRef,
+    firstItemTextRef,
     selectedItemTextRef,
     popupRef,
     handleScrollArrowVisibility,

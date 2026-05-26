@@ -68,8 +68,14 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const direction = useDirection();
   const hideTrackUntilMeasured = !hasMeasuredScrollbar && !keepMounted;
+  const isHidden = orientation === 'vertical' ? hiddenState.y : hiddenState.x;
+  const shouldRender = keepMounted || !isHidden;
 
   React.useEffect(() => {
+    if (!shouldRender) {
+      return undefined;
+    }
+
     const viewportEl = viewportRef.current;
     const scrollbarEl = orientation === 'vertical' ? scrollbarYRef.current : scrollbarXRef.current;
 
@@ -84,37 +90,29 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
       event.preventDefault();
 
-      if (orientation === 'vertical') {
-        if (viewportEl.scrollTop === 0 && event.deltaY < 0) {
-          return;
-        }
-      } else if (viewportEl.scrollLeft === 0 && event.deltaX < 0) {
+      const horizontal = orientation === 'horizontal';
+      const scrollProperty = horizontal ? 'scrollLeft' : 'scrollTop';
+      const delta = horizontal ? event.deltaX : event.deltaY;
+      const maxScroll = horizontal
+        ? viewportEl.scrollWidth - viewportEl.clientWidth
+        : viewportEl.scrollHeight - viewportEl.clientHeight;
+      // RTL horizontal scrolling uses a negative `scrollLeft` range, from 0 to `-maxScroll`.
+      const minScroll = horizontal && direction === 'rtl' ? -maxScroll : 0;
+      const maxScrollValue = horizontal && direction === 'rtl' ? 0 : maxScroll;
+      const scrollValue = viewportEl[scrollProperty];
+
+      if ((scrollValue <= minScroll && delta < 0) || (scrollValue >= maxScrollValue && delta > 0)) {
         return;
       }
 
-      if (orientation === 'vertical') {
-        if (
-          viewportEl.scrollTop === viewportEl.scrollHeight - viewportEl.clientHeight &&
-          event.deltaY > 0
-        ) {
-          return;
-        }
-      } else if (
-        viewportEl.scrollLeft === viewportEl.scrollWidth - viewportEl.clientWidth &&
-        event.deltaX > 0
-      ) {
-        return;
-      }
-
-      if (orientation === 'vertical') {
-        viewportEl.scrollTop += event.deltaY;
-      } else {
-        viewportEl.scrollLeft += event.deltaX;
-      }
+      viewportEl[scrollProperty] = Math.min(
+        maxScrollValue,
+        Math.max(minScroll, scrollValue + delta),
+      );
     }
 
     return addEventListener(scrollbarEl, 'wheel', handleWheel, { passive: false });
-  }, [orientation, scrollbarXRef, scrollbarYRef, viewportRef]);
+  }, [direction, orientation, scrollbarXRef, scrollbarYRef, shouldRender, viewportRef]);
 
   const props: HTMLProps = {
     ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
@@ -220,9 +218,6 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const contextValue = React.useMemo(() => ({ orientation }), [orientation]);
 
-  const isHidden = orientation === 'vertical' ? hiddenState.y : hiddenState.x;
-
-  const shouldRender = keepMounted || !isHidden;
   if (!shouldRender) {
     return null;
   }

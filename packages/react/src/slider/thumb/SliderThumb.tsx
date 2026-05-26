@@ -40,16 +40,7 @@ import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 import { script as prehydrationScript } from './prehydrationScript.min';
 
-const ALL_KEYS = new Set([
-  ARROW_UP,
-  ARROW_DOWN,
-  ARROW_LEFT,
-  ARROW_RIGHT,
-  HOME,
-  END,
-  PAGE_UP,
-  PAGE_DOWN,
-]);
+const ALL_KEYS = new Set([...COMPOSITE_KEYS, PAGE_UP, PAGE_DOWN]);
 
 function getDefaultAriaValueText(
   values: readonly number[],
@@ -200,6 +191,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     if (!control || !thumb) {
       return;
     }
+
     const thumbRect = thumb.getBoundingClientRect();
     const controlRect = control.getBoundingClientRect();
 
@@ -460,7 +452,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       type: 'range',
       value: thumbValue ?? '',
     },
-    validation.getInputValidationProps,
+    (props) => validation.getInputValidationProps(disabled, props),
   );
 
   const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp);

@@ -39,6 +39,8 @@ interface ReasonToEventMap {
   [REASONS.cancelOpen]: MouseEvent;
   [REASONS.siblingOpen]: Event;
   [REASONS.disabled]: Event;
+  [REASONS.missing]: Event;
+  [REASONS.initial]: Event;
   [REASONS.imperativeAction]: Event;
 
   [REASONS.windowResize]: UIEvent;

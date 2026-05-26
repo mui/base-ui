@@ -21,7 +21,7 @@ const LINK = 'QuickNav.Link';
 /**
  * @returns {function(*, *): void}
  */
-export function rehypeQuickNav() {
+export default function rehypeQuickNav() {
   return (tree, file) => {
     /** @type {TocEntry[]} */
     const toc = file.data.toc ?? [];

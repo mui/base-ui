@@ -98,11 +98,8 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
         ...otherExternalProps
       } = externalProps;
 
-      const type = isNativeButton ? 'button' : undefined;
-
       return mergeProps<'button'>(
         {
-          type,
           onClick(event: React.MouseEvent) {
             if (disabled) {
               event.preventDefault();
@@ -209,7 +206,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
             externalOnPointerDown?.(event);
           },
         },
-        !isNativeButton ? { role: 'button' } : undefined,
+        isNativeButton ? { type: 'button' } : { role: 'button' },
         focusableWhenDisabledProps,
         otherExternalProps,
       );

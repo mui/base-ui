@@ -18,7 +18,7 @@ export class DialogHandle<Payload> {
 
   /**
    * Opens the dialog and associates it with the trigger with the given id.
-   * The trigger, if provided, must be a Dialog.Trigger component with this handle passed as a prop.
+   * The trigger, if provided, must be a matching Trigger component with this handle passed as a prop.
    *
    * This method should only be called in an event handler or an effect (not during rendering).
    *
@@ -71,7 +71,7 @@ export class DialogHandle<Payload> {
    * Indicates whether the dialog is currently open.
    */
   get isOpen() {
-    return this.store.state.open;
+    return this.store.select('open');
   }
 }
 

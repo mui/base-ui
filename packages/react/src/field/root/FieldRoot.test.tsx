@@ -631,6 +631,138 @@ describe('<Field.Root />', () => {
       expect(handleSubmit).toHaveBeenCalledTimes(2);
       expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
     });
+
+    it('uses the Field.Control name for form submission and form validation values', async () => {
+      const handleSubmit = vi.fn();
+      const validate = vi.fn((_value: unknown, _formValues: Form.Values) => null);
+
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root>
+            <Field.Control name="email" defaultValue="one@example.com" />
+          </Field.Root>
+          <Field.Root name="confirmEmail" validate={validate}>
+            <Field.Control defaultValue="one@example.com" />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(validate.mock.lastCall?.[1]).toEqual({
+        email: 'one@example.com',
+        confirmEmail: 'one@example.com',
+      });
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({
+        email: 'one@example.com',
+        confirmEmail: 'one@example.com',
+      });
+    });
+
+    it('updates the Field.Control name fallback when the name changes', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [name, setName] = React.useState<string | undefined>('email');
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root>
+              <Field.Control name={name} defaultValue="one@example.com" />
+            </Field.Root>
+            <button type="button" onClick={() => setName('alternateEmail')}>
+              Change name
+            </button>
+            <button type="button" onClick={() => setName(undefined)}>
+              Clear name
+            </button>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ email: 'one@example.com' });
+
+      fireEvent.click(screen.getByText('Change name'));
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({
+        alternateEmail: 'one@example.com',
+      });
+
+      fireEvent.click(screen.getByText('Clear name'));
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+    });
+
+    it('uses the Field.Control name fallback when the Field.Root name is removed', async () => {
+      function App() {
+        const [rootName, setRootName] = React.useState<string | undefined>('rootEmail');
+
+        return (
+          <Form errors={{ email: 'Email is already taken' }}>
+            <Field.Root name={rootName}>
+              <Field.Control name="email" />
+              <Field.Error data-testid="default-error" />
+            </Field.Root>
+            <button type="button" onClick={() => setRootName(undefined)}>
+              Clear root name
+            </button>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
+      expect(screen.queryByTestId('default-error')).toBe(null);
+
+      fireEvent.click(screen.getByText('Clear root name'));
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Email is already taken');
+    });
+
+    it('updates field-aware control name fallbacks when the name changes', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [name, setName] = React.useState<string | undefined>('quantity');
+
+        return (
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root>
+              <NumberField.Root name={name} defaultValue={13}>
+                <NumberField.Input />
+              </NumberField.Root>
+            </Field.Root>
+            <button type="button" onClick={() => setName('amount')}>
+              Change name
+            </button>
+            <button type="button" onClick={() => setName(undefined)}>
+              Clear name
+            </button>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ quantity: 13 });
+
+      fireEvent.click(screen.getByText('Change name'));
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ amount: 13 });
+
+      fireEvent.click(screen.getByText('Clear name'));
+      fireEvent.click(screen.getByText('submit'));
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+    });
   });
 
   describe('prop: validationMode', () => {
@@ -790,6 +922,43 @@ describe('<Field.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByText('error')).not.toBe(null);
         });
+      });
+
+      it('ignores stale async validation results', async () => {
+        const resolvers: Record<string, (value: string | null) => void> = {};
+        const validate = vi.fn((value) => {
+          return new Promise<string | null>((resolve) => {
+            resolvers[value as string] = resolve;
+          });
+        });
+
+        await render(
+          <Field.Root validationMode="onChange" validate={validate}>
+            <Field.Control />
+            <Field.Error />
+          </Field.Root>,
+        );
+
+        const control = screen.getByRole<HTMLInputElement>('textbox');
+
+        fireEvent.change(control, { target: { value: 'old' } });
+        fireEvent.change(control, { target: { value: 'new' } });
+
+        await act(async () => {
+          resolvers.new(null);
+          await flushMicrotasks();
+        });
+
+        expect(screen.queryByText('old error')).toBe(null);
+        expect(control).not.toHaveAttribute('aria-invalid');
+
+        await act(async () => {
+          resolvers.old('old error');
+          await flushMicrotasks();
+        });
+
+        expect(screen.queryByText('old error')).toBe(null);
+        expect(control).not.toHaveAttribute('aria-invalid');
       });
 
       it('should apply [data-field] style hooks to field components', async () => {
@@ -1052,6 +1221,112 @@ describe('<Field.Root />', () => {
       expect(control).toHaveAttribute('aria-invalid', 'true');
       expect(screen.queryByText('error')).not.toBe(null);
     });
+
+    it('should debounce validation for field-aware controls', async () => {
+      const validate = vi.fn((value) => (value ? 'error' : null));
+
+      await renderFakeTimers(
+        <Field.Root validationDebounceTime={100} validationMode="onChange" validate={validate}>
+          <Checkbox.Root />
+          <Field.Error />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('checkbox');
+
+      fireEvent.click(control);
+
+      expect(validate).not.toHaveBeenCalled();
+      expect(control).not.toHaveAttribute('aria-invalid');
+
+      clock.tick(99);
+
+      expect(validate).not.toHaveBeenCalled();
+      expect(control).not.toHaveAttribute('aria-invalid');
+
+      clock.tick(1);
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(control).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.queryByText('error')).not.toBe(null);
+    });
+
+    it('should debounce validation for radio groups', async () => {
+      const validate = vi.fn((value) => (value === 'b' ? 'error' : null));
+
+      await renderFakeTimers(
+        <Field.Root validationDebounceTime={100} validationMode="onChange" validate={validate}>
+          <RadioGroup>
+            <Radio.Root value="a" data-testid="item-a" />
+            <Radio.Root value="b" data-testid="item-b" />
+          </RadioGroup>
+          <Field.Error />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole('radiogroup');
+
+      fireEvent.click(screen.getByTestId('item-b'));
+
+      expect(validate).not.toHaveBeenCalled();
+      expect(control).not.toHaveAttribute('aria-invalid');
+
+      clock.tick(99);
+
+      expect(validate).not.toHaveBeenCalled();
+      expect(control).not.toHaveAttribute('aria-invalid');
+
+      clock.tick(1);
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(validate.mock.lastCall?.[0]).toBe('b');
+      expect(control).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.queryByText('error')).not.toBe(null);
+    });
+
+    it('ignores async validation results superseded during debounce', async () => {
+      const resolvers: Record<string, (value: string | null) => void> = {};
+      const validate = vi.fn((value) => {
+        return new Promise<string | null>((resolve) => {
+          resolvers[value as string] = resolve;
+        });
+      });
+
+      await renderFakeTimers(
+        <Field.Root validationDebounceTime={100} validationMode="onChange" validate={validate}>
+          <Field.Control />
+          <Field.Error />
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      fireEvent.change(control, { target: { value: 'old' } });
+      clock.tick(100);
+
+      expect(validate.mock.lastCall?.[0]).toBe('old');
+
+      fireEvent.change(control, { target: { value: 'new' } });
+
+      await act(async () => {
+        resolvers.old('old error');
+        await flushMicrotasks();
+      });
+
+      expect(screen.queryByText('old error')).toBe(null);
+      expect(control).not.toHaveAttribute('aria-invalid');
+
+      clock.tick(100);
+
+      await act(async () => {
+        resolvers.new(null);
+        await flushMicrotasks();
+      });
+
+      expect(validate.mock.lastCall?.[0]).toBe('new');
+      expect(screen.queryByText('old error')).toBe(null);
+      expect(control).not.toHaveAttribute('aria-invalid');
+    });
   });
 
   describe('style hooks', () => {
@@ -1291,6 +1566,23 @@ describe('<Field.Root />', () => {
         expect(screen.getByTestId(part)).toHaveAttribute('data-dirty');
       });
     });
+
+    it('uses the controlled dirty state for required validation', async () => {
+      await render(
+        <Field.Root dirty validationMode="onBlur">
+          <Field.Control data-testid="control" required />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByTestId('control');
+
+      fireEvent.focus(control);
+      fireEvent.blur(control);
+
+      expect(control).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByTestId('error')).not.toBe(null);
+    });
   });
 
   describe('prop: touched', () => {
@@ -1334,6 +1626,34 @@ describe('<Field.Root />', () => {
       await user.click(screen.getByText('validate'));
 
       expect(screen.queryByTestId('error')).not.toBe(null);
+    });
+
+    it('validates the current control value when the `validate` method is called', async () => {
+      const validate = vi.fn((value) => (value === 'valid' ? null : 'error'));
+
+      function App() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+        return (
+          <div>
+            <Field.Root actionsRef={actionsRef} validate={validate}>
+              <Field.Control />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              validate
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const control = screen.getByRole('textbox');
+
+      fireEvent.change(control, { target: { value: 'valid' } });
+      await user.click(screen.getByText('validate'));
+
+      expect(validate.mock.lastCall?.[0]).toBe('valid');
+      expect(screen.queryByTestId('error')).toBe(null);
     });
   });
 });
