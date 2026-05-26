@@ -795,14 +795,18 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
 
       const referenceReturnElement = domReference?.isConnected ? domReference : null;
-      let previousReturnElement = elementFocusedBeforeOpen;
-      if (!previousReturnElement?.isConnected || getNodeName(previousReturnElement) === 'body') {
-        previousReturnElement = getPreviouslyFocusedElement() || null;
-      }
+      const previousReturnElement =
+        elementFocusedBeforeOpen?.isConnected && getNodeName(elementFocusedBeforeOpen) !== 'body'
+          ? elementFocusedBeforeOpen
+          : null;
 
-      const defaultReturnElement = preferPreviousFocus
+      let defaultReturnElement = preferPreviousFocus
         ? previousReturnElement || referenceReturnElement
         : referenceReturnElement || previousReturnElement;
+
+      if (!defaultReturnElement) {
+        defaultReturnElement = getPreviouslyFocusedElement() || null;
+      }
 
       if (typeof resolvedReturnFocusValue === 'boolean') {
         return defaultReturnElement;
