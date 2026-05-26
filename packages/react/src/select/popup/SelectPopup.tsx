@@ -83,6 +83,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
+  const openMethod = useStore(store, selectors.openMethod);
   const mounted = useStore(store, selectors.mounted);
   const popupProps = useStore(store, selectors.popupProps);
   const transitionStatus = useStore(store, selectors.transitionStatus);
@@ -519,6 +520,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         context={floatingRootContext}
         modal={false}
         disabled={!mounted}
+        openInteractionType={openMethod}
         returnFocus={finalFocus}
         restoreFocus
       >

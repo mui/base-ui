@@ -166,7 +166,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const positionerElement = useStore(store, selectors.positionerElement);
 
   const previousOpenMethod = usePreviousValue(openMethod);
-  const renderedOpenMethod = openMethod ?? previousOpenMethod;
+  const renderedOpenMethod = openMethod ?? previousOpenMethod ?? null;
 
   const serializedValue = React.useMemo(() => {
     if (multiple && Array.isArray(value) && value.length === 0) {
