@@ -1,0 +1,58 @@
+{
+  "name": "Dropzone",
+  "props": {
+    "dragging": {
+      "type": "boolean",
+      "description": "Controlled dragging state.",
+      "detailedType": "boolean | undefined"
+    },
+    "onDraggingChange": {
+      "type": "((dragging: boolean) => void)",
+      "description": "Called when dragging state changes.",
+      "detailedType": "((dragging: boolean) => void) | undefined"
+    },
+    "onFilesDrop": {
+      "type": "((files: File[], event: DragEvent<HTMLDivElement>) => void)",
+      "description": "Called when files are dropped on the dropzone.",
+      "detailedType": "| ((\n    files: File[],\n    event: DragEvent<HTMLDivElement>,\n  ) => void)\n| undefined"
+    },
+    "onOpen": {
+      "type": "(() => void)",
+      "description": "Called when the dropzone is activated by click or keyboard.",
+      "detailedType": "(() => void) | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the dropzone is disabled.",
+      "detailedType": "boolean | undefined"
+    },
+    "children": {
+      "type": "ReactNode | ((state: { isDragging: boolean }) => ReactNode)",
+      "detailedType": "| React.ReactNode\n| ((state: { isDragging: boolean }) => ReactNode)"
+    },
+    "className": {
+      "type": "string | ((state: Dropzone.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Dropzone.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Dropzone.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Dropzone.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Dropzone.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Dropzone.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-dragging": {
+      "description": "Present when files are being dragged over the dropzone."
+    },
+    "data-disabled": {
+      "description": "Present when the dropzone is disabled."
+    }
+  },
+  "cssVariables": {}
+}
