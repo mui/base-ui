@@ -30,7 +30,7 @@ describe('Dropzone.Root', () => {
     expect(() => {
       render(<Dropzone.HiddenInput />);
     }).toThrow(
-      'Base UI: DropzoneContext is missing. Dropzone parts must be placed within <Dropzone.Root>.',
+      'Base UI: DropzoneRootContext is missing. Dropzone parts must be placed within <Dropzone.Root>.',
     );
 
     consoleSpy.mockRestore();

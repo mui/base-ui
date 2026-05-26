@@ -191,45 +191,43 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
 
     return (
       <DropzoneRootContext.Provider value={contextValue}>
-        {useRenderElement('div', props, {
-          state: { dragging, disabled },
-          ref: forwardedRef,
-          props: [
-            {
-              role: 'button',
-              tabIndex: disabled ? -1 : 0,
-              'aria-disabled': disabled || undefined,
-              onDragEnter: handleDragEnter,
-              onDragLeave: handleDragLeave,
-              onDragOver: handleDragOver,
-              onDrop: handleDrop,
-              onClick: handleClick,
-              onKeyDown: handleKeyDown,
-              children: (
-                <React.Fragment>
-                  <div
-                    key={announcement.key}
-                    role="status"
-                    aria-live="polite"
-                    aria-atomic="true"
-                    style={{
-                      position: 'absolute',
-                      left: '-10000px',
-                      width: '1px',
-                      height: '1px',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {announcement.text}
-                  </div>
-                  {typeof children === 'function' ? children({ isDragging: dragging }) : children}
-                </React.Fragment>
-              ),
-            },
-            elementProps,
-          ],
-          stateAttributesMapping: dropzoneRootStateAttributesMapping,
-        })}
+        <React.Fragment>
+          {useRenderElement('div', props, {
+            state: { dragging, disabled },
+            ref: forwardedRef,
+            props: [
+              {
+                role: 'button',
+                tabIndex: disabled ? -1 : 0,
+                'aria-disabled': disabled || undefined,
+                onDragEnter: handleDragEnter,
+                onDragLeave: handleDragLeave,
+                onDragOver: handleDragOver,
+                onDrop: handleDrop,
+                onClick: handleClick,
+                onKeyDown: handleKeyDown,
+                children: typeof children === 'function' ? children({ isDragging: dragging }) : children,
+              },
+              elementProps,
+            ],
+            stateAttributesMapping: dropzoneRootStateAttributesMapping,
+          })}
+          <div
+            key={announcement.key}
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            style={{
+              position: 'absolute',
+              left: '-10000px',
+              width: '1px',
+              height: '1px',
+              overflow: 'hidden',
+            }}
+          >
+            {announcement.text}
+          </div>
+        </React.Fragment>
       </DropzoneRootContext.Provider>
     );
   },
