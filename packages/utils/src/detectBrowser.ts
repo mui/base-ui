@@ -10,6 +10,16 @@ const nav = getNavigatorData();
 const platform = getPlatform();
 const userAgent = getUserAgent();
 
+/**
+ * `true` when the rendering engine is WebKit (not Blink).
+ *
+ * Matches: Safari (macOS, iOS), all iOS browsers (Chrome/Edge/Firefox on iOS use WKWebView),
+ * and other WebKit-based browsers like GNOME Web (WebKitGTK).
+ *
+ * Does NOT match: Chrome, Edge, Opera, Brave, or any other Chromium/Blink browser on
+ * desktop or Android — Blink forked from WebKit in 2013 and does not accept the
+ * `-webkit-backdrop-filter` syntax used for detection.
+ */
 export const isWebKit =
   typeof CSS === 'undefined' || !CSS.supports
     ? false
@@ -22,8 +32,6 @@ export const isIOS =
     : /iP(hone|ad|od)|iOS/.test(nav.platform);
 
 export const isFirefox = /firefox/i.test(userAgent);
-export const isSafari = /apple/i.test(nav.vendor);
-export const isEdge = /Edg/i.test(userAgent);
 export const isAndroid = /android/i.test(platform) || /android/i.test(userAgent);
 export const isMac = platform.toLowerCase().startsWith('mac') && !nav.maxTouchPoints;
 export const isJSDOM = userAgent.includes('jsdom/');
