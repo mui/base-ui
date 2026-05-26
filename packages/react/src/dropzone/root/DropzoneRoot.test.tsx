@@ -81,20 +81,24 @@ describe('Dropzone.Root', () => {
     const user = userEvent.setup();
     const inputClick = vi.spyOn(HTMLInputElement.prototype, 'click');
 
-    render(
-      <Dropzone.Root>
-        <Dropzone.HiddenInput />
-        Drop files
-      </Dropzone.Root>,
-    );
+    try {
+      render(
+        <Dropzone.Root>
+          <Dropzone.HiddenInput />
+          Drop files
+        </Dropzone.Root>,
+      );
 
-    const dropzone = screen.getByRole('button');
+      const dropzone = screen.getByRole('button');
 
-    await user.click(dropzone);
-    fireEvent.keyDown(dropzone, { key: 'Enter' });
-    fireEvent.keyDown(dropzone, { key: ' ' });
+      await user.click(dropzone);
+      fireEvent.keyDown(dropzone, { key: 'Enter' });
+      fireEvent.keyDown(dropzone, { key: ' ' });
 
-    expect(inputClick).toHaveBeenCalledTimes(3);
+      expect(inputClick).toHaveBeenCalledTimes(3);
+    } finally {
+      inputClick.mockRestore();
+    }
   });
 
   it('does not open when disabled', async () => {
@@ -299,14 +303,14 @@ describe('Dropzone.Root', () => {
 
       const dropzone = screen.getByTestId('dropzone');
 
-      // Initial status region should exist
-      let statusRegion = dropzone.querySelector('[role="status"]');
+      // Initial status region should exist as a sibling (outside the button)
+      let statusRegion = dropzone.parentElement!.querySelector('[role="status"]');
       expect(statusRegion).toHaveAttribute('aria-live', 'polite');
       expect(statusRegion).toHaveAttribute('aria-atomic', 'true');
 
       // Drag enter - announces ready state
       fireEvent.dragEnter(dropzone);
-      statusRegion = dropzone.querySelector('[role="status"]');
+      statusRegion = dropzone.parentElement!.querySelector('[role="status"]');
       expect(statusRegion!.textContent).toContain('Ready to drop files');
 
       // Drag leave - announces drag ended
@@ -316,7 +320,7 @@ describe('Dropzone.Root', () => {
         configurable: true,
       });
       fireEvent(dropzone, dragLeaveEvent);
-      statusRegion = dropzone.querySelector('[role="status"]');
+      statusRegion = dropzone.parentElement!.querySelector('[role="status"]');
       expect(statusRegion!.textContent).toContain('Drag ended');
     });
 
@@ -332,7 +336,7 @@ describe('Dropzone.Root', () => {
         dataTransfer: createDataTransfer([file1, file2]),
       });
 
-      const statusRegion = dropzone.querySelector('[role="status"]');
+      const statusRegion = dropzone.parentElement!.querySelector('[role="status"]');
       expect(statusRegion!.textContent).toContain('Dropped 2 files');
     });
 
@@ -345,7 +349,7 @@ describe('Dropzone.Root', () => {
         dataTransfer: createDataTransfer([]),
       });
 
-      const statusRegion = dropzone.querySelector('[role="status"]');
+      const statusRegion = dropzone.parentElement!.querySelector('[role="status"]');
       expect(statusRegion!.textContent).toContain('No files dropped');
     });
   });

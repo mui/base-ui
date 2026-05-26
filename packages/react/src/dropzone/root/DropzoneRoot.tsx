@@ -86,7 +86,7 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
 
     const handleDragEnter = useStableCallback((event: React.DragEvent<HTMLDivElement>) => {
       event.preventDefault();
-      if (disabled) {
+      if (disabled || dragging) {
         return;
       }
       setDragging(true);
@@ -172,6 +172,11 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
 
     const handleKeyDown = useStableCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
       if (disabled) {
+        return;
+      }
+
+      // Do not trigger open when nested interactive controls are used.
+      if (event.target !== event.currentTarget) {
         return;
       }
 
