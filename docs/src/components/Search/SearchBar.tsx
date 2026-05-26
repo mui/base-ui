@@ -17,7 +17,6 @@ import { CornerDownLeft } from 'lucide-react';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
-import './SearchBar.css';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 

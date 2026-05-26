@@ -2,9 +2,12 @@
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { isMac } from '@base-ui/utils/detectBrowser';
-import { SearchBar } from './SearchBar';
+import './Search.css';
 
-const sitemap = () => import('../../app/sitemap');
+const sitemapPromise = () => import('../../app/sitemap');
+const LazySearchBar = React.lazy(() =>
+  import('./SearchBar').then((module) => ({ default: module.SearchBar })),
+);
 
 interface SearchRenderProps {
   isCmd: boolean;
@@ -24,12 +27,14 @@ export function Search({
   containedScroll = false,
 }: SearchProps) {
   const [handle] = React.useState(() => Dialog.createHandle());
+  const generatedTriggerId = React.useId();
 
   const isCmd = React.useSyncExternalStore(
     () => () => {},
     () => isMac,
     () => true,
   );
+  const triggerId = triggerProps?.id ?? generatedTriggerId;
 
   React.useEffect(() => {
     if (!enableKeyboardShortcut) {
@@ -46,21 +51,23 @@ export function Search({
         event.stopPropagation();
 
         if (!handle.isOpen) {
-          handle.open(null);
+          handle.open(triggerId);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [enableKeyboardShortcut, handle]);
+  }, [enableKeyboardShortcut, handle, triggerId]);
 
   return (
     <React.Fragment>
-      <Dialog.Trigger {...triggerProps} handle={handle}>
+      <Dialog.Trigger {...triggerProps} id={triggerId} handle={handle}>
         {typeof children === 'function' ? children({ isCmd }) : children}
       </Dialog.Trigger>
-      <SearchBar handle={handle} sitemap={sitemap} containedScroll={containedScroll} />
+      <React.Suspense fallback={null}>
+        <LazySearchBar handle={handle} sitemap={sitemapPromise} containedScroll={containedScroll} />
+      </React.Suspense>
     </React.Fragment>
   );
 }
