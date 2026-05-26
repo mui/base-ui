@@ -21,32 +21,34 @@ export const isIOS =
     ? true
     : /iP(hone|ad|od)|iOS/.test(nav.platform);
 
-export const isFirefox = hasNavigator && /firefox/i.test(userAgent);
-export const isSafari = hasNavigator && /apple/i.test(navigator.vendor);
-export const isEdge = hasNavigator && /Edg/i.test(userAgent);
-export const isAndroid = (hasNavigator && /android/i.test(platform)) || /android/i.test(userAgent);
-export const isMac =
-  hasNavigator && platform.toLowerCase().startsWith('mac') && !navigator.maxTouchPoints;
+export const isFirefox = /firefox/i.test(userAgent);
+export const isSafari = /apple/i.test(nav.vendor);
+export const isEdge = /Edg/i.test(userAgent);
+export const isAndroid = /android/i.test(platform) || /android/i.test(userAgent);
+export const isMac = platform.toLowerCase().startsWith('mac') && !nav.maxTouchPoints;
 export const isJSDOM = userAgent.includes('jsdom/');
 
 // Avoid Chrome DevTools blue warning.
-function getNavigatorData(): { platform: string; maxTouchPoints: number } {
+function getNavigatorData(): { platform: string; maxTouchPoints: number; vendor: string } {
   if (!hasNavigator) {
-    return { platform: '', maxTouchPoints: -1 };
+    return { platform: '', maxTouchPoints: -1, vendor: '' };
   }
 
   const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
+  const vendor = navigator.vendor ?? '';
 
   if (uaData?.platform) {
     return {
       platform: uaData.platform,
       maxTouchPoints: navigator.maxTouchPoints,
+      vendor,
     };
   }
 
   return {
     platform: navigator.platform ?? '',
     maxTouchPoints: navigator.maxTouchPoints ?? -1,
+    vendor,
   };
 }
 
