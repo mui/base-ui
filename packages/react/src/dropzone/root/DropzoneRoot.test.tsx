@@ -137,6 +137,23 @@ describe('Dropzone.Root', () => {
     expect(onOpen).not.toHaveBeenCalled();
   });
 
+  it('does not open when nested interactive element receives keyboard activation', () => {
+    const onOpen = vi.fn();
+
+    render(
+      <Dropzone.Root onOpen={onOpen}>
+        <button type="button">Nested</button>
+      </Dropzone.Root>,
+    );
+
+    const nestedButton = screen.getByText('Nested');
+    nestedButton.focus();
+    fireEvent.keyDown(nestedButton, { key: 'Enter' });
+    fireEvent.keyDown(nestedButton, { key: ' ' });
+
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
   it('tracks dragging state and supports render prop', () => {
     render(
       <Dropzone.Root data-testid="dropzone">
