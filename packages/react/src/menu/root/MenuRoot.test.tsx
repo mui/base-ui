@@ -1018,6 +1018,56 @@ describe('<Menu.Root />', () => {
       });
 
       it.skipIf(isJSDOM)(
+        'focuses the trigger after Escape when the closing menu receives mouseleave',
+        async () => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+          const { user } = await render(
+            <React.Fragment>
+              <style>
+                {`
+                  .transition-test-indicator {
+                    transition:
+                      transform 100ms ease-out,
+                      opacity 100ms ease-out;
+                  }
+
+                  .transition-test-indicator[data-ending-style] {
+                    opacity: 0;
+                    transform: scale(0.98);
+                  }
+                `}
+              </style>
+              <TestMenu popupProps={{ className: 'transition-test-indicator' }} />
+            </React.Fragment>,
+          );
+
+          const button = screen.getByRole('button', { name: 'Toggle' });
+          await user.click(button);
+
+          const firstItem = await screen.findByTestId('item-1');
+          await user.hover(firstItem);
+
+          await waitFor(() => {
+            expect(firstItem).toHaveFocus();
+          });
+
+          await user.keyboard('[Escape]');
+
+          // During an exit transition, the positioner can receive a mouseleave after Escape
+          // when pointer-events change while the pointer rests over the popup.
+          fireEvent.mouseLeave(screen.getByTestId('menu-positioner'), {
+            relatedTarget: document.body,
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByRole('menu')).toBe(null);
+          });
+          expect(button).toHaveFocus();
+        },
+      );
+
+      it.skipIf(isJSDOM)(
         'focuses the trigger after the menu is closed but not unmounted',
         async () => {
           const { user } = await render(
