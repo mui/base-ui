@@ -462,7 +462,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     <NumberFieldRootContext.Provider value={contextValue}>
       {element}
       <input
-        {...validation.getInputValidationProps({
+        {...validation.getInputValidationProps(disabled, {
           onFocus() {
             inputRef.current?.focus();
           },
@@ -531,7 +531,7 @@ export interface NumberFieldRootProps extends Omit<
    */
   allowOutOfRange?: boolean | undefined;
   /**
-   * The small step value of the input element when incrementing while the meta key is held. Snaps
+   * The small step value of the input element when incrementing while the alt key is held. Snaps
    * to multiples of this value.
    * @default 0.1
    */

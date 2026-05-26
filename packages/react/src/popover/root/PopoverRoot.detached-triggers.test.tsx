@@ -190,6 +190,7 @@ describe('<Popover.Root />', () => {
                     <Popover.Positioner>
                       <Popover.Popup>
                         <span data-testid="content">{payload as number}</span>
+                        <Popover.Close>Close</Popover.Close>
                       </Popover.Popup>
                     </Popover.Positioner>
                   </Popover.Portal>
@@ -212,7 +213,6 @@ describe('<Popover.Root />', () => {
             >
               Open Trigger 2
             </button>
-            <button onClick={() => setOpen(false)}>Close</button>
           </div>
         );
       }
@@ -220,10 +220,137 @@ describe('<Popover.Root />', () => {
       const { user } = await render(<Test />);
       await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
       expect(screen.getByTestId('content').textContent).toBe('1');
-      await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
+      const openTrigger2Button = screen.getByRole('button', { name: 'Open Trigger 2' });
+      await user.click(openTrigger2Button);
       expect(screen.getByTestId('content').textContent).toBe('2');
       await user.click(screen.getByRole('button', { name: 'Close' }));
       expect(screen.queryByTestId('content')).toBe(null);
+      expect(openTrigger2Button).toHaveFocus();
+    });
+
+    it('returns focus to the active trigger when opening programmatically from body focus', async () => {
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        const [activeTrigger, setActiveTrigger] = React.useState<string | null>(null);
+
+        return (
+          <React.Fragment>
+            <Popover.Root
+              open={open}
+              triggerId={activeTrigger}
+              onOpenChange={(nextOpen, details) => {
+                setActiveTrigger(details.trigger?.id ?? null);
+                setOpen(nextOpen);
+              }}
+            >
+              <Popover.Trigger payload={1} id="trigger-1">
+                Trigger 1
+              </Popover.Trigger>
+              <Popover.Trigger payload={2} id="trigger-2">
+                Trigger 2
+              </Popover.Trigger>
+
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <span data-testid="content">Content</span>
+                    <Popover.Close>Close</Popover.Close>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+
+            <button
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                setOpen(true);
+                setActiveTrigger('trigger-2');
+              }}
+            >
+              Open Trigger 2 without focus
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(trigger1).toHaveFocus();
+      });
+
+      trigger1.blur();
+      expect(document.body).toHaveFocus();
+
+      await user.click(screen.getByRole('button', { name: 'Open Trigger 2 without focus' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('content')).toBeVisible();
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(trigger2).toHaveFocus();
+      });
+    });
+
+    it('returns focus to the previous element when the trigger unmounts while open', async () => {
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        const [showTrigger, setShowTrigger] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <button type="button">Focus fallback</button>
+
+            <Popover.Root
+              open={open}
+              onOpenChange={(nextOpen) => {
+                if (nextOpen) {
+                  setShowTrigger(false);
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              {showTrigger && (
+                <Popover.Trigger onMouseDown={(event) => event.preventDefault()}>
+                  Disappearing trigger
+                </Popover.Trigger>
+              )}
+
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <span data-testid="content">Content</span>
+                    <Popover.Close>Close</Popover.Close>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const fallback = screen.getByRole('button', { name: 'Focus fallback' });
+      await user.click(fallback);
+      expect(fallback).toHaveFocus();
+
+      await user.click(screen.getByRole('button', { name: 'Disappearing trigger' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('content')).toBeVisible();
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
+      expect(fallback).toHaveFocus();
     });
 
     it('allows setting an initially open popover', async () => {

@@ -908,6 +908,26 @@ describe('<Checkbox.Root />', () => {
       },
     );
 
+    it.skipIf(isJSDOM)('does not submit uncheckedValue when disabled', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-checkbox');
+      });
+
+      const { user } = await render(
+        <form onSubmit={submitSpy}>
+          <Checkbox.Root name="test-checkbox" uncheckedValue="off" disabled />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe(null);
+    });
+
     it.skipIf(isJSDOM)(
       'should submit custom uncheckedValue when checkbox is unchecked',
       async () => {

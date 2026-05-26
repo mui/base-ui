@@ -45,6 +45,8 @@ export const FieldError = React.forwardRef(function FieldError(
   let rendered = false;
   if (match === true) {
     rendered = true;
+  } else if (fieldState.disabled) {
+    rendered = false;
   } else if (hasSpecificMatch) {
     rendered = Boolean(validityData.state[match]);
   } else {

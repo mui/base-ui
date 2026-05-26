@@ -97,7 +97,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
-  useRegisterFieldControl(inputRef, id, value, undefined, true, nameProp);
+  useRegisterFieldControl(inputRef, id, value, undefined, !disabled, nameProp);
 
   useValueChanged(value, () => {
     clearErrors(name);
@@ -122,7 +122,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     autoCorrect: 'off',
     spellCheck: 'false',
     'aria-roledescription': 'Number field',
-    'aria-invalid': invalid || undefined,
+    'aria-invalid': !disabled && invalid ? true : undefined,
     'aria-labelledby': labelId,
     // If the server's locale does not match the client's locale, the formatting may not match,
     // causing a hydration mismatch.
@@ -189,19 +189,22 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const shouldUpdateValue = value !== committed;
       const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
 
-      if (validationMode === 'onBlur') {
-        validation.commit(committed);
-      }
+      // Use the stored value after `setValue` clamps it.
+      let committedValue = committed;
       if (shouldUpdateValue) {
         blockRevalidationRef.current = true;
         setValue(committed, createChangeEventDetails(REASONS.inputBlur, event.nativeEvent));
+        committedValue = lastChangedValueRef.current ?? committed;
+      }
+      if (validationMode === 'onBlur') {
+        validation.commit(committedValue);
       }
       if (shouldCommit) {
-        onValueCommitted(committed, nextEventDetails);
+        onValueCommitted(committedValue, nextEventDetails);
       }
 
       // Normalize only the displayed text
-      const canonicalText = formatNumber(committed, locale, formatOptions);
+      const canonicalText = formatNumber(committedValue, locale, formatOptions);
       const shouldPreserveFullPrecision =
         !hasExplicitPrecision &&
         parsedValue === value &&
@@ -331,13 +334,15 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const isPersianNumeral = PERSIAN_DETECT_RE.test(event.key);
       const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
+      // Alt+ArrowUp/ArrowDown selects smallStep, so don't treat it as a bypass modifier.
+      const isStepKey = event.key === 'ArrowUp' || event.key === 'ArrowDown';
 
       if (
         // Allow composition events (e.g., pinyin)
         // event.nativeEvent.isComposing does not work in Safari:
         // https://bugs.webkit.org/show_bug.cgi?id=165004
         event.which === 229 ||
-        event.altKey ||
+        (event.altKey && !isStepKey) ||
         event.ctrlKey ||
         event.metaKey ||
         isAllowedNonNumericKey ||
@@ -422,7 +427,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
     state,
-    props: [inputProps, elementProps, validation.getValidationProps],
+    props: [inputProps, elementProps, (props) => validation.getValidationProps(disabled, props)],
     stateAttributesMapping,
   });
 

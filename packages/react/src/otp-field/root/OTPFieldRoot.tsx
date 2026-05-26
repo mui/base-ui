@@ -157,7 +157,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     });
   }
 
-  useRegisterFieldControl(firstInputRef, id, value, undefined, true, nameProp);
+  useRegisterFieldControl(firstInputRef, id, value, undefined, !disabled, nameProp);
 
   const focusInput = useStableCallback((index: number) => {
     const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
@@ -395,7 +395,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
         {element}
         {hasValidLength && (
           <input
-            {...validation.getInputValidationProps({
+            {...validation.getInputValidationProps(disabled, {
               onFocus() {
                 focusInput(0);
               },
