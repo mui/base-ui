@@ -66,7 +66,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const isNavigatingRef = React.useRef(false);
   const tabElementRef = React.useRef<HTMLElement | null>(null);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     const tabElement = tabElementRef.current;
     if (!tabElement) {
       return undefined;

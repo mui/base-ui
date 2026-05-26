@@ -519,11 +519,11 @@ describe('<CheckboxGroup />', () => {
     it('links the group and individual checkboxes', async () => {
       await render(
         <Field.Root name="apple">
-          <CheckboxGroup defaultValue={[]}>
+          <CheckboxGroup defaultValue={[]} aria-describedby="external-description">
             <Field.Description data-testid="group-description">Group description</Field.Description>
             <Field.Item>
               <Field.Label>
-                <Checkbox.Root value="fuji-apple" />
+                <Checkbox.Root value="fuji-apple" aria-describedby="checkbox-description" />
                 Fuji
               </Field.Label>
             </Field.Item>
@@ -539,6 +539,14 @@ describe('<CheckboxGroup />', () => {
       );
       expect(screen.getByRole('checkbox').getAttribute('aria-describedby')).toContain(
         groupDescriptionId,
+      );
+      expect(screen.getByRole('checkbox')).toHaveAttribute(
+        'aria-describedby',
+        `checkbox-description ${groupDescriptionId}`,
+      );
+      expect(screen.getByRole('group')).toHaveAttribute(
+        'aria-describedby',
+        `external-description ${groupDescriptionId}`,
       );
     });
   });

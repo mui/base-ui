@@ -71,6 +71,9 @@ describe('<OTPFieldPreview />', () => {
 
       expect(inputs.map((input) => input.value)).toEqual(['1', '2', '3', '4', '5', '6']);
       expect(inputs[0]).toHaveAttribute('maxlength', '6');
+      inputs.slice(1).forEach((input) => {
+        expect(input).not.toHaveAttribute('maxlength');
+      });
       expect(hiddenInput).toHaveValue('123456');
     });
 
@@ -663,7 +666,7 @@ describe('<OTPFieldPreview />', () => {
         <Field.Root>
           <Field.Label data-testid="label">Verification code</Field.Label>
           <Field.Description data-testid="description">Enter the code.</Field.Description>
-          <OTPField />
+          <OTPField aria-describedby="external-description" />
         </Field.Root>,
       );
 
@@ -672,7 +675,7 @@ describe('<OTPFieldPreview />', () => {
       const group = screen.getByRole('group', { name: 'Verification code' });
 
       expect(group).toHaveAttribute('aria-labelledby', label.id);
-      expect(group).toHaveAttribute('aria-describedby', description.id);
+      expect(group).toHaveAttribute('aria-describedby', `external-description ${description.id}`);
     });
   });
 
@@ -803,6 +806,16 @@ describe('<OTPFieldPreview />', () => {
         fireEvent.change(firstInput, { target: { value: '123456' } });
 
         expect(getValues()).toBe('123456');
+      });
+
+      it('replaces consecutive slots when typing multiple characters into a later input', async () => {
+        await render(<OTPField defaultValue="123456" />);
+
+        const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+        fireEvent.change(inputs[2], { target: { value: '99' } });
+
+        expect(getValues()).toBe('129956');
       });
     });
 
@@ -1100,6 +1113,14 @@ describe('<OTPFieldPreview />', () => {
 
         if (withField) {
           expect(screen.getByTestId('error')).toHaveTextContent('test');
+          const inputs = screen.getAllByRole('textbox');
+          inputs.forEach((input) => {
+            if (lockState === 'disabled') {
+              expect(input).not.toHaveAttribute('aria-invalid');
+            } else {
+              expect(input).toHaveAttribute('aria-invalid', 'true');
+            }
+          });
         }
 
         fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });

@@ -31,6 +31,7 @@
   border: 0;
   background-color: transparent;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
   font-family: inherit;
   font-size: 0.875rem;
@@ -158,6 +159,7 @@
 
 .Positioner {
   outline: none;
+  -webkit-user-select: none;
   user-select: none;
   z-index: 10;
 }
@@ -212,6 +214,7 @@
   align-items: center;
   grid-template-columns: 1rem 1fr;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
 
   @media (pointer: coarse) {

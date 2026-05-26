@@ -81,7 +81,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     state: fieldState,
     validationMode,
     validityData,
-    shouldValidateOnChange,
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
@@ -170,7 +169,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     };
   }, [registerControlId, controlSourceRef]);
 
-  useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext);
+  useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
@@ -200,11 +199,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     setFilled(checked);
     setDirty(checked !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(checked);
-    } else {
-      validation.commit(checked, true);
-    }
+    validation.change(checked);
   });
 
   const inputProps = mergeProps<'input'>(
@@ -264,7 +259,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
       : EMPTY_OBJECT,
     getDescriptionProps,
-    groupContext ? validation.getValidationProps : validation.getInputValidationProps,
+    (props) =>
+      groupContext
+        ? validation.getValidationProps(disabled, props)
+        : validation.getInputValidationProps(disabled, props),
   );
 
   const computedChecked = isGroupedWithParent ? Boolean(groupChecked) : checked;
@@ -393,11 +391,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           );
         },
       },
-      getDescriptionProps,
-      validation.getValidationProps,
       elementProps,
       otherGroupProps,
       getButtonProps,
+      getDescriptionProps,
+      (props) => validation.getValidationProps(disabled, props),
     ],
     stateAttributesMapping,
   });
@@ -406,7 +404,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     <CheckboxRootContext.Provider value={state}>
       {element}
       {!checked && !groupContext && name && !parent && uncheckedValue !== undefined && (
-        <input type="hidden" form={form} name={name} value={uncheckedValue} />
+        <input type="hidden" form={form} name={name} value={uncheckedValue} disabled={disabled} />
       )}
       <input {...inputProps} suppressHydrationWarning />
     </CheckboxRootContext.Provider>

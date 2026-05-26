@@ -193,6 +193,7 @@
     color: var(--green-t1);
     border: 1px solid currentColor;
     border-radius: 999px;
+    -webkit-user-select: none;
     user-select: none;
   }
 

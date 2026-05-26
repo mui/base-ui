@@ -97,6 +97,7 @@
   box-sizing: border-box;
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding: 0.75rem 0.5rem;
   display: flex;

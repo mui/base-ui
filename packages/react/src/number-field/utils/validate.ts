@@ -29,20 +29,20 @@ export function removeFloatingPointErrors(value: number, format?: Intl.NumberFor
 }
 
 function snapToStep(
-  clampedValue: number,
+  value: number,
   base: number,
   step: number,
   mode: 'directional' | 'nearest' = 'directional',
 ) {
   if (step === 0) {
-    return clampedValue;
+    return value;
   }
 
   const stepSize = Math.abs(step);
   const direction = Math.sign(step);
   const tolerance = stepSize * STEP_EPSILON_FACTOR * direction;
   const divisor = mode === 'nearest' ? step : stepSize;
-  const rawSteps = (clampedValue - base + tolerance) / divisor;
+  const rawSteps = (value - base + tolerance) / divisor;
 
   let snappedSteps: number;
   if (mode === 'nearest') {
@@ -84,22 +84,19 @@ export function toValidatedNumber(
     return value;
   }
 
-  const clampedValue = shouldClamp ? clamp(value, minWithDefault, maxWithDefault) : value;
+  let result = value;
 
-  if (step != null && snapOnStep) {
-    if (step === 0) {
-      return removeFloatingPointErrors(clampedValue, format);
-    }
+  if (step != null && snapOnStep && step !== 0) {
+    const base =
+      small || minWithDefault === Number.MIN_SAFE_INTEGER ? minWithZeroDefault : minWithDefault;
 
-    // If a real minimum is provided, use it
-    let base = minWithZeroDefault;
-    if (!small && minWithDefault !== Number.MIN_SAFE_INTEGER) {
-      base = minWithDefault;
-    }
-
-    const snappedValue = snapToStep(clampedValue, base, step, small ? 'nearest' : 'directional');
-    return removeFloatingPointErrors(snappedValue, format);
+    // Snap before clamping so non-step-aligned boundaries stay reachable.
+    result = snapToStep(result, base, step, small ? 'nearest' : 'directional');
   }
 
-  return removeFloatingPointErrors(clampedValue, format);
+  if (shouldClamp) {
+    result = clamp(result, minWithDefault, maxWithDefault);
+  }
+
+  return removeFloatingPointErrors(result, format);
 }

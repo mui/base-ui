@@ -2679,7 +2679,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('Field.Description', async () => {
       await render(
         <Field.Root>
-          <Slider.Root data-testid="slider">
+          <Slider.Root data-testid="slider" aria-describedby="external-description">
             <Slider.Control />
           </Slider.Root>
           <Field.Description data-testid="description" />
@@ -2688,7 +2688,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
       expect(screen.getByTestId('slider')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });
