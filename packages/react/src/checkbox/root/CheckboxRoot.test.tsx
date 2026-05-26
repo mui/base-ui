@@ -1202,6 +1202,21 @@ describe('<Checkbox.Root />', () => {
       expect(button).toHaveAttribute('aria-invalid', 'true');
     });
 
+    it('validates once when changed by the user', async () => {
+      const validate = vi.fn();
+
+      const { user } = await render(
+        <Field.Root validationMode="onChange" validate={validate}>
+          <Checkbox.Root />
+        </Field.Root>,
+      );
+
+      await user.click(screen.getByRole('checkbox'));
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(validate.mock.lastCall?.[0]).toBe(true);
+    });
+
     it('revalidates when a controlled value changes externally', async () => {
       const validateSpy = vi.fn((value: unknown) => ((value as boolean) ? 'error' : null));
 
