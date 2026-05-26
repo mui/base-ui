@@ -6,22 +6,23 @@ import { SearchBar } from './SearchBar';
 
 const sitemap = () => import('../../app/sitemap');
 
-interface SearchContextValue {
+interface SearchRenderProps {
   isCmd: boolean;
-  handle: Dialog.Handle<unknown>;
 }
 
-const SearchContext = React.createContext<SearchContextValue | null>(null);
+interface SearchProps {
+  children?: React.ReactNode | ((props: SearchRenderProps) => React.ReactNode);
+  triggerProps?: Omit<Dialog.Trigger.Props, 'children' | 'handle'>;
+  enableKeyboardShortcut?: boolean;
+  containedScroll?: boolean;
+}
 
 export function Search({
   children,
+  triggerProps,
   enableKeyboardShortcut = false,
   containedScroll = false,
-}: {
-  children?: React.ReactNode;
-  enableKeyboardShortcut?: boolean;
-  containedScroll?: boolean;
-}) {
+}: SearchProps) {
   const [handle] = React.useState(() => Dialog.createHandle());
 
   const isCmd = React.useSyncExternalStore(
@@ -54,43 +55,12 @@ export function Search({
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
   }, [enableKeyboardShortcut, handle]);
 
-  const contextValue = React.useMemo(
-    () => ({
-      isCmd,
-      handle,
-    }),
-    [handle, isCmd],
-  );
-
   return (
-    <SearchContext.Provider value={contextValue}>
-      {children}
+    <React.Fragment>
+      <Dialog.Trigger {...triggerProps} handle={handle}>
+        {typeof children === 'function' ? children({ isCmd }) : children}
+      </Dialog.Trigger>
       <SearchBar handle={handle} sitemap={sitemap} containedScroll={containedScroll} />
-    </SearchContext.Provider>
-  );
-}
-
-interface SearchTriggerRenderProps {
-  isCmd: boolean;
-}
-
-interface SearchTriggerProps extends Omit<Dialog.Trigger.Props, 'children' | 'handle'> {
-  children?: React.ReactNode | ((props: SearchTriggerRenderProps) => React.ReactNode);
-}
-
-export function SearchTrigger(props: SearchTriggerProps) {
-  const { children, ...triggerProps } = props;
-  const context = React.useContext(SearchContext);
-
-  if (context === null) {
-    throw new Error('SearchTrigger must be used within Search.');
-  }
-
-  const { handle, isCmd } = context;
-
-  return (
-    <Dialog.Trigger {...triggerProps} handle={handle}>
-      {typeof children === 'function' ? children({ isCmd }) : children}
-    </Dialog.Trigger>
+    </React.Fragment>
   );
 }

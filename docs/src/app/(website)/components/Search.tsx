@@ -1,18 +1,22 @@
 'use client';
 import * as React from 'react';
 
-import { SearchTrigger as SearchTrigger_ } from 'docs/src/components/Search';
+import { Search as Search_ } from 'docs/src/components/Search';
 import './Search.css';
 
-export function SearchTrigger() {
+export function Search() {
   return (
-    <SearchTrigger_ className="WebsiteSearchTrigger Text sz-1">
+    <Search_
+      containedScroll
+      enableKeyboardShortcut
+      triggerProps={{ className: 'WebsiteSearchTrigger Text sz-1' }}
+    >
       {({ isCmd }) => (
         <React.Fragment>
           Search [{isCmd ? <kbd>⌘</kbd> : <kbd>Ctrl+</kbd>}
           <kbd>k</kbd>]
         </React.Fragment>
       )}
-    </SearchTrigger_>
+    </Search_>
   );
 }

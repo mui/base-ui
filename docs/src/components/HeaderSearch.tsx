@@ -1,11 +1,16 @@
 'use client';
 import * as React from 'react';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
-import { SearchTrigger as SearchTrigger_ } from './Search';
+import { Search } from './Search';
 
-export function SearchTrigger() {
+interface HeaderSearchProps {
+  containedScroll?: boolean;
+  enableKeyboardShortcut?: boolean;
+}
+
+export function HeaderSearch(props: HeaderSearchProps) {
   return (
-    <SearchTrigger_ className="SearchTrigger" aria-label="Search">
+    <Search triggerProps={{ className: 'SearchTrigger', 'aria-label': 'Search' }} {...props}>
       {({ isCmd }) => (
         <React.Fragment>
           <MagnifyingGlassIcon className="SearchTriggerIcon" />
@@ -22,6 +27,6 @@ export function SearchTrigger() {
           </div>
         </React.Fragment>
       )}
-    </SearchTrigger_>
+    </Search>
   );
 }
