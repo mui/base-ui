@@ -172,22 +172,11 @@ import { DemoDrawerSwipeArea } from './demos/swipe-area';
 
 ### Close confirmation
 
-This example shows a nested confirmation dialog that opens if in-progress changes in the drawer are about to be discarded.
+This example shows a nested confirmation dialog that opens if the text entered in the drawer is going to be discarded.
 
-To implement this, the drawer should be controlled. The confirmation dialog may be opened when `onOpenChange` receives a request to close and there are unsaved changes. This way, the confirmation is automatically shown when the user presses `Esc`, clicks the backdrop, clicks a close button, or dismisses the drawer with a swipe gesture.
+To implement this, both the drawer and the confirmation dialog should be controlled. The confirmation dialog may be opened when the `onOpenChange` callback of the drawer receives a request to close while there is text in the textarea. This way, the confirmation is automatically shown when the user clicks the backdrop, presses the Esc key, clicks a close button, or dismisses the drawer with a swipe gesture.
 
 Use `eventDetails.cancel()` in `onOpenChange` to prevent the drawer from closing while the confirmation prompt is shown.
-
-```tsx title="Close confirmation"
-<Drawer.Root
-  onOpenChange={(open, eventDetails) => {
-    if (!open && isDirty) {
-      eventDetails.cancel();
-      setConfirmOpen(true);
-    }
-  }}
->
-```
 
 import { DemoDrawerCloseConfirmation } from './demos/close-confirmation';
 
