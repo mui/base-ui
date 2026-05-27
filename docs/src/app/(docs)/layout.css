@@ -14,30 +14,36 @@
   .RootLayout {
     --content-layout-gap: 2.5rem;
     --content-layout-max-width: 48rem;
+    --root-layout-padding-inline: 1.5rem;
 
     z-index: 0;
     position: relative;
-    padding-inline: 1.5rem;
+    padding-inline: var(--root-layout-padding-inline);
 
     @media (--md) {
       --content-layout-gap: 3rem;
-      padding-inline: 3rem;
+      --root-layout-padding-inline: 3rem;
     }
 
     @media (--show-side-nav) {
       --content-layout-max-width: 92.5rem;
-
-      &::before {
-        content: '';
-        position: absolute;
-        z-index: 1;
-        top: var(--header-height);
-        right: 0;
-        left: 0;
-        height: 1px;
-        margin-top: -1px;
-        background-color: var(--color-gridline);
-      }
+      --content-layout-width: min(
+        var(--content-layout-max-width),
+        calc(100% - var(--root-layout-padding-inline) - var(--root-layout-padding-inline))
+      );
+      --content-layout-inline-offset: calc((100% - var(--content-layout-width)) / 2);
+      --content-layout-column-width: calc(
+        (
+            var(--content-layout-width) - var(--content-layout-gap) - var(--content-layout-gap) -
+              var(--content-layout-gap) - var(--content-layout-gap) - var(--content-layout-gap) -
+              var(--content-layout-gap) - var(--content-layout-gap)
+          ) /
+          8
+      );
+      --content-layout-sidebar-width: calc(
+        var(--content-layout-column-width) + var(--content-layout-column-width) +
+          var(--content-layout-gap)
+      );
     }
   }
 

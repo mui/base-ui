@@ -4,38 +4,31 @@
   .Header {
     font-size: var(--font-size-15);
     line-height: 1.375rem;
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     height: var(--header-height);
     width: 100%;
-  }
-
-  .HeaderInner {
-    height: inherit;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-inline: 1.5rem;
-
-    position: fixed;
-    top: 0;
-    inset-inline: 0;
-    box-shadow: inset 0 -1px var(--color-gridline);
-    /* It's also the iOS header overscroll background */
-    background-color: var(--gray-s2);
-    z-index: 2;
-
-    @media (--show-side-nav) {
-      position: static;
-      box-shadow: none;
-      background-color: transparent;
-      padding-inline: 0;
-    }
+    background-color: var(--color-content);
+    z-index: 3;
 
     @media print {
       /* Prevent the header to be visible on each printed page */
       position: absolute;
+    }
+  }
+
+  .HeaderInner {
+    height: inherit;
+    width: calc(100% - var(--root-layout-padding-inline) - var(--root-layout-padding-inline));
+    max-width: var(--content-layout-max-width);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-inline: auto;
+
+    @media (--show-side-nav) {
+      padding-inline: 0;
     }
   }
 
