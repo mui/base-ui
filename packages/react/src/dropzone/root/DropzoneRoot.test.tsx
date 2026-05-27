@@ -5,6 +5,11 @@ import { describe, it, expect, vi } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import * as Dropzone from '../index.parts';
 
+// Testing Library's fireEvent creates a new DataTransfer() internally and copies
+// only own properties from the provided object. Browser DataTransfer stores its
+// data in internal slots (not own properties), so we must shadow the relevant
+// properties with Object.defineProperty to ensure they are copied correctly.
+
 const createDataTransfer = (files: File[]) => {
   if (typeof DataTransfer === 'undefined') {
     return { files, types: files.length > 0 ? ['Files'] : [] } as unknown as DataTransfer;
@@ -20,19 +25,46 @@ const createDataTransfer = (files: File[]) => {
     configurable: true,
   });
 
-  // JSDOM does not populate types automatically when items are added.
-  Object.defineProperty(dataTransfer, 'types', {
-    value: files.length > 0 ? ['Files'] : [],
-    configurable: true,
-  });
+  if (files.length > 0) {
+    Object.defineProperty(dataTransfer, 'types', {
+      value: ['Files'],
+      configurable: true,
+    });
+  }
 
   return dataTransfer;
 };
 
-// Simulates a dataTransfer in dragenter/dragover events, where files are
-// not accessible but types includes 'Files' to signal a file drag.
-const createFileDragTransfer = () =>
-  ({ types: ['Files'], dropEffect: 'none' }) as unknown as DataTransfer;
+// Simulates a dataTransfer in dragenter/dragover events where files are not
+// accessible but types includes 'Files' to signal a file drag.
+// Uses a real DataTransfer so Chromium's strict DragEventInit validation passes.
+const createFileDragTransfer = (): DataTransfer => {
+  if (typeof DataTransfer === 'undefined') {
+    return { types: ['Files'] } as unknown as DataTransfer;
+  }
+
+  const dt = new DataTransfer();
+  dt.items.add(new File([''], 'placeholder.txt', { type: 'application/octet-stream' }));
+
+  Object.defineProperty(dt, 'types', { value: ['Files'], configurable: true });
+
+  return dt;
+};
+
+// Creates a DataTransfer with text data (non-file drag) that works in both
+// JSDOM and real browsers.
+const createTextDragTransfer = (): DataTransfer => {
+  if (typeof DataTransfer === 'undefined') {
+    return { types: ['text/plain'] } as unknown as DataTransfer;
+  }
+
+  const dt = new DataTransfer();
+  dt.setData('text/plain', 'dragged text');
+
+  Object.defineProperty(dt, 'types', { value: ['text/plain'], configurable: true });
+
+  return dt;
+};
 
 describe('Dropzone.Root', () => {
   it('throws when HiddenInput is used outside Dropzone', () => {
@@ -232,9 +264,8 @@ describe('Dropzone.Root', () => {
     );
 
     const dropzone = screen.getByTestId('dropzone');
-    const textDragTransfer = { types: ['text/plain'] } as unknown as DataTransfer;
 
-    fireEvent.dragEnter(dropzone, { dataTransfer: textDragTransfer });
+    fireEvent.dragEnter(dropzone, { dataTransfer: createTextDragTransfer() });
 
     expect(onDraggingChange).not.toHaveBeenCalled();
     expect(dropzone).not.toHaveAttribute('data-dragging');
@@ -421,7 +452,9 @@ describe('Dropzone.Root', () => {
       expect(screen.getByRole('status').textContent).toContain('Dropped 2 files');
     });
 
-    it('announces when a file drop yields no files', () => {
+    // This edge case (types includes 'Files' but files list is empty) is
+    // not reproducible in a real browser, so restrict to JSDOM.
+    it.skipIf(!isJSDOM)('announces when a file drop yields no files', () => {
       render(<Dropzone.Root data-testid="dropzone">Drop files</Dropzone.Root>);
 
       const dropzone = screen.getByTestId('dropzone');
@@ -445,7 +478,7 @@ describe('Dropzone.Root', () => {
       const statusRegion = screen.getByRole('status');
 
       fireEvent.drop(dropzone, {
-        dataTransfer: { types: ['text/plain'] } as unknown as DataTransfer,
+        dataTransfer: createTextDragTransfer(),
       });
 
       expect(statusRegion.textContent).toBe('');
