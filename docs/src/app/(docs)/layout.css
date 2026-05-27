@@ -6,8 +6,6 @@
     position: relative; /* iOS 26 `position: absolute` backdrops */
     min-width: 320px;
     line-height: 1.5;
-    /* It's also the iOS footer overscroll background */
-    background-color: var(--color-background);
     color: var(--color-foreground);
   }
 }
@@ -90,7 +88,6 @@
 
   .RootLayoutFooter {
     @media (--lg) {
-      background-color: var(--color-background);
       width: 100%;
       height: var(--header-height);
       position: absolute;
