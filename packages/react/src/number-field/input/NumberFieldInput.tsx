@@ -33,6 +33,7 @@ import {
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { REASONS } from '../../internals/reasons';
+import { hasNumberFormatRoundingOptions, removeFloatingPointErrors } from '../utils/validate';
 
 const stateAttributesMapping = {
   ...fieldValidityMapping,
@@ -174,16 +175,12 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      // If an explicit precision is requested, round the committed numeric value.
-      const hasExplicitPrecision =
-        formatOptions?.maximumFractionDigits != null ||
-        formatOptions?.minimumFractionDigits != null;
+      // Avoid applying Intl's default precision unless the format opts into rounding.
+      const hasRoundingOptions = hasNumberFormatRoundingOptions(formatOptions);
 
-      const maxFrac = formatOptions?.maximumFractionDigits;
-      const committed =
-        hasExplicitPrecision && typeof maxFrac === 'number'
-          ? Number(parsedValue.toFixed(maxFrac))
-          : parsedValue;
+      const committed = hasRoundingOptions
+        ? removeFloatingPointErrors(parsedValue, formatOptions)
+        : parsedValue;
 
       const nextEventDetails = createGenericEventDetails(REASONS.inputBlur, event.nativeEvent);
       const shouldUpdateValue = value !== committed;
@@ -192,8 +189,13 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Use the stored value after `setValue` clamps it.
       let committedValue = committed;
       if (shouldUpdateValue) {
+        const changeDetails = createChangeEventDetails(REASONS.inputBlur, event.nativeEvent);
         blockRevalidationRef.current = true;
-        setValue(committed, createChangeEventDetails(REASONS.inputBlur, event.nativeEvent));
+        setValue(committed, changeDetails);
+        if (changeDetails.isCanceled) {
+          blockRevalidationRef.current = false;
+          return;
+        }
         committedValue = lastChangedValueRef.current ?? committed;
       }
       if (validationMode === 'onBlur') {
@@ -206,7 +208,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Normalize only the displayed text
       const canonicalText = formatNumber(committedValue, locale, formatOptions);
       const shouldPreserveFullPrecision =
-        !hasExplicitPrecision &&
+        !hasRoundingOptions &&
         parsedValue === value &&
         inputValue === formatNumberMaxPrecision(parsedValue, locale, formatOptions);
 
