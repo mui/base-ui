@@ -2,18 +2,11 @@
   .Subtitle {
     display: flex;
     flex-direction: column;
-    align-items: baseline;
-    justify-content: space-between;
+    align-items: flex-start;
     font-size: var(--font-size-18);
     line-height: 1.75rem;
     text-wrap: pretty;
     color: var(--gray-t1);
     margin-bottom: 1.25rem;
-    gap: 0.5rem;
-
-    @media (min-width: 48rem) {
-      flex-direction: row;
-      gap: 2rem;
-    }
   }
 }
