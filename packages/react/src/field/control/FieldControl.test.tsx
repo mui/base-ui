@@ -41,6 +41,21 @@ describe('<Field.Control />', () => {
     expect(afterFirstChange).toBeLessThanOrEqual(initialRenderCount + 1);
   });
 
+  it('validates once when changed by the user', async () => {
+    const validate = vi.fn();
+
+    await render(
+      <Field.Root validationMode="onChange" validate={validate}>
+        <Field.Control />
+      </Field.Root>,
+    );
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'a' } });
+
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(validate.mock.lastCall?.[0]).toBe('a');
+  });
+
   it.skipIf(isJSDOM)('should sync focused state when autoFocus is used with SSR', async () => {
     vi.spyOn(console, 'error')
       .mockName('console.error')

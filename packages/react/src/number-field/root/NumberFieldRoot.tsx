@@ -16,7 +16,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useFormContext } from '../../internals/form-context/FormContext';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import type { BaseUIComponentProps, MaybeBaseUIEvent } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
@@ -462,15 +462,13 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     <NumberFieldRootContext.Provider value={contextValue}>
       {element}
       <input
-        {...validation.getInputValidationProps(disabled, {
+        {...validation.getValidationProps(disabled, {
           onFocus() {
             inputRef.current?.focus();
           },
-          onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
+          onChange(event: React.ChangeEvent<HTMLInputElement>) {
             // Workaround for https://github.com/facebook/react/issues/9023
             if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
-              // Outside Field.Root, the event is not wrapped by mergeProps.
-              event.preventBaseUIHandler?.();
               return;
             }
 
@@ -483,7 +481,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
             setValue(parsedValue, details);
             clearErrors(name);
             validation.change(parsedValue);
-            event.preventBaseUIHandler?.();
           },
         })}
         ref={hiddenInputRef}
