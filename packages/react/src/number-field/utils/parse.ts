@@ -57,6 +57,11 @@ export const MINUS_SIGNS_WITH_ASCII = ['-', ...UNICODE_MINUS_SIGNS];
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const escapeClassChar = (s: string) => s.replace(/[-\\\]^]/g, (m) => `\\${m}`); // escape for use inside [...]
 
+function shiftDecimal(value: number, exponentDelta: number) {
+  const [coefficient, exponent = '0'] = String(value).split('e');
+  return Number(`${coefficient}e${Number(exponent) + exponentDelta}`);
+}
+
 const charClassFrom = (chars: string[]) => `[${chars.map(escapeClassChar).join('')}]`;
 
 const ANY_MINUS_CLASS = charClassFrom(['-'].concat(UNICODE_MINUS_SIGNS));
@@ -216,9 +221,9 @@ export function parseNumber(
   const hasPermilleSymbol = PERMILLE_RE.test(formattedNumber);
 
   if (hasPermilleSymbol) {
-    num = Number(`${num}e-3`);
+    num = shiftDecimal(num, -3);
   } else if (!isUnitPercent && hasPercentSymbol) {
-    num = Number(`${num}e-2`);
+    num = shiftDecimal(num, -2);
   }
 
   if (!Number.isFinite(num)) {

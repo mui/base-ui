@@ -49,6 +49,10 @@ describe('NumberField parse', () => {
       expect(parseNumber('12%', 'en-US', { style: 'percent' })).toBe(0.12);
     });
 
+    it('parses scientific notation percentages', () => {
+      expect(parseNumber('1e-7%', 'en-US', { style: 'percent' })).toBe(1e-9);
+    });
+
     it('handles percentages with style: "unit" and unit: "percent"', () => {
       expect(parseNumber('12%', 'en-US', { style: 'unit', unit: 'percent' })).toBe(12);
     });
@@ -122,6 +126,25 @@ describe('NumberField parse', () => {
         expect(parseNumber(formatted, locale, format)).toBe(0.00000123);
       },
     );
+
+    it.each(['ar-EG', 'fa-IR'] as const)(
+      'parses localized tiny percent scientific notation for %s',
+      (locale) => {
+        const format = {
+          style: 'percent',
+          notation: 'scientific',
+          maximumFractionDigits: 2,
+        } as const;
+        const value = 0.0000000000012345;
+        const formatted = new Intl.NumberFormat(locale, format).format(value);
+
+        expect(parseNumber(formatted, locale, format)).toBe(0.00000000000123);
+      },
+    );
+
+    it('parses scientific notation permille values', () => {
+      expect(parseNumber('1e-7‰', 'en-US')).toBe(1e-10);
+    });
 
     it('parses units when options specify unit style', () => {
       expect(parseNumber('12 kg', 'en-US', { style: 'unit', unit: 'kilogram' })).toBe(12);
