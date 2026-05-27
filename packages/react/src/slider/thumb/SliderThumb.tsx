@@ -452,7 +452,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       type: 'range',
       value: thumbValue ?? '',
     },
-    (props) => validation.getInputValidationProps(disabled, props),
+    (props) => validation.getValidationProps(disabled, props),
   );
 
   const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp);

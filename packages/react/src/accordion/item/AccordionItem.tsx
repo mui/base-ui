@@ -77,7 +77,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
         return;
       }
 
-      handleValueChange(value, nextOpen);
+      handleValueChange(value, nextOpen, eventDetails);
     },
   );
 
@@ -117,16 +117,16 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   );
 
   const defaultTriggerId = useBaseUiId();
-  const [triggerId, setTriggerId] = React.useState<string | undefined>(defaultTriggerId);
+  const [triggerId, setTriggerId] = React.useState<string | undefined>();
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({
       open: isOpen,
       state,
       setTriggerId,
-      triggerId,
+      triggerId: triggerId ?? defaultTriggerId,
     }),
-    [isOpen, state, setTriggerId, triggerId],
+    [defaultTriggerId, isOpen, state, setTriggerId, triggerId],
   );
 
   const element = useRenderElement('div', componentProps, {
