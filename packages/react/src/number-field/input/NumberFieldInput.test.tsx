@@ -122,6 +122,20 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('10');
   });
 
+  it('uses smallStep and snapOnStep when holding Alt with ArrowUp/ArrowDown', async () => {
+    await render(
+      <NumberField.Root defaultValue={0.15} smallStep={0.1} snapOnStep>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+    fireEvent.keyDown(input, { key: 'ArrowUp', altKey: true });
+    expect(input).toHaveValue('0.3');
+    fireEvent.keyDown(input, { key: 'ArrowDown', altKey: true });
+    expect(input).toHaveValue('0.2');
+  });
+
   it('allows unicode plus/minus, permille and fullwidth digits on keydown when formatted as percent', async () => {
     await render(
       <NumberField.Root format={{ style: 'percent' }}>
