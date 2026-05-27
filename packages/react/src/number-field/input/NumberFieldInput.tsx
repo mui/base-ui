@@ -189,8 +189,13 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Use the stored value after `setValue` clamps it.
       let committedValue = committed;
       if (shouldUpdateValue) {
+        const changeDetails = createChangeEventDetails(REASONS.inputBlur, event.nativeEvent);
         blockRevalidationRef.current = true;
-        setValue(committed, createChangeEventDetails(REASONS.inputBlur, event.nativeEvent));
+        setValue(committed, changeDetails);
+        if (changeDetails.isCanceled) {
+          blockRevalidationRef.current = false;
+          return;
+        }
         committedValue = lastChangedValueRef.current ?? committed;
       }
       if (validationMode === 'onBlur') {

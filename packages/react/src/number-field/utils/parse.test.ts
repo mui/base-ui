@@ -49,6 +49,13 @@ describe('NumberField parse', () => {
       expect(parseNumber('12%', 'en-US', { style: 'percent' })).toBe(0.12);
     });
 
+    it('parses prefix percentages', () => {
+      const format = { style: 'percent', maximumFractionDigits: 2 } as const;
+      const formatted = new Intl.NumberFormat('tr-TR', format).format(0.0123);
+
+      expect(parseNumber(formatted, 'tr-TR', format)).toBe(0.0123);
+    });
+
     it('parses scientific notation percentages', () => {
       expect(parseNumber('1e-7%', 'en-US', { style: 'percent' })).toBe(1e-9);
     });
@@ -100,6 +107,19 @@ describe('NumberField parse', () => {
       expect(parseNumber('$1,234.56', 'en-US', { style: 'currency', currency: 'USD' })).toBe(
         1234.56,
       );
+    });
+
+    it('parses scientific notation with currency codes', () => {
+      const format = {
+        style: 'currency',
+        currency: 'EUR',
+        currencyDisplay: 'code',
+        notation: 'scientific',
+        maximumFractionDigits: 2,
+      } as const;
+      const formatted = new Intl.NumberFormat('en-US', format).format(12345);
+
+      expect(parseNumber(formatted, 'en-US', format)).toBe(12300);
     });
 
     it.each(['ar-EG', 'fa-IR'] as const)(

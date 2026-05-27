@@ -28,10 +28,6 @@ export function hasNumberFormatRoundingOptions(
   );
 }
 
-function isScientificOrEngineering(format: NumberFormatOptionsWithRounding) {
-  return format.notation === 'scientific' || format.notation === 'engineering';
-}
-
 export function removeFloatingPointErrors(value: number, format?: NumberFormatOptionsWithRounding) {
   if (!Number.isFinite(value)) {
     return value;
@@ -56,16 +52,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     return value;
   }
 
-  if (
-    roundedValue === 0 &&
-    value !== 0 &&
-    isScientificOrEngineering(format) &&
-    formatter.formatToParts(value).some((part) => part.type === 'exponentSeparator')
-  ) {
-    return value;
-  }
-
-  return roundedValue;
+  return formatter.format(roundedValue) === roundedText ? roundedValue : value;
 }
 
 function snapToStep(

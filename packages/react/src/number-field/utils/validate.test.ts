@@ -240,6 +240,18 @@ describe('NumberField validate', () => {
       ).toBe(1.23);
     });
 
+    it('rounds scientific currency code values', () => {
+      const format = {
+        style: 'currency',
+        currency: 'EUR',
+        currencyDisplay: 'code',
+        notation: 'scientific',
+        maximumFractionDigits: 2,
+      } as const;
+
+      expect(removeFloatingPointErrors(12345, format)).toBe(12300);
+    });
+
     it('preserves negative values when signDisplay hides the sign', () => {
       const format = {
         maximumFractionDigits: 2,
@@ -324,6 +336,17 @@ describe('NumberField validate', () => {
       expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
         new Intl.NumberFormat('en-US', format).format(value),
       );
+    });
+
+    it('rounds invertible scientific zero buckets', () => {
+      expect(
+        removeFloatingPointErrors(1, {
+          notation: 'scientific',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+          roundingIncrement: 5,
+        }),
+      ).toBe(0);
     });
 
     it('returns 1000 for 1000, ignoring grouping', () => {

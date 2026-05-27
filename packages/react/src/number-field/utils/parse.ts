@@ -35,6 +35,8 @@ export const FULLWIDTH_RE = new RegExp(`[${FULLWIDTH_NUMERALS.join('')}]`, 'g');
 export const HAN_RE = new RegExp(`[${HAN_NUMERALS.join('')}]`, 'g');
 export const PERCENT_RE = new RegExp(`[${PERCENTAGES.join('')}]`);
 export const PERMILLE_RE = new RegExp(`[${PERMILLE.join('')}]`);
+const PERCENT_GLOBAL_RE = new RegExp(PERCENT_RE.source, 'g');
+const PERMILLE_GLOBAL_RE = new RegExp(PERMILLE_RE.source, 'g');
 
 // Detection regexes (non-global to avoid lastIndex side effects)
 export const ARABIC_DETECT_RE = /[٠١٢٣٤٥٦٧٨٩]/;
@@ -182,13 +184,15 @@ export function parseNumber(
     // Arabic punctuation
     { regex: /٫/g, replacement: '.' }, // ARABIC DECIMAL SEPARATOR (U+066B)
     { regex: /٬/g, replacement: '' }, // ARABIC THOUSANDS SEPARATOR (U+066C)
+    // Currency & unit labels
+    { regex: currency ? new RegExp(escapeRegExp(currency), 'g') : null, replacement: '' },
+    { regex: unitRegex, replacement: '' },
+    { regex: PERCENT_GLOBAL_RE, replacement: '' },
+    { regex: PERMILLE_GLOBAL_RE, replacement: '' },
     {
       regex: exponentSeparator ? new RegExp(escapeRegExp(exponentSeparator), 'g') : null,
       replacement: 'e',
     },
-    // Currency & unit labels
-    { regex: currency ? new RegExp(escapeRegExp(currency), 'g') : null, replacement: '' },
-    { regex: unitRegex, replacement: '' },
     // Numeral systems to ASCII digits
     { regex: ARABIC_RE, replacement: (ch) => String(ARABIC_NUMERALS.indexOf(ch)) },
     { regex: PERSIAN_RE, replacement: (ch) => String(PERSIAN_NUMERALS.indexOf(ch)) },

@@ -235,7 +235,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         small: eventWithOptionalKeyState?.altKey ?? false,
         clamp: shouldClampValue,
       });
-      lastChangedValueRef.current = validatedValue;
 
       // Determine whether we should notify about a change even if the numeric value is unchanged.
       // This is needed when the user input is clamped/snapped to the same current value, or when
@@ -261,6 +260,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         setDirty(validatedValue !== validityData.initialValue);
         hasPendingCommitRef.current = true;
       }
+
+      lastChangedValueRef.current = validatedValue;
 
       // Keep the visible input in sync immediately when programmatic changes occur
       // (increment/decrement, wheel, etc). During direct typing we don't want

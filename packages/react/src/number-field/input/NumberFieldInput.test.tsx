@@ -833,6 +833,26 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('1.23%');
   });
 
+  it('should parse locale prefix percent values on blur', async () => {
+    const format = {
+      style: 'percent',
+      maximumFractionDigits: 2,
+    } as const;
+    const formatted = new Intl.NumberFormat('tr-TR', format).format(0.0123);
+
+    const { input, onValueChange, onValueCommitted } = await renderControlledNumberField(
+      format,
+      'tr-TR',
+    );
+
+    fireEvent.change(input, { target: { value: formatted } });
+    fireEvent.blur(input);
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.0123);
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(0.0123);
+    expect(input).toHaveValue(formatted);
+  });
+
   it('should preserve exact percent precision boundaries with directional roundingMode on blur', async () => {
     const format = {
       style: 'percent',
@@ -938,7 +958,36 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue(formattedOverflow);
   });
 
-  it('should round to step precision on blur when step implies precision constraints', async () => {
+  it('should not commit a canceled blur change', async () => {
+    const onValueChange = vi.fn((_nextValue, details) => {
+      details.cancel();
+    });
+    const onValueCommitted = vi.fn();
+
+    await render(
+      <NumberField.Root
+        value={0}
+        format={{ maximumFractionDigits: 2 }}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      input.focus();
+    });
+    fireEvent.change(input, { target: { value: '1.239' } });
+    fireEvent.blur(input);
+
+    expect(onValueCommitted).not.toHaveBeenCalled();
+    expect(input).toHaveValue('1.239');
+  });
+
+  it('should normalize default floating point precision on blur', async () => {
     const onValueChange = vi.fn();
 
     function Controlled() {
@@ -950,7 +999,6 @@ describe('<NumberField.Input />', () => {
             onValueChange(val);
             setValue(val);
           }}
-          step={0.01}
         >
           <NumberField.Input />
         </NumberField.Root>
@@ -977,8 +1025,8 @@ describe('<NumberField.Input />', () => {
 
     fireEvent.blur(input);
 
-    // Without explicit precision formatting, the behavior depends on the step
-    // The current implementation preserves full precision until it differs from canonical
+    // Without explicit precision formatting, default floating point cleanup is applied.
+    // The current implementation preserves the cleaned value until it differs from canonical.
     expect(input).toHaveValue((1.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
     expect(onValueChange.mock.calls.length).toBe(callCountBeforeBlur + 1);
   });
