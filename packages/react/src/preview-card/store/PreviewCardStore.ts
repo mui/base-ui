@@ -9,7 +9,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setOpenTriggerState,
+  setPopupOpenState,
   updateInlineRectCoords,
   usePopupStore,
 } from '../../utils/popups';
@@ -45,6 +45,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
+
     state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
     super(
@@ -112,7 +113,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
         updatedState.instantType = undefined;
       }
 
-      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
+      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
 
       this.update(updatedState);
     };

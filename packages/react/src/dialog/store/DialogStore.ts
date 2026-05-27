@@ -9,7 +9,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setOpenTriggerState,
+  setPopupOpenState,
   usePopupStore,
 } from '../../utils/popups';
 
@@ -61,6 +61,7 @@ export class DialogStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(initialState);
+
     state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
     super(
@@ -104,7 +105,7 @@ export class DialogStore<Payload> extends ReactStore<
       open: nextOpen,
     };
 
-    setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
+    setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
 
     this.update(updatedState);
   };

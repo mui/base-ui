@@ -1,42 +1,7 @@
-.Button {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 2.5rem;
-  padding: 0 0.875rem;
-  margin: 0;
-  outline: 0;
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.375rem;
-  background-color: var(--color-gray-50);
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5rem;
-  color: var(--color-gray-900);
-  user-select: none;
-
-  @media (hover: hover) {
-    &:hover {
-      background-color: var(--color-gray-100);
-    }
-  }
-
-  &:active {
-    background-color: var(--color-gray-100);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
-  }
-}
-
 .Viewport {
   position: fixed;
   z-index: 1;
-  width: 250px;
+  width: calc(100vw - 2rem);
   margin: 0 auto;
   right: 1rem;
   bottom: 1rem;
@@ -46,7 +11,7 @@
   @media (min-width: 500px) {
     right: 2rem;
     bottom: 2rem;
-    width: 300px;
+    width: 22.5rem;
   }
 }
 
@@ -62,29 +27,26 @@
   );
   position: absolute;
   right: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+  transform-origin: bottom center;
   bottom: 0;
   left: auto;
-  width: 100%;
-  margin: 0 auto;
   margin-right: 0;
-  box-sizing: border-box;
-  border: 1px solid var(--color-gray-200);
-  border-radius: 0.5rem;
-  background: var(--color-gray-50);
-  background-clip: padding-box;
-  color: var(--color-gray-900);
-  box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
-  padding: 1rem;
-  cursor: default;
-  transform-origin: bottom center;
-  z-index: calc(1000 - var(--toast-index));
-  height: var(--height);
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
   transition:
     transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.5s,
     height 0.15s;
+  cursor: default;
+  z-index: calc(1000 - var(--toast-index));
+  height: var(--height);
   transform: translateX(var(--toast-swipe-movement-x))
     translateY(
       calc(
@@ -93,6 +55,13 @@
       )
     )
     scale(var(--scale));
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    box-shadow: none;
+  }
 
   &[data-expanded] {
     transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
@@ -136,6 +105,15 @@
     width: 100%;
     height: calc(var(--gap) + 1px);
   }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
 }
 
 /* Alternate animation names so repeated updates restart the same pulse. */
@@ -148,6 +126,12 @@
 }
 
 .Content {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 100%;
+  padding: 0.75rem;
   overflow: hidden;
   transition: opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -160,41 +144,142 @@
   }
 }
 
+.Text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
 .Title {
-  margin: 0;
-  font-size: 0.975rem;
-  line-height: 1.25rem;
   font-weight: 700;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  margin: 0;
 }
 
 .Description {
-  margin: 0;
-  font-size: 0.925rem;
+  font-size: 0.875rem;
   line-height: 1.25rem;
+  margin: 0;
 }
 
 .Close {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  padding: 0;
-  border: none;
-  border-radius: 0.25rem;
-  background: transparent;
+  gap: 0.5rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
 
-  &:hover {
-    background-color: var(--color-gray-100);
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover:not([data-disabled]) {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:active:not([data-disabled]) {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &[data-disabled] {
+    color: oklch(55.6% 0 0deg);
+    border-color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+      border-color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
-.Icon {
-  width: 1rem;
-  height: 1rem;
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  margin: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
+  user-select: none;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:active {
+    background-color: oklch(92.2% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(37.1% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
 }
 
 @keyframes pulse-even {

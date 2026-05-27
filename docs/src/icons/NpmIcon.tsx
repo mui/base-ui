@@ -3,7 +3,9 @@ import * as React from 'react';
 export function NpmIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg fill="currentColor" width="16" height="16" viewBox="0 0 16 16" {...props}>
-      <path fillRule="evenodd" clipRule="evenodd" d="M0 0V16H16V0H0ZM13 3H3V13H8V5H11V13H13V3Z" />
+      <rect width="16" height="16" fill="black" />
+      <rect x="3" y="3" width="10" height="10" fill="white" />
+      <path d="M8 5H11V13H8V5Z" fill="black" />
     </svg>
   );
 }

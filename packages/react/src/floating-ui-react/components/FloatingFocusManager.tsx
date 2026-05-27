@@ -696,8 +696,22 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
       elToFocus = elToFocus || getDefaultFocusElement();
 
+      const hadFocusInside = contains(floatingFocusElement, activeElement(doc));
+
       enqueueFocus(elToFocus, {
         preventScroll: elToFocus === floatingFocusElement,
+        shouldFocus() {
+          if (hadFocusInside) {
+            return true;
+          }
+
+          const currentActiveElement = activeElement(doc);
+          const focusMovedInside =
+            currentActiveElement !== elToFocus &&
+            contains(floatingFocusElement, currentActiveElement);
+
+          return !focusMovedInside;
+        },
       });
     });
   }, [
@@ -716,9 +730,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     const doc = ownerDocument(floatingFocusElement);
-    const previouslyFocusedElement = activeElement(doc);
+    const elementFocusedBeforeOpen = activeElement(doc);
+    // Only nullish interaction types represent programmatic opens. The empty
+    // string default is intentionally not treated as programmatic.
+    const preferPreviousFocus = openInteractionTypeRef.current == null;
 
-    addPreviouslyFocusedElement(previouslyFocusedElement);
+    addPreviouslyFocusedElement(elementFocusedBeforeOpen);
 
     // Dismissing via outside press should always ignore `returnFocus` to
     // prevent unwanted scrolling.
@@ -779,17 +796,25 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         resolvedReturnFocusValue = true;
       }
 
-      if (typeof resolvedReturnFocusValue === 'boolean') {
-        if (domReference?.isConnected) {
-          return domReference;
-        }
+      const referenceReturnElement = domReference?.isConnected ? domReference : null;
+      const previousReturnElement =
+        elementFocusedBeforeOpen?.isConnected && getNodeName(elementFocusedBeforeOpen) !== 'body'
+          ? elementFocusedBeforeOpen
+          : null;
 
-        return getPreviouslyFocusedElement() || null;
+      let defaultReturnElement = preferPreviousFocus
+        ? previousReturnElement || referenceReturnElement
+        : referenceReturnElement || previousReturnElement;
+
+      if (!defaultReturnElement) {
+        defaultReturnElement = getPreviouslyFocusedElement() || null;
       }
 
-      const fallback = domReference?.isConnected ? domReference : getPreviouslyFocusedElement();
+      if (typeof resolvedReturnFocusValue === 'boolean') {
+        return defaultReturnElement;
+      }
 
-      return resolveRef(resolvedReturnFocusValue) || fallback || null;
+      return resolveRef(resolvedReturnFocusValue) || defaultReturnElement || null;
     }
 
     return () => {
@@ -836,6 +861,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floating,
     floatingFocusElement,
     returnFocusRef,
+    openInteractionTypeRef,
     events,
     tree,
     domReference,

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, flushMicrotasks, waitFor, act } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
@@ -84,6 +85,39 @@ describe('<NavigationMenu.Trigger />', () => {
       );
     },
   }));
+
+  it('opens a vertical menu with the mirrored arrow key in RTL mode', async () => {
+    await render(
+      <DirectionProvider direction="rtl">
+        <NavigationMenu.Root orientation="vertical">
+          <NavigationMenu.List>
+            <NavigationMenu.Item>
+              <NavigationMenu.Trigger>Overview</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#">Quick Start</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>
+      </DirectionProvider>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Overview' });
+    trigger.focus();
+
+    await userEvent.keyboard('{ArrowLeft}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Quick Start' })).toBeVisible();
+    });
+  });
 
   it.skipIf(isJSDOM)('handles focus and positioner height', async () => {
     await render(
