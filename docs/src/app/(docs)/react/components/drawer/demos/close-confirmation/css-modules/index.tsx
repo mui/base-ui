@@ -32,7 +32,10 @@ export default function ExampleDrawer() {
       <Drawer.Portal>
         <Drawer.Backdrop className={styles.Backdrop} />
         <Drawer.Viewport className={styles.Viewport}>
-          <Drawer.Popup className={styles.Popup}>
+          <Drawer.Popup
+            className={styles.Popup}
+            data-alert-dialog-open={confirmationOpen ? '' : undefined}
+          >
             <Drawer.Content className={styles.Content}>
               <Drawer.Title id={titleId} className={styles.Title}>
                 New tweet

@@ -141,7 +141,7 @@
     transition: opacity 100ms ease-out;
   }
 
-  &[data-nested-dialog-open]::after {
+  &[data-alert-dialog-open]::after {
     opacity: 1;
   }
 
