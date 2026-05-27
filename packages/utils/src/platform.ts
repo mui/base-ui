@@ -50,8 +50,18 @@ const blink = !webkit && /chrome|chromium/i.test(data.userAgent);
 
 // --- Pointer -----------------------------------------------------------------
 
-const touchPointer = matchMedia('(pointer: coarse) and (hover: none)');
+// `(hover: none)` reflects the *primary* input modality — true on touch-only
+// devices, false on desktops and hybrid laptops where a mouse is the primary
+// pointer (even if the screen also accepts touch).
+const noHover = matchMedia('(hover: none)');
 const coarsePointer = matchMedia('(pointer: coarse)');
+// Capability check: does the runtime expose the `Touch` / `TouchEvent`
+// constructors? True on any device able to dispatch touch events, including
+// hybrid laptops with both a mouse and a touchscreen. Independent of `noHover`.
+const touchCapable =
+  typeof window !== 'undefined' &&
+  typeof window.Touch !== 'undefined' &&
+  typeof window.TouchEvent !== 'undefined';
 
 // --- Screen reader -----------------------------------------------------------
 
@@ -71,7 +81,8 @@ const jsdom = /jsdom|HappyDOM/i.test(data.userAgent);
 
 /**
  * Platform-detection flags grouped by category. SSR-safe — every flag is
- * `false` when `navigator` is undefined.
+ * `false` when `navigator` is undefined, except `pointer.hover`, which
+ * defaults to `true` (assume desktop).
  *
  * Pick the most precise group for the quirk you're patching:
  *   - `os.*` for OS-specific behavior (keyboard shortcuts, native menus).
@@ -104,8 +115,20 @@ export const platform = {
     gecko,
   },
   pointer: {
-    /** Primary input is touch (coarse pointer + no hover capability). */
-    touch: touchPointer,
+    /**
+     * Device has hover capability — true on desktops and hybrid laptops with
+     * a mouse, false on touch-only devices like phones. Derived from
+     * `(hover: none)`. Use this for *modality* decisions (e.g. hover vs. tap
+     * UX). Defaults to `true` in SSR (assume desktop).
+     */
+    hover: !noHover,
+    /**
+     * Device can dispatch touch events (`Touch` / `TouchEvent` constructors
+     * exist). True on hybrid laptops with a touchscreen even when the primary
+     * input is a mouse. Use this for *capability* decisions (e.g. binding
+     * touch handlers); use `hover` to choose between hover vs. tap UX.
+     */
+    touch: touchCapable,
     /** A coarse pointer is available (e.g. touchscreen on a hybrid laptop). */
     coarse: coarsePointer,
   },
