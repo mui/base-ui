@@ -45,7 +45,7 @@ export const PARENT_CHECKBOX = 'data-parent';
  */
 export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   componentProps: CheckboxRoot.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
     checked: checkedProp,

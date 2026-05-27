@@ -34,7 +34,7 @@ import { RadioRootContext } from './RadioRootContext';
  */
 export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   componentProps: RadioRoot.Props<Value>,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const {
     render,
