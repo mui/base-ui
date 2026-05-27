@@ -4,8 +4,8 @@ import { getFormatter } from '../../utils/formatNumber';
 const STEP_EPSILON_FACTOR = 1e-10;
 // Matches Intl.NumberFormat's decimal maximumFractionDigits default.
 const DEFAULT_DIGITS = 3;
-// Keeps binary scale/unscale noise out of committed percent values while preserving meaningful input.
-const FLOATING_POINT_SIGNIFICANT_DIGITS = 15;
+// Extra decimal places used to scrub percent-scale float noise without dropping user precision.
+const PERCENT_GUARD_DIGITS = 10;
 
 // The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
 // Delete this once tsconfig.base.json includes es2023.
@@ -38,11 +38,14 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     return Number(value.toFixed(DEFAULT_DIGITS));
   }
 
+  const resolvedOptions = getFormatter('en-US', format).resolvedOptions();
   const digits = Math.min(
-    format.maximumFractionDigits ??
-      getFormatter('en-US', format).resolvedOptions().maximumFractionDigits ??
-      DEFAULT_DIGITS,
+    format.maximumFractionDigits ?? resolvedOptions.maximumFractionDigits ?? DEFAULT_DIGITS,
     20,
+  );
+  const precision = Math.max(
+    digits,
+    format.maximumSignificantDigits ?? resolvedOptions.maximumSignificantDigits ?? 0,
   );
 
   // Percent values are stored as fractions, so rounding must happen at the displayed scale.
@@ -56,8 +59,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
 
   if (scale > 1) {
     // Directional Intl rounding has no tolerance for the binary noise introduced by `value * 100`.
-    // Keep real precision while removing artifacts like 0.45999999999999996 for typed 0.46%.
-    valueToRound = removeFloatingPointNoise(valueToRound);
+    valueToRound = Number(valueToRound.toFixed(Math.min(precision + PERCENT_GUARD_DIGITS, 20)));
   }
 
   const roundedValue = Number(
@@ -83,11 +85,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   }
 
   const nextValue = roundedValue / scale;
-  return scale > 1 ? removeFloatingPointNoise(nextValue) : nextValue;
-}
-
-function removeFloatingPointNoise(value: number) {
-  return Number(value.toPrecision(FLOATING_POINT_SIGNIFICANT_DIGITS));
+  return scale > 1 ? Number(nextValue.toFixed(Math.min(precision + 2, 20))) : nextValue;
 }
 
 function snapToStep(

@@ -150,6 +150,16 @@ describe('NumberField validate', () => {
       );
     });
 
+    it('preserves high-precision percent fraction digits', () => {
+      const format = {
+        style: 'percent',
+        maximumFractionDigits: 16,
+      } as const;
+      const value = 0.001234567890123456;
+
+      expect(removeFloatingPointErrors(value, format)).toBe(value);
+    });
+
     it('uses percent fraction defaults when significant digits use roundingPriority', () => {
       const format = {
         style: 'percent',
