@@ -74,12 +74,18 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
       key: 0,
     });
     const inputElementRef = React.useRef<HTMLInputElement | null>(null);
+    const draggingRef = React.useRef(dragging);
 
     const setInputElement = useStableCallback((node: HTMLInputElement | null) => {
       inputElementRef.current = node;
     });
 
     const setDragging = useStableCallback((nextDragging: boolean) => {
+      if (draggingRef.current === nextDragging) {
+        return;
+      }
+
+      draggingRef.current = nextDragging;
       setDraggingState(nextDragging);
       onDraggingChange?.(nextDragging);
     });
