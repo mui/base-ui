@@ -1,89 +1,78 @@
 interface NavigatorUAData {
-  brands: Array<{ brand: string; version: string }>;
-  mobile: boolean;
-  platform: string;
+  readonly brands: ReadonlyArray<{ brand: string; version: string }>;
+  readonly mobile: boolean;
+  readonly platform: string;
 }
 
-const hasNavigator = typeof navigator !== 'undefined';
+interface BrowserData {
+  readonly userAgent: string;
+  readonly platform: string;
+  readonly maxTouchPoints: number;
+}
 
-const nav = getNavigatorData();
-const platform = getPlatform();
-const userAgent = getUserAgent();
+const data = readBrowserData();
 
 /**
  * `true` when the rendering engine is WebKit (not Blink).
  *
- * Matches: Safari (macOS, iOS), all iOS browsers (Chrome/Edge/Firefox on iOS use WKWebView),
- * and other WebKit-based browsers like GNOME Web (WebKitGTK).
+ * Matches: Safari (macOS, iOS), all iOS browsers (Chrome/Edge/Firefox on iOS
+ * use WKWebView), and other WebKit-based browsers like GNOME Web (WebKitGTK).
  *
- * Does NOT match: Chrome, Edge, Opera, Brave, or any other Chromium/Blink browser on
- * desktop or Android — Blink forked from WebKit in 2013 and does not accept the
- * `-webkit-backdrop-filter` syntax used for detection.
+ * Does NOT match Chromium-based browsers (Chrome, Edge, Opera, Brave, etc.) —
+ * Blink forked from WebKit in 2013 and only implements `backdrop-filter`
+ * (the unprefixed name), not the `-webkit-` variant used for detection here.
  */
 export const isWebKit =
-  typeof CSS === 'undefined' || !CSS.supports
-    ? false
-    : CSS.supports('-webkit-backdrop-filter:none');
+  typeof CSS !== 'undefined' && !!CSS.supports?.('-webkit-backdrop-filter:none');
 
+/** `true` in Firefox (Gecko engine). */
+export const isFirefox = /firefox/i.test(data.userAgent);
+
+/**
+ * `true` on iPhone, iPad, and iPod — including iPadOS 13+ which reports
+ * itself as macOS (disambiguated via `maxTouchPoints`).
+ */
 export const isIOS =
-  // iPads can claim to be MacIntel
-  nav.platform === 'MacIntel' && nav.maxTouchPoints > 1
-    ? true
-    : /iP(hone|ad|od)|iOS/.test(nav.platform);
+  (data.platform === 'MacIntel' && data.maxTouchPoints > 1) ||
+  /iP(hone|ad|od)|iOS/.test(data.platform);
 
-export const isFirefox = /firefox/i.test(userAgent);
-export const isAndroid = /android/i.test(platform) || /android/i.test(userAgent);
-export const isMac = platform.toLowerCase().startsWith('mac') && !nav.maxTouchPoints;
-export const isJSDOM = userAgent.includes('jsdom/');
+/**
+ * `true` on macOS desktop only. iPadOS reporting itself as macOS is excluded
+ * (it satisfies {@link isIOS} instead).
+ */
+export const isMac = data.platform.toLowerCase().startsWith('mac') && !data.maxTouchPoints;
 
-// Avoid Chrome DevTools blue warning.
-function getNavigatorData(): { platform: string; maxTouchPoints: number; vendor: string } {
-  if (!hasNavigator) {
-    return { platform: '', maxTouchPoints: -1, vendor: '' };
+/** `true` on Android (phones, tablets, embedded Android browsers). */
+export const isAndroid = /android/i.test(data.platform) || /android/i.test(data.userAgent);
+
+/** `true` when running in jsdom (used by unit tests). */
+export const isJSDOM = data.userAgent.includes('jsdom/');
+
+/**
+ * Normalizes the modern `navigator.userAgentData` API (Chromium) and the legacy
+ * `navigator.userAgent` / `navigator.platform` strings (Firefox, Safari, older
+ * Chromium) into a single shape.
+ *
+ * Returns empty/zero values when `navigator` is undefined (SSR), so every
+ * derived flag safely evaluates to `false`.
+ */
+function readBrowserData(): BrowserData {
+  if (typeof navigator === 'undefined') {
+    return { userAgent: '', platform: '', maxTouchPoints: 0 };
   }
 
-  const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
-  const vendor = navigator.vendor ?? '';
+  // Prefer `userAgentData` when available; `navigator.userAgent` and
+  // `navigator.platform` are deprecated and trigger DevTools warnings.
+  const uaData = (navigator as Navigator & { userAgentData?: NavigatorUAData }).userAgentData;
 
-  if (uaData?.platform) {
-    return {
-      platform: uaData.platform,
-      maxTouchPoints: navigator.maxTouchPoints,
-      vendor,
-    };
-  }
+  const userAgent =
+    uaData && Array.isArray(uaData.brands)
+      ? uaData.brands.map(({ brand, version }) => `${brand}/${version}`).join(' ')
+      : navigator.userAgent;
 
   return {
-    platform: navigator.platform ?? '',
-    maxTouchPoints: navigator.maxTouchPoints ?? -1,
-    vendor,
+    userAgent,
+    platform: uaData?.platform ?? navigator.platform ?? '',
+    maxTouchPoints: navigator.maxTouchPoints ?? 0,
   };
-}
-
-function getUserAgent(): string {
-  if (!hasNavigator) {
-    return '';
-  }
-
-  const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
-
-  if (uaData && Array.isArray(uaData.brands)) {
-    return uaData.brands.map(({ brand, version }) => `${brand}/${version}`).join(' ');
-  }
-
-  return navigator.userAgent;
-}
-
-function getPlatform(): string {
-  if (!hasNavigator) {
-    return '';
-  }
-
-  const uaData = (navigator as any).userAgentData as NavigatorUAData | undefined;
-
-  if (uaData?.platform) {
-    return uaData.platform;
-  }
-
-  return navigator.platform ?? '';
 }
