@@ -5,3 +5,10 @@ dist/
 results/
 *.log
 .DS_Store
+
+# Per-eval fixtures: pack.ts regenerates these from packages/*/build via
+# verdaccio. Source-of-truth files (src/, tsconfig.json, PROMPT.md, EVAL.ts)
+# stay tracked; everything else is build output.
+evals/*/package.json
+evals/*/package-lock.json
+evals/*/.deps.tar

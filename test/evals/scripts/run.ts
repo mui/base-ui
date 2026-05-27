@@ -12,13 +12,17 @@
  * directly comparable in the report.
  *
  * Usage:
- *   tsx scripts/run.ts [experiment...] [--concurrency N] [--runs N] [--models LIST]
+ *   tsx scripts/run.ts [experiment...] [--concurrency N] [--runs N] [--models LIST] [--smoke]
  *     experiment     experiment name(s), e.g. cc-skill (default: all experiments/)
  *     --concurrency  max sandboxes running at once (default: 4)
  *     --runs         override runs-per-eval from the experiment config
  *     --models       comma-separated model list, overrides the experiment config
  *                    (e.g. `--models opus`, `--models opus,sonnet`)
+ *     --smoke        tag results as a smoke run (excluded from result-reuse)
+ *
+ * Each flag accepts both `--flag value` and `--flag=value` forms.
  */
+import { spawn } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +30,7 @@ import {
   createEvalSummary,
   createExperimentResults,
   getAgent,
+  getSandboxBackendInfo,
   loadAllFixtures,
   loadConfig,
   resolveEvalNames,
@@ -90,6 +95,19 @@ interface CliArgs {
   concurrency: number;
   runs?: number;
   models?: string[];
+  smoke: boolean;
+}
+
+/** Pull a value for a flag; supports `--flag value` and `--flag=value`. */
+function readValue(argv: string[], i: number, eq: string | null, flag: string): { value: string; next: number } {
+  if (eq !== null) {
+    return { value: eq, next: i };
+  }
+  const value = argv[i + 1];
+  if (value === undefined) {
+    throw new Error(`${flag} requires a value`);
+  }
+  return { value, next: i + 1 };
 }
 
 function parseArgs(argv: string[]): CliArgs {
@@ -97,25 +115,42 @@ function parseArgs(argv: string[]): CliArgs {
   let concurrency = 4;
   let runs: number | undefined;
   let models: string[] | undefined;
+  let smoke = false;
   for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-    if (arg === '--') {
+    const raw = argv[i];
+    if (raw === '--') {
       // Tolerate the `pnpm run <script> -- <args>` separator passed through verbatim.
       continue;
     }
-    if (arg === '--concurrency') {
-      concurrency = Number(argv[(i += 1)]);
-    } else if (arg === '--runs') {
-      runs = Number(argv[(i += 1)]);
-    } else if (arg === '--models') {
-      models = argv[(i += 1)]
+    // Split `--flag=value` into name + value; leave plain flags untouched.
+    const eqIndex = raw.startsWith('--') ? raw.indexOf('=') : -1;
+    const name = eqIndex === -1 ? raw : raw.slice(0, eqIndex);
+    const eq = eqIndex === -1 ? null : raw.slice(eqIndex + 1);
+
+    if (name === '--concurrency') {
+      const { value, next } = readValue(argv, i, eq, name);
+      concurrency = Number(value);
+      i = next;
+    } else if (name === '--runs') {
+      const { value, next } = readValue(argv, i, eq, name);
+      runs = Number(value);
+      i = next;
+    } else if (name === '--models') {
+      const { value, next } = readValue(argv, i, eq, name);
+      models = value
         .split(',')
         .map((token) => token.trim())
         .filter(Boolean);
-    } else if (arg.startsWith('--')) {
-      throw new Error(`Unknown flag: ${arg}`);
+      i = next;
+    } else if (name === '--smoke') {
+      if (eq !== null && eq !== '' && eq !== 'true') {
+        throw new Error('--smoke is a boolean flag and does not take a value');
+      }
+      smoke = true;
+    } else if (name.startsWith('--')) {
+      throw new Error(`Unknown flag: ${name}`);
     } else {
-      experiments.push(arg.replace(/\.ts$/, ''));
+      experiments.push(raw.replace(/\.ts$/, ''));
     }
   }
   if (!Number.isFinite(concurrency) || concurrency < 1) {
@@ -134,7 +169,7 @@ function parseArgs(argv: string[]): CliArgs {
         .map((file) => file.replace(/\.ts$/, '')),
     );
   }
-  return { experiments, concurrency, runs, models };
+  return { experiments, concurrency, runs, models, smoke };
 }
 
 async function runExperimentCapped(
@@ -142,6 +177,7 @@ async function runExperimentCapped(
   limit: <T>(task: () => Promise<T>) => Promise<T>,
   runsOverride: number | undefined,
   modelsOverride: string[] | undefined,
+  smoke: boolean,
 ): Promise<void> {
   const configPath = join(EXPERIMENTS_DIR, `${experimentName}.ts`);
   if (!existsSync(configPath)) {
@@ -258,6 +294,7 @@ async function runExperimentCapped(
     saveResults(experimentResults, {
       resultsDir: RESULTS_DIR,
       experimentName: perModelName,
+      smoke,
     });
 
     for (const summary of summaries) {
@@ -268,20 +305,60 @@ async function runExperimentCapped(
   }
 }
 
+/**
+ * Verify the chosen sandbox backend is actually usable before launching any
+ * experiment. Otherwise every eval fails in ~50ms with a cryptic
+ * `connect ENOENT /var/run/docker.sock` (Docker daemon down) or a 4xx from
+ * Vercel (token missing/invalid), and the user sees N×M crashes instead of
+ * one diagnostic.
+ */
+async function preflightSandbox(): Promise<void> {
+  const info = getSandboxBackendInfo();
+  console.log(`Sandbox: ${info.description}`);
+  if (info.backend === 'docker') {
+    const ok = await new Promise<boolean>((resolve) => {
+      const child = spawn('docker', ['info', '--format', '{{.ServerVersion}}'], {
+        stdio: 'ignore',
+      });
+      const timer = setTimeout(() => {
+        child.kill();
+        resolve(false);
+      }, 5_000);
+      child.on('error', () => {
+        clearTimeout(timer);
+        resolve(false);
+      });
+      child.on('exit', (code) => {
+        clearTimeout(timer);
+        resolve(code === 0);
+      });
+    });
+    if (!ok) {
+      throw new Error(
+        'Docker daemon is not reachable. Start Docker Desktop and retry, ' +
+          'or set VERCEL_TOKEN in .env.local to use Vercel Sandbox instead.',
+      );
+    }
+  }
+}
+
 async function main(): Promise<void> {
   loadEnvFile(join(ROOT, '.env.local'));
   loadEnvFile(join(ROOT, '.env'));
 
-  const { experiments, concurrency, runs, models } = parseArgs(process.argv.slice(2));
+  const { experiments, concurrency, runs, models, smoke } = parseArgs(process.argv.slice(2));
   console.log(
     `Running ${experiments.length} experiment(s) at concurrency ${concurrency}: ` +
       `${experiments.join(', ')}` +
-      (models ? ` — models override: ${models.join(', ')}` : ''),
+      (models ? ` — models override: ${models.join(', ')}` : '') +
+      (smoke ? ' — smoke' : ''),
   );
+
+  await preflightSandbox();
 
   const limit = createLimiter(concurrency);
   for (const experimentName of experiments) {
-    await runExperimentCapped(experimentName, limit, runs, models);
+    await runExperimentCapped(experimentName, limit, runs, models, smoke);
   }
   console.log('\nDone. Run `pnpm report` for the matrix.');
 }

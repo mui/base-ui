@@ -59,17 +59,14 @@ export function getMechanismSetup(agent: AgentType, mechanism: Mechanism): Setup
       };
 
     case 'bundled-docs':
-      // The docs-bearing tarball is shipped in the fixture's vendor/ dir.
-      // Swap it over the default (no-docs) tarball before `npm install` runs.
-      return async (sandbox) => {
-        const result = await sandbox.runCommand('cp', [
-          'vendor/base-ui-react.docs.tgz',
-          'vendor/base-ui-react.tgz',
-        ]);
-        if (result.exitCode !== 0) {
-          throw new Error(`bundled-docs setup: failed to swap tarball: ${result.stderr}`);
-        }
-      };
+      // Parked pending base-ui PR #4761 (the BASE_UI_PUBLISH_DOCS=1 build path).
+      // Re-implement once that lands: the docs build needs to be pre-installed
+      // into the fixture's node_modules at pack time, parallel to the no-docs
+      // build that the other mechanisms get.
+      throw new Error(
+        'bundled-docs mechanism is parked pending base-ui PR #4761. ' +
+          'Disable cc-bundled-docs from the matrix until that merges.',
+      );
 
     case 'mcp':
       return async (sandbox) => {

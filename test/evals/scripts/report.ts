@@ -100,14 +100,19 @@ interface MatrixKey {
   model: string;
 }
 
-function parseExperimentName(dirName: string): MatrixKey {
+/**
+ * Returns `undefined` for experiment dirs that don't end in a recognised model
+ * suffix — those are legacy results from before `scripts/run.ts` started
+ * writing per-model trees (`cc-<mechanism>-<model>/`). Ignoring them keeps the
+ * matrix from sprouting stray `?` rows alongside the real per-model ones.
+ */
+function parseExperimentName(dirName: string): MatrixKey | undefined {
   const stripped = dirName.replace(/^cc-/, '');
   const match = MODEL_SUFFIX.exec(stripped);
-  if (match) {
-    return { mechanism: stripped.slice(0, -match[0].length), model: match[1] };
+  if (!match) {
+    return undefined;
   }
-  // Legacy / unknown model — keep the row visible but flag it.
-  return { mechanism: stripped, model: '?' };
+  return { mechanism: stripped.slice(0, -match[0].length), model: match[1] };
 }
 
 interface TableRow {
@@ -122,10 +127,25 @@ function renderTable(
   rows: TableRow[],
 ): string {
   const allColumns = [...headerColumns, ...dataColumns];
-  const lines = [`### ${title}`, '', `| ${allColumns.join(' | ')} |`];
-  lines.push(`| ${allColumns.map(() => '---').join(' | ')} |`);
+  // Pad each column to its widest cell so the table is readable in a terminal
+  // (still valid markdown; renderers ignore the extra spaces).
+  const widths = allColumns.map((heading, columnIndex) => {
+    let max = heading.length;
+    for (const row of rows) {
+      const cell = [...row.headers, ...row.cells][columnIndex] ?? '';
+      if (cell.length > max) max = cell.length;
+    }
+    return Math.max(max, 3); // separator row needs at least `---`
+  });
+  const pad = (cell: string, width: number): string => cell + ' '.repeat(width - cell.length);
+  const formatRow = (cells: string[]): string =>
+    `| ${cells.map((cell, columnIndex) => pad(cell, widths[columnIndex])).join(' | ')} |`;
+
+  const lines = [`### ${title}`, ''];
+  lines.push(formatRow(allColumns));
+  lines.push(`| ${widths.map((width) => '-'.repeat(width)).join(' | ')} |`);
   for (const row of rows) {
-    lines.push(`| ${[...row.headers, ...row.cells].join(' | ')} |`);
+    lines.push(formatRow([...row.headers, ...row.cells]));
   }
   return `${lines.join('\n')}\n`;
 }
@@ -146,12 +166,16 @@ function reportMatrix(): void {
   const collected: Row[] = [];
   const evalNames = new Set<string>();
   for (const experiment of experiments) {
+    const key = parseExperimentName(experiment);
+    if (!key) {
+      continue;
+    }
     const runDir = latestRunDir(join(RESULTS_ROOT, experiment));
     if (!runDir) {
       continue;
     }
     const aggregates = collectRun(runDir);
-    collected.push({ key: parseExperimentName(experiment), collected: aggregates });
+    collected.push({ key, collected: aggregates });
     for (const evalName of aggregates.keys()) {
       evalNames.add(evalName);
     }

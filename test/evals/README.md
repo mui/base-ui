@@ -14,7 +14,7 @@ discover the real API from non-doc signals (package types, the `exports` map,
 
 | Axis | Values |
 | --- | --- |
-| Mechanism (`experiments/cc-*.ts`) | `baseline`, `agents-md`, `skill`, `bundled-docs`, `mcp` |
+| Mechanism (`experiments/cc-*.ts`) | `baseline`, `agents-md`, `skill`, `mcp` (`bundled-docs` parked) |
 | Scenario (`evals/*`) | `combobox` (current API), `new-component`, `breaking-change`, `new-prop` |
 | Model | `opus`, `sonnet` (each experiment runs both by default) |
 
@@ -31,7 +31,8 @@ cp .env.example .env.local   # add an agent API key + a sandbox option
 ## Running
 
 ```bash
-pnpm vendor                       # build packages, apply patches, write vendored tarballs
+pnpm vendor                       # build packages, apply patches, pre-bake the patched
+                                  # install into each evals/<name>/ via local Verdaccio
 pnpm eval:all --concurrency 4     # run every mechanism × scenario, 4 sandboxes at a time
 pnpm report                       # print the mechanism × scenario matrix
 ```
@@ -50,41 +51,55 @@ pnpm eval cc-skill --models sonnet --runs 1              # cheap dev cell
 `--runs` overrides runs-per-eval; `--models` overrides which models run
 (comma-separated, e.g. `--models opus`). Results land in
 `results/cc-<mechanism>-<model>/<timestamp>/<eval>/`. A full matrix pass with
-defaults is 5 mechanisms × 4 scenarios × 2 models × 3 runs = **120 sandboxes**.
-Preview eval discovery with `pnpm eval:dry`; browse raw results with
-`pnpm playground`.
+defaults is 4 mechanisms × 4 scenarios × 2 models × 3 runs = **96 sandboxes**
+(bundled-docs adds another 24 once unparked). Preview eval discovery with
+`pnpm eval:dry`; browse raw results with `pnpm playground`.
+
+`pnpm vendor` accepts `--skip-build` (reuse `packages/*/build` from a prior
+run), `--concurrency N` (parallel variants, default 4), and
+`--only <name>` (repeatable, restrict to specific evals).
 
 ## How it works
 
-- `scripts/pack.ts` builds the workspace packages, applies each eval's synthetic
-  patch (`patches/`), and writes `vendor/base-ui-react.tgz` (no docs) plus
-  `vendor/base-ui-react.docs.tgz` (docs bundled in via `BASE_UI_PUBLISH_DOCS=1`,
-  per base-ui PR #4761) into every eval fixture. The on-disk `package.json` and
-  `vendor/` are the *authoring form* — the agent never sees them (see below).
+- `scripts/pack.ts` builds the workspace packages, applies each eval's
+  synthetic patch (`patches/`), and pre-bakes a clean install of the patched
+  package into the fixture. For each (eval, variant) pair, it: spins up an
+  in-process Verdaccio with an uplink to npmjs.org, populates Verdaccio's
+  storage with the patched `@base-ui/react`/`@base-ui/utils` tarballs (skipping
+  the publish auth dance), runs `npm install` in a staging dir against the
+  local registry, then scrubs `http://127.0.0.1:<port>/` URLs in
+  `package-lock.json` to `https://registry.npmjs.org/...`. The result —
+  `package.json` + `package-lock.json` + `node_modules/` — is shipped into
+  `evals/<name>/`. Authored files (`src/`, `tsconfig.json`, `PROMPT.md`,
+  `EVAL.ts`) stay untouched.
+- Variants are baked in parallel under `--concurrency` (default 4). Each
+  Verdaccio gets its own OS-allocated port + tmp storage so variants can't
+  collide.
+- The fixture the agent sees looks like a vanilla `npm install @base-ui/react`:
+  no `vendor/`, no `overrides`, no `file:` refs, lockfile resolved against
+  registry.npmjs.org. The framework's follow-up `npm install` short-circuits
+  because the lockfile and `node_modules/` are already consistent (integrity
+  hashes match the patched content we installed).
 - `experiments/cc-*.ts` each call `defineExperiment` (`lib/`); a mechanism's
-  `setup` injects its payload (`lib/assets/`) into the sandbox before install.
-  The `bundled-docs` arm swaps in the docs tarball.
-- `lib/masquerade.ts` wraps every mechanism setup so the sandbox looks like a
-  fresh registry install before the agent runs: it installs from
-  `vendor/`, rewrites `package.json` to drop `file:./vendor/...` specs in
-  favour of pinned exact versions (`"@base-ui/react": "1.4.1"`), removes
-  `overrides`, deletes `vendor/` and `package-lock.json`, and writes an
-  `.npmrc` (`prefer-offline=true`, `package-lock=false`) so the framework's
-  subsequent `npm install` doesn't replace the patched build with the
-  registry version.
+  `setup` writes its knowledge payload (`lib/assets/`) into the sandbox.
 - `scripts/run.ts` drives the evals through the framework's programmatic API
   behind a concurrency limiter, then writes results in the standard layout.
 - `lib/cost.ts` derives per-run token cost and web-fetch counts from the
   transcript and attaches them to `result.json`.
 - `scripts/report.ts` aggregates `results/cc-*` into a comparison table;
-  `pnpm report --compare <dirA> <dirB>` diffs two runs (e.g. for docs staging).
+  `pnpm report --compare <dirA> <dirB>` diffs two runs.
 
 ## Notes
 
-- Requires base-ui PR #4761 for the `bundled-docs` arm to ship real docs.
-- `WebFetch` runs client-side (the request originates in the sandbox container)
-  and reaches real production `base-ui.com` — the experimental stale-docs
-  condition. It is measured (web-fetch counts in the report), not blocked.
+- The `bundled-docs` arm depends on base-ui PR #4761 (the
+  `BASE_UI_PUBLISH_DOCS=1` build path). It is currently parked — the
+  experiment file lives at `experiments/cc-bundled-docs.ts.parked`. Rename it
+  back to `.ts` once PR #4761 lands and `lib/mechanisms.ts` is updated to
+  pre-bake the docs install at pack time.
+- `WebFetch` runs client-side (the request originates in the sandbox
+  container) and reaches real production `base-ui.com` — the experimental
+  stale-docs condition. It is measured (web-fetch counts in the report), not
+  blocked.
 - The `@anthropic-ai/claude-code` CLI is pinned in
   `lib/defineExperiment.ts` (`CLAUDE_CODE_CLI_VERSION`). The framework
   installs `latest` unpinned, and recent CLI releases have regressed the
