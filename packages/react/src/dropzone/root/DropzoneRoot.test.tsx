@@ -154,7 +154,7 @@ describe('Dropzone.Root', () => {
 
     render(
       <Dropzone.Root onOpen={onOpen}>
-        <div tabIndex={0}>Focusable</div>
+        <div role="menuitem" tabIndex={0}>Focusable</div>
       </Dropzone.Root>,
     );
 

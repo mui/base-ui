@@ -230,11 +230,10 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
             ],
             stateAttributesMapping: dropzoneRootStateAttributesMapping,
           })}
-          <div
+          <output
             key={announcement.key}
-            role="status"
-            aria-live="polite"
             aria-atomic="true"
+            aria-live="polite"
             style={{
               position: 'absolute',
               left: '-10000px',
@@ -244,7 +243,7 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
             }}
           >
             {announcement.text}
-          </div>
+          </output>
         </React.Fragment>
       </DropzoneRootContext.Provider>
     );
