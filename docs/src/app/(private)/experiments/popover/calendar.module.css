@@ -53,6 +53,7 @@
   padding: 4px;
   min-height: max(calc(100% / var(--hours-shown) * 0.5), 2em);
   font-size: 0.875rem;
+  -webkit-user-select: none;
   user-select: none;
   box-shadow:
     0.5px 1px 0.5px rgb(255 255 255 / 0.2) inset,

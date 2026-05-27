@@ -3,6 +3,7 @@ import * as React from 'react';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { ReactStore } from './ReactStore';
 import { useRefWithInit } from '../useRefWithInit';
+import { fastComponent } from '../fastHooks';
 import { createSelector } from './createSelector';
 
 type TestState = { value: number; label: string };
@@ -347,6 +348,36 @@ describe('ReactStore', () => {
     expect(childStore.select('count')).toBe(15);
     expect(output.textContent).toBe('15');
   });
+
+  it('updates useState result when selector arguments change in a fast component', () => {
+    type State = { values: Record<string, string> };
+    const selectors = {
+      valueByKey: (state: State, valueKey: string) => state.values[valueKey],
+    };
+    const store = new ReactStore<State, {}, typeof selectors>(
+      { values: { first: 'one', second: 'two', third: 'three' } },
+      undefined,
+      selectors,
+    );
+
+    function TestComponent({ valueKey }: { valueKey: string }) {
+      const value = store.useState('valueByKey', valueKey);
+      return <output data-testid="output">{value}</output>;
+    }
+
+    const Test = fastComponent(TestComponent);
+    const { setProps } = render(<Test valueKey="first" />, { strict: false });
+    const output = screen.getByTestId('output');
+
+    expect(output.textContent).toBe('one');
+
+    act(() => {
+      setProps({ valueKey: 'second' });
+    });
+
+    expect(output.textContent).toBe('two');
+  });
+
   describe('observeSelector', () => {
     type CounterState = { count: number; multiplier: number };
     const selectors = {

@@ -17,6 +17,7 @@
   line-height: 1;
   white-space: nowrap;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -107,6 +108,7 @@
 .CheckboxItem {
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 0.625rem;

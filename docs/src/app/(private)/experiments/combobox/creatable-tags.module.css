@@ -122,6 +122,7 @@
   font-size: 1rem;
   line-height: 1rem;
   outline: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 

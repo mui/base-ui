@@ -8,6 +8,7 @@
 .ScrubArea {
   cursor: ew-resize;
   font-weight: 700;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -88,6 +89,7 @@
   background-color: white;
   background-clip: padding-box;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {

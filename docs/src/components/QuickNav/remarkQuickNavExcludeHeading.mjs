@@ -8,7 +8,7 @@ import { visit } from 'unist-util-visit';
  *
  * @returns {function(*): void}
  */
-export function remarkQuickNavExcludeHeading() {
+export default function remarkQuickNavExcludeHeading() {
   return (tree) => {
     visit(tree, 'definition', (node, index, parent) => {
       if (

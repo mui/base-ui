@@ -33,6 +33,7 @@
   border-radius: 0;
   background-color: transparent;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
@@ -84,6 +85,7 @@
   line-height: 1;
   white-space: nowrap;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {

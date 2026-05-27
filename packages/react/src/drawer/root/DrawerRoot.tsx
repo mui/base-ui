@@ -14,13 +14,12 @@ import {
   type DrawerSnapPoint,
 } from './DrawerRootContext';
 import { Dialog } from '../../dialog';
-import { IsDrawerContext } from '../../dialog/root/DialogRoot';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { IsDrawerContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import type { DialogHandle } from '../../dialog/store/DialogHandle';
 import type { PayloadChildRenderFunction } from '../../utils/popups';

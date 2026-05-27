@@ -19,6 +19,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   modal: boolean;
   openMethod: InteractionType | null;
   allowMouseEnter: boolean;
+  highlightItemOnHover: boolean;
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
@@ -61,6 +62,7 @@ const selectors = {
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
 
   allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
+  highlightItemOnHover: createSelector((state: State<unknown>) => state.highlightItemOnHover),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   parent: createSelector((state: State<unknown>) => state.parent),
   rootId: createSelector((state: State<unknown>): string | undefined => {
@@ -193,6 +195,7 @@ function createInitialState<Payload>(): State<Payload> {
     modal: true,
     openMethod: null,
     allowMouseEnter: false,
+    highlightItemOnHover: true,
     stickIfOpen: true,
     parent: {
       type: undefined,

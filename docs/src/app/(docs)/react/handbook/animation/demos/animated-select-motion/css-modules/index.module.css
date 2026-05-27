@@ -16,6 +16,7 @@
   line-height: 1.25rem;
   font-weight: 400;
   color: oklch(14.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
   min-width: 9rem;
 
@@ -72,6 +73,7 @@
 .Positioner {
   outline: none;
   z-index: 10;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -168,6 +170,7 @@
   align-items: center;
   grid-template-columns: 1rem 1fr;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
 
   &[data-highlighted] {

@@ -25,6 +25,7 @@
   color: oklch(14.5% 0 0deg);
   cursor: default;
   background-color: white;
+  -webkit-user-select: none;
   user-select: none;
   min-width: 10rem;
 
@@ -204,6 +205,7 @@
   box-sizing: border-box;
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   min-width: var(--anchor-width);
   padding-block: 0.5rem;

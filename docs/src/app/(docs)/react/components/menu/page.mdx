@@ -37,6 +37,7 @@ import { Menu } from '@base-ui/react/menu';
         </Menu.Group>
 
         <Menu.RadioGroup>
+          <Menu.GroupLabel />
           <Menu.RadioItem>
             <Menu.RadioItemIndicator />
           </Menu.RadioItem>
@@ -93,7 +94,7 @@ Use the `closeOnClick` prop to change whether the menu closes when an item is cl
 
 ### Group labels
 
-Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>`
+Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>` or `<Menu.RadioGroup>`.
 
 import { DemoMenuGroupLabels } from './demos/group-labels';
 
@@ -325,7 +326,7 @@ The menu also supports content transitions.
 This is useful when different triggers display different content within the same menu.
 
 To enable content animations, wrap the menu content in the `<Menu.Viewport>` part.
-This part renders a `div` with `data-activation-direction` (`left`, `right`, `up`, or `down`) so you can make direction-aware animations.
+This part renders a `div` with `data-activation-direction`, containing space-separated horizontal (`left` or `right`) and vertical (`up` or `down`) values so you can make direction-aware animations.
 
 Inside `<Menu.Viewport>`, content is wrapped in `div`s with transition data attributes:
 
