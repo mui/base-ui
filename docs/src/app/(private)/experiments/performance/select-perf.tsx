@@ -1,39 +1,12 @@
 'use client';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import styles from './select-perf.module.css';
+import { Select as RadixSelect } from 'radix-ui';
+import PerformanceBenchmark, { BenchmarkVariant } from './utils/benchmark';
+import styles from './performance.module.css';
 
-const items = Array.from({ length: 1000 }, (_, i) => `Item ${i + 1}`);
-
-export default function ExampleSelect() {
-  return (
-    <Select.Root defaultValue="Item 1">
-      <Select.Trigger className={styles.Select}>
-        <Select.Value />
-        <Select.Icon className={styles.SelectIcon}>
-          <ChevronUpDownIcon />
-        </Select.Icon>
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Positioner className={styles.Positioner} sideOffset={8}>
-          <Select.Popup className={styles.Popup}>
-            <Select.Arrow className={styles.Arrow}>
-              <ArrowSvg />
-            </Select.Arrow>
-            {items.map((item) => (
-              <Select.Item key={item} className={styles.Item} value={item}>
-                <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>{item}</Select.ItemText>
-              </Select.Item>
-            ))}
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Portal>
-    </Select.Root>
-  );
-}
+const ITEM_COUNT = 1000;
+const items = Array.from({ length: ITEM_COUNT }, (_, i) => `Item ${i + 1}`);
 
 function ArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
@@ -76,5 +49,82 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
     <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
+  );
+}
+
+function BaseUISelect() {
+  return (
+    <Select.Root defaultValue="Item 1">
+      <Select.Trigger className={styles.SelectTrigger}>
+        <Select.Value />
+        <Select.Icon className={styles.SelectIcon}>
+          <ChevronUpDownIcon />
+        </Select.Icon>
+      </Select.Trigger>
+      <Select.Portal>
+        <Select.Positioner sideOffset={8}>
+          <Select.Popup className={styles.SelectPopup}>
+            <Select.Arrow className={styles.Arrow}>
+              <ArrowSvg />
+            </Select.Arrow>
+            {items.map((item) => (
+              <Select.Item key={item} className={styles.SelectItem} value={item}>
+                <Select.ItemIndicator className={styles.SelectItemIndicator}>
+                  <CheckIcon className={styles.SelectItemIndicatorIcon} />
+                </Select.ItemIndicator>
+                <Select.ItemText className={styles.SelectItemText}>{item}</Select.ItemText>
+              </Select.Item>
+            ))}
+          </Select.Popup>
+        </Select.Positioner>
+      </Select.Portal>
+    </Select.Root>
+  );
+}
+
+function RadixSelectVariant() {
+  return (
+    <RadixSelect.Root defaultValue="Item 1">
+      <RadixSelect.Trigger className={styles.SelectTrigger}>
+        <RadixSelect.Value />
+        <RadixSelect.Icon className={styles.SelectIcon}>
+          <ChevronUpDownIcon />
+        </RadixSelect.Icon>
+      </RadixSelect.Trigger>
+      <RadixSelect.Portal>
+        <RadixSelect.Content sideOffset={8} className={styles.SelectPopup}>
+          <RadixSelect.Viewport>
+            {items.map((item) => (
+              <RadixSelect.Item key={item} className={styles.SelectItem} value={item}>
+                <RadixSelect.ItemIndicator className={styles.SelectItemIndicator}>
+                  <CheckIcon className={styles.SelectItemIndicatorIcon} />
+                </RadixSelect.ItemIndicator>
+                <RadixSelect.ItemText className={styles.SelectItemText}>
+                  {item}
+                </RadixSelect.ItemText>
+              </RadixSelect.Item>
+            ))}
+          </RadixSelect.Viewport>
+        </RadixSelect.Content>
+      </RadixSelect.Portal>
+    </RadixSelect.Root>
+  );
+}
+
+const variants: BenchmarkVariant[] = [
+  { key: 'base', label: 'Base UI Select', render: () => <BaseUISelect /> },
+  { key: 'radix', label: 'Radix Select', render: () => <RadixSelectVariant /> },
+];
+
+export default function SelectPerfExperiment() {
+  return (
+    <div className={styles.Container}>
+      <h1>Select rendering performance</h1>
+      <p>
+        Each variant renders a single Select with {ITEM_COUNT} items. Use the toolbar to switch
+        variants, re-render the active one, or run multiple iterations for statistics.
+      </p>
+      <PerformanceBenchmark variants={variants} />
+    </div>
   );
 }

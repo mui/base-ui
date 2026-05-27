@@ -1,118 +1,11 @@
 'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import styles from './combobox-perf.module.css';
+import PerformanceBenchmark, { BenchmarkVariant } from './utils/benchmark';
+import styles from './performance.module.css';
 
-export default function ExampleCombobox() {
-  return (
-    <div>
-      <h2>With manually specified index</h2>
-      <Combobox.Root items={fruits}>
-        <label className={styles.Label}>
-          Choose a fruit
-          <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />
-          <div className={styles.ActionButtons}>
-            <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
-              <ClearIcon className={styles.ClearIcon} />
-            </Combobox.Clear>
-            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-              <ChevronDownIcon className={styles.TriggerIcon} />
-            </Combobox.Trigger>
-          </div>
-        </label>
-
-        <Combobox.Portal>
-          <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
-            <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
-              <Combobox.List className={styles.List}>
-                {(item: string, index: number) => (
-                  <Combobox.Item key={item} value={item} index={index} className={styles.Item}>
-                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon className={styles.ItemIndicatorIcon} />
-                    </Combobox.ItemIndicator>
-                    <div className={styles.ItemText}>{item}</div>
-                  </Combobox.Item>
-                )}
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>
-
-      <hr className="my-4" />
-
-      <h2>Without manually specified index</h2>
-      <Combobox.Root items={fruits}>
-        <label className={styles.Label}>
-          Choose a fruit
-          <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />
-          <div className={styles.ActionButtons}>
-            <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
-              <ClearIcon className={styles.ClearIcon} />
-            </Combobox.Clear>
-            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-              <ChevronDownIcon className={styles.TriggerIcon} />
-            </Combobox.Trigger>
-          </div>
-        </label>
-
-        <Combobox.Portal>
-          <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
-            <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
-              <Combobox.List className={styles.List}>
-                {(item: string) => (
-                  <Combobox.Item key={item} value={item} className={styles.Item}>
-                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon className={styles.ItemIndicatorIcon} />
-                    </Combobox.ItemIndicator>
-                    <div className={styles.ItemText}>{item}</div>
-                  </Combobox.Item>
-                )}
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>
-
-      <hr className="my-4" />
-
-      <h2>Open API (no filtering)</h2>
-      <Combobox.Root>
-        <label className={styles.Label}>
-          Choose a fruit
-          <Combobox.Input placeholder="e.g. Apple" className={styles.Input} />
-          <div className={styles.ActionButtons}>
-            <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
-              <ClearIcon className={styles.ClearIcon} />
-            </Combobox.Clear>
-            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-              <ChevronDownIcon className={styles.TriggerIcon} />
-            </Combobox.Trigger>
-          </div>
-        </label>
-
-        <Combobox.Portal>
-          <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
-            <Combobox.Popup className={styles.Popup}>
-              <Combobox.List className={styles.List}>
-                {fruits.map((item) => (
-                  <Combobox.Item key={item} value={item} className={styles.Item}>
-                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                      <CheckIcon className={styles.ItemIndicatorIcon} />
-                    </Combobox.ItemIndicator>
-                    <div className={styles.ItemText}>{item}</div>
-                  </Combobox.Item>
-                ))}
-              </Combobox.List>
-            </Combobox.Popup>
-          </Combobox.Positioner>
-        </Combobox.Portal>
-      </Combobox.Root>
-    </div>
-  );
-}
+const ITEM_COUNT = 1000;
+const items = Array.from({ length: ITEM_COUNT }, (_, i) => `Item ${i + 1}`);
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
@@ -157,4 +50,152 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-const fruits = Array.from({ length: 1000 }, (_, i) => `Item ${i + 1}`);
+function ComboboxActions() {
+  return (
+    <div className={styles.ComboboxActionButtons}>
+      <Combobox.Clear className={styles.ComboboxClear} aria-label="Clear selection">
+        <ClearIcon className={styles.ComboboxIcon} />
+      </Combobox.Clear>
+      <Combobox.Trigger className={styles.ComboboxTrigger} aria-label="Open popup">
+        <ChevronDownIcon className={styles.ComboboxIcon} />
+      </Combobox.Trigger>
+    </div>
+  );
+}
+
+function ComboboxWithIndex() {
+  return (
+    <Combobox.Root items={items}>
+      <label className={styles.ComboboxLabel}>
+        Choose an item
+        <Combobox.Input placeholder="e.g. Item 1" className={styles.ComboboxInput} />
+        <ComboboxActions />
+      </label>
+      <Combobox.Portal>
+        <Combobox.Positioner className={styles.ComboboxPositioner} sideOffset={4}>
+          <Combobox.Popup className={styles.ComboboxPopup}>
+            <Combobox.Empty className={styles.ComboboxEmpty}>No items found.</Combobox.Empty>
+            <Combobox.List>
+              {(item: string, index: number) => (
+                <Combobox.Item
+                  key={item}
+                  value={item}
+                  index={index}
+                  className={styles.ComboboxItem}
+                >
+                  <Combobox.ItemIndicator className={styles.ComboboxItemIndicator}>
+                    <CheckIcon className={styles.ComboboxItemIndicatorIcon} />
+                  </Combobox.ItemIndicator>
+                  <div className={styles.ComboboxItemText}>{item}</div>
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  );
+}
+
+function ComboboxWithoutIndex() {
+  return (
+    <Combobox.Root items={items}>
+      <label className={styles.ComboboxLabel}>
+        Choose an item
+        <Combobox.Input placeholder="e.g. Item 1" className={styles.ComboboxInput} />
+        <ComboboxActions />
+      </label>
+      <Combobox.Portal>
+        <Combobox.Positioner className={styles.ComboboxPositioner} sideOffset={4}>
+          <Combobox.Popup className={styles.ComboboxPopup}>
+            <Combobox.Empty className={styles.ComboboxEmpty}>No items found.</Combobox.Empty>
+            <Combobox.List>
+              {(item: string) => (
+                <Combobox.Item key={item} value={item} className={styles.ComboboxItem}>
+                  <Combobox.ItemIndicator className={styles.ComboboxItemIndicator}>
+                    <CheckIcon className={styles.ComboboxItemIndicatorIcon} />
+                  </Combobox.ItemIndicator>
+                  <div className={styles.ComboboxItemText}>{item}</div>
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  );
+}
+
+function ComboboxOpenApi() {
+  return (
+    <Combobox.Root>
+      <label className={styles.ComboboxLabel}>
+        Choose an item
+        <Combobox.Input placeholder="e.g. Item 1" className={styles.ComboboxInput} />
+        <ComboboxActions />
+      </label>
+      <Combobox.Portal>
+        <Combobox.Positioner className={styles.ComboboxPositioner} sideOffset={4}>
+          <Combobox.Popup className={styles.ComboboxPopup}>
+            <Combobox.List>
+              {items.map((item) => (
+                <Combobox.Item key={item} value={item} className={styles.ComboboxItem}>
+                  <Combobox.ItemIndicator className={styles.ComboboxItemIndicator}>
+                    <CheckIcon className={styles.ComboboxItemIndicatorIcon} />
+                  </Combobox.ItemIndicator>
+                  <div className={styles.ComboboxItemText}>{item}</div>
+                </Combobox.Item>
+              ))}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  );
+}
+
+function PlainInputBaseline() {
+  return (
+    <div>
+      <label className={styles.ComboboxLabel}>
+        Choose an item
+        <input type="text" placeholder="e.g. Item 1" className={styles.ComboboxInput} />
+      </label>
+      <ul className={styles.ComboboxBaselineList}>
+        {items.map((item) => (
+          <li key={item} className={styles.ComboboxBaselineItem}>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+const variants: BenchmarkVariant[] = [
+  { key: 'base-with-index', label: 'Base UI — with index', render: () => <ComboboxWithIndex /> },
+  {
+    key: 'base-without-index',
+    label: 'Base UI — without index',
+    render: () => <ComboboxWithoutIndex />,
+  },
+  {
+    key: 'base-open-api',
+    label: 'Base UI — open API (no filtering)',
+    render: () => <ComboboxOpenApi />,
+  },
+  { key: 'plain', label: 'Plain input baseline', render: () => <PlainInputBaseline /> },
+];
+
+export default function ComboboxPerfExperiment() {
+  return (
+    <div className={styles.Container}>
+      <h1>Combobox rendering performance</h1>
+      <p>
+        Each variant renders a single combobox with {ITEM_COUNT} items. Use the toolbar to switch
+        variants, re-render the active one, or run multiple iterations for statistics.
+      </p>
+      <PerformanceBenchmark variants={variants} />
+    </div>
+  );
+}
