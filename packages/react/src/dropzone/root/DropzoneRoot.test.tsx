@@ -7,7 +7,7 @@ import * as Dropzone from '../index.parts';
 
 const createDataTransfer = (files: File[]) => {
   if (typeof DataTransfer === 'undefined') {
-    return { files } as unknown as DataTransfer;
+    return { files, types: files.length > 0 ? ['Files'] : [] } as unknown as DataTransfer;
   }
 
   const dataTransfer = new DataTransfer();
@@ -20,8 +20,19 @@ const createDataTransfer = (files: File[]) => {
     configurable: true,
   });
 
+  // JSDOM does not populate types automatically when items are added.
+  Object.defineProperty(dataTransfer, 'types', {
+    value: files.length > 0 ? ['Files'] : [],
+    configurable: true,
+  });
+
   return dataTransfer;
 };
+
+// Simulates a dataTransfer in dragenter/dragover events, where files are
+// not accessible but types includes 'Files' to signal a file drag.
+const createFileDragTransfer = () =>
+  ({ types: ['Files'], dropEffect: 'none' }) as unknown as DataTransfer;
 
 describe('Dropzone.Root', () => {
   it('throws when HiddenInput is used outside Dropzone', () => {
@@ -137,6 +148,21 @@ describe('Dropzone.Root', () => {
     expect(onOpen).not.toHaveBeenCalled();
   });
 
+  it('does not open when a focusable element with tabindex is clicked', async () => {
+    const user = userEvent.setup();
+    const onOpen = vi.fn();
+
+    render(
+      <Dropzone.Root onOpen={onOpen}>
+        <div tabIndex={0}>Focusable</div>
+      </Dropzone.Root>,
+    );
+
+    await user.click(screen.getByText('Focusable'));
+
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
   it('does not open when a nested interactive element has keyboard focus', () => {
     const onOpen = vi.fn();
 
@@ -164,10 +190,11 @@ describe('Dropzone.Root', () => {
     );
 
     const dropzone = screen.getByTestId('dropzone');
+    const dt = createFileDragTransfer();
 
-    fireEvent.dragEnter(dropzone);
-    fireEvent.dragEnter(dropzone);
-    fireEvent.dragEnter(dropzone);
+    fireEvent.dragEnter(dropzone, { dataTransfer: dt });
+    fireEvent.dragEnter(dropzone, { dataTransfer: dt });
+    fireEvent.dragEnter(dropzone, { dataTransfer: dt });
 
     expect(onDraggingChange).toHaveBeenCalledTimes(1);
     expect(onDraggingChange).toHaveBeenCalledWith(true);
@@ -185,11 +212,30 @@ describe('Dropzone.Root', () => {
     expect(screen.getByText('idle')).toBeInTheDocument();
     expect(dropzone).not.toHaveAttribute('data-dragging');
 
-    fireEvent.dragEnter(dropzone);
+    fireEvent.dragEnter(dropzone, { dataTransfer: createFileDragTransfer() });
     expect(screen.getByText('dragging')).toBeInTheDocument();
     expect(dropzone).toHaveAttribute('data-dragging', '');
 
     fireEvent.dragLeave(dropzone);
+    expect(screen.getByText('idle')).toBeInTheDocument();
+  });
+
+  it('ignores non-file drags (text, elements)', () => {
+    const onDraggingChange = vi.fn();
+
+    render(
+      <Dropzone.Root data-testid="dropzone" onDraggingChange={onDraggingChange}>
+        {({ isDragging }) => <span>{isDragging ? 'dragging' : 'idle'}</span>}
+      </Dropzone.Root>,
+    );
+
+    const dropzone = screen.getByTestId('dropzone');
+    const textDragTransfer = { types: ['text/plain'] } as unknown as DataTransfer;
+
+    fireEvent.dragEnter(dropzone, { dataTransfer: textDragTransfer });
+
+    expect(onDraggingChange).not.toHaveBeenCalled();
+    expect(dropzone).not.toHaveAttribute('data-dragging');
     expect(screen.getByText('idle')).toBeInTheDocument();
   });
 
@@ -204,7 +250,7 @@ describe('Dropzone.Root', () => {
 
     const dropzone = screen.getByTestId('dropzone');
 
-    fireEvent.dragEnter(dropzone);
+    fireEvent.dragEnter(dropzone, { dataTransfer: createFileDragTransfer() });
     expect(onDraggingChange).toHaveBeenCalledWith(true);
     expect(dropzone).toHaveAttribute('data-dragging', '');
     expect(screen.getByText('dragging')).toBeInTheDocument();
@@ -225,7 +271,7 @@ describe('Dropzone.Root', () => {
     const dropzone = screen.getByTestId('dropzone');
     const child = screen.getByTestId('child');
 
-    fireEvent.dragEnter(dropzone);
+    fireEvent.dragEnter(dropzone, { dataTransfer: createFileDragTransfer() });
     expect(dropzone).toHaveAttribute('data-dragging', '');
 
     const dragLeaveEvent = createEvent.dragLeave(dropzone);
@@ -242,7 +288,7 @@ describe('Dropzone.Root', () => {
     render(<Dropzone.Root data-testid="dropzone">Drop files</Dropzone.Root>);
 
     const dropzone = screen.getByTestId('dropzone');
-    const dataTransfer = createDataTransfer([]);
+    const dataTransfer = createFileDragTransfer();
 
     fireEvent.dragOver(dropzone, { dataTransfer });
 
@@ -345,7 +391,7 @@ describe('Dropzone.Root', () => {
       expect(statusRegion).toHaveAttribute('aria-atomic', 'true');
 
       // Drag enter - announces ready state
-      fireEvent.dragEnter(dropzone);
+      fireEvent.dragEnter(dropzone, { dataTransfer: createFileDragTransfer() });
       expect(screen.getByRole('status').textContent).toContain('Ready to drop files');
 
       // Drag leave - announces drag ended
@@ -373,16 +419,34 @@ describe('Dropzone.Root', () => {
       expect(screen.getByRole('status').textContent).toContain('Dropped 2 files');
     });
 
-    it('announces when no files are dropped', () => {
+    it('announces when a file drop yields no files', () => {
       render(<Dropzone.Root data-testid="dropzone">Drop files</Dropzone.Root>);
 
       const dropzone = screen.getByTestId('dropzone');
 
-      fireEvent.drop(dropzone, {
-        dataTransfer: createDataTransfer([]),
-      });
+      // Simulate a dataTransfer that signals files (types includes 'Files')
+      // but the files list ends up empty (edge case).
+      const emptyFilesDrop = {
+        types: ['Files'],
+        files: { length: 0, item: () => null },
+      } as unknown as DataTransfer;
+
+      fireEvent.drop(dropzone, { dataTransfer: emptyFilesDrop });
 
       expect(screen.getByRole('status').textContent).toContain('No files dropped');
+    });
+
+    it('does not announce for non-file drops', () => {
+      render(<Dropzone.Root data-testid="dropzone">Drop files</Dropzone.Root>);
+
+      const dropzone = screen.getByTestId('dropzone');
+      const statusRegion = screen.getByRole('status');
+
+      fireEvent.drop(dropzone, {
+        dataTransfer: { types: ['text/plain'] } as unknown as DataTransfer,
+      });
+
+      expect(statusRegion.textContent).toBe('');
     });
   });
 });

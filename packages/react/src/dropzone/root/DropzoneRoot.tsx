@@ -3,10 +3,18 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { contains, getTarget } from '../../floating-ui-react/utils/element';
+import { TYPEABLE_SELECTOR } from '../../floating-ui-react/utils/constants';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { DropzoneRootContext } from './DropzoneRootContext';
 import { dropzoneRootStateAttributesMapping } from './stateAttributesMapping';
+
+const INTERACTIVE_SELECTOR =
+  `button,a[href],[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
+
+function hasFiles(dataTransfer: DataTransfer | null): boolean {
+  return dataTransfer?.types.includes('Files') ?? false;
+}
 
 export interface DropzoneRootState {
   /**
@@ -92,7 +100,7 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
 
     const handleDragEnter = useStableCallback((event: React.DragEvent<HTMLDivElement>) => {
       event.preventDefault();
-      if (disabled || dragging) {
+      if (disabled || dragging || !hasFiles(event.dataTransfer)) {
         return;
       }
       setDragging(true);
@@ -104,7 +112,7 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
 
     const handleDragLeave = useStableCallback((event: React.DragEvent<HTMLDivElement>) => {
       event.preventDefault();
-      if (disabled) {
+      if (disabled || !dragging) {
         return;
       }
       if (contains(event.currentTarget, event.relatedTarget as Element | null)) {
@@ -119,7 +127,7 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
 
     const handleDragOver = useStableCallback((event: React.DragEvent<HTMLDivElement>) => {
       event.preventDefault();
-      if (disabled) {
+      if (disabled || !hasFiles(event.dataTransfer)) {
         return;
       }
 
@@ -128,7 +136,7 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
 
     const handleDrop = useStableCallback((event: React.DragEvent<HTMLDivElement>) => {
       event.preventDefault();
-      if (disabled) {
+      if (disabled || !hasFiles(event.dataTransfer)) {
         return;
       }
 
@@ -164,9 +172,7 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
       // Do not trigger open when nested interactive controls are used.
       const target = getTarget(event.nativeEvent) as HTMLElement | null;
       const currentTarget = event.currentTarget as HTMLElement;
-      const interactiveElement = target?.closest(
-        'button, a, input, textarea, select, [role="button"]',
-      );
+      const interactiveElement = target?.closest(INTERACTIVE_SELECTOR);
 
       if (interactiveElement && interactiveElement !== currentTarget) {
         return;
