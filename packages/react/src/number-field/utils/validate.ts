@@ -5,10 +5,6 @@ import { parseNumber } from './parse';
 const STEP_EPSILON_FACTOR = 1e-10;
 // Matches Intl.NumberFormat's decimal maximumFractionDigits default.
 const DEFAULT_DIGITS = 3;
-const PERCENT_SCALE = 100;
-const PERCENT_SCALE_DIGITS = 2;
-// Extra decimal places used to scrub percent-scale float noise without dropping user precision.
-const PERCENT_GUARD_DIGITS = 10;
 
 // The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
 // Delete this once tsconfig.base.json includes es2023.
@@ -36,57 +32,6 @@ function isScientificOrEngineering(format: NumberFormatOptionsWithRounding) {
   return format.notation === 'scientific' || format.notation === 'engineering';
 }
 
-function roundWithPlainNumberFormat(value: number, format: NumberFormatOptionsWithRounding) {
-  const resolvedOptions = getFormatter('en-US', format).resolvedOptions();
-  const digits = Math.min(
-    format.maximumFractionDigits ?? resolvedOptions.maximumFractionDigits ?? DEFAULT_DIGITS,
-    20,
-  );
-  const precision = Math.max(
-    digits,
-    format.maximumSignificantDigits ?? resolvedOptions.maximumSignificantDigits ?? 0,
-  );
-
-  // Percent values are stored as fractions, so rounding must happen at the displayed scale.
-  const scale = format.style === 'percent' ? PERCENT_SCALE : 1;
-  let valueToRound = value * scale;
-
-  if (!Number.isFinite(valueToRound)) {
-    // Percent scaling can overflow for extreme finite values; fall back to the unscaled value.
-    return value;
-  }
-
-  if (scale > 1) {
-    // Directional Intl rounding has no tolerance for the binary noise introduced by `value * 100`.
-    valueToRound = Number(valueToRound.toFixed(Math.min(precision + PERCENT_GUARD_DIGITS, 20)));
-  }
-
-  const roundedText = getFormatter('en-US', {
-    // Keep style/unit/compact notation out so the formatted string parses back as a plain number.
-    useGrouping: false,
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-    minimumSignificantDigits: format.minimumSignificantDigits,
-    maximumSignificantDigits: format.maximumSignificantDigits,
-    roundingIncrement: format.roundingIncrement,
-    roundingMode: format.roundingMode,
-    roundingPriority: format.roundingPriority,
-  } as NumberFormatOptionsWithRounding).format(valueToRound);
-
-  const roundedValue = Number(roundedText);
-
-  if (!Number.isFinite(roundedValue)) {
-    return value;
-  }
-
-  if (scale > 1) {
-    const scaledValue = Number(`${roundedText}e-${PERCENT_SCALE_DIGITS}`);
-    return Number.isFinite(scaledValue) ? scaledValue : roundedValue / scale;
-  }
-
-  return roundedValue;
-}
-
 export function removeFloatingPointErrors(value: number, format?: NumberFormatOptionsWithRounding) {
   if (!Number.isFinite(value)) {
     return value;
@@ -96,12 +41,12 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     return Number(value.toFixed(DEFAULT_DIGITS));
   }
 
-  if (format.notation === 'compact') {
-    return roundWithPlainNumberFormat(value, format);
-  }
-
   const formatter = getFormatter('en-US', {
     ...format,
+    // These options alter only display decoration, not numeric rounding.
+    signDisplay: 'auto',
+    currencySign: 'standard',
+    notation: format.notation === 'compact' ? 'standard' : format.notation,
     useGrouping: false,
   } as NumberFormatOptionsWithRounding);
   const roundedText = formatter.format(value);

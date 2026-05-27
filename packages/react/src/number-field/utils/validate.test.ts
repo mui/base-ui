@@ -240,6 +240,34 @@ describe('NumberField validate', () => {
       ).toBe(1.23);
     });
 
+    it('preserves negative values when signDisplay hides the sign', () => {
+      const format = {
+        maximumFractionDigits: 2,
+        signDisplay: 'never',
+      } as const;
+      const rounded = removeFloatingPointErrors(-1.239, format);
+
+      expect(rounded).toBe(-1.24);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(-1.239),
+      );
+    });
+
+    it('rounds negative accounting currency values', () => {
+      const format = {
+        style: 'currency',
+        currency: 'USD',
+        currencySign: 'accounting',
+        maximumFractionDigits: 2,
+      } as const;
+      const rounded = removeFloatingPointErrors(-1.239, format);
+
+      expect(rounded).toBe(-1.24);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(-1.239),
+      );
+    });
+
     it('respects roundingMode when no precision is provided', () => {
       expect(
         removeFloatingPointErrors(1.2399, {
