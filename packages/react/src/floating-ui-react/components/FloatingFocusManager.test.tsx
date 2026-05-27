@@ -16,8 +16,7 @@ import {
 } from '@mui/internal-test-utils';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { useTestInteractions } from '#test-utils';
+import { isJSDOM, useTestInteractions } from '#test-utils';
 import {
   FloatingFocusManager,
   FloatingNode,

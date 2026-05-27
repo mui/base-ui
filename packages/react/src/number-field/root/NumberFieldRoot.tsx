@@ -9,7 +9,7 @@ import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { isIOS } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { activeElement } from '../../floating-ui-react/utils';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -322,7 +322,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   useIsoLayoutEffect(
     function setDynamicInputModeForIOS() {
-      if (!isIOS) {
+      if (!platform.os.ios) {
         return;
       }
 

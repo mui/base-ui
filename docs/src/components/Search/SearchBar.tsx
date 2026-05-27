@@ -12,7 +12,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Button } from '@base-ui/react/button';
 import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { isMac } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { CornerDownLeft } from 'lucide-react';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
@@ -314,7 +314,7 @@ export function SearchBar({
 
   const showCmdSymbol = React.useSyncExternalStore(
     () => () => {},
-    () => enableKeyboardShortcut && isMac,
+    () => enableKeyboardShortcut && platform.os.mac,
     () => true, // Show Cmd symbol on server-side render
   );
 

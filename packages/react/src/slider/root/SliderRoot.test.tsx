@@ -6,7 +6,9 @@ import { Field } from '@base-ui/react/field';
 import { Slider } from '@base-ui/react/slider';
 import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
+
+const isWebKit = platform.engine.webkit;
 import { REASONS } from '../../internals/reasons';
 import {
   ARROW_RIGHT,

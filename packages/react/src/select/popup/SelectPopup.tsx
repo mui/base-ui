@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { rectToClientRect } from '@floating-ui/utils';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -377,7 +377,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         Math.ceil(height) + SCROLL_EDGE_TOLERANCE_PX < Math.min(scrollHeight, minHeight);
 
       // Safari doesn't position the popup correctly when pinch-zoomed.
-      const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && isWebKit;
+      const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && platform.engine.webkit;
 
       if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
         initialPlacedRef.current = true;

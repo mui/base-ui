@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
@@ -35,7 +35,7 @@ function removeCSSVariableInheritance() {
     scrollAreaOverflowVarsRegistered ||
     // When `inherits: false`, specifying `inherit` on child elements doesn't work
     // in Safari. To let CSS features work correctly, this optimization must be skipped.
-    isWebKit
+    platform.engine.webkit
   ) {
     return;
   }
