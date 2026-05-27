@@ -190,7 +190,11 @@ export function Demo({
           )}
         </DemoPlayground>
       </div>
-      <Collapsible.Root open={demo.expanded} onOpenChange={onOpenChange}>
+      <Collapsible.Root
+        className="DemoCollapsibleRoot"
+        open={demo.expanded}
+        onOpenChange={onOpenChange}
+      >
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
             <div className="DemoToolbar">

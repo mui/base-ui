@@ -2,9 +2,9 @@
 
 @layer components {
   .DemoRoot {
-    background-color: var(--color-content);
+    background-color: rgb(0 0 0 / 2%);
     border: 1px solid var(--gray-c2);
-    border-radius: var(--radius-6);
+    border-radius: var(--radius-12);
     margin-bottom: var(--space-24);
 
     --shadow-1:
@@ -32,8 +32,8 @@
     position: relative;
 
     background-color: var(--color-content);
-    border-top-left-radius: var(--radius-6);
-    border-top-right-radius: var(--radius-6);
+    border-top-left-radius: var(--radius-12);
+    border-top-right-radius: var(--radius-12);
 
     /* Scroll */
     overflow: auto hidden;
@@ -67,9 +67,8 @@
     line-height: 1.25rem;
     white-space: nowrap;
     color: var(--gray-t2);
-    background-color: var(--gray-s2);
     background-clip: padding-box;
-    border-block: 1px solid var(--gray-c2);
+    border-bottom: 1px solid var(--gray-c2);
     display: flex;
     align-items: center;
     gap: 2rem;
@@ -219,7 +218,7 @@
     &[data-compact]:not([data-open]) {
       .DemoCollapseButton {
         align-self: center;
-        margin-block: 0.75rem;
+        margin-block: 0.5rem;
       }
     }
   }
@@ -300,6 +299,10 @@
       padding-left: 0.75rem;
       padding-right: 0.75rem;
     }
+  }
+
+  .DemoCollapsibleRoot {
+    border-top: 1px solid var(--gray-c2);
   }
 
   .DemoCollapseButton {
