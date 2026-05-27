@@ -136,7 +136,10 @@ export function parseNumber(
     }
   }
 
-  const { group, decimal, currency } = getNumberLocaleDetails(computedLocale, options);
+  const { group, decimal, currency, exponentSeparator } = getNumberLocaleDetails(
+    computedLocale,
+    options,
+  );
 
   // Build robust unit regex from all unit parts (such as "km/h")
   const unitParts = getFormatter(computedLocale, options)
@@ -174,6 +177,10 @@ export function parseNumber(
     // Arabic punctuation
     { regex: /٫/g, replacement: '.' }, // ARABIC DECIMAL SEPARATOR (U+066B)
     { regex: /٬/g, replacement: '' }, // ARABIC THOUSANDS SEPARATOR (U+066C)
+    {
+      regex: exponentSeparator ? new RegExp(escapeRegExp(exponentSeparator), 'g') : null,
+      replacement: 'e',
+    },
     // Currency & unit labels
     { regex: currency ? new RegExp(escapeRegExp(currency), 'g') : null, replacement: '' },
     { regex: unitRegex, replacement: '' },
@@ -209,9 +216,9 @@ export function parseNumber(
   const hasPermilleSymbol = PERMILLE_RE.test(formattedNumber);
 
   if (hasPermilleSymbol) {
-    num /= 1000;
+    num = Number(`${num}e-3`);
   } else if (!isUnitPercent && hasPercentSymbol) {
-    num /= 100;
+    num = Number(`${num}e-2`);
   }
 
   if (!Number.isFinite(num)) {

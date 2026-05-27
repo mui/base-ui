@@ -1,5 +1,6 @@
 import { clamp } from '../../internals/clamp';
 import { getFormatter } from '../../utils/formatNumber';
+import { parseNumber } from './parse';
 
 const STEP_EPSILON_FACTOR = 1e-10;
 // Matches Intl.NumberFormat's decimal maximumFractionDigits default.
@@ -31,15 +32,11 @@ export function hasNumberFormatRoundingOptions(
   );
 }
 
-export function removeFloatingPointErrors(value: number, format?: NumberFormatOptionsWithRounding) {
-  if (!Number.isFinite(value)) {
-    return value;
-  }
+function isScientificOrEngineering(format: NumberFormatOptionsWithRounding) {
+  return format.notation === 'scientific' || format.notation === 'engineering';
+}
 
-  if (!hasNumberFormatRoundingOptions(format)) {
-    return Number(value.toFixed(DEFAULT_DIGITS));
-  }
-
+function roundWithPlainNumberFormat(value: number, format: NumberFormatOptionsWithRounding) {
   const resolvedOptions = getFormatter('en-US', format).resolvedOptions();
   const digits = Math.min(
     format.maximumFractionDigits ?? resolvedOptions.maximumFractionDigits ?? DEFAULT_DIGITS,
@@ -71,10 +68,6 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     maximumFractionDigits: digits,
     minimumSignificantDigits: format.minimumSignificantDigits,
     maximumSignificantDigits: format.maximumSignificantDigits,
-    notation:
-      format.notation === 'scientific' || format.notation === 'engineering'
-        ? format.notation
-        : undefined,
     roundingIncrement: format.roundingIncrement,
     roundingMode: format.roundingMode,
     roundingPriority: format.roundingPriority,
@@ -89,6 +82,42 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   if (scale > 1) {
     const scaledValue = Number(`${roundedText}e-${PERCENT_SCALE_DIGITS}`);
     return Number.isFinite(scaledValue) ? scaledValue : roundedValue / scale;
+  }
+
+  return roundedValue;
+}
+
+export function removeFloatingPointErrors(value: number, format?: NumberFormatOptionsWithRounding) {
+  if (!Number.isFinite(value)) {
+    return value;
+  }
+
+  if (!hasNumberFormatRoundingOptions(format)) {
+    return Number(value.toFixed(DEFAULT_DIGITS));
+  }
+
+  if (format.notation === 'compact') {
+    return roundWithPlainNumberFormat(value, format);
+  }
+
+  const formatter = getFormatter('en-US', {
+    ...format,
+    useGrouping: false,
+  } as NumberFormatOptionsWithRounding);
+  const roundedText = formatter.format(value);
+  const roundedValue = parseNumber(roundedText, 'en-US', format);
+
+  if (roundedValue === null) {
+    return value;
+  }
+
+  if (
+    roundedValue === 0 &&
+    value !== 0 &&
+    isScientificOrEngineering(format) &&
+    formatter.formatToParts(value).some((part) => part.type === 'exponentSeparator')
+  ) {
+    return value;
   }
 
   return roundedValue;

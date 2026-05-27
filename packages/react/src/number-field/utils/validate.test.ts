@@ -174,6 +174,25 @@ describe('NumberField validate', () => {
       expect(removeFloatingPointErrors(value, format)).toBe(value);
     });
 
+    it('preserves high-precision percent boundaries with directional rounding', () => {
+      const format = {
+        style: 'percent',
+        maximumFractionDigits: 16,
+        roundingMode: 'floor',
+      } as const;
+      const value = 0.0046;
+      const rounded = removeFloatingPointErrors(value, format);
+
+      expect(rounded).toBe(value);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(value),
+      );
+    });
+
+    it('preserves tiny values when Intl supports more than 20 fraction digits', () => {
+      expect(removeFloatingPointErrors(1e-21, { maximumFractionDigits: 21 })).toBe(1e-21);
+    });
+
     it('uses percent fraction defaults when significant digits use roundingPriority', () => {
       const format = {
         style: 'percent',
@@ -260,6 +279,22 @@ describe('NumberField validate', () => {
       expect(rounded).toBe(0.000123);
       expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
         new Intl.NumberFormat('en-US', format).format(0.000123456),
+      );
+    });
+
+    it('preserves non-invertible scientific rounded zero buckets', () => {
+      const format = {
+        notation: 'scientific',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+        roundingIncrement: 5,
+      } as const;
+      const value = 12345;
+      const rounded = removeFloatingPointErrors(value, format);
+
+      expect(rounded).toBe(value);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(value),
       );
     });
 

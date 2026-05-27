@@ -98,6 +98,31 @@ describe('NumberField parse', () => {
       );
     });
 
+    it.each(['ar-EG', 'fa-IR'] as const)(
+      'parses localized scientific notation for %s',
+      (locale) => {
+        const format = { notation: 'scientific', maximumFractionDigits: 2 } as const;
+        const formatted = new Intl.NumberFormat(locale, format).format(12345);
+
+        expect(parseNumber(formatted, locale, format)).toBe(12300);
+      },
+    );
+
+    it.each(['ar-EG', 'fa-IR'] as const)(
+      'parses localized percent scientific notation with a negative exponent for %s',
+      (locale) => {
+        const format = {
+          style: 'percent',
+          notation: 'scientific',
+          maximumFractionDigits: 2,
+        } as const;
+        const value = 0.0000012345;
+        const formatted = new Intl.NumberFormat(locale, format).format(value);
+
+        expect(parseNumber(formatted, locale, format)).toBe(0.00000123);
+      },
+    );
+
     it('parses units when options specify unit style', () => {
       expect(parseNumber('12 kg', 'en-US', { style: 'unit', unit: 'kilogram' })).toBe(12);
     });
