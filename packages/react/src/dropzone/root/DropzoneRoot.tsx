@@ -9,8 +9,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { DropzoneRootContext } from './DropzoneRootContext';
 import { dropzoneRootStateAttributesMapping } from './stateAttributesMapping';
 
-const INTERACTIVE_SELECTOR =
-  `button,a[href],[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
+const INTERACTIVE_SELECTOR = `button,a[href],[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 
 function hasFiles(dataTransfer: DataTransfer | null): boolean {
   return dataTransfer?.types.includes('Files') ?? false;
@@ -224,7 +223,8 @@ export const DropzoneRoot = React.forwardRef<HTMLDivElement, DropzoneRootProps>(
                 onDrop: handleDrop,
                 onClick: handleClick,
                 onKeyDown: handleKeyDown,
-                children: typeof children === 'function' ? children({ isDragging: dragging }) : children,
+                children:
+                  typeof children === 'function' ? children({ isDragging: dragging }) : children,
               },
               elementProps,
             ],
