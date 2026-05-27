@@ -5,9 +5,8 @@ import { createRenderer } from '#test-utils';
 import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from '../utils/useInitialLiveRegionTextMutation';
 
 vi.mock('@base-ui/utils/platform', async () => {
-  const actual = await vi.importActual<typeof import('@base-ui/utils/platform')>(
-    '@base-ui/utils/platform',
-  );
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
 
   return {
     ...actual,

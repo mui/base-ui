@@ -3,10 +3,10 @@ import * as React from 'react';
 import { screen, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
 import { platform } from '@base-ui/utils/platform';
-
-const isWebKit = platform.engine.webkit;
 import { createRenderer, describeConformance } from '#test-utils';
 import { NumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
+
+const isWebKit = platform.engine.webkit;
 
 const defaultScrubAreaContext: NumberFieldScrubAreaContext = {
   isScrubbing: true,

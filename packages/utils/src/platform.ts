@@ -25,7 +25,8 @@ function readRawData(): RawNavigatorData {
 
   // Prefer `userAgentData` when available; `navigator.userAgent` and
   // `navigator.platform` are deprecated and trigger DevTools warnings.
-  const uaData = (navigator as Navigator & { userAgentData?: NavigatorUAData }).userAgentData;
+  const uaData = (navigator as Navigator & { userAgentData?: NavigatorUAData | undefined })
+    .userAgentData;
 
   const userAgent =
     uaData && Array.isArray(uaData.brands)

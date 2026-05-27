@@ -4,9 +4,9 @@ import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
+import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
 const isWebKit = platform.engine.webkit;
-import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
 describe('<Slider.Thumb />', () => {
   const { render, renderToString } = createRenderer();

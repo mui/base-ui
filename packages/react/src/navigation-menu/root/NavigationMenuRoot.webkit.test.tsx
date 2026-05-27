@@ -6,9 +6,8 @@ import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 vi.mock('@base-ui/utils/platform', async () => {
-  const actual = await vi.importActual<typeof import('@base-ui/utils/platform')>(
-    '@base-ui/utils/platform',
-  );
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
 
   return {
     ...actual,

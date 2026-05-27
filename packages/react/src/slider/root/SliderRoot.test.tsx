@@ -7,8 +7,6 @@ import { Slider } from '@base-ui/react/slider';
 import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
-
-const isWebKit = platform.engine.webkit;
 import { REASONS } from '../../internals/reasons';
 import {
   ARROW_RIGHT,
@@ -21,6 +19,8 @@ import {
 import type { Orientation } from '../../internals/types';
 import type { SliderRoot } from './SliderRoot';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
+
+const isWebKit = platform.engine.webkit;
 
 const USD_NUMBER_FORMAT: Intl.NumberFormatOptions = {
   style: 'currency',

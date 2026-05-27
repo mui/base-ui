@@ -12,9 +12,8 @@ import { createRenderer, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
 vi.mock('@base-ui/utils/platform', async () => {
-  const actual = await vi.importActual<typeof import('@base-ui/utils/platform')>(
-    '@base-ui/utils/platform',
-  );
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
 
   return {
     ...actual,
