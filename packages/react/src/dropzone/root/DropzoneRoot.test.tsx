@@ -339,15 +339,14 @@ describe('Dropzone.Root', () => {
 
       const dropzone = screen.getByTestId('dropzone');
 
-      // Initial status region should exist
-      let statusRegion = dropzone.querySelector('[role="status"]');
+      // Initial status region should exist as a sibling outside the button element
+      const statusRegion = screen.getByRole('status');
       expect(statusRegion).toHaveAttribute('aria-live', 'polite');
       expect(statusRegion).toHaveAttribute('aria-atomic', 'true');
 
       // Drag enter - announces ready state
       fireEvent.dragEnter(dropzone);
-      statusRegion = dropzone.querySelector('[role="status"]');
-      expect(statusRegion!.textContent).toContain('Ready to drop files');
+      expect(screen.getByRole('status').textContent).toContain('Ready to drop files');
 
       // Drag leave - announces drag ended
       const dragLeaveEvent = createEvent.dragLeave(dropzone);
@@ -356,8 +355,7 @@ describe('Dropzone.Root', () => {
         configurable: true,
       });
       fireEvent(dropzone, dragLeaveEvent);
-      statusRegion = dropzone.querySelector('[role="status"]');
-      expect(statusRegion!.textContent).toContain('Drag ended');
+      expect(screen.getByRole('status').textContent).toContain('Drag ended');
     });
 
     it('announces successfully dropped files', () => {
@@ -372,8 +370,7 @@ describe('Dropzone.Root', () => {
         dataTransfer: createDataTransfer([file1, file2]),
       });
 
-      const statusRegion = dropzone.querySelector('[role="status"]');
-      expect(statusRegion!.textContent).toContain('Dropped 2 files');
+      expect(screen.getByRole('status').textContent).toContain('Dropped 2 files');
     });
 
     it('announces when no files are dropped', () => {
@@ -385,8 +382,7 @@ describe('Dropzone.Root', () => {
         dataTransfer: createDataTransfer([]),
       });
 
-      const statusRegion = dropzone.querySelector('[role="status"]');
-      expect(statusRegion!.textContent).toContain('No files dropped');
+      expect(screen.getByRole('status').textContent).toContain('No files dropped');
     });
   });
 });
