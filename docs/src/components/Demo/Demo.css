@@ -2,7 +2,7 @@
 
 @layer components {
   .DemoRoot {
-    background-color: rgb(0 0 0 / 2%);
+    background-color: var(--gray-s2);
     border: 1px solid var(--gray-c2);
     border-radius: var(--radius-12);
     margin-bottom: var(--space-24);
