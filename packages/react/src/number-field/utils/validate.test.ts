@@ -209,13 +209,13 @@ describe('NumberField validate', () => {
 
     it('respects roundingPriority when fraction and significant digits are provided', () => {
       expect(
-        removeFloatingPointErrors(1.2345, {
+        removeFloatingPointErrors(1.2399, {
           minimumFractionDigits: 2,
           maximumSignificantDigits: 3,
           roundingMode: 'floor',
           roundingPriority: 'morePrecision',
         }),
-      ).toBe(1.234);
+      ).toBe(1.239);
     });
 
     it('does not scale unit percent values when maximumFractionDigits is provided', () => {
