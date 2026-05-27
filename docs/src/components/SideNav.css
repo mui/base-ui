@@ -3,13 +3,13 @@
 @layer components {
   .SideNavRoot {
     /* Match quick nav spacing so side nav and quick nav are visually aligned */
-    --side-nav-item-height: 2rem;
+    --side-nav-item-height: 1.75rem;
     --side-nav-item-line-height: 1.375rem;
     --side-nav-item-padding-y: calc(
       var(--side-nav-item-height) / 2 - var(--side-nav-item-line-height) / 2
     );
 
-    font-size: var(--font-size-15);
+    font-size: var(--font-size-14);
     line-height: 1.375rem;
     z-index: 1;
     grid-column: 1 / 3;

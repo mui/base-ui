@@ -73,7 +73,7 @@
     }
 
     @media (pointer: coarse) {
-      font-size: var(--font-size-15);
+      font-size: var(--font-size-14);
       height: 2.25rem;
     }
   }

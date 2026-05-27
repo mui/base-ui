@@ -31,13 +31,13 @@
     --quick-nav-scrollbar-width: 1.5rem;
 
     /* Use line height instead of fixed item height in case text breaks into multiple lines */
-    --quick-nav-item-height: 2rem;
+    --quick-nav-item-height: 1.75rem;
     --quick-nav-item-line-height: 1.375rem;
     --quick-nav-item-padding-y: calc(
       var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
     );
 
-    font-size: var(--font-size-15);
+    font-size: var(--font-size-14);
     line-height: 1.375rem;
     z-index: 1;
     grid-column: 7 / 9;

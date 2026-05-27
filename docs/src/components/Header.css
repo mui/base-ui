@@ -2,7 +2,7 @@
 
 @layer components {
   .Header {
-    font-size: var(--font-size-15);
+    font-size: var(--font-size-14);
     line-height: 1.375rem;
     position: fixed;
     left: 0;
@@ -158,7 +158,7 @@
   }
 
   .HeaderVersion {
-    font-size: var(--font-size-15);
+    font-size: var(--font-size-14);
     line-height: 1.375rem;
     color: var(--gray-t1);
   }

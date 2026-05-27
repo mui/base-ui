@@ -111,7 +111,7 @@
     background-color: var(--gray-c2);
     border-radius: var(--radius-8);
     padding: 1.25rem;
-    font-size: var(--font-size-15);
+    font-size: var(--font-size-14);
     color: var(--color-foreground);
     line-height: 1.375rem;
   }

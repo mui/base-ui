@@ -72,7 +72,7 @@
     }
 
     @media (pointer: coarse) {
-      font-size: var(--font-size-15);
+      font-size: var(--font-size-14);
       height: 2.25rem;
       grid-template-columns: 0.5rem 1rem 0.5rem auto 1.5rem;
     }
