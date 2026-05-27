@@ -10,6 +10,22 @@ import { useCompositeRootContext } from '../composite/root/CompositeRootContext'
 import { BaseUIEvent, HTMLProps } from '../types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
 
+// Keyboard activation dispatches a real click so capture/bubble and delegated
+// ancestor handlers run. While dispatching, track which external handlers have
+// fired so that composing several useButton instances onto one element doesn't
+// invoke the same handler twice.
+let dispatchedClickHandlers: WeakSet<NonNullable<GenericButtonProps['onClick']>> | undefined;
+
+function dispatchClick(element: HTMLElement) {
+  const previous = dispatchedClickHandlers;
+  dispatchedClickHandlers = new WeakSet();
+  try {
+    element.click();
+  } finally {
+    dispatchedClickHandlers = previous;
+  }
+}
+
 export function useButton(parameters: UseButtonParameters = {}): UseButtonReturnValue {
   const {
     disabled = false,
@@ -105,7 +121,16 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               event.preventDefault();
               return;
             }
-            externalOnClick?.(event);
+            if (!externalOnClick) {
+              return;
+            }
+            if (dispatchedClickHandlers) {
+              if (dispatchedClickHandlers.has(externalOnClick)) {
+                return;
+              }
+              dispatchedClickHandlers.add(externalOnClick);
+            }
+            externalOnClick(event);
           },
           onMouseDown(event: React.MouseEvent) {
             if (!disabled) {
@@ -141,12 +166,9 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
               event.preventDefault();
 
-              if (isLink || (isNativeButton && isButton)) {
-                currentTarget.click();
+              if (isLink || (isNativeButton && isButton) || shouldClick) {
                 event.preventBaseUIHandler();
-              } else if (shouldClick) {
-                externalOnClick?.(event);
-                event.preventBaseUIHandler();
+                dispatchClick(currentTarget);
               }
 
               return;
@@ -159,8 +181,8 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               }
 
               if (!isNativeButton && isEnterKey) {
-                currentTarget.click();
                 event.preventBaseUIHandler();
+                dispatchClick(currentTarget);
               }
             }
           },
@@ -196,8 +218,8 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               !isCompositeItem &&
               event.key === ' '
             ) {
-              (event.currentTarget as HTMLElement).click();
               event.preventBaseUIHandler();
+              dispatchClick(event.currentTarget as HTMLElement);
             }
           },
           onPointerDown(event: React.PointerEvent) {

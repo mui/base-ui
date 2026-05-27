@@ -57,6 +57,41 @@ describe('<Toolbar.Button />', () => {
     });
   });
 
+  describe('prop: nativeButton', () => {
+    it('custom element: dispatches real clicks from Space keyboard activation', async () => {
+      const handleClick = vi.fn();
+      const handleRenderClick = vi.fn();
+      const handleCaptureClick = vi.fn();
+      const handleAncestorClick = vi.fn();
+
+      const { user } = await render(
+        <div onClick={handleAncestorClick}>
+          <Toolbar.Root>
+            <Toolbar.Button
+              nativeButton={false}
+              render={<span onClick={handleRenderClick} onClickCapture={handleCaptureClick} />}
+              onClick={handleClick}
+            >
+              Save
+            </Toolbar.Button>
+          </Toolbar.Root>
+        </div>,
+      );
+
+      const button = screen.getByRole('button', { name: 'Save' });
+
+      await user.keyboard('[Tab]');
+      expect(button).toHaveFocus();
+
+      await user.keyboard('[Space]');
+
+      expect(handleCaptureClick).toHaveBeenCalledTimes(1);
+      expect(handleRenderClick).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+      expect(handleAncestorClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('prop: disabled', () => {
     it('disables the button', async () => {
       const handleClick = vi.fn();
