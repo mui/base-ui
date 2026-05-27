@@ -4,6 +4,8 @@ import { getFormatter } from '../../utils/formatNumber';
 const STEP_EPSILON_FACTOR = 1e-10;
 // Matches Intl.NumberFormat's decimal maximumFractionDigits default.
 const DEFAULT_DIGITS = 3;
+const PERCENT_SCALE = 100;
+const PERCENT_SCALE_DIGITS = 2;
 // Extra decimal places used to scrub percent-scale float noise without dropping user precision.
 const PERCENT_GUARD_DIGITS = 10;
 
@@ -49,7 +51,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   );
 
   // Percent values are stored as fractions, so rounding must happen at the displayed scale.
-  const scale = format.style === 'percent' ? 100 : 1;
+  const scale = format.style === 'percent' ? PERCENT_SCALE : 1;
   let valueToRound = value * scale;
 
   if (!Number.isFinite(valueToRound)) {
@@ -62,30 +64,34 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     valueToRound = Number(valueToRound.toFixed(Math.min(precision + PERCENT_GUARD_DIGITS, 20)));
   }
 
-  const roundedValue = Number(
-    getFormatter('en-US', {
-      // Keep style/unit/compact notation out so the formatted string parses back as a plain number.
-      useGrouping: false,
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits,
-      minimumSignificantDigits: format.minimumSignificantDigits,
-      maximumSignificantDigits: format.maximumSignificantDigits,
-      notation:
-        format.notation === 'scientific' || format.notation === 'engineering'
-          ? format.notation
-          : undefined,
-      roundingIncrement: format.roundingIncrement,
-      roundingMode: format.roundingMode,
-      roundingPriority: format.roundingPriority,
-    } as NumberFormatOptionsWithRounding).format(valueToRound),
-  );
+  const roundedText = getFormatter('en-US', {
+    // Keep style/unit/compact notation out so the formatted string parses back as a plain number.
+    useGrouping: false,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+    minimumSignificantDigits: format.minimumSignificantDigits,
+    maximumSignificantDigits: format.maximumSignificantDigits,
+    notation:
+      format.notation === 'scientific' || format.notation === 'engineering'
+        ? format.notation
+        : undefined,
+    roundingIncrement: format.roundingIncrement,
+    roundingMode: format.roundingMode,
+    roundingPriority: format.roundingPriority,
+  } as NumberFormatOptionsWithRounding).format(valueToRound);
+
+  const roundedValue = Number(roundedText);
 
   if (!Number.isFinite(roundedValue)) {
     return value;
   }
 
-  const nextValue = roundedValue / scale;
-  return scale > 1 ? Number(nextValue.toFixed(Math.min(precision + 2, 20))) : nextValue;
+  if (scale > 1) {
+    const scaledValue = Number(`${roundedText}e-${PERCENT_SCALE_DIGITS}`);
+    return Number.isFinite(scaledValue) ? scaledValue : roundedValue / scale;
+  }
+
+  return roundedValue;
 }
 
 function snapToStep(

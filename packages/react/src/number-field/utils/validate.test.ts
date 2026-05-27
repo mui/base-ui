@@ -136,6 +136,20 @@ describe('NumberField validate', () => {
       );
     });
 
+    it('preserves tiny percent significant digit values after scaling back', () => {
+      const format = {
+        style: 'percent',
+        maximumSignificantDigits: 2,
+      } as const;
+      const value = 0.000001234;
+      const rounded = removeFloatingPointErrors(value, format);
+
+      expect(rounded).toBe(0.0000012);
+      expect(new Intl.NumberFormat('en-US', format).format(rounded)).toBe(
+        new Intl.NumberFormat('en-US', format).format(value),
+      );
+    });
+
     it('preserves meaningful percent precision above directional rounding boundaries', () => {
       const format = {
         style: 'percent',
