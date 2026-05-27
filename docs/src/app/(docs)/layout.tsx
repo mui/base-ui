@@ -10,6 +10,7 @@ import * as SideNav from 'docs/src/components/SideNav';
 import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header, titleMap } from 'docs/src/components/Header';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
+import { TestBackgroundShortcut } from 'docs/src/components/TestBackgroundShortcut';
 import { sitemap } from 'docs/src/app/sitemap';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
@@ -49,6 +50,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
         />
       </head>
       <body suppressHydrationWarning>
+        <TestBackgroundShortcut />
         <GoogleAnalytics>
           <DocsProviders>
             <div className="RootLayout">

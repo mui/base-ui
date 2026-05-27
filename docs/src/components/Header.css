@@ -30,6 +30,7 @@
       position: static;
       box-shadow: none;
       background-color: transparent;
+      padding-inline: 0;
     }
 
     @media print {

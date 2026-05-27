@@ -5,9 +5,15 @@
     /* Quick Nav's container shouldn't have any paddings to maintain correct positioning */
     padding: 0;
     position: relative;
+    display: grid;
+    gap: var(--content-layout-gap);
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 
   .QuickNavContent {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-width: 0;
     padding-top: 1.5rem;
     padding-bottom: 5rem;
 
@@ -16,12 +22,16 @@
     }
 
     @media (--show-side-nav) {
-      padding-bottom: 8rem;
+      grid-column: 3 / 9;
+      padding-bottom: var(--header-height);
+    }
+
+    @media (--xl) {
+      grid-column: 3 / 7;
     }
   }
 
   .QuickNavRoot {
-    --quick-nav-margin-x: 2rem;
     --quick-nav-scrollbar-thumb-width: 0.25rem;
     --quick-nav-scrollbar-width: 1.5rem;
 
@@ -35,22 +45,23 @@
     font-size: var(--font-size-15);
     line-height: 1.375rem;
     z-index: 1;
+    grid-column: 7 / 9;
+    grid-row: 1;
+    align-self: start;
+    min-width: 0;
     position: sticky;
     top: 0;
-    width: 0;
-    float: right;
     contain: layout;
     display: none;
 
-    @media (--show-quick-nav) {
+    @media (--xl) {
       display: block;
     }
   }
 
   .QuickNavInner {
     position: relative;
-    left: var(--quick-nav-margin-x);
-    width: calc(var(--sidebar-width) - var(--quick-nav-margin-x));
+    width: 100%;
   }
 
   .QuickNavViewport {

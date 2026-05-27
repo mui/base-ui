@@ -10,7 +10,12 @@ import './SideNav.css';
 
 export function Root(props: React.ComponentProps<'div'>) {
   return (
-    <nav aria-label="Main navigation" {...props} className={clsx('SideNavRoot', props.className)}>
+    <nav
+      aria-label="Main navigation"
+      {...props}
+      className={clsx('SideNavRoot', props.className)}
+      style={{ backgroundColor: 'var(--test-bg)' }}
+    >
       <ScrollArea.Root>
         <ScrollArea.Viewport data-side-nav-viewport className="SideNavViewport">
           {props.children}

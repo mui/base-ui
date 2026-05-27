@@ -86,6 +86,7 @@ export default function Homepage() {
       <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
+
       <section className="bui-d-c">
         <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
           <h2 className="Text sz-2">Made for the makers</h2>

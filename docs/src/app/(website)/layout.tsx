@@ -8,6 +8,7 @@ import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
 import { Logo } from 'docs/src/components/Logo';
 import { Search } from './components/Search';
+import { TestBackgroundShortcut } from 'docs/src/components/TestBackgroundShortcut';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
@@ -30,11 +31,53 @@ export default function Layout({ children }: React.PropsWithChildren) {
         />
       </head>
       <body suppressHydrationWarning className="Body bui-p-6 bp2:bui-py-7 bp2:bui-px-9">
+        <TestBackgroundShortcut />
         <GoogleAnalytics>
           <div
             className="bui-bs-bb bui-d-g bui-gtc-8 bui-g-8 bp2:bui-g-9"
-            style={{ maxWidth: '1480px', marginInline: 'auto' }}
+            style={{
+              isolation: 'isolate',
+              maxWidth: '1480px',
+              marginInline: 'auto',
+              position: 'relative',
+            }}
           >
+            <div
+              aria-hidden="true"
+              className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3"
+              style={{
+                backgroundColor: 'var(--test-bg)',
+                insetBlock: 0,
+                insetInline: 0,
+                pointerEvents: 'none',
+                position: 'absolute',
+                zIndex: -1,
+              }}
+            ></div>
+            <div
+              aria-hidden="true"
+              className="bui-d-n bp2:bui-d-b bui-gcs-3 bui-gce-7"
+              style={{
+                backgroundColor: 'var(--test-bg)',
+                insetBlock: 0,
+                insetInline: 0,
+                pointerEvents: 'none',
+                position: 'absolute',
+                zIndex: -1,
+              }}
+            ></div>
+            <div
+              aria-hidden="true"
+              className="bui-d-n bp2:bui-d-b bui-gcs-7 bui-gce-9"
+              style={{
+                backgroundColor: 'var(--test-bg)',
+                insetBlock: 0,
+                insetInline: 0,
+                pointerEvents: 'none',
+                position: 'absolute',
+                zIndex: -1,
+              }}
+            ></div>
             <header className="bui-d-c">
               <div className="bui-gcs-1 bui-gce-4">
                 <Logo aria-label="Base UI" />
