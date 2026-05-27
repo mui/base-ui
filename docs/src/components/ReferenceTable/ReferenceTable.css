@@ -90,6 +90,12 @@
     width: 66.6667%;
   }
 
+  .ReferenceDescriptionCell .TableCellInner {
+    display: block;
+    white-space: normal;
+    overflow-x: visible;
+  }
+
   .ReferenceReturnTypeColumn {
     width: 40%;
   }
@@ -159,32 +165,32 @@
     }
 
     .ReferenceHeaderRow {
-      grid-template-columns: 5fr 7fr 4.5fr 2.5rem;
+      grid-template-columns: 6fr 6fr 4.5fr 2.5rem;
     }
 
     .ReferenceTrigger {
       scroll-margin-top: 0;
-      grid-template-columns: 5fr 7fr 4.5fr 2.5rem;
+      grid-template-columns: 6fr 6fr 4.5fr 2.5rem;
     }
 
     [data-hide-default] > .ReferenceHeaderRow {
-      grid-template-columns: 5fr 7fr 2.5rem;
+      grid-template-columns: 6fr 6fr 2.5rem;
     }
 
     [data-hide-default] .ReferenceTrigger {
-      grid-template-columns: 5fr 7fr 2.5rem;
+      grid-template-columns: 6fr 6fr 2.5rem;
     }
 
     .ReferenceWideNameColumn {
-      width: calc(5 / 16.5 * 100%);
+      width: calc(6 / 16.5 * 100%);
     }
 
     .ReferenceWideDescriptionColumn {
-      width: calc(11.5 / 16.5 * 100%);
+      width: calc(10.5 / 16.5 * 100%);
     }
 
     .ReferenceContent {
-      grid-template-columns: 5fr 11.5fr 2.5rem;
+      grid-template-columns: 6fr 10.5fr 2.5rem;
     }
   }
 

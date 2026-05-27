@@ -81,7 +81,9 @@ export function AttributesReferenceTable({
                     {name}
                   </TableCode>
                 </Table.RowHeader>
-                <Table.Cell colSpan={2}>{attribute.description}</Table.Cell>
+                <Table.Cell className="ReferenceDescriptionCell" colSpan={2}>
+                  {attribute.description}
+                </Table.Cell>
               </Table.Row>
             );
           })}

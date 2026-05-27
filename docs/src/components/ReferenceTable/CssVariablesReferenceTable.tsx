@@ -82,7 +82,9 @@ export function CssVariablesReferenceTable({
                 <Table.RowHeader>
                   <TableCode style={{ color: 'var(--color-navy)' }}>{name}</TableCode>
                 </Table.RowHeader>
-                <Table.Cell colSpan={2}>{cssVariable.description}</Table.Cell>
+                <Table.Cell className="ReferenceDescriptionCell" colSpan={2}>
+                  {cssVariable.description}
+                </Table.Cell>
               </Table.Row>
             );
           })}
