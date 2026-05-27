@@ -1056,6 +1056,70 @@ describe('<RadioGroup />', () => {
       expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
     });
 
+    it.skipIf(isJSDOM)(
+      'excludes a disabled selected radio from onFormSubmit to match native form data',
+      async () => {
+        const handleSubmit = vi.fn();
+
+        function App() {
+          const [disabled, setDisabled] = React.useState(false);
+          return (
+            <Form onFormSubmit={handleSubmit} data-testid="form">
+              <Field.Root name="test">
+                <RadioGroup name="group" defaultValue="a">
+                  <Radio.Root value="a" disabled={disabled} data-testid="item-a" />
+                  <Radio.Root value="b" data-testid="item-b" />
+                </RadioGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setDisabled(true)}>
+                Disable
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          );
+        }
+
+        await renderFakeTimers(<App />);
+
+        fireEvent.click(screen.getByText('Disable'));
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        // Native form submission excludes disabled inputs.
+        expect(new FormData(form).get('group')).toBe(null);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'excludes an initially disabled selected radio from onFormSubmit to match native form data',
+      async () => {
+        const handleSubmit = vi.fn();
+
+        await renderFakeTimers(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="test">
+              <RadioGroup name="group" defaultValue="a">
+                <Radio.Root value="a" disabled data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        // Native form submission excludes disabled inputs.
+        expect(new FormData(form).get('group')).toBe(null);
+
+        fireEvent.click(screen.getByText('Submit'));
+
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
+      },
+    );
+
     it('clears required validation when a value is selected', async () => {
       const { user } = await renderFakeTimers(
         <Form>
