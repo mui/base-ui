@@ -56,6 +56,22 @@ describe('<Field.Control />', () => {
     expect(validate.mock.lastCall?.[0]).toBe('a');
   });
 
+  it('shows a required error when a prefilled value is cleared', async () => {
+    await render(
+      <Field.Root validationMode="onChange">
+        <Field.Control data-testid="control" defaultValue="value" required />
+        <Field.Error match="valueMissing">Required</Field.Error>
+      </Field.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+
+    fireEvent.change(control, { target: { value: '' } });
+
+    expect(control).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByText('Required')).not.toBe(null);
+  });
+
   it.skipIf(isJSDOM)('should sync focused state when autoFocus is used with SSR', async () => {
     vi.spyOn(console, 'error')
       .mockName('console.error')
