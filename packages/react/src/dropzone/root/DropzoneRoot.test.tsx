@@ -81,20 +81,24 @@ describe('Dropzone.Root', () => {
     const user = userEvent.setup();
     const inputClick = vi.spyOn(HTMLInputElement.prototype, 'click');
 
-    render(
-      <Dropzone.Root>
-        <Dropzone.HiddenInput />
-        Drop files
-      </Dropzone.Root>,
-    );
+    try {
+      render(
+        <Dropzone.Root>
+          <Dropzone.HiddenInput />
+          Drop files
+        </Dropzone.Root>,
+      );
 
-    const dropzone = screen.getByRole('button');
+      const dropzone = screen.getByRole('button');
 
-    await user.click(dropzone);
-    fireEvent.keyDown(dropzone, { key: 'Enter' });
-    fireEvent.keyDown(dropzone, { key: ' ' });
+      await user.click(dropzone);
+      fireEvent.keyDown(dropzone, { key: 'Enter' });
+      fireEvent.keyDown(dropzone, { key: ' ' });
 
-    expect(inputClick).toHaveBeenCalledTimes(3);
+      expect(inputClick).toHaveBeenCalledTimes(3);
+    } finally {
+      inputClick.mockRestore();
+    }
   });
 
   it('does not open when disabled', async () => {
@@ -131,6 +135,42 @@ describe('Dropzone.Root', () => {
     await user.click(screen.getByText('Nested'));
 
     expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it('does not open when a nested interactive element has keyboard focus', () => {
+    const onOpen = vi.fn();
+
+    render(
+      <Dropzone.Root onOpen={onOpen}>
+        <button type="button">Nested</button>
+      </Dropzone.Root>,
+    );
+
+    const nestedButton = screen.getByText('Nested');
+
+    fireEvent.keyDown(nestedButton, { key: 'Enter', bubbles: true });
+    fireEvent.keyDown(nestedButton, { key: ' ', bubbles: true });
+
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it('calls onDraggingChange only once when dragenter fires repeatedly', () => {
+    const onDraggingChange = vi.fn();
+
+    render(
+      <Dropzone.Root data-testid="dropzone" onDraggingChange={onDraggingChange}>
+        <span data-testid="child">Drop files</span>
+      </Dropzone.Root>,
+    );
+
+    const dropzone = screen.getByTestId('dropzone');
+
+    fireEvent.dragEnter(dropzone);
+    fireEvent.dragEnter(dropzone);
+    fireEvent.dragEnter(dropzone);
+
+    expect(onDraggingChange).toHaveBeenCalledTimes(1);
+    expect(onDraggingChange).toHaveBeenCalledWith(true);
   });
 
   it('tracks dragging state and supports render prop', () => {
