@@ -10,40 +10,6 @@ interface RawNavigatorData {
   readonly maxTouchPoints: number;
 }
 
-/**
- * Normalizes the modern `navigator.userAgentData` API (Chromium) and the legacy
- * `navigator.userAgent` / `navigator.platform` strings (Firefox, Safari, older
- * Chromium) into a single shape.
- *
- * Returns empty/zero values when `navigator` is undefined (SSR), so every
- * derived flag safely evaluates to `false`.
- */
-function readRawData(): RawNavigatorData {
-  if (typeof navigator === 'undefined') {
-    return { userAgent: '', platform: '', maxTouchPoints: 0 };
-  }
-
-  // Prefer `userAgentData` when available; `navigator.userAgent` and
-  // `navigator.platform` are deprecated and trigger DevTools warnings.
-  const uaData = (navigator as Navigator & { userAgentData?: NavigatorUAData | undefined })
-    .userAgentData;
-
-  const userAgent =
-    uaData && Array.isArray(uaData.brands)
-      ? uaData.brands.map(({ brand, version }) => `${brand}/${version}`).join(' ')
-      : navigator.userAgent;
-
-  return {
-    userAgent,
-    platform: uaData?.platform ?? navigator.platform ?? '',
-    maxTouchPoints: navigator.maxTouchPoints ?? 0,
-  };
-}
-
-function matchMedia(query: string): boolean {
-  return typeof window !== 'undefined' && !!window.matchMedia?.(query).matches;
-}
-
 const data = readRawData();
 const lowerPlatform = data.platform.toLowerCase();
 
@@ -156,3 +122,37 @@ export const platform = {
     jsdom,
   },
 } as const;
+
+/**
+ * Normalizes the modern `navigator.userAgentData` API (Chromium) and the legacy
+ * `navigator.userAgent` / `navigator.platform` strings (Firefox, Safari, older
+ * Chromium) into a single shape.
+ *
+ * Returns empty/zero values when `navigator` is undefined (SSR), so every
+ * derived flag safely evaluates to `false`.
+ */
+function readRawData(): RawNavigatorData {
+  if (typeof navigator === 'undefined') {
+    return { userAgent: '', platform: '', maxTouchPoints: 0 };
+  }
+
+  // Prefer `userAgentData` when available; `navigator.userAgent` and
+  // `navigator.platform` are deprecated and trigger DevTools warnings.
+  const uaData = (navigator as Navigator & { userAgentData?: NavigatorUAData | undefined })
+    .userAgentData;
+
+  const userAgent =
+    uaData && Array.isArray(uaData.brands)
+      ? uaData.brands.map(({ brand, version }) => `${brand}/${version}`).join(' ')
+      : navigator.userAgent;
+
+  return {
+    userAgent,
+    platform: uaData?.platform ?? navigator.platform ?? '',
+    maxTouchPoints: navigator.maxTouchPoints ?? 0,
+  };
+}
+
+function matchMedia(query: string): boolean {
+  return typeof window !== 'undefined' && !!window.matchMedia?.(query).matches;
+}
