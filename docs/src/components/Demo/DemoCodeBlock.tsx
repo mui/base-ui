@@ -57,7 +57,11 @@ export function DemoCodeBlock({
   }
 
   return (
-    <React.Fragment>
+    <div
+      className="DemoCodeBlockCollapsible"
+      data-open={collapsibleOpen ? '' : undefined}
+      data-compact={compact ? '' : undefined}
+    >
       <Root
         render={
           <Collapsible.Panel
@@ -91,6 +95,6 @@ export function DemoCodeBlock({
       >
         {collapsibleOpen ? 'Hide' : 'Show'} code
       </Collapsible.Trigger>
-    </React.Fragment>
+    </div>
   );
 }

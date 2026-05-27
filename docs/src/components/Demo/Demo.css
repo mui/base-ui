@@ -192,6 +192,38 @@
     }
   }
 
+  .DemoCodeBlockCollapsible {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    &:not([data-open], [data-compact]) {
+      .DemoCollapseButton {
+        position: absolute;
+        left: 50%;
+        bottom: 0.75rem;
+        transform: translateX(-50%);
+      }
+    }
+
+    &[data-open] {
+      .DemoCollapseButton {
+        position: sticky;
+        bottom: 0.75rem;
+        align-self: center;
+        margin-top: -2.25rem;
+        margin-bottom: 0.75rem;
+      }
+    }
+
+    &[data-compact]:not([data-open]) {
+      .DemoCollapseButton {
+        align-self: center;
+        margin-block: 0.75rem;
+      }
+    }
+  }
+
   .DemoCodeBlockRoot {
     display: flex;
     flex-direction: column;
@@ -202,6 +234,7 @@
       &::before {
         content: '';
         position: absolute;
+        z-index: 1;
         pointer-events: none;
         height: 7.5rem;
         bottom: 0;
@@ -272,40 +305,41 @@
   .DemoCollapseButton {
     font-size: var(--font-size-13);
     line-height: 1.25rem;
-    background-color: var(--gray-s2);
+    font-weight: var(--font-weight-400);
+    background-color: white;
     cursor: default;
-    width: 100%;
-    color: var(--gray-t2);
-    height: 2.25rem;
-    border-top: 1px solid var(--gray-c2);
-    border-bottom-left-radius: 0.375rem;
-    border-bottom-right-radius: 0.375rem;
-    border-bottom: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-foreground);
+    height: 2rem;
+    padding-inline: 0.75rem;
+    border: 1px solid var(--gray-c2);
+    border-radius: var(--radius-pill);
     background-clip: padding-box;
-    margin-bottom: -1px;
+    position: relative;
+    white-space: nowrap;
+    z-index: 2;
     -webkit-user-select: none;
     user-select: none;
 
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--gray-c2);
+    }
+
     &[data-sticky] {
-      position: sticky;
-      bottom: -1px;
       z-index: 1;
     }
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--gray-c1);
+        background-color: var(--gray-s2);
       }
-    }
-
-    &:active {
-      background-color: color-mix(in oklch, var(--gray-c1), var(--gray-t2) 5%);
     }
 
     &:focus-visible {
       outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
-      z-index: 1;
     }
   }
 }
