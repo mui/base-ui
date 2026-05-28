@@ -312,28 +312,42 @@
   }
 
   .DemoCollapseButton {
-    font-size: var(--font-size-13);
-    line-height: 1.25rem;
-    font-weight: var(--font-weight-400);
-    background-color: white;
-    cursor: default;
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    gap: var(--space-8);
+    border: none;
     color: var(--color-foreground);
-    height: 2rem;
-    padding-inline: 0.75rem;
-    border: 1px solid var(--gray-c2);
-    border-radius: var(--radius-pill);
-    background-clip: padding-box;
-    position: relative;
+    font-family: inherit;
+    font-size: var(--font-size-13);
+    font-weight: 500;
+    line-height: 1;
+    vertical-align: top;
+    height: var(--space-28);
+    padding-inline: var(--space-12);
+    border-radius: var(--radius-8);
+    background: linear-gradient(to bottom, hsl(0deg 0% 0% / 8%), hsl(0deg 0% 0% / 16%));
     white-space: nowrap;
     z-index: 2;
     -webkit-user-select: none;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
 
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--gray-c2);
+    &::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: 1px;
+      border-radius: calc(var(--radius-8) - 1px);
+      background: linear-gradient(to bottom, white 25%, hsl(0deg 0% 98%));
+      pointer-events: none;
+      box-shadow:
+        inset 0 0 0 1px white,
+        0 1px 1px hsl(0deg 0% 0% / 4%),
+        0 1px 2px hsl(0deg 0% 0% / 4%),
+        0 2px 4px -2px hsl(0deg 0% 0% / 4%);
     }
 
     &[data-sticky] {
@@ -342,7 +356,26 @@
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--gray-s2);
+        background: linear-gradient(to bottom, hsl(0deg 0% 0% / 16%), hsl(0deg 0% 0% / 32%));
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      background: linear-gradient(to bottom, hsl(0deg 0% 100% / 16%), hsl(0deg 0% 100% / 24%));
+
+      &::before {
+        background: linear-gradient(to bottom, var(--gray-c2), var(--gray-c1));
+        box-shadow:
+          inset 0 0 0 1px hsl(0deg 0% 100% / 8%),
+          0 1px 1px hsl(0deg 0% 0% / 16%),
+          0 1px 2px hsl(0deg 0% 0% / 16%),
+          0 2px 4px -2px hsl(0deg 0% 0% / 24%);
+      }
+
+      @media (hover: hover) {
+        &:hover {
+          background: linear-gradient(to bottom, hsl(0deg 0% 100% / 24%), hsl(0deg 0% 100% / 36%));
+        }
       }
     }
 
