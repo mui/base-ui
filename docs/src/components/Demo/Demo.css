@@ -314,7 +314,7 @@
     vertical-align: top;
     height: var(--space-28);
     padding-inline: var(--space-12);
-    border-radius: var(--radius-8);
+    border-radius: var(--radius-pill);
     background: linear-gradient(to bottom, hsl(0deg 0% 0% / 8%), hsl(0deg 0% 0% / 16%));
     white-space: nowrap;
     z-index: 2;
@@ -327,7 +327,7 @@
       position: absolute;
       z-index: -1;
       inset: 1px;
-      border-radius: calc(var(--radius-8) - 1px);
+      border-radius: var(--radius-pill);
       background: linear-gradient(to bottom, white 25%, hsl(0deg 0% 98%));
       pointer-events: none;
       box-shadow:
