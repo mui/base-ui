@@ -152,6 +152,26 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedInputRef.current = thumbElement.querySelector<HTMLInputElement>('input[type="range"]');
   }
 
+  function resetPressedThumb() {
+    pressedThumbIndexRef.current = -1;
+    pressedThumbCenterOffsetRef.current = null;
+    pressedInputRef.current = null;
+  }
+
+  function isTargetDisabledThumb(target: EventTarget | null) {
+    if (!isElement(target)) {
+      return false;
+    }
+
+    return thumbRefs.current.some((thumbEl) => {
+      if (!isElement(thumbEl) || !contains(thumbEl, target)) {
+        return false;
+      }
+
+      return thumbEl.querySelector<HTMLInputElement>('input[type="range"]')?.disabled === true;
+    });
+  }
+
   function getFingerState(fingerCoords: Coords): FingerState | null {
     const control = controlRef.current;
     const thumbIndex = pressedThumbIndexRef.current;
@@ -377,6 +397,11 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return;
     }
 
+    if (isTargetDisabledThumb(getTarget(nativeEvent))) {
+      resetPressedThumb();
+      return;
+    }
+
     const touch = nativeEvent.changedTouches[0];
 
     if (touch != null) {
@@ -465,12 +490,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
             return;
           }
 
-          // A press that lands directly on a disabled thumb sets these refs in
-          // the thumb's pointerdown handler. Ignore the interaction entirely.
-          if (pressedInputRef.current?.disabled) {
-            pressedThumbIndexRef.current = -1;
-            pressedThumbCenterOffsetRef.current = null;
-            pressedInputRef.current = null;
+          if (isTargetDisabledThumb(target)) {
+            resetPressedThumb();
             return;
           }
 

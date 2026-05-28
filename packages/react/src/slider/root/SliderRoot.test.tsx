@@ -334,6 +334,44 @@ describe('<Slider.Root />', () => {
       expect(disabledInput).toHaveAttribute('aria-valuenow', '80');
     });
 
+    it.skipIf(isJSDOM || isWebKit)('does not drag a disabled thumb with touch events', async () => {
+      const handleValueChange = vi.fn();
+      await render(
+        <Slider.Root defaultValue={[20, 80]} onValueChange={handleValueChange}>
+          <Slider.Control data-testid="control">
+            <Slider.Track>
+              <Slider.Indicator />
+              <Slider.Thumb index={0} data-testid="thumb-0" />
+              <Slider.Thumb index={1} disabled data-testid="thumb-1" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const control = screen.getByTestId('control');
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+
+      const [enabledInput, disabledInput] = screen.getAllByRole('slider');
+      expect(disabledInput).toBeDisabled();
+
+      fireEvent.touchStart(
+        screen.getByTestId('thumb-1'),
+        createTouches([{ identifier: 1, clientX: 80, clientY: 0 }]),
+      );
+      fireEvent.touchMove(
+        document.body,
+        createTouches([{ identifier: 1, clientX: 40, clientY: 0 }]),
+      );
+      fireEvent.touchEnd(
+        document.body,
+        createTouches([{ identifier: 1, clientX: 40, clientY: 0 }]),
+      );
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(enabledInput).toHaveAttribute('aria-valuenow', '20');
+      expect(disabledInput).toHaveAttribute('aria-valuenow', '80');
+    });
+
     it('does not change a single disabled thumb when pressing the track', async () => {
       const handleValueChange = vi.fn();
       await render(
