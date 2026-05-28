@@ -11,23 +11,12 @@ export function Container({ className, ...props }: React.ComponentProps<'div'>) 
 }
 
 export function Content({ className, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div
-      className={clsx('QuickNavContent', className)}
-      {...props}
-      style={{ backgroundColor: 'var(--test-bg)' }}
-    />
-  );
+  return <div className={clsx('QuickNavContent', className)} {...props} />;
 }
 
 export function Root({ children, className, ...props }: React.ComponentProps<'div'>) {
   return (
-    <nav
-      aria-label="On this page"
-      className={clsx('QuickNavRoot', className)}
-      {...props}
-      style={{ backgroundColor: 'var(--test-bg)' }}
-    >
+    <nav aria-label="On this page" className={clsx('QuickNavRoot', className)} {...props}>
       <div className="QuickNavInner">
         <ScrollArea.Root>
           <ScrollArea.Viewport className="QuickNavViewport">{children}</ScrollArea.Viewport>
