@@ -58,10 +58,12 @@ const coarsePointer = matchMedia('(pointer: coarse)');
 // Capability check: does the runtime expose the `Touch` / `TouchEvent`
 // constructors? True on any device able to dispatch touch events, including
 // hybrid laptops with both a mouse and a touchscreen. Independent of `noHover`.
+/* eslint-disable compat/compat */
 const touchCapable =
   typeof window !== 'undefined' &&
   typeof window.Touch !== 'undefined' &&
   typeof window.TouchEvent !== 'undefined';
+/* eslint-enable compat/compat */
 
 // --- Screen reader -----------------------------------------------------------
 
