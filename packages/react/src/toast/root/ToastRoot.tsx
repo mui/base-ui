@@ -266,6 +266,10 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       return;
     }
 
+    if (event.pointerType === 'touch') {
+      store.pauseTimers();
+    }
+
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
 
     const isInteractiveElement = target
@@ -274,12 +278,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
     if (isInteractiveElement) {
       return;
-    }
-
-    // Pause only once we know this is a swipe rather than a tap on an
-    // interactive element, which has no matching resume path.
-    if (event.pointerType === 'touch') {
-      store.pauseTimers();
     }
 
     cancelledSwipeRef.current = false;

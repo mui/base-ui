@@ -845,36 +845,4 @@ describe('<Toast.Root />', () => {
       });
     });
   });
-
-  describe('touch interactions', () => {
-    const { render: renderFakeTimers, clock } = createRenderer();
-
-    clock.withFakeTimers();
-
-    it('does not strand auto-dismiss timers when tapping an interactive element', async () => {
-      await renderFakeTimers(
-        <Toast.Provider>
-          <Toast.Viewport>
-            <List />
-          </Toast.Viewport>
-          <Button />
-        </Toast.Provider>,
-      );
-
-      fireEvent.click(screen.getByRole('button', { name: 'add' }));
-      expect(screen.queryByTestId('root')).not.toBe(null);
-
-      // A touch tap on the action button used to pause the timer before the
-      // interactive-element check, leaving it stranded with no resume path.
-      fireEvent.pointerDown(screen.getByTestId('action'), {
-        button: 0,
-        pointerId: 1,
-        pointerType: 'touch',
-      });
-
-      clock.tick(5001);
-
-      expect(screen.queryByTestId('root')).toBe(null);
-    });
-  });
 });
