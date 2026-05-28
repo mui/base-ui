@@ -55,15 +55,12 @@ const blink = !webkit && /chrome|chromium/i.test(data.userAgent);
 // pointer (even if the screen also accepts touch).
 const noHover = matchMedia('(hover: none)');
 const coarsePointer = matchMedia('(pointer: coarse)');
-// Capability check: does the runtime expose the `Touch` / `TouchEvent`
-// constructors? True on any device able to dispatch touch events, including
-// hybrid laptops with both a mouse and a touchscreen. Independent of `noHover`.
-/* eslint-disable compat/compat */
-const touchCapable =
-  typeof window !== 'undefined' &&
-  typeof window.Touch !== 'undefined' &&
-  typeof window.TouchEvent !== 'undefined';
-/* eslint-enable compat/compat */
+// Capability check: does the runtime expose the `Touch` constructor? True on
+// any device able to dispatch touch events, including hybrid laptops with both
+// a mouse and a touchscreen.
+// Independent of `noHover`.
+/* eslint-disable-next-line compat/compat */
+const touchCapable = typeof window !== 'undefined' && typeof window.Touch !== 'undefined';
 
 // --- Screen reader -----------------------------------------------------------
 
@@ -125,10 +122,10 @@ export const platform = {
      */
     hover: !noHover,
     /**
-     * Device can dispatch touch events (`Touch` / `TouchEvent` constructors
-     * exist). True on hybrid laptops with a touchscreen even when the primary
-     * input is a mouse. Use this for *capability* decisions (e.g. binding
-     * touch handlers); use `hover` to choose between hover vs. tap UX.
+     * Device can dispatch touch events (the `Touch` constructor exists). True
+     * on hybrid laptops with a touchscreen even when the primary input is a
+     * mouse. Use this for *capability* decisions (e.g. binding touch
+     * handlers); use `hover` to choose between hover vs. tap UX.
      */
     touch: touchCapable,
     /** A coarse pointer is available (e.g. touchscreen on a hybrid laptop). */
