@@ -3,7 +3,7 @@
     align-self: stretch;
     background-color: var(--color-content);
     border: 1px solid var(--gray-c2);
-    border-radius: var(--radius-6);
+    border-radius: var(--radius-12);
 
     & code .frame {
       padding-left: 0.75rem;
@@ -35,8 +35,8 @@
     padding-inline-end: 0.25rem;
     height: 2.25rem;
     gap: 1rem;
-    border-top-left-radius: inherit;
-    border-top-right-radius: inherit;
+    border-top-left-radius: calc(var(--radius-12) - 1px);
+    border-top-right-radius: calc(var(--radius-12) - 1px);
     border-bottom: 1px solid var(--gray-c2);
 
     /* Scroll */
@@ -74,8 +74,8 @@
 
   .CodeBlockViewport {
     outline: 0;
-    border-bottom-right-radius: var(--radius-6);
-    border-bottom-left-radius: var(--radius-6);
+    border-bottom-right-radius: calc(var(--radius-12) - 1px);
+    border-bottom-left-radius: calc(var(--radius-12) - 1px);
     overscroll-behavior-x: contain;
 
     &:focus-visible {
@@ -126,7 +126,7 @@
   .CodeBlockPre,
   .CodeBlockRoot .CodeBlockPreInline {
     padding: 0.5rem 0;
-    border-radius: var(--radius-6);
+    border-radius: calc(var(--radius-12) - 1px);
   }
 
   .CodeBlockPreContainer {
