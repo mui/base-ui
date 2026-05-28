@@ -243,6 +243,8 @@
         bottom: 0;
         left: 0;
         right: 0;
+        border-bottom-left-radius: calc(var(--radius-12) - 1px);
+        border-bottom-right-radius: calc(var(--radius-12) - 1px);
         background: linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / 60%));
       }
 
