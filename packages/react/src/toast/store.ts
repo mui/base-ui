@@ -66,6 +66,22 @@ function createToastMetadata(toasts: ToastObject<any>[]) {
   return metadata;
 }
 
+// Marks the active (non-ending) toasts beyond `limit` as limited. Toasts are
+// ordered newest-first, so the newest `limit` toasts stay visible and the rest
+// are flagged. Returns the same toast reference when its `limited` flag is
+// unchanged to avoid unnecessary re-renders.
+function applyLimited(toasts: ToastObject<any>[], limit: number): ToastObject<any>[] {
+  let activeIndex = 0;
+  return toasts.map((toast) => {
+    if (toast.transitionStatus === 'ending') {
+      return toast;
+    }
+    const limited = activeIndex >= limit;
+    activeIndex += 1;
+    return toast.limited === limited ? toast : { ...toast, limited };
+  });
+}
+
 const toastMetadataSelector = (state: State) => state.toastMetadata;
 
 export const selectors = {
@@ -132,6 +148,31 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     this.set('viewport', viewport);
   };
 
+  syncProviderProps(props: Pick<State, 'timeout' | 'limit'>) {
+    const limitChanged = this.state.limit !== props.limit;
+
+    if (this.state.timeout === props.timeout && !limitChanged) {
+      return;
+    }
+
+    const updates: Partial<State> = {
+      timeout: props.timeout,
+      limit: props.limit,
+    };
+
+    if (limitChanged) {
+      const newToasts = applyLimited(this.state.toasts, props.limit);
+      updates.toasts = newToasts;
+      updates.toastMetadata = createToastMetadata(newToasts);
+    }
+
+    this.update(updates);
+  }
+
+  setLimit(limit: number) {
+    this.syncProviderProps({ timeout: this.state.timeout, limit });
+  }
+
   disposeEffect = () => {
     return () => {
       this.timers.forEach((timer) => {
@@ -186,26 +227,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     };
 
     const updatedToasts = [toastToAdd, ...this.state.toasts];
-    const activeToasts = updatedToasts.filter((t) => t.transitionStatus !== 'ending');
-
-    // Mark oldest toasts for removal when over limit
-    if (activeToasts.length > limit) {
-      const excessCount = activeToasts.length - limit;
-      const oldestActiveToasts = activeToasts.slice(-excessCount);
-      const limitedIds = new Set(oldestActiveToasts.map((t) => t.id));
-
-      this.setToasts(
-        updatedToasts.map((t) => {
-          const limited = limitedIds.has(t.id);
-          if (t.limited !== limited) {
-            return { ...t, limited };
-          }
-          return t;
-        }),
-      );
-    } else {
-      this.setToasts(updatedToasts.map((t) => (t.limited ? { ...t, limited: false } : t)));
-    }
+    this.setToasts(applyLimited(updatedToasts, limit));
 
     const duration = toastToAdd.timeout ?? timeout;
     if (toastToAdd.type !== 'loading' && duration > 0) {
@@ -313,19 +335,12 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       }
     }
 
-    let activeIndex = 0;
-    const newToasts = toasts.map((item) => {
-      if (closeAll || item.id === toastId) {
-        return { ...item, transitionStatus: 'ending' as const, height: 0 };
-      }
-      if (item.transitionStatus === 'ending') {
-        return item;
-      }
-
-      const isLimited = activeIndex >= limit;
-      activeIndex += 1;
-      return item.limited !== isLimited ? { ...item, limited: isLimited } : item;
-    });
+    const endingToasts = toasts.map((item) =>
+      closeAll || item.id === toastId
+        ? { ...item, transitionStatus: 'ending' as const, height: 0 }
+        : item,
+    );
+    const newToasts = applyLimited(endingToasts, limit);
 
     const updates: Partial<State> = {
       toasts: newToasts,
@@ -334,6 +349,9 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     if (closeAll || toasts.length === 1) {
       updates.hovering = false;
       updates.focused = false;
+      // No timers remain to keep paused; clear the flag so a fresh toast's
+      // running timer can be paused again on hover/focus.
+      this.areTimersPaused = false;
     }
     this.update(updates);
 

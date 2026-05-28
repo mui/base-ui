@@ -266,10 +266,6 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       return;
     }
 
-    if (event.pointerType === 'touch') {
-      store.pauseTimers();
-    }
-
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
 
     const isInteractiveElement = target
@@ -278,6 +274,12 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
     if (isInteractiveElement) {
       return;
+    }
+
+    // Pause only once we know this is a swipe rather than a tap on an
+    // interactive element, which has no matching resume path.
+    if (event.pointerType === 'touch') {
+      store.pauseTimers();
     }
 
     cancelledSwipeRef.current = false;
@@ -461,9 +463,16 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     function preventDefaultTouchStart(event: TouchEvent) {
-      if (contains(element, getTarget(event) as HTMLElement | null)) {
-        event.preventDefault();
+      if (
+        activePointerIdRef.current === null ||
+        !contains(element, getTarget(event) as HTMLElement | null)
+      ) {
+        return;
       }
+
+      // React's pointermove preventDefault is not enough on iOS; this
+      // non-passive touchmove listener blocks native scrolling while dragging.
+      event.preventDefault();
     }
 
     return addEventListener(element, 'touchmove', preventDefaultTouchStart, { passive: false });

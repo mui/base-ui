@@ -60,7 +60,7 @@ import { Toast } from '@base-ui/react/toast';
 A global toast manager can be created by passing the `toastManager` prop to the `<Toast.Provider>`.
 This enables you to queue a toast from anywhere in the app (such as in functions outside the React tree) while still using the same toast renderer.
 
-The created `toastManager` object has the same properties and methods as the `Toast.useToastManager()` hook.
+The created `toastManager` exposes the same `add`, `close`, `update`, and `promise` methods as the `Toast.useToastManager()` hook. Unlike the hook, it does not return the reactive `toasts` array, since it lives outside the React tree.
 
 ```tsx title="Creating a manager instance"
 const toastManager = Toast.createToastManager();
@@ -148,8 +148,8 @@ The `data-swipe-direction` attribute can be used to determine the swipe directio
 }
 ```
 
-The `data-limited` attribute indicates that the toast was removed from the list due to exceeding the `limit` option.
-This is useful for animating the toast differently when it is removed from the list.
+The `data-limited` attribute indicates that the toast exceeded the `limit` option.
+Limited toasts remain mounted but inert, so this is useful for hiding them or animating them differently.
 
 The `updateKey` property increments when a toast is updated or upserted.
 This can be used to replay attention-grabbing styles by switching animation names or, when remounting is acceptable, by including it in a React `key`.

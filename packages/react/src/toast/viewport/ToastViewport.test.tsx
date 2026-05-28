@@ -469,5 +469,97 @@ describe('<Toast.Viewport />', () => {
 
       expect(screen.queryByTestId('root')).toBe(null);
     });
+
+    it.skipIf(!isJSDOM)(
+      'keeps timers paused on mouseleave while the window is blurred',
+      async () => {
+        const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+
+        await renderFakeTimers(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <List />
+            </Toast.Viewport>
+            <Button />
+          </Toast.Provider>,
+        );
+
+        const button = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(button);
+
+        const root = screen.getByTestId('root');
+
+        const blurListener = [...addEventListenerSpy.mock.calls]
+          .reverse()
+          .find((call) => call[0] === 'blur')?.[1] as EventListener | undefined;
+        addEventListenerSpy.mockRestore();
+
+        if (!blurListener) {
+          throw new Error('Expected window blur listener to be registered.');
+        }
+
+        const blurEvent = new FocusEvent('blur');
+        Object.defineProperty(blurEvent, 'composedPath', { value: () => [window] });
+
+        // Hovering pauses the timer.
+        fireEvent.mouseEnter(root);
+        clock.tick(1000);
+
+        // The window loses focus while still hovering.
+        await act(async () => {
+          blurListener(blurEvent);
+        });
+
+        // Leaving with the pointer must not resume the timer while the window is
+        // blurred, otherwise the toast could expire off-screen.
+        fireEvent.mouseLeave(root);
+        clock.tick(10000);
+
+        expect(screen.queryByTestId('root')).not.toBe(null);
+      },
+    );
+  });
+
+  describe('focus management', () => {
+    const { render: renderFakeTimers, clock } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it.skipIf(!isJSDOM)('skips toasts animating out when tabbing into the viewport', async () => {
+      await renderFakeTimers(
+        <Toast.Provider>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+      fireEvent.click(button); // oldest toast
+      fireEvent.click(button); // newest toast (toasts[0])
+
+      const roots = screen.getAllByTestId('root');
+      const newest = roots[0];
+      const survivor = roots[1];
+
+      // Close the newest toast. It enters the `ending` state and stays mounted
+      // because the exit animation hasn't completed (no clock tick). The close
+      // button is `aria-hidden` until expanded, so query it by attribute.
+      const newestCloseButton = document.querySelectorAll(
+        '[aria-label="close-press"]',
+      )[0] as HTMLElement;
+      fireEvent.click(newestCloseButton);
+
+      // F6 focuses the viewport and renders the focus guards.
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'F6' });
+
+      const viewport = screen.getByTestId('viewport');
+      const guard = document.querySelector('[data-base-ui-focus-guard]') as HTMLElement;
+      fireEvent.focus(guard, { relatedTarget: viewport });
+
+      expect(survivor).toHaveFocus();
+      expect(newest).not.toHaveFocus();
+    });
   });
 });

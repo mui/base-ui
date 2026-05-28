@@ -141,9 +141,13 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
     handlingFocusGuardRef.current = true;
 
-    // If we're coming off the container, move to the first toast
+    // If we're coming off the container, move to the first toast that can hold
+    // focus, skipping toasts that are animating out or inert because they're limited.
     if (event.relatedTarget === viewport) {
-      toasts[0]?.ref?.current?.focus();
+      const firstFocusableToast = toasts.find(
+        (toast) => toast.transitionStatus !== 'ending' && !toast.limited,
+      );
+      firstFocusableToast?.ref?.current?.focus();
     } else {
       store.restoreFocusToPrevElement();
     }
@@ -189,13 +193,19 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     markedReadyForMouseLeaveRef.current = false;
   }
 
+  function resumeTimersIfWindowFocused() {
+    if (store.state.isWindowFocused) {
+      store.resumeTimers();
+    }
+  }
+
   function handleMouseLeave() {
     if (hasTransitioningToasts || touchActiveRef.current) {
       // When swiping to dismiss, wait until the transitions have settled
       // or the touch interaction ends to avoid collapsing mid-gesture.
       markedReadyForMouseLeaveRef.current = true;
     } else {
-      store.resumeTimers();
+      resumeTimersIfWindowFocused();
       store.setHovering(false);
     }
   }
@@ -240,7 +250,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     store.setFocused(false);
-    store.resumeTimers();
+    resumeTimersIfWindowFocused();
   }
 
   const defaultProps: HTMLProps = {

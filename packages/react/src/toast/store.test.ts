@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ToastStore, selectors } from './store';
 import type { ToastObject } from './useToastManager';
 
@@ -61,5 +61,50 @@ describe('ToastStore', () => {
     store.addToast({ id: 'front', title: 'Front', timeout: 0 });
 
     expectToastMetadataToMatchToasts(store);
+  });
+
+  describe('limit', () => {
+    it('recomputes limited flags when the limit changes', () => {
+      // Ordered newest-first, matching how `addToast` prepends.
+      const store = createStore([{ id: 'c' }, { id: 'b' }, { id: 'a' }]);
+
+      store.setLimit(1);
+      expect(selectors.toast(store.state, 'c')?.limited).toBe(false);
+      expect(selectors.toast(store.state, 'b')?.limited).toBe(true);
+      expect(selectors.toast(store.state, 'a')?.limited).toBe(true);
+
+      store.setLimit(3);
+      expect(selectors.toast(store.state, 'c')?.limited).toBe(false);
+      expect(selectors.toast(store.state, 'b')?.limited).toBe(false);
+      expect(selectors.toast(store.state, 'a')?.limited).toBe(false);
+    });
+  });
+
+  describe('timer pausing', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('re-pauses timers after the last toast is closed and a new one is added', () => {
+      vi.useFakeTimers();
+      const store = createStore([]);
+
+      // Add a toast with a running timer, then pause it (as a hover would).
+      store.addToast({ title: 'a', timeout: 100 });
+      store.pauseTimers();
+
+      // Closing the last toast must clear the internal "paused" flag, otherwise
+      // the next toast's timer can never be paused again.
+      store.closeToast(store.state.toasts[0].id);
+
+      store.addToast({ title: 'b', timeout: 100 });
+      const newToastId = store.state.toasts[0].id;
+
+      // Hovering again should pause the new toast's timer.
+      store.pauseTimers();
+      vi.advanceTimersByTime(200);
+
+      expect(selectors.toast(store.state, newToastId)?.transitionStatus).not.toBe('ending');
+    });
   });
 });
