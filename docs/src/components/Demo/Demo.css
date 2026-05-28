@@ -200,7 +200,7 @@
       .DemoCollapseButton {
         position: absolute;
         left: 50%;
-        bottom: 0.75rem;
+        bottom: 0.5rem;
         transform: translateX(-50%);
       }
     }
@@ -208,10 +208,9 @@
     &[data-open] {
       .DemoCollapseButton {
         position: sticky;
-        bottom: 0.75rem;
+        bottom: 0.5rem;
         align-self: center;
-        margin-top: -2.25rem;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
       }
     }
 
