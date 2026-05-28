@@ -71,6 +71,45 @@ describe('<Accordion.Panel />', () => {
     });
   });
 
+  it('passes root keepMounted to closed panels', async () => {
+    await render(
+      <Accordion.Root keepMounted>
+        <Accordion.Item value={0}>
+          <Accordion.Header>
+            <Accordion.Trigger>Trigger</Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel>{PANEL_CONTENT}</Accordion.Panel>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+
+    expect(screen.getByText(PANEL_CONTENT)).toHaveAttribute('hidden');
+  });
+
+  it('passes root hiddenUntilFound to closed panels and allows panel overrides', async () => {
+    await render(
+      <Accordion.Root hiddenUntilFound keepMounted>
+        <Accordion.Item value={0}>
+          <Accordion.Header>
+            <Accordion.Trigger>Trigger 1</Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel>{PANEL_CONTENT}</Accordion.Panel>
+        </Accordion.Item>
+        <Accordion.Item value={1}>
+          <Accordion.Header>
+            <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel hiddenUntilFound={false} keepMounted={false}>
+            Overridden panel
+          </Accordion.Panel>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+
+    expect(screen.getByText(PANEL_CONTENT).getAttribute('hidden')).toBe('until-found');
+    expect(screen.queryByText('Overridden panel')).toBe(null);
+  });
+
   describe.skipIf(isJSDOM)('CSS transitions', () => {
     it('keeps the closing panel visible until its exit transition completes when switching items', async () => {
       const { user } = await render(

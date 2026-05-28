@@ -60,6 +60,30 @@ describe('<RadioGroup />', () => {
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.results[0]?.value.event.shiftKey).toBe(true);
     });
+
+    it('should select an item with Space on keyup', async () => {
+      const handleChange = vi.fn();
+      const { user } = await render(
+        <RadioGroup onValueChange={handleChange}>
+          <Radio.Root value="a" data-testid="item" />
+        </RadioGroup>,
+      );
+
+      const item = screen.getByTestId('item');
+
+      act(() => {
+        item.focus();
+      });
+
+      await user.keyboard('[Space>]');
+
+      expect(handleChange).not.toHaveBeenCalled();
+
+      await user.keyboard('[/Space]');
+
+      expect(handleChange).toHaveBeenCalledOnce();
+      expect(handleChange).toHaveBeenLastCalledWith('a', expect.anything());
+    });
   });
 
   describe('prop: disabled', () => {

@@ -2314,6 +2314,45 @@ describe('<Menu.Root />', () => {
           expect(screen.queryByRole('menu')).toBe(null);
         });
       });
+
+      it('unmounts on a later normal close after a preventUnmountOnClose cycle and reopen', async () => {
+        let preventNextUnmount = true;
+        const { user } = await render(
+          <TestMenu
+            rootProps={{
+              onOpenChange: (open, details) => {
+                if (!open && preventNextUnmount) {
+                  preventNextUnmount = false;
+                  details.preventUnmountOnClose();
+                }
+              },
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).not.toBe(null);
+        });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(trigger).not.toHaveAttribute('data-popup-open');
+        });
+        expect(screen.queryByRole('menu')).not.toBe(null);
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('data-popup-open');
+        });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('menu')).toBe(null);
+        });
+      });
     });
   });
 

@@ -30,7 +30,7 @@ import {
 } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { DEFAULT_STEP } from '../utils/constants';
-import { toValidatedNumber } from '../utils/validate';
+import { hasNumberFormatRoundingOptions, toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
 import {
@@ -250,7 +250,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         (isInputReason && (unvalidatedValue !== value || allowInputSyncRef.current === false));
 
       if (shouldFireChange) {
-        lastChangedValueRef.current = validatedValue;
         onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
@@ -261,6 +260,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         setDirty(validatedValue !== validityData.initialValue);
         hasPendingCommitRef.current = true;
       }
+
+      lastChangedValueRef.current = validatedValue;
 
       // Keep the visible input in sync immediately when programmatic changes occur
       // (increment/decrement, wheel, etc). During direct typing we don't want
@@ -698,9 +699,7 @@ function getControlledInputValue(
   locale: Intl.LocalesArgument,
   format: Intl.NumberFormatOptions | undefined,
 ) {
-  const explicitPrecision =
-    format?.maximumFractionDigits != null || format?.minimumFractionDigits != null;
-  return explicitPrecision
+  return hasNumberFormatRoundingOptions(format)
     ? formatNumber(value, locale, format)
     : formatNumberMaxPrecision(value, locale, format);
 }
