@@ -233,6 +233,12 @@
     --header-height: 3rem;
   }
 
+  @media (--lg) {
+    :root {
+      --header-height: 5.125rem;
+    }
+  }
+
   /* ═══ Dark mode overrides ═══ */
 
   @media (prefers-color-scheme: dark) {

@@ -28,6 +28,62 @@
     }
   }
 
+  .SearchTrigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    height: var(--space-32);
+    width: fit-content;
+    padding: 0.25rem 0.5rem;
+    margin: -0.25rem -0.5rem;
+    border: 0;
+    border-radius: var(--radius-6);
+    background: transparent;
+    font: inherit;
+    font-size: var(--font-size-15);
+    line-height: 1.375rem;
+    color: currentColor;
+    text-align: left;
+    -webkit-user-select: none;
+    user-select: none;
+    outline: 0;
+
+    @media not (hover: hover) {
+      &:active {
+        color: var(--gray-p1);
+        background-color: var(--gray-c1);
+      }
+    }
+  }
+
+  .SearchTriggerShortcut {
+    color: var(--gray-t1);
+  }
+
+  .SearchTrigger kbd {
+    font: inherit;
+  }
+
+  @media (hover: hover) {
+    .SearchTrigger:hover {
+      background-color: var(--gray-c1);
+    }
+  }
+
+  .SearchTrigger:focus-visible {
+    z-index: 1;
+    outline: 2px solid var(--gray-t2);
+    outline-offset: -2px;
+  }
+
+  .SearchTrigger[data-disabled] {
+    color: var(--gray-p1);
+    cursor: default;
+  }
+
+  .SearchTrigger[data-disabled]:hover {
+    background-color: transparent;
+  }
   .SearchBreadcrumbPart {
     display: flex;
     height: 100%;

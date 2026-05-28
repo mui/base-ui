@@ -19,6 +19,7 @@
 
     @media (--show-side-nav) {
       grid-column: 3 / 9;
+      padding-top: 0;
     }
 
     @media (--xl) {
@@ -64,7 +65,6 @@
 
   .QuickNavViewport {
     max-height: calc(100dvh - var(--header-height));
-    padding-top: 0.75rem;
     padding-right: var(--quick-nav-scrollbar-width);
     padding-bottom: 0.75rem;
     padding-left: 0;

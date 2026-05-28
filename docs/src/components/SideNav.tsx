@@ -5,7 +5,7 @@ import NextLink from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import scrollIntoView from 'scroll-into-view-if-needed';
-import { HEADER_HEIGHT } from './Header';
+import { DESKTOP_HEADER_HEIGHT } from './Header';
 import './SideNav.css';
 
 export function Root(props: React.ComponentProps<'div'>) {
@@ -62,7 +62,7 @@ export function Item(props: ItemProps) {
   React.useEffect(() => {
     if (ref.current && active) {
       const scrollMargin = (SCROLL_MARGIN * rem.current) / 16;
-      const headerHeight = (HEADER_HEIGHT * rem.current) / 16;
+      const headerHeight = (DESKTOP_HEADER_HEIGHT * rem.current) / 16;
       const viewport = document.querySelector('[data-side-nav-viewport]');
 
       if (!viewport) {

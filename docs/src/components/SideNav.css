@@ -30,7 +30,7 @@
 
   .SideNavViewport {
     max-height: calc(100dvh - var(--header-height));
-    padding: 0.75rem 1.5rem 0.75rem 0;
+    padding: 0 1.5rem 0.75rem 0;
 
     /* Scroll containers are focusable */
     outline: 0;
@@ -41,7 +41,7 @@
       pointer-events: none;
       position: absolute;
       outline: 2px solid var(--gray-t2);
-      outline-offset: -2px;
+      outline-offset: 2px;
       /* Don't inset the outline on the right */
       right: -2px;
     }
@@ -109,6 +109,10 @@
     border-radius: var(--radius-6);
     -webkit-user-select: none;
     user-select: none;
+
+    @media (--show-side-nav) {
+      max-width: 10rem;
+    }
 
     @media (hover: hover) {
       &:hover {

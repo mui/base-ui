@@ -14,10 +14,11 @@
     &:focus-visible {
       clip: auto;
       clip-path: none;
-      height: var(--header-height);
+      height: calc(var(--header-height) - 1px);
       overflow: visible;
       width: auto;
       white-space: normal;
+      top: 1px;
       left: 0;
       z-index: 1;
       display: inline-flex;
