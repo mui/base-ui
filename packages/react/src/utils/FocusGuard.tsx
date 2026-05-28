@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { platform } from '@base-ui/utils/platform';
+import * as platform from '@base-ui/utils/platform';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 
 /**

@@ -6,7 +6,7 @@ import { Field } from '@base-ui/react/field';
 import { Slider } from '@base-ui/react/slider';
 import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { platform } from '@base-ui/utils/platform';
+import * as platform from '@base-ui/utils/platform';
 import { REASONS } from '../../internals/reasons';
 import {
   ARROW_RIGHT,

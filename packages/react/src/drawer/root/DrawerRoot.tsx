@@ -4,7 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
-import { platform } from '@base-ui/utils/platform';
+import * as platform from '@base-ui/utils/platform';
 import { useId } from '@base-ui/utils/useId';
 import {
   DrawerRootContext,

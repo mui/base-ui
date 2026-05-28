@@ -80,70 +80,85 @@ const voiceOver = (mac || ios) && webkit;
 const jsdom = /jsdom|HappyDOM/i.test(data.userAgent);
 
 /**
- * Platform-detection flags grouped by category. SSR-safe — every flag is
- * `false` when `navigator` is undefined, except `pointer.hover`, which
- * defaults to `true` (assume desktop).
+ * Platform-detection flags. SSR-safe — every flag is `false` when `navigator`
+ * is undefined, except `pointer.hover`, which defaults to `true` (assume
+ * desktop).
  *
- * Pick the most precise group for the quirk you're patching:
+ * Import as a namespace and pick the most precise group for the quirk:
+ *
+ * ```ts
+ * import * as platform from '@base-ui/utils/platform';
+ * if (platform.os.mac) { ... }
+ * if (platform.engine.webkit) { ... }
+ * ```
+ *
  *   - `os.*` for OS-specific behavior (keyboard shortcuts, native menus).
  *   - `engine.*` for rendering-engine bugs (CSS, layout, focus).
  *   - `pointer.*` for input-modality assumptions.
  *   - `screenReader.*` for AT-specific accessibility workarounds.
  *   - `env.*` for test-environment gating.
  */
-export const platform = {
-  os: {
-    /** macOS desktop. Excludes iPadOS, which reports as `MacIntel`. */
-    mac,
-    /** iPhone, iPad (including iPadOS 13+ reporting as macOS), iPod. */
-    ios,
-    /** Android phones, tablets, and embedded Android browsers. */
-    android,
-    /** Windows desktop. */
-    windows,
-    /** Linux desktop (including Chrome OS). */
-    linux,
-    /** Any Apple OS (`mac || ios`). */
-    apple: mac || ios,
-  },
-  engine: {
-    /** WebKit: Safari, all iOS browsers, GNOME Web. Excludes Blink. */
-    webkit,
-    /** Blink: Chrome, Edge, Opera, Brave, and other Chromium-based browsers. */
-    blink,
-    /** Gecko: Firefox. */
-    gecko,
-  },
-  pointer: {
-    /**
-     * Device has hover capability — true on desktops and hybrid laptops with
-     * a mouse, false on touch-only devices like phones. Derived from
-     * `(hover: none)`. Use this for *modality* decisions (e.g. hover vs. tap
-     * UX). Defaults to `true` in SSR (assume desktop).
-     */
-    hover: !noHover,
-    /**
-     * Device can dispatch touch events (the `Touch` constructor exists). True
-     * on hybrid laptops with a touchscreen even when the primary input is a
-     * mouse. Use this for *capability* decisions (e.g. binding touch
-     * handlers); use `hover` to choose between hover vs. tap UX.
-     */
-    touch: touchCapable,
-    /** A coarse pointer is available (e.g. touchscreen on a hybrid laptop). */
-    coarse: coarsePointer,
-  },
-  screenReader: {
-    /**
-     * The user *may* be using VoiceOver — actual activation is not
-     * detectable. True on Apple platforms running WebKit, where VoiceOver's
-     * virtual-cursor / NSAccessibility focus quirks apply.
-     */
-    voiceOver,
-  },
-  env: {
-    /** Running in jsdom or HappyDOM (used by unit tests). */
-    jsdom,
-  },
+
+/** Operating system. */
+export const os = {
+  /** macOS desktop. Excludes iPadOS, which reports as `MacIntel`. */
+  mac,
+  /** iPhone, iPad (including iPadOS 13+ reporting as macOS), iPod. */
+  ios,
+  /** Android phones, tablets, and embedded Android browsers. */
+  android,
+  /** Windows desktop. */
+  windows,
+  /** Linux desktop (including Chrome OS). */
+  linux,
+  /** Any Apple OS (`mac || ios`). */
+  apple: mac || ios,
+} as const;
+
+/** Rendering engine. */
+export const engine = {
+  /** WebKit: Safari, all iOS browsers, GNOME Web. Excludes Blink. */
+  webkit,
+  /** Blink: Chrome, Edge, Opera, Brave, and other Chromium-based browsers. */
+  blink,
+  /** Gecko: Firefox. */
+  gecko,
+} as const;
+
+/** Pointer / input modality. */
+export const pointer = {
+  /**
+   * Device has hover capability — true on desktops and hybrid laptops with
+   * a mouse, false on touch-only devices like phones. Derived from
+   * `(hover: none)`. Use this for *modality* decisions (e.g. hover vs. tap
+   * UX). Defaults to `true` in SSR (assume desktop).
+   */
+  hover: !noHover,
+  /**
+   * Device can dispatch touch events (the `Touch` constructor exists). True
+   * on hybrid laptops with a touchscreen even when the primary input is a
+   * mouse. Use this for *capability* decisions (e.g. binding touch
+   * handlers); use `hover` to choose between hover vs. tap UX.
+   */
+  touch: touchCapable,
+  /** A coarse pointer is available (e.g. touchscreen on a hybrid laptop). */
+  coarse: coarsePointer,
+} as const;
+
+/** Screen-reader environment. */
+export const screenReader = {
+  /**
+   * The user *may* be using VoiceOver — actual activation is not
+   * detectable. True on Apple platforms running WebKit, where VoiceOver's
+   * virtual-cursor / NSAccessibility focus quirks apply.
+   */
+  voiceOver,
+} as const;
+
+/** Runtime environment. */
+export const env = {
+  /** Running in jsdom or HappyDOM (used by unit tests). */
+  jsdom,
 } as const;
 
 /**

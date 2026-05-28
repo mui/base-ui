@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { rectToClientRect } from '@floating-ui/utils';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { platform } from '@base-ui/utils/platform';
+import * as platform from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';

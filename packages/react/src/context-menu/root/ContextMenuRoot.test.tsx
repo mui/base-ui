@@ -17,10 +17,7 @@ vi.mock('@base-ui/utils/platform', async () => {
 
   return {
     ...actual,
-    platform: {
-      ...actual.platform,
-      os: { ...actual.platform.os, mac: true, apple: true },
-    },
+    os: { ...actual.os, mac: true, apple: true },
   };
 });
 

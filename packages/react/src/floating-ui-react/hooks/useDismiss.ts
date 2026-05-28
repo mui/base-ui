@@ -14,7 +14,7 @@ import {
   isLastTraversableNode,
   isShadowRoot,
 } from '@floating-ui/utils/dom';
-import { platform } from '@base-ui/utils/platform';
+import * as platform from '@base-ui/utils/platform';
 import { useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';

@@ -11,10 +11,7 @@ vi.mock('@base-ui/utils/platform', async () => {
     await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
   return {
     ...actual,
-    platform: {
-      ...actual.platform,
-      os: { ...actual.platform.os, android: true },
-    },
+    os: { ...actual.os, android: true },
   };
 });
 

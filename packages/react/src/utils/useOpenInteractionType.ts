@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { InteractionType, useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
-import { platform } from '@base-ui/utils/platform';
+import * as platform from '@base-ui/utils/platform';
 import { useValueChanged } from '../internals/useValueChanged';
 
 export function useOpenMethodTriggerProps(

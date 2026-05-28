@@ -1,7 +1,7 @@
 'use client';
 import { isOverflowElement } from '@floating-ui/utils/dom';
 import { addEventListener } from './addEventListener';
-import { platform } from './platform';
+import * as platform from './platform';
 import { ownerDocument, ownerWindow } from './owner';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
 import { Timeout } from './useTimeout';
