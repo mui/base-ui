@@ -10,4 +10,8 @@
     margin-bottom: 1.5rem;
     gap: var(--space-12);
   }
+
+  .MdH1 + .Subtitle {
+    margin-top: -0.75rem;
+  }
 }
