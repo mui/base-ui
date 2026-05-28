@@ -12,6 +12,7 @@ interface RawNavigatorData {
 
 const data = readRawData();
 const lowerPlatform = data.platform.toLowerCase();
+const hasWindow = typeof window !== 'undefined';
 
 // --- Operating system --------------------------------------------------------
 
@@ -60,7 +61,7 @@ const coarsePointer = matchMedia('(pointer: coarse)');
 // a mouse and a touchscreen.
 // Independent of `noHover`.
 /* eslint-disable-next-line compat/compat */
-const touchCapable = typeof window !== 'undefined' && typeof window.Touch !== 'undefined';
+const touchCapable = hasWindow && typeof window.Touch !== 'undefined';
 
 // --- Screen reader -----------------------------------------------------------
 
@@ -181,5 +182,5 @@ function readRawData(): RawNavigatorData {
 }
 
 function matchMedia(query: string): boolean {
-  return typeof window !== 'undefined' && !!window.matchMedia?.(query).matches;
+  return hasWindow && !!window.matchMedia?.(query).matches;
 }
