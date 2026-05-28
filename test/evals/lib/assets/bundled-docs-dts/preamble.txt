@@ -1,0 +1,18 @@
+/**
+ * @packageDocumentation
+ *
+ * Base UI — a library of unstyled, accessible React components.
+ *
+ * The installed package bundles its full markdown documentation under
+ * `node_modules/@base-ui/react/docs/react/`. Coding agents should consult
+ * those files when composing components, since composition rules and
+ * accessibility wiring are not always expressible in TypeScript:
+ *
+ * - `docs/react/components/<component>.md` — per-component reference,
+ *   including the canonical Anatomy block (supported nesting of parts).
+ * - `docs/react/handbook/<topic>.md` — cross-cutting topics (animation,
+ *   composition, forms, styling, typescript, customization).
+ * - `docs/react/overview/<topic>.md` — package overview and conventions.
+ *
+ * Visit https://base-ui.com for the same content with live examples.
+ */

@@ -12,9 +12,21 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { AgentType, SetupFunction } from '@vercel/agent-eval';
+import type { AgentType, Sandbox, SetupFunction } from '@vercel/agent-eval';
 
-export type Mechanism = 'baseline' | 'agents-md' | 'skill' | 'bundled-docs' | 'mcp';
+export type Mechanism =
+  | 'baseline'
+  | 'agents-md'
+  | 'skill'
+  | 'bundled-docs'
+  | 'mcp'
+  // Discoverability ablation: docs in node_modules + a single pointer telling
+  // the agent the docs are there. Each layers one pointer on top of the
+  // bundled-docs setup so we can measure each pointer's marginal value.
+  | 'bundled-docs-readme'
+  | 'bundled-docs-dts'
+  | 'bundled-docs-agents-md'
+  | 'bundled-docs-skill';
 
 const ASSETS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'assets');
 
@@ -59,19 +71,57 @@ export function getMechanismSetup(agent: AgentType, mechanism: Mechanism): Setup
       };
 
     case 'bundled-docs':
-      // PR #4761 ships the docs/ markdown inside @base-ui/react's package.
-      // pack.ts emits the docs as a separate `.docs-overlay.tar` rather than
-      // bloating every fixture's `.deps.tar`; here we layer it onto the
-      // already-populated `node_modules/@base-ui/react/docs/`. The rehydrate
-      // wrapper deletes the tarball after this runs.
       return async (sandbox) => {
-        const result = await sandbox.runCommand('tar', ['-xf', '.docs-overlay.tar']);
+        await extractDocsOverlay(sandbox);
+      };
+
+    case 'bundled-docs-readme':
+      return async (sandbox) => {
+        await extractDocsOverlay(sandbox);
+        // Overwrite the package README with one that mentions docs/.
+        await sandbox.writeFiles({
+          'node_modules/@base-ui/react/README.md': asset('bundled-docs-readme/README.md'),
+        });
+      };
+
+    case 'bundled-docs-dts':
+      return async (sandbox) => {
+        await extractDocsOverlay(sandbox);
+        // Prepend a JSDoc @packageDocumentation block to the package's main
+        // .d.ts so an agent reading types lands on the docs-location hint.
+        const preamble = asset('bundled-docs-dts/preamble.txt');
+        await sandbox.writeFiles({ '.docs-preamble.txt': preamble });
+        const result = await sandbox.runCommand('bash', [
+          '-c',
+          'cat .docs-preamble.txt node_modules/@base-ui/react/index.d.ts ' +
+            '> node_modules/@base-ui/react/index.d.ts.new && ' +
+            'mv node_modules/@base-ui/react/index.d.ts.new ' +
+            'node_modules/@base-ui/react/index.d.ts && ' +
+            'rm .docs-preamble.txt',
+        ]);
         if (result.exitCode !== 0) {
           throw new Error(
-            'bundled-docs setup: failed to extract .docs-overlay.tar ' +
+            'bundled-docs-dts setup: failed to prepend preamble ' +
               `(exit ${result.exitCode}):\n${result.stdout}\n${result.stderr}`,
           );
         }
+      };
+
+    case 'bundled-docs-agents-md':
+      return async (sandbox) => {
+        await extractDocsOverlay(sandbox);
+        await sandbox.writeFiles({
+          'AGENTS.md': asset('bundled-docs-agents-md/AGENTS.md'),
+          'CLAUDE.md': '@AGENTS.md\n',
+        });
+      };
+
+    case 'bundled-docs-skill':
+      return async (sandbox) => {
+        await extractDocsOverlay(sandbox);
+        await sandbox.writeFiles({
+          '.claude/skills/base-ui/SKILL.md': asset('bundled-docs-skill/SKILL.md'),
+        });
       };
 
     case 'mcp':
@@ -83,5 +133,22 @@ export function getMechanismSetup(agent: AgentType, mechanism: Mechanism): Setup
       const exhaustive: never = mechanism;
       throw new Error(`Unknown mechanism: ${exhaustive}`);
     }
+  }
+}
+
+/**
+ * Layer the docs overlay onto the already-rehydrated node_modules. PR #4761
+ * ships docs/*.md inside @base-ui/react's published tarball; we emit those as
+ * a separate `.docs-overlay.tar` (rather than fattening every fixture's
+ * `.deps.tar`) so only mechanisms that opt in pay for them. The `rehydrate`
+ * wrapper deletes the tarball after the mechanism setup runs.
+ */
+async function extractDocsOverlay(sandbox: Sandbox): Promise<void> {
+  const result = await sandbox.runCommand('tar', ['-xf', '.docs-overlay.tar']);
+  if (result.exitCode !== 0) {
+    throw new Error(
+      'bundled-docs setup: failed to extract .docs-overlay.tar ' +
+        `(exit ${result.exitCode}):\n${result.stdout}\n${result.stderr}`,
+    );
   }
 }

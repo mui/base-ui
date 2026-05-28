@@ -213,13 +213,20 @@ async function bakeVariant({
   evalName,
   reactBuildSrc,
   utilsBuildSrc,
-  docsOverlayTar,
+  docsStagedDir,
+  sharedDocsOverlayTar,
 }: {
   evalName: string;
   reactBuildSrc: string;
   utilsBuildSrc: string;
-  /** Path to a tarball whose contents extract to `node_modules/@base-ui/react/docs/...`. */
-  docsOverlayTar: string;
+  /**
+   * Per-variant docs staging is rooted here when the variant's patch
+   * declares `patchDocs`. We `cp` from this shared dir, apply the patch on
+   * the copy, then `tar` the copy as the fixture's `.docs-overlay.tar`.
+   */
+  docsStagedDir: string;
+  /** Reused for fixtures whose patch doesn't customize docs. */
+  sharedDocsOverlayTar: string;
 }): Promise<void> {
   const stage = mkdtempSync(join(tmpdir(), `eval-${evalName}-`));
   const patchedReact = join(stage, 'react-build');
@@ -322,9 +329,22 @@ async function bakeVariant({
       cwd: consumer,
       stdio: 'pipe',
     });
-    // The docs overlay is identical for every variant (markdown is unaffected
-    // by the synthetic patches), so we copy a single pre-built tarball in.
-    cpSync(docsOverlayTar, join(fixtureDir, '.docs-overlay.tar'));
+
+    // Docs overlay: if the variant's patch customizes docs, take a private
+    // copy of the staged docs, apply `patchDocs`, and tar that. Otherwise
+    // reuse the shared overlay tarball untouched.
+    const fixtureOverlayPath = join(fixtureDir, '.docs-overlay.tar');
+    if (patch?.patchDocs) {
+      const variantDocsDir = join(stage, 'docs');
+      cpSync(docsStagedDir, variantDocsDir, { recursive: true });
+      patch.patchDocs(variantDocsDir);
+      execSync(`tar -cf "${fixtureOverlayPath}" node_modules`, {
+        cwd: variantDocsDir,
+        stdio: 'pipe',
+      });
+    } else {
+      copyFileSync(sharedDocsOverlayTar, fixtureOverlayPath);
+    }
   } finally {
     await registry.close();
     rmSync(stage, { recursive: true, force: true });
@@ -337,7 +357,7 @@ async function main(): Promise<void> {
   const sharedStage = mkdtempSync(join(tmpdir(), 'eval-build-'));
   const reactBuildSrc = join(sharedStage, 'react-build');
   const utilsBuildSrc = join(sharedStage, 'utils-build');
-  const docsOverlayTar = join(sharedStage, 'docs-overlay.tar');
+  const sharedDocsOverlayTar = join(sharedStage, 'docs-overlay.tar');
 
   try {
     if (args.skipBuild) {
@@ -381,10 +401,13 @@ async function main(): Promise<void> {
       mkdirSync(dirname(dest), { recursive: true });
       copyFileSync(join(DOCS_PUBLIC, relativePath), dest);
     }
-    execSync(`tar -cf "${docsOverlayTar}" node_modules`, {
+    execSync(`tar -cf "${sharedDocsOverlayTar}" node_modules`, {
       cwd: overlayRoot,
       stdio: 'pipe',
     });
+    // `overlayRoot` doubles as the per-eval docs staging source: a patch that
+    // declares `patchDocs` clones from here, mutates the clone, and tars it.
+    const docsStagedDir = overlayRoot;
 
     const allEvalNames = readdirSync(EVALS_ROOT, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
@@ -406,7 +429,13 @@ async function main(): Promise<void> {
       evalNames.map((evalName) =>
         limit(async () => {
           const t0 = Date.now();
-          await bakeVariant({ evalName, reactBuildSrc, utilsBuildSrc, docsOverlayTar });
+          await bakeVariant({
+            evalName,
+            reactBuildSrc,
+            utilsBuildSrc,
+            docsStagedDir,
+            sharedDocsOverlayTar,
+          });
           const seconds = ((Date.now() - t0) / 1000).toFixed(1);
           console.log(`  ✓ ${evalName} (${seconds}s)`);
         }),

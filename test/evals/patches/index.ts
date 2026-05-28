@@ -10,16 +10,30 @@
  * Evals with no entry here install the unpatched package.
  */
 import * as breakingChange from './breaking-change.js';
+import * as docsOnlyComposition from './docs-only-composition.js';
 import * as newComponent from './new-component.js';
 import * as newProp from './new-prop.js';
 
 export interface Patch {
   /** Mutate built packages. Keys are workspace package names, values are build dirs. */
   apply(builtPackages: Record<string, string>): void;
+  /**
+   * Mutate the staged bundled-docs tree before it's tarred into this eval's
+   * `.docs-overlay.tar`. The `stagedDocsDir` is a per-variant copy of the
+   * shared docs root (i.e. files live under
+   * `<stagedDocsDir>/node_modules/@base-ui/react/docs/react/...`).
+   *
+   * Only set this when the eval needs synthetic docs that aren't in the
+   * real `docs/public/` tree (e.g. a fictional part whose placement rule
+   * lives only in docs). Patches without this hook reuse the shared,
+   * unpatched docs overlay.
+   */
+  patchDocs?(stagedDocsDir: string): void;
 }
 
 export const patches: Record<string, Patch> = {
   'new-component': newComponent,
   'breaking-change': breakingChange,
   'new-prop': newProp,
+  'docs-only-composition': docsOnlyComposition,
 };
