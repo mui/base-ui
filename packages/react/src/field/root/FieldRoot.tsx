@@ -130,7 +130,6 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalid,
     markedDirtyRef,
     state,
-    name: effectiveName,
     shouldValidateOnChange,
     getRegisteredFieldId,
   });
