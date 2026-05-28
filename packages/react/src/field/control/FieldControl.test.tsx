@@ -69,7 +69,7 @@ describe('<Field.Control />', () => {
     fireEvent.change(control, { target: { value: '' } });
 
     expect(control).toHaveAttribute('aria-invalid', 'true');
-    expect(screen.getByText('Required')).not.toBe(null);
+    expect(screen.getByText('Required')).toBeInTheDocument();
   });
 
   it.skipIf(isJSDOM)('should sync focused state when autoFocus is used with SSR', async () => {
