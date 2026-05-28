@@ -169,10 +169,6 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     this.update(updates);
   }
 
-  setLimit(limit: number) {
-    this.syncProviderProps({ timeout: this.state.timeout, limit });
-  }
-
   disposeEffect = () => {
     return () => {
       this.timers.forEach((timer) => {
@@ -329,8 +325,8 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       }
       toastsToClose = [toast];
       const timer = this.timers.get(toastId);
-      if (timer?.timeout) {
-        timer.timeout.clear();
+      if (timer) {
+        timer.timeout?.clear();
         this.timers.delete(toastId);
       }
     }
