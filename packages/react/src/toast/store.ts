@@ -282,9 +282,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const wasLoading = prevToast?.type === 'loading';
 
     if (!shouldHaveTimer && hasTimer) {
-      const timer = this.timers.get(id);
-      timer?.timeout?.clear();
-      this.timers.delete(id);
+      this.clearTimer(id);
       return;
     }
 
@@ -293,11 +291,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       shouldHaveTimer &&
       (!hasTimer || timeoutChanged || timeoutUpdated || wasLoading || behavior.resetTimer)
     ) {
-      const timer = this.timers.get(id);
-      if (timer) {
-        timer.timeout?.clear();
-        this.timers.delete(id);
-      }
+      this.clearTimer(id);
 
       this.scheduleTimer(id, nextTimeout, () => this.closeToast(id));
 
@@ -314,21 +308,14 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
     if (closeAll) {
       toastsToClose = toasts;
-      this.timers.forEach((timer) => {
-        timer.timeout?.clear();
-      });
-      this.timers.clear();
+      this.clearTimers();
     } else {
       const toast = selectors.toast(this.state, toastId);
       if (!toast) {
         return;
       }
       toastsToClose = [toast];
-      const timer = this.timers.get(toastId);
-      if (timer) {
-        timer.timeout?.clear();
-        this.timers.delete(toastId);
-      }
+      this.clearTimer(toastId);
     }
 
     const endingToasts = toasts.map((item) =>
@@ -346,11 +333,6 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     if (!hasActiveToasts) {
       updates.hovering = false;
       updates.focused = false;
-    }
-    if (this.timers.size === 0) {
-      // No timers remain to keep paused; clear the flag so a fresh toast's
-      // running timer can be paused again on hover/focus.
-      this.areTimersPaused = false;
     }
     this.update(updates);
 
@@ -471,6 +453,26 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       remaining: delay,
       callback,
     });
+  }
+
+  private clearTimers() {
+    this.timers.forEach((timer) => {
+      timer.timeout?.clear();
+    });
+    this.timers.clear();
+    this.areTimersPaused = false;
+  }
+
+  private clearTimer(id: string) {
+    const timer = this.timers.get(id);
+    timer?.timeout?.clear();
+    this.timers.delete(id);
+
+    if (this.timers.size === 0) {
+      // No timers remain to keep paused; clear the flag so a fresh toast's
+      // running timer can be paused again on hover/focus.
+      this.areTimersPaused = false;
+    }
   }
 
   private setToasts(newToasts: ToastObject<any>[]) {

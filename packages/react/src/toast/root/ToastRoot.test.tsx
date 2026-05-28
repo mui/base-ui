@@ -560,6 +560,42 @@ describe('<Toast.Root />', () => {
       expect(screen.queryByTestId('toast-root')).not.toBe(null);
     });
 
+    it('prevents native touchmove only during an active touch swipe', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={toast} data-testid="toast-root" swipeDirection="up">
+              <Toast.Title>{toast.title}</Toast.Title>
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const toastElement = screen.getByTestId('toast-root');
+      Object.defineProperty(toastElement, 'setPointerCapture', {
+        value: () => {},
+        configurable: true,
+      });
+
+      const beforeSwipeEvent = new Event('touchmove', { bubbles: true, cancelable: true });
+      toastElement.dispatchEvent(beforeSwipeEvent);
+      expect(beforeSwipeEvent.defaultPrevented).toBe(false);
+
+      fireEvent.pointerDown(toastElement, {
+        clientX: 100,
+        clientY: 100,
+        button: 0,
+        pointerId: 1,
+        pointerType: 'touch',
+      });
+
+      const duringSwipeEvent = new Event('touchmove', { bubbles: true, cancelable: true });
+      toastElement.dispatchEvent(duringSwipeEvent);
+      expect(duringSwipeEvent.defaultPrevented).toBe(true);
+
+      fireEvent.pointerCancel(toastElement, { pointerId: 1, pointerType: 'touch' });
+    });
+
     it('does not start swiping from elements with the data-base-ui-swipe-ignore attribute', async () => {
       await render(
         <Toast.Provider>

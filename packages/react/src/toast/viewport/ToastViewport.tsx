@@ -147,7 +147,11 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       const firstFocusableToast = toasts.find(
         (toast) => toast.transitionStatus !== 'ending' && !toast.limited,
       );
-      firstFocusableToast?.ref?.current?.focus();
+      if (firstFocusableToast) {
+        firstFocusableToast.ref?.current?.focus();
+      } else {
+        store.restoreFocusToPrevElement();
+      }
     } else {
       store.restoreFocusToPrevElement();
     }

@@ -518,6 +518,52 @@ describe('<Toast.Viewport />', () => {
         expect(screen.queryByTestId('root')).not.toBe(null);
       },
     );
+
+    it.skipIf(!isJSDOM)(
+      'keeps timers paused on viewport blur while the window is blurred',
+      async () => {
+        const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+
+        await renderFakeTimers(
+          <Toast.Provider>
+            <Toast.Viewport data-testid="viewport">
+              <List />
+            </Toast.Viewport>
+            <Button />
+          </Toast.Provider>,
+        );
+
+        const button = screen.getByRole('button', { name: 'add' });
+        fireEvent.click(button);
+
+        const blurListener = [...addEventListenerSpy.mock.calls]
+          .reverse()
+          .find((call) => call[0] === 'blur')?.[1] as EventListener | undefined;
+        addEventListenerSpy.mockRestore();
+
+        if (!blurListener) {
+          throw new Error('Expected window blur listener to be registered.');
+        }
+
+        fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'F6' });
+        expect(screen.getByTestId('viewport')).toHaveFocus();
+
+        clock.tick(1000);
+
+        const blurEvent = new FocusEvent('blur');
+        Object.defineProperty(blurEvent, 'composedPath', { value: () => [window] });
+
+        await act(async () => {
+          blurListener(blurEvent);
+        });
+
+        await act(async () => button.focus());
+
+        clock.tick(10000);
+
+        expect(screen.queryByTestId('root')).not.toBe(null);
+      },
+    );
   });
 
   describe('focus management', () => {
@@ -560,6 +606,31 @@ describe('<Toast.Viewport />', () => {
 
       expect(survivor).toHaveFocus();
       expect(newest).not.toHaveFocus();
+    });
+
+    it.skipIf(!isJSDOM)('returns focus when no toast can receive focus', async () => {
+      await renderFakeTimers(
+        <Toast.Provider limit={0}>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+      await act(async () => button.focus());
+      fireEvent.click(button);
+
+      fireEvent.keyDown(button, { key: 'F6' });
+
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport).toHaveFocus();
+
+      const guard = document.querySelector('[data-base-ui-focus-guard]') as HTMLElement;
+      fireEvent.focus(guard, { relatedTarget: viewport });
+
+      expect(button).toHaveFocus();
     });
   });
 });
