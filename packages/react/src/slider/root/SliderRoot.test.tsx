@@ -879,6 +879,74 @@ describe('<Slider.Root />', () => {
       expect(slider).toHaveAttribute('aria-valuenow', '50');
     });
 
+    it('does not commit when keyboard interaction leaves the value unchanged', async () => {
+      const handleValueChange = vi.fn();
+      const handleValueCommitted = vi.fn();
+
+      await render(
+        <Slider.Root
+          defaultValue={100}
+          onValueChange={handleValueChange}
+          onValueCommitted={handleValueCommitted}
+        >
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(handleValueCommitted).not.toHaveBeenCalled();
+      expect(slider).toHaveAttribute('aria-valuenow', '100');
+    });
+
+    it.skipIf(isJSDOM)('does not commit when thumb press leaves the value unchanged', async () => {
+      const handleValueChange = vi.fn();
+      const handleValueCommitted = vi.fn();
+
+      await render(
+        <Slider.Root
+          defaultValue={50}
+          onValueChange={handleValueChange}
+          onValueCommitted={handleValueCommitted}
+        >
+          <Slider.Control data-testid="control">
+            <Slider.Thumb data-testid="thumb" />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const control = screen.getByTestId('control');
+      const thumb = screen.getByTestId('thumb');
+
+      vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+      vi.spyOn(thumb, 'getBoundingClientRect').mockImplementation(() => ({
+        width: 0,
+        height: 0,
+        bottom: 0,
+        left: 50,
+        right: 50,
+        top: 0,
+        x: 50,
+        y: 0,
+        toJSON() {},
+      }));
+
+      fireEvent.pointerDown(thumb, { buttons: 1, clientX: 50 });
+      fireEvent.pointerUp(document.body, { buttons: 1, clientX: 50 });
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(handleValueCommitted).not.toHaveBeenCalled();
+      expect(screen.getByRole('slider')).toHaveAttribute('aria-valuenow', '50');
+    });
+
     it.skipIf(isJSDOM)('does not commit a canceled track press', async () => {
       let cancel = false;
       const handleValueChange = vi.fn((_value, details) => {

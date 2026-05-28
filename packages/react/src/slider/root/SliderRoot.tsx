@@ -573,8 +573,9 @@ export interface SliderRootProps<
       ) => void)
     | undefined;
   /**
-   * Callback function that is fired when the `pointerup` is triggered.
-   * **Warning**: This is a generic event not a change event.
+   * Callback function that is fired when a value change is committed.
+   * Does not fire if the value did not change, or if the change was canceled.
+   * **Warning**: This is a generic event, not a change event.
    *
    * The `eventDetails.reason` indicates what triggered the commit:
    *
