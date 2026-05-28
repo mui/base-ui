@@ -63,7 +63,7 @@ function ComboboxActions() {
 
 function ComboboxWithIndex() {
   return (
-    <Combobox.Root items={items}>
+    <Combobox.Root items={items} defaultOpen>
       <label className={styles.ComboboxLabel}>
         Choose an item
         <Combobox.Input placeholder="e.g. Item 1" className={styles.ComboboxInput} />
@@ -97,7 +97,7 @@ function ComboboxWithIndex() {
 
 function ComboboxWithoutIndex() {
   return (
-    <Combobox.Root items={items}>
+    <Combobox.Root items={items} defaultOpen>
       <label className={styles.ComboboxLabel}>
         Choose an item
         <Combobox.Input placeholder="e.g. Item 1" className={styles.ComboboxInput} />
@@ -126,7 +126,7 @@ function ComboboxWithoutIndex() {
 
 function ComboboxOpenApi() {
   return (
-    <Combobox.Root>
+    <Combobox.Root defaultOpen>
       <label className={styles.ComboboxLabel}>
         Choose an item
         <Combobox.Input placeholder="e.g. Item 1" className={styles.ComboboxInput} />
@@ -152,24 +152,6 @@ function ComboboxOpenApi() {
   );
 }
 
-function PlainInputBaseline() {
-  return (
-    <div>
-      <label className={styles.ComboboxLabel}>
-        Choose an item
-        <input type="text" placeholder="e.g. Item 1" className={styles.ComboboxInput} />
-      </label>
-      <ul className={styles.ComboboxBaselineList}>
-        {items.map((item) => (
-          <li key={item} className={styles.ComboboxBaselineItem}>
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 const variants: BenchmarkVariant[] = [
   { key: 'base-with-index', label: 'Base UI — with index', render: () => <ComboboxWithIndex /> },
   {
@@ -182,7 +164,6 @@ const variants: BenchmarkVariant[] = [
     label: 'Base UI — open API (no filtering)',
     render: () => <ComboboxOpenApi />,
   },
-  { key: 'plain', label: 'Plain input baseline', render: () => <PlainInputBaseline /> },
 ];
 
 export default function ComboboxPerfExperiment() {
@@ -190,8 +171,9 @@ export default function ComboboxPerfExperiment() {
     <div className={styles.Container}>
       <h1>Combobox rendering performance</h1>
       <p>
-        Each variant renders a single combobox with {ITEM_COUNT} items. Use the toolbar to switch
-        variants, re-render the active one, or run multiple iterations for statistics.
+        Each variant renders a Combobox with {ITEM_COUNT} items. Each variant starts in the open
+        state so the full list is in the DOM at initial render — closed comboboxes lazily render the
+        popup, so they don&apos;t exercise the list rendering cost.
       </p>
       <PerformanceBenchmark variants={variants} />
     </div>

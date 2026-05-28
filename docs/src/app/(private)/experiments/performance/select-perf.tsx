@@ -54,7 +54,7 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 function BaseUISelect() {
   return (
-    <Select.Root defaultValue="Item 1">
+    <Select.Root defaultValue="Item 1" defaultOpen>
       <Select.Trigger className={styles.SelectTrigger}>
         <Select.Value />
         <Select.Icon className={styles.SelectIcon}>
@@ -84,7 +84,7 @@ function BaseUISelect() {
 
 function RadixSelectVariant() {
   return (
-    <RadixSelect.Root defaultValue="Item 1">
+    <RadixSelect.Root defaultValue="Item 1" defaultOpen>
       <RadixSelect.Trigger className={styles.SelectTrigger}>
         <RadixSelect.Value />
         <RadixSelect.Icon className={styles.SelectIcon}>
@@ -121,8 +121,9 @@ export default function SelectPerfExperiment() {
     <div className={styles.Container}>
       <h1>Select rendering performance</h1>
       <p>
-        Each variant renders a single Select with {ITEM_COUNT} items. Use the toolbar to switch
-        variants, re-render the active one, or run multiple iterations for statistics.
+        Each variant renders a Select with {ITEM_COUNT} items. Each variant starts in the open state
+        so the full list is in the DOM at initial render — closed Selects lazily render the popup,
+        so they don&apos;t exercise the list rendering cost.
       </p>
       <PerformanceBenchmark variants={variants} />
     </div>
