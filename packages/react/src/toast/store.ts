@@ -346,9 +346,12 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       toasts: newToasts,
       toastMetadata: createToastMetadata(newToasts),
     };
-    if (closeAll || toasts.length === 1) {
+    const hasActiveToasts = newToasts.some((toast) => toast.transitionStatus !== 'ending');
+    if (!hasActiveToasts) {
       updates.hovering = false;
       updates.focused = false;
+    }
+    if (this.timers.size === 0) {
       // No timers remain to keep paused; clear the flag so a fresh toast's
       // running timer can be paused again on hover/focus.
       this.areTimersPaused = false;

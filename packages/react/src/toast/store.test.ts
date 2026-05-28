@@ -106,5 +106,57 @@ describe('ToastStore', () => {
 
       expect(selectors.toast(store.state, newToastId)?.transitionStatus).not.toBe('ending');
     });
+
+    it('re-pauses timers after all toasts are closed and a new one is added', () => {
+      vi.useFakeTimers();
+      const store = createStore([]);
+
+      store.addToast({ id: 'a', title: 'a', timeout: 100 });
+      store.addToast({ id: 'b', title: 'b', timeout: 100 });
+      store.pauseTimers();
+
+      store.closeToast();
+
+      store.addToast({ id: 'c', title: 'c', timeout: 100 });
+      store.pauseTimers();
+      vi.advanceTimersByTime(200);
+
+      expect(selectors.toast(store.state, 'c')?.transitionStatus).not.toBe('ending');
+    });
+
+    it('re-pauses timers after the last active toast closes while ending toasts remain', () => {
+      vi.useFakeTimers();
+      const store = createStore([]);
+
+      store.addToast({ id: 'a', title: 'a', timeout: 100 });
+      store.addToast({ id: 'b', title: 'b', timeout: 100 });
+      store.pauseTimers();
+
+      store.closeToast('b');
+      store.closeToast('a');
+
+      store.addToast({ id: 'c', title: 'c', timeout: 100 });
+      store.pauseTimers();
+      vi.advanceTimersByTime(200);
+
+      expect(selectors.toast(store.state, 'c')?.transitionStatus).not.toBe('ending');
+    });
+
+    it('re-pauses timers after the last timed toast closes while untimed toasts remain', () => {
+      vi.useFakeTimers();
+      const store = createStore([]);
+
+      store.addToast({ id: 'loading', title: 'loading', type: 'loading' });
+      store.addToast({ id: 'timed', title: 'timed', timeout: 100 });
+      store.pauseTimers();
+
+      store.closeToast('timed');
+
+      store.addToast({ id: 'c', title: 'c', timeout: 100 });
+      store.pauseTimers();
+      vi.advanceTimersByTime(200);
+
+      expect(selectors.toast(store.state, 'c')?.transitionStatus).not.toBe('ending');
+    });
   });
 });
