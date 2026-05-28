@@ -1,6 +1,8 @@
+'use client';
 import * as React from 'react';
 import c from 'clsx';
 import { useId } from '@base-ui/utils/useId';
+import { useTestInteractions } from '#test-utils';
 import type { Placement } from '../../src/floating-ui-react/types';
 import {
   arrow,
@@ -12,11 +14,10 @@ import {
   useClick,
   useDismiss,
   useFloating,
-  useInteractions,
   useListNavigation,
-  useRole,
 } from '../../src/floating-ui-react';
 import { Button } from './Button';
+import styles from './EmojiPicker.module.css';
 
 const emojis = [
   {
@@ -76,10 +77,10 @@ const Option = React.forwardRef<HTMLButtonElement, OptionProps>(function Option(
       ref={ref}
       id={id}
       role="option"
-      className={c('aspect-square cursor-default rounded text-center text-3xl select-none', {
-        'bg-cyan-100': selected && !active,
-        'bg-cyan-200': active,
-        'opacity-40': name === 'orange',
+      className={c(styles.Option, {
+        [styles.OptionSelected]: selected && !active,
+        [styles.OptionActive]: active,
+        [styles.OptionDisabled]: name === 'orange',
       })}
       aria-selected={selected}
       disabled={name === 'orange'}
@@ -130,10 +131,25 @@ export function Main() {
   });
 
   // Handles opening the floating element via the Choose Emoji button.
-  const { getReferenceProps, getFloatingProps } = useInteractions([
+  const menuRoleProps = React.useMemo(
+    () => ({
+      reference: {
+        'aria-haspopup': 'menu' as const,
+        'aria-expanded': open,
+        'aria-controls': open ? context.floatingId : undefined,
+      },
+      floating: {
+        id: context.floatingId,
+        role: 'menu' as const,
+      },
+    }),
+    [context.floatingId, open],
+  );
+
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
     useClick(context),
     useDismiss(context),
-    useRole(context, { role: 'menu' }),
+    menuRoleProps,
   ]);
 
   // Handles the list navigation where the reference is the inner input, not
@@ -142,7 +158,7 @@ export function Main() {
     getReferenceProps: getInputProps,
     getFloatingProps: getListFloatingProps,
     getItemProps,
-  } = useInteractions([
+  } = useTestInteractions([
     useListNavigation(context, {
       listRef,
       onNavigate: open ? setActiveIndex : undefined,
@@ -191,12 +207,12 @@ export function Main() {
 
   return (
     <React.Fragment>
-      <h1 className="mb-8 text-5xl font-bold">Emoji Picker</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <h1 className={styles.Heading}>Emoji Picker</h1>
+      <div className={styles.Container}>
         <div className="text-center">
           <Button
             ref={refs.setReference}
-            className="text-2xl"
+            className={styles.Trigger}
             aria-label="Choose emoji"
             aria-describedby="emoji-label"
             data-open={open ? '' : undefined}
@@ -221,13 +237,13 @@ export function Main() {
               <FloatingFocusManager context={context} modal={false}>
                 <div
                   ref={refs.setFloating}
-                  className="border-slate-900/10 rounded-lg border bg-white/70 bg-clip-padding p-4 shadow-md backdrop-blur-sm"
+                  className={styles.Floating}
                   style={floatingStyles}
                   {...getFloatingProps(getListFloatingProps())}
                 >
-                  <span className="text-sm uppercase opacity-40">Emoji Picker</span>
+                  <span className={styles.Label}>Emoji Picker</span>
                   <input
-                    className="border-slate-300 focus:border-blue-600 my-2 block w-36 rounded border p-1 outline-none"
+                    className={styles.Input}
                     placeholder="Search emoji"
                     value={search}
                     aria-controls={filteredEmojis.length === 0 ? noResultsId : undefined}
@@ -248,7 +264,7 @@ export function Main() {
                     </p>
                   )}
                   {filteredEmojis.length > 0 && (
-                    <div className="grid grid-cols-3" role="listbox">
+                    <div className={styles.Listbox} role="listbox">
                       {filteredEmojis.map(({ name, emoji }, index) => (
                         <Option
                           key={name}

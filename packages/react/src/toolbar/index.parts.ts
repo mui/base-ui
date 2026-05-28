@@ -5,4 +5,4 @@ export { ToolbarButton as Button } from './button/ToolbarButton';
 export { ToolbarLink as Link } from './link/ToolbarLink';
 export { ToolbarInput as Input } from './input/ToolbarInput';
 
-export { type Orientation } from '../utils/types';
+export { type Orientation } from '../internals/types';

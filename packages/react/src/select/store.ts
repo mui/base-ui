@@ -1,22 +1,25 @@
 import { Store, createSelector } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { TransitionStatus } from '../utils/useTransitionStatus';
-import type { HTMLProps } from '../utils/types';
-import { compareItemEquality } from '../utils/itemEquality';
-import { stringifyAsValue } from '../utils/resolveValueLabel';
+import type { TransitionStatus } from '../internals/useTransitionStatus';
+import type { HTMLProps } from '../internals/types';
+import type { Side } from '../utils/useAnchorPositioning';
+import { compareItemEquality } from '../internals/itemEquality';
+import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 
 export type State = {
   id: string | undefined;
+  labelId: string | undefined;
   modal: boolean;
   multiple: boolean;
 
   items:
     | Record<string, React.ReactNode>
     | ReadonlyArray<{ label: React.ReactNode; value: any }>
+    | ReadonlyArray<Group<any>>
     | undefined;
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
-  isItemEqualToValue: (item: any, value: any) => boolean;
+  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
 
   value: any;
 
@@ -34,6 +37,7 @@ export type State = {
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
+  popupSide: Side | null;
 
   scrollUpArrowVisible: boolean;
   scrollDownArrowVisible: boolean;
@@ -45,6 +49,7 @@ export type SelectStore = Store<State>;
 
 export const selectors = {
   id: createSelector((state: State) => state.id),
+  labelId: createSelector((state: State) => state.labelId),
   modal: createSelector((state: State) => state.modal),
   multiple: createSelector((state: State) => state.multiple),
 
@@ -54,6 +59,23 @@ export const selectors = {
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
 
   value: createSelector((state: State) => state.value),
+
+  hasSelectedValue: createSelector((state: State) => {
+    const { value, multiple, itemToStringValue } = state;
+    if (value == null) {
+      return false;
+    }
+    if (multiple && Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return stringifyAsValue(value, itemToStringValue) !== '';
+  }),
+
+  hasNullItemLabel: createSelector((state: State, enabled: boolean) => {
+    return enabled ? hasNullItemLabel(state.items) : false;
+  }),
+
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
   forceMount: createSelector((state: State) => state.forceMount),
@@ -64,14 +86,14 @@ export const selectors = {
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
 
-  isSelected: createSelector((state: State, index: number, candidate: any) => {
+  isSelected: createSelector((state: State, index: number, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const storeValue = state.value;
 
     if (state.multiple) {
       return (
         Array.isArray(storeValue) &&
-        storeValue.some((item) => compareItemEquality(item, candidate, comparer))
+        storeValue.some((selectedItem) => compareItemEquality(itemValue, selectedItem, comparer))
       );
     }
 
@@ -81,7 +103,7 @@ export const selectors = {
       return true;
     }
 
-    return compareItemEquality(storeValue, candidate, comparer);
+    return compareItemEquality(itemValue, storeValue, comparer);
   }),
   isSelectedByFocus: createSelector((state: State, index: number) => {
     return state.selectedIndex === index;
@@ -92,17 +114,10 @@ export const selectors = {
   triggerElement: createSelector((state: State) => state.triggerElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
+  popupSide: createSelector((state: State) => state.popupSide),
 
   scrollUpArrowVisible: createSelector((state: State) => state.scrollUpArrowVisible),
   scrollDownArrowVisible: createSelector((state: State) => state.scrollDownArrowVisible),
 
   hasScrollArrows: createSelector((state: State) => state.hasScrollArrows),
-
-  serializedValue: createSelector((state: State) => {
-    const { multiple, value, itemToStringValue } = state;
-    if (multiple && Array.isArray(value) && value.length === 0) {
-      return '';
-    }
-    return stringifyAsValue(value, itemToStringValue);
-  }),
 };

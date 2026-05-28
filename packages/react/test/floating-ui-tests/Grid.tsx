@@ -1,12 +1,14 @@
+'use client';
 import * as React from 'react';
+import { useTestInteractions } from '#test-utils';
 import {
   FloatingFocusManager,
   useClick,
   useDismiss,
   useFloating,
-  useInteractions,
   useListNavigation,
 } from '../../src/floating-ui-react';
+import styles from './Grid.module.css';
 
 interface Props {
   orientation?: 'horizontal' | 'both';
@@ -28,7 +30,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
 
   const disabledIndices = [0, 1, 2, 3, 4, 5, 6, 7, 10, 15, 45, 48];
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
     useClick(context),
     useListNavigation(context, {
       listRef,
@@ -46,7 +48,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
   return (
     <React.Fragment>
       <h1>Grid</h1>
-      <div className="container">
+      <div className={styles.Container}>
         <button ref={refs.setReference} type="button" {...getReferenceProps()}>
           Reference
         </button>
@@ -56,7 +58,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
               role="menu"
               ref={refs.setFloating}
               data-testid="floating"
-              className="grid gap-2"
+              className={styles.Grid}
               style={{
                 ...floatingStyles,
                 gridTemplateColumns: '100px 100px 100px 100px 100px',
@@ -75,7 +77,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
                   ref={(node) => {
                     listRef.current[index] = node;
                   }}
-                  className="border border-black disabled:opacity-20"
+                  className={styles.Item}
                   {...getItemProps()}
                 >
                   Item {index}

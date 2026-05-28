@@ -1,16 +1,16 @@
+import { afterEach, expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
-import { afterEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
+import { Menubar } from '@base-ui/react/menubar';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Menu.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<any>,
 ) {
-  return <Menu.Trigger {...props} ref={ref} render={<div />} />;
+  return <Menu.Trigger {...props} ref={ref} render={<div />} nativeButton={false} />;
 });
 
 describe('<Menu.Positioner />', () => {
@@ -64,7 +64,7 @@ describe('<Menu.Positioner />', () => {
 
       await flushMicrotasks();
 
-      expect(positioner.style.getPropertyValue('transform')).to.equal(
+      expect(positioner.style.getPropertyValue('transform')).toBe(
         `translate(${anchorPosition.left}px, ${anchorPosition.bottom}px)`,
       );
     });
@@ -108,7 +108,7 @@ describe('<Menu.Positioner />', () => {
 
       await flushMicrotasks();
 
-      expect(positioner.style.getPropertyValue('transform')).to.equal(
+      expect(positioner.style.getPropertyValue('transform')).toBe(
         `translate(${anchorPosition.left}px, ${anchorPosition.bottom}px)`,
       );
     });
@@ -154,7 +154,7 @@ describe('<Menu.Positioner />', () => {
 
       await flushMicrotasks();
 
-      expect(positioner.style.getPropertyValue('transform')).to.equal(
+      expect(positioner.style.getPropertyValue('transform')).toBe(
         `translate(${anchorPosition.left}px, ${anchorPosition.bottom}px)`,
       );
     });
@@ -194,7 +194,7 @@ describe('<Menu.Positioner />', () => {
       );
 
       const positioner = screen.getByTestId('positioner');
-      expect(positioner.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
+      expect(positioner.style.getPropertyValue('transform')).toBe(`translate(200px, 100px)`);
     });
 
     it('should accept a non-memoized function as an anchor', async () => {
@@ -276,7 +276,7 @@ describe('<Menu.Positioner />', () => {
 
       let anchorRect = anchorElement.getBoundingClientRect();
       await flushMicrotasks();
-      expect(positioner.style.getPropertyValue('transform')).to.equal(
+      expect(positioner.style.getPropertyValue('transform')).toBe(
         `translate(${anchorRect.left}px, ${anchorRect.bottom}px)`,
       );
 
@@ -284,7 +284,7 @@ describe('<Menu.Positioner />', () => {
       await flushMicrotasks();
 
       const triggerRect = trigger.getBoundingClientRect();
-      expect(positioner.style.getPropertyValue('transform')).to.equal(
+      expect(positioner.style.getPropertyValue('transform')).toBe(
         `translate(${Math.floor(triggerRect.left)}px, ${triggerRect.bottom}px)`,
       );
 
@@ -292,7 +292,7 @@ describe('<Menu.Positioner />', () => {
       await flushMicrotasks();
 
       anchorRect = anchorElement.getBoundingClientRect();
-      expect(positioner.style.getPropertyValue('transform')).to.equal(
+      expect(positioner.style.getPropertyValue('transform')).toBe(
         `translate(${anchorRect.left}px, ${anchorRect.bottom}px)`,
       );
     });
@@ -301,14 +301,14 @@ describe('<Menu.Positioner />', () => {
   describe.skipIf(isJSDOM)('prop: keepMounted', () => {
     afterEach(async () => {
       const { cleanup } = await import('vitest-browser-react');
-      cleanup();
+      await cleanup();
     });
 
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender } = await import('vitest-browser-react');
 
-      vbrRender(
+      await vbrRender(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -324,18 +324,18 @@ describe('<Menu.Positioner />', () => {
 
       const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      expect(screen.queryByRole('menu', { hidden: true })).not.to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: true })).not.toBe(null);
       expect(screen.queryByRole('menu', { hidden: true })).toBeInaccessible();
 
       await user.click(trigger, { delay: 20 });
       await waitFor(() => {
-        expect(screen.queryByRole('menu', { hidden: false })).not.to.equal(null);
+        expect(screen.queryByRole('menu', { hidden: false })).not.toBe(null);
       });
       expect(screen.queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
       await user.click(trigger, { delay: 20 });
       await waitFor(() => {
-        expect(screen.queryByRole('menu', { hidden: true })).not.to.equal(null);
+        expect(screen.queryByRole('menu', { hidden: true })).not.toBe(null);
       });
       await waitFor(() => {
         expect(screen.queryByRole('menu', { hidden: true })).toBeInaccessible();
@@ -343,10 +343,10 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender } = await import('vitest-browser-react');
 
-      vbrRender(
+      await vbrRender(
         <Menu.Root modal={false}>
           <Menu.Trigger>Toggle</Menu.Trigger>
           <Menu.Portal keepMounted={false}>
@@ -362,18 +362,18 @@ describe('<Menu.Positioner />', () => {
 
       const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-      expect(screen.queryByRole('menu', { hidden: true })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: true })).toBe(null);
 
       await user.click(trigger, { delay: 20 });
       await flushMicrotasks();
       await waitFor(() => {
-        expect(screen.queryByRole('menu', { hidden: false })).not.to.equal(null);
+        expect(screen.queryByRole('menu', { hidden: false })).not.toBe(null);
       });
       expect(screen.queryByRole('menu', { hidden: false })).not.toBeInaccessible();
 
       await user.click(trigger, { delay: 20 });
       await waitFor(() => {
-        expect(screen.queryByRole('menu', { hidden: true })).to.equal(null);
+        expect(screen.queryByRole('menu', { hidden: true })).toBe(null);
       });
     });
   });
@@ -386,6 +386,56 @@ describe('<Menu.Positioner />', () => {
   const anchorHeight = 36;
   const triggerStyle = { width: anchorWidth, height: anchorHeight };
   const popupStyle = { width: popupWidth, height: popupHeight };
+
+  describe.skipIf(isJSDOM)('Menubar parent', () => {
+    it('uses bottom as the default side when the menubar is horizontal', async () => {
+      let side = 'none';
+
+      await render(
+        <Menubar>
+          <Menu.Root open>
+            <Trigger style={triggerStyle}>File</Trigger>
+            <Menu.Portal>
+              <Menu.Positioner
+                sideOffset={(data) => {
+                  side = data.side;
+                  return 0;
+                }}
+              >
+                <Menu.Popup style={popupStyle}>Open</Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      expect(side).toBe('bottom');
+    });
+
+    it('uses inline-end as the default side when the menubar is vertical', async () => {
+      let side = 'none';
+
+      await render(
+        <Menubar orientation="vertical">
+          <Menu.Root open>
+            <Trigger style={triggerStyle}>File</Trigger>
+            <Menu.Portal>
+              <Menu.Positioner
+                sideOffset={(data) => {
+                  side = data.side;
+                  return 0;
+                }}
+              >
+                <Menu.Popup style={popupStyle}>Open</Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      expect(side).toBe('inline-end');
+    });
+  });
 
   describe.skipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {
@@ -401,7 +451,7 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
+      expect(screen.getByTestId('positioner').style.transform).toBe(
         `translate(${baselineX}px, ${baselineY + sideOffset}px)`,
       );
     });
@@ -421,7 +471,7 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
+      expect(screen.getByTestId('positioner').style.transform).toBe(
         `translate(${baselineX}px, ${baselineY + popupWidth + anchorWidth}px)`,
       );
     });
@@ -447,7 +497,7 @@ describe('<Menu.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('right');
+      expect(side).toBe('right');
     });
 
     it('can read the latest align inside sideOffset', async () => {
@@ -472,7 +522,7 @@ describe('<Menu.Positioner />', () => {
       );
 
       // correctly flips the align in the browser
-      expect(align).to.equal('end');
+      expect(align).toBe('end');
     });
 
     it('reads logical side inside sideOffset', async () => {
@@ -496,7 +546,7 @@ describe('<Menu.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('inline-end');
+      expect(side).toBe('inline-end');
     });
   });
 
@@ -514,7 +564,7 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
+      expect(screen.getByTestId('positioner').style.transform).toBe(
         `translate(${baselineX + alignOffset}px, ${baselineY}px)`,
       );
     });
@@ -531,7 +581,7 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
+      expect(screen.getByTestId('positioner').style.transform).toBe(
         `translate(${baselineX + popupWidth}px, ${baselineY}px)`,
       );
     });
@@ -557,7 +607,7 @@ describe('<Menu.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('right');
+      expect(side).toBe('right');
     });
 
     it('can read the latest align inside alignOffset', async () => {
@@ -582,7 +632,7 @@ describe('<Menu.Positioner />', () => {
       );
 
       // correctly flips the align in the browser
-      expect(align).to.equal('end');
+      expect(align).toBe('end');
     });
 
     it('reads logical side inside alignOffset', async () => {
@@ -606,7 +656,7 @@ describe('<Menu.Positioner />', () => {
       );
 
       // correctly flips the side in the browser
-      expect(side).to.equal('inline-end');
+      expect(side).toBe('inline-end');
     });
   });
 });

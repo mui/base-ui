@@ -2,19 +2,22 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
-import type { CollapsibleRoot } from '../../collapsible/root/CollapsibleRoot';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import {
+  useCollapsibleRoot,
+  type UseCollapsibleRootParameters,
+} from '../../collapsible/root/useCollapsibleRoot';
+import type { CollapsibleRoot, CollapsibleRootState } from '../../collapsible/root/CollapsibleRoot';
 import { CollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
-import type { AccordionRoot } from '../root/AccordionRoot';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
+import type { AccordionRootState } from '../root/AccordionRoot';
 import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStateAttributesMapping } from './stateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -32,6 +35,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     onOpenChange: onOpenChangeProp,
     render,
     value: valueProp,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -73,7 +77,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
         return;
       }
 
-      handleValueChange(value, nextOpen);
+      handleValueChange(value, nextOpen, eventDetails);
     },
   );
 
@@ -83,14 +87,13 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     disabled,
   });
 
-  const collapsibleState: CollapsibleRoot.State = React.useMemo(
+  const collapsibleState: CollapsibleRootState = React.useMemo(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
-      hidden: !collapsible.mounted,
       transitionStatus: collapsible.transitionStatus,
     }),
-    [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
+    [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
   );
 
   const collapsibleContext: CollapsibleRootContext = React.useMemo(
@@ -102,26 +105,28 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     [collapsible, collapsibleState, onOpenChange],
   );
 
-  const state: AccordionItem.State = React.useMemo(
+  const state: AccordionItemState = React.useMemo(
     () => ({
       ...rootState,
+      hidden: !isOpen && !collapsible.mounted,
       index,
       disabled,
       open: isOpen,
     }),
-    [disabled, index, isOpen, rootState],
+    [collapsible.mounted, disabled, index, isOpen, rootState],
   );
 
-  const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
+  const defaultTriggerId = useBaseUiId();
+  const [triggerId, setTriggerId] = React.useState<string | undefined>();
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({
       open: isOpen,
       state,
       setTriggerId,
-      triggerId,
+      triggerId: triggerId ?? defaultTriggerId,
     }),
-    [isOpen, state, setTriggerId, triggerId],
+    [defaultTriggerId, isOpen, state, setTriggerId, triggerId],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -140,15 +145,25 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
   );
 });
 
-export interface AccordionItemState extends AccordionRoot.State {
+export interface AccordionItemState extends AccordionRootState {
+  /**
+   * Whether the accordion item's panel is currently hidden.
+   */
+  hidden: boolean;
+  /**
+   * The item index.
+   */
   index: number;
+  /**
+   * Whether the component is open.
+   */
   open: boolean;
 }
 
 export interface AccordionItemProps
   extends
-    BaseUIComponentProps<'div', AccordionItem.State>,
-    Partial<Pick<useCollapsibleRoot.Parameters, 'disabled'>> {
+    BaseUIComponentProps<'div', AccordionItemState>,
+    Partial<Pick<UseCollapsibleRootParameters, 'disabled'>> {
   /**
    * A unique value that identifies this accordion item.
    * If no value is provided, a unique ID will be generated automatically.
@@ -166,7 +181,9 @@ export interface AccordionItemProps
   /**
    * Event handler called when the panel is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void)
+    | undefined;
 }
 
 export type AccordionItemChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;

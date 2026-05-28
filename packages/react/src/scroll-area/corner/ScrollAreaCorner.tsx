@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A small rectangular area that appears at the intersection of horizontal and vertical scrollbars.
@@ -14,7 +14,7 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
   componentProps: ScrollAreaCorner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { cornerRef, cornerSize, hiddenState } = useScrollAreaRootContext();
 
@@ -34,7 +34,7 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
     ],
   });
 
-  if (hiddenState.cornerHidden) {
+  if (hiddenState.corner) {
     return null;
   }
 
@@ -43,10 +43,7 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
 
 export interface ScrollAreaCornerState {}
 
-export interface ScrollAreaCornerProps extends BaseUIComponentProps<
-  'div',
-  ScrollAreaCorner.State
-> {}
+export interface ScrollAreaCornerProps extends BaseUIComponentProps<'div', ScrollAreaCornerState> {}
 
 export namespace ScrollAreaCorner {
   export type State = ScrollAreaCornerState;

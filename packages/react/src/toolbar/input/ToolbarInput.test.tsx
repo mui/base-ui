@@ -1,14 +1,13 @@
-import { expect } from 'chai';
-import { spy } from 'sinon';
+import { expect, vi } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { NumberField } from '@base-ui/react/number-field';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
-import { type Orientation } from '../../utils/types';
-import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
-import { ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../../composite/composite';
+import { type Orientation } from '../../internals/types';
+import { CompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
+import { ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../../internals/composite/composite';
 
 const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
@@ -48,7 +47,7 @@ describe('<Toolbar.Input />', () => {
         </Toolbar.Root>,
       );
 
-      expect(screen.getByTestId('input')).to.equal(screen.getByRole('textbox'));
+      expect(screen.getByTestId('input')).toBe(screen.getByRole('textbox'));
     });
   });
 
@@ -80,8 +79,8 @@ describe('<Toolbar.Input />', () => {
         expect(input).toHaveFocus();
 
         // Firefox doesn't support document.getSelection() in inputs
-        expect(input.selectionStart).to.equal(0);
-        expect(input.selectionEnd).to.equal(4);
+        expect(input.selectionStart).toBe(0);
+        expect(input.selectionEnd).toBe(4);
 
         await user.keyboard(`[${ARROW_RIGHT}]`);
         await user.keyboard(`[${nextKey}]`);
@@ -111,11 +110,11 @@ describe('<Toolbar.Input />', () => {
         </Toolbar.Root>,
       );
 
-      expect(screen.getByRole('textbox')).to.have.attribute('aria-roledescription', 'Number field');
+      expect(screen.getByRole('textbox')).toHaveAttribute('aria-roledescription', 'Number field');
     });
 
     it('handles interactions', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const { user } = await render(
         <Toolbar.Root>
           <NumberField.Root min={1} max={10} defaultValue={5} onValueChange={onValueChange}>
@@ -131,20 +130,20 @@ describe('<Toolbar.Input />', () => {
       const input = screen.getByRole('textbox');
 
       await user.keyboard('[Tab]');
-      expect(input).to.have.attribute('tabindex', '0');
+      expect(input).toHaveAttribute('tabindex', '0');
       expect(input).toHaveFocus();
 
       await user.keyboard(`[${ARROW_UP}]`);
-      expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.args[0][0]).to.equal(6);
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(6);
 
       await user.keyboard(`[${ARROW_DOWN}]`);
-      expect(onValueChange.callCount).to.equal(2);
-      expect(onValueChange.args[1][0]).to.equal(5);
+      expect(onValueChange.mock.calls.length).toBe(2);
+      expect(onValueChange.mock.calls[1][0]).toBe(5);
     });
 
     it('disabled state', async () => {
-      const onValueChange = spy();
+      const onValueChange = vi.fn();
       const { user } = await render(
         <Toolbar.Root>
           <NumberField.Root min={1} max={10} defaultValue={5} onValueChange={onValueChange}>
@@ -159,17 +158,17 @@ describe('<Toolbar.Input />', () => {
 
       const input = screen.getByRole('textbox');
 
-      expect(input).to.not.have.attribute('disabled');
-      expect(input).to.have.attribute('data-disabled');
-      expect(input).to.have.attribute('aria-disabled', 'true');
+      expect(input).not.toHaveAttribute('disabled');
+      expect(input).toHaveAttribute('data-disabled');
+      expect(input).toHaveAttribute('aria-disabled', 'true');
 
       await user.keyboard('[Tab]');
-      expect(input).to.have.attribute('tabindex', '0');
+      expect(input).toHaveAttribute('tabindex', '0');
       expect(input).toHaveFocus();
 
       await user.keyboard(`[${ARROW_UP}]`);
       await user.keyboard(`[${ARROW_DOWN}]`);
-      expect(onValueChange.callCount).to.equal(0);
+      expect(onValueChange.mock.calls.length).toBe(0);
     });
   });
 });

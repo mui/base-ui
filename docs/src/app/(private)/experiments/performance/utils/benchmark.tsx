@@ -45,7 +45,7 @@ function computeStats(samples: number[]) {
   };
 }
 
-function removeOutliers(data: number[]) {
+export function removeOutliers(data: number[]) {
   if (data.length < 4) {
     return data;
   }
@@ -56,6 +56,17 @@ function removeOutliers(data: number[]) {
   const lower = q1 - 1.5 * iqr;
   const upper = q3 + 1.5 * iqr;
   return data.filter((value) => value >= lower && value <= upper);
+}
+
+export function logResults(results: number[]) {
+  if (results.length === 0) {
+    console.log('No samples.');
+    return;
+  }
+  console.log(results);
+  const stats = computeStats(results);
+  console.log('Average:', Math.round(stats.avg * 10) / 10);
+  console.log('Std Dev:', Math.round(stats.stdDev * 100) / 100);
 }
 
 export default function PerformanceBenchmark(props: PerformanceBenchmarkProps) {

@@ -14,7 +14,7 @@ Package managers other than pnpm (like npm or Yarn) are not supported and don't 
 
 ## How can I add a new demo to the documentation?
 
-[You can follow this guide](https://github.com/mui/base-ui/blob/HEAD/CONTRIBUTING.md)
+[You can follow this guide](../CONTRIBUTING.md)
 on how to get started contributing to Base UI.
 
 ## Error code extraction

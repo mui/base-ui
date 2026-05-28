@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -29,17 +29,17 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       clock.tick(1_000);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       clock.tick(9_000);
 
       await flushMicrotasks();
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).not.toBe(null);
     });
 
     it('respects delay=0', async () => {
@@ -63,7 +63,7 @@ describe('<Tooltip.Provider />', () => {
 
       clock.tick(0);
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).not.toBe(null);
     });
 
     it('respects trigger delay prop over provider delay prop', async () => {
@@ -85,17 +85,17 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       clock.tick(99);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       clock.tick(1);
 
       await flushMicrotasks();
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).not.toBe(null);
     });
   });
 
@@ -125,17 +125,17 @@ describe('<Tooltip.Provider />', () => {
 
       await flushMicrotasks();
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).not.toBe(null);
 
       fireEvent.mouseLeave(trigger);
 
       clock.tick(300);
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).not.toBe(null);
 
       clock.tick(300);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
     });
   });
 });

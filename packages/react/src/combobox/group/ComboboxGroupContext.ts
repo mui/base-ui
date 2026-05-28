@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 
 export interface ComboboxGroupContext {
@@ -7,7 +8,7 @@ export interface ComboboxGroupContext {
    * Optional list of items that belong to this group. Used by nested
    * collections to render group-specific items.
    */
-  items?: readonly any[];
+  items?: readonly any[] | undefined;
 }
 
 export const ComboboxGroupContext = React.createContext<ComboboxGroupContext | undefined>(

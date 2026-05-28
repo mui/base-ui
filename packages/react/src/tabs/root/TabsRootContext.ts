@@ -22,16 +22,16 @@ export interface TabsRootContext {
   getTabElementBySelectedValue: (selectedValue: TabsTab.Value | undefined) => HTMLElement | null;
   /**
    * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value.
-   * @param (any) panelValue Value to find the Tab for.
    */
   getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined;
   /**
    * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value.
-   * @param (any) tabValue Value to find the TabPanel for.
    */
   getTabPanelIdByValue: (tabValue: TabsTab.Value) => string | undefined;
   registerMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
-  setTabMap: (map: Map<Node, (TabsTab.Metadata & { index?: number | null }) | null>) => void;
+  setTabMap: (
+    map: Map<Node, (TabsTab.Metadata & { index?: number | null | undefined }) | null>,
+  ) => void;
   unregisterMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
   /**
    * The position of the active tab relative to the previously active tab.

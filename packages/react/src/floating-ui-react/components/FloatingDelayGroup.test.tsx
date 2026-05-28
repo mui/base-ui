@@ -1,19 +1,12 @@
+import { vi, expect } from 'vitest';
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react/jsx-fragments */
 import * as React from 'react';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
-import { vi } from 'vitest';
 
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import {
-  FloatingDelayGroup,
-  useDelayGroup,
-  useFloating,
-  useHover,
-  useInteractions,
-} from '../index';
-
-vi.useFakeTimers();
+import { useTestInteractions } from '#test-utils';
+import { FloatingDelayGroup, useDelayGroup, useFloating, useHover } from '../index';
 
 interface Props {
   label: string;
@@ -30,7 +23,7 @@ function Tooltip({ children, label }: Props) {
 
   const { delayRef } = useDelayGroup(context, { open });
   const hover = useHover(context, { delay: () => delayRef.current });
-  const { getReferenceProps } = useInteractions([hover]);
+  const { getReferenceProps } = useTestInteractions([hover]);
 
   const renderCount = React.useRef(0);
   const renderCountRef = React.useRef<HTMLSpanElement | null>(null);
@@ -86,6 +79,10 @@ function App() {
 }
 
 describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
   test('groups delays correctly', async () => {
     render(<App />);
 

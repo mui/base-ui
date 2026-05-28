@@ -1,16 +1,13 @@
 'use client';
-import * as React from 'react';
+import { SafeReact } from './safeReact';
 import { useRefWithInit } from './useRefWithInit';
 
-// https://github.com/mui/material-ui/issues/41190#issuecomment-2040873379
-const useInsertionEffect = (React as any)[
-  `useInsertionEffect${Math.random().toFixed(1)}`.slice(0, -3)
-];
+const useInsertionEffect = SafeReact.useInsertionEffect;
 const useSafeInsertionEffect =
   // React 17 doesn't have useInsertionEffect.
   useInsertionEffect &&
   // Preact replaces useInsertionEffect with useLayoutEffect and fires too late.
-  useInsertionEffect !== React.useLayoutEffect
+  useInsertionEffect !== SafeReact.useLayoutEffect
     ? useInsertionEffect
     : (fn: any) => fn();
 
@@ -56,6 +53,8 @@ function createStableCallback() {
 
 function assertNotCalled() {
   if (process.env.NODE_ENV !== 'production') {
+    // TODO: fix mui/no-guarded-throw
+    // eslint-disable-next-line mui/no-guarded-throw
     throw /* minify-error-disabled */ new Error(
       'Base UI: Cannot call an event handler while rendering.',
     );

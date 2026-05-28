@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Combobox.List />', () => {
   const { render } = createRenderer();
@@ -29,6 +29,6 @@ describe('<Combobox.List />', () => {
     );
 
     const list = screen.getByRole('listbox');
-    expect(list).to.have.attribute('aria-multiselectable', 'true');
+    expect(list).toHaveAttribute('aria-multiselectable', 'true');
   });
 });

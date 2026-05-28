@@ -3,8 +3,8 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useId } from '@base-ui/utils/useId';
 import { inertValue } from '@base-ui/utils/inertValue';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
@@ -69,12 +69,11 @@ function Guards({ children }: { children: React.ReactNode }) {
  *
  * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */
-
 export const NavigationMenuViewport = React.forwardRef(function NavigationMenuViewport(
   componentProps: NavigationMenuViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, id: idProp, ...elementProps } = componentProps;
+  const { render, className, style, children, id: idProp, ...elementProps } = componentProps;
 
   const id = useId(idProp);
 
@@ -87,7 +86,8 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
     setViewportInert,
   } = useNavigationMenuRootContext();
 
-  const hasPositioner = Boolean(useNavigationMenuPositionerContext(true));
+  const positioning = useNavigationMenuPositionerContext(true);
+  const hasPositioner = Boolean(positioning);
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
 
   useIsoLayoutEffect(() => {
@@ -135,7 +135,7 @@ export interface NavigationMenuViewportState {}
 
 export interface NavigationMenuViewportProps extends BaseUIComponentProps<
   'div',
-  NavigationMenuViewport.State
+  NavigationMenuViewportState
 > {}
 
 export namespace NavigationMenuViewport {

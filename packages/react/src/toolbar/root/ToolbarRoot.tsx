@@ -1,8 +1,12 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, Orientation as BaseOrientation, HTMLProps } from '../../utils/types';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import {
+  BaseUIComponentProps,
+  Orientation as BaseOrientation,
+  HTMLProps,
+} from '../../internals/types';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import { ToolbarRootContext } from './ToolbarRootContext';
 
 /**
@@ -21,6 +25,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     orientation = 'horizontal',
     className,
     render,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -47,7 +52,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     [disabled, orientation, setItemMap],
   );
 
-  const state = React.useMemo(() => ({ disabled, orientation }), [disabled, orientation]);
+  const state: ToolbarRootState = { disabled, orientation };
 
   const defaultProps: HTMLProps = {
     'aria-orientation': orientation,
@@ -59,6 +64,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef]}
         props={[defaultProps, elementProps]}
@@ -78,23 +84,29 @@ export interface ToolbarRootItemMetadata {
 export type ToolbarRootOrientation = BaseOrientation;
 
 export interface ToolbarRootState {
+  /**
+   * Whether the component is disabled.
+   */
   disabled: boolean;
+  /**
+   * The component orientation.
+   */
   orientation: ToolbarRoot.Orientation;
 }
 
-export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRoot.State> {
-  disabled?: boolean;
+export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRootState> {
+  disabled?: boolean | undefined;
   /**
    * The orientation of the toolbar.
    * @default 'horizontal'
    */
-  orientation?: ToolbarRoot.Orientation;
+  orientation?: ToolbarRoot.Orientation | undefined;
   /**
    * If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.
    *
    * @default true
    */
-  loopFocus?: boolean;
+  loopFocus?: boolean | undefined;
 }
 
 export namespace ToolbarRoot {

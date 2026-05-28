@@ -1,10 +1,9 @@
-import { describe, it } from 'vitest';
-import { expect } from 'chai';
+import { describe, it, expect } from 'vitest';
 import { DemoFile } from 'docs/src/blocks/Demo';
 import { packDemo } from './packDemo';
 
 describe('packDemo', () => {
-  it('transforms the files into an object an extracts dependencies', () => {
+  it('transforms the files into an object and extracts dependencies', () => {
     const files: DemoFile[] = [
       {
         name: 'file.js',
@@ -15,10 +14,10 @@ describe('packDemo', () => {
     ];
 
     const result = packDemo(files);
-    expect(result.processedFiles['App.js']).to.equal(files[0].content);
+    expect(result.processedFiles['App.js']).toBe(files[0].content);
 
-    expect(result.externalImports.length).to.equal(1);
-    expect(result.externalImports[0]).to.equal('react');
+    expect(result.externalImports.length).toBe(1);
+    expect(result.externalImports[0]).toBe('react');
   });
 
   it('flattens relative imports', () => {
@@ -38,9 +37,9 @@ describe('packDemo', () => {
     ];
 
     const result = packDemo(files);
-    expect(result.processedFiles['App.js']).to.equal("import file2 from './file2';");
-    expect(result.processedFiles['file2.js']).to.equal(files[1].content);
-    expect(result.externalImports.length).to.equal(0);
+    expect(result.processedFiles['App.js']).toBe("import file2 from './file2';");
+    expect(result.processedFiles['file2.js']).toBe(files[1].content);
+    expect(result.externalImports.length).toBe(0);
   });
 
   it('flattens relative imports from parent directories', () => {
@@ -60,8 +59,8 @@ describe('packDemo', () => {
     ];
 
     const result = packDemo(files);
-    expect(result.processedFiles['App.js']).to.equal("import file2 from './file2';");
-    expect(result.processedFiles['file2.js']).to.equal(files[1].content);
-    expect(result.externalImports.length).to.equal(0);
+    expect(result.processedFiles['App.js']).toBe("import file2 from './file2';");
+    expect(result.processedFiles['file2.js']).toBe(files[1].content);
+    expect(result.externalImports.length).toBe(0);
   });
 });

@@ -1,10 +1,10 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
-import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
+import { CompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 
 const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
@@ -43,7 +43,7 @@ describe('<Toolbar.Group />', () => {
         </Toolbar.Root>,
       );
 
-      expect(screen.getByTestId('group')).to.equal(screen.getByRole('group'));
+      expect(screen.getByTestId('group')).toBe(screen.getByRole('group'));
     });
   });
 
@@ -60,12 +60,12 @@ describe('<Toolbar.Group />', () => {
       );
 
       [screen.getByRole('button'), screen.getByRole('textbox')].forEach((toolbarItem) => {
-        expect(toolbarItem).to.have.attribute('aria-disabled', 'true');
-        expect(toolbarItem).to.have.attribute('data-disabled');
+        expect(toolbarItem).toHaveAttribute('aria-disabled', 'true');
+        expect(toolbarItem).toHaveAttribute('data-disabled');
       });
 
-      expect(screen.getByText('Link')).to.not.have.attribute('data-disabled');
-      expect(screen.getByText('Link')).to.not.have.attribute('aria-disabled');
+      expect(screen.getByText('Link')).not.toHaveAttribute('data-disabled');
+      expect(screen.getByText('Link')).not.toHaveAttribute('aria-disabled');
     });
   });
 });

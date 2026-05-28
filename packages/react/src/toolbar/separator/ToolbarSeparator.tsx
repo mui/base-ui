@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { Separator } from '../../separator';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { Separator, type SeparatorState } from '../../separator';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
+
 /**
  * A separator element accessible to screen readers.
  * Renders a `<div>` element.
@@ -26,9 +27,12 @@ export const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
   return <Separator orientation={orientation} {...props} ref={forwardedRef} />;
 });
 
+export interface ToolbarSeparatorState extends SeparatorState {}
+
 export interface ToolbarSeparatorProps
-  extends BaseUIComponentProps<'div', Separator.State>, Separator.Props {}
+  extends BaseUIComponentProps<'div', ToolbarSeparatorState>, Separator.Props {}
 
 export namespace ToolbarSeparator {
+  export type State = ToolbarSeparatorState;
   export type Props = ToolbarSeparatorProps;
 }

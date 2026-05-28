@@ -1,3 +1,5 @@
+import { useStore } from './useStore';
+
 type Listener<T> = (state: T) => void;
 
 /**
@@ -13,7 +15,7 @@ export class Store<State> {
    *
    * Do not modify properties in state directly. Instead, use the provided methods to ensure proper state management and listener notification.
    */
-  public state: State;
+  state: State;
 
   private listeners: Set<Listener<State>>;
 
@@ -32,7 +34,7 @@ export class Store<State> {
    * @param fn The listener function to be called on state changes.
    * @returns A function to unsubscribe the listener.
    */
-  public subscribe = (fn: Listener<State>) => {
+  subscribe = (fn: Listener<State>) => {
     this.listeners.add(fn);
     return () => {
       this.listeners.delete(fn);
@@ -42,7 +44,7 @@ export class Store<State> {
   /**
    * Returns the current state of the store.
    */
-  public getSnapshot = () => {
+  getSnapshot = () => {
     return this.state;
   };
 
@@ -51,7 +53,7 @@ export class Store<State> {
    *
    * @param newState The new state to set for the store.
    */
-  public setState(newState: State) {
+  setState(newState: State) {
     if (this.state === newState) {
       return;
     }
@@ -75,10 +77,10 @@ export class Store<State> {
    *
    * @param changes An object containing the changes to apply to the current state.
    */
-  public update(changes: Partial<State>) {
+  update(changes: Partial<State>) {
     for (const key in changes) {
       if (!Object.is(this.state[key], changes[key])) {
-        Store.prototype.setState.call(this, { ...this.state, ...changes });
+        this.setState({ ...this.state, ...changes });
         return;
       }
     }
@@ -90,19 +92,32 @@ export class Store<State> {
    * @param key The key in the store's state to update.
    * @param value The new value to set for the specified key.
    */
-  public set<T>(key: keyof State, value: T) {
+  set<T>(key: keyof State, value: T) {
     if (!Object.is(this.state[key], value)) {
-      Store.prototype.setState.call(this, { ...this.state, [key]: value });
+      this.setState({ ...this.state, [key]: value });
     }
   }
 
   /**
    * Gives the state a new reference and updates all registered listeners.
    */
-  public notifyAll() {
+  notifyAll() {
     const newState = { ...this.state };
-    Store.prototype.setState.call(this, newState);
+    this.setState(newState);
+  }
+
+  use<F extends (...args: any) => any>(selector: F, ...args: SelectorArgs<F>): ReturnType<F>;
+
+  use(selector: any, a1?: unknown, a2?: unknown, a3?: unknown) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useStore(this, selector, a1, a2, a3);
   }
 }
 
 export type ReadonlyStore<State> = Pick<Store<State>, 'getSnapshot' | 'subscribe' | 'state'>;
+
+type SelectorArgs<Selector> = Selector extends (...params: infer Params) => any
+  ? Tail<Params>
+  : never;
+
+type Tail<T extends readonly any[]> = T extends readonly [any, ...infer Rest] ? Rest : [];

@@ -2,11 +2,8 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../components/Experiments/SettingsPanel';
-import '../../../demo-theme.css';
+import { SettingsMetadata, useExperimentSettings } from './_components/SettingsPanel';
+import '../../../demo-data/theme/css-modules/theme.css';
 import menuClasses from './menu/menu.module.css';
 import classes from './menubar.module.css';
 
@@ -45,9 +42,9 @@ export default function MenubarExperiment() {
               {...getSubmenuPositionProps(settings.orientation)}
             >
               <Menu.Popup className={menuClasses.Popup}>
-                <Menu.Item className={menuClasses.Item}>Open...</Menu.Item>
+                <Menu.Item className={menuClasses.Item}>Open…</Menu.Item>
                 <Menu.Item className={menuClasses.Item}>Save</Menu.Item>
-                <Menu.Item className={menuClasses.Item}>Save as...</Menu.Item>
+                <Menu.Item className={menuClasses.Item}>Save as…</Menu.Item>
                 <Menu.Separator className={menuClasses.Separator} />
 
                 <Menu.SubmenuRoot>
@@ -100,7 +97,7 @@ export default function MenubarExperiment() {
                   <Menu.Portal>
                     <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
                       <Menu.Popup className={menuClasses.Popup}>
-                        <Menu.Item className={menuClasses.Item}>Find...</Menu.Item>
+                        <Menu.Item className={menuClasses.Item}>Find…</Menu.Item>
                         <Menu.Item className={menuClasses.Item}>Find next</Menu.Item>
                       </Menu.Popup>
                     </Menu.Positioner>
@@ -209,7 +206,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
 function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentcolor" strokeWidth="1.5" />
+      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -235,7 +232,7 @@ function ArrowIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+    <svg fill="currentColor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
   );

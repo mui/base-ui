@@ -2,20 +2,20 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { selectors } from '../store';
-import { useButton } from '../../use-button';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useButton } from '../../internals/use-button';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
-const stateAttributesMapping: StateAttributesMapping<ComboboxClear.State> = {
+const stateAttributesMapping: StateAttributesMapping<ComboboxClearState> = {
   ...transitionStatusMapping,
   ...triggerOpenStateMapping,
 };
@@ -23,6 +23,8 @@ const stateAttributesMapping: StateAttributesMapping<ComboboxClear.State> = {
 /**
  * Clears the value when clicked.
  * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxClear = React.forwardRef(function ComboboxClear(
   componentProps: ComboboxClear.Props,
@@ -34,6 +36,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
     disabled: disabledProp = false,
     nativeButton = true,
     keepMounted = false,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -45,6 +48,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   const readOnly = useStore(store, selectors.readOnly);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
+  const hasSelectionChips = useStore(store, selectors.hasSelectionChips);
 
   const inputValue = useComboboxInputValueContext();
 
@@ -54,7 +58,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   } else if (selectionMode === 'single') {
     visible = selectedValue != null;
   } else {
-    visible = Array.isArray(selectedValue) && selectedValue.length > 0;
+    visible = hasSelectionChips;
   }
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
@@ -66,14 +70,12 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
-  const state: ComboboxClear.State = React.useMemo(
-    () => ({
-      disabled,
-      open,
-      transitionStatus,
-    }),
-    [disabled, open, transitionStatus],
-  );
+  const state: ComboboxClearState = {
+    disabled,
+    visible,
+    open,
+    transitionStatus,
+  };
 
   useOpenChangeComplete({
     open: visible,
@@ -92,8 +94,6 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
       {
         tabIndex: -1,
         children: 'x',
-        disabled,
-        'aria-readonly': readOnly || undefined,
         // Avoid stealing focus from the input.
         onMouseDown(event) {
           event.preventDefault();
@@ -153,21 +153,28 @@ export interface ComboboxClearState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the clear button should be visible.
+   */
+  visible: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
 export interface ComboboxClearProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClear.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClearState> {
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Whether the component should remain mounted in the DOM when not visible.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace ComboboxClear {

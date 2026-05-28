@@ -2,11 +2,9 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { StoreInspector } from '@base-ui/utils/store';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from 'docs/src/components/Experiments/SettingsPanel';
-import demoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import viewportStyles from 'docs/src/app/(docs)/react/components/menu/demos/detached-triggers-full/css-modules/index.module.css';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './triggers.module.css';
 
 interface Settings {
@@ -293,16 +291,22 @@ function renderMenuContent(contentKey: ContentKey | undefined, settings: Setting
 
   return (
     <Menu.Portal keepMounted={settings.keepMounted}>
-      <Menu.Positioner sideOffset={8} className={demoStyles.Positioner} side={settings.side}>
-        <Menu.Popup className={demoStyles.Popup}>
-          <Menu.Arrow className={demoStyles.Arrow}>
+      <Menu.Positioner
+        sideOffset={8}
+        className={`${demoStyles.Positioner} ${viewportStyles.Positioner}`}
+        side={settings.side}
+      >
+        <Menu.Popup className={`${demoStyles.Popup} ${viewportStyles.Popup}`}>
+          <Menu.Arrow className={`${demoStyles.Arrow} ${viewportStyles.Arrow}`}>
             <ArrowSvg />
           </Menu.Arrow>
-          {items ? (
-            items.map((item, index) => renderMenuContentItem(item, `item-${index}`))
-          ) : (
-            <div className={styles.MenuSection}>No content for this trigger.</div>
-          )}
+          <Menu.Viewport className={viewportStyles.Viewport}>
+            {items ? (
+              items.map((item, index) => renderMenuContentItem(item, `item-${index}`))
+            ) : (
+              <div className={styles.MenuSection}>No content for this trigger.</div>
+            )}
+          </Menu.Viewport>
         </Menu.Popup>
       </Menu.Positioner>
     </Menu.Portal>
@@ -372,7 +376,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   modal: {
     type: 'boolean',
     label: 'Modal',
-    default: true,
+    default: false,
   },
   keepMounted: {
     type: 'boolean',
@@ -403,7 +407,7 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" strokeWidth="1.5" />
+      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -411,7 +415,7 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentcolor" strokeWidth="1.5" />
+      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }

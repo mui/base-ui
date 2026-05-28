@@ -2,6 +2,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { observeScrollableInner } from '../utils/observeScrollableInner';
 
 const ARROW_UP = 'ArrowUp';
@@ -102,12 +103,25 @@ export function Trigger({
   );
 }
 
-export function Item(props: React.ComponentProps<'details'>) {
+export function Item({
+  gaCategory,
+  gaLabel,
+  gaParams,
+  ...props
+}: React.ComponentProps<'details'> & {
+  gaCategory?: string;
+  gaLabel?: string;
+  gaParams?: Record<string, string | number | boolean>;
+}) {
   const [open, setOpen] = React.useState<boolean>(false);
+  const detailsRef = React.useRef<HTMLDetailsElement>(null);
+  const ga = useGoogleAnalytics();
+
   // in Chrome, the <details> opens automatically when the hash part of a URL
   // matches the `id` on <summary> but needs to be manually handled for Safari
   // and Firefox
-  const handleRef = useStableCallback((element: HTMLDetailsElement | null) => {
+  const checkHash = useStableCallback(() => {
+    const element = detailsRef.current;
     if (element) {
       const trigger = element.querySelector<HTMLElement>('summary');
       const triggerId = trigger?.getAttribute('id');
@@ -119,12 +133,32 @@ export function Item(props: React.ComponentProps<'details'>) {
     }
   });
 
+  React.useEffect(() => {
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => {
+      window.removeEventListener('hashchange', checkHash);
+    };
+  }, [checkHash]);
+
   return (
     <details
       {...props}
-      ref={handleRef}
+      ref={detailsRef}
       open={open || undefined}
       className={clsx('AccordionItem', props.className)}
+      onToggle={(event) => {
+        props.onToggle?.(event);
+        setOpen(event.currentTarget.open);
+        if (gaCategory && event.currentTarget.open && event.nativeEvent.isTrusted) {
+          ga?.trackEvent({
+            category: gaCategory,
+            action: 'expand',
+            label: gaLabel,
+            params: gaParams,
+          });
+        }
+      }}
     />
   );
 }

@@ -3,13 +3,13 @@ import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { mergeProps } from '../../merge-props';
-import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
-import { useFormContext } from '../../form/FormContext';
+import { DEFAULT_VALIDITY_STATE } from '../../internals/field-constants/constants';
+import { useFormContext } from '../../internals/form-context/FormContext';
 import type { Form } from '../../form';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
-import type { HTMLProps } from '../../utils/types';
+import type { HTMLProps } from '../../internals/types';
 import type { FieldValidityData, FieldRootState } from './FieldRoot';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
@@ -39,7 +39,7 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
 export function useFieldValidation(
   params: UseFieldValidationParameters,
 ): UseFieldValidationReturnValue {
-  const { formRef, clearErrors } = useFormContext();
+  const { formRef } = useFormContext();
 
   const {
     setValidityData,
@@ -49,19 +49,48 @@ export function useFieldValidation(
     invalid,
     markedDirtyRef,
     state,
-    name,
     shouldValidateOnChange,
+    getRegisteredFieldId,
   } = params;
 
   const { controlId, getDescriptionProps } = useLabelableContext();
 
   const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const validationCommitIdRef = React.useRef(0);
 
   const commit = useStableCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
     if (!element) {
       return;
+    }
+
+    validationCommitIdRef.current += 1;
+    const validationCommitId = validationCommitIdRef.current;
+
+    function updateRegisteredFieldValidity(
+      nextValidityData: FieldValidityData,
+      externalInvalid = invalid,
+    ) {
+      const fieldId = getRegisteredFieldId() ?? controlId;
+      if (fieldId == null) {
+        return;
+      }
+
+      const currentFieldData = formRef.current.fields.get(fieldId);
+      if (!currentFieldData) {
+        return;
+      }
+
+      const validityDataWithFormErrors = getCombinedFieldValidityData(
+        nextValidityData,
+        externalInvalid,
+      );
+
+      formRef.current.fields.set(fieldId, {
+        ...currentFieldData,
+        validityData: validityDataWithFormErrors,
+      });
     }
 
     if (revalidate) {
@@ -84,15 +113,8 @@ export function useFieldValidation(
         };
         element.setCustomValidity('');
 
-        if (controlId) {
-          const currentFieldData = formRef.current.fields.get(controlId);
-          if (currentFieldData) {
-            formRef.current.fields.set(controlId, {
-              ...currentFieldData,
-              ...getCombinedFieldValidityData(nextValidityData, false), // invalid = false
-            });
-          }
-        }
+        // The required value is now present; ignore stale external invalid state for this pass.
+        updateRegisteredFieldValidity(nextValidityData, false);
         setValidityData(nextValidityData);
         return;
       }
@@ -156,9 +178,9 @@ export function useFieldValidation(
     const nextState = getState(element);
 
     let defaultValidationMessage;
-    const validateOnChange = shouldValidateOnChange();
+    const isValidatingOnChange = shouldValidateOnChange();
 
-    if (element.validationMessage && !validateOnChange) {
+    if (element.validationMessage && !isValidatingOnChange) {
       // not validating on change, if there is a `validationMessage` from
       // native validity, set errors and skip calling the custom validate fn
       defaultValidationMessage = element.validationMessage;
@@ -181,6 +203,9 @@ export function useFieldValidation(
         'then' in resultOrPromise
       ) {
         result = await resultOrPromise;
+        if (validationCommitId !== validationCommitIdRef.current) {
+          return;
+        }
       } else {
         result = resultOrPromise;
       }
@@ -196,7 +221,7 @@ export function useFieldValidation(
           validationErrors = [result];
           element.setCustomValidity(result);
         }
-      } else if (validateOnChange) {
+      } else if (isValidatingOnChange) {
         // validate function returned no errors, if validating on change
         // we need to clear the custom validity state
         element.setCustomValidity('');
@@ -219,91 +244,45 @@ export function useFieldValidation(
       initialValue: validityData.initialValue,
     };
 
-    if (controlId) {
-      const currentFieldData = formRef.current.fields.get(controlId);
-      if (currentFieldData) {
-        formRef.current.fields.set(controlId, {
-          ...currentFieldData,
-          ...getCombinedFieldValidityData(nextValidityData, invalid),
-        });
-      }
-    }
+    // Keep Form-level errors part of overall field validity for submit blocking/focus logic.
+    updateRegisteredFieldValidity(nextValidityData);
 
     setValidityData(nextValidityData);
   });
 
+  const change = useStableCallback((value: unknown) => {
+    timeout.clear();
+    const validateOnChange = shouldValidateOnChange();
+
+    if (validateOnChange && value !== '' && validationDebounceTime) {
+      validationCommitIdRef.current += 1;
+      timeout.start(validationDebounceTime, () => {
+        commit(value);
+      });
+    } else {
+      commit(value, !validateOnChange);
+    }
+  });
+
   const getValidationProps = React.useCallback(
-    (externalProps = {}) =>
+    (disabled: boolean, externalProps: HTMLProps = {}) =>
       mergeProps<any>(
-        getDescriptionProps,
-        state.valid === false ? { 'aria-invalid': true } : EMPTY_OBJECT,
-        externalProps,
+        getDescriptionProps(externalProps),
+        state.valid === false && !state.disabled && !disabled
+          ? { 'aria-invalid': true }
+          : EMPTY_OBJECT,
       ),
-    [getDescriptionProps, state.valid],
-  );
-
-  const getInputValidationProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'input'>(
-        {
-          onChange(event) {
-            // Workaround for https://github.com/facebook/react/issues/9023
-            if (event.nativeEvent.defaultPrevented) {
-              return;
-            }
-
-            clearErrors(name);
-
-            if (!shouldValidateOnChange()) {
-              commit(event.currentTarget.value, true);
-              return;
-            }
-
-            if (invalid) {
-              return;
-            }
-
-            const element = event.currentTarget;
-
-            if (element.value === '') {
-              // Ignore the debounce time for empty values.
-              commit(element.value);
-              return;
-            }
-
-            timeout.clear();
-
-            if (validationDebounceTime) {
-              timeout.start(validationDebounceTime, () => {
-                commit(element.value);
-              });
-            } else {
-              commit(element.value);
-            }
-          },
-        },
-        getValidationProps(externalProps),
-      ),
-    [
-      getValidationProps,
-      clearErrors,
-      name,
-      timeout,
-      commit,
-      invalid,
-      validationDebounceTime,
-      shouldValidateOnChange,
-    ],
+    [getDescriptionProps, state.disabled, state.valid],
   );
 
   return React.useMemo(
     () => ({
       getValidationProps,
-      getInputValidationProps,
       inputRef,
       commit,
+      change,
     }),
-    [getValidationProps, getInputValidationProps, commit],
+    [getValidationProps, commit, change],
   );
 }
 
@@ -318,13 +297,13 @@ export interface UseFieldValidationParameters {
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   state: FieldRootState;
-  name: string | undefined;
   shouldValidateOnChange: () => boolean;
+  getRegisteredFieldId: () => string | undefined;
 }
 
 export interface UseFieldValidationReturnValue {
-  getValidationProps: (props?: HTMLProps) => HTMLProps;
-  getInputValidationProps: (props?: HTMLProps) => HTMLProps;
+  getValidationProps: (disabled: boolean, props?: HTMLProps) => HTMLProps;
   inputRef: React.RefObject<HTMLInputElement | null>;
-  commit: (value: unknown, revalidate?: boolean) => Promise<void>;
+  commit: (value: unknown) => Promise<void>;
+  change: (value: unknown) => void;
 }

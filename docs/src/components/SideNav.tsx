@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import scrollIntoView from 'scroll-into-view-if-needed';
 import { HEADER_HEIGHT } from './Header';
+import './SideNav.css';
 
 export function Root(props: React.ComponentProps<'div'>) {
   return (

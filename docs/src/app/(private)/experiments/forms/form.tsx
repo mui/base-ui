@@ -16,10 +16,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { z } from 'zod';
 import styles from './form.module.css';
 
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 
 const fonts = [
   { value: 'sans', label: 'Sans-serif' },
@@ -106,7 +103,7 @@ export default function Page() {
   const [checkboxGroupValue, setCheckboxGroupValue] = React.useState<string[]>([]);
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)' }}>
+    <div>
       <h1>Form</h1>
 
       <hr style={{ margin: '1rem 0' }} />
@@ -447,7 +444,7 @@ export default function Page() {
                 {(value: string[]) =>
                   value.length > 0
                     ? value.map((v) => fonts.find((f) => f.value === v)?.label).join(', ')
-                    : 'Select fonts...'
+                    : 'Select fonts…'
                 }
               </Select.Value>
               <Select.Icon className={styles.SelectIcon}>
@@ -491,7 +488,7 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
       height="12"
       viewBox="0 0 8 12"
       fill="none"
-      stroke="currentcolor"
+      stroke="currentColor"
       strokeWidth="1.5"
       {...props}
     >
@@ -503,7 +500,7 @@ function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+    <svg fill="currentColor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
   );
@@ -511,14 +508,7 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 function HorizontalRuleIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 24 24"
-      fill="currentcolor"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" {...props}>
       <line
         x1="3"
         y1="12"

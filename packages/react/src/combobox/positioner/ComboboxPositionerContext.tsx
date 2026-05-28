@@ -1,16 +1,17 @@
 'use client';
 import * as React from 'react';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { UseAnchorPositioningReturnValue } from '../../utils/useAnchorPositioning';
 
-export interface ComboboxPositionerContext {
-  side: Side;
-  align: Align;
-  arrowRef: React.RefObject<Element | null>;
-  arrowUncentered: boolean;
-  arrowStyles: React.CSSProperties;
-  anchorHidden: boolean;
-  isPositioned: boolean;
-}
+export type ComboboxPositionerContext = Pick<
+  UseAnchorPositioningReturnValue,
+  | 'side'
+  | 'align'
+  | 'arrowRef'
+  | 'arrowUncentered'
+  | 'arrowStyles'
+  | 'anchorHidden'
+  | 'isPositioned'
+>;
 
 export const ComboboxPositionerContext = React.createContext<ComboboxPositionerContext | undefined>(
   undefined,

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import {
   FloatingNode,
   FloatingTree,
@@ -8,19 +7,17 @@ import {
   useFloatingTree,
 } from '../floating-ui-react';
 import { type MenuRoot } from '../menu/root/MenuRoot';
-import { BaseUIComponentProps } from '../utils/types';
+import { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
-import { useOpenInteractionType } from '../utils/useOpenInteractionType';
-import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useBaseUiId } from '../utils/useBaseUiId';
+import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
+import { useBaseUiId } from '../internals/useBaseUiId';
 import { MenuOpenEventDetails } from '../menu/utils/types';
-import { StateAttributesMapping } from '../utils/getStateAttributesProps';
+import { StateAttributesMapping } from '../internals/getStateAttributesProps';
+import { MenubarDataAttributes } from './MenubarDataAttributes';
 
-const menubarStateAttributesMapping: StateAttributesMapping<Menubar.State> = {
+const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {
   hasSubmenuOpen(value) {
-    return {
-      'data-has-submenu-open': value ? 'true' : 'false',
-    };
+    return value ? { [MenubarDataAttributes.hasSubmenuOpen]: '' } : null;
   },
 };
 
@@ -41,36 +38,20 @@ export const Menubar = React.forwardRef(function Menubar(
     modal = true,
     disabled = false,
     id: idProp,
+    style,
     ...elementProps
   } = props;
 
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
 
-  const {
-    openMethod,
-    triggerProps: interactionTypeProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(hasSubmenuOpen);
-
-  React.useEffect(() => {
-    if (!hasSubmenuOpen) {
-      resetOpenInteractionType();
-    }
-  }, [hasSubmenuOpen, resetOpenInteractionType]);
-
-  useScrollLock(modal && hasSubmenuOpen && openMethod !== 'touch', contentElement);
-
   const id = useBaseUiId(idProp);
 
-  const state = React.useMemo(
-    () => ({
-      orientation,
-      modal,
-      hasSubmenuOpen,
-    }),
-    [orientation, modal, hasSubmenuOpen],
-  );
+  const state: MenubarState = {
+    orientation,
+    modal,
+    hasSubmenuOpen,
+  };
 
   const contentRef = React.useRef<HTMLDivElement>(null);
   const allowMouseUpTriggerRef = React.useRef(false);
@@ -97,12 +78,14 @@ export const Menubar = React.forwardRef(function Menubar(
           <CompositeRoot
             render={render}
             className={className}
+            style={style}
             state={state}
             stateAttributesMapping={menubarStateAttributesMapping}
             refs={[forwardedRef, setContentElement, contentRef]}
-            props={[{ role: 'menubar', id }, interactionTypeProps, elementProps]}
+            props={[{ role: 'menubar', id }, elementProps]}
             orientation={orientation}
             loopFocus={loopFocus}
+            enableHomeAndEndKeys
             highlightItemOnHover={hasSubmenuOpen}
           />
         </MenubarContent>
@@ -156,28 +139,28 @@ export interface MenubarState {
   hasSubmenuOpen: boolean;
 }
 
-export interface MenubarProps extends BaseUIComponentProps<'div', Menubar.State> {
+export interface MenubarProps extends BaseUIComponentProps<'div', MenubarState> {
   /**
    * Whether the menubar is modal.
    * @default true
    */
-  modal?: boolean;
+  modal?: boolean | undefined;
   /**
    * Whether the whole menubar is disabled.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * The orientation of the menubar.
    * @default 'horizontal'
    */
-  orientation?: MenuRoot.Orientation;
+  orientation?: MenuRoot.Orientation | undefined;
   /**
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loopFocus?: boolean;
+  loopFocus?: boolean | undefined;
 }
 
 export namespace Menubar {

@@ -2,9 +2,9 @@
 import * as React from 'react';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A description that describes the toast.
@@ -17,17 +17,22 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
   componentProps: ToastDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, id: idProp, children: childrenProp, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    id: idProp,
+    children: childrenProp,
+    ...elementProps
+  } = componentProps;
 
-  const { toast } = useToastRootContext();
+  const { toast, setDescriptionId } = useToastRootContext();
 
   const children = childrenProp ?? toast.description;
 
   const shouldRender = Boolean(children);
 
   const id = useId(idProp);
-
-  const { setDescriptionId } = useToastRootContext();
 
   useIsoLayoutEffect(() => {
     if (!shouldRender) {
@@ -41,12 +46,9 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     };
   }, [shouldRender, id, setDescriptionId]);
 
-  const state: ToastDescription.State = React.useMemo(
-    () => ({
-      type: toast.type,
-    }),
-    [toast.type],
-  );
+  const state: ToastDescriptionState = {
+    type: toast.type,
+  };
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
@@ -72,7 +74,7 @@ export interface ToastDescriptionState {
   type: string | undefined;
 }
 
-export interface ToastDescriptionProps extends BaseUIComponentProps<'p', ToastDescription.State> {}
+export interface ToastDescriptionProps extends BaseUIComponentProps<'p', ToastDescriptionState> {}
 
 export namespace ToastDescription {
   export type State = ToastDescriptionState;

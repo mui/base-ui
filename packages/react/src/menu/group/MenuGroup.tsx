@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { MenuGroupContext } from './MenuGroupContext';
 
 /**
@@ -12,13 +12,11 @@ import { MenuGroupContext } from './MenuGroupContext';
  */
 export const MenuGroup = React.forwardRef(function MenuGroup(
   componentProps: MenuGroup.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
-
-  const context = React.useMemo(() => ({ setLabelId }), [setLabelId]);
 
   const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
@@ -29,10 +27,10 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
     },
   });
 
-  return <MenuGroupContext.Provider value={context}>{element}</MenuGroupContext.Provider>;
+  return <MenuGroupContext.Provider value={setLabelId}>{element}</MenuGroupContext.Provider>;
 });
 
-export interface MenuGroupProps extends BaseUIComponentProps<'div', MenuGroup.State> {
+export interface MenuGroupProps extends BaseUIComponentProps<'div', MenuGroupState> {
   /**
    * The content of the component.
    */

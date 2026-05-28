@@ -10,7 +10,7 @@ describe('<ScrollArea.Thumb />', () => {
     render(node) {
       return render(
         <ScrollArea.Root>
-          <ScrollArea.Scrollbar>{node}</ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar keepMounted>{node}</ScrollArea.Scrollbar>
         </ScrollArea.Root>,
       );
     },

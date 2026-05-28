@@ -38,6 +38,7 @@ export function useFloatingNodeId(externalTree?: FloatingTreeStore): string | un
     if (!id) {
       return undefined;
     }
+
     const node = { id, parentId };
     tree?.addNode(node);
     return () => {
@@ -72,7 +73,7 @@ export function FloatingNode(props: FloatingNodeProps): React.JSX.Element {
 
 export interface FloatingTreeProps {
   children?: React.ReactNode;
-  externalTree?: FloatingTreeStore;
+  externalTree?: FloatingTreeStore | undefined;
 }
 
 /**

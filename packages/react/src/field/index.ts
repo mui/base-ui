@@ -6,3 +6,4 @@ export type * from './description/FieldDescription';
 export type * from './error/FieldError';
 export type * from './control/FieldControl';
 export type * from './validity/FieldValidity';
+export type * from './item/FieldItem';

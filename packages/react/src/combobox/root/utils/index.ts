@@ -1,4 +1,4 @@
-import { stringifyAsLabel } from '../../../utils/resolveValueLabel';
+import { stringifyAsLabel } from '../../../internals/resolveValueLabel';
 import type { Filter } from './useFilter';
 
 /**
@@ -15,6 +15,7 @@ export function createCollatorItemFilter(
     if (item == null) {
       return false;
     }
+
     const itemString = stringifyAsLabel(item, itemToStringLabel);
     return collatorFilter.contains(itemString, query);
   };

@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useMeterRootContext } from '../root/MeterRootContext';
-import type { MeterRoot } from '../root/MeterRoot';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { MeterRootState } from '../root/MeterRoot';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A text element displaying the current value.
@@ -15,7 +15,7 @@ export const MeterValue = React.forwardRef(function MeterValue(
   componentProps: MeterValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, style, ...elementProps } = componentProps;
 
   const { value, formattedValue } = useMeterRootContext();
 
@@ -24,23 +24,23 @@ export const MeterValue = React.forwardRef(function MeterValue(
     props: [
       {
         'aria-hidden': true,
-        children:
-          typeof children === 'function'
-            ? children(formattedValue, value)
-            : ((formattedValue || value) ?? ''),
+        children: typeof children === 'function' ? children(formattedValue, value) : formattedValue,
       },
       elementProps,
     ],
   });
 });
 
+export interface MeterValueState extends MeterRootState {}
+
 export interface MeterValueProps extends Omit<
-  BaseUIComponentProps<'span', MeterRoot.State>,
+  BaseUIComponentProps<'span', MeterValueState>,
   'children'
 > {
-  children?: null | ((formattedValue: string, value: number) => React.ReactNode);
+  children?: null | ((formattedValue: string, value: number) => React.ReactNode) | undefined;
 }
 
 export namespace MeterValue {
+  export type State = MeterValueState;
   export type Props = MeterValueProps;
 }

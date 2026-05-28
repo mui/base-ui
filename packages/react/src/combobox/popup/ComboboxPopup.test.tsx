@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Combobox.Popup />', () => {
   const { render } = createRenderer();
@@ -32,7 +32,7 @@ describe('<Combobox.Popup />', () => {
     );
 
     const popup = await screen.findByTestId('popup');
-    expect(popup).to.have.attribute('data-open');
+    expect(popup).toHaveAttribute('data-open');
   });
 
   it('sets role to presentation when input renders outside the popup', async () => {
@@ -49,7 +49,7 @@ describe('<Combobox.Popup />', () => {
 
     const popup = await screen.findByTestId('popup');
     await waitFor(() => {
-      expect(popup).to.have.attribute('role', 'presentation');
+      expect(popup).toHaveAttribute('role', 'presentation');
     });
   });
 
@@ -68,7 +68,7 @@ describe('<Combobox.Popup />', () => {
 
     const popup = await screen.findByTestId('popup');
     await waitFor(() => {
-      expect(popup).to.have.attribute('role', 'dialog');
+      expect(popup).toHaveAttribute('role', 'dialog');
     });
   });
 });

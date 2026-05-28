@@ -153,6 +153,19 @@
   margin-top: 1rem;
 }
 
+.NoAnimationPopup {
+  transition: none !important;
+  animation: none !important;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 /* -------------------------------------------------------------
  * Trigger rows — used by triggers-perf.tsx
  * (ported from the former perf/perf.module.css)
