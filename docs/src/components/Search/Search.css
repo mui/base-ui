@@ -138,7 +138,6 @@
     transition: opacity 150ms ease;
   }
 
-  .SearchBackdrop[data-ending-style],
   .SearchBackdrop[data-starting-style] {
     opacity: 0;
   }
@@ -203,9 +202,7 @@
     width: min(40rem, calc(100vw - 2rem));
   }
 
-  .SearchPopupContained[data-ending-style],
   .SearchPopupContained[data-starting-style],
-  .SearchPopupDefault[data-ending-style],
   .SearchPopupDefault[data-starting-style] {
     transform: translateY(-1rem) scale(0.9);
     opacity: 0;
