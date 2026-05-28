@@ -164,6 +164,10 @@ describe('<Select.Root />', () => {
         'data-selected',
         '',
       );
+      // The previously selected option must not stay selected alongside the new one while open.
+      expect(screen.getByRole('option', { name: 'a', hidden: false })).not.toHaveAttribute(
+        'data-selected',
+      );
     });
 
     it('should not update the internal value if the controlled value prop does not change', async () => {
@@ -733,6 +737,76 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('matches browser autofill against an item rendered label for primitive values', async () => {
+    const { user } = await render(
+      <Select.Root name="country">
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="US">United States</Select.Item>
+              <Select.Item value="CA">Canada</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    const selectInput = screen.getByRole('textbox', { hidden: true });
+
+    // The browser autofills the rendered text ("Canada"), not the value ("CA").
+    fireEvent.change(selectInput, { target: { value: 'Canada' } });
+    await flushMicrotasks();
+
+    await user.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Canada', hidden: false })).toHaveAttribute(
+        'data-selected',
+        '',
+      );
+    });
+  });
+
+  it('does not mark the field dirty when autofill is canceled', async () => {
+    await render(
+      <Field.Root>
+        <Select.Root
+          name="country"
+          onValueChange={(_value, eventDetails) => {
+            eventDetails.cancel();
+          }}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="US">United States</Select.Item>
+                <Select.Item value="CA">Canada</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      </Field.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    const selectInput = screen.getByRole('textbox', { hidden: true });
+
+    expect(trigger).not.toHaveAttribute('data-dirty');
+
+    fireEvent.change(selectInput, { target: { value: 'CA' } });
+    await flushMicrotasks();
+
+    // The change was canceled, so the value never changed and the field stays pristine.
+    expect(trigger).not.toHaveAttribute('data-dirty');
+  });
+
   it.each([
     { lockState: 'readOnly', label: 'inside Field', withField: true },
     { lockState: 'disabled', label: 'inside Field', withField: true },
@@ -792,6 +866,40 @@ describe('<Select.Root />', () => {
       if (withField) {
         expect(screen.getByTestId('error')).toHaveTextContent('test');
       }
+    },
+  );
+
+  it.each(['disabled', 'readOnly'] as const)(
+    'does not commit item selection when root is %s and forced open',
+    async (lockState) => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root
+          open
+          onValueChange={onValueChange}
+          disabled={lockState === 'disabled'}
+          readOnly={lockState === 'readOnly'}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'b', hidden: false }));
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('option', { name: 'b', hidden: false })).not.toHaveAttribute(
+        'data-selected',
+      );
     },
   );
 
@@ -2656,6 +2764,26 @@ describe('<Select.Root />', () => {
         const trigger = screen.getByTestId('trigger');
 
         expect(trigger).toHaveAttribute('data-filled');
+      });
+
+      it('does not add [data-filled] attribute when single value serializes to empty string', async () => {
+        await render(
+          <Field.Root>
+            <Select.Root value="">
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        expect(screen.getByTestId('trigger')).not.toHaveAttribute('data-filled');
       });
 
       it('does not add [data-filled] attribute when multiple value is empty', async () => {

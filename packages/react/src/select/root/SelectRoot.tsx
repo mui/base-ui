@@ -194,7 +194,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const initialValueRef = React.useRef(value);
-  const hasSelectedValue = multiple ? Array.isArray(value) && value.length > 0 : value != null;
+  // Mirror the `hasSelectedValue` store selector so the Field's filled state agrees with the
+  // trigger/value placeholder semantics (a value serializing to `''` counts as empty).
+  const hasSelectedValue = multiple
+    ? Array.isArray(value) && value.length > 0
+    : value != null && stringifyAsValue(value, itemToStringValue) !== '';
 
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
@@ -577,26 +581,25 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   return;
                 }
 
-                // Handle single selection: match against registered values using serialization
-                const matchingValue = valuesRef.current.find((v) => {
-                  // Try matching by value first (e.g., "US" for country code)
-                  const candidateValue = stringifyAsValue(v, itemToStringValue);
-                  if (candidateValue.toLowerCase() === nextValue.toLowerCase()) {
-                    return true;
-                  }
-                  // Also try matching by label for browser autofill compatibility
-                  // (browsers autofill with displayed text like "United States", not the underlying value)
-                  const candidateLabel = stringifyAsLabel(v, itemToStringLabel);
-                  if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
-                    return true;
-                  }
-                  return false;
+                // Match the autofilled text against each registered item by its serialized
+                // value (e.g. "US"), its serialized label, or its rendered text content
+                // (e.g. "United States") which is what the browser typically autofills.
+                const nextValueLower = nextValue.toLowerCase();
+                const matchingValue = valuesRef.current.find((candidate, index) => {
+                  const renderedLabel = labelsRef.current[index];
+                  return (
+                    stringifyAsValue(candidate, itemToStringValue).toLowerCase() ===
+                      nextValueLower ||
+                    stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() ===
+                      nextValueLower ||
+                    (renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower)
+                  );
                 });
 
                 if (matchingValue != null) {
-                  setDirty(matchingValue !== validityData.initialValue);
+                  // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
+                  // mark the field dirty and run validation only when the value actually changes.
                   setValue(matchingValue, details);
-                  validation.change(matchingValue);
                 }
               }
 
