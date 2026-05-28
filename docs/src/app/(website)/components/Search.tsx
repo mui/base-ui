@@ -13,8 +13,11 @@ export function Search() {
     >
       {({ isCmd }) => (
         <React.Fragment>
-          Search [{isCmd ? <kbd>⌘</kbd> : <kbd>Ctrl+</kbd>}
-          <kbd>k</kbd>]
+          Search
+          <span className="WebsiteSearchTriggerShortcut">
+            ({isCmd ? <kbd>⌘</kbd> : <kbd>Ctrl+</kbd>}
+            <kbd>k</kbd>)
+          </span>
         </React.Fragment>
       )}
     </Search_>
