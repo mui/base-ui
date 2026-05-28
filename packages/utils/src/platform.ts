@@ -149,9 +149,11 @@ export const platform = {
 } as const;
 
 /**
- * Normalizes the modern `navigator.userAgentData` API (Chromium) and the legacy
- * `navigator.userAgent` / `navigator.platform` strings (Firefox, Safari, older
- * Chromium) into a single shape.
+ * Reads `navigator.userAgent` / `navigator.platform` (legacy but universally
+ * supported) into a normalized shape. In development, prefers the modern
+ * `navigator.userAgentData` API on Chromium to avoid DevTools warnings about
+ * the deprecated reads; that branch is dead-code-eliminated in production
+ * builds to keep the bundle small.
  *
  * Returns empty/zero values when `navigator` is undefined (SSR), so every
  * derived flag safely evaluates to `false`.
@@ -161,19 +163,22 @@ function readRawData(): RawNavigatorData {
     return { userAgent: '', platform: '', maxTouchPoints: 0 };
   }
 
-  // Prefer `userAgentData` when available; `navigator.userAgent` and
-  // `navigator.platform` are deprecated and trigger DevTools warnings.
-  const uaData = (navigator as Navigator & { userAgentData?: NavigatorUAData | undefined })
-    .userAgentData;
+  if (process.env.NODE_ENV !== 'production') {
+    const uaData = (navigator as Navigator & { userAgentData?: NavigatorUAData | undefined })
+      .userAgentData;
 
-  const userAgent =
-    uaData && Array.isArray(uaData.brands)
-      ? uaData.brands.map(({ brand, version }) => `${brand}/${version}`).join(' ')
-      : navigator.userAgent;
+    if (uaData && Array.isArray(uaData.brands)) {
+      return {
+        userAgent: uaData.brands.map(({ brand, version }) => `${brand}/${version}`).join(' '),
+        platform: uaData.platform ?? navigator.platform ?? '',
+        maxTouchPoints: navigator.maxTouchPoints ?? 0,
+      };
+    }
+  }
 
   return {
-    userAgent,
-    platform: uaData?.platform ?? navigator.platform ?? '',
+    userAgent: navigator.userAgent,
+    platform: navigator.platform ?? '',
     maxTouchPoints: navigator.maxTouchPoints ?? 0,
   };
 }
