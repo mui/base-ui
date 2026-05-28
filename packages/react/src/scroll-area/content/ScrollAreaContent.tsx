@@ -21,9 +21,10 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
   const { render, className, style, ...elementProps } = componentProps;
 
   const { computeThumbPosition } = useScrollAreaViewportContext();
-  const { viewportState } = useScrollAreaRootContext();
+  const { hasMeasuredScrollbar, viewportState } = useScrollAreaRootContext();
 
   const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
+  const computeOnInitialResizeRef = React.useRef(hasMeasuredScrollbar);
 
   useIsoLayoutEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
@@ -32,12 +33,16 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 
     let hasInitialized = false;
     const resizeObserver = new ResizeObserver(() => {
-      // ResizeObserver fires once upon observing, so we skip the initial call
-      // to avoid double-calculating the thumb position on mount.
       if (!hasInitialized) {
         hasInitialized = true;
-        return;
+
+        // Skip the normal mount callback, but recompute if content mounted after
+        // the viewport's initial measurement.
+        if (!computeOnInitialResizeRef.current) {
+          return;
+        }
       }
+
       computeThumbPosition();
     });
 

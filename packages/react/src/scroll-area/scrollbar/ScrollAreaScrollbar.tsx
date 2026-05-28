@@ -45,6 +45,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     thumbXRef,
     handlePointerDown,
     handlePointerUp,
+    handleScroll,
     rootId,
     thumbSize,
     hasMeasuredScrollbar,
@@ -88,8 +89,6 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         return;
       }
 
-      event.preventDefault();
-
       const horizontal = orientation === 'horizontal';
       const scrollProperty = horizontal ? 'scrollLeft' : 'scrollTop';
       const delta = horizontal ? event.deltaX : event.deltaY;
@@ -101,18 +100,32 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       const maxScrollValue = horizontal && direction === 'rtl' ? 0 : maxScroll;
       const scrollValue = viewportEl[scrollProperty];
 
+      // At an edge (or with no overflow), let the wheel event chain to the
+      // parent/page instead of swallowing it via `preventDefault`.
       if ((scrollValue <= minScroll && delta < 0) || (scrollValue >= maxScrollValue && delta > 0)) {
         return;
       }
+
+      event.preventDefault();
 
       viewportEl[scrollProperty] = Math.min(
         maxScrollValue,
         Math.max(minScroll, scrollValue + delta),
       );
+
+      handleScroll({ x: viewportEl.scrollLeft, y: viewportEl.scrollTop });
     }
 
     return addEventListener(scrollbarEl, 'wheel', handleWheel, { passive: false });
-  }, [direction, orientation, scrollbarXRef, scrollbarYRef, shouldRender, viewportRef]);
+  }, [
+    direction,
+    handleScroll,
+    orientation,
+    scrollbarXRef,
+    scrollbarYRef,
+    shouldRender,
+    viewportRef,
+  ]);
 
   const props: HTMLProps = {
     ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
@@ -184,6 +197,8 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
         viewportRef.current.scrollLeft = newScrollLeft;
       }
+
+      handleScroll({ x: viewportRef.current.scrollLeft, y: viewportRef.current.scrollTop });
 
       handlePointerDown(event);
     },

@@ -465,6 +465,52 @@ describe('<ScrollArea.Root />', () => {
       });
     });
 
+    it('measures content mounted after the viewport initial measurement', async () => {
+      function App() {
+        const [show, setShow] = React.useState(false);
+        return (
+          <ScrollArea.Root
+            data-testid="root"
+            style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+          >
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              {show && (
+                <ScrollArea.Content>
+                  <div
+                    style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }}
+                  />
+                </ScrollArea.Content>
+              )}
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation="vertical">
+              <ScrollArea.Thumb />
+            </ScrollArea.Scrollbar>
+            <button type="button" onClick={() => setShow(true)}>
+              show
+            </button>
+          </ScrollArea.Root>
+        );
+      }
+
+      await render(<App />);
+
+      const root = screen.getByTestId('root');
+      const viewport = screen.getByTestId('viewport');
+
+      // Empty viewport: no overflow and kept out of tab order.
+      await waitFor(() => {
+        expect(root).not.toHaveAttribute('data-has-overflow-y');
+      });
+      expect(viewport).toHaveAttribute('tabindex', '-1');
+
+      fireEvent.click(screen.getByText('show'));
+
+      // Once oversized content mounts, overflow state and tab order must update.
+      await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-x'));
+      await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-y'));
+      await waitFor(() => expect(viewport).toHaveAttribute('tabindex', '0'));
+    });
+
     it('applies data attributes on root, viewport and scrollbars based on overflow and edges', async () => {
       await render(
         <ScrollArea.Root data-testid="root" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
@@ -656,6 +702,36 @@ describe('<ScrollArea.Root />', () => {
       const horizontalEndPx = viewportStyle.getPropertyValue('--scroll-area-overflow-x-end');
       expect(horizontalEndPx).not.toBe('');
       expect(horizontalEndPx).not.toBe('0px');
+    });
+
+    it('recomputes overflow edges when overflowEdgeThreshold changes', async () => {
+      const renderArea = (yStart: number) => (
+        <ScrollArea.Root
+          data-testid="root"
+          overflowEdgeThreshold={{ yStart }}
+          style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+        >
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <ScrollArea.Content>
+              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>
+      );
+
+      const { rerender } = await render(renderArea(5));
+
+      const viewport = screen.getByTestId('viewport');
+
+      fireEvent.scroll(viewport, { target: { scrollTop: 10 } });
+      await waitFor(() => expect(viewport).toHaveAttribute('data-overflow-y-start'));
+
+      // Raising the threshold above the current offset must clear the edge without a new scroll.
+      await rerender(renderArea(20));
+      await waitFor(() => expect(viewport).not.toHaveAttribute('data-overflow-y-start'));
     });
 
     it('does not add state attributes when content does not overflow', async () => {
