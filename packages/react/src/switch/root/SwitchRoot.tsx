@@ -273,7 +273,9 @@ export interface SwitchRootState extends FieldRootState {
 export interface SwitchRootProps
   extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', SwitchRootState>, 'onChange'> {
   /**
-   * The id of the switch element.
+   * The id of the hidden input element.
+   *
+   * When `nativeButton` is `true`, the id is applied to the root element.
    */
   id?: string | undefined;
   /**
