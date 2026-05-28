@@ -42,6 +42,26 @@ function latestRunDir(experimentDir: string): string | undefined {
   return timestamps.length > 0 ? join(experimentDir, timestamps[timestamps.length - 1]) : undefined;
 }
 
+/**
+ * Parse a results timestamp dir name back into a Date. The format
+ * `YYYY-MM-DDTHH-mm-ss.sssZ` uses dashes instead of colons (filesystem
+ * safety) — flip them back to make the string ISO-parsable.
+ */
+function timestampDirToDate(dirName: string): Date {
+  const iso = dirName.replace(/T(\d{2})-(\d{2})-(\d{2})/, 'T$1:$2:$3');
+  return new Date(iso);
+}
+
+/** Compact relative age, e.g. `2h`, `3d`, `5m`. */
+function relativeAge(then: Date, now: Date): string {
+  const seconds = Math.max(0, (now.getTime() - then.getTime()) / 1000);
+  if (seconds < 60) return `${Math.floor(seconds)}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+  if (seconds < 86_400) return `${Math.floor(seconds / 3600)}h`;
+  if (seconds < 86_400 * 30) return `${Math.floor(seconds / 86_400)}d`;
+  return `${Math.floor(seconds / (86_400 * 30))}mo`;
+}
+
 /** Aggregate one eval's runs within a timestamp directory. */
 function aggregateEval(evalDir: string): EvalAggregate | undefined {
   const summaryPath = join(evalDir, 'summary.json');
@@ -118,6 +138,31 @@ interface TableRow {
   cells: string[];
 }
 
+// ANSI escapes only emit when writing to a TTY so the markdown stays clean
+// when piped to a file or pasted into a doc.
+const COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
+const ANSI = {
+  reset: '\x1b[0m',
+  dim: '\x1b[2m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  red: '\x1b[31m',
+};
+const ANSI_RE = /\x1b\[[0-9;]*m/g;
+const visibleLength = (s: string): number => s.replace(ANSI_RE, '').length;
+
+function colorize(text: string, code: string): string {
+  return COLOR ? `${code}${text}${ANSI.reset}` : text;
+}
+
+/** Colour a pass-rate cell so the matrix is scannable at a glance. */
+function passRateCell(rate: number): string {
+  const text = `${rate.toFixed(0)}%`;
+  if (rate >= 100) return colorize(text, ANSI.green);
+  if (rate > 0) return colorize(text, ANSI.yellow);
+  return colorize(text, ANSI.red);
+}
+
 function renderTable(
   title: string,
   headerColumns: string[],
@@ -126,16 +171,19 @@ function renderTable(
 ): string {
   const allColumns = [...headerColumns, ...dataColumns];
   // Pad each column to its widest cell so the table is readable in a terminal
-  // (still valid markdown; renderers ignore the extra spaces).
+  // (still valid markdown; renderers ignore the extra spaces). Padding works
+  // on *visible* width so ANSI escape codes don't throw off alignment.
   const widths = allColumns.map((heading, columnIndex) => {
-    let max = heading.length;
+    let max = visibleLength(heading);
     for (const row of rows) {
       const cell = [...row.headers, ...row.cells][columnIndex] ?? '';
-      if (cell.length > max) max = cell.length;
+      const length = visibleLength(cell);
+      if (length > max) max = length;
     }
     return Math.max(max, 3); // separator row needs at least `---`
   });
-  const pad = (cell: string, width: number): string => cell + ' '.repeat(width - cell.length);
+  const pad = (cell: string, width: number): string =>
+    cell + ' '.repeat(width - visibleLength(cell));
   const formatRow = (cells: string[]): string =>
     `| ${cells.map((cell, columnIndex) => pad(cell, widths[columnIndex])).join(' | ')} |`;
 
@@ -160,6 +208,8 @@ function reportMatrix(): void {
   interface Row {
     key: MatrixKey;
     collected: Map<string, EvalAggregate>;
+    runAt: Date;
+    meanPassRate: number;
   }
   const collected: Row[] = [];
   const evalNames = new Set<string>();
@@ -173,37 +223,78 @@ function reportMatrix(): void {
       continue;
     }
     const aggregates = collectRun(runDir);
-    collected.push({ key, collected: aggregates });
+    if (aggregates.size === 0) {
+      continue;
+    }
+    const rates = [...aggregates.values()].map((a) => a.passRate);
+    const meanPassRate = rates.reduce((sum, r) => sum + r, 0) / rates.length;
+    collected.push({
+      key,
+      collected: aggregates,
+      runAt: timestampDirToDate(runDir.split('/').pop() ?? ''),
+      meanPassRate,
+    });
     for (const evalName of aggregates.keys()) {
       evalNames.add(evalName);
     }
   }
 
+  // Top performers first; ties break on mechanism for stable output.
   collected.sort((a, b) => {
+    if (a.meanPassRate !== b.meanPassRate) {
+      return b.meanPassRate - a.meanPassRate;
+    }
     if (a.key.mechanism !== b.key.mechanism) {
       return a.key.mechanism.localeCompare(b.key.mechanism);
     }
     return a.key.model.localeCompare(b.key.model);
   });
 
-  const columns = [...evalNames].sort();
-  const headerColumns = ['Mechanism', 'Model'];
-  const row = (formatter: (aggregate: EvalAggregate) => string): TableRow[] =>
-    collected.map(({ key, collected: aggregates }) => ({
-      headers: [key.mechanism, key.model],
-      cells: columns.map((name) => {
-        const a = aggregates.get(name);
-        return a ? formatter(a) : '–';
-      }),
-    }));
+  // "Stale" = row's latest run is more than a day older than the newest row.
+  // Dim the entire row so a quick scan separates fresh comparable data from
+  // archive cruft.
+  const newest = collected.reduce((acc, r) => (r.runAt > acc ? r.runAt : acc), new Date(0));
+  const now = new Date();
+  const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000;
+  const isStale = (row: Row): boolean =>
+    newest.getTime() - row.runAt.getTime() > STALE_THRESHOLD_MS;
 
-  console.log('# Base UI agent-knowledge matrix\n');
+  const columns = [...evalNames].sort();
+  const headerColumns = ['Mechanism', 'Model', 'Age'];
+  const row = (formatter: (aggregate: EvalAggregate) => string): TableRow[] =>
+    collected.map((r) => {
+      const ageText = relativeAge(r.runAt, now);
+      const stale = isStale(r);
+      const dim = (s: string): string => (stale ? colorize(s, ANSI.dim) : s);
+      return {
+        headers: [dim(r.key.mechanism), dim(r.key.model), dim(ageText)],
+        cells: columns.map((name) => {
+          const a = r.collected.get(name);
+          return dim(a ? formatter(a) : '–');
+        }),
+      };
+    });
+
+  console.log(`# Base UI agent-knowledge matrix\n`);
+  if (collected.some(isStale)) {
+    console.log(
+      `Rows older than 24h relative to the newest result are dimmed — they're not directly comparable to fresh runs.\n`,
+    );
+  }
   console.log(
     renderTable(
-      'Pass rate (mean duration)',
+      'Pass rate',
       headerColumns,
       columns,
-      row((a) => `${a.passRate.toFixed(0)}% (${a.meanDuration.toFixed(0)}s)`),
+      row((a) => passRateCell(a.passRate)),
+    ),
+  );
+  console.log(
+    renderTable(
+      'Mean duration (s)',
+      headerColumns,
+      columns,
+      row((a) => a.meanDuration.toFixed(0)),
     ),
   );
   console.log(
