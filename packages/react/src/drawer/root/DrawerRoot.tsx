@@ -49,6 +49,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
     snapPoint: snapPointProp,
     defaultSnapPoint,
     onSnapPointChange,
+    virtualKeyboardAvoidance: VirtualKeyboardAvoidance,
   } = props;
 
   const parentDrawerRootContext = useDrawerRootContext(true);
@@ -214,20 +215,25 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
     ],
   );
 
-  const resolvedChildren: React.ReactNode | PayloadChildRenderFunction<Payload> =
-    typeof children === 'function' ? (
-      (payload) => (
-        <React.Fragment>
-          <DrawerProviderReporter />
-          {children(payload)}
-        </React.Fragment>
-      )
-    ) : (
+  function renderChildren(nextChildren: React.ReactNode) {
+    const content = (
       <React.Fragment>
         <DrawerProviderReporter />
-        {children}
+        {nextChildren}
       </React.Fragment>
     );
+
+    if (!VirtualKeyboardAvoidance || swipeDirection !== 'down') {
+      return content;
+    }
+
+    return <VirtualKeyboardAvoidance>{content}</VirtualKeyboardAvoidance>;
+  }
+
+  const resolvedChildren: React.ReactNode | PayloadChildRenderFunction<Payload> =
+    typeof children === 'function'
+      ? (payload) => renderChildren(children(payload))
+      : renderChildren(children);
 
   return (
     <DrawerRootContext.Provider value={contextValue}>
@@ -316,6 +322,12 @@ export interface DrawerRootProps<Payload = unknown> {
    */
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
   /**
+   * A component that wraps the drawer contents to provide keyboard-aware focus and
+   * scroll handling for software keyboards. Pass `Drawer.virtualKeyboardAvoidance`
+   * to opt in. Only applies when `swipeDirection` is `'down'`.
+   */
+  virtualKeyboardAvoidance?: DrawerRootVirtualKeyboardAvoidance | undefined;
+  /**
    * The swipe direction used to dismiss the drawer.
    * @default 'down'
    */
@@ -355,6 +367,16 @@ export interface DrawerRootActions {
   unmount: () => void;
   close: () => void;
 }
+
+export interface DrawerRootVirtualKeyboardAvoidanceProps {
+  /**
+   * The drawer contents wrapped by the keyboard avoidance strategy.
+   */
+  children?: React.ReactNode;
+}
+
+export type DrawerRootVirtualKeyboardAvoidance =
+  React.ComponentType<DrawerRootVirtualKeyboardAvoidanceProps>;
 
 export type DrawerRootChangeEventReason =
   | typeof REASONS.triggerPress

@@ -20,17 +20,14 @@ const KEYBOARD_SCROLL_SLACK = 48;
 const KEYBOARD_SCROLL_DURATION = 260;
 const INPUT_TAP_MOVE_THRESHOLD = 10;
 const INPUT_TAP_HIT_SLOP = 16;
-const NON_TEXT_INPUT_TYPES = new Set([
-  'button',
-  'checkbox',
-  'color',
-  'file',
-  'hidden',
-  'image',
-  'radio',
-  'range',
-  'reset',
-  'submit',
+const KEYBOARD_INPUT_TYPES = new Set([
+  'email',
+  'number',
+  'password',
+  'search',
+  'tel',
+  'text',
+  'url',
 ]);
 
 interface ScrollAdjustment {
@@ -47,13 +44,7 @@ interface KeyboardVisualViewport {
   bottom: number;
 }
 
-/**
- * Enables keyboard-aware focus and scroll handling for software keyboards.
- * Doesn't render its own HTML element.
- *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
- */
-export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvider.Props) {
+function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProviderProps) {
   const { children } = props;
 
   const { store } = useDialogRootContext();
@@ -382,6 +373,8 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         return;
       }
 
+      // iOS only opens the software keyboard when focus happens synchronously
+      // inside the touch gesture.
       event.preventDefault();
       focusKeyboardInputWithoutPageScroll(keyboardFocusTarget);
       resetTouchTrackingState();
@@ -411,16 +404,18 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   );
 }
 
-export interface DrawerVirtualKeyboardProviderState {}
-
-export interface DrawerVirtualKeyboardProviderProps {
+interface DrawerVirtualKeyboardProviderProps {
   children?: React.ReactNode;
 }
 
-export namespace DrawerVirtualKeyboardProvider {
-  export type State = DrawerVirtualKeyboardProviderState;
-  export type Props = DrawerVirtualKeyboardProviderProps;
-}
+/**
+ * A component that wraps the drawer contents to provide keyboard-aware focus and
+ * scroll handling for software keyboards. Pass to the `virtualKeyboardAvoidance`
+ * prop on `Drawer.Root`.
+ *
+ * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ */
+export const virtualKeyboardAvoidance = DrawerVirtualKeyboardProvider;
 
 function isKeyboardInputElement(element: HTMLElement): boolean {
   const win = ownerWindow(element);
@@ -429,7 +424,7 @@ function isKeyboardInputElement(element: HTMLElement): boolean {
     return true;
   }
 
-  return element instanceof win.HTMLInputElement && !NON_TEXT_INPUT_TYPES.has(element.type);
+  return element instanceof win.HTMLInputElement && KEYBOARD_INPUT_TYPES.has(element.type);
 }
 
 function isKeyboardInputTarget(target: EventTarget | null): target is HTMLElement {
@@ -481,7 +476,8 @@ function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
   const previousTransform = target.style.transform;
   const previousTransition = target.style.transition;
 
-  // Move the input off-screen only for the synchronous focus call to avoid Safari page scrolling.
+  // iOS Safari can still scroll the page for transformed sheets even with preventScroll.
+  // Move the input off-screen only for the synchronous focus call.
   target.style.transition = 'none';
   target.style.opacity = '0';
   target.style.transform = 'translateY(-2000px)';

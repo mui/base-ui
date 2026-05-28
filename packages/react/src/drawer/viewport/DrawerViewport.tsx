@@ -1073,13 +1073,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
           const doc = ownerDocument(event.currentTarget);
           const elementAtPoint = getElementAtPoint(doc, touch.clientX, touch.clientY);
-
-          ignoreTouchSwipeRef.current = isSwipeIgnoredTarget(elementAtPoint);
-          if (ignoreTouchSwipeRef.current) {
-            touchScrollStateRef.current = null;
-            return;
-          }
-
           const rootElement = viewportElement ?? popupElementState;
           const eventTarget = getTarget(event.nativeEvent);
           const target = isElement(eventTarget) ? eventTarget : null;
@@ -1090,6 +1083,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           }
 
           virtualKeyboard?.onTouchStart(event);
+
+          ignoreTouchSwipeRef.current = isSwipeIgnoredTarget(elementAtPoint);
+          if (ignoreTouchSwipeRef.current) {
+            touchScrollStateRef.current = null;
+            return;
+          }
 
           let scrollTarget: HTMLElement | null = null;
           let hasCrossAxisScrollableContent = false;

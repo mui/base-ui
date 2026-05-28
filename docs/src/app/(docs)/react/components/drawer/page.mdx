@@ -46,7 +46,7 @@ import { Drawer } from '@base-ui/react/drawer';
 
 Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer. Add `data-base-ui-swipe-ignore` to a descendant when you need to opt that element out of swipe dismissal for all input types.
 
-Use `<Drawer.VirtualKeyboardProvider>` when a drawer contains form fields and you want Base UI to manage keyboard-aware focus and scroll handling for software keyboards. Drawers without this provider are unaffected.
+Pass `Drawer.virtualKeyboardAvoidance` to the `virtualKeyboardAvoidance` prop when a bottom sheet contains form fields and you want Base UI to manage keyboard-aware focus and scroll handling for software keyboards. It only applies when `swipeDirection` is set to `'down'`. Drawers without this prop are unaffected.
 
 ## Examples
 
@@ -143,12 +143,10 @@ By default, the drawer can skip snap points when swiping quickly. Specify the `s
 
 ### Virtual keyboard aware
 
-Wrap a bottom-sheet drawer in `<Drawer.VirtualKeyboardProvider>` when it contains form controls and you want the drawer to react to software keyboards. Keep the popup frame stable, place header and footer content outside a plain scrollable body, and let the provider scroll the focused field into the visible viewport when the keyboard opens.
+Pass `Drawer.virtualKeyboardAvoidance` to a bottom-sheet drawer when it contains form controls and you want the drawer to react to software keyboards. The avoidance strategy only applies when `swipeDirection` is set to `'down'`. Keep the popup frame stable, place header and footer content outside a plain scrollable body, and let the avoidance strategy scroll the focused field into the visible viewport when the keyboard opens.
 
 ```tsx title="Virtual keyboard aware drawer"
-<Drawer.Root>
-  <Drawer.VirtualKeyboardProvider>{/* ... */}</Drawer.VirtualKeyboardProvider>
-</Drawer.Root>
+<Drawer.Root virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}>{/* ... */}</Drawer.Root>
 ```
 
 <DemoDrawerVirtualKeyboardAware />
@@ -382,10 +380,6 @@ import { TypesDrawer } from './types';
 ### SwipeArea
 
 <TypesDrawer.SwipeArea />
-
-### VirtualKeyboardProvider
-
-<TypesDrawer.VirtualKeyboardProvider />
 
 ### Portal
 

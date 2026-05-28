@@ -366,27 +366,29 @@ describe('<Drawer.Viewport />', () => {
 
       try {
         await render(
-          <Drawer.Root open modal={false}>
-            <Drawer.VirtualKeyboardProvider>
-              <Drawer.Portal>
-                <Drawer.Viewport>
-                  <Drawer.Popup>
-                    <Drawer.Content
-                      data-testid="scroll"
-                      style={{
-                        height: 420,
-                        overflowY: 'auto',
-                        overflowAnchor: 'auto',
-                        paddingBottom: 20,
-                      }}
-                    >
-                      <div style={{ height: 900 }} />
-                      <input data-testid="input" type="text" />
-                    </Drawer.Content>
-                  </Drawer.Popup>
-                </Drawer.Viewport>
-              </Drawer.Portal>
-            </Drawer.VirtualKeyboardProvider>
+          <Drawer.Root
+            open
+            modal={false}
+            virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}
+          >
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <Drawer.Content
+                    data-testid="scroll"
+                    style={{
+                      height: 420,
+                      overflowY: 'auto',
+                      overflowAnchor: 'auto',
+                      paddingBottom: 20,
+                    }}
+                  >
+                    <div style={{ height: 900 }} />
+                    <input data-testid="input" type="text" />
+                  </Drawer.Content>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
           </Drawer.Root>,
         );
 
@@ -467,26 +469,28 @@ describe('<Drawer.Viewport />', () => {
 
       try {
         await render(
-          <Drawer.Root open modal={false}>
-            <Drawer.VirtualKeyboardProvider>
-              <Drawer.Portal>
-                <Drawer.Viewport>
-                  <Drawer.Popup>
-                    <div
-                      data-testid="scroll"
-                      style={{
-                        height: 420,
-                        overflowY: 'auto',
-                        paddingBottom: 20,
-                      }}
-                    >
-                      <div style={{ height: 300 }} />
-                      <textarea data-testid="textarea" />
-                    </div>
-                  </Drawer.Popup>
-                </Drawer.Viewport>
-              </Drawer.Portal>
-            </Drawer.VirtualKeyboardProvider>
+          <Drawer.Root
+            open
+            modal={false}
+            virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}
+          >
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <div
+                    data-testid="scroll"
+                    style={{
+                      height: 420,
+                      overflowY: 'auto',
+                      paddingBottom: 20,
+                    }}
+                  >
+                    <div style={{ height: 300 }} />
+                    <textarea data-testid="textarea" />
+                  </div>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
           </Drawer.Root>,
         );
 
@@ -591,27 +595,29 @@ describe('<Drawer.Viewport />', () => {
 
     function TestCase(props: { open: boolean }) {
       return (
-        <Drawer.Root open={props.open} modal={false}>
-          <Drawer.VirtualKeyboardProvider>
-            <Drawer.Portal>
-              <Drawer.Viewport>
-                <Drawer.Popup>
-                  <Drawer.Content
-                    data-testid="scroll"
-                    style={{
-                      height: 420,
-                      overflowY: 'auto',
-                      overflowAnchor: 'auto',
-                      paddingBottom: 20,
-                    }}
-                  >
-                    <div style={{ height: 900 }} />
-                    <input data-testid="input" type="text" />
-                  </Drawer.Content>
-                </Drawer.Popup>
-              </Drawer.Viewport>
-            </Drawer.Portal>
-          </Drawer.VirtualKeyboardProvider>
+        <Drawer.Root
+          open={props.open}
+          modal={false}
+          virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}
+        >
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <Drawer.Content
+                  data-testid="scroll"
+                  style={{
+                    height: 420,
+                    overflowY: 'auto',
+                    overflowAnchor: 'auto',
+                    paddingBottom: 20,
+                  }}
+                >
+                  <div style={{ height: 900 }} />
+                  <input data-testid="input" type="text" />
+                </Drawer.Content>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
         </Drawer.Root>
       );
     }
@@ -680,22 +686,20 @@ describe('<Drawer.Viewport />', () => {
 
     try {
       await render(
-        <Drawer.Root open modal={false}>
-          <Drawer.VirtualKeyboardProvider>
-            <Drawer.Portal>
-              <Drawer.Viewport>
-                <Drawer.Popup>
-                  <Drawer.Content
-                    data-testid="scroll"
-                    style={{ height: 420, overflowY: 'auto', paddingBottom: 20 }}
-                  >
-                    <div style={{ height: 900 }} />
-                    <input data-testid="input" type="text" />
-                  </Drawer.Content>
-                </Drawer.Popup>
-              </Drawer.Viewport>
-            </Drawer.Portal>
-          </Drawer.VirtualKeyboardProvider>
+        <Drawer.Root open modal={false} virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <Drawer.Content
+                  data-testid="scroll"
+                  style={{ height: 420, overflowY: 'auto', paddingBottom: 20 }}
+                >
+                  <div style={{ height: 900 }} />
+                  <input data-testid="input" type="text" />
+                </Drawer.Content>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
         </Drawer.Root>,
       );
 
@@ -724,25 +728,23 @@ describe('<Drawer.Viewport />', () => {
     'focuses an unfocused keyboard input on touchend without page scroll',
     async () => {
       await render(
-        <Drawer.Root open modal={false}>
-          <Drawer.VirtualKeyboardProvider>
-            <Drawer.Portal>
-              <Drawer.Backdrop data-testid="backdrop" />
-              <Drawer.Viewport>
-                <Drawer.Popup>
-                  <input
-                    data-testid="input"
-                    style={{
-                      opacity: 0.5,
-                      transform: 'scale(1)',
-                      transition: 'opacity 1s',
-                    }}
-                    type="text"
-                  />
-                </Drawer.Popup>
-              </Drawer.Viewport>
-            </Drawer.Portal>
-          </Drawer.VirtualKeyboardProvider>
+        <Drawer.Root open modal={false} virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}>
+          <Drawer.Portal>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <input
+                  data-testid="input"
+                  style={{
+                    opacity: 0.5,
+                    transform: 'scale(1)',
+                    transition: 'opacity 1s',
+                  }}
+                  type="text"
+                />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
         </Drawer.Root>,
       );
 
@@ -792,10 +794,16 @@ describe('<Drawer.Viewport />', () => {
     },
   );
 
-  it.skipIf(isJSDOM)('does not focus a keyboard input on touchend without touchstart', async () => {
-    await render(
-      <Drawer.Root open modal={false}>
-        <Drawer.VirtualKeyboardProvider>
+  it.skipIf(isJSDOM)(
+    'does not focus a keyboard input when the swipe direction is not down',
+    async () => {
+      await render(
+        <Drawer.Root
+          open
+          modal={false}
+          swipeDirection="up"
+          virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}
+        >
           <Drawer.Portal>
             <Drawer.Viewport>
               <Drawer.Popup>
@@ -803,7 +811,155 @@ describe('<Drawer.Viewport />', () => {
               </Drawer.Popup>
             </Drawer.Viewport>
           </Drawer.Portal>
-        </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const focusSpy = vi.spyOn(input, 'focus');
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => input;
+
+      try {
+        fireEvent.touchStart(input, {
+          touches: [
+            createTouch(input, {
+              clientX: 0,
+              clientY: 0,
+            }),
+          ],
+        });
+
+        const touchEnd = createNativeTouchEnd(input, {
+          clientX: 0,
+          clientY: 0,
+        });
+
+        await act(async () => {
+          input.dispatchEvent(touchEnd);
+          await flushMicrotasks();
+        });
+
+        expect(touchEnd.defaultPrevented).toBe(false);
+        expect(focusSpy).not.toHaveBeenCalled();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+        focusSpy.mockRestore();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('preserves native taps on picker inputs', async () => {
+    await render(
+      <Drawer.Root open modal={false} virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <input data-testid="input" type="date" />
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    const focusSpy = vi.spyOn(input, 'focus');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => input;
+
+    try {
+      fireEvent.touchStart(input, {
+        touches: [
+          createTouch(input, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      const touchEnd = createNativeTouchEnd(input, {
+        clientX: 0,
+        clientY: 0,
+      });
+
+      await act(async () => {
+        input.dispatchEvent(touchEnd);
+        await flushMicrotasks();
+      });
+
+      expect(touchEnd.defaultPrevented).toBe(false);
+      expect(focusSpy).not.toHaveBeenCalled();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      focusSpy.mockRestore();
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'focuses a keyboard input with data-base-ui-swipe-ignore without starting drawer swipe',
+    async () => {
+      await render(
+        <Drawer.Root open modal={false} virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}>
+          <Drawer.Portal>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <input data-testid="input" data-base-ui-swipe-ignore type="text" />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const backdrop = screen.getByTestId('backdrop');
+      const input = screen.getByTestId('input');
+      const focusSpy = vi.spyOn(input, 'focus');
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => input;
+
+      try {
+        fireEvent.touchStart(input, {
+          touches: [
+            createTouch(input, {
+              clientX: 0,
+              clientY: 0,
+            }),
+          ],
+        });
+
+        await flushMicrotasks();
+
+        expect(backdrop).not.toHaveAttribute('data-swiping');
+
+        const touchEnd = createNativeTouchEnd(input, {
+          clientX: 0,
+          clientY: 0,
+        });
+
+        await act(async () => {
+          input.dispatchEvent(touchEnd);
+          await flushMicrotasks();
+        });
+
+        expect(touchEnd.defaultPrevented).toBe(true);
+        expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+        expect(backdrop).not.toHaveAttribute('data-swiping');
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+        focusSpy.mockRestore();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('does not focus a keyboard input on touchend without touchstart', async () => {
+    await render(
+      <Drawer.Root open modal={false} virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <input data-testid="input" type="text" />
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
       </Drawer.Root>,
     );
 
@@ -833,16 +989,14 @@ describe('<Drawer.Viewport />', () => {
 
   it.skipIf(isJSDOM)('does not focus a keyboard input after touchcancel', async () => {
     await render(
-      <Drawer.Root open modal={false}>
-        <Drawer.VirtualKeyboardProvider>
-          <Drawer.Portal>
-            <Drawer.Viewport>
-              <Drawer.Popup>
-                <input data-testid="input" type="text" />
-              </Drawer.Popup>
-            </Drawer.Viewport>
-          </Drawer.Portal>
-        </Drawer.VirtualKeyboardProvider>
+      <Drawer.Root open modal={false} virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <input data-testid="input" type="text" />
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
       </Drawer.Root>,
     );
 
@@ -891,25 +1045,23 @@ describe('<Drawer.Viewport />', () => {
 
   it.skipIf(isJSDOM)('does not focus a keyboard input while a nested drawer is open', async () => {
     await render(
-      <Drawer.Root open modal={false}>
-        <Drawer.VirtualKeyboardProvider>
-          <Drawer.Portal>
-            <Drawer.Viewport>
-              <Drawer.Popup data-testid="parent-popup">
-                <input data-testid="input" type="text" />
-                <Drawer.Root open modal={false}>
-                  <Drawer.Portal>
-                    <Drawer.Viewport>
-                      <Drawer.Popup>
-                        <button type="button">Nested action</button>
-                      </Drawer.Popup>
-                    </Drawer.Viewport>
-                  </Drawer.Portal>
-                </Drawer.Root>
-              </Drawer.Popup>
-            </Drawer.Viewport>
-          </Drawer.Portal>
-        </Drawer.VirtualKeyboardProvider>
+      <Drawer.Root open modal={false} virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="parent-popup">
+              <input data-testid="input" type="text" />
+              <Drawer.Root open modal={false}>
+                <Drawer.Portal>
+                  <Drawer.Viewport>
+                    <Drawer.Popup>
+                      <button type="button">Nested action</button>
+                    </Drawer.Popup>
+                  </Drawer.Viewport>
+                </Drawer.Portal>
+              </Drawer.Root>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
       </Drawer.Root>,
     );
 
@@ -953,16 +1105,14 @@ describe('<Drawer.Viewport />', () => {
 
   it.skipIf(isJSDOM)('preserves native taps on an already-focused keyboard input', async () => {
     await render(
-      <Drawer.Root open modal={false}>
-        <Drawer.VirtualKeyboardProvider>
-          <Drawer.Portal>
-            <Drawer.Viewport>
-              <Drawer.Popup>
-                <input data-testid="input" type="text" />
-              </Drawer.Popup>
-            </Drawer.Viewport>
-          </Drawer.Portal>
-        </Drawer.VirtualKeyboardProvider>
+      <Drawer.Root open modal={false} virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <input data-testid="input" type="text" />
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
       </Drawer.Root>,
     );
 
