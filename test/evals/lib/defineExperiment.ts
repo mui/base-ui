@@ -32,10 +32,7 @@ function rehydrateDeps(inner: SetupFunction | undefined): SetupFunction {
     if (inner) {
       await inner(sandbox);
     }
-    const cleanup = await sandbox.runCommand('bash', [
-      '-c',
-      'rm -f .deps.tar .docs-overlay.tar',
-    ]);
+    const cleanup = await sandbox.runCommand('bash', ['-c', 'rm -f .deps.tar .docs-overlay.tar']);
     if (cleanup.exitCode !== 0) {
       throw new Error(
         'rehydrate: failed to clean up tarballs ' +

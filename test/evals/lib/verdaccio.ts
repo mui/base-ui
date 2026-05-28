@@ -14,14 +14,7 @@
  * `execSync` blocks the Node event loop, which freezes Verdaccio.
  */
 import { createHash } from 'node:crypto';
-import {
-  copyFileSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runServer } from 'verdaccio';

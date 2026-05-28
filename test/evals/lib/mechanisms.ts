@@ -42,7 +42,10 @@ function isClaudeCode(agent: AgentType): boolean {
  * Resolve the `setup` function for an (agent, mechanism) pair.
  * Returns `undefined` for the baseline (no setup needed).
  */
-export function getMechanismSetup(agent: AgentType, mechanism: Mechanism): SetupFunction | undefined {
+export function getMechanismSetup(
+  agent: AgentType,
+  mechanism: Mechanism,
+): SetupFunction | undefined {
   if (!isClaudeCode(agent)) {
     throw new Error(
       `Mechanism setups are only implemented for Claude Code; got "${agent}". ` +

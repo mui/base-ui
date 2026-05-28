@@ -101,7 +101,12 @@ interface CliArgs {
 }
 
 /** Pull a value for a flag; supports `--flag value` and `--flag=value`. */
-function readValue(argv: string[], i: number, eq: string | null, flag: string): { value: string; next: number } {
+function readValue(
+  argv: string[],
+  i: number,
+  eq: string | null,
+  flag: string,
+): { value: string; next: number } {
   if (eq !== null) {
     return { value: eq, next: i };
   }

@@ -70,6 +70,6 @@ there but are not always expressible in TypeScript:
   composition, forms, styling, typescript, customization).
 - `docs/react/overview/<topic>.md` — package overview and conventions.
 
-Types tell you *what* exists; the bundled docs tell you *how to compose it*.
+Types tell you _what_ exists; the bundled docs tell you _how to compose it_.
 Consult the relevant `components/<name>.md` whenever a task involves combining
 parts, handling state transitions, or wiring accessibility.

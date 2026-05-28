@@ -12,11 +12,11 @@ deliberately left stale. The matrix then measures whether an agent can still
 discover the real API from non-doc signals (package types, the `exports` map,
 `tsc` errors) under each **knowledge mechanism**.
 
-| Axis | Values |
-| --- | --- |
-| Mechanism (`experiments/cc-*.ts`) | `baseline`, `agents-md`, `skill`, `bundled-docs`, `mcp` |
-| Scenario (`evals/*`) | `combobox` (current API), `new-component`, `breaking-change`, `new-prop` |
-| Model | `opus`, `sonnet` (each experiment runs both by default) |
+| Axis                              | Values                                                                   |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| Mechanism (`experiments/cc-*.ts`) | `baseline`, `agents-md`, `skill`, `bundled-docs`, `mcp`                  |
+| Scenario (`evals/*`)              | `combobox` (current API), `new-component`, `breaking-change`, `new-prop` |
+| Model                             | `opus`, `sonnet` (each experiment runs both by default)                  |
 
 Each scenario's `PROMPT.md` is behaviour-only — it never names the components,
 parts, or props to use. The hidden `EVAL.ts` grader checks the exact API.

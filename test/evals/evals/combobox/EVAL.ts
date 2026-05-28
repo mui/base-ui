@@ -20,12 +20,7 @@ test('App.tsx does not use the @base-ui-components/react package', () => {
 
 test('App.tsx uses the required Combobox parts', () => {
   const source = readFileSync(APP_PATH, 'utf-8');
-  for (const part of [
-    'Combobox.Root',
-    'Combobox.Input',
-    'Combobox.List',
-    'Combobox.Item',
-  ]) {
+  for (const part of ['Combobox.Root', 'Combobox.Input', 'Combobox.List', 'Combobox.Item']) {
     expect(source, `expected ${part} to appear in App.tsx`).toContain(part);
   }
 });

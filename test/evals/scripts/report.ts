@@ -39,9 +39,7 @@ function latestRunDir(experimentDir: string): string | undefined {
   // saveResults writes results/<experiment>/<timestamp>/<eval>/ for single-model runs.
   // ISO timestamps sort lexically; newest last.
   const timestamps = listDirs(experimentDir).sort();
-  return timestamps.length > 0
-    ? join(experimentDir, timestamps[timestamps.length - 1])
-    : undefined;
+  return timestamps.length > 0 ? join(experimentDir, timestamps[timestamps.length - 1]) : undefined;
 }
 
 /** Aggregate one eval's runs within a timestamp directory. */
@@ -190,9 +188,7 @@ function reportMatrix(): void {
 
   const columns = [...evalNames].sort();
   const headerColumns = ['Mechanism', 'Model'];
-  const row = (
-    formatter: (aggregate: EvalAggregate) => string,
-  ): TableRow[] =>
+  const row = (formatter: (aggregate: EvalAggregate) => string): TableRow[] =>
     collected.map(({ key, collected: aggregates }) => ({
       headers: [key.mechanism, key.model],
       cells: columns.map((name) => {
@@ -211,7 +207,12 @@ function reportMatrix(): void {
     ),
   );
   console.log(
-    renderTable('Mean cost (USD)', headerColumns, columns, row((a) => `$${a.meanCostUSD.toFixed(3)}`)),
+    renderTable(
+      'Mean cost (USD)',
+      headerColumns,
+      columns,
+      row((a) => `$${a.meanCostUSD.toFixed(3)}`),
+    ),
   );
   console.log(
     renderTable(
@@ -238,8 +239,7 @@ function reportCompare(dirA: string, dirB: string): void {
   for (const name of evalNames) {
     const ea = a.get(name);
     const eb = b.get(name);
-    const passDelta =
-      ea && eb ? `${ea.passRate.toFixed(0)}% → ${eb.passRate.toFixed(0)}%` : '–';
+    const passDelta = ea && eb ? `${ea.passRate.toFixed(0)}% → ${eb.passRate.toFixed(0)}%` : '–';
     const costDelta =
       ea && eb ? `$${ea.meanCostUSD.toFixed(3)} → $${eb.meanCostUSD.toFixed(3)}` : '–';
     rows.push({ headers: [name], cells: [passDelta, costDelta] });

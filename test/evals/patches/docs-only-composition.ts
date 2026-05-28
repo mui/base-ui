@@ -61,7 +61,8 @@ const NEW_PART_CJS_PROPERTY = `Object.defineProperty(exports, "RecentSearches", 
 });
 `;
 
-const NEW_PART_CJS_REQUIRE = '\nvar _ComboboxRecentSearches = require("./recent-searches/ComboboxRecentSearches");\n';
+const NEW_PART_CJS_REQUIRE =
+  '\nvar _ComboboxRecentSearches = require("./recent-searches/ComboboxRecentSearches");\n';
 
 export function apply(builtPackages: Record<string, string>): void {
   const root = builtPackages['@base-ui/react'];

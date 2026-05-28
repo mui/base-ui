@@ -6,17 +6,8 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": [
-      "node"
-    ],
-    "lib": [
-      "ES2022"
-    ]
+    "types": ["node"],
+    "lib": ["ES2022"]
   },
-  "include": [
-    "experiments",
-    "lib",
-    "patches",
-    "scripts"
-  ]
+  "include": ["experiments", "lib", "patches", "scripts"]
 }

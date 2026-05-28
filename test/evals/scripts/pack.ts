@@ -173,7 +173,12 @@ function inlineWorkspaceVersions(
 ): void {
   const pkgPath = join(packageDir, 'package.json');
   const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-  for (const group of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']) {
+  for (const group of [
+    'dependencies',
+    'devDependencies',
+    'peerDependencies',
+    'optionalDependencies',
+  ]) {
     const deps = pkg[group];
     if (!deps || typeof deps !== 'object') continue;
     for (const [name, spec] of Object.entries(deps as Record<string, string>)) {
@@ -287,13 +292,7 @@ async function bakeVariant({
 
     const install = await runAsync(
       'npm',
-      [
-        'install',
-        '--no-audit',
-        '--no-fund',
-        '--no-progress',
-        '--loglevel=warn',
-      ],
+      ['install', '--no-audit', '--no-fund', '--no-progress', '--loglevel=warn'],
       consumer,
     );
     if (install.code !== 0) {
@@ -413,9 +412,7 @@ async function main(): Promise<void> {
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name);
     const evalNames =
-      args.only.length > 0
-        ? allEvalNames.filter((name) => args.only.includes(name))
-        : allEvalNames;
+      args.only.length > 0 ? allEvalNames.filter((name) => args.only.includes(name)) : allEvalNames;
     if (evalNames.length === 0) {
       throw new Error('No matching evals found.');
     }
@@ -448,7 +445,11 @@ async function main(): Promise<void> {
     if (failures.length > 0) {
       for (const { name, res } of failures) {
         const reason =
-          res.status === 'rejected' ? (res.reason instanceof Error ? res.reason.stack : String(res.reason)) : '';
+          res.status === 'rejected'
+            ? res.reason instanceof Error
+              ? res.reason.stack
+              : String(res.reason)
+            : '';
         console.error(`✗ ${name}\n${reason}`);
       }
       process.exit(1);
