@@ -215,6 +215,11 @@
     }
 
     &[data-compact]:not([data-open]) {
+      .DemoCodeBlockRoot::before,
+      .DemoCodeBlockViewport {
+        display: none;
+      }
+
       .DemoCollapseButton {
         align-self: center;
         margin-block: 0.5rem;

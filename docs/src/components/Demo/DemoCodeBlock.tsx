@@ -62,22 +62,29 @@ export function DemoCodeBlock({
       data-open={collapsibleOpen ? '' : undefined}
       data-compact={compact ? '' : undefined}
     >
-      <Root
-        render={
-          <Collapsible.Panel
-            keepMounted={compact ? undefined : true}
-            hidden={compact ? undefined : false}
-          />
-        }
-      >
-        <ScrollArea.Viewport
-          aria-hidden={!collapsibleOpen}
-          data-closed={collapsibleOpen ? undefined : ''}
-          className="DemoCodeBlockViewport"
-          {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
+      <Root data-closed={collapsibleOpen ? undefined : ''}>
+        <Collapsible.Panel
+          keepMounted={compact ? undefined : true}
+          hidden={compact ? undefined : false}
+          render={
+            <ScrollArea.Viewport
+              aria-hidden={!collapsibleOpen}
+              data-closed={collapsibleOpen ? undefined : ''}
+              className="DemoCodeBlockViewport"
+              {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
+            />
+          }
         >
           <div className="DemoSourceBrowser">{selectedFile}</div>
-        </ScrollArea.Viewport>
+        </Collapsible.Panel>
+
+        <Collapsible.Trigger
+          ref={collapsibleTriggerRef}
+          className="DemoCollapseButton"
+          data-sticky={collapsibleOpen ? '' : undefined}
+        >
+          {collapsibleOpen ? 'Hide' : 'Show'} code
+        </Collapsible.Trigger>
 
         {collapsibleOpen && (
           <React.Fragment>
@@ -87,14 +94,6 @@ export function DemoCodeBlock({
           </React.Fragment>
         )}
       </Root>
-
-      <Collapsible.Trigger
-        ref={collapsibleTriggerRef}
-        className="DemoCollapseButton"
-        data-sticky={collapsibleOpen ? '' : undefined}
-      >
-        {collapsibleOpen ? 'Hide' : 'Show'} code
-      </Collapsible.Trigger>
     </div>
   );
 }
