@@ -27,8 +27,10 @@
  */
 import { spawn, execSync } from 'node:child_process';
 import {
+  copyFileSync,
   cpSync,
   existsSync,
+  globSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
@@ -48,6 +50,7 @@ const EVALS_ROOT = join(SCRIPTS_DIR, '..', 'evals');
 const REPO_ROOT = join(SCRIPTS_DIR, '..', '..', '..');
 const REACT_BUILD = join(REPO_ROOT, 'packages/react/build');
 const UTILS_BUILD = join(REPO_ROOT, 'packages/utils/build');
+const DOCS_PUBLIC = join(REPO_ROOT, 'docs/public');
 
 interface CliArgs {
   skipBuild: boolean;
@@ -210,10 +213,13 @@ async function bakeVariant({
   evalName,
   reactBuildSrc,
   utilsBuildSrc,
+  docsOverlayTar,
 }: {
   evalName: string;
   reactBuildSrc: string;
   utilsBuildSrc: string;
+  /** Path to a tarball whose contents extract to `node_modules/@base-ui/react/docs/...`. */
+  docsOverlayTar: string;
 }): Promise<void> {
   const stage = mkdtempSync(join(tmpdir(), `eval-${evalName}-`));
   const patchedReact = join(stage, 'react-build');
@@ -304,6 +310,7 @@ async function bakeVariant({
     // per-experiment setup extracts it inside the sandbox. Tar preserves the
     // symlinks intact.
     rmSync(join(fixtureDir, '.deps.tar'), { force: true });
+    rmSync(join(fixtureDir, '.docs-overlay.tar'), { force: true });
     rmSync(join(fixtureDir, '.deps'), { recursive: true, force: true });
     rmSync(join(fixtureDir, 'node_modules'), { recursive: true, force: true });
     rmSync(join(fixtureDir, 'package-lock.json'), { force: true });
@@ -315,6 +322,9 @@ async function bakeVariant({
       cwd: consumer,
       stdio: 'pipe',
     });
+    // The docs overlay is identical for every variant (markdown is unaffected
+    // by the synthetic patches), so we copy a single pre-built tarball in.
+    cpSync(docsOverlayTar, join(fixtureDir, '.docs-overlay.tar'));
   } finally {
     await registry.close();
     rmSync(stage, { recursive: true, force: true });
@@ -327,20 +337,54 @@ async function main(): Promise<void> {
   const sharedStage = mkdtempSync(join(tmpdir(), 'eval-build-'));
   const reactBuildSrc = join(sharedStage, 'react-build');
   const utilsBuildSrc = join(sharedStage, 'utils-build');
+  const docsOverlayTar = join(sharedStage, 'docs-overlay.tar');
 
   try {
     if (args.skipBuild) {
       if (!existsSync(REACT_BUILD) || !existsSync(UTILS_BUILD)) {
         throw new Error('--skip-build: packages/*/build not found — run a build first.');
       }
-      console.log('--skip-build: reusing existing build output.');
+      if (!existsSync(DOCS_PUBLIC) || readdirSync(DOCS_PUBLIC).length === 0) {
+        throw new Error(
+          '--skip-build: docs/public is empty — run `pnpm docs:generate-llms` first.',
+        );
+      }
+      console.log('--skip-build: reusing existing build output and docs/public.');
       cpSync(REACT_BUILD, reactBuildSrc, { recursive: true });
       cpSync(UTILS_BUILD, utilsBuildSrc, { recursive: true });
     } else {
       runSync('pnpm -F @base-ui/utils -F @base-ui/react build');
       cpSync(REACT_BUILD, reactBuildSrc, { recursive: true });
       cpSync(UTILS_BUILD, utilsBuildSrc, { recursive: true });
+      // PR #4761 ships docs/public/**/*.md inside @base-ui/react's package
+      // when BASE_UI_PUBLISH_DOCS=1 is set during build. We don't rebuild the
+      // package with docs (that doubles install time per variant); instead we
+      // produce a single overlay tarball that the bundled-docs mechanism
+      // extracts onto node_modules/@base-ui/react/docs/ at sandbox setup.
+      runSync('pnpm docs:generate-llms');
     }
+
+    // Stage docs/public/**/*.md into <stage>/overlay-root/node_modules/@base-ui/react/docs/
+    // so `tar -xf .docs-overlay.tar` lands files where PR #4761 would have. We
+    // ship only `.md` to match exactly what stagePublishedDocs.mjs publishes —
+    // fonts, static assets, and llms.txt are excluded.
+    const overlayRoot = join(sharedStage, 'overlay-root');
+    const overlayDest = join(overlayRoot, 'node_modules', '@base-ui', 'react', 'docs');
+    const mdFiles = globSync('**/*.md', { cwd: DOCS_PUBLIC });
+    if (mdFiles.length === 0) {
+      throw new Error(
+        'No markdown files in docs/public — run `pnpm docs:generate-llms` to repopulate.',
+      );
+    }
+    for (const relativePath of mdFiles) {
+      const dest = join(overlayDest, relativePath);
+      mkdirSync(dirname(dest), { recursive: true });
+      copyFileSync(join(DOCS_PUBLIC, relativePath), dest);
+    }
+    execSync(`tar -cf "${docsOverlayTar}" node_modules`, {
+      cwd: overlayRoot,
+      stdio: 'pipe',
+    });
 
     const allEvalNames = readdirSync(EVALS_ROOT, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
@@ -362,7 +406,7 @@ async function main(): Promise<void> {
       evalNames.map((evalName) =>
         limit(async () => {
           const t0 = Date.now();
-          await bakeVariant({ evalName, reactBuildSrc, utilsBuildSrc });
+          await bakeVariant({ evalName, reactBuildSrc, utilsBuildSrc, docsOverlayTar });
           const seconds = ((Date.now() - t0) / 1000).toFixed(1);
           console.log(`  ✓ ${evalName} (${seconds}s)`);
         }),

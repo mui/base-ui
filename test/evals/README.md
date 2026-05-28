@@ -14,7 +14,7 @@ discover the real API from non-doc signals (package types, the `exports` map,
 
 | Axis | Values |
 | --- | --- |
-| Mechanism (`experiments/cc-*.ts`) | `baseline`, `agents-md`, `skill`, `mcp` (`bundled-docs` parked) |
+| Mechanism (`experiments/cc-*.ts`) | `baseline`, `agents-md`, `skill`, `bundled-docs`, `mcp` |
 | Scenario (`evals/*`) | `combobox` (current API), `new-component`, `breaking-change`, `new-prop` |
 | Model | `opus`, `sonnet` (each experiment runs both by default) |
 
@@ -42,18 +42,20 @@ has no parallelism limit and will launch every (experiment × eval × run)
 attempt at once. Target specific experiments and tune the cap:
 
 ```bash
-pnpm eval cc-skill --concurrency 4                       # one mechanism, both models
+pnpm eval cc-skill --concurrency 4                       # one mechanism, default model
 pnpm eval cc-baseline cc-mcp --runs 1 --concurrency 2
-pnpm eval cc-skill --models sonnet --runs 1              # cheap dev cell
+pnpm eval cc-skill --model opus --runs 1                 # cheap opus cell
+pnpm eval cc-skill --model opus,sonnet                   # both models
 ```
 
 `--concurrency` caps how many sandbox containers run at once (default 4);
-`--runs` overrides runs-per-eval; `--models` overrides which models run
-(comma-separated, e.g. `--models opus`). Results land in
+`--runs` overrides runs-per-eval; `--model` overrides which model runs
+(default: `sonnet`; comma-separate to run multiple, e.g. `--model opus,sonnet`;
+`--models` is accepted as a legacy alias). Results land in
 `results/cc-<mechanism>-<model>/<timestamp>/<eval>/`. A full matrix pass with
-defaults is 4 mechanisms × 4 scenarios × 2 models × 3 runs = **96 sandboxes**
-(bundled-docs adds another 24 once unparked). Preview eval discovery with
-`pnpm eval:dry`; browse raw results with `pnpm playground`.
+defaults is 5 mechanisms × 4 scenarios × 1 model × 3 runs = **60 sandboxes**.
+Preview eval discovery with `pnpm eval:dry`; browse raw results with
+`pnpm playground`.
 
 `pnpm vendor` accepts `--skip-build` (reuse `packages/*/build` from a prior
 run), `--concurrency N` (parallel variants, default 4), and
@@ -81,7 +83,11 @@ run), `--concurrency N` (parallel variants, default 4), and
   because the lockfile and `node_modules/` are already consistent (integrity
   hashes match the patched content we installed).
 - `experiments/cc-*.ts` each call `defineExperiment` (`lib/`); a mechanism's
-  `setup` writes its knowledge payload (`lib/assets/`) into the sandbox.
+  `setup` writes its knowledge payload (`lib/assets/`) into the sandbox. For
+  the `bundled-docs` arm, pack also produces a shared `.docs-overlay.tar`
+  (the docs markdown from `pnpm docs:generate-llms`, staged to map to
+  `node_modules/@base-ui/react/docs/`) which the mechanism setup extracts
+  inside the sandbox.
 - `scripts/run.ts` drives the evals through the framework's programmatic API
   behind a concurrency limiter, then writes results in the standard layout.
 - `lib/cost.ts` derives per-run token cost and web-fetch counts from the
@@ -91,11 +97,6 @@ run), `--concurrency N` (parallel variants, default 4), and
 
 ## Notes
 
-- The `bundled-docs` arm depends on base-ui PR #4761 (the
-  `BASE_UI_PUBLISH_DOCS=1` build path). It is currently parked — the
-  experiment file lives at `experiments/cc-bundled-docs.ts.parked`. Rename it
-  back to `.ts` once PR #4761 lands and `lib/mechanisms.ts` is updated to
-  pre-bake the docs install at pack time.
 - `WebFetch` runs client-side (the request originates in the sandbox
   container) and reaches real production `base-ui.com` — the experimental
   stale-docs condition. It is measured (web-fetch counts in the report), not

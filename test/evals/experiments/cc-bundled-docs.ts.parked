@@ -1,6 +1,0 @@
-// PARKED — rename back to cc-bundled-docs.ts once base-ui PR #4761 merges
-// and lib/mechanisms.ts handles the docs install (pre-baked at pack time).
-//
-// Knowledge via docs shipped inside the @base-ui/react npm package.
-import { defineExperiment } from '../lib/defineExperiment.js';
-export default defineExperiment({ agent: 'claude-code', mechanism: 'bundled-docs' });

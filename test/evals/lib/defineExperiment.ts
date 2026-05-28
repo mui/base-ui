@@ -11,24 +11,36 @@ import { getMechanismSetup, type Mechanism } from './mechanisms.js';
 /**
  * The framework's fixture upload excludes node_modules (and dereferences any
  * symlinks it does ship). The pack pipeline tars its pre-installed dependency
- * tree into .deps.tar; before any mechanism setup runs, extract it so the
- * sandbox has a populated node_modules with .bin/* symlinks intact, then
- * delete the tarball so it's not visible to the agent.
+ * tree into `.deps.tar` and (for the bundled-docs arm) a `.docs-overlay.tar`
+ * with the docs payload. We extract `.deps.tar` first so the mechanism setup
+ * runs against a populated `node_modules`, then clean up both tarballs after
+ * the mechanism runs — so by the time the agent sees the workspace, the
+ * tarballs are gone but the docs overlay (if applied) is in node_modules.
  */
 function rehydrateDeps(inner: SetupFunction | undefined): SetupFunction {
   return async (sandbox) => {
-    const result = await sandbox.runCommand('bash', [
+    const extract = await sandbox.runCommand('bash', [
       '-c',
-      'rm -rf node_modules && tar -xf .deps.tar && rm .deps.tar',
+      'rm -rf node_modules && tar -xf .deps.tar',
     ]);
-    if (result.exitCode !== 0) {
+    if (extract.exitCode !== 0) {
       throw new Error(
         'rehydrate: failed to extract .deps.tar ' +
-          `(exit ${result.exitCode}):\n${result.stdout}\n${result.stderr}`,
+          `(exit ${extract.exitCode}):\n${extract.stdout}\n${extract.stderr}`,
       );
     }
     if (inner) {
       await inner(sandbox);
+    }
+    const cleanup = await sandbox.runCommand('bash', [
+      '-c',
+      'rm -f .deps.tar .docs-overlay.tar',
+    ]);
+    if (cleanup.exitCode !== 0) {
+      throw new Error(
+        'rehydrate: failed to clean up tarballs ' +
+          `(exit ${cleanup.exitCode}):\n${cleanup.stdout}\n${cleanup.stderr}`,
+      );
     }
   };
 }
@@ -39,7 +51,7 @@ export interface ExperimentOptions {
   /**
    * Models to compare. `scripts/run.ts` runs the eval grid once per model and
    * writes each model's results under `cc-<mechanism>-<model>/`. Override per
-   * invocation with `--models` on the runner. @default ['opus', 'sonnet']
+   * invocation with `--model` on the runner. @default ['sonnet']
    */
   models?: string[];
   /**
@@ -61,7 +73,7 @@ const CLAUDE_CODE_CLI_VERSION = '2.1.148';
 export function defineExperiment(options: ExperimentOptions): ExperimentConfig {
   return {
     agent: options.agent,
-    model: options.models ?? ['opus', 'sonnet'],
+    model: options.models ?? ['sonnet'],
     runs: options.runs ?? 3,
     earlyExit: false,
     scripts: ['build'],

@@ -12,12 +12,14 @@
  * directly comparable in the report.
  *
  * Usage:
- *   tsx scripts/run.ts [experiment...] [--concurrency N] [--runs N] [--models LIST] [--smoke]
+ *   tsx scripts/run.ts [experiment...] [--concurrency N] [--runs N] [--model NAME] [--smoke]
  *     experiment     experiment name(s), e.g. cc-skill (default: all experiments/)
  *     --concurrency  max sandboxes running at once (default: 4)
  *     --runs         override runs-per-eval from the experiment config
- *     --models       comma-separated model list, overrides the experiment config
- *                    (e.g. `--models opus`, `--models opus,sonnet`)
+ *     --model        model override; defaults to whatever the experiment
+ *                    config declares (sonnet, unless customised).
+ *                    Comma-separate to run multiple (`--model opus,sonnet`).
+ *                    `--models` is accepted as a legacy alias.
  *     --smoke        tag results as a smoke run (excluded from result-reuse)
  *
  * Each flag accepts both `--flag value` and `--flag=value` forms.
@@ -135,7 +137,7 @@ function parseArgs(argv: string[]): CliArgs {
       const { value, next } = readValue(argv, i, eq, name);
       runs = Number(value);
       i = next;
-    } else if (name === '--models') {
+    } else if (name === '--model' || name === '--models') {
       const { value, next } = readValue(argv, i, eq, name);
       models = value
         .split(',')
@@ -160,7 +162,7 @@ function parseArgs(argv: string[]): CliArgs {
     throw new Error('--runs must be a positive integer');
   }
   if (models !== undefined && models.length === 0) {
-    throw new Error('--models must list at least one model');
+    throw new Error('--model must list at least one model');
   }
   if (experiments.length === 0) {
     experiments.push(
@@ -350,7 +352,7 @@ async function main(): Promise<void> {
   console.log(
     `Running ${experiments.length} experiment(s) at concurrency ${concurrency}: ` +
       `${experiments.join(', ')}` +
-      (models ? ` — models override: ${models.join(', ')}` : '') +
+      (models ? ` — model override: ${models.join(', ')}` : '') +
       (smoke ? ' — smoke' : ''),
   );
 

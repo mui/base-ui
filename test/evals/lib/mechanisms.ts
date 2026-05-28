@@ -59,14 +59,20 @@ export function getMechanismSetup(agent: AgentType, mechanism: Mechanism): Setup
       };
 
     case 'bundled-docs':
-      // Parked pending base-ui PR #4761 (the BASE_UI_PUBLISH_DOCS=1 build path).
-      // Re-implement once that lands: the docs build needs to be pre-installed
-      // into the fixture's node_modules at pack time, parallel to the no-docs
-      // build that the other mechanisms get.
-      throw new Error(
-        'bundled-docs mechanism is parked pending base-ui PR #4761. ' +
-          'Disable cc-bundled-docs from the matrix until that merges.',
-      );
+      // PR #4761 ships the docs/ markdown inside @base-ui/react's package.
+      // pack.ts emits the docs as a separate `.docs-overlay.tar` rather than
+      // bloating every fixture's `.deps.tar`; here we layer it onto the
+      // already-populated `node_modules/@base-ui/react/docs/`. The rehydrate
+      // wrapper deletes the tarball after this runs.
+      return async (sandbox) => {
+        const result = await sandbox.runCommand('tar', ['-xf', '.docs-overlay.tar']);
+        if (result.exitCode !== 0) {
+          throw new Error(
+            'bundled-docs setup: failed to extract .docs-overlay.tar ' +
+              `(exit ${result.exitCode}):\n${result.stdout}\n${result.stderr}`,
+          );
+        }
+      };
 
     case 'mcp':
       return async (sandbox) => {

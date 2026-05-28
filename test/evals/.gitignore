@@ -12,3 +12,4 @@ results/
 evals/*/package.json
 evals/*/package-lock.json
 evals/*/.deps.tar
+evals/*/.docs-overlay.tar
