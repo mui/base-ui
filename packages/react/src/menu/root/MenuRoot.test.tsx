@@ -2356,6 +2356,51 @@ describe('<Menu.Root />', () => {
     });
   });
 
+  it('does not leave a tabbable item after tabbing out of a keepMounted menu before close', async () => {
+    const actionsRef = {
+      current: {
+        unmount: vi.fn(),
+        close: vi.fn(),
+      },
+    };
+
+    const { user } = await render(
+      <div>
+        <input />
+        <DetachedTriggerMenu
+          rootProps={{ modal: false, actionsRef }}
+          portalProps={{ keepMounted: true }}
+        />
+        <input data-testid="after" />
+      </div>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' });
+    await act(async () => {
+      trigger.focus();
+    });
+    await user.keyboard('[Enter]');
+
+    const menuItem = await screen.findByTestId('item-1');
+    await waitFor(() => {
+      expect(menuItem).toHaveFocus();
+    });
+    expect(menuItem).toHaveAttribute('tabindex', '0');
+
+    await user.tab();
+
+    expect(screen.getByTestId('after')).toHaveFocus();
+
+    await act(async () => {
+      actionsRef.current.close();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('menu')).not.toHaveAttribute('data-open');
+    });
+    expect(menuItem).toHaveAttribute('tabindex', '-1');
+  });
+
   describe('prop: highlightItemOnHover', () => {
     it('highlights an item on mouse move by default', async () => {
       await render(

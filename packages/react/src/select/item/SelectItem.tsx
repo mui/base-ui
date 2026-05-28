@@ -64,6 +64,7 @@ export const SelectItem = React.memo(
     } = useSelectRootContext();
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
+    const open = useStore(store, selectors.open);
     const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
@@ -149,7 +150,7 @@ export const SelectItem = React.memo(
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      tabIndex: highlighted ? 0 : -1,
+      tabIndex: open && highlighted ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         lastKeyRef.current = event.key;
         store.set('activeIndex', index);
