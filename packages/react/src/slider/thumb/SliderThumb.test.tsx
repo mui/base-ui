@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
@@ -17,7 +17,7 @@ describe('<Slider.Thumb />', () => {
   }));
 
   describe('ARIA attributes', () => {
-    ['aria-label', 'aria-labelledby', 'aria-describedby'].forEach((attr) => {
+    ['aria-label', 'aria-labelledby', 'aria-describedby', 'aria-valuetext'].forEach((attr) => {
       it(`forwards ${attr} to the input`, async () => {
         await render(
           <Slider.Root defaultValue={50}>
@@ -32,6 +32,40 @@ describe('<Slider.Thumb />', () => {
         );
         expect(screen.getByRole('slider')).toHaveAttribute(attr, 'test');
       });
+    });
+
+    it('prefers getAriaValueText over a direct aria-valuetext prop', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb
+              aria-valuetext="ignored"
+              getAriaValueText={(formatted) => `${formatted} percent`}
+            />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+      expect(screen.getByRole('slider')).toHaveAttribute('aria-valuetext', '50 percent');
+    });
+  });
+
+  describe('prop: onKeyDown', () => {
+    it('forwards key events that the slider does not handle', async () => {
+      const handleKeyDown = vi.fn();
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb onKeyDown={handleKeyDown} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: 'Enter' });
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
     });
   });
 

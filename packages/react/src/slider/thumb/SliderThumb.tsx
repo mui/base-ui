@@ -100,6 +100,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     'aria-describedby': ariaDescribedByProp,
     'aria-label': ariaLabelProp,
     'aria-labelledby': ariaLabelledByProp,
+    'aria-valuetext': ariaValueTextProp,
     disabled: disabledProp = false,
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
@@ -108,7 +109,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     inputRef: inputRefProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
-    onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
     style,
     ...elementProps
@@ -316,12 +316,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               thumbValue,
               index,
             )
-          : getDefaultAriaValueText(
+          : (ariaValueTextProp ??
+            getDefaultAriaValueText(
               sliderValues,
               index,
               formatOptionsRef.current ?? undefined,
               locale,
-            ),
+            )),
       disabled,
       form,
       id: inputId,
