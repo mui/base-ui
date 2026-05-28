@@ -231,10 +231,8 @@
     --ease-out-fast: cubic-bezier(0.45, 1.005, 0, 1.005);
     --ease-in-slow: cubic-bezier(0.375, 0.015, 0.545, 0.455);
     --header-height: 3rem;
-  }
 
-  @media (--lg) {
-    :root {
+    @media (--lg) {
       --header-height: 5.125rem;
     }
   }
