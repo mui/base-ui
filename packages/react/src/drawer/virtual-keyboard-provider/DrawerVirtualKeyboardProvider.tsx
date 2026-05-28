@@ -44,7 +44,12 @@ interface KeyboardVisualViewport {
   bottom: number;
 }
 
-function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProviderProps) {
+/**
+ * Provides keyboard-aware focus and scroll handling for bottom-sheet drawers with form fields.
+ *
+ * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
+ */
+export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvider.Props) {
   const { children } = props;
 
   const { store } = useDialogRootContext();
@@ -404,18 +409,16 @@ function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProviderProps
   );
 }
 
-interface DrawerVirtualKeyboardProviderProps {
+export interface DrawerVirtualKeyboardProviderState {}
+
+export interface DrawerVirtualKeyboardProviderProps {
   children?: React.ReactNode;
 }
 
-/**
- * A component that wraps the drawer contents to provide keyboard-aware focus and
- * scroll handling for software keyboards. Pass to the `virtualKeyboardAvoidance`
- * prop on `Drawer.Root`.
- *
- * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
- */
-export const virtualKeyboardAvoidance = DrawerVirtualKeyboardProvider;
+export namespace DrawerVirtualKeyboardProvider {
+  export type State = DrawerVirtualKeyboardProviderState;
+  export type Props = DrawerVirtualKeyboardProviderProps;
+}
 
 function isKeyboardInputElement(element: HTMLElement): boolean {
   const win = ownerWindow(element);

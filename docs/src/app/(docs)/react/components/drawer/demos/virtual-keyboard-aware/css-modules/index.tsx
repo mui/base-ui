@@ -13,46 +13,48 @@ const fields = [
 
 export default function ExampleDrawerVirtualKeyboardAware() {
   return (
-    <Drawer.Root virtualKeyboardAvoidance={Drawer.virtualKeyboardAvoidance}>
+    <Drawer.Root>
       <Drawer.Trigger className={styles.Button}>Open keyboard-aware drawer</Drawer.Trigger>
-      <Drawer.Portal>
-        <Drawer.Backdrop className={styles.Backdrop} />
-        <Drawer.Viewport className={styles.Viewport}>
-          <Drawer.Popup className={styles.Popup}>
-            <div className={styles.Header}>
-              <div className={styles.Handle} />
-              <div className={styles.HeaderActions}>
-                <Drawer.Close className={`${styles.Button} ${styles.HeaderButton}`}>
-                  Cancel
-                </Drawer.Close>
-                <Drawer.Title className={styles.Title}>Delivery details</Drawer.Title>
-                <Drawer.Close className={`${styles.Button} ${styles.HeaderButton}`}>
-                  Save
-                </Drawer.Close>
+      <Drawer.VirtualKeyboardProvider>
+        <Drawer.Portal>
+          <Drawer.Backdrop className={styles.Backdrop} />
+          <Drawer.Viewport className={styles.Viewport}>
+            <Drawer.Popup className={styles.Popup}>
+              <div className={styles.Header}>
+                <div className={styles.Handle} />
+                <div className={styles.HeaderActions}>
+                  <Drawer.Close className={`${styles.Button} ${styles.HeaderButton}`}>
+                    Cancel
+                  </Drawer.Close>
+                  <Drawer.Title className={styles.Title}>Delivery details</Drawer.Title>
+                  <Drawer.Close className={`${styles.Button} ${styles.HeaderButton}`}>
+                    Save
+                  </Drawer.Close>
+                </div>
               </div>
-            </div>
 
-            <Drawer.Content className={styles.Scroll}>
-              <div className={styles.Form}>
-                {fields.map(([label, placeholder]) => (
-                  <label className={styles.Field} key={label}>
-                    <span className={styles.FieldLabel}>{label}</span>
-                    <input className={styles.Input} placeholder={placeholder} type="text" />
+              <Drawer.Content className={styles.Scroll}>
+                <div className={styles.Form}>
+                  {fields.map(([label, placeholder]) => (
+                    <label className={styles.Field} key={label}>
+                      <span className={styles.FieldLabel}>{label}</span>
+                      <input className={styles.Input} placeholder={placeholder} type="text" />
+                    </label>
+                  ))}
+
+                  <label className={styles.Field}>
+                    <span className={styles.FieldLabel}>Instructions</span>
+                    <textarea
+                      className={styles.Textarea}
+                      placeholder="Gate code, drop-off spot, or anything else the driver should know"
+                    />
                   </label>
-                ))}
-
-                <label className={styles.Field}>
-                  <span className={styles.FieldLabel}>Instructions</span>
-                  <textarea
-                    className={styles.Textarea}
-                    placeholder="Gate code, drop-off spot, or anything else the driver should know"
-                  />
-                </label>
-              </div>
-            </Drawer.Content>
-          </Drawer.Popup>
-        </Drawer.Viewport>
-      </Drawer.Portal>
+                </div>
+              </Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.VirtualKeyboardProvider>
     </Drawer.Root>
   );
 }
