@@ -36,6 +36,7 @@ import { MenuHandle } from '../store/MenuHandle';
 import {
   FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
+  setPopupOpenState,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
@@ -163,6 +164,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   store.useSyncedValues({
     disabled: disabledProp,
+    highlightItemOnHover,
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
@@ -309,13 +311,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       };
       openEventRef.current = eventDetails.event ?? null;
 
-      // If a popup is closing, the `trigger` may be null.
-      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-      const newTriggerId = eventDetails.trigger?.id ?? null;
-      if (newTriggerId || nextOpen) {
-        updatedState.activeTriggerId = newTriggerId;
-        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-      }
+      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
 
       store.update(updatedState);
 
@@ -433,6 +429,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   );
 
   const typeahead = useTypeahead(floatingRootContext, {
+    enabled: !disabled,
     listRef: store.context.itemLabels,
     elementsRef: store.context.itemDomElements,
     activeIndex,

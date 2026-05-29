@@ -11,7 +11,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setOpenTriggerState,
+  setPopupOpenState,
   usePopupStore,
 } from '../../utils/popups';
 
@@ -105,7 +105,7 @@ export class TooltipStore<Payload> extends ReactStore<
         updatedState.instantType = undefined;
       }
 
-      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
+      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
 
       this.update(updatedState);
     };

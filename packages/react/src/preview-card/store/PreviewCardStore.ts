@@ -9,7 +9,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setOpenTriggerState,
+  setPopupOpenState,
   updateInlineRectCoords,
   usePopupStore,
 } from '../../utils/popups';
@@ -113,7 +113,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
         updatedState.instantType = undefined;
       }
 
-      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
+      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
 
       this.update(updatedState);
     };

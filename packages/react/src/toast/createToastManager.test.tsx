@@ -72,7 +72,7 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
               onClick={() => {
                 firstToastId = toastManager.add({
                   id: 'save',
-                  title: 'Saving...',
+                  title: 'Saving…',
                   timeout: 1000,
                 });
               }}
@@ -106,7 +106,7 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
 
-      expect(screen.getByTestId('title')).toHaveTextContent('Saving...');
+      expect(screen.getByTestId('title')).toHaveTextContent('Saving…');
       expect(screen.queryAllByTestId('root')).toHaveLength(1);
 
       await clock.tickAsync(900);
