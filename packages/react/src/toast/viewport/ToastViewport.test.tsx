@@ -562,6 +562,92 @@ describe('<Toast.Viewport />', () => {
         expect(screen.queryByTestId('root')).not.toBe(null);
       },
     );
+
+    it.skipIf(!isJSDOM)(
+      'collapses a deferred mouseleave after a closing toast is removed while blurred',
+      async () => {
+        const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+        const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        try {
+          function CloseNewestButton() {
+            const { close, toasts } = Toast.useToastManager();
+
+            return (
+              <button
+                onClick={() => {
+                  close(toasts[0]?.id);
+                }}
+              >
+                close newest
+              </button>
+            );
+          }
+
+          await renderFakeTimers(
+            <Toast.Provider>
+              <Toast.Viewport data-testid="viewport">
+                <List />
+              </Toast.Viewport>
+              <Button />
+              <CloseNewestButton />
+            </Toast.Provider>,
+          );
+
+          const button = screen.getByRole('button', { name: 'add' });
+          fireEvent.click(button);
+          fireEvent.click(button);
+
+          const viewport = screen.getByTestId('viewport');
+          const newestRoot = screen.getAllByTestId('root')[0];
+          let finishAnimation!: () => void;
+          const animationFinished = new Promise<void>((resolve) => {
+            finishAnimation = resolve;
+          });
+
+          Object.defineProperty(newestRoot, 'getAnimations', {
+            value: () => [{ finished: animationFinished }],
+            configurable: true,
+          });
+
+          fireEvent.mouseEnter(viewport);
+          expect(viewport).toHaveAttribute('data-expanded');
+
+          fireEvent.click(screen.getByRole('button', { name: 'close newest' }));
+          expect(newestRoot).toHaveAttribute('data-ending-style');
+
+          const blurListener = addEventListenerSpy.mock.calls.find(
+            (call) => call[0] === 'blur' && call[2] === true,
+          )?.[1] as EventListener | undefined;
+
+          if (!blurListener) {
+            throw new Error('Expected window blur listener to be registered.');
+          }
+
+          const blurEvent = new FocusEvent('blur');
+          Object.defineProperty(blurEvent, 'composedPath', { value: () => [window] });
+
+          fireEvent.mouseLeave(viewport);
+
+          await act(async () => {
+            blurListener(blurEvent);
+          });
+
+          await act(async () => {
+            clock.tick(20);
+            finishAnimation();
+            await Promise.resolve();
+          });
+
+          expect(screen.queryAllByTestId('root')).toHaveLength(1);
+          expect(viewport).not.toHaveAttribute('data-expanded');
+        } finally {
+          addEventListenerSpy.mockRestore();
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+        }
+      },
+    );
   });
 
   describe('focus management', () => {

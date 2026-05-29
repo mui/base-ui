@@ -173,19 +173,16 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   function flushMouseLeave() {
     const hasEndingToasts = store.state.toasts.some((toast) => toast.transitionStatus === 'ending');
 
-    if (
-      !store.state.isWindowFocused ||
-      hasEndingToasts ||
-      touchActiveRef.current ||
-      !markedReadyForMouseLeaveRef.current
-    ) {
+    if (hasEndingToasts || touchActiveRef.current || !markedReadyForMouseLeaveRef.current) {
       return;
     }
 
     // Once transitions have finished, see if a mouseleave was already triggered
-    // but blocked from taking effect. If so, we can now safely resume timers and
-    // collapse the viewport.
-    store.resumeTimers();
+    // but blocked from taking effect. If so, we can now safely collapse the viewport
+    // without restarting timers while the window is blurred.
+    if (store.state.isWindowFocused) {
+      store.resumeTimers();
+    }
     store.setHovering(false);
     markedReadyForMouseLeaveRef.current = false;
   }
@@ -205,7 +202,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   }
 
   function handleMouseLeave() {
-    if (hasTransitioningToasts || touchActiveRef.current) {
+    const hasEndingToasts = store.state.toasts.some((toast) => toast.transitionStatus === 'ending');
+
+    if (hasEndingToasts || touchActiveRef.current) {
       // When swiping to dismiss, wait until the transitions have settled
       // or the touch interaction ends to avoid collapsing mid-gesture.
       markedReadyForMouseLeaveRef.current = true;
