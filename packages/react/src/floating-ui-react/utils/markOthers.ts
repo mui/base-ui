@@ -7,13 +7,10 @@ type Undo = () => void;
 
 interface MarkOthersOptions {
   ariaHidden?: boolean | undefined;
-  inert?: boolean | undefined;
   mark?: boolean | undefined;
-  markerIgnoreElements?: Element[] | undefined;
 }
 
 const counters = {
-  inert: new WeakMap<Element, number>(),
   'aria-hidden': new WeakMap<Element, number>(),
 };
 
@@ -21,7 +18,6 @@ const markerName = 'data-base-ui-inert';
 type ControlAttribute = keyof typeof counters;
 
 const uncontrolledElementsSets: Record<ControlAttribute, WeakSet<Element>> = {
-  inert: new WeakSet<Element>(),
   'aria-hidden': new WeakSet<Element>(),
 };
 let markerCounterMap = new WeakMap<Element, number>();
@@ -30,9 +26,6 @@ let lockCount = 0;
 function getUncontrolledElementsSet(controlAttribute: ControlAttribute) {
   return uncontrolledElementsSets[controlAttribute];
 }
-
-export const supportsInert = (): boolean =>
-  typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
 
 function unwrapHost(node: Node | null): Element | null {
   if (!node) {
@@ -107,22 +100,14 @@ function applyAttributeToOthers(
   uncorrectedAvoidElements: Element[],
   body: HTMLElement,
   ariaHidden: boolean,
-  inert: boolean,
-  { mark = true, markerIgnoreElements = [] }: MarkOthersOptions,
+  { mark = true }: MarkOthersOptions,
 ): Undo {
-  // eslint-disable-next-line no-nested-ternary
-  const controlAttribute = inert ? 'inert' : ariaHidden ? 'aria-hidden' : null;
+  const controlAttribute = ariaHidden ? 'aria-hidden' : null;
   let counterMap: WeakMap<Element, number> | null = null;
   let uncontrolledElementsSet: WeakSet<Element> | null = null;
   const avoidElements = correctElements(body, uncorrectedAvoidElements);
-  const markerIgnoreTargets = mark ? correctElements(body, markerIgnoreElements) : [];
-  const markerIgnoreSet = new Set<Node>(markerIgnoreTargets);
   const markerTargets = mark
-    ? collectOutsideElements(
-        body,
-        buildKeepSet(avoidElements),
-        new Set<Node>(avoidElements),
-      ).filter((target) => !markerIgnoreSet.has(target))
+    ? collectOutsideElements(body, buildKeepSet(avoidElements), new Set<Node>(avoidElements))
     : [];
   const hiddenElements: Element[] = [];
   const markedElements: Element[] = [];
@@ -156,7 +141,7 @@ function applyAttributeToOthers(
       }
 
       if (!alreadyHidden) {
-        node.setAttribute(controlAttribute, controlAttribute === 'inert' ? '' : 'true');
+        node.setAttribute(controlAttribute, 'true');
       }
     });
   }
@@ -208,9 +193,7 @@ function applyAttributeToOthers(
     lockCount -= 1;
 
     if (!lockCount) {
-      counters.inert = new WeakMap();
       counters['aria-hidden'] = new WeakMap();
-      uncontrolledElementsSets.inert = new WeakSet();
       uncontrolledElementsSets['aria-hidden'] = new WeakSet();
       markerCounterMap = new WeakMap();
     }
@@ -218,10 +201,7 @@ function applyAttributeToOthers(
 }
 
 export function markOthers(avoidElements: Element[], options: MarkOthersOptions = {}): Undo {
-  const { ariaHidden = false, inert = false, mark = true, markerIgnoreElements = [] } = options;
+  const { ariaHidden = false, mark = true } = options;
   const body = ownerDocument(avoidElements[0]).body;
-  return applyAttributeToOthers(avoidElements, body, ariaHidden, inert, {
-    mark,
-    markerIgnoreElements,
-  });
+  return applyAttributeToOthers(avoidElements, body, ariaHidden, { mark });
 }
