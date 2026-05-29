@@ -27,6 +27,7 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../src/floating-ui-react';
+import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
 import styles from './MenuOrientation.module.css';
 
 type MenuContextType = {
@@ -59,7 +60,23 @@ interface MenuProps {
   children?: React.ReactNode;
   keepMounted?: boolean;
   orientation?: 'vertical' | 'horizontal' | 'both';
-  cols?: number;
+  grid?: boolean;
+}
+
+const GRID_COLUMN_COUNT = 2;
+
+function renderGridRows(children: React.ReactNode, grid?: boolean) {
+  if (!grid) {
+    return children;
+  }
+
+  const items = React.Children.toArray(children);
+
+  return Array.from({ length: Math.ceil(items.length / GRID_COLUMN_COUNT) }, (_row, rowIndex) => (
+    <div key={rowIndex} role="row" style={{ display: 'contents' }}>
+      {items.slice(rowIndex * GRID_COLUMN_COUNT, rowIndex * GRID_COLUMN_COUNT + GRID_COLUMN_COUNT)}
+    </div>
+  ));
 }
 
 /** @internal */
@@ -67,7 +84,7 @@ export const MenuComponent = React.forwardRef<
   HTMLButtonElement,
   MenuProps & React.HTMLProps<HTMLButtonElement>
 >(function Menu(
-  { children, label, keepMounted = false, cols, orientation: orientationOption, ...props },
+  { children, label, keepMounted = false, grid, orientation: orientationOption, ...props },
   forwardedRef,
 ) {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -82,7 +99,7 @@ export const MenuComponent = React.forwardRef<
   const nodeId = useFloatingNodeId();
   const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
-  const orientation = orientationOption ?? (cols ? 'both' : 'vertical');
+  const orientation = orientationOption ?? (grid ? 'both' : 'vertical');
 
   const parent = React.useContext(MenuContext);
   const item = useCompositeListItem();
@@ -119,7 +136,7 @@ export const MenuComponent = React.forwardRef<
     nested: isNested,
     onNavigate: setActiveIndex,
     orientation,
-    cols,
+    grid: grid ? gridNavigation : undefined,
   });
   const typeahead = useTypeahead(context, {
     listRef: labelsRef,
@@ -269,26 +286,26 @@ export const MenuComponent = React.forwardRef<
                   className={c(
                     styles.Panel,
                     {
-                      [styles.PanelFlexCol]: !cols && orientation !== 'horizontal',
+                      [styles.PanelFlexCol]: !grid && orientation !== 'horizontal',
                     },
                     {
                       [styles.PanelFlexRow]: orientation === 'horizontal',
                     },
                     {
-                      [styles.PanelGrid]: cols,
+                      [styles.PanelGrid]: grid,
                     },
                   )}
                   style={{
                     ...floatingStyles,
                     // @ts-expect-error css var
-                    '--cols': cols,
+                    '--cols': GRID_COLUMN_COUNT,
                     // eslint-disable-next-line no-nested-ternary
                     visibility: !keepMounted ? undefined : isOpen ? 'visible' : 'hidden',
                   }}
                   aria-hidden={!isOpen}
                   {...getFloatingProps()}
                 >
-                  {children}
+                  {renderGridRows(children, grid)}
                 </div>
               </FloatingFocusManager>
             </FloatingPortal>
@@ -399,7 +416,7 @@ export function HorizontalMenu() {
           <Menu label="Copy as" keepMounted>
             <MenuItem label="Text" />
             <MenuItem label="Video" />
-            <Menu label="Image" keepMounted cols={2}>
+            <Menu label="Image" keepMounted grid>
               <MenuItem label=".png" />
               <MenuItem label=".jpg" />
               <MenuItem label=".svg" />
@@ -436,7 +453,7 @@ export function VerticalMenu() {
           <Menu label="Copy as" keepMounted orientation="horizontal">
             <MenuItem label="Text" />
             <MenuItem label="Video" />
-            <Menu label="Image" keepMounted cols={2}>
+            <Menu label="Image" keepMounted grid>
               <MenuItem label=".png" />
               <MenuItem label=".jpg" />
               <MenuItem label=".svg" />
@@ -473,7 +490,7 @@ export function HorizontalMenuWithHorizontalSubmenus() {
           <Menu label="Copy as" keepMounted orientation="horizontal">
             <MenuItem label="Text" />
             <MenuItem label="Video" />
-            <Menu label="Image" keepMounted cols={2}>
+            <Menu label="Image" keepMounted grid>
               <MenuItem label=".png" />
               <MenuItem label=".jpg" />
               <MenuItem label=".svg" />
