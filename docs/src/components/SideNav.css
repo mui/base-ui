@@ -30,7 +30,7 @@
 
   .SideNavViewport {
     max-height: calc(100dvh - var(--header-height));
-    padding: 0 1.5rem 0.75rem 0;
+    padding: 0 1.5rem 1.5rem 0;
 
     /* Scroll containers are focusable */
     outline: 0;
