@@ -133,6 +133,58 @@ describe('<Popover.Root />', () => {
         expect(handleChange.mock.calls[1][0]).toBe(true);
       });
 
+      it('unmounts on a normal close after preventUnmountOnClose and external reopen', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          const preventNextUnmountRef = React.useRef(true);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setOpen(true)}>
+                Open externally
+              </button>
+              <TestPopover
+                rootProps={{
+                  open,
+                  onOpenChange(nextOpen, details) {
+                    if (!nextOpen && preventNextUnmountRef.current) {
+                      preventNextUnmountRef.current = false;
+                      details.preventUnmountOnClose();
+                    }
+
+                    setOpen(nextOpen);
+                  },
+                }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(trigger).not.toHaveAttribute('data-popup-open');
+        });
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+
+        await user.click(screen.getByRole('button', { name: 'Open externally' }));
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('data-popup-open');
+        });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
+      });
+
       it('does not close after hovering out of a popup opened externally', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);
@@ -587,6 +639,45 @@ describe('<Popover.Root />', () => {
 
         expect(closePressTriggerId).toBe('trigger-1');
         expect(screen.queryByTestId('close')).not.toBe(null);
+      });
+
+      it('unmounts on a later normal close after a preventUnmountOnClose cycle and reopen', async () => {
+        let preventNextUnmount = true;
+        const { user } = await render(
+          <TestPopover
+            rootProps={{
+              onOpenChange: (open, details) => {
+                if (!open && preventNextUnmount) {
+                  preventNextUnmount = false;
+                  details.preventUnmountOnClose();
+                }
+              },
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).not.toBe(null);
+        });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(trigger).not.toHaveAttribute('data-popup-open');
+        });
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(trigger).toHaveAttribute('data-popup-open');
+        });
+
+        await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.queryByRole('dialog')).toBe(null);
+        });
       });
     });
 

@@ -16,7 +16,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useFormContext } from '../../internals/form-context/FormContext';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import type { BaseUIComponentProps, MaybeBaseUIEvent } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
@@ -30,7 +30,7 @@ import {
 } from '../utils/parse';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { DEFAULT_STEP } from '../utils/constants';
-import { toValidatedNumber } from '../utils/validate';
+import { hasNumberFormatRoundingOptions, toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
 import {
@@ -250,7 +250,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         (isInputReason && (unvalidatedValue !== value || allowInputSyncRef.current === false));
 
       if (shouldFireChange) {
-        lastChangedValueRef.current = validatedValue;
         onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
@@ -261,6 +260,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         setDirty(validatedValue !== validityData.initialValue);
         hasPendingCommitRef.current = true;
       }
+
+      lastChangedValueRef.current = validatedValue;
 
       // Keep the visible input in sync immediately when programmatic changes occur
       // (increment/decrement, wheel, etc). During direct typing we don't want
@@ -462,15 +463,13 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     <NumberFieldRootContext.Provider value={contextValue}>
       {element}
       <input
-        {...validation.getInputValidationProps(disabled, {
+        {...validation.getValidationProps(disabled, {
           onFocus() {
             inputRef.current?.focus();
           },
-          onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
+          onChange(event: React.ChangeEvent<HTMLInputElement>) {
             // Workaround for https://github.com/facebook/react/issues/9023
             if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
-              // Outside Field.Root, the event is not wrapped by mergeProps.
-              event.preventBaseUIHandler?.();
               return;
             }
 
@@ -483,7 +482,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
             setValue(parsedValue, details);
             clearErrors(name);
             validation.change(parsedValue);
-            event.preventBaseUIHandler?.();
           },
         })}
         ref={hiddenInputRef}
@@ -698,9 +696,7 @@ function getControlledInputValue(
   locale: Intl.LocalesArgument,
   format: Intl.NumberFormatOptions | undefined,
 ) {
-  const explicitPrecision =
-    format?.maximumFractionDigits != null || format?.minimumFractionDigits != null;
-  return explicitPrecision
+  return hasNumberFormatRoundingOptions(format)
     ? formatNumber(value, locale, format)
     : formatNumberMaxPrecision(value, locale, format);
 }

@@ -72,13 +72,17 @@ export interface PreviewCardViewportState {
   instant: 'dismiss' | 'focus' | undefined;
 }
 
-export namespace PreviewCardViewport {
-  export interface Props extends BaseUIComponentProps<'div', PreviewCardViewportState> {
-    /**
-     * The content to render inside the transition container.
-     */
-    children?: React.ReactNode;
-  }
+export interface PreviewCardViewportProps extends BaseUIComponentProps<
+  'div',
+  PreviewCardViewportState
+> {
+  /**
+   * The content to render inside the transition container.
+   */
+  children?: React.ReactNode;
+}
 
+export namespace PreviewCardViewport {
+  export type Props = PreviewCardViewportProps;
   export type State = PreviewCardViewportState;
 }
