@@ -20,9 +20,7 @@ export const windows = lowerPlatform === 'windows' || /^win/i.test(platform);
 /** Linux desktop (including Chrome OS). */
 export const linux =
   !android &&
-  (lowerPlatform === 'linux' ||
-    lowerPlatform.startsWith('chrome os') ||
-    /linux/i.test(platform));
+  (lowerPlatform === 'linux' || lowerPlatform.startsWith('chrome os') || /linux/i.test(platform));
 
 /** Any Apple OS (`mac || ios`). */
 export const apple = mac || ios;

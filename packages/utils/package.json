@@ -11,6 +11,7 @@
   },
   "exports": {
     "./store": "./src/store/index.ts",
+    "./platform": "./src/platform/index.ts",
     "./*": "./src/*.ts"
   },
   "imports": {
