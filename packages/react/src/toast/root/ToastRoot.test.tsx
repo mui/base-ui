@@ -594,6 +594,10 @@ describe('<Toast.Root />', () => {
       expect(duringSwipeEvent.defaultPrevented).toBe(true);
 
       fireEvent.pointerCancel(toastElement, { pointerId: 1, pointerType: 'touch' });
+
+      const afterSwipeEvent = new Event('touchmove', { bubbles: true, cancelable: true });
+      toastElement.dispatchEvent(afterSwipeEvent);
+      expect(afterSwipeEvent.defaultPrevented).toBe(false);
     });
 
     it('does not start swiping from elements with the data-base-ui-swipe-ignore attribute', async () => {

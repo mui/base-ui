@@ -149,7 +149,7 @@ The `data-swipe-direction` attribute can be used to determine the swipe directio
 ```
 
 The `data-limited` attribute indicates that the toast exceeded the `limit` option.
-Limited toasts remain mounted but inert, so this is useful for hiding them or animating them differently.
+Limited toasts remain mounted with the HTML `inert` attribute, so this is useful for hiding them or animating them differently.
 
 The `updateKey` property increments when a toast is updated or upserted.
 This can be used to replay attention-grabbing styles by switching animation names or, when remounting is acceptable, by including it in a React `key`.

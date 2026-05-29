@@ -165,6 +165,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     ) {
       event.preventDefault();
       store.restoreFocusToPrevElement();
+      // Shift+Tab is explicit keyboard navigation out of the viewport.
       store.resumeTimers();
     }
   }

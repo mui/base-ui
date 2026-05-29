@@ -66,10 +66,10 @@ function createToastMetadata(toasts: ToastObject<any>[]) {
   return metadata;
 }
 
-// Marks the active (non-ending) toasts beyond `limit` as limited. Toasts are
-// ordered newest-first, so the newest `limit` toasts stay visible and the rest
-// are flagged. Returns the same toast reference when its `limited` flag is
-// unchanged to avoid unnecessary re-renders.
+// Marks the active (non-ending) toasts beyond `limit` as limited. Callers pass
+// toasts in newest-first order, so the newest `limit` toasts stay visible and
+// the rest are flagged. Returns the same toast reference when its `limited`
+// flag is unchanged to avoid unnecessary re-renders.
 function applyLimited(toasts: ToastObject<any>[], limit: number): ToastObject<any>[] {
   let activeIndex = 0;
   return toasts.map((toast) => {
@@ -411,7 +411,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       timer.remaining = timer.remaining > 0 ? timer.remaining : timer.delay;
       timer.timeout ??= Timeout.create();
       timer.timeout.start(timer.remaining, () => {
-        this.timers.delete(id);
+        this.handleTimerFired(id);
         timer.callback();
       });
       timer.start = Date.now();
@@ -432,6 +432,8 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
+    // This is explicit touch activity outside the viewport, so the paused
+    // interaction state should end even if the window focus state is unchanged.
     this.resumeTimers();
     this.update({ hovering: false, focused: false });
   };
@@ -442,7 +444,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const currentTimeout = shouldStartActive ? Timeout.create() : undefined;
 
     currentTimeout?.start(delay, () => {
-      this.timers.delete(id);
+      this.handleTimerFired(id);
       callback();
     });
 
@@ -468,6 +470,15 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     timer?.timeout?.clear();
     this.timers.delete(id);
 
+    this.resetPausedStateIfNoTimersRemain();
+  }
+
+  private handleTimerFired(id: string) {
+    this.timers.delete(id);
+    this.resetPausedStateIfNoTimersRemain();
+  }
+
+  private resetPausedStateIfNoTimersRemain() {
     if (this.timers.size === 0) {
       // No timers remain to keep paused; clear the flag so a fresh toast's
       // running timer can be paused again on hover/focus.

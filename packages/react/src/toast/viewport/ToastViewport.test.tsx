@@ -419,14 +419,12 @@ describe('<Toast.Viewport />', () => {
       fireEvent.click(button);
 
       expect(screen.queryByTestId('root')).not.toBe(null);
-      const addEventListenerCalls = [...addEventListenerSpy.mock.calls].reverse();
-
-      const blurListener = addEventListenerCalls.find((call) => call[0] === 'blur')?.[1] as
-        | EventListener
-        | undefined;
-      const focusListener = addEventListenerCalls.find((call) => call[0] === 'focus')?.[1] as
-        | EventListener
-        | undefined;
+      const blurListener = addEventListenerSpy.mock.calls.find(
+        (call) => call[0] === 'blur' && call[2] === true,
+      )?.[1] as EventListener | undefined;
+      const focusListener = addEventListenerSpy.mock.calls.find(
+        (call) => call[0] === 'focus' && call[2] === true,
+      )?.[1] as EventListener | undefined;
 
       addEventListenerSpy.mockRestore();
 
@@ -489,9 +487,9 @@ describe('<Toast.Viewport />', () => {
 
         const root = screen.getByTestId('root');
 
-        const blurListener = [...addEventListenerSpy.mock.calls]
-          .reverse()
-          .find((call) => call[0] === 'blur')?.[1] as EventListener | undefined;
+        const blurListener = addEventListenerSpy.mock.calls.find(
+          (call) => call[0] === 'blur' && call[2] === true,
+        )?.[1] as EventListener | undefined;
         addEventListenerSpy.mockRestore();
 
         if (!blurListener) {
@@ -536,9 +534,9 @@ describe('<Toast.Viewport />', () => {
         const button = screen.getByRole('button', { name: 'add' });
         fireEvent.click(button);
 
-        const blurListener = [...addEventListenerSpy.mock.calls]
-          .reverse()
-          .find((call) => call[0] === 'blur')?.[1] as EventListener | undefined;
+        const blurListener = addEventListenerSpy.mock.calls.find(
+          (call) => call[0] === 'blur' && call[2] === true,
+        )?.[1] as EventListener | undefined;
         addEventListenerSpy.mockRestore();
 
         if (!blurListener) {
