@@ -19,18 +19,13 @@ import {
   MODIFIER_KEYS,
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
-  createGridCellMap,
   findNonDisabledListIndex,
-  getGridCellIndexOfCorner,
-  getGridCellIndices,
-  getGridNavigatedIndex,
   getMaxListIndex,
   getMinListIndex,
   isListIndexDisabled,
   isIndexOutOfListBounds,
   isNativeInput,
   scrollIntoViewIfNeeded,
-  type Dimensions,
   type ModifierKey,
 } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
@@ -40,21 +35,10 @@ import { getTarget } from '../../../floating-ui-react/utils';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
-  cols?: number | undefined;
   loopFocus?: boolean | undefined;
-  onLoop?:
-    | ((
-        event: React.KeyboardEvent,
-        prevIndex: number,
-        nextIndex: number,
-        elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
-      ) => number)
-    | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
-  dense?: boolean | undefined;
   direction: TextDirection;
-  itemSizes?: Array<Dimensions> | undefined;
   rootRef?: React.Ref<Element> | undefined;
   /**
    * When `true`, pressing the Home key moves focus to the first item,
@@ -85,11 +69,7 @@ const EMPTY_ARRAY: never[] = [];
 
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
-    itemSizes,
-    cols = 1,
     loopFocus = true,
-    onLoop,
-    dense = false,
     orientation = 'both',
     direction,
     highlightedIndex: externalHighlightedIndex,
@@ -102,8 +82,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
-
-  const isGrid = cols > 1;
 
   const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useMergedRefs(rootRef, externalRef);
@@ -179,15 +157,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     onHighlightedIndexChange,
   ]);
 
-  const wrappedOnLoop = useStableCallback(
-    (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => {
-      if (!onLoop) {
-        return nextIndex;
-      }
-      return onLoop?.(event, prevIndex, nextIndex, elementsRef);
-    },
-  );
-
   const props = React.useMemo<HTMLProps>(
     () => ({
       ref: mergedRef,
@@ -253,71 +222,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         const minIndex = getMinListIndex(elementsRef, disabledIndices);
         const maxIndex = getMaxListIndex(elementsRef, disabledIndices);
 
-        if (isGrid) {
-          const sizes =
-            itemSizes ||
-            Array.from({ length: elementsRef.current.length }, () => ({
-              width: 1,
-              height: 1,
-            }));
-          // To calculate movements on the grid, we use hypothetical cell indices
-          // as if every item was 1x1, then convert back to real indices.
-          const cellMap = createGridCellMap(sizes, cols, dense);
-          const minGridIndex = cellMap.findIndex(
-            (index) =>
-              index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices),
-          );
-          // last enabled index
-          const maxGridIndex = cellMap.reduce(
-            (foundIndex: number, index, cellIndex) =>
-              index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices)
-                ? cellIndex
-                : foundIndex,
-            -1,
-          );
-
-          nextIndex = cellMap[
-            getGridNavigatedIndex(
-              cellMap.map((itemIndex) =>
-                itemIndex != null ? elementsRef.current[itemIndex] : null,
-              ),
-              {
-                event,
-                orientation,
-                loopFocus,
-                onLoop: wrappedOnLoop,
-                cols,
-                // treat undefined (empty grid spaces) as disabled indices so we
-                // don't end up in them
-                disabledIndices: getGridCellIndices(
-                  [
-                    ...(disabledIndices ||
-                      elementsRef.current.map((_, index) =>
-                        isListIndexDisabled(elementsRef.current, index) ? index : undefined,
-                      )),
-                    undefined,
-                  ],
-                  cellMap,
-                ),
-                minIndex: minGridIndex,
-                maxIndex: maxGridIndex,
-                prevIndex: getGridCellIndexOfCorner(
-                  highlightedIndex > maxIndex ? minIndex : highlightedIndex,
-                  sizes,
-                  cellMap,
-                  cols,
-                  // use a corner matching the edge closest to the direction we're
-                  // moving in so we don't end up in the same item. Prefer
-                  // top/left over bottom/right.
-                  // eslint-disable-next-line no-nested-ternary
-                  event.key === ARROW_DOWN ? 'bl' : event.key === ARROW_RIGHT ? 'tr' : 'tl',
-                ),
-                rtl: isRtl,
-              },
-            )
-          ] as number; // navigated cell will never be nullish
-        }
-
         const forwardKeys = {
           horizontal: [horizontalForwardKey],
           vertical: [ARROW_DOWN],
@@ -330,13 +234,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           both: [horizontalBackwardKey, ARROW_UP],
         }[orientation];
 
-        const preventedKeys = isGrid
-          ? RELEVANT_KEYS
-          : {
-              horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
-              vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
-              both: RELEVANT_KEYS,
-            }[orientation];
+        const preventedKeys = {
+          horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
+          vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
+          both: RELEVANT_KEYS,
+        }[orientation];
 
         if (enableHomeAndEndKeys) {
           if (event.key === HOME) {
@@ -352,14 +254,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         ) {
           if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
-            if (onLoop) {
-              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-            }
           } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
-            if (onLoop) {
-              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-            }
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef.current, {
               startingIndex: nextIndex,
@@ -390,18 +286,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       },
     }),
     [
-      cols,
-      dense,
       direction,
       disabledIndices,
       elementsRef,
       enableHomeAndEndKeys,
       highlightedIndex,
-      isGrid,
-      itemSizes,
       loopFocus,
-      onLoop,
-      wrappedOnLoop,
       mergedRef,
       modifierKeys,
       onHighlightedIndexChange,
