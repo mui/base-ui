@@ -127,9 +127,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);
-  const interactionsEnabled = positionerElement ? true : !value;
+  const interactionsEnabled = (positionerElement ? true : !value) && !disabled;
   const hoverFloatingElement = positionerElement || viewportElement;
-  const hoverInteractionsEnabled = hoverFloatingElement ? true : !value;
+  const hoverInteractionsEnabled = (hoverFloatingElement ? true : !value) && !disabled;
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement, false, false);
 
@@ -658,7 +658,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
-      if (value != null) {
+      // Keyboard opening already sets the value with the `listNavigation` reason in the
+      // trigger's `onKeyDown`, so re-setting it here would emit a duplicate `onValueChange`.
+      if (value != null && event.type !== 'keydown') {
         setValue(
           itemValue,
           createChangeEventDetails(
@@ -695,6 +697,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   }
 
   const handleOpenEvent = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
+    if (disabled) {
+      return;
+    }
+
     if (!popupElement || !positionerElement) {
       handleActivation(event);
       return;

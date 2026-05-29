@@ -154,7 +154,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       nextValue: NavigationMenuRoot.Value<Value>,
       eventDetails: NavigationMenuRoot.ChangeEventDetails,
     ) => {
-      if (!nextValue) {
+      if (nextValue == null) {
         closeReasonRef.current = eventDetails.reason;
       }
 
@@ -166,14 +166,19 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
         return;
       }
 
-      if (!nextValue) {
+      if (nextValue == null) {
         setActivationDirection(null);
         setFloatingRootContext(undefined);
       }
 
       setValueUnwrapped(nextValue);
 
-      if (nested && !nextValue && eventDetails.reason === REASONS.linkPress && parentRootContext) {
+      if (
+        nested &&
+        nextValue == null &&
+        eventDetails.reason === REASONS.linkPress &&
+        parentRootContext
+      ) {
         parentRootContext.setValue(null, eventDetails);
       }
     },
@@ -205,6 +210,8 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     currentContentRef.current = null;
     closeReasonRef.current = undefined;
   });
+
+  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   useOpenChangeComplete({
     enabled: !actionsRef,

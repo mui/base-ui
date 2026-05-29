@@ -79,6 +79,31 @@ function TestNavigationMenuWithTopLevelLink(props: NavigationMenu.Root.Props = {
   );
 }
 
+function TestNavigationMenuWithDisabledTrigger(props: NavigationMenu.Root.Props = {}) {
+  return (
+    <NavigationMenu.Root {...props}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1" disabled>
+            Item 1
+          </NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-1">
+            <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 const scopedPopupAnimationStyles = `
   .test-navigation-menu-popup {
     transition-property: opacity, transform, width, height;
@@ -1496,6 +1521,65 @@ describe('<NavigationMenu.Root />', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe('item-2');
     });
 
+    it('does not emit a duplicate onValueChange when switching items via keyboard', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(<TestNavigationMenu onValueChange={onValueChange} />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+
+      await act(async () => {
+        trigger1.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await flushMicrotasks();
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.lastCall?.[0]).toBe('item-1');
+
+      // Switching to another open item via the arrow key previously also ran the activation
+      // path's `triggerPress` setValue, emitting a second onValueChange for the same item.
+      await act(async () => {
+        trigger2.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await flushMicrotasks();
+
+      expect(onValueChange.mock.calls.filter((call) => call[0] === 'item-2')).toHaveLength(1);
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('treats a falsy item value as a valid open value', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NavigationMenu.Root onValueChange={onValueChange}>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value={0}>
+              <NavigationMenu.Trigger data-testid="trigger-0">Zero</NavigationMenu.Trigger>
+              <NavigationMenu.Content data-testid="popup-0">
+                <NavigationMenu.Link href="#link-0">Zero link</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger-0');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.lastCall?.[0]).toBe(0);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.queryByTestId('popup-0')).not.toBe(null);
+    });
+
     it('should be controlled by value prop', async () => {
       const { setProps } = await render(<TestNavigationMenu value="item-1" />);
 
@@ -1693,6 +1777,114 @@ describe('<NavigationMenu.Root />', () => {
 
       expect(screen.queryByTestId('popup-1')).toBe(null);
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+  });
+
+  describe('prop: disabled', () => {
+    it('does not open on hover when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not open on click when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not open via keyboard when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />,
+      );
+      const trigger = screen.getByTestId('trigger-1');
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('prop: actionsRef', () => {
+    it('exposes an unmount action and defers unmounting until it is called', async () => {
+      const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+
+      function ControlledNavigationMenu(props: { value: string | null }) {
+        return <TestNavigationMenu value={props.value} actionsRef={actionsRef} />;
+      }
+
+      const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+      expect(actionsRef.current).not.toBe(null);
+      expect(actionsRef.current?.unmount).toBeTypeOf('function');
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+
+      // Closing keeps the popup mounted because `actionsRef` disables the automatic unmount.
+      await rerender(<ControlledNavigationMenu value={null} />);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-root')).toBe(null);
+    });
+  });
+
+  describe('prop: side', () => {
+    it('pins the popup to the right edge when side="left" so it grows leftward', async () => {
+      await render(
+        <NavigationMenu.Root>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value="item-1">
+              <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal>
+            <NavigationMenu.Positioner side="left">
+              <NavigationMenu.Popup data-testid="popup-root">
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger-1');
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      const popup = screen.getByTestId('popup-root');
+      expect(popup).toHaveAttribute('data-side', 'left');
+      expect(popup).toHaveStyle({ position: 'absolute', top: '0px', right: '0px' });
     });
   });
 

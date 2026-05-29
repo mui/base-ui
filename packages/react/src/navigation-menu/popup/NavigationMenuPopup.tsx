@@ -44,15 +44,13 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
   };
 
   // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
-  let isOriginSide = positioning.side === 'top';
   let isPhysicalLeft = positioning.side === 'left';
   if (direction === 'rtl') {
-    isOriginSide = isOriginSide || positioning.side === 'inline-end';
     isPhysicalLeft = isPhysicalLeft || positioning.side === 'inline-end';
   } else {
-    isOriginSide = isOriginSide || positioning.side === 'inline-start';
     isPhysicalLeft = isPhysicalLeft || positioning.side === 'inline-start';
   }
+  const isOriginSide = positioning.side === 'top' || isPhysicalLeft;
 
   const element = useRenderElement('nav', componentProps, {
     state,
