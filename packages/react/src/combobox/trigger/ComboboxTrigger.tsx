@@ -266,6 +266,35 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
             store.state.inputRef.current?.focus();
+            return;
+          }
+
+          // In the input-inside-popup pattern the Trigger is the keyboard
+          // entry point when the popup is closed. Mirror ComboboxInput's
+          // Escape clear so users can reset the value without opening the
+          // popup first.
+          if (event.key === 'Escape' && inputInsidePopup && !mounted) {
+            const isClear =
+              selectionMode === 'multiple' && Array.isArray(selectedValue)
+                ? selectedValue.length === 0
+                : selectedValue === null;
+
+            const details = createChangeEventDetails(REASONS.escapeKey, event.nativeEvent);
+
+            // Mirror ComboboxInput and always reset the input value first, so a
+            // controlled `inputValue` is cleared even when nothing is selected.
+            store.state.setInputValue('', details);
+
+            // Only clear the selected value when there is something to clear.
+            // Clearing an already-empty value would fire `onValueChange` with no change.
+            if (!isClear) {
+              const value = selectionMode === 'multiple' ? [] : null;
+              store.state.setSelectedValue(value, details);
+
+              if (!store.state.inline && !details.isPropagationAllowed) {
+                event.stopPropagation();
+              }
+            }
           }
         },
       },
