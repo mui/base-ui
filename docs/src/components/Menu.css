@@ -13,22 +13,18 @@
     background-color: var(--color-popup);
     overflow: hidden;
     cursor: default;
-    -webkit-user-select: none;
-    user-select: none;
     padding-block: 0.25rem;
-
     /* Make sure the layout doesn't fall apart on extreme zoom on mobile */
     min-width: min-content;
-
-    @media (prefers-color-scheme: light) {
-      box-shadow:
-        0 0 1px var(--blackA-4),
-        0 0.5px 1px var(--blackA-3),
-        0 1px 3px var(--blackA-1),
-        0 2px 4px -1px var(--blackA-1),
-        0 4px 12px -2px var(--blackA-1),
-        0 4px 16px -4px var(--blackA-1);
-    }
+    box-shadow:
+      0 0 1px var(--blackA-4),
+      0 0.5px 1px var(--blackA-3),
+      0 1px 3px var(--blackA-1),
+      0 2px 4px -1px var(--blackA-1),
+      0 4px 12px -2px var(--blackA-1),
+      0 4px 16px -4px var(--blackA-1);
+    -webkit-user-select: none;
+    user-select: none;
 
     @media (prefers-color-scheme: dark) {
       box-shadow: inset 0 0 0 1px var(--gray-c3);
