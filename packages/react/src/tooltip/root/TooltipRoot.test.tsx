@@ -335,6 +335,108 @@ describe('<Tooltip.Root />', () => {
           expect(screen.queryByTestId('positioner')).toBe(null);
         });
       });
+
+      it('unmounts on a normal close after a prevented close and initially open remount', async () => {
+        const tooltip = Tooltip.createHandle();
+        const originalConsoleError = console.error;
+        const consoleError = vi.spyOn(console, 'error').mockImplementation((...args) => {
+          const message = args.map(String).join(' ');
+          if (
+            message.includes('Cannot update a component') &&
+            message.includes('TooltipTrigger') &&
+            message.includes('TooltipRoot')
+          ) {
+            return;
+          }
+
+          originalConsoleError(...args);
+        });
+
+        function App() {
+          const [showRoot, setShowRoot] = React.useState(true);
+          const [remountOpen, setRemountOpen] = React.useState(false);
+          const preventNextUnmountRef = React.useRef(true);
+
+          return (
+            <React.Fragment>
+              <Tooltip.Trigger handle={tooltip} id="trigger" delay={0}>
+                Toggle
+              </Tooltip.Trigger>
+              <button type="button" onClick={() => tooltip.open('trigger')}>
+                Open tooltip
+              </button>
+              <button type="button" onClick={() => tooltip.close()}>
+                Close tooltip
+              </button>
+              <button type="button" onClick={() => setShowRoot(false)}>
+                Unmount root
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setRemountOpen(true);
+                  setShowRoot(true);
+                }}
+              >
+                Remount open
+              </button>
+              {showRoot && (
+                <Tooltip.Root
+                  handle={tooltip}
+                  defaultOpen={remountOpen}
+                  defaultTriggerId="trigger"
+                  onOpenChange={(open, details) => {
+                    if (!open && preventNextUnmountRef.current) {
+                      preventNextUnmountRef.current = false;
+                      details.preventUnmountOnClose();
+                    }
+                  }}
+                >
+                  <Tooltip.Portal>
+                    <Tooltip.Positioner data-testid="positioner">
+                      <Tooltip.Popup>Content</Tooltip.Popup>
+                    </Tooltip.Positioner>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        try {
+          const { user } = await render(<App />);
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          await user.click(screen.getByRole('button', { name: 'Open tooltip' }));
+          await waitFor(() => {
+            expect(screen.queryByTestId('positioner')).not.toBe(null);
+          });
+
+          await user.click(screen.getByRole('button', { name: 'Close tooltip' }));
+          await waitFor(() => {
+            expect(trigger).not.toHaveAttribute('data-popup-open');
+          });
+          expect(screen.queryByTestId('positioner')).not.toBe(null);
+
+          await user.click(screen.getByRole('button', { name: 'Unmount root' }));
+          expect(screen.queryByTestId('positioner')).toBe(null);
+
+          await user.click(screen.getByRole('button', { name: 'Remount open' }));
+          await waitFor(() => {
+            expect(screen.getByRole('button', { name: 'Toggle' })).toHaveAttribute(
+              'data-popup-open',
+            );
+          });
+          expect(screen.queryByTestId('positioner')).not.toBe(null);
+
+          await user.click(screen.getByRole('button', { name: 'Close tooltip' }));
+          await waitFor(() => {
+            expect(screen.queryByTestId('positioner')).toBe(null);
+          });
+        } finally {
+          consoleError.mockRestore();
+        }
+      });
     });
 
     describe('prop: actionsRef', () => {

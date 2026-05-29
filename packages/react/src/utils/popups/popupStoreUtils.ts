@@ -264,11 +264,17 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
 ) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
+  const previousOpenRef = React.useRef(false);
+  const shouldClearPreventUnmountingOnClose =
+    open && !previousOpenRef.current && store.state.preventUnmountingOnClose;
+  const syncedPreventUnmountingOnClose = shouldClearPreventUnmountingOnClose
+    ? false
+    : preventUnmountingOnClose;
 
   store.useSyncedValues({
     mounted,
     transitionStatus,
-    preventUnmountingOnClose,
+    preventUnmountingOnClose: syncedPreventUnmountingOnClose,
   } as Partial<State>);
 
   const forceUnmount = useStableCallback(() => {
@@ -283,19 +289,12 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     store.context.onOpenChangeComplete?.(false);
   });
 
-  const previousOpenRef = React.useRef(open);
-
   useIsoLayoutEffect(() => {
-    const wasOpen = previousOpenRef.current;
     previousOpenRef.current = open;
-
-    if (open && !wasOpen && preventUnmountingOnClose) {
-      store.set('preventUnmountingOnClose', false);
-    }
-  }, [open, preventUnmountingOnClose, store]);
+  }, [open]);
 
   useOpenChangeComplete({
-    enabled: mounted && !open && !preventUnmountingOnClose,
+    enabled: mounted && !open && !syncedPreventUnmountingOnClose,
     open,
     ref: store.context.popupRef,
     onComplete() {
