@@ -55,15 +55,16 @@
       right: var(--content-layout-inline-offset);
       bottom: 0;
       width: var(--content-layout-sidebar-width);
-      /* Avoid links' focus outline from being cut */
-      margin-top: -3px;
-      margin-left: -3px;
     }
   }
 
   .QuickNavInner {
     position: relative;
     width: 100%;
+
+    /* Avoid links' focus outline from being cut */
+    margin-top: -3px;
+    margin-left: -3px;
   }
 
   .QuickNavViewport {
