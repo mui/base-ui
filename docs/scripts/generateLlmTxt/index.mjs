@@ -36,6 +36,10 @@ function incrementHeaders(increment = 1) {
   };
 }
 
+function inlineCodeHtmlTags(text) {
+  return text.replace(/<\/?[a-zA-Z][^>]*>/g, '`$&`');
+}
+
 function githubSlugify(text) {
   return text
     .trim()
@@ -216,7 +220,11 @@ async function generateLlmsTxt() {
     // Page rendering functions - focused only on their unique logic
     const renderPageAsLink = (page) => {
       const resolvedUrl = resolveUrl(page.mdUrlPath, BASE_URL);
-      return [`- [${page.title}](${resolvedUrl}): ${page.description}`];
+      return [`- [${page.title}](${resolvedUrl}): ${inlineCodeHtmlTags(page.description)}`];
+    };
+    const renderPageAsRelativeLink = (page) => {
+      const relativeUrl = `.${page.mdUrlPath}`;
+      return [`- [${page.title}](${relativeUrl}): ${inlineCodeHtmlTags(page.description)}`];
     };
     const renderPageAsInline = async (page) => {
       const content = await prepareForInlineMarkdown(page.fullMarkdown, 2, metadataByUrl);
@@ -300,9 +308,12 @@ async function generateLlmsTxt() {
     await Promise.all([
       createFile('llms.txt', renderPageAsLink),
       createFile('llms-full.txt', renderPageAsInline),
+      createFile('index.md', renderPageAsRelativeLink),
     ]);
 
-    console.log(`Successfully generated ${totalFiles} markdown files, llms.txt, and llms-full.txt`);
+    console.log(
+      `Successfully generated ${totalFiles} markdown files, llms.txt, llms-full.txt, and index.md`,
+    );
   } catch (error) {
     console.error('Error generating llms.txt:', error);
     process.exit(1);

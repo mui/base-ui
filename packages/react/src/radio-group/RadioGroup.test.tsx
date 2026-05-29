@@ -60,6 +60,30 @@ describe('<RadioGroup />', () => {
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.results[0]?.value.event.shiftKey).toBe(true);
     });
+
+    it('should select an item with Space on keyup', async () => {
+      const handleChange = vi.fn();
+      const { user } = await render(
+        <RadioGroup onValueChange={handleChange}>
+          <Radio.Root value="a" data-testid="item" />
+        </RadioGroup>,
+      );
+
+      const item = screen.getByTestId('item');
+
+      act(() => {
+        item.focus();
+      });
+
+      await user.keyboard('[Space>]');
+
+      expect(handleChange).not.toHaveBeenCalled();
+
+      await user.keyboard('[/Space]');
+
+      expect(handleChange).toHaveBeenCalledOnce();
+      expect(handleChange).toHaveBeenLastCalledWith('a', expect.anything());
+    });
   });
 
   describe('prop: disabled', () => {
@@ -848,13 +872,13 @@ describe('<RadioGroup />', () => {
       it('links the group and individual radios', async () => {
         await render(
           <Field.Root name="apple">
-            <RadioGroup defaultValue={[]}>
+            <RadioGroup defaultValue={[]} aria-describedby="external-description">
               <Field.Description data-testid="group-description">
                 Group description
               </Field.Description>
               <Field.Item>
                 <Field.Label>
-                  <Radio.Root value="fuji-apple" />
+                  <Radio.Root value="fuji-apple" aria-describedby="radio-description" />
                   Fuji
                 </Field.Label>
               </Field.Item>
@@ -870,6 +894,14 @@ describe('<RadioGroup />', () => {
         );
         expect(screen.getByRole('radio').getAttribute('aria-describedby')).toContain(
           groupDescriptionId,
+        );
+        expect(screen.getByRole('radio')).toHaveAttribute(
+          'aria-describedby',
+          `radio-description ${groupDescriptionId}`,
+        );
+        expect(screen.getByRole('radiogroup')).toHaveAttribute(
+          'aria-describedby',
+          `external-description ${groupDescriptionId}`,
         );
       });
     });

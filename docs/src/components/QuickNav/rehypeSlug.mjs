@@ -26,7 +26,7 @@ const emptyOptions = {};
  * @returns
  *   Transform.
  */
-export function rehypeSlug(options) {
+export default function rehypeSlug(options) {
   const settings = options || emptyOptions;
   const prefix = settings.prefix || '';
 

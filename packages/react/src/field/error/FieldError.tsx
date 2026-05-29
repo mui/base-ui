@@ -38,16 +38,19 @@ export const FieldError = React.forwardRef(function FieldError(
 
   const { errors } = useFormContext();
 
-  const formError = name ? errors[name] : null;
+  const formError = name && Object.hasOwn(errors, name) ? errors[name] : null;
+  const hasFormError = !!(Array.isArray(formError) ? formError.length : formError);
   const hasSpecificMatch = typeof match === 'string';
 
   let rendered = false;
   if (match === true) {
     rendered = true;
+  } else if (fieldState.disabled) {
+    rendered = false;
   } else if (hasSpecificMatch) {
     rendered = Boolean(validityData.state[match]);
   } else {
-    rendered = Boolean(formError) || validityData.state.valid === false;
+    rendered = hasFormError || validityData.state.valid === false;
   }
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
@@ -68,25 +71,28 @@ export const FieldError = React.forwardRef(function FieldError(
   const [lastRenderedMessage, setLastRenderedMessage] = React.useState<React.ReactNode>(null);
   const [lastRenderedMessageKey, setLastRenderedMessageKey] = React.useState<string | null>(null);
 
-  const clientErrorMessage =
-    validityData.errors.length > 1 ? (
-      <ul>
-        {validityData.errors.map((message) => (
-          <li key={message}>{message}</li>
-        ))}
-      </ul>
-    ) : (
-      validityData.error
-    );
-
-  const errorMessage = hasSpecificMatch ? clientErrorMessage : formError || clientErrorMessage;
-
-  let errorKey = validityData.error;
-  if (formError != null) {
-    errorKey = Array.isArray(formError) ? JSON.stringify(formError) : formError;
+  let error: string | string[] | null | undefined = validityData.error;
+  if (!hasSpecificMatch && hasFormError) {
+    error = formError;
   } else if (validityData.errors.length > 1) {
-    errorKey = JSON.stringify(validityData.errors);
+    error = validityData.errors;
   }
+
+  let errorMessage: React.ReactNode = error ?? '';
+  if (Array.isArray(error)) {
+    errorMessage =
+      error.length > 1 ? (
+        <ul>
+          {error.map((message) => (
+            <li key={message}>{message}</li>
+          ))}
+        </ul>
+      ) : (
+        (error[0] ?? '')
+      );
+  }
+
+  const errorKey = Array.isArray(error) ? JSON.stringify(error) : error;
 
   if (rendered && errorKey !== lastRenderedMessageKey) {
     setLastRenderedMessageKey(errorKey);

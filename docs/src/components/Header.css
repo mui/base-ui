@@ -31,6 +31,11 @@
       box-shadow: none;
       background-color: transparent;
     }
+
+    @media print {
+      /* Prevent the header to be visible on each printed page */
+      position: absolute;
+    }
   }
 
   .HeaderLink,
@@ -166,5 +171,144 @@
 
   .HeaderGitHubIcon {
     margin-top: -2px;
+  }
+
+  .SearchTrigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-8);
+    height: var(--space-32);
+    padding-inline: 0.875rem;
+    margin: 0;
+    border: none;
+    border-radius: 9999px;
+    background-color: hsl(0deg 0% 0% / 5%);
+    font: inherit;
+    font-size: var(--font-size-16);
+    font-weight: var(--font-weight-400);
+    line-height: 1.5;
+    color: var(--gray-t2);
+    -webkit-user-select: none;
+    user-select: none;
+    outline: none;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--gray-c2);
+    }
+  }
+
+  .SearchTrigger::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: 9999px;
+    background-color: var(--color-popup);
+    z-index: 0;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--gray-c1);
+    }
+  }
+
+  .SearchTrigger::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    border-radius: 9999px;
+    box-shadow: 0 1px 2px hsl(0deg 0% 0% / 5%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .SearchTrigger > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .SearchTrigger:hover {
+    background-color: hsl(0deg 0% 0% / 15%);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--gray-c3);
+    }
+  }
+
+  .SearchTrigger:hover::before {
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(21.5% 0.5% 264deg);
+    }
+  }
+
+  .SearchTrigger:hover .SearchTriggerKbd {
+    @media (prefers-color-scheme: dark) {
+      border-color: var(--gray-c3);
+    }
+  }
+
+  .SearchTrigger:focus-visible {
+    outline: 2px solid var(--gray-t2);
+    outline-offset: -1px;
+  }
+
+  .SearchTrigger[data-disabled] {
+    color: var(--gray-p1);
+    cursor: default;
+  }
+
+  .SearchTrigger[data-disabled]:hover {
+    background-color: hsl(0deg 0% 0% / 5%);
+  }
+
+  .SearchTriggerIcon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--gray-p1);
+  }
+
+  .SearchTriggerKbd {
+    display: none;
+    height: 20px;
+    line-height: 1;
+    align-items: center;
+    gap: 0.25rem;
+    padding-inline: 0.375rem;
+    border-radius: 9999px;
+    border: 1px solid var(--gray-c3);
+    background-color: var(--gray-s2);
+    pointer-events: none;
+    color: var(--gray-t2);
+
+    @media (--lg) {
+      display: inline-flex;
+      margin-right: -0.5rem;
+    }
+  }
+
+  .SearchTriggerKbd kbd {
+    line-height: 1;
+  }
+
+  .SearchTriggerKbd kbd:first-child {
+    display: inline-flex;
+    margin-top: 1px;
+  }
+
+  .SearchTriggerCmd {
+    font-size: var(--font-size-18);
+  }
+
+  .SearchTriggerCtrl {
+    font-size: var(--font-size-13);
+  }
+
+  .SearchTriggerPlus {
+    font-size: var(--font-size-13);
+    color: var(--gray-t1);
+  }
+
+  .SearchTriggerK {
+    font-size: 0.8125rem;
   }
 }

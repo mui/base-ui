@@ -85,6 +85,7 @@ export const Menubar = React.forwardRef(function Menubar(
             props={[{ role: 'menubar', id }, elementProps]}
             orientation={orientation}
             loopFocus={loopFocus}
+            enableHomeAndEndKeys
             highlightItemOnHover={hasSubmenuOpen}
           />
         </MenubarContent>

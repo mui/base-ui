@@ -41,7 +41,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem();
+  const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext();
 
   const { store } = useMenuRootContext();
@@ -79,19 +79,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     [store],
   );
 
-  if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
-      const element = triggerElementRef.current;
-      if (element && isElementDisabled(element) && !disabledProp) {
-        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
-        warn(
-          `A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the \`disabled\` prop on the component instead of setting it on the rendered element.${ownerStackMessage}`,
-        );
-      }
-    });
-  }
-
   const submenuRootContext = useMenuSubmenuRootContext();
   if (!submenuRootContext?.parentMenu) {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
@@ -100,6 +87,22 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   store.useSyncedValue('closeDelay', closeDelay);
 
   const parentMenuStore = submenuRootContext.parentMenu;
+  const rootDisabled = store.useState('disabled');
+  const parentDisabled = parentMenuStore.useState('disabled');
+  const disabled = disabledProp || rootDisabled || parentDisabled;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      const element = triggerElementRef.current;
+      if (element && isElementDisabled(element) && !disabled) {
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        warn(
+          `A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the \`disabled\` prop on the component instead of setting it on the rendered element.${ownerStackMessage}`,
+        );
+      }
+    });
+  }
 
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
@@ -108,14 +111,13 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     () => ({
       type: 'submenu-trigger' as const,
       setActive() {
-        parentMenuStore.set('activeIndex', listItem.index);
+        if (parentMenuStore.select('highlightItemOnHover')) {
+          parentMenuStore.set('activeIndex', listItem.index);
+        }
       },
     }),
     [parentMenuStore, listItem.index],
   );
-
-  const rootDisabled = store.useState('disabled');
-  const disabled = disabledProp || rootDisabled;
 
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick: false,

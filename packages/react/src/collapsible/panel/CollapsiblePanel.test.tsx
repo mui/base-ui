@@ -10,6 +10,7 @@ import {
 } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { REASONS } from '../../internals/reasons';
 
 const PANEL_CONTENT = 'This is panel content';
 
@@ -139,6 +140,42 @@ describe('<Collapsible.Panel />', () => {
   });
 
   describe.skipIf(isJSDOM)('CSS transitions', () => {
+    it('applies data-starting-style while opening', async () => {
+      await render(
+        <React.Fragment>
+          <style>{`
+            .transition-test-panel {
+              overflow: hidden;
+              height: var(--collapsible-panel-height);
+              transition: height 100ms linear;
+            }
+
+            .transition-test-panel[data-starting-style],
+            .transition-test-panel[data-ending-style] {
+              height: 0;
+            }
+          `}</style>
+
+          <Collapsible.Root>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel className="transition-test-panel" data-testid="panel">
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      // Keep this synchronous so the transient starting-style render is observable.
+      fireEvent.click(trigger);
+
+      const panel = screen.getByTestId('panel');
+
+      expect(panel).toHaveAttribute('data-starting-style');
+      expect(panel).toHaveAttribute('data-open');
+    });
+
     it('restores a measured height before applying closing transition styles', async () => {
       const { user } = await render(
         <React.Fragment>
@@ -270,6 +307,54 @@ describe('<Collapsible.Panel />', () => {
       await waitFor(() => {
         expect(panel).toHaveAttribute('data-closed');
         expect(panel.getAnimations().length).toBe(1);
+      });
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-open');
+        expect(panel.getAnimations().length).toBe(1);
+      });
+    });
+
+    it('still animates on reopen after being initially open when only open keyframes are defined', async () => {
+      const { user } = await render(
+        <React.Fragment>
+          <style>{`
+            @keyframes panel-slide-down {
+              from {
+                height: 0;
+              }
+
+              to {
+                height: var(--collapsible-panel-height);
+              }
+            }
+
+            .animation-test-panel[data-open] {
+              overflow: hidden;
+              animation: panel-slide-down 100ms linear;
+            }
+          `}</style>
+
+          <Collapsible.Root defaultOpen>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel className="animation-test-panel" data-testid="panel" keepMounted>
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      const panel = screen.getByTestId('panel');
+
+      expect(panel.getAnimations().length).toBe(0);
+
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('data-closed');
       });
 
       await user.click(trigger);
@@ -1024,6 +1109,64 @@ describe('<Collapsible.Panel />', () => {
 
   // we test firefox in browserstack which does not support this yet
   describe.skipIf(!('onbeforematch' in window) || isJSDOM)('prop: hiddenUntilFound', () => {
+    it('does not open or suppress the next trigger open when beforematch is canceled', async () => {
+      const handleOpenChange = vi.fn(
+        (nextOpen, eventDetails: Collapsible.Root.ChangeEventDetails) => {
+          if (eventDetails.reason === REASONS.none) {
+            eventDetails.cancel();
+          }
+        },
+      );
+
+      const { user } = await render(
+        <React.Fragment>
+          <style>{`
+            .transition-test-panel {
+              overflow: hidden;
+              height: var(--collapsible-panel-height);
+              transition-property: height;
+              transition-duration: 999ms;
+              transition-timing-function: linear;
+            }
+
+            .transition-test-panel[data-starting-style],
+            .transition-test-panel[data-ending-style] {
+              height: 0;
+            }
+          `}</style>
+
+          <Collapsible.Root onOpenChange={handleOpenChange}>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel
+              className="transition-test-panel"
+              data-testid="panel"
+              hiddenUntilFound
+              keepMounted
+              // Verifies canceled beforematch does not install the temporary 0s override.
+              style={{ transitionDuration: '123ms' }}
+            >
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </React.Fragment>,
+      );
+
+      const panel = screen.getByTestId('panel');
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      fireBeforeMatch(panel);
+
+      expect(handleOpenChange).toHaveBeenCalledOnce();
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(panel).toHaveAttribute('data-closed');
+
+      await user.click(trigger);
+
+      expect(handleOpenChange).toHaveBeenCalledTimes(2);
+      expect(panel).toHaveAttribute('data-open');
+      expect(panel.style.transitionDuration).toBe('123ms');
+    });
+
     it('uses `hidden="until-found" to hide panel when true', async () => {
       const handleOpenChange = vi.fn();
 
