@@ -27,7 +27,7 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('value') && v.tagName === 'BUTTON');
+      .filter((v) => v.getAttribute('data-parent') == null);
     const parent = screen.getByTestId('parent');
 
     checkboxes.forEach((checkbox) => {
@@ -219,7 +219,7 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
+      .filter((v) => v.getAttribute('data-parent') == null);
     const checkboxA = screen.getByTestId('checkboxA');
     const parent = screen.getByTestId('parent');
 
@@ -248,6 +248,54 @@ describe('useCheckboxGroupParent', () => {
         expect(checkbox).toHaveAttribute('aria-checked', 'false');
       }
     });
+  });
+
+  it('lets a parent checkbox cancel a parent-enabled group change', () => {
+    const handleValueChange = vi.fn();
+    const handleParentChange = vi.fn((_, eventDetails: Checkbox.Root.ChangeEventDetails) => {
+      eventDetails.cancel();
+    });
+
+    render(
+      <CheckboxGroup allValues={allValues} onValueChange={handleValueChange}>
+        <Checkbox.Root parent data-testid="parent" onCheckedChange={handleParentChange} />
+        <Checkbox.Root value="a" data-testid="checkboxA" />
+        <Checkbox.Root value="b" data-testid="checkboxB" />
+        <Checkbox.Root value="c" data-testid="checkboxC" />
+      </CheckboxGroup>,
+    );
+
+    fireEvent.click(screen.getByTestId('parent'));
+
+    expect(handleParentChange.mock.calls.length).toBe(1);
+    expect(handleValueChange.mock.calls.length).toBe(0);
+    expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByTestId('checkboxA')).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByTestId('checkboxB')).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByTestId('checkboxC')).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('lets a child checkbox cancel a parent-enabled group change', () => {
+    const handleValueChange = vi.fn();
+    const handleChildChange = vi.fn((_, eventDetails: Checkbox.Root.ChangeEventDetails) => {
+      eventDetails.cancel();
+    });
+
+    render(
+      <CheckboxGroup allValues={allValues} onValueChange={handleValueChange}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root value="a" data-testid="checkboxA" onCheckedChange={handleChildChange} />
+        <Checkbox.Root value="b" />
+        <Checkbox.Root value="c" />
+      </CheckboxGroup>,
+    );
+
+    fireEvent.click(screen.getByTestId('checkboxA'));
+
+    expect(handleChildChange.mock.calls.length).toBe(1);
+    expect(handleValueChange.mock.calls.length).toBe(0);
+    expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'false');
+    expect(screen.getByTestId('checkboxA')).toHaveAttribute('aria-checked', 'false');
   });
 
   it('handles unchecked disabled checkboxes', () => {
