@@ -85,11 +85,6 @@
 
   .DemoToolbarActions {
     position: relative;
-    /* Apply sticky only on wider viewports to avoid actions taking up most of it */
-    @media (min-width: 48rem) {
-      position: sticky;
-      padding-left: 1rem;
-    }
     right: 0;
     display: flex;
     align-items: center;
@@ -98,6 +93,12 @@
     background-color: var(--gray-s2);
     height: 100%;
     gap: 0.25rem;
+
+    /* Apply sticky only on wider viewports to avoid actions taking up most of it */
+    @media (min-width: 48rem) {
+      position: sticky;
+      padding-left: 1rem;
+    }
 
     &::before {
       content: '';
