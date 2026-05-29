@@ -120,11 +120,16 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
   );
 }
 
-export function setOpenTriggerState(
+export function setPopupOpenState(
   state: Partial<PopupStoreState<unknown>>,
   open: boolean,
   trigger: Element | undefined,
 ) {
+  if (open) {
+    // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
+    state.preventUnmountingOnClose = false;
+  }
+
   const triggerId = trigger?.id ?? null;
 
   // If a popup is closing, the `trigger` may be undefined.
@@ -305,8 +310,13 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   onUnmount?: () => void,
 ) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
 
-  store.useSyncedValues({ mounted, transitionStatus } as Partial<State>);
+  store.useSyncedValues({
+    mounted,
+    transitionStatus,
+    preventUnmountingOnClose: open ? false : preventUnmountingOnClose,
+  } as Partial<State>);
 
   const forceUnmount = useStableCallback(() => {
     setMounted(false);
@@ -319,8 +329,6 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     onUnmount?.();
     store.context.onOpenChangeComplete?.(false);
   });
-
-  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
 
   useOpenChangeComplete({
     enabled: mounted && !open && !preventUnmountingOnClose,

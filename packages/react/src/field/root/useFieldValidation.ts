@@ -39,7 +39,7 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
 export function useFieldValidation(
   params: UseFieldValidationParameters,
 ): UseFieldValidationReturnValue {
-  const { formRef, clearErrors } = useFormContext();
+  const { formRef } = useFormContext();
 
   const {
     setValidityData,
@@ -49,7 +49,6 @@ export function useFieldValidation(
     invalid,
     markedDirtyRef,
     state,
-    name,
     shouldValidateOnChange,
     getRegisteredFieldId,
   } = params;
@@ -58,12 +57,16 @@ export function useFieldValidation(
 
   const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const validationCommitIdRef = React.useRef(0);
 
   const commit = useStableCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
     if (!element) {
       return;
     }
+
+    validationCommitIdRef.current += 1;
+    const validationCommitId = validationCommitIdRef.current;
 
     function updateRegisteredFieldValidity(
       nextValidityData: FieldValidityData,
@@ -175,9 +178,9 @@ export function useFieldValidation(
     const nextState = getState(element);
 
     let defaultValidationMessage;
-    const validateOnChange = shouldValidateOnChange();
+    const isValidatingOnChange = shouldValidateOnChange();
 
-    if (element.validationMessage && !validateOnChange) {
+    if (element.validationMessage && !isValidatingOnChange) {
       // not validating on change, if there is a `validationMessage` from
       // native validity, set errors and skip calling the custom validate fn
       defaultValidationMessage = element.validationMessage;
@@ -200,6 +203,9 @@ export function useFieldValidation(
         'then' in resultOrPromise
       ) {
         result = await resultOrPromise;
+        if (validationCommitId !== validationCommitIdRef.current) {
+          return;
+        }
       } else {
         result = resultOrPromise;
       }
@@ -215,7 +221,7 @@ export function useFieldValidation(
           validationErrors = [result];
           element.setCustomValidity(result);
         }
-      } else if (validateOnChange) {
+      } else if (isValidatingOnChange) {
         // validate function returned no errors, if validating on change
         // we need to clear the custom validity state
         element.setCustomValidity('');
@@ -244,75 +250,39 @@ export function useFieldValidation(
     setValidityData(nextValidityData);
   });
 
+  const change = useStableCallback((value: unknown) => {
+    timeout.clear();
+    const validateOnChange = shouldValidateOnChange();
+
+    if (validateOnChange && value !== '' && validationDebounceTime) {
+      validationCommitIdRef.current += 1;
+      timeout.start(validationDebounceTime, () => {
+        commit(value);
+      });
+    } else {
+      commit(value, !validateOnChange);
+    }
+  });
+
   const getValidationProps = React.useCallback(
-    (externalProps = {}) =>
+    (disabled: boolean, externalProps: HTMLProps = {}) =>
       mergeProps<any>(
-        getDescriptionProps,
-        state.valid === false ? { 'aria-invalid': true } : EMPTY_OBJECT,
-        externalProps,
+        getDescriptionProps(externalProps),
+        state.valid === false && !state.disabled && !disabled
+          ? { 'aria-invalid': true }
+          : EMPTY_OBJECT,
       ),
-    [getDescriptionProps, state.valid],
-  );
-
-  const getInputValidationProps = React.useCallback(
-    (externalProps = {}) =>
-      mergeProps<'input'>(
-        {
-          onChange(event) {
-            // Workaround for https://github.com/facebook/react/issues/9023
-            if (event.nativeEvent.defaultPrevented) {
-              return;
-            }
-
-            clearErrors(name);
-
-            if (!shouldValidateOnChange()) {
-              commit(event.currentTarget.value, true);
-              return;
-            }
-
-            // When validating on change, run client-side validation even if
-            // externally invalid
-            const element = event.currentTarget;
-
-            if (element.value === '') {
-              // Ignore the debounce time for empty values.
-              commit(element.value);
-              return;
-            }
-
-            timeout.clear();
-
-            if (validationDebounceTime) {
-              timeout.start(validationDebounceTime, () => {
-                commit(element.value);
-              });
-            } else {
-              commit(element.value);
-            }
-          },
-        },
-        getValidationProps(externalProps),
-      ),
-    [
-      getValidationProps,
-      clearErrors,
-      name,
-      timeout,
-      commit,
-      validationDebounceTime,
-      shouldValidateOnChange,
-    ],
+    [getDescriptionProps, state.disabled, state.valid],
   );
 
   return React.useMemo(
     () => ({
       getValidationProps,
-      getInputValidationProps,
       inputRef,
       commit,
+      change,
     }),
-    [getValidationProps, getInputValidationProps, commit],
+    [getValidationProps, commit, change],
   );
 }
 
@@ -327,14 +297,13 @@ export interface UseFieldValidationParameters {
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   state: FieldRootState;
-  name: string | undefined;
   shouldValidateOnChange: () => boolean;
   getRegisteredFieldId: () => string | undefined;
 }
 
 export interface UseFieldValidationReturnValue {
-  getValidationProps: (props?: HTMLProps) => HTMLProps;
-  getInputValidationProps: (props?: HTMLProps) => HTMLProps;
+  getValidationProps: (disabled: boolean, props?: HTMLProps) => HTMLProps;
   inputRef: React.RefObject<HTMLInputElement | null>;
-  commit: (value: unknown, revalidate?: boolean) => Promise<void>;
+  commit: (value: unknown) => Promise<void>;
+  change: (value: unknown) => void;
 }

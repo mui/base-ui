@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rimraf ./export && cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=8192 next build --webpack && pnpm link-check",
     "build:clean": "rimraf .next && pnpm build",
-    "dev": "next dev --webpack --port 3005",
+    "dev": "next dev --port 3005",
     "deploy": "git fetch upstream master && git push -f upstream FETCH_HEAD:docs-v1",
     "serve": "serve ./export -l 3010",
     "docs-infra": "docs-infra",

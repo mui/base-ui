@@ -2459,6 +2459,53 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         expect(input).toHaveAttribute('aria-invalid', 'true');
       });
 
+      it('validates once when changed by the user', async () => {
+        const validate = vi.fn();
+
+        const { user } = await render(
+          <Field.Root validationMode="onChange" validate={validate}>
+            <Slider.Root defaultValue={0}>
+              <Slider.Control>
+                <Slider.Thumb />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
+
+        await user.keyboard('[Tab]');
+        expect(screen.getByRole('slider')).toHaveFocus();
+
+        await user.keyboard(`[${ARROW_RIGHT}]`);
+        await flushMicrotasks();
+
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(validate.mock.lastCall?.[0]).toBe(1);
+      });
+
+      it('validates once with an array value for range sliders when changed by the user', async () => {
+        const validate = vi.fn();
+
+        const { user } = await render(
+          <Field.Root validationMode="onChange" validate={validate}>
+            <Slider.Root defaultValue={[0, 5]}>
+              <Slider.Control>
+                <Slider.Thumb index={0} />
+                <Slider.Thumb index={1} />
+              </Slider.Control>
+            </Slider.Root>
+          </Field.Root>,
+        );
+
+        await user.keyboard('[Tab]');
+        expect(screen.getAllByRole('slider')[0]).toHaveFocus();
+
+        await user.keyboard(`[${ARROW_RIGHT}]`);
+        await flushMicrotasks();
+
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(validate.mock.lastCall?.[0]).toEqual([1, 5]);
+      });
+
       it('revalidates when the controlled value changes externally', async () => {
         const validateSpy = vi.fn((value: unknown) => (Number(value) === 5 ? 'error' : null));
 
@@ -2679,7 +2726,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     it('Field.Description', async () => {
       await render(
         <Field.Root>
-          <Slider.Root data-testid="slider">
+          <Slider.Root data-testid="slider" aria-describedby="external-description">
             <Slider.Control />
           </Slider.Root>
           <Field.Description data-testid="description" />
@@ -2688,7 +2735,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
 
       expect(screen.getByTestId('slider')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });

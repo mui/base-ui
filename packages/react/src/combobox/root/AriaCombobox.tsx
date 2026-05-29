@@ -41,7 +41,7 @@ import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from '.
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import type { MaybeBaseUIEvent, HTMLProps } from '../../internals/types';
+import type { HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
@@ -123,7 +123,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const {
     setDirty,
     validityData,
-    shouldValidateOnChange,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
@@ -452,6 +451,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     id,
     fieldRawValue,
     getStringifiedValueForForm,
+    !disabled,
+    nameProp,
   );
 
   const forceMount = useStableCallback(() => {
@@ -935,11 +936,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     clearErrors(name);
     setDirty(selectedValue !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(selectedValue);
-    } else {
-      validation.commit(selectedValue, true);
-    }
+    validation.change(selectedValue);
 
     if (single && !hasInputValue && !inputInsidePopup) {
       const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
@@ -958,11 +955,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     clearErrors(name);
     setDirty(inputValue !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(inputValue);
-    } else {
-      validation.commit(inputValue, true);
-    }
+    validation.change(inputValue);
   });
 
   useValueChanged(items, () => {
@@ -1241,16 +1234,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           form={form}
           name={name}
           value={currentSerializedValue}
+          disabled={disabled}
         />
       );
     });
-  }, [multiple, selectedValue, form, name, itemToStringValue]);
+  }, [multiple, selectedValue, form, name, itemToStringValue, disabled]);
 
   const children = (
     <React.Fragment>
       {props.children}
       <input
-        {...validation.getInputValidationProps({
+        {...validation.getValidationProps(disabled, {
           // Move focus when the hidden input is focused.
           onFocus() {
             if (inputInsidePopup) {
@@ -1261,13 +1255,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             (inputRef.current || triggerElement)?.focus();
           },
           // Handle browser autofill.
-          onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
+          onChange(event: React.ChangeEvent<HTMLInputElement>) {
             // Workaround for https://github.com/facebook/react/issues/9023
             if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
-              // Outside Field.Root, the event is not wrapped by mergeProps.
-              event.preventBaseUIHandler?.();
               return;
             }
+
+            clearErrors(name);
 
             const nextValue = event.currentTarget.value;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
@@ -1281,10 +1275,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               if (selectionMode === 'none') {
                 setDirty(nextValue !== validityData.initialValue);
                 setInputValue(nextValue, details);
-
-                if (shouldValidateOnChange()) {
-                  validation.commit(nextValue);
-                }
+                validation.change(nextValue);
                 return;
               }
 
@@ -1306,10 +1297,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               if (matchingValue != null) {
                 setDirty(matchingValue !== validityData.initialValue);
                 setSelectedValue?.(matchingValue, details);
-
-                if (shouldValidateOnChange()) {
-                  validation.commit(matchingValue);
-                }
+                validation.change(matchingValue);
               }
             }
 

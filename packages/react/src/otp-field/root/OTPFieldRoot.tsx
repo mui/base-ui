@@ -19,7 +19,7 @@ import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLab
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useValueChanged } from '../../internals/useValueChanged';
-import type { BaseUIComponentProps, MaybeBaseUIEvent } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -83,7 +83,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     state: fieldState,
     validation,
     validationMode,
-    shouldValidateOnChange,
     setFocused,
     setTouched,
   } = useFieldRootContext();
@@ -125,8 +124,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const inputAriaLabelledBy = ariaLabelledByProp == null ? ariaLabelledBy : undefined;
   const fieldDescriptionProps = getDescriptionProps({});
   const ariaDescribedBy = mergeAriaIds(
-    fieldDescriptionProps['aria-describedby'],
     ariaDescribedByProp,
+    fieldDescriptionProps['aria-describedby'],
   );
   const validationConfig = getOTPValidationConfig(validationType);
   const pattern = validationConfig?.slotPattern;
@@ -158,7 +157,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     });
   }
 
-  useRegisterFieldControl(firstInputRef, id, value);
+  useRegisterFieldControl(firstInputRef, id, value, undefined, !disabled, nameProp);
 
   const focusInput = useStableCallback((index: number) => {
     const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
@@ -198,11 +197,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     clearErrors(name);
     setDirty(value !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(value);
-    } else {
-      validation.commit(value, true);
-    }
+    validation.change(value);
 
     const pendingCompleteValue = pendingCompleteValueRef.current;
 
@@ -400,14 +395,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
         {element}
         {hasValidLength && (
           <input
-            {...validation.getInputValidationProps({
+            {...validation.getValidationProps(disabled, {
               onFocus() {
                 focusInput(0);
               },
-              onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
+              onChange(event: React.ChangeEvent<HTMLInputElement>) {
                 if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
-                  // Outside Field.Root, the event is not wrapped by mergeProps.
-                  event.preventBaseUIHandler?.();
                   return;
                 }
 

@@ -504,8 +504,8 @@ export function useAnchorPositioning(
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {
-    if (keepMounted && mounted && elements.domReference && elements.floating) {
-      return autoUpdate(elements.domReference, elements.floating, update, autoUpdateOptions);
+    if (keepMounted && mounted && elements.reference && elements.floating) {
+      return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
     }
     return undefined;
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);

@@ -1,11 +1,12 @@
 import NextLink from 'next/link';
-import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
+
+import { GitHubIcon } from '../icons/GitHubIcon';
+import { NpmIcon } from '../icons/NpmIcon';
 import * as MobileNav from './MobileNav';
 import { sitemap } from '../app/sitemap';
-import { NpmIcon } from '../icons/NpmIcon';
 import { Logo } from './Logo';
 import { SkipNav } from './SkipNav';
-import { Search } from './Search';
+import { HeaderSearch } from './HeaderSearch';
 import './Header.css';
 
 export const titleMap: Record<string, string> = {
@@ -25,7 +26,7 @@ export function Header() {
           <Logo aria-label="Base UI" />
         </NextLink>
         <div className="HeaderDesktopActions">
-          <Search containedScroll enableKeyboardShortcut />
+          <HeaderSearch containedScroll enableKeyboardShortcut />
           <a
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui/react"
@@ -42,7 +43,7 @@ export function Header() {
         </div>
         <div className="HeaderMobileActions">
           <div className="HeaderMobileSearch">
-            <Search />
+            <HeaderSearch />
           </div>
           {sitemap && (
             <MobileNav.Root>
