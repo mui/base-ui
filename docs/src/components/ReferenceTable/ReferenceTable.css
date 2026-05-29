@@ -90,8 +90,13 @@
     width: 66.6667%;
   }
 
+  .ReferenceDescriptionCell {
+    vertical-align: middle;
+  }
+
   .ReferenceDescriptionCell .TableCellInner {
     display: block;
+    min-height: 0;
     white-space: normal;
     overflow-x: visible;
   }
