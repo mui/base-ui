@@ -151,7 +151,6 @@
 
     @media (--xl) {
       justify-content: start;
-      padding-left: 0.5rem;
     }
   }
 

@@ -55,6 +55,9 @@
       right: var(--content-layout-inline-offset);
       bottom: 0;
       width: var(--content-layout-sidebar-width);
+      /* Avoid links' focus outline from being cut */
+      margin-top: -3px;
+      margin-left: -3px;
     }
   }
 
@@ -74,7 +77,7 @@
 
     &:focus-visible {
       outline: 2px solid var(--gray-t2);
-      outline-offset: -2px;
+      outline-offset: 1px;
     }
   }
 
@@ -125,16 +128,21 @@
     }
   }
 
+  .QuickNavViewport > .QuickNavList {
+    /* Avoid links' focus outline from being cut */
+    margin-top: 3px;
+    margin-left: 3px;
+  }
+
   .QuickNavLink {
-    display: flex;
-    padding: var(--quick-nav-item-padding-y) 0.5rem;
-    margin-inline: 0 -0.5rem;
+    display: inline-flex;
+    padding-block: var(--quick-nav-item-padding-y);
     border-radius: var(--radius-6);
 
     &:focus-visible {
       z-index: 1;
       outline: 2px solid var(--gray-t2);
-      outline-offset: -2px;
+      outline-offset: 1px;
     }
 
     @media (hover: hover) {

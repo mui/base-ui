@@ -37,13 +37,11 @@
 
     .SideNavRoot:has(&:focus-visible)::before {
       content: '';
-      inset: 0;
+      /* Avoid links' active state from being cut */
+      inset: 0 0 0 -3px;
       pointer-events: none;
       position: absolute;
-      outline: 2px solid var(--gray-t2);
-      outline-offset: 2px;
-      /* Don't inset the outline on the right */
-      right: -2px;
+      border: 2px solid var(--gray-t2);
     }
   }
 
