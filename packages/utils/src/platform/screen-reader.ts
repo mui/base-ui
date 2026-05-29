@@ -1,4 +1,4 @@
-import { mac, ios } from './os';
+import { apple } from './os';
 import { webkit } from './engine';
 
 // Whether a screen reader is *actually* running cannot be detected. These flags
@@ -14,4 +14,4 @@ import { webkit } from './engine';
  * True on Apple platforms running WebKit, where VoiceOver's virtual-cursor /
  * NSAccessibility focus quirks apply.
  */
-export const voiceOver = (mac || ios) && webkit;
+export const voiceOver = apple && webkit;

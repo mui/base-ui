@@ -1,4 +1,4 @@
-import { userAgent } from './shared';
+import { lowerUserAgent } from './shared';
 
 /** Running in jsdom or HappyDOM (used by unit tests). */
-export const jsdom = /jsdom|HappyDOM/i.test(userAgent);
+export const jsdom = /jsdom|happydom/.test(lowerUserAgent);

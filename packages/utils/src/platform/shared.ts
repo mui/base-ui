@@ -45,8 +45,10 @@ function readRawData(): RawNavigatorData {
   };
 }
 
-export const { userAgent, platform, maxTouchPoints } = readRawData();
+const { userAgent, platform, maxTouchPoints } = readRawData();
+export const lowerUserAgent = userAgent.toLowerCase();
 export const lowerPlatform = platform.toLowerCase();
+export { maxTouchPoints };
 export const hasWindow = typeof window !== 'undefined';
 
 export function matchMedia(query: string): boolean {
