@@ -209,6 +209,67 @@ describe('<Tooltip.Root />', () => {
       });
     });
 
+    it('should remain open when the active trigger unmount close is canceled', async () => {
+      let removeFirstTrigger: () => void = () => {};
+      const onOpenChange = vi.fn((nextOpen, details: Tooltip.Root.ChangeEventDetails) => {
+        if (!nextOpen) {
+          details.cancel();
+        }
+      });
+
+      function Test() {
+        const [showFirstTrigger, setShowFirstTrigger] = React.useState(true);
+        removeFirstTrigger = () => setShowFirstTrigger(false);
+
+        return (
+          <div style={{ padding: 50 }}>
+            <Tooltip.Root defaultOpen defaultTriggerId="trigger-1" onOpenChange={onOpenChange}>
+              {({ payload }: NumberPayload) => (
+                <React.Fragment>
+                  <div style={{ display: 'flex', gap: 120 }}>
+                    {showFirstTrigger && (
+                      <Tooltip.Trigger id="trigger-1" payload={1} delay={0}>
+                        Trigger 1
+                      </Tooltip.Trigger>
+                    )}
+                    <Tooltip.Trigger id="trigger-2" payload={2} delay={0}>
+                      Trigger 2
+                    </Tooltip.Trigger>
+                  </div>
+
+                  <Tooltip.Portal>
+                    <Tooltip.Positioner side="bottom" align="start">
+                      <Tooltip.Popup>
+                        <span data-testid="content">{payload}</span>
+                      </Tooltip.Popup>
+                    </Tooltip.Positioner>
+                  </Tooltip.Portal>
+                </React.Fragment>
+              )}
+            </Tooltip.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(await screen.findByTestId('content')).toHaveTextContent('1');
+
+      await act(async () => removeFirstTrigger());
+
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('button', { name: 'Trigger 1' })).toBe(null);
+        expect(onOpenChange).toHaveBeenCalledWith(
+          false,
+          expect.objectContaining({ reason: 'none' }),
+        );
+        expect(trigger2).not.toHaveAttribute('data-popup-open');
+        expect(screen.getByTestId('content')).toHaveTextContent('1');
+      });
+    });
+
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
       await render(
         <Tooltip.Root>

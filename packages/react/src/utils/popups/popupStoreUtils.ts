@@ -276,11 +276,14 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
             store.select('activeTriggerId') === lostActiveTriggerId &&
             !store.context.triggerElements.getById(lostActiveTriggerId)
           ) {
-            store.update({
-              activeTriggerId: null,
-              activeTriggerElement: null,
-            } as Partial<State>);
-            store.setOpen(false, createChangeEventDetails(REASONS.none));
+            const eventDetails = createChangeEventDetails(REASONS.none);
+            store.setOpen(false, eventDetails);
+            if (!eventDetails.isCanceled) {
+              store.update({
+                activeTriggerId: null,
+                activeTriggerElement: null,
+              } as Partial<State>);
+            }
           }
         });
       } else {
