@@ -51,6 +51,7 @@ const REPO_ROOT = join(SCRIPTS_DIR, '..', '..', '..');
 const REACT_BUILD = join(REPO_ROOT, 'packages/react/build');
 const UTILS_BUILD = join(REPO_ROOT, 'packages/utils/build');
 const DOCS_PUBLIC = join(REPO_ROOT, 'docs/public');
+const ANATOMY_DIR = join(SCRIPTS_DIR, '..', 'lib', 'assets', 'inline-dts-agents-md', 'anatomy');
 
 interface CliArgs {
   skipBuild: boolean;
@@ -214,6 +215,28 @@ function fixtureManifest(reactVersion: string): Record<string, unknown> {
   };
 }
 
+/**
+ * Prepend the component-wide anatomy JSDoc preamble to each component's
+ * `index.parts.d.ts` (both CJS and ESM module trees). The asset files in
+ * `lib/assets/inline-dts-agents-md/anatomy/` are named `<component>.txt`
+ * and contain a complete JSDoc block. Components without an asset file
+ * are skipped — currently only `combobox` matters across our fixtures.
+ */
+function applyAnatomyPreambles(reactBuildDir: string): void {
+  if (!existsSync(ANATOMY_DIR)) return;
+  for (const entry of readdirSync(ANATOMY_DIR, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.txt')) continue;
+    const component = entry.name.slice(0, -'.txt'.length);
+    const preamble = readFileSync(join(ANATOMY_DIR, entry.name), 'utf8');
+    for (const dir of [component, join('esm', component)]) {
+      const target = join(reactBuildDir, dir, 'index.parts.d.ts');
+      if (!existsSync(target)) continue;
+      const original = readFileSync(target, 'utf8');
+      writeFileSync(target, preamble + original);
+    }
+  }
+}
+
 async function bakeVariant({
   evalName,
   reactBuildSrc,
@@ -344,6 +367,21 @@ async function bakeVariant({
     } else {
       copyFileSync(sharedDocsOverlayTar, fixtureOverlayPath);
     }
+
+    // Inline-dts overlay: a per-variant copy of @base-ui/react with JSDoc
+    // preambles prepended to selected .d.ts files. Always produced (every
+    // fixture gets the common anatomy preambles, even ones with no patch).
+    // The tar root holds `node_modules/@base-ui/react/...` so it extracts
+    // straight onto the rehydrated tree.
+    const inlineDtsRoot = join(stage, 'inline-dts', 'node_modules', '@base-ui', 'react');
+    cpSync(patchedReact, inlineDtsRoot, { recursive: true });
+    applyAnatomyPreambles(inlineDtsRoot);
+    patch?.patchInlineDts?.(inlineDtsRoot);
+    const fixtureInlineDtsPath = join(fixtureDir, '.inline-dts-overlay.tar');
+    execSync(`tar -cf "${fixtureInlineDtsPath}" node_modules`, {
+      cwd: join(stage, 'inline-dts'),
+      stdio: 'pipe',
+    });
   } finally {
     await registry.close();
     rmSync(stage, { recursive: true, force: true });
@@ -408,8 +446,12 @@ async function main(): Promise<void> {
     // declares `patchDocs` clones from here, mutates the clone, and tars it.
     const docsStagedDir = overlayRoot;
 
+    // A real fixture has at least PROMPT.md, EVAL.ts, src/, and tsconfig.json.
+    // Skip incomplete scratch dirs so a stray folder under evals/ doesn't break
+    // the bake.
     const allEvalNames = readdirSync(EVALS_ROOT, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
+      .filter((entry) => existsSync(join(EVALS_ROOT, entry.name, 'tsconfig.json')))
       .map((entry) => entry.name);
     const evalNames =
       args.only.length > 0 ? allEvalNames.filter((name) => args.only.includes(name)) : allEvalNames;

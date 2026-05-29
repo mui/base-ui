@@ -14,6 +14,10 @@
  *   `docs/react/components/combobox.md` to (a) add `<Combobox.RecentSearches>`
  *   inside `<Combobox.Empty>` in the Anatomy block and (b) append a "Recent
  *   searches" section explaining the placement rule.
+ * - **Inline .d.ts** (`patchInlineDts`): replace the default `DTS` JSDoc on
+ *   `ComboboxRecentSearches` with a version that documents the placement
+ *   rule directly. This is the content the `inline-dts-agents-md`
+ *   mechanism ships in place of the markdown overlay.
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -139,4 +143,60 @@ effect and the filter's empty state will not surface it.
 `;
   const before = readFileSync(comboboxMd, 'utf8');
   writeFileSync(comboboxMd, before + addendum);
+}
+
+const DTS_WITH_PLACEMENT_RULE = `import * as React from 'react';
+/**
+ * Surface for recently-used search terms inside an empty state.
+ * Renders a \`<div>\` element.
+ *
+ * **Placement:** render \`Combobox.RecentSearches\` **inside**
+ * \`Combobox.Empty\` so it surfaces when the typed filter has no matches.
+ * The part is only meaningful in that position — placing it outside the
+ * empty region has no effect.
+ *
+ * \`\`\`jsx
+ * <Combobox.Empty>
+ *   <Combobox.RecentSearches>{/* recent terms */}</Combobox.RecentSearches>
+ * </Combobox.Empty>
+ * \`\`\`
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
+ */
+export declare const ComboboxRecentSearches: React.ForwardRefExoticComponent<
+  React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>> & React.RefAttributes<HTMLDivElement>
+>;
+`;
+
+/**
+ * Two mutations on the inline-dts overlay:
+ *
+ * 1. Overwrite `ComboboxRecentSearches.d.ts` so its JSDoc documents the
+ *    placement rule (the default `DTS` from `apply` only mentions the
+ *    part exists).
+ * 2. Edit the anatomy preamble the pack pipeline has prepended to
+ *    `combobox/index.parts.d.ts` so the JSX tree shows
+ *    `<Combobox.RecentSearches />` nested inside `<Combobox.Empty>` —
+ *    mirroring what `patchDocs` does for the markdown Anatomy block.
+ */
+export function patchInlineDts(reactBuildDir: string): void {
+  for (const dir of ['combobox', 'esm/combobox']) {
+    const recentSearches = join(reactBuildDir, dir, 'recent-searches/ComboboxRecentSearches.d.ts');
+    writeFileSync(recentSearches, DTS_WITH_PLACEMENT_RULE);
+
+    const partsDts = join(reactBuildDir, dir, 'index.parts.d.ts');
+    const before = readFileSync(partsDts, 'utf8');
+    const anatomyAnchor = ' *         <Combobox.Status />\n *         <Combobox.Empty />\n';
+    if (!before.includes(anatomyAnchor)) {
+      throw new Error(
+        `docs-only-composition patchInlineDts: anatomy preamble missing Empty anchor in ${partsDts}`,
+      );
+    }
+    const replacement =
+      ' *         <Combobox.Status />\n' +
+      ' *         <Combobox.Empty>\n' +
+      ' *           <Combobox.RecentSearches />\n' +
+      ' *         </Combobox.Empty>\n';
+    writeFileSync(partsDts, before.replace(anatomyAnchor, replacement));
+  }
 }

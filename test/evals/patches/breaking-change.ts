@@ -82,3 +82,23 @@ export function patchDocs(stagedDocsDir: string): void {
   }
   writeFileSync(comboboxMd, content);
 }
+
+/**
+ * Mirror the Clear → Reset rename in the inline-dts anatomy preamble that
+ * the pack pipeline has prepended to `combobox/index.parts.d.ts`. Without
+ * this the JSDoc anatomy says `<Combobox.Clear />` while the rest of the
+ * file exports the part as `Reset` — the same stale-docs problem the
+ * markdown `patchDocs` fixes for the bundled-docs arms.
+ */
+export function patchInlineDts(reactBuildDir: string): void {
+  for (const dir of ['combobox', 'esm/combobox']) {
+    const target = join(reactBuildDir, dir, 'index.parts.d.ts');
+    const content = readFileSync(target, 'utf8');
+    if (!content.includes('<Combobox.Clear />')) {
+      throw new Error(
+        `breaking-change patchInlineDts: anatomy preamble missing <Combobox.Clear /> in ${target}`,
+      );
+    }
+    writeFileSync(target, content.split('<Combobox.Clear />').join('<Combobox.Reset />'));
+  }
+}

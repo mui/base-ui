@@ -1,0 +1,60 @@
+/**
+ * Combobox — composition reference.
+ *
+ * Compose the parts as nested children of `Combobox.Root`. Most nesting is
+ * not enforced at the type level — follow this anatomy to get the correct
+ * accessibility wiring, focus behavior, and popup transitions:
+ *
+ * ```jsx
+ * import { Combobox } from '@base-ui/react/combobox';
+ *
+ * <Combobox.Root>
+ *   <Combobox.Label />
+ *
+ *   <Combobox.InputGroup>
+ *     <Combobox.Input />
+ *     <Combobox.Trigger />
+ *     <Combobox.Icon />
+ *     <Combobox.Clear />
+ *     <Combobox.Value />
+ *
+ *     <Combobox.Chips>
+ *       <Combobox.Chip>
+ *         <Combobox.ChipRemove />
+ *       </Combobox.Chip>
+ *     </Combobox.Chips>
+ *   </Combobox.InputGroup>
+ *
+ *   <Combobox.Portal>
+ *     <Combobox.Backdrop />
+ *     <Combobox.Positioner>
+ *       <Combobox.Popup>
+ *         <Combobox.Arrow />
+ *
+ *         <Combobox.Status />
+ *         <Combobox.Empty />
+ *
+ *         <Combobox.List>
+ *           <Combobox.Row>
+ *             <Combobox.Item>
+ *               <Combobox.ItemIndicator />
+ *             </Combobox.Item>
+ *           </Combobox.Row>
+ *
+ *           <Combobox.Separator />
+ *
+ *           <Combobox.Group>
+ *             <Combobox.GroupLabel />
+ *           </Combobox.Group>
+ *
+ *           <Combobox.Collection />
+ *         </Combobox.List>
+ *       </Combobox.Popup>
+ *     </Combobox.Positioner>
+ *   </Combobox.Portal>
+ * </Combobox.Root>
+ * ```
+ *
+ * The popup must live inside a `Portal > Positioner > Popup` chain — that's
+ * what wires positioning, click-outside dismissal, and focus management.
+ */

@@ -26,7 +26,11 @@ export type Mechanism =
   | 'bundled-docs-readme'
   | 'bundled-docs-dts'
   | 'bundled-docs-agents-md'
-  | 'bundled-docs-skill';
+  | 'bundled-docs-skill'
+  // Content-channel comparison: prose inlined as JSDoc on the .d.ts files
+  // (composition/anatomy + patch-specific placement rules) instead of as a
+  // separate markdown overlay. Pointer is a Next.js-style AGENTS.md.
+  | 'inline-dts-agents-md';
 
 const ASSETS_DIR = join(dirname(fileURLToPath(import.meta.url)), 'assets');
 
@@ -132,6 +136,15 @@ export function getMechanismSetup(
         await sandbox.writeFiles({ '.mcp.json': asset('mcp/mcp.json') });
       };
 
+    case 'inline-dts-agents-md':
+      return async (sandbox) => {
+        await extractInlineDtsOverlay(sandbox);
+        await sandbox.writeFiles({
+          'AGENTS.md': asset('inline-dts-agents-md/AGENTS.md'),
+          'CLAUDE.md': '@AGENTS.md\n',
+        });
+      };
+
     default: {
       const exhaustive: never = mechanism;
       throw new Error(`Unknown mechanism: ${exhaustive}`);
@@ -151,6 +164,23 @@ async function extractDocsOverlay(sandbox: Sandbox): Promise<void> {
   if (result.exitCode !== 0) {
     throw new Error(
       'bundled-docs setup: failed to extract .docs-overlay.tar ' +
+        `(exit ${result.exitCode}):\n${result.stdout}\n${result.stderr}`,
+    );
+  }
+}
+
+/**
+ * Layer the inline-dts overlay onto the rehydrated node_modules. Mirrors
+ * `extractDocsOverlay` but ships a different content channel: per-eval
+ * .d.ts files with JSDoc preambles inlined (anatomy + patch-specific
+ * placement rules). `tar -xf` overwrites the existing .d.ts files in
+ * `node_modules/@base-ui/react/` in place.
+ */
+async function extractInlineDtsOverlay(sandbox: Sandbox): Promise<void> {
+  const result = await sandbox.runCommand('tar', ['-xf', '.inline-dts-overlay.tar']);
+  if (result.exitCode !== 0) {
+    throw new Error(
+      'inline-dts setup: failed to extract .inline-dts-overlay.tar ' +
         `(exit ${result.exitCode}):\n${result.stdout}\n${result.stderr}`,
     );
   }

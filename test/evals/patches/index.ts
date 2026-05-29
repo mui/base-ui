@@ -29,6 +29,19 @@ export interface Patch {
    * unpatched docs overlay.
    */
   patchDocs?(stagedDocsDir: string): void;
+  /**
+   * Mutate a per-variant copy of the built `@base-ui/react` tree (the
+   * argument is that copy's root, same layout as a published package).
+   * Used by the `inline-dts-agents-md` mechanism to add JSDoc preambles to
+   * specific .d.ts files — anything written here lands in the eval's
+   * `.inline-dts-overlay.tar`.
+   *
+   * Common per-component anatomy preambles are applied separately by the
+   * pack pipeline before this hook runs, so a patch only needs to add
+   * *patch-specific* prose (e.g. `docs-only-composition` documents that
+   * `RecentSearches` must nest inside `Empty`).
+   */
+  patchInlineDts?(reactBuildDir: string): void;
 }
 
 export const patches: Record<string, Patch> = {
