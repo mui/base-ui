@@ -581,9 +581,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   return;
                 }
 
-                // Match the autofilled text against each registered item by its serialized
-                // value (e.g. "US"), its serialized label, or its rendered text content
-                // (e.g. "United States") which is what the browser typically autofills.
+                // Browsers can autofill the rendered text (e.g. "United States"), which is
+                // neither the serialized value nor serialized label, so match `labelsRef` too.
                 const nextValueLower = nextValue.toLowerCase();
                 const matchingValue = valuesRef.current.find((candidate, index) => {
                   const renderedLabel = labelsRef.current[index];
