@@ -186,6 +186,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
+    composite: false,
   });
 
   const inputProps: React.ComponentPropsWithRef<'input'> = {

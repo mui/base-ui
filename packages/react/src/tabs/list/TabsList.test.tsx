@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
-import { act, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -55,6 +55,54 @@ describe('<Tabs.List />', () => {
       expect(tab1).toHaveAttribute('aria-selected', 'true');
       expect(tab2).toHaveAttribute('aria-selected', 'false');
       expect(tab3).toHaveAttribute('aria-selected', 'false');
+    });
+  });
+
+  describe('prop: loopFocus', () => {
+    it('does not wrap focus past the first tab when `loopFocus` is false', async () => {
+      await render(
+        <Tabs.Root value={0}>
+          <Tabs.List loopFocus={false}>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+            <Tabs.Tab value={2} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const [firstTab, , lastTab] = screen.getAllByRole('tab');
+      await act(async () => {
+        firstTab.focus();
+      });
+
+      fireEvent.keyDown(firstTab, { key: 'ArrowLeft' });
+      await flushMicrotasks();
+
+      expect(firstTab).toHaveFocus();
+      expect(lastTab).not.toHaveFocus();
+    });
+
+    it('does not wrap focus past the last tab when `loopFocus` is false', async () => {
+      await render(
+        <Tabs.Root value={2}>
+          <Tabs.List loopFocus={false}>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+            <Tabs.Tab value={2} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const [firstTab, , lastTab] = screen.getAllByRole('tab');
+      await act(async () => {
+        lastTab.focus();
+      });
+
+      fireEvent.keyDown(lastTab, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(lastTab).toHaveFocus();
+      expect(firstTab).not.toHaveFocus();
     });
   });
 

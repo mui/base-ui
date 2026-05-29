@@ -37,6 +37,27 @@ describe('<Form />', () => {
     expect(onSubmit.mock.calls.length > 0).toBe(false);
   });
 
+  it('submits when a valid async validator is pending', async () => {
+    const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+    });
+    const validate = vi.fn(() => new Promise<null>(() => {}));
+
+    render(
+      <Form onSubmit={onSubmit}>
+        <Field.Root validate={validate}>
+          <Field.Control />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
   it('does not submit if an unnamed registered field control is invalid', async () => {
     const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
