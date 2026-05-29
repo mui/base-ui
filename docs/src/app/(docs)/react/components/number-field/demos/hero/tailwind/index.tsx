@@ -2,7 +2,7 @@ import * as React from 'react';
 import { NumberField } from '@base-ui/react/number-field';
 
 const stepperClasses =
-  'flex h-full w-8 items-center justify-center border border-neutral-950 rounded-none bg-white bg-clip-padding text-neutral-950 outline-0 select-none hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400';
+  'flex h-full w-8 items-center justify-center border border-neutral-950 bg-white bg-clip-padding text-neutral-950 outline-0 select-none dark:border-white dark:bg-neutral-950 dark:text-white hover:not-data-disabled:bg-neutral-100 dark:hover:not-data-disabled:bg-neutral-800 active:not-data-disabled:bg-neutral-200 dark:active:not-data-disabled:bg-neutral-700 data-disabled:border-neutral-500 data-disabled:text-neutral-500 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400';
 
 export default function ExampleNumberField() {
   const id = React.useId();
@@ -24,7 +24,7 @@ export default function ExampleNumberField() {
         <NumberField.Decrement className={`${stepperClasses} border-r-0`}>
           <MinusIcon />
         </NumberField.Decrement>
-        <NumberField.Input className="h-full w-[7ch] border border-neutral-950 rounded-none bg-white px-2 text-left text-sm any-pointer-coarse:text-base font-normal text-neutral-950 tabular-nums focus:z-1 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:bg-neutral-950 dark:text-white" />
+        <NumberField.Input className="h-full w-[7ch] border border-neutral-950 bg-white px-2 text-left text-sm font-normal text-neutral-950 tabular-nums any-pointer-coarse:text-base dark:border-white dark:bg-neutral-950 dark:text-white focus:z-1 focus:outline-2 focus:-outline-offset-1 focus:outline-neutral-950 dark:focus:outline-white" />
         <NumberField.Increment className={`${stepperClasses} border-l-0`}>
           <PlusIcon />
         </NumberField.Increment>
