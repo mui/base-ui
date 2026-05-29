@@ -247,6 +247,55 @@ describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
     expect(screen.getByTestId('floating-three')).toBeInTheDocument();
   });
 
+  it('keeps the timeout active when the last closed consumer unmounts', async () => {
+    function Test() {
+      const [showFirst, setShowFirst] = React.useState(true);
+
+      return (
+        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+          {showFirst && (
+            <Tooltip label="one">
+              <button data-testid="reference-one" />
+            </Tooltip>
+          )}
+          <Tooltip label="two">
+            <button data-testid="reference-two" />
+          </Tooltip>
+          <button type="button" onClick={() => setShowFirst(false)}>
+            Remove closed
+          </button>
+        </FloatingDelayGroup>
+      );
+    }
+
+    render(<Test />);
+
+    fireEvent.mouseEnter(screen.getByTestId('reference-one'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    fireEvent.mouseLeave(screen.getByTestId('reference-one'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(100);
+    });
+
+    expect(screen.queryByTestId('floating-one')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove closed' }));
+    expect(screen.queryByTestId('reference-one')).not.toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByTestId('reference-two'));
+
+    await act(async () => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(screen.getByTestId('floating-two')).toBeInTheDocument();
+  });
+
   it('does not re-render unrelated consumers', async () => {
     function App() {
       return (

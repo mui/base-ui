@@ -155,14 +155,29 @@ export function useDelayGroup(
   } = groupContext;
 
   const [isInstantPhase, setIsInstantPhase] = React.useState(false);
+  const openRef = React.useRef(open);
+  const isUnmountedRef = React.useRef(false);
+
+  useIsoLayoutEffect(() => {
+    openRef.current = open;
+  }, [open]);
+
+  useIsoLayoutEffect(() => {
+    return () => {
+      isUnmountedRef.current = true;
+    };
+  }, []);
 
   useIsoLayoutEffect(() => {
     function unset() {
-      setIsInstantPhase(false);
+      if (!isUnmountedRef.current) {
+        setIsInstantPhase(false);
+      }
       currentContextRef.current?.setIsInstantPhase(false);
       currentIdRef.current = null;
       currentContextRef.current = null;
       delayRef.current = initialDelayRef.current;
+      timeout.clear();
     }
 
     if (!currentIdRef.current) {
@@ -185,7 +200,9 @@ export function useDelayGroup(
           unset();
         });
         return () => {
-          timeout.clear();
+          if (openRef.current || currentIdRef.current !== closingId) {
+            timeout.clear();
+          }
         };
       }
 
@@ -245,8 +262,13 @@ export function useDelayGroup(
   useIsoLayoutEffect(() => {
     return () => {
       if (currentIdRef.current === floatingId) {
-        currentIdRef.current = null;
         currentContextRef.current = null;
+
+        if (!openRef.current) {
+          return;
+        }
+
+        currentIdRef.current = null;
         resetDelayRef(delayRef, initialDelayRef);
         timeout.clear();
       }
