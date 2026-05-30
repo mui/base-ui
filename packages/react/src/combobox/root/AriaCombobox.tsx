@@ -1088,9 +1088,29 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
+  const listNavigationReference = React.useMemo(() => {
+    const reference = listNavigation.reference;
+    if (!grid || !reference) {
+      return reference;
+    }
+    // In grid mode the navigation hook treats ArrowLeft/ArrowRight as horizontal
+    // grid movement. When the input has focus and no item is highlighted the user
+    // is still editing the query, so let the input keep its native caret behavior.
+    const originalKeyDown = reference.onKeyDown;
+    return {
+      ...reference,
+      onKeyDown(event: React.KeyboardEvent<Element>) {
+        if (activeIndex == null && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+          return;
+        }
+        originalKeyDown?.(event);
+      },
+    };
+  }, [listNavigation.reference, grid, activeIndex]);
+
   const inputProps = React.useMemo(
-    () => mergeProps(listNavigation.reference, dismiss.reference, click.reference, role.reference),
-    [listNavigation.reference, dismiss.reference, click.reference, role.reference],
+    () => mergeProps(listNavigationReference, dismiss.reference, click.reference, role.reference),
+    [listNavigationReference, dismiss.reference, click.reference, role.reference],
   );
 
   const popupProps = React.useMemo(
