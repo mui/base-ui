@@ -363,6 +363,7 @@
   }
 }
 
+.VisuallyHidden,
 .VisuallyHiddenClose {
   position: absolute;
   width: 1px;

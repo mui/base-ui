@@ -7,6 +7,8 @@ import styles from './index.module.css';
 
 export default function ExampleAutocompleteCommandPalette() {
   const [open, setOpen] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const shortcutsDescriptionId = React.useId();
 
   function handleItemClick() {
     setOpen(false);
@@ -18,7 +20,11 @@ export default function ExampleAutocompleteCommandPalette() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Viewport className={styles.Viewport}>
-          <Dialog.Popup className={styles.Popup} aria-label="Command palette">
+          <Dialog.Popup
+            className={styles.Popup}
+            aria-label="Command palette"
+            initialFocus={inputRef}
+          >
             <Autocomplete.Root
               open
               inline
@@ -27,7 +33,10 @@ export default function ExampleAutocompleteCommandPalette() {
               keepHighlight
             >
               <Autocomplete.Input
+                ref={inputRef}
                 className={styles.Input}
+                aria-label="Search commands"
+                aria-describedby={shortcutsDescriptionId}
                 placeholder="Search for apps and commands…"
               />
               <Dialog.Close className={styles.VisuallyHiddenClose}>
@@ -77,12 +86,18 @@ export default function ExampleAutocompleteCommandPalette() {
               </ScrollArea.Root>
 
               <div className={styles.Footer}>
+                <span id={shortcutsDescriptionId} className={styles.VisuallyHidden}>
+                  Use Enter to activate the highlighted item. Use Control or Command K for command
+                  actions.
+                </span>
                 <div className={styles.FooterLeft}>
                   <span>Activate</span>
                   <kbd className={styles.Kbd}>Enter</kbd>
                 </div>
                 <div className={styles.FooterRight}>
                   <span>Actions</span>
+                  <kbd className={styles.Kbd}>Ctrl</kbd>
+                  <span>/</span>
                   <kbd className={styles.Kbd}>Cmd</kbd>
                   <kbd className={styles.Kbd}>K</kbd>
                 </div>
