@@ -113,6 +113,128 @@ test('multiple cleanups with differing controlAttribute', () => {
   expect(target.getAttribute('data-base-ui-inert')).toBe(null);
 });
 
+test('mixed controlAttribute usage (aria-hidden/inert/none)', () => {
+  const other = document.createElement('div');
+  document.body.appendChild(other);
+
+  const A = document.createElement('div');
+  A.setAttribute('data-testid', 'A');
+  document.body.appendChild(A);
+
+  const B = document.createElement('div');
+  B.setAttribute('data-testid', 'B');
+  document.body.appendChild(B);
+
+  const C = document.createElement('div');
+  C.setAttribute('data-testid', 'C');
+  document.body.appendChild(C);
+
+  const cleanupA = markOthers([A], { ariaHidden: true });
+
+  expect(other.getAttribute('aria-hidden')).toBe('true');
+  expect(other.hasAttribute('inert')).toBe(false);
+  expect(other.getAttribute('data-base-ui-inert')).toBe('');
+
+  const cleanupB = markOthers([B], { inert: true });
+
+  expect(other.getAttribute('aria-hidden')).toBe('true');
+  expect(other.getAttribute('inert')).toBe('');
+  expect(other.getAttribute('data-base-ui-inert')).toBe('');
+
+  const cleanupC = markOthers([C]);
+
+  expect(other.getAttribute('aria-hidden')).toBe('true');
+  expect(other.getAttribute('inert')).toBe('');
+  expect(other.getAttribute('data-base-ui-inert')).toBe('');
+
+  cleanupC();
+
+  expect(other.getAttribute('aria-hidden')).toBe('true');
+  expect(other.getAttribute('inert')).toBe('');
+  expect(other.getAttribute('data-base-ui-inert')).toBe('');
+
+  cleanupB();
+
+  expect(other.getAttribute('aria-hidden')).toBe('true');
+  expect(other.hasAttribute('inert')).toBe(false);
+  expect(other.getAttribute('data-base-ui-inert')).toBe('');
+
+  cleanupA();
+
+  expect(other.hasAttribute('aria-hidden')).toBe(false);
+  expect(other.hasAttribute('inert')).toBe(false);
+  expect(other.hasAttribute('data-base-ui-inert')).toBe(false);
+});
+
+test('tracks externally controlled attributes per control attribute', () => {
+  const container = document.createElement('div');
+  const keep = document.createElement('div');
+  const outside = document.createElement('div');
+
+  outside.setAttribute('inert', '');
+  container.append(keep, outside);
+  document.body.append(container);
+
+  let cleanupInert: (() => void) | undefined;
+  let cleanupAriaHidden: (() => void) | undefined;
+
+  try {
+    cleanupInert = markOthers([keep], { inert: true });
+    cleanupAriaHidden = markOthers([keep], { ariaHidden: true });
+
+    expect(outside).toHaveAttribute('inert');
+    expect(outside).toHaveAttribute('aria-hidden', 'true');
+
+    cleanupAriaHidden();
+    cleanupAriaHidden = undefined;
+
+    expect(outside).toHaveAttribute('inert');
+    expect(outside).not.toHaveAttribute('aria-hidden');
+
+    cleanupInert();
+    cleanupInert = undefined;
+
+    expect(outside).toHaveAttribute('inert');
+    expect(outside).not.toHaveAttribute('aria-hidden');
+  } finally {
+    cleanupAriaHidden?.();
+    cleanupInert?.();
+  }
+});
+
+test('preserves externally owned aria-hidden during concurrent aria-hidden and inert overlaps', () => {
+  const keep = document.createElement('div');
+  const outside = document.createElement('div');
+  outside.setAttribute('aria-hidden', 'true');
+  document.body.append(keep, outside);
+
+  let cleanupAriaHidden: (() => void) | undefined;
+  let cleanupInert: (() => void) | undefined;
+
+  try {
+    cleanupAriaHidden = markOthers([keep], { ariaHidden: true, mark: false });
+    cleanupInert = markOthers([keep], { inert: true, mark: false });
+
+    expect(outside).toHaveAttribute('aria-hidden', 'true');
+    expect(outside).toHaveAttribute('inert');
+
+    cleanupInert();
+    cleanupInert = undefined;
+
+    expect(outside).toHaveAttribute('aria-hidden', 'true');
+    expect(outside).not.toHaveAttribute('inert');
+
+    cleanupAriaHidden();
+    cleanupAriaHidden = undefined;
+
+    expect(outside).toHaveAttribute('aria-hidden', 'true');
+    expect(outside).not.toHaveAttribute('inert');
+  } finally {
+    cleanupInert?.();
+    cleanupAriaHidden?.();
+  }
+});
+
 test('does not let mark-only overlap disturb control cleanup bookkeeping', () => {
   const keep = document.createElement('div');
   const outside = document.createElement('div');
