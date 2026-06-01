@@ -214,9 +214,6 @@ export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>
     }
   });
 
-  // Layout-effect cleanup fires at unmount but the element is still attached then, so
-  // defer the decision to a microtask and gate it on `isConnected`. That naturally skips
-  // StrictMode dev-mode setup-cleanup-setup cycles where the DOM never actually leaves.
   const handleCleanup = useStableCallback(() => {
     const previousElement = triggerElementRef.current;
     if (previousElement === null) {
