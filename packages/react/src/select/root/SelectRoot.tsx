@@ -567,19 +567,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   return;
                 }
 
-                // Prefer serialized matches before falling back to rendered text, which is what
-                // browsers can autofill for primitive values like `value="US">United States`.
+                // Preserve the original serialized matching, then fall back to rendered text,
+                // which browsers can autofill for primitive values like `value="US">United States`.
                 const nextValueLower = nextValue.toLowerCase();
                 const matchingValue =
                   valuesRef.current.find(
                     (candidate) =>
                       stringifyAsValue(candidate, itemToStringValue).toLowerCase() ===
-                      nextValueLower,
-                  ) ??
-                  valuesRef.current.find(
-                    (candidate) =>
+                        nextValueLower ||
                       stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() ===
-                      nextValueLower,
+                        nextValueLower,
                   ) ??
                   valuesRef.current.find((_, index) => {
                     const renderedLabel = labelsRef.current[index];
