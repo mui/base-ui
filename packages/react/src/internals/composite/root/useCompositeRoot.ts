@@ -32,9 +32,11 @@ import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import type { CompositeMetadata } from '../list/CompositeList';
 import type { HTMLProps } from '../../types';
 import { getTarget } from '../../../floating-ui-react/utils';
+import type { CompositeGridConfig } from './gridNavigation';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
+  grid?: CompositeGridConfig | undefined;
   loopFocus?: boolean | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
@@ -71,6 +73,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     loopFocus = true,
     orientation = 'both',
+    grid,
     direction,
     highlightedIndex: externalHighlightedIndex,
     onHighlightedIndexChange: externalSetHighlightedIndex,
@@ -82,6 +85,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
+  const isGrid = grid != null;
 
   const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useMergedRefs(rootRef, externalRef);
@@ -221,6 +225,23 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         let nextIndex = highlightedIndex;
         const minIndex = getMinListIndex(elementsRef, disabledIndices);
         const maxIndex = getMaxListIndex(elementsRef, disabledIndices);
+        const onLoop = grid?.onLoop;
+
+        if (grid != null) {
+          const { navigation, ...gridConfig } = grid;
+          nextIndex = navigation({
+            ...gridConfig,
+            disabledIndices,
+            elementsRef,
+            event,
+            highlightedIndex,
+            loopFocus,
+            maxIndex,
+            minIndex,
+            orientation,
+            rtl: isRtl,
+          });
+        }
 
         const forwardKeys = {
           horizontal: [horizontalForwardKey],
@@ -234,11 +255,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           both: [horizontalBackwardKey, ARROW_UP],
         }[orientation];
 
-        const preventedKeys = {
-          horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
-          vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
-          both: RELEVANT_KEYS,
-        }[orientation];
+        const preventedKeys = isGrid
+          ? RELEVANT_KEYS
+          : {
+              horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
+              vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
+              both: RELEVANT_KEYS,
+            }[orientation];
 
         if (enableHomeAndEndKeys) {
           if (event.key === HOME) {
@@ -254,8 +277,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         ) {
           if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
+            if (onLoop) {
+              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
+            }
           } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
+            if (onLoop) {
+              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
+            }
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef.current, {
               startingIndex: nextIndex,
@@ -290,7 +319,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       disabledIndices,
       elementsRef,
       enableHomeAndEndKeys,
+      grid,
       highlightedIndex,
+      isGrid,
       loopFocus,
       mergedRef,
       modifierKeys,

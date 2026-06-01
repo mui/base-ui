@@ -5,6 +5,7 @@ import { isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
 import { CompositeRoot } from './CompositeRoot';
+import { gridNavigation } from './gridNavigation';
 
 describe('Composite', () => {
   const { render } = createRenderer();
@@ -339,6 +340,191 @@ describe('Composite', () => {
 
         expect(item3).toHaveAttribute('tabindex', '0');
         expect(item3).toHaveFocus();
+      });
+    });
+  });
+
+  describe('grid', () => {
+    it('uniform 1x1 items', async () => {
+      function App() {
+        return (
+          <CompositeRoot grid={{ columns: 3, navigation: gridNavigation }} enableHomeAndEndKeys>
+            {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
+              <CompositeItem key={i} data-testid={i}>
+                {i}
+              </CompositeItem>
+            ))}
+          </CompositeRoot>
+        );
+      }
+
+      await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+
+      fireEvent.keyDown(screen.getByTestId('1'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('4')).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('5')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('5')).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByTestId('5'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('8')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('8')).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByTestId('8'), { key: 'ArrowLeft' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('7')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('7')).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByTestId('7'), { key: 'ArrowUp' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('4')).toHaveFocus();
+
+      act(() => screen.getByTestId('9').focus());
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
+
+      fireEvent.keyDown(screen.getByTestId('9'), { key: 'Home' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+
+      fireEvent.keyDown(screen.getByTestId('1'), { key: 'End' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
+    });
+
+    describe.skipIf(isJSDOM)('rtl', () => {
+      it('horizontal orientation', async () => {
+        render(
+          <div dir="rtl">
+            <DirectionProvider direction="rtl">
+              <CompositeRoot
+                grid={{ columns: 3, navigation: gridNavigation }}
+                orientation="horizontal"
+                enableHomeAndEndKeys
+              >
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
+                  <CompositeItem key={i} data-testid={i}>
+                    {i}
+                  </CompositeItem>
+                ))}
+              </CompositeRoot>
+            </DirectionProvider>
+          </div>,
+        );
+
+        act(() => screen.getByTestId('1').focus());
+
+        fireEvent.keyDown(screen.getByTestId('1'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+        expect(screen.getByTestId('2')).toHaveFocus();
+
+        fireEvent.keyDown(screen.getByTestId('2'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
+        expect(screen.getByTestId('3')).toHaveFocus();
+
+        fireEvent.keyDown(screen.getByTestId('3'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
+        expect(screen.getByTestId('4')).toHaveFocus();
+
+        fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('5')).toHaveAttribute('tabindex', '0');
+        expect(screen.getByTestId('5')).toHaveFocus();
+
+        fireEvent.keyDown(screen.getByTestId('5'), { key: 'Home' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+
+        fireEvent.keyDown(screen.getByTestId('1'), { key: 'End' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
+      });
+
+      it('both horizontal and vertical orientation', async () => {
+        await render(
+          <div dir="rtl">
+            <DirectionProvider direction="rtl">
+              <CompositeRoot
+                grid={{ columns: 3, navigation: gridNavigation }}
+                orientation="both"
+                enableHomeAndEndKeys
+              >
+                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
+                  <CompositeItem key={i} data-testid={i}>
+                    {i}
+                  </CompositeItem>
+                ))}
+              </CompositeRoot>
+            </DirectionProvider>
+          </div>,
+        );
+
+        act(() => screen.getByTestId('1').focus());
+
+        fireEvent.keyDown(screen.getByTestId('1'), { key: 'ArrowDown' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
+        expect(screen.getByTestId('4')).toHaveFocus();
+
+        fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('5')).toHaveAttribute('tabindex', '0');
+        expect(screen.getByTestId('5')).toHaveFocus();
+
+        fireEvent.keyDown(screen.getByTestId('5'), { key: 'ArrowDown' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('8')).toHaveAttribute('tabindex', '0');
+        expect(screen.getByTestId('8')).toHaveFocus();
+
+        fireEvent.keyDown(screen.getByTestId('8'), { key: 'ArrowRight' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('7')).toHaveAttribute('tabindex', '0');
+        expect(screen.getByTestId('7')).toHaveFocus();
+
+        fireEvent.keyDown(screen.getByTestId('7'), { key: 'ArrowUp' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
+        expect(screen.getByTestId('4')).toHaveFocus();
+
+        fireEvent.keyDown(screen.getByTestId('4'), { key: 'End' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
+
+        fireEvent.keyDown(screen.getByTestId('9'), { key: 'Home' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
       });
     });
   });

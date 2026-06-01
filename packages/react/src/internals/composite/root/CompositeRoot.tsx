@@ -7,6 +7,7 @@ import { CompositeRootContext } from './CompositeRootContext';
 import { useRenderElement } from '../../useRenderElement';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../types';
 import type { ModifierKey } from '../composite';
+import type { CompositeGridConfig } from './gridNavigation';
 import { useDirection } from '../../direction-context/DirectionContext';
 import { StateAttributesMapping } from '../../getStateAttributesProps';
 
@@ -27,6 +28,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     highlightedIndex: highlightedIndexProp,
     onHighlightedIndexChange: onHighlightedIndexChangeProp,
     orientation,
+    grid,
     loopFocus,
     enableHomeAndEndKeys,
     onMapChange: onMapChangeProp,
@@ -49,6 +51,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     onMapChange: onMapChangeUnwrapped,
     relayKeyboardEvent,
   } = useCompositeRoot({
+    grid,
     loopFocus,
     orientation,
     highlightedIndex: highlightedIndexProp,
@@ -105,6 +108,7 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   refs?: React.Ref<HTMLElement | null>[] | undefined;
   tag?: keyof React.JSX.IntrinsicElements | undefined;
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
+  grid?: CompositeGridConfig | undefined;
   loopFocus?: boolean | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
