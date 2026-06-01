@@ -570,19 +570,22 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 // Preserve the original serialized matching, then fall back to rendered text,
                 // which browsers can autofill for primitive values like `value="US">United States`.
                 const nextValueLower = nextValue.toLowerCase();
-                const matchingValue =
-                  valuesRef.current.find(
-                    (candidate) =>
-                      stringifyAsValue(candidate, itemToStringValue).toLowerCase() ===
-                        nextValueLower ||
-                      stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() ===
-                        nextValueLower,
-                  ) ??
-                  valuesRef.current.find((_, index) => {
+                let matchingIndex = valuesRef.current.findIndex(
+                  (candidate) =>
+                    stringifyAsValue(candidate, itemToStringValue).toLowerCase() ===
+                      nextValueLower ||
+                    stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
+                );
+
+                if (matchingIndex === -1) {
+                  matchingIndex = valuesRef.current.findIndex((_, index) => {
                     const renderedLabel = labelsRef.current[index];
                     return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
                   });
+                }
 
+                const matchingValue =
+                  matchingIndex === -1 ? undefined : valuesRef.current[matchingIndex];
                 if (matchingValue != null) {
                   // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
                   // mark the field dirty and run validation only when the value actually changes.
