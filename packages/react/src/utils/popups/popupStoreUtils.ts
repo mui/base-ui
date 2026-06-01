@@ -12,7 +12,11 @@ import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useS
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { HTMLProps } from '../../internals/types';
-import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   PopupStoreState,
   PopupStoreContext,
@@ -137,18 +141,44 @@ export function setPopupOpenState(
 }
 
 /**
+ * Type for a popup store that exposes a `setOpen` method.
+ * Used by `useTriggerDataForwarding` to close the popup when the active trigger unmounts.
+ */
+type PopupStoreWithSetOpen<State extends PopupStoreState<unknown>> = ReactStore<
+  State,
+  PopupStoreContext<never>,
+  typeof popupStoreSelectors
+> & {
+  setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>): void;
+};
+
+/**
  * Sets up trigger data forwarding to the store.
+ *
+ * When the trigger DOM node is detached while it is the active trigger, the store's
+ * `activeTriggerId` / `activeTriggerElement` are cleared so floating-ui stops positioning
+ * against the stale node (otherwise `getBoundingClientRect()` returns `{0,0,0,0}` and the
+ * popup jumps to the top-left of the viewport). `FloatingFocusManager.getReturnElement`
+ * already falls back to `elementFocusedBeforeOpen` when the reference is detached, so
+ * focus return continues to work after the clear.
  *
  * @param triggerId Id of the trigger.
  * @param triggerElementRef Ref for the trigger DOM element.
  * @param store The Store instance managing the popup state.
  * @param stateUpdates An object with state updates to apply when the trigger is active.
+ * @param closeOnActiveUnmount When `true`, also closes the popup if the trigger unmounts
+ *   while it is the active trigger. Use for popups that have no interactive close path
+ *   (e.g. PreviewCard, which is hover-driven and would otherwise stay open with no anchor).
+ *   For popups whose consumers may legitimately want to keep the popup open after a
+ *   trigger unmounts (e.g. Dialog opened from a Menu item, Popover with a disappearing
+ *   trigger), leave this `false`.
  */
 export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>(
   triggerId: string | undefined,
   triggerElementRef: React.RefObject<Element | null>,
-  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  store: PopupStoreWithSetOpen<State>,
   stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
+  closeOnActiveUnmount: boolean = false,
 ) {
   const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
 
@@ -183,6 +213,34 @@ export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>
       } as Partial<State>);
     }
   });
+
+  // Layout-effect cleanup fires at unmount but the element is still attached then, so
+  // defer the decision to a microtask and gate it on `isConnected`. That naturally skips
+  // StrictMode dev-mode setup-cleanup-setup cycles where the DOM never actually leaves.
+  const handleCleanup = useStableCallback(() => {
+    const previousElement = triggerElementRef.current;
+    if (previousElement === null) {
+      return;
+    }
+    queueMicrotask(() => {
+      if (
+        previousElement.isConnected ||
+        triggerId === undefined ||
+        store.select('activeTriggerId') !== triggerId
+      ) {
+        return;
+      }
+      store.update({
+        activeTriggerId: null,
+        activeTriggerElement: null,
+      } as Partial<State>);
+      if (closeOnActiveUnmount && store.select('open')) {
+        store.setOpen(false, createChangeEventDetails(REASONS.none));
+      }
+    });
+  });
+
+  useIsoLayoutEffect(() => handleCleanup, [handleCleanup]);
 
   useIsoLayoutEffect(() => {
     if (isMountedByThisTrigger) {

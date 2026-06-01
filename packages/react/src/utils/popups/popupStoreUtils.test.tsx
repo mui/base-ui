@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
-import { act, render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
@@ -12,6 +12,7 @@ import {
   popupStoreSelectors,
   useImplicitActiveTrigger,
   usePopupInteractionProps,
+  useTriggerDataForwarding,
   useTriggerRegistration,
 } from './';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
@@ -285,6 +286,144 @@ describe('popupId selector', () => {
     });
 
     expect(store.select('popupId')).toBe('explicit-popup-id');
+  });
+});
+
+describe('useTriggerDataForwarding', () => {
+  function createStoreWithSetOpen() {
+    const store = new ReactStore<
+      PopupStoreState<unknown>,
+      PopupStoreContext<unknown>,
+      PopupStoreSelectors
+    >(
+      createInitialPopupStoreState(),
+      {
+        triggerElements: new PopupTriggerMap(),
+        popupRef: React.createRef<HTMLElement | null>(),
+        onOpenChangeComplete: undefined,
+      },
+      popupStoreSelectors,
+    );
+    const setOpen = vi.fn();
+    return Object.assign(store, { setOpen });
+  }
+
+  function ForwardingTestTrigger({
+    id,
+    store,
+  }: {
+    id: string;
+    store: ReturnType<typeof createStoreWithSetOpen>;
+  }) {
+    const triggerElementRef = React.useRef<HTMLButtonElement | null>(null);
+    const { registerTrigger } = useTriggerDataForwarding(id, triggerElementRef, store, {}, true);
+
+    return (
+      <button
+        type="button"
+        ref={(el) => {
+          triggerElementRef.current = el;
+          registerTrigger(el);
+        }}
+      >
+        Trigger
+      </button>
+    );
+  }
+
+  async function flushMicrotasks() {
+    await Promise.resolve();
+  }
+
+  it('closes the popup when the active trigger is detached from the document', async () => {
+    const store = createStoreWithSetOpen();
+
+    const { unmount } = render(<ForwardingTestTrigger id="trigger" store={store} />);
+    const button = screen.getByRole('button');
+
+    act(() => {
+      store.update({ open: true, activeTriggerId: 'trigger', activeTriggerElement: button });
+    });
+
+    expect(store.setOpen).not.toHaveBeenCalled();
+
+    unmount();
+    await flushMicrotasks();
+
+    expect(store.state.activeTriggerId).toBe(null);
+    expect(store.state.activeTriggerElement).toBe(null);
+    expect(store.setOpen).toHaveBeenCalledTimes(1);
+    expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
+  });
+
+  it('does not close the popup when a different trigger is active', async () => {
+    const store = createStoreWithSetOpen();
+
+    const { unmount } = render(<ForwardingTestTrigger id="trigger" store={store} />);
+
+    act(() => {
+      store.update({ open: true, activeTriggerId: 'other' });
+    });
+
+    unmount();
+    await flushMicrotasks();
+
+    expect(store.setOpen).not.toHaveBeenCalled();
+  });
+
+  it('does not close the popup when the popup is not open', async () => {
+    const store = createStoreWithSetOpen();
+
+    const { unmount } = render(<ForwardingTestTrigger id="trigger" store={store} />);
+
+    act(() => {
+      store.update({ activeTriggerId: 'trigger' });
+    });
+
+    unmount();
+    await flushMicrotasks();
+
+    expect(store.setOpen).not.toHaveBeenCalled();
+  });
+
+  it('clears active trigger references even when closeOnActiveUnmount is false', async () => {
+    const store = createStoreWithSetOpen();
+
+    function ContainedTestTrigger({ id }: { id: string }) {
+      const triggerElementRef = React.useRef<HTMLButtonElement | null>(null);
+      const { registerTrigger } = useTriggerDataForwarding(id, triggerElementRef, store, {}, false);
+
+      return (
+        <button
+          type="button"
+          ref={(el) => {
+            triggerElementRef.current = el;
+            registerTrigger(el);
+          }}
+        >
+          Trigger
+        </button>
+      );
+    }
+
+    const { unmount } = render(<ContainedTestTrigger id="trigger" />);
+    const button = screen.getByRole('button');
+
+    act(() => {
+      store.update({ open: true, activeTriggerId: 'trigger', activeTriggerElement: button });
+    });
+
+    expect(store.state.activeTriggerId).toBe('trigger');
+    expect(store.state.activeTriggerElement).toBe(button);
+
+    unmount();
+    await flushMicrotasks();
+
+    // Stays open (no setOpen call) but references are cleared so floating-ui stops
+    // positioning against the now-detached node.
+    expect(store.setOpen).not.toHaveBeenCalled();
+    expect(store.state.activeTriggerId).toBe(null);
+    expect(store.state.activeTriggerElement).toBe(null);
   });
 });
 

@@ -1202,5 +1202,56 @@ describe('<PreviewCard.Root />', () => {
 
       expect(trigger2).not.toHaveAttribute('data-popup-open');
     });
+
+    it('closes the preview card when the active trigger unmounts', async () => {
+      const testPreviewCard = PreviewCard.createHandle();
+      const popupId = randomStringValue();
+      const removeTrigger1Ref: { current: (() => void) | null } = { current: null };
+
+      function Test() {
+        const [showTrigger1, setShowTrigger1] = React.useState(true);
+        removeTrigger1Ref.current = () => setShowTrigger1(false);
+        return (
+          <div>
+            <button type="button" aria-label="Initial focus" autoFocus />
+            {showTrigger1 && (
+              <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+                Trigger 1
+              </PreviewCard.Trigger>
+            )}
+            <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+              Trigger 2
+            </PreviewCard.Trigger>
+
+            <PreviewCard.Root handle={testPreviewCard}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner data-testid="positioner">
+                  <PreviewCard.Popup data-testid={popupId}>Content</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
+
+      // Simulate virtualization removing the active trigger from the DOM without
+      // an outside-press click that would itself dismiss the popup.
+      await act(async () => {
+        removeTrigger1Ref.current?.();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBe(null);
+      });
+    });
   });
 });

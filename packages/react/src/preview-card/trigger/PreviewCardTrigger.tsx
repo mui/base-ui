@@ -60,6 +60,7 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
     {
       payload,
     },
+    handle !== undefined,
   );
 
   useIsoLayoutEffect(() => {
