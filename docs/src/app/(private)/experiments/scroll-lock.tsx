@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
-import * as platform from '@base-ui/utils/platform';
+import { platform } from '@base-ui/utils/platform';
 
 export default function ScrollLock() {
   const [enabled, setEnabled] = React.useState(false);

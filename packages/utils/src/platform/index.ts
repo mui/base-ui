@@ -6,7 +6,7 @@
  * Import as a namespace and pick the most precise group for the quirk:
  *
  * ```ts
- * import * as platform from '@base-ui/utils/platform';
+ * import { platform } from '@base-ui/utils/platform';
  * if (platform.os.mac) { ... }
  * if (platform.engine.webkit) { ... }
  * ```
@@ -21,8 +21,4 @@
  *   - `env.*` for test-environment gating.
  */
 
-export * as os from './os';
-export * as engine from './engine';
-export * as pointer from './pointer';
-export * as screenReader from './screen-reader';
-export * as env from './env';
+export * as platform from './parts';

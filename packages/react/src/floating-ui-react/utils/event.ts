@@ -1,4 +1,4 @@
-import * as platform from '@base-ui/utils/platform';
+import { platform } from '@base-ui/utils/platform';
 
 export function stopEvent(event: Event | React.SyntheticEvent) {
   event.preventDefault();

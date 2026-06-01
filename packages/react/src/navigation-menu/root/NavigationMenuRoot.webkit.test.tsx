@@ -11,7 +11,10 @@ vi.mock('@base-ui/utils/platform', async () => {
 
   return {
     ...actual,
-    engine: { ...actual.engine, webkit: true },
+    platform: {
+      ...actual.platform,
+      engine: { ...actual.platform.engine, webkit: true },
+    },
   };
 });
 

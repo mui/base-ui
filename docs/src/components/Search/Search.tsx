@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import * as platform from '@base-ui/utils/platform';
+import { platform } from '@base-ui/utils/platform';
 import './Search.css';
 
 const sitemapPromise = () => import('../../app/sitemap');

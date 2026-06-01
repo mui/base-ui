@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import { screen, act, fireEvent } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import * as platform from '@base-ui/utils/platform';
+import { platform } from '@base-ui/utils/platform';
 
 const isWebKit = platform.engine.webkit;
 

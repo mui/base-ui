@@ -1,5 +1,5 @@
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
-import * as platform from '@base-ui/utils/platform';
+import { platform } from '@base-ui/utils/platform';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 import { type PopupTriggerMap } from '../../utils/popups';
 import { activeElement, contains, getTarget } from '../../internals/shadowDom';

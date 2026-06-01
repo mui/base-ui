@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as platform from '@base-ui/utils/platform';
+import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 
 // Word Joiner is invisible and zero-width, so it forces a text mutation without shifting layout.

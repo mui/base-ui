@@ -16,7 +16,7 @@ import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import { MoreVertIcon } from 'docs/src/icons/MoreVertIcon';
 import { exportCodeSandbox, exportOpts } from 'docs/src/utils/demoExportOptions';
 import { getGitHubDemoUrl } from 'docs/src/utils/getGitHubDemoUrl';
-import * as platform from '@base-ui/utils/platform';
+import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
