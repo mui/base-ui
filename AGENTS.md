@@ -20,7 +20,8 @@ This repository contains the source code and documentation for Base UI: a headl
 
 ## Styling
 
-When using `user-select: none;` in CSS, also add `-webkit-user-select: none;` to support Safari. Tailwind's `select-none` class already includes this.
+- In CSS Modules demos (`docs/src/app/(docs)/**/demos/**/*.module.css`), use raw color values from the Tailwind `@theme` block in `docs/src/css/index.css`. For example, use `oklch(14.5% 0 0deg)` instead of `var(--color-neutral-950)`.
+- When using `user-select: none;` in CSS, also add `-webkit-user-select: none;` to support Safari. Tailwind's `select-none` class already includes this.
 
 ## Linting, typechecking, and formatting
 
@@ -57,7 +58,7 @@ Every error message must:
 
 Format:
 
-- Prefix with `Base UI: `
+- Prefix with `Base UI:`
 - Use string concatenation for readability
 - Include a documentation link when applicable (`https://base-ui.com/...`)
 
