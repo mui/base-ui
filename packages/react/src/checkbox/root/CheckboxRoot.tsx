@@ -196,7 +196,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   }, [checked, computedIndeterminate, setFilled]);
 
   useValueChanged(checked, () => {
-    if (groupContext && !parent) {
+    if (groupContext) {
       return;
     }
 
