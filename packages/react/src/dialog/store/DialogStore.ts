@@ -110,6 +110,32 @@ export class DialogStore<Payload> extends ReactStore<
     this.update(updatedState);
   };
 
+  public reset = () => {
+    // Keep the external handle reusable, but clear state owned by the unmounted
+    // root so route changes don't preserve an open modal or stale trigger data.
+    this.update(
+      createInitialState<Payload>({
+        floatingRootContext: this.state.floatingRootContext,
+        modal: this.state.modal,
+        disablePointerDismissal: this.state.disablePointerDismissal,
+        nested: this.state.nested,
+        role: this.state.role,
+      }),
+    );
+
+    // Floating UI keeps its own synchronized references for focus and dismissal.
+    // Clear them with the dialog state so they don't point at disconnected nodes.
+    this.state.floatingRootContext.update({
+      open: false,
+      transitionStatus: undefined,
+      floatingId: undefined,
+      domReferenceElement: null,
+      referenceElement: null,
+      floatingElement: null,
+      positionReference: null,
+    });
+  };
+
   static useStore<Payload>(
     externalStore: DialogStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,

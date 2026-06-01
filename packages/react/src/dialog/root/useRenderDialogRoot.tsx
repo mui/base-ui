@@ -5,6 +5,7 @@ import { DialogInteractions, useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, IsDrawerContext, useDialogRootContext } from './DialogRootContext';
 import { DialogStore } from '../store/DialogStore';
 import type { DialogRootProps } from './DialogRoot';
+import { usePopupRootUnmountCleanup } from '../../utils/popups';
 
 export function useRenderDialogRoot<Payload>(
   props: DialogRootProps<Payload>,
@@ -41,6 +42,8 @@ export function useRenderDialogRoot<Payload>(
     triggerIdProp,
     ...rootState,
   });
+
+  usePopupRootUnmountCleanup(store);
 
   // Support initially open state when uncontrolled
   useOnFirstRender(() => {

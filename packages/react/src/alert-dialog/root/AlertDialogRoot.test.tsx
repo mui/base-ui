@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { DialogStore } from '../../dialog/store/DialogStore';
@@ -713,6 +713,75 @@ describe('<AlertDialog.Root />', () => {
 
       await setProps({ handle: AlertDialog.createHandle() });
       await openAndCloseDialog(user);
+    });
+
+    it('resets controlled detached handle state when an open root unmounts', async () => {
+      const testDialog = AlertDialog.createHandle<number>();
+
+      function ControlledAlertDialog() {
+        const [open, setOpen] = React.useState(false);
+        const [triggerId, setTriggerId] = React.useState<string | null>(null);
+
+        const handleOpenChange = (
+          nextOpen: boolean,
+          eventDetails: AlertDialog.Root.ChangeEventDetails,
+        ) => {
+          setOpen(nextOpen);
+          setTriggerId(eventDetails.trigger?.id ?? null);
+        };
+
+        return (
+          <React.Fragment>
+            <AlertDialog.Trigger handle={testDialog} id="trigger-1" payload={1}>
+              Trigger 1
+            </AlertDialog.Trigger>
+            <AlertDialog.Trigger handle={testDialog} id="trigger-2" payload={2}>
+              Trigger 2
+            </AlertDialog.Trigger>
+            <AlertDialog.Root
+              handle={testDialog}
+              open={open}
+              onOpenChange={handleOpenChange}
+              triggerId={triggerId}
+            >
+              {({ payload }: NumberPayload) => (
+                <AlertDialog.Portal>
+                  <AlertDialog.Popup>
+                    <AlertDialog.Title>Alert dialog {payload}</AlertDialog.Title>
+                  </AlertDialog.Popup>
+                </AlertDialog.Portal>
+              )}
+            </AlertDialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      function TestRoute({ route }: { route: 'alert-dialog' | 'other' }) {
+        if (route === 'other') {
+          return <button type="button">Other route</button>;
+        }
+
+        return <ControlledAlertDialog />;
+      }
+
+      const { user, setProps } = await render(<TestRoute route="alert-dialog" />);
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+      await screen.findByRole('alertdialog', { name: 'Alert dialog 2' });
+      expect(testDialog.isOpen).toBe(true);
+
+      await setProps({ route: 'other' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('button', { name: 'Other route' })).not.toBe(null);
+      expect(testDialog.isOpen).toBe(false);
+
+      await setProps({ route: 'alert-dialog' });
+      await flushMicrotasks();
+
+      const trigger = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(screen.queryByRole('alertdialog')).toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('keeps detached triggers clickable when reparented during Fast Refresh-like handle recreation', async () => {

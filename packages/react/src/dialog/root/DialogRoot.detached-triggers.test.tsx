@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
 
@@ -462,6 +462,76 @@ describe('<Dialog.Root />', () => {
 
       await setProps({ handle: Dialog.createHandle() });
       await openAndCloseDialog(user);
+    });
+
+    it('resets controlled detached handle state when an open root unmounts', async () => {
+      const testDialog = Dialog.createHandle<number>();
+
+      function ControlledDialog() {
+        const [open, setOpen] = React.useState(false);
+        const [triggerId, setTriggerId] = React.useState<string | null>(null);
+
+        const handleOpenChange = (
+          nextOpen: boolean,
+          eventDetails: Dialog.Root.ChangeEventDetails,
+        ) => {
+          setOpen(nextOpen);
+          setTriggerId(eventDetails.trigger?.id ?? null);
+        };
+
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={testDialog} id="trigger-1" payload={1}>
+              Trigger 1
+            </Dialog.Trigger>
+            <Dialog.Trigger handle={testDialog} id="trigger-2" payload={2}>
+              Trigger 2
+            </Dialog.Trigger>
+            <Dialog.Root
+              handle={testDialog}
+              open={open}
+              onOpenChange={handleOpenChange}
+              triggerId={triggerId}
+            >
+              {({ payload }: NumberPayload) => (
+                <Dialog.Portal>
+                  <Dialog.Backdrop />
+                  <Dialog.Popup>
+                    <Dialog.Title>Dialog {payload}</Dialog.Title>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              )}
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      function TestRoute({ route }: { route: 'dialog' | 'other' }) {
+        if (route === 'other') {
+          return <button type="button">Other route</button>;
+        }
+
+        return <ControlledDialog />;
+      }
+
+      const { user, setProps } = await render(<TestRoute route="dialog" />);
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+      await screen.findByRole('dialog', { name: 'Dialog 2' });
+      expect(testDialog.isOpen).toBe(true);
+
+      await setProps({ route: 'other' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('button', { name: 'Other route' })).not.toBe(null);
+      expect(testDialog.isOpen).toBe(false);
+
+      await setProps({ route: 'dialog' });
+      await flushMicrotasks();
+
+      const trigger = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('keeps ARIA controls in sync when a detached handle is recreated while open', async () => {
