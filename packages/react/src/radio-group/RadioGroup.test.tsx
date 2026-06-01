@@ -1056,69 +1056,97 @@ describe('<RadioGroup />', () => {
       expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
     });
 
-    it.skipIf(isJSDOM)(
-      'excludes a disabled selected radio from onFormSubmit to match native form data',
-      async () => {
-        const handleSubmit = vi.fn();
+    it('excludes a disabled selected radio from onFormSubmit to match native form data', async () => {
+      const handleSubmit = vi.fn();
 
-        function App() {
-          const [disabled, setDisabled] = React.useState(false);
-          return (
-            <Form onFormSubmit={handleSubmit} data-testid="form">
-              <Field.Root name="test">
-                <RadioGroup name="group" defaultValue="a">
-                  <Radio.Root value="a" disabled={disabled} data-testid="item-a" />
-                  <Radio.Root value="b" data-testid="item-b" />
-                </RadioGroup>
-              </Field.Root>
-              <button type="button" onClick={() => setDisabled(true)}>
-                Disable
-              </button>
-              <button type="submit">Submit</button>
-            </Form>
-          );
-        }
-
-        await renderFakeTimers(<App />);
-
-        fireEvent.click(screen.getByText('Disable'));
-
-        const form = screen.getByTestId('form') as HTMLFormElement;
-        // Native form submission excludes disabled inputs.
-        expect(new FormData(form).get('group')).toBe(null);
-
-        fireEvent.click(screen.getByText('Submit'));
-
-        expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
-      },
-    );
-
-    it.skipIf(isJSDOM)(
-      'excludes an initially disabled selected radio from onFormSubmit to match native form data',
-      async () => {
-        const handleSubmit = vi.fn();
-
-        await renderFakeTimers(
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        return (
           <Form onFormSubmit={handleSubmit} data-testid="form">
             <Field.Root name="test">
               <RadioGroup name="group" defaultValue="a">
-                <Radio.Root value="a" disabled data-testid="item-a" />
+                <Radio.Root value="a" disabled={disabled} data-testid="item-a" />
                 <Radio.Root value="b" data-testid="item-b" />
               </RadioGroup>
             </Field.Root>
+            <button type="button" onClick={() => setDisabled(true)}>
+              Disable
+            </button>
             <button type="submit">Submit</button>
-          </Form>,
+          </Form>
         );
+      }
 
-        const form = screen.getByTestId('form') as HTMLFormElement;
-        // Native form submission excludes disabled inputs.
-        expect(new FormData(form).get('group')).toBe(null);
+      await renderFakeTimers(<App />);
 
-        fireEvent.click(screen.getByText('Submit'));
+      fireEvent.click(screen.getByText('Disable'));
 
-        expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
-      },
-    );
+      const form = screen.getByTestId('form') as HTMLFormElement;
+      expect(new FormData(form).get('test')).toBe(null);
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
+    });
+
+    it('includes a selected radio again when it is re-enabled before form submission', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        return (
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="test">
+              <RadioGroup name="group" defaultValue="a">
+                <Radio.Root value="a" disabled={disabled} data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setDisabled((value) => !value)}>
+              Toggle disabled
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      await renderFakeTimers(<App />);
+
+      const form = screen.getByTestId('form') as HTMLFormElement;
+
+      fireEvent.click(screen.getByText('Toggle disabled'));
+      expect(new FormData(form).get('test')).toBe(null);
+
+      fireEvent.click(screen.getByText('Toggle disabled'));
+      expect(new FormData(form).get('test')).toBe('a');
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: 'a' });
+    });
+
+    it('excludes an initially disabled selected radio from onFormSubmit to match native form data', async () => {
+      const handleSubmit = vi.fn();
+
+      await renderFakeTimers(
+        <Form onFormSubmit={handleSubmit} data-testid="form">
+          <Field.Root name="test">
+            <RadioGroup name="group" defaultValue="a">
+              <Radio.Root value="a" disabled data-testid="item-a" />
+              <Radio.Root value="b" data-testid="item-b" />
+            </RadioGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const form = screen.getByTestId('form') as HTMLFormElement;
+      expect(new FormData(form).get('test')).toBe(null);
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
+    });
 
     it('clears required validation when a value is selected', async () => {
       const { user } = await renderFakeTimers(
