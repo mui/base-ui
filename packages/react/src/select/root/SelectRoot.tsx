@@ -194,21 +194,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const initialValueRef = React.useRef(value);
-  const rootMountedRef = React.useRef(false);
   // Mirror the `hasSelectedValue` store selector so the Field's filled state agrees with the
   // trigger/value placeholder semantics (a value serializing to `''` counts as empty).
   const hasSelectedValue = multiple
-    ? Array.isArray(value) &&
-      value.some((currentValue) => stringifyAsValue(currentValue, itemToStringValue) !== '')
+    ? Array.isArray(value) && value.length > 0
     : value != null && stringifyAsValue(value, itemToStringValue) !== '';
-
-  useIsoLayoutEffect(() => {
-    rootMountedRef.current = true;
-
-    return () => {
-      rootMountedRef.current = false;
-    };
-  }, []);
 
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
@@ -591,8 +581,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   return;
                 }
 
-                // Browsers can autofill the serialized value, serialized label, or rendered text
-                // (e.g. "United States"); the rendered text path needs `labelsRef`.
+                // Browsers can autofill the rendered text (e.g. "United States"), which is
+                // neither the serialized value nor serialized label, so match `labelsRef` too.
                 const nextValueLower = nextValue.toLowerCase();
                 const matchingValue = valuesRef.current.find((candidate, index) => {
                   const renderedLabel = labelsRef.current[index];
@@ -613,11 +603,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               }
 
               store.set('forceMount', true);
-              queueMicrotask(() => {
-                if (rootMountedRef.current) {
-                  handleChange();
-                }
-              });
+              queueMicrotask(handleChange);
             },
           })}
           id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}

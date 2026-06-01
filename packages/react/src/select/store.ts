@@ -66,7 +66,7 @@ export const selectors = {
       return false;
     }
     if (multiple && Array.isArray(value)) {
-      return value.some((currentValue) => stringifyAsValue(currentValue, itemToStringValue) !== '');
+      return value.length > 0;
     }
 
     return stringifyAsValue(value, itemToStringValue) !== '';
