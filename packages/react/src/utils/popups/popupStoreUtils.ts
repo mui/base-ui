@@ -339,8 +339,12 @@ export function usePopupRootSync<
   );
 }
 
-export function usePopupRootUnmountCleanup(store: { reset(): void }) {
+export function usePopupRootUnmountCleanup(store: { reset(): void } | undefined) {
   useIsoLayoutEffect(() => {
+    if (!store) {
+      return undefined;
+    }
+
     mountedPopupRootStores.add(store);
 
     return () => {

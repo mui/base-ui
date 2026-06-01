@@ -43,7 +43,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     triggerIdProp,
   });
 
-  usePopupRootUnmountCleanup(store);
+  usePopupRootUnmountCleanup(handle?.store);
 
   // Support initially open state when uncontrolled
   useOnFirstRender(() => {

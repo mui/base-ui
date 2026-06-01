@@ -43,7 +43,7 @@ export function useRenderDialogRoot<Payload>(
     ...rootState,
   });
 
-  usePopupRootUnmountCleanup(store);
+  usePopupRootUnmountCleanup(handle?.store);
 
   // Support initially open state when uncontrolled
   useOnFirstRender(() => {
