@@ -903,39 +903,43 @@ describe('<Select.Root />', () => {
     expect(trigger).toHaveAttribute('data-dirty', '');
   });
 
-  it('does not mark the field dirty when autofill is canceled', async () => {
+  it('does not update field state when autofill is canceled', async () => {
     await render(
-      <Field.Root>
-        <Select.Root
-          name="country"
-          onValueChange={(_value, eventDetails) => {
-            eventDetails.cancel();
-          }}
-        >
-          <Select.Trigger data-testid="trigger">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="US">United States</Select.Item>
-                <Select.Item value="CA">Canada</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>
-      </Field.Root>,
+      <Form errors={{ country: 'server error' }}>
+        <Field.Root name="country">
+          <Select.Root
+            onValueChange={(_value, eventDetails) => {
+              eventDetails.cancel();
+            }}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="US">United States</Select.Item>
+                  <Select.Item value="CA">Canada</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <Field.Error data-testid="error" />
+        </Field.Root>
+      </Form>,
     );
 
     const trigger = screen.getByTestId('trigger');
     const selectInput = screen.getByRole('textbox', { hidden: true });
 
     expect(trigger).not.toHaveAttribute('data-dirty');
+    expect(screen.getByTestId('error')).toHaveTextContent('server error');
 
     fireEvent.change(selectInput, { target: { value: 'CA' } });
     await flushMicrotasks();
 
     expect(trigger).not.toHaveAttribute('data-dirty');
+    expect(screen.getByTestId('error')).toHaveTextContent('server error');
   });
 
   it.each([

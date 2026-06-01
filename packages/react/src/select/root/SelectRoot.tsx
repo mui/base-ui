@@ -556,8 +556,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                 return;
               }
 
-              clearErrors(name);
-
               const nextValue = event.currentTarget.value;
               const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
