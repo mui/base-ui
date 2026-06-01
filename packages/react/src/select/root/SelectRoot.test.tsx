@@ -1370,14 +1370,17 @@ describe('<Select.Root />', () => {
       await act(async () => {
         option.focus();
       });
+      await waitFor(() => {
+        expect(option).toHaveFocus();
+      });
       expect(option).toHaveAttribute('tabindex', '0');
 
       await user.tab();
 
-      expect(screen.getByTestId('after')).toHaveFocus();
       await waitFor(() => {
-        expect(screen.getByRole('listbox')).not.toHaveAttribute('data-open');
+        expect(screen.getByTestId('after')).toHaveFocus();
       });
+      expect(screen.getByRole('listbox')).not.toHaveAttribute('data-open');
       expect(option).toHaveAttribute('tabindex', '-1');
     });
   });

@@ -2389,7 +2389,9 @@ describe('<Menu.Root />', () => {
 
     await user.tab();
 
-    expect(screen.getByTestId('after')).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByTestId('after')).toHaveFocus();
+    });
 
     await act(async () => {
       actionsRef.current.close();
