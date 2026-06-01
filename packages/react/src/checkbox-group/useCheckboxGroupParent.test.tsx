@@ -298,6 +298,60 @@ describe('useCheckboxGroupParent', () => {
     expect(screen.getByTestId('checkboxA')).toHaveAttribute('aria-checked', 'false');
   });
 
+  it('does not advance the parent toggle cycle when the group cancels a parent change', () => {
+    const handleValueChange = vi.fn((_, eventDetails: CheckboxGroup.ChangeEventDetails) => {
+      eventDetails.cancel();
+    });
+
+    render(
+      <CheckboxGroup value={['a']} allValues={allValues} onValueChange={handleValueChange}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root value="a" />
+        <Checkbox.Root value="b" />
+        <Checkbox.Root value="c" />
+      </CheckboxGroup>,
+    );
+
+    const parent = screen.getByTestId('parent');
+
+    // From a mixed state the parent attempts to check all. The group cancels, so
+    // the internal status must not advance to 'on'.
+    fireEvent.click(parent);
+    // A second click must retry the same 'mixed -> on' transition instead of
+    // skipping ahead to 'on -> off' and proposing an empty value.
+    fireEvent.click(parent);
+
+    expect(handleValueChange).toHaveBeenCalledTimes(2);
+    expect(handleValueChange.mock.calls[0][0]).toEqual(allValues);
+    expect(handleValueChange.mock.calls[1][0]).toEqual(allValues);
+  });
+
+  it('does not pollute the parent snapshot when the group cancels a child change', () => {
+    const handleValueChange = vi.fn((_, eventDetails: CheckboxGroup.ChangeEventDetails) => {
+      eventDetails.cancel();
+    });
+
+    render(
+      <CheckboxGroup value={allValues} allValues={allValues} onValueChange={handleValueChange}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root value="a" data-testid="checkboxA" />
+        <Checkbox.Root value="b" />
+        <Checkbox.Root value="c" />
+      </CheckboxGroup>,
+    );
+
+    // Unchecking a child is canceled, so the parent's snapshot of checked
+    // children must stay intact.
+    fireEvent.click(screen.getByTestId('checkboxA'));
+    // The parent still sees an all-checked group and toggles to none. A polluted
+    // snapshot would make it propose checking everything again.
+    fireEvent.click(screen.getByTestId('parent'));
+
+    expect(handleValueChange).toHaveBeenCalledTimes(2);
+    expect(handleValueChange.mock.calls[0][0]).toEqual(['b', 'c']);
+    expect(handleValueChange.mock.calls[1][0]).toEqual([]);
+  });
+
   it('handles unchecked disabled checkboxes', () => {
     function App() {
       const [value, setValue] = React.useState<string[]>([]);

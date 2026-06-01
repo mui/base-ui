@@ -308,8 +308,10 @@ describe('<Checkbox.Root />', () => {
         </CheckboxGroup>,
       );
 
-      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]');
-      expect(input).toHaveProperty('indeterminate', true);
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+      expect(input.indeterminate).toBe(true);
     });
   });
 
