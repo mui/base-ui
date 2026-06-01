@@ -2,7 +2,7 @@ import { expect } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Popover } from '@base-ui/react/popover';
 
 describe('<Popover.Root />', () => {
@@ -722,6 +722,79 @@ describe('<Popover.Root />', () => {
       expect(screen.getByTestId('active-trigger').textContent).toBe('trigger-2');
       expect(trigger2.previousElementSibling).not.toHaveAttribute('data-base-ui-focus-guard');
       expect(trigger2.nextElementSibling).not.toHaveAttribute('data-base-ui-focus-guard');
+    });
+
+    it('resets controlled detached handle state when an open root unmounts', async () => {
+      const testPopover = Popover.createHandle<number>();
+
+      function ControlledPopover() {
+        const [open, setOpen] = React.useState(false);
+        const [triggerId, setTriggerId] = React.useState<string | null>(null);
+
+        const handleOpenChange = (
+          nextOpen: boolean,
+          eventDetails: Popover.Root.ChangeEventDetails,
+        ) => {
+          setOpen(nextOpen);
+          setTriggerId(eventDetails.trigger?.id ?? null);
+        };
+
+        return (
+          <React.Fragment>
+            <Popover.Trigger handle={testPopover} id="trigger-1" payload={1}>
+              Trigger 1
+            </Popover.Trigger>
+            <Popover.Trigger handle={testPopover} id="trigger-2" payload={2}>
+              Trigger 2
+            </Popover.Trigger>
+            <Popover.Root
+              handle={testPopover}
+              open={open}
+              onOpenChange={handleOpenChange}
+              triggerId={triggerId}
+              modal
+            >
+              {({ payload }: NumberPayload) => (
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup>
+                      <Popover.Title>Popover {payload}</Popover.Title>
+                      <Popover.Close>Close</Popover.Close>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              )}
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      function TestRoute({ route }: { route: 'popover' | 'other' }) {
+        if (route === 'other') {
+          return <button type="button">Other route</button>;
+        }
+
+        return <ControlledPopover />;
+      }
+
+      const { user, setProps } = await render(<TestRoute route="popover" />);
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+      await screen.findByRole('dialog', { name: 'Popover 2' });
+      expect(testPopover.isOpen).toBe(true);
+
+      await setProps({ route: 'other' });
+      await flushMicrotasks();
+
+      expect(screen.getByRole('button', { name: 'Other route' })).not.toBe(null);
+      expect(testPopover.isOpen).toBe(false);
+
+      await setProps({ route: 'popover' });
+      await flushMicrotasks();
+
+      const trigger = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('allows setting an initially open popover', async () => {

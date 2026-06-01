@@ -189,6 +189,30 @@ export class PopoverStore<Payload> extends ReactStore<
     }
   };
 
+  public reset = () => {
+    // Keep the external handle reusable, but clear state owned by the unmounted
+    // root so route changes don't preserve an open popup or stale trigger data.
+    this.context.stickIfOpenTimeout.clear();
+    this.update({
+      ...createInitialState<Payload>(),
+      floatingRootContext: this.state.floatingRootContext,
+      modal: this.state.modal,
+      nested: this.state.nested,
+    });
+
+    // Floating UI keeps its own synchronized references for focus and dismissal.
+    // Clear them with the popover state so they don't point at disconnected nodes.
+    this.state.floatingRootContext.update({
+      open: false,
+      transitionStatus: undefined,
+      floatingId: undefined,
+      domReferenceElement: null,
+      referenceElement: null,
+      floatingElement: null,
+      positionReference: null,
+    });
+  };
+
   public static useStore<Payload>(
     externalStore: PopoverStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
