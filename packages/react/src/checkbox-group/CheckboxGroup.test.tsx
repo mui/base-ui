@@ -326,6 +326,30 @@ describe('<CheckboxGroup />', () => {
       checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
     });
 
+    it('validates with the group value when toggling the parent checkbox', async () => {
+      const validateSpy = vi.fn((_value: unknown) => null);
+
+      const { user } = render(
+        <Field.Root validationMode="onChange" validate={validateSpy} name="fruits">
+          <CheckboxGroup allValues={['apple', 'orange']}>
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="apple" />
+            <Checkbox.Root value="orange" />
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(parent);
+      expect(validateSpy).toHaveBeenCalledTimes(1);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual(['apple', 'orange']);
+
+      await user.click(parent);
+      expect(validateSpy).toHaveBeenCalledTimes(2);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual([]);
+    });
+
     it('revalidates when the controlled value changes externally', async () => {
       const validateSpy = vi.fn((value: unknown) => {
         const values = value as string[];

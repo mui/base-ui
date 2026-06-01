@@ -1614,6 +1614,59 @@ describe('<Select.Root />', () => {
       expect(screen.queryByTestId('popover-popup')).not.toBe(null);
     });
 
+    it('returns focus to the opener when a select is opened programmatically inside a popover', async () => {
+      function Test() {
+        const [selectOpen, setSelectOpen] = React.useState(false);
+
+        return (
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Open popover</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover-popup">
+                  <button type="button" onClick={() => setSelectOpen(true)}>
+                    Open select programmatically
+                  </button>
+                  <Select.Root open={selectOpen} onOpenChange={setSelectOpen}>
+                    <Select.Trigger data-testid="select-trigger">
+                      <Select.Value placeholder="Pick one" />
+                    </Select.Trigger>
+                    <Select.Portal>
+                      <Select.Positioner>
+                        <Select.Popup>
+                          <Select.Item value="one">One</Select.Item>
+                          <Select.Item value="two">Two</Select.Item>
+                        </Select.Popup>
+                      </Select.Positioner>
+                    </Select.Portal>
+                  </Select.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const selectOpener = screen.getByRole('button', {
+        name: 'Open select programmatically',
+      });
+      await user.click(selectOpener);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+      });
+
+      await user.click(screen.getByRole('option', { name: 'Two' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      expect(selectOpener).toHaveFocus();
+      expect(screen.queryByTestId('popover-popup')).not.toBe(null);
+    });
+
     it('does not consume the next outside press after a native drag from a modal select trigger outside all popups', async () => {
       ignoreActWarnings();
 
@@ -4189,6 +4242,39 @@ describe('<Select.Root />', () => {
       expect(hiddenInputs).toHaveLength(2);
       const values = Array.from(hiddenInputs).map((input) => input.value);
       expect(values).toEqual(['a', 'c']);
+    });
+
+    it.skipIf(isJSDOM)('does not submit multiple values when disabled', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.getAll('select');
+      });
+
+      const { user } = await render(
+        <form onSubmit={submitSpy}>
+          <Select.Root multiple disabled name="select" value={['a', 'c']}>
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                  <Select.Item value="c">c</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toEqual([]);
     });
 
     it('should serialize empty array as empty string in multiple mode', async () => {

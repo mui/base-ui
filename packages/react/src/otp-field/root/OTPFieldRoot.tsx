@@ -19,7 +19,7 @@ import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLab
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useValueChanged } from '../../internals/useValueChanged';
-import type { BaseUIComponentProps, MaybeBaseUIEvent } from '../../internals/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -157,7 +157,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     });
   }
 
-  useRegisterFieldControl(firstInputRef, id, value, undefined, true, nameProp);
+  useRegisterFieldControl(firstInputRef, id, value, undefined, !disabled, nameProp);
 
   const focusInput = useStableCallback((index: number) => {
     const targetIndex = Math.min(Math.max(index, 0), Math.max(inputRefs.current.length - 1, 0));
@@ -395,14 +395,12 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
         {element}
         {hasValidLength && (
           <input
-            {...validation.getInputValidationProps({
+            {...validation.getValidationProps(disabled, {
               onFocus() {
                 focusInput(0);
               },
-              onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
+              onChange(event: React.ChangeEvent<HTMLInputElement>) {
                 if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
-                  // Outside Field.Root, the event is not wrapped by mergeProps.
-                  event.preventBaseUIHandler?.();
                   return;
                 }
 

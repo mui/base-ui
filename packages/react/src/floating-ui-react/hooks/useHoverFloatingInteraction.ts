@@ -229,7 +229,7 @@ export function useHoverFloatingInteraction(
       }
 
       clearPointerEvents();
-      if (!isClickLikeOpenEvent()) {
+      if (isHoverOpen() && !isClickLikeOpenEvent()) {
         closeWithDelay(event);
       }
     }
@@ -262,6 +262,7 @@ export function useHoverFloatingInteraction(
     dataRef,
     closeDelayProp,
     nodeIdProp,
+    isHoverOpen,
     isClickLikeOpenEvent,
     clearPointerEvents,
     instance,

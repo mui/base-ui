@@ -55,6 +55,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const activeTriggerElement = store.useState('activeTriggerElement');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
+  const openMethod = store.useState('openMethod');
 
   const isContextMenu = parent.type === 'context-menu';
 
@@ -134,6 +135,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   return (
     <FloatingFocusManager
       context={floatingContext}
+      openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? returnFocus : finalFocus}

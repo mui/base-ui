@@ -633,6 +633,34 @@ describe('<NumberField />', () => {
       expect(onValueCommitted.mock.calls[0][0]).toBe(null);
     });
 
+    it('reports and displays the clamped value on blur, not the raw input', async () => {
+      const onValueCommitted = vi.fn();
+      await render(<NumberField max={10} onValueCommitted={onValueCommitted} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '1000' } });
+      fireEvent.blur(input);
+
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(10);
+      expect(input).toHaveValue('10');
+    });
+
+    it('reports and displays the min-clamped value on blur, not the raw input', async () => {
+      const onValueCommitted = vi.fn();
+      await render(<NumberField min={0} onValueCommitted={onValueCommitted} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '-50' } });
+      fireEvent.blur(input);
+
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(0);
+      expect(input).toHaveValue('0');
+    });
+
     it('fires on keyboard interactions (ArrowUp/Down/Home/End)', async () => {
       const onValueCommitted = vi.fn();
       await render(
@@ -1424,6 +1452,11 @@ describe('<NumberField />', () => {
 
         if (withField) {
           expect(screen.getByTestId('error')).toHaveTextContent('test');
+          if (lockState === 'disabled') {
+            expect(input).not.toHaveAttribute('aria-invalid');
+          } else {
+            expect(input).toHaveAttribute('aria-invalid', 'true');
+          }
         }
 
         fireEvent.change(hiddenInput, { target: { value: '42' } });
@@ -1844,6 +1877,30 @@ describe('<NumberField />', () => {
 
       expect(validate.mock.calls.length).toBe(1);
       expect(validate.mock.calls[0]).toEqual([1, { quantity: 1 }]);
+    });
+
+    it('is validated with clamped value when validationMode=onBlur', async () => {
+      const validate = vi.fn(() => null);
+
+      await render(
+        <Form>
+          <Field.Root validationMode="onBlur" validate={validate} name="quantity">
+            <NumberFieldBase.Root max={10}>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Root>
+          </Field.Root>
+        </Form>,
+      );
+
+      const input = screen.getByRole('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '1000' } });
+      fireEvent.blur(input);
+
+      expect(validate.mock.calls.length).toBe(1);
+      expect(validate.mock.calls[0]).toEqual([10, { quantity: 10 }]);
+      expect(input).toHaveValue('10');
     });
 
     it('Field.Label', async () => {

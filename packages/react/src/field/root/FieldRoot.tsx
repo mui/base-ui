@@ -41,7 +41,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     ...elementProps
   } = componentProps;
 
-  const { disabled: disabledFieldset } = useFieldsetRootContext();
+  const disabledFieldset = useFieldsetRootContext(true)?.disabled;
 
   const validate = useStableCallback(validateProp || (() => null));
 
@@ -108,7 +108,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     initialValue: null,
   });
 
-  const valid = !invalid && validityData.state.valid;
+  const valid = disabled ? null : !invalid && validityData.state.valid;
 
   const state: FieldRootState = React.useMemo(
     () => ({
@@ -130,7 +130,6 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalid,
     markedDirtyRef,
     state,
-    name: effectiveName,
     shouldValidateOnChange,
     getRegisteredFieldId,
   });

@@ -183,7 +183,7 @@ describe('<Dialog.Root />', () => {
 
         return (
           <div>
-            <Dialog.Root open={open} triggerId={triggerId}>
+            <Dialog.Root open={open} triggerId={triggerId} onOpenChange={setOpen}>
               {({ payload }: NumberPayload) => (
                 <React.Fragment>
                   <Dialog.Trigger id="trigger-1" payload={1}>
@@ -196,6 +196,7 @@ describe('<Dialog.Root />', () => {
                   <Dialog.Portal>
                     <Dialog.Popup>
                       <span data-testid="content">{payload}</span>
+                      <Dialog.Close>Close</Dialog.Close>
                     </Dialog.Popup>
                   </Dialog.Portal>
                 </React.Fragment>
@@ -223,6 +224,13 @@ describe('<Dialog.Root />', () => {
       await waitFor(() => {
         expect(screen.getByTestId('content').textContent).toBe('2');
       });
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
+      expect(openButton).toHaveFocus();
     });
 
     it('keeps the payload reactive', async () => {

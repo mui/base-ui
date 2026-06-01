@@ -6,7 +6,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NOOP } from '../../internals/noop';
@@ -186,6 +186,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
+    composite: false,
   });
 
   const inputProps: React.ComponentPropsWithRef<'input'> = {
@@ -249,7 +250,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     elementProps,
     getButtonProps,
     getDescriptionProps,
-    validation?.getValidationProps ?? EMPTY_OBJECT,
+    validation
+      ? (validationProps: HTMLProps) => validation.getValidationProps(disabled, validationProps)
+      : EMPTY_OBJECT,
   ];
 
   const element = useRenderElement('span', componentProps, {

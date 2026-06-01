@@ -9,7 +9,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setOpenTriggerState,
+  setPopupOpenState,
   usePopupStore,
 } from '../../utils/popups';
 
@@ -105,7 +105,7 @@ export class DialogStore<Payload> extends ReactStore<
       open: nextOpen,
     };
 
-    setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
+    setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
 
     this.update(updatedState);
   };

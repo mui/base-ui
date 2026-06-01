@@ -145,7 +145,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return undefined;
   });
 
-  useRegisterFieldControl(controlRef, id, checkedValue ?? null, undefined, true, nameProp);
+  useRegisterFieldControl(controlRef, id, checkedValue ?? null, undefined, !disabled, nameProp);
 
   useValueChanged(checkedValue, () => {
     clearErrors(name);
@@ -238,7 +238,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
         className={className}
         style={style}
         state={state}
-        props={[defaultProps, elementProps, validation.getValidationProps]}
+        props={[
+          defaultProps,
+          elementProps,
+          (props: HTMLProps) => validation.getValidationProps(disabled ?? false, props),
+        ]}
         refs={[forwardedRef]}
         stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}

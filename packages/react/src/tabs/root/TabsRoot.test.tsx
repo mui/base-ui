@@ -303,6 +303,33 @@ describe('<Tabs.Root />', () => {
       expect(tabs[2]).toHaveAttribute('aria-selected', 'false');
     });
 
+    it('continues honoring an initially disabled explicit defaultValue after defaultValue changes', async () => {
+      const { setProps } = await render(
+        <Tabs.Root defaultValue={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+
+      await expect(async () => {
+        await setProps({ defaultValue: 1 });
+      }).toErrorDev(
+        'Base UI: A component is changing the default value state of an uncontrolled Tabs after being initialized.',
+      );
+
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[2]).toHaveAttribute('aria-selected', 'false');
+    });
+
     it('should still honor explicit value prop even if it points to a disabled tab', async () => {
       await render(
         <Tabs.Root value={0}>
@@ -618,6 +645,36 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
       expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('does not move an uncontrolled selection when a user-initiated change is canceled', async () => {
+      const handleChange = vi.fn(
+        (_value: Tabs.Tab.Value, eventDetails: Tabs.Root.ChangeEventDetails) => {
+          if (eventDetails.reason === 'none') {
+            eventDetails.cancel();
+          }
+        },
+      );
+
+      const { user } = await render(
+        <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+
+      await user.click(tabs[1]);
+
+      expect(handleChange).toHaveBeenCalledTimes(1);
+      expect(handleChange.mock.calls[0][1].reason).toBe('none');
+      // The canceled click must not commit the new value in an uncontrolled root.
+      expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+      expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
     });
 
     it('calls onValueChange with null when all tabs are initially disabled', async () => {
@@ -1862,7 +1919,9 @@ describe('<Tabs.Root />', () => {
       panelRenderMock.mockClear();
 
       const root = screen.getByTestId('root');
+      const tabs = screen.getAllByRole('tab');
       expect(root).toHaveAttribute('data-activation-direction', 'none');
+      expect(tabs[0]).toHaveAttribute('data-activation-direction', 'none');
 
       await setProps({ value: 1 });
 
@@ -1870,6 +1929,7 @@ describe('<Tabs.Root />', () => {
         expect.objectContaining({ value: 1, tabActivationDirection: 'right' }),
       );
       expect(root).toHaveAttribute('data-activation-direction', 'right');
+      expect(tabs[1]).toHaveAttribute('data-activation-direction', 'right');
 
       panelRenderMock.mockClear();
 
@@ -1879,6 +1939,7 @@ describe('<Tabs.Root />', () => {
         expect.objectContaining({ value: 0, tabActivationDirection: 'left' }),
       );
       expect(root).toHaveAttribute('data-activation-direction', 'left');
+      expect(tabs[0]).toHaveAttribute('data-activation-direction', 'left');
     });
 
     it('should update `data-activation-direction` on programmatic value changes with orientation=vertical', async () => {
@@ -1898,7 +1959,9 @@ describe('<Tabs.Root />', () => {
       panelRenderMock.mockClear();
 
       const root = screen.getByTestId('root');
+      const tabs = screen.getAllByRole('tab');
       expect(root).toHaveAttribute('data-activation-direction', 'none');
+      expect(tabs[0]).toHaveAttribute('data-activation-direction', 'none');
 
       await setProps({ value: 1 });
 
@@ -1906,6 +1969,7 @@ describe('<Tabs.Root />', () => {
         expect.objectContaining({ value: 1, tabActivationDirection: 'down' }),
       );
       expect(root).toHaveAttribute('data-activation-direction', 'down');
+      expect(tabs[1]).toHaveAttribute('data-activation-direction', 'down');
 
       panelRenderMock.mockClear();
 
@@ -1915,6 +1979,7 @@ describe('<Tabs.Root />', () => {
         expect.objectContaining({ value: 0, tabActivationDirection: 'up' }),
       );
       expect(root).toHaveAttribute('data-activation-direction', 'up');
+      expect(tabs[0]).toHaveAttribute('data-activation-direction', 'up');
     });
 
     it('keeps activation direction none after automatic disabled fallback', async () => {

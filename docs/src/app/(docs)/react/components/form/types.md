@@ -25,10 +25,10 @@ Renders a `<form>` element.
 
 ```tsx
 // validate all fields
-actionsRef.current.validate();
+actionsRef.current?.validate();
 
 // validate one field
-actionsRef.current.validate('email');
+actionsRef.current?.validate('email');
 ```
 
 ### Form.Props

@@ -1113,6 +1113,14 @@ describe('<OTPFieldPreview />', () => {
 
         if (withField) {
           expect(screen.getByTestId('error')).toHaveTextContent('test');
+          const inputs = screen.getAllByRole('textbox');
+          inputs.forEach((input) => {
+            if (lockState === 'disabled') {
+              expect(input).not.toHaveAttribute('aria-invalid');
+            } else {
+              expect(input).toHaveAttribute('aria-invalid', 'true');
+            }
+          });
         }
 
         fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });

@@ -461,9 +461,16 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     function preventDefaultTouchStart(event: TouchEvent) {
-      if (contains(element, getTarget(event) as HTMLElement | null)) {
-        event.preventDefault();
+      if (
+        activePointerIdRef.current === null ||
+        !contains(element, getTarget(event) as HTMLElement | null)
+      ) {
+        return;
       }
+
+      // React's pointermove preventDefault is not enough on iOS; this
+      // non-passive touchmove listener blocks native scrolling while dragging.
+      event.preventDefault();
     }
 
     return addEventListener(element, 'touchmove', preventDefaultTouchStart, { passive: false });
