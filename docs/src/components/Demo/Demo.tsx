@@ -215,11 +215,6 @@ export function Demo({
                   />
                 )}
                 {externalPlaygroundLink}
-                <GhostButton aria-label="Copy code" onClick={demo.copy}>
-                  Copy
-                  {copyTimeout ? <CheckIcon /> : <CopyIcon />}
-                </GhostButton>
-
                 {githubUrl && (
                   <Menu.Root>
                     <Menu.Trigger
@@ -266,6 +261,11 @@ export function Demo({
             collapsibleOpen={demo.expanded}
             collapsibleTriggerRef={collapsibleTriggerRef}
             compact={compact}
+            copyButton={
+              <GhostButton layout="icon" aria-label="Copy code" onClick={demo.copy}>
+                {copyTimeout ? <CheckIcon /> : <CopyIcon />}
+              </GhostButton>
+            }
           />
         </div>
       </Collapsible.Root>

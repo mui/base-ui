@@ -1,4 +1,8 @@
 @layer components {
+  .SelectTrigger {
+    padding-right: 0.25rem;
+  }
+
   .SelectPositioner {
     /* The outline is sometimes seen in Safari when the positioner is focused intermittently */
     outline: 0;

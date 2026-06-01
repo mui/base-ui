@@ -13,7 +13,12 @@ interface TriggerProps extends Omit<Select.Trigger.Props, 'children'> {
 export function Trigger({ className, children, ...props }: TriggerProps) {
   return (
     // Implicitly relying on <GhostButton>, keep it in sync
-    <Select.Trigger data-layout="text" className="GhostButton" type={undefined} {...props}>
+    <Select.Trigger
+      data-layout="text"
+      className={clsx('GhostButton', 'SelectTrigger')}
+      type={undefined}
+      {...props}
+    >
       <Select.Value>{children}</Select.Value>
       <Select.Icon render={<CaretSortIcon className="bui-ml--0.5" />} />
     </Select.Trigger>

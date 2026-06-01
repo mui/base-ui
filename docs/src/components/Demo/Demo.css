@@ -3,7 +3,6 @@
 @layer components {
   .DemoRoot {
     --demo-radius: var(--radius-12);
-    background-color: var(--gray-s2);
     border: 1px solid var(--gray-c2);
     border-radius: var(--demo-radius);
     margin-bottom: var(--space-24);
@@ -50,6 +49,7 @@
   }
 
   .DemoToolbar {
+    box-sizing: border-box;
     font-size: var(--font-size-13);
     line-height: 1.25rem;
     white-space: nowrap;
@@ -57,16 +57,14 @@
     background-clip: padding-box;
     border-bottom: 1px solid var(--gray-c2);
     display: flex;
-    align-items: center;
+    align-items: end;
     gap: 2rem;
     height: 2.25rem;
-    padding: 0;
-    padding-inline-start: 0.75rem;
+    padding: 0 0 0 0.5rem;
     -webkit-user-select: none;
     user-select: none;
 
     /* Scroll */
-    overflow: auto hidden;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
 
@@ -90,32 +88,21 @@
     align-items: center;
     margin-left: auto;
     padding-right: 0.5rem;
-    background-color: var(--gray-s2);
+    background-color: var(--gray-content);
     height: 100%;
-    gap: 0.25rem;
+    gap: var(--space-4);
 
     /* Apply sticky only on wider viewports to avoid actions taking up most of it */
     @media (min-width: 48rem) {
       position: sticky;
       padding-left: 1rem;
     }
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -24px;
-      width: 24px;
-      height: 100%;
-      background: linear-gradient(to right, transparent, var(--gray-s2));
-      pointer-events: none;
-    }
   }
 
   .DemoTabsList {
     display: flex;
-    gap: 2px;
-    margin-inline-start: -0.5rem;
+    align-self: flex-end;
+    gap: 0.125rem;
   }
 
   .DemoTab {
@@ -123,41 +110,48 @@
     position: relative;
     z-index: 0;
     outline: 0;
-    height: 1.75rem;
+    height: 2rem;
     padding-inline: 0.5rem;
-    border-radius: var(--radius-8);
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    border-top: 1px solid transparent;
+    border-right: 1px solid transparent;
+    border-left: 1px solid transparent;
+    border-top-left-radius: var(--radius-8);
+    border-top-right-radius: var(--radius-8);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
 
     @media (hover: hover) {
-      &:hover {
-        background-color: var(--gray-c2);
+      &:hover:not([data-active]) {
+        background-color: var(--gray-s2);
       }
     }
 
     &[data-active] {
-      color: var(--color-foreground);
-      font-weight: var(--font-weight-700);
-      background-color: white;
-      box-shadow:
-        0 0 1px var(--blackA-4),
-        0 0.5px 1px var(--blackA-3),
-        0 1px 3px var(--blackA-1),
-        0 2px 4px -1px var(--blackA-1),
-        0 4px 12px -2px var(--blackA-1),
-        0 4px 16px -4px var(--blackA-1);
+      border-color: var(--gray-c2);
 
-      @media (prefers-color-scheme: dark) {
-        background-color: var(--gray-c2);
-        box-shadow: none;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background-color: var(--color-content);
+        pointer-events: none;
       }
     }
 
     &:focus-visible {
       outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
+
+      &::after {
+        content: none;
+      }
     }
   }
 
@@ -185,6 +179,8 @@
     }
 
     &[data-compact]:not([data-open]) {
+      border-top: 1px solid var(--gray-c2);
+
       .DemoCodeBlockRoot::before,
       .DemoCodeBlockViewport {
         display: none;
@@ -245,6 +241,12 @@
     cursor: text;
     display: flex;
 
+    > .GhostButton {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+    }
+
     & pre {
       /* Different fonts may introduce vertical align issues */
       display: flex;
@@ -275,10 +277,6 @@
       padding-left: 0.75rem;
       padding-right: 0.75rem;
     }
-  }
-
-  .DemoCollapsibleRoot {
-    border-top: 1px solid var(--gray-c2);
   }
 
   .DemoCollapseButton {

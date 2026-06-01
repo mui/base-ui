@@ -12,6 +12,7 @@ interface DemoCodeBlockProps {
   collapsibleTriggerRef: React.Ref<HTMLButtonElement>;
   /** When compact, we don't show a preview of the collapse code */
   compact: boolean;
+  copyButton: React.ReactNode;
 }
 
 function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
@@ -42,12 +43,16 @@ export function DemoCodeBlock({
   collapsibleOpen,
   collapsibleLinesThreshold = 12,
   collapsibleTriggerRef,
+  copyButton,
 }: DemoCodeBlockProps) {
   if (selectedFileLines < collapsibleLinesThreshold) {
     return (
       <Root>
         <ScrollArea.Viewport>
-          <div className="DemoSourceBrowser">{selectedFile}</div>
+          <div className="DemoSourceBrowser">
+            {copyButton}
+            {selectedFile}
+          </div>
         </ScrollArea.Viewport>
         <ScrollArea.Corner />
         <ScrollArea.Scrollbar orientation="vertical" />
@@ -75,7 +80,10 @@ export function DemoCodeBlock({
             />
           }
         >
-          <div className="DemoSourceBrowser">{selectedFile}</div>
+          <div className="DemoSourceBrowser">
+            {copyButton}
+            {selectedFile}
+          </div>
         </Collapsible.Panel>
 
         <Collapsible.Trigger
