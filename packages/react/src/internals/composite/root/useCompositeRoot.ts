@@ -90,7 +90,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useMergedRefs(rootRef, externalRef);
 
-  const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
+  const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;

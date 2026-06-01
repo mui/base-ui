@@ -8,14 +8,16 @@ import {
 } from '../../../floating-ui-react/utils/composite';
 import { ARROW_DOWN, ARROW_RIGHT } from '../composite';
 
+type CompositeGridElementsRef = React.RefObject<Array<HTMLElement | null>>;
+
 export interface CompositeGridItemSize {
   width: number;
   height: number;
 }
 
 export interface CompositeGridConfig {
+  cols: number;
   navigation: typeof gridNavigation;
-  columns?: number | undefined;
   dense?: boolean | undefined;
   itemSizes?: CompositeGridItemSize[] | undefined;
   onLoop?:
@@ -23,14 +25,14 @@ export interface CompositeGridConfig {
         event: React.KeyboardEvent,
         prevIndex: number,
         nextIndex: number,
-        elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+        elementsRef: CompositeGridElementsRef,
       ) => number)
     | undefined;
 }
 
-export interface GridNavigationParameters extends Omit<CompositeGridConfig, 'navigation'> {
+interface GridNavigationParameters extends Omit<CompositeGridConfig, 'navigation'> {
   event: React.KeyboardEvent;
-  elementsRef: React.RefObject<Array<HTMLDivElement | null>>;
+  elementsRef: CompositeGridElementsRef;
   highlightedIndex: number;
   minIndex: number;
   maxIndex: number;
@@ -40,32 +42,9 @@ export interface GridNavigationParameters extends Omit<CompositeGridConfig, 'nav
   rtl: boolean;
 }
 
-function getColumnCountFromRows(elements: Array<HTMLElement | null>) {
-  let currentRow: Element | null = null;
-  let currentColumns = 0;
-  let maxColumns = 1;
-
-  elements.forEach((element) => {
-    const row = element?.closest('[role="row"]');
-    if (!row) {
-      return;
-    }
-
-    if (row !== currentRow) {
-      maxColumns = Math.max(maxColumns, currentColumns);
-      currentRow = row;
-      currentColumns = 0;
-    }
-
-    currentColumns += 1;
-  });
-
-  return Math.max(maxColumns, currentColumns);
-}
-
 export function gridNavigation(params: GridNavigationParameters): number {
   const {
-    columns: columnsProp,
+    cols,
     dense = false,
     disabledIndices,
     elementsRef,
@@ -79,7 +58,6 @@ export function gridNavigation(params: GridNavigationParameters): number {
     orientation,
     rtl,
   } = params;
-  const columns = columnsProp ?? getColumnCountFromRows(elementsRef.current);
 
   const sizes =
     itemSizes ||
@@ -87,7 +65,8 @@ export function gridNavigation(params: GridNavigationParameters): number {
       width: 1,
       height: 1,
     }));
-  const cellMap = createGridCellMap(sizes, columns, dense);
+  // Work in hypothetical 1x1 cell indices, then convert back to item indices.
+  const cellMap = createGridCellMap(sizes, cols, dense);
   const minGridIndex = cellMap.findIndex(
     (index) => index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices),
   );
@@ -110,7 +89,8 @@ export function gridNavigation(params: GridNavigationParameters): number {
       orientation,
       loopFocus,
       onLoop: wrappedOnLoop,
-      cols: columns,
+      cols,
+      // Treat undefined gaps as disabled so navigation cannot land in them.
       disabledIndices: getGridCellIndices(
         [
           ...(disabledIndices ||
@@ -127,12 +107,16 @@ export function gridNavigation(params: GridNavigationParameters): number {
         highlightedIndex > maxIndex ? minIndex : highlightedIndex,
         sizes,
         cellMap,
-        columns,
+        cols,
+        // Choose the corner closest to the movement direction so spanning items
+        // do not immediately resolve back to themselves.
+        // eslint-disable-next-line no-nested-ternary
         event.key === ARROW_DOWN ? 'bl' : event.key === ARROW_RIGHT ? 'tr' : 'tl',
       ),
       rtl,
     },
   );
 
+  // Navigated cell will never be nullish.
   return cellMap[cellIndex] as number;
 }
