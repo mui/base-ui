@@ -105,6 +105,24 @@ describe('<Checkbox.Root />', () => {
       expect(handleChange.mock.calls[0][0]).toBe(true);
     });
 
+    it('does not update its state when onCheckedChange cancels the event', async () => {
+      const handleChange = vi.fn((_, eventDetails: Checkbox.Root.ChangeEventDetails) => {
+        eventDetails.cancel();
+      });
+
+      await render(<Checkbox.Root onCheckedChange={handleChange} />);
+      const checkbox = screen.getByRole('checkbox');
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+
+      fireEvent.click(checkbox);
+
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      expect(input.checked).toBe(false);
+    });
+
     it('should report keyboard modifier event properties when calling onCheckedChange', async () => {
       const handleChange = vi.fn((checked, eventDetails) => eventDetails);
       const { user } = await render(<Checkbox.Root onCheckedChange={handleChange} />);
@@ -249,6 +267,51 @@ describe('<Checkbox.Root />', () => {
     it('should not be overridden by `checked` prop', async () => {
       await render(<Checkbox.Root indeterminate checked />);
       expect(screen.getAllByRole('checkbox')[0]).toHaveAttribute('aria-checked', 'mixed');
+    });
+
+    it('sets the native input state when indeterminate', async () => {
+      await render(<Checkbox.Root indeterminate />);
+
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+      expect(input.indeterminate).toBe(true);
+    });
+
+    it('sets indeterminate style hooks on the root and indicator', async () => {
+      await render(
+        <Checkbox.Root indeterminate>
+          <Checkbox.Indicator data-testid="indicator" />
+        </Checkbox.Root>,
+      );
+
+      expect(screen.getByRole('checkbox')).toHaveAttribute('data-indeterminate', '');
+      expect(screen.getByTestId('indicator')).toHaveAttribute('data-indeterminate', '');
+    });
+
+    it('sets grouped parent aria when manually indeterminate', async () => {
+      await render(
+        <CheckboxGroup value={[]} allValues={['one']}>
+          <Checkbox.Root parent indeterminate data-testid="parent" />
+          <Checkbox.Root value="one" />
+        </CheckboxGroup>,
+      );
+
+      expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'mixed');
+    });
+
+    it('sets grouped parent native input state when manually indeterminate', async () => {
+      await render(
+        <CheckboxGroup value={[]} allValues={['one']}>
+          <Checkbox.Root parent indeterminate data-testid="parent" />
+          <Checkbox.Root value="one" />
+        </CheckboxGroup>,
+      );
+
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+      expect(input.indeterminate).toBe(true);
     });
   });
 
