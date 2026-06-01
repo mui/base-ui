@@ -14,8 +14,8 @@ export interface CompositeGridItemSize {
 }
 
 export interface CompositeGridConfig {
-  columns: number;
   navigation: typeof gridNavigation;
+  columns?: number | undefined;
   dense?: boolean | undefined;
   itemSizes?: CompositeGridItemSize[] | undefined;
   onLoop?:
@@ -40,9 +40,32 @@ export interface GridNavigationParameters extends Omit<CompositeGridConfig, 'nav
   rtl: boolean;
 }
 
+function getColumnCountFromRows(elements: Array<HTMLElement | null>) {
+  let currentRow: Element | null = null;
+  let currentColumns = 0;
+  let maxColumns = 1;
+
+  elements.forEach((element) => {
+    const row = element?.closest('[role="row"]');
+    if (!row) {
+      return;
+    }
+
+    if (row !== currentRow) {
+      maxColumns = Math.max(maxColumns, currentColumns);
+      currentRow = row;
+      currentColumns = 0;
+    }
+
+    currentColumns += 1;
+  });
+
+  return Math.max(maxColumns, currentColumns);
+}
+
 export function gridNavigation(params: GridNavigationParameters): number {
   const {
-    columns,
+    columns: columnsProp,
     dense = false,
     disabledIndices,
     elementsRef,
@@ -56,6 +79,7 @@ export function gridNavigation(params: GridNavigationParameters): number {
     orientation,
     rtl,
   } = params;
+  const columns = columnsProp ?? getColumnCountFromRows(elementsRef.current);
 
   const sizes =
     itemSizes ||

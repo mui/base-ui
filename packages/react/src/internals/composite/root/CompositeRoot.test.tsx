@@ -9,6 +9,27 @@ import { gridNavigation } from './gridNavigation';
 
 describe('Composite', () => {
   const { render } = createRenderer();
+  const gridRows = [
+    ['1', '2', '3'],
+    ['4', '5', '6'],
+    ['7', '8', '9'],
+  ];
+
+  function TestGridItems() {
+    return (
+      <React.Fragment>
+        {gridRows.map((row, rowIndex) => (
+          <div key={rowIndex} role="row">
+            {row.map((i) => (
+              <CompositeItem key={i} data-testid={i}>
+                {i}
+              </CompositeItem>
+            ))}
+          </div>
+        ))}
+      </React.Fragment>
+    );
+  }
 
   describe('list', () => {
     it('does not add aria-orientation when orientation is set', async () => {
@@ -348,12 +369,8 @@ describe('Composite', () => {
     it('uniform 1x1 items', async () => {
       function App() {
         return (
-          <CompositeRoot grid={{ columns: 3, navigation: gridNavigation }} enableHomeAndEndKeys>
-            {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
-              <CompositeItem key={i} data-testid={i}>
-                {i}
-              </CompositeItem>
-            ))}
+          <CompositeRoot grid={{ navigation: gridNavigation }} enableHomeAndEndKeys>
+            <TestGridItems />
           </CompositeRoot>
         );
       }
@@ -392,6 +409,12 @@ describe('Composite', () => {
       expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('4')).toHaveFocus();
 
+      fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowLeft' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('6')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('6')).toHaveFocus();
+
       act(() => screen.getByTestId('9').focus());
       await flushMicrotasks();
 
@@ -414,15 +437,11 @@ describe('Composite', () => {
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot
-                grid={{ columns: 3, navigation: gridNavigation }}
+                grid={{ navigation: gridNavigation }}
                 orientation="horizontal"
                 enableHomeAndEndKeys
               >
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
-                  <CompositeItem key={i} data-testid={i}>
-                    {i}
-                  </CompositeItem>
-                ))}
+                <TestGridItems />
               </CompositeRoot>
             </DirectionProvider>
           </div>,
@@ -470,15 +489,11 @@ describe('Composite', () => {
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot
-                grid={{ columns: 3, navigation: gridNavigation }}
+                grid={{ navigation: gridNavigation }}
                 orientation="both"
                 enableHomeAndEndKeys
               >
-                {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((i) => (
-                  <CompositeItem key={i} data-testid={i}>
-                    {i}
-                  </CompositeItem>
-                ))}
+                <TestGridItems />
               </CompositeRoot>
             </DirectionProvider>
           </div>,
