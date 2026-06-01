@@ -39,7 +39,7 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
 export function useFieldValidation(
   params: UseFieldValidationParameters,
 ): UseFieldValidationReturnValue {
-  const { formRef, clearErrors } = useFormContext();
+  const { formRef } = useFormContext();
 
   const {
     setValidityData,
@@ -49,7 +49,6 @@ export function useFieldValidation(
     invalid,
     markedDirtyRef,
     state,
-    name,
     shouldValidateOnChange,
     getRegisteredFieldId,
   } = params;
@@ -276,35 +275,14 @@ export function useFieldValidation(
     [getDescriptionProps, state.disabled, state.valid],
   );
 
-  const getInputValidationProps = React.useCallback(
-    (disabled: boolean, externalProps: HTMLProps = {}) =>
-      mergeProps<'input'>(
-        {
-          onChange(event) {
-            // Workaround for https://github.com/facebook/react/issues/9023
-            if (event.nativeEvent.defaultPrevented) {
-              return;
-            }
-
-            clearErrors(name);
-
-            change(event.currentTarget.value);
-          },
-        },
-        getValidationProps(disabled, externalProps),
-      ),
-    [getValidationProps, clearErrors, name, change],
-  );
-
   return React.useMemo(
     () => ({
       getValidationProps,
-      getInputValidationProps,
       inputRef,
       commit,
       change,
     }),
-    [getValidationProps, getInputValidationProps, commit, change],
+    [getValidationProps, commit, change],
   );
 }
 
@@ -319,14 +297,12 @@ export interface UseFieldValidationParameters {
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   state: FieldRootState;
-  name: string | undefined;
   shouldValidateOnChange: () => boolean;
   getRegisteredFieldId: () => string | undefined;
 }
 
 export interface UseFieldValidationReturnValue {
   getValidationProps: (disabled: boolean, props?: HTMLProps) => HTMLProps;
-  getInputValidationProps: (disabled: boolean, props?: HTMLProps) => HTMLProps;
   inputRef: React.RefObject<HTMLInputElement | null>;
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown) => void;

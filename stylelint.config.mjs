@@ -1,9 +1,14 @@
+import noUnknownDemoColors, {
+  ruleName as noUnknownDemoColorsRuleName,
+} from './scripts/stylelint/no-unknown-demo-colors.mjs';
+
 // Note: To debug stylelint config resolution for a specific file, use
 //         pnpm exec stylelint --print-config <path-to-file>
 
 /** @type {import('stylelint').Config} */
 export default {
   extends: '@mui/internal-code-infra/stylelint',
+  plugins: [noUnknownDemoColors],
   rules: {
     // empty lines help with readability
     'declaration-empty-line-before': null,
@@ -24,6 +29,12 @@ export default {
         'declaration-property-value-no-unknown': null,
         // Remove when ready
         'keyframes-name-pattern': null,
+      },
+    },
+    {
+      files: ['docs/src/app/[(]docs[)]/**/demos/**/*.css'],
+      rules: {
+        [noUnknownDemoColorsRuleName]: true,
       },
     },
     {
