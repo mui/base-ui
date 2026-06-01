@@ -20,6 +20,10 @@
     min-height: min-content;
     scroll-margin-top: 3rem;
     padding: 0;
+
+    @media (--show-side-nav) {
+      scroll-margin-top: 3.5rem;
+    }
   }
 
   .ReferenceNameCell {
@@ -174,7 +178,6 @@
     }
 
     .ReferenceTrigger {
-      scroll-margin-top: 0;
       grid-template-columns: 6fr 6fr 4.5fr 2.5rem;
     }
 
@@ -221,6 +224,10 @@
     min-height: min-content;
     scroll-margin-top: 3rem;
     padding: 0;
+
+    @media (--show-side-nav) {
+      scroll-margin-top: 3.5rem;
+    }
   }
 
   @media (min-width: 32rem) {
@@ -250,7 +257,6 @@
     }
 
     .MethodsTrigger {
-      scroll-margin-top: 0;
       grid-template-columns: 8fr 4fr 2.5rem;
     }
   }
@@ -300,6 +306,10 @@
   .AdditionalTypeWrapper {
     display: none;
     scroll-margin-top: 3rem;
+
+    @media (--show-side-nav) {
+      scroll-margin-top: 3.5rem;
+    }
   }
 
   .AdditionalTypeWrapper:target,
@@ -352,7 +362,6 @@
 
   @media (min-width: 48rem) {
     .AdditionalTypeWrapper {
-      scroll-margin-top: 0;
     }
   }
 

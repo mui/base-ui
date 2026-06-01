@@ -32,7 +32,7 @@
   .MdH3 {
     margin-top: 2rem;
     margin-bottom: 0.375rem;
-    scroll-margin-top: 4.5rem;
+    scroll-margin-top: 4rem;
     font-family: var(--font-sans-b);
     font-size: var(--font-size-18);
     line-height: 1.75rem;
@@ -43,7 +43,7 @@
   @media (--show-side-nav) {
     .MdH2,
     .MdH3 {
-      scroll-margin-top: 1.5rem;
+      scroll-margin-top: 3.5rem;
     }
   }
 
@@ -52,7 +52,7 @@
   .MdH6 {
     margin-top: 2rem;
     margin-bottom: 0.375rem;
-    scroll-margin-top: 1.5rem;
+    scroll-margin-top: 3.5rem;
     font-weight: var(--font-weight-700);
     text-wrap: balance;
   }
