@@ -41,8 +41,8 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
-  const interactionsEnabled = positionerElement ? true : !value;
-  const hoverInteractionsEnabled = positionerElement || viewportElement ? true : !value;
+  const interactionsEnabled = positionerElement ? true : value == null;
+  const hoverInteractionsEnabled = positionerElement || viewportElement ? true : value == null;
 
   useHoverFloatingInteraction(context, {
     enabled: Boolean(floatingRootContext) && hoverInteractionsEnabled,

@@ -127,9 +127,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);
-  const interactionsEnabled = (positionerElement ? true : !value) && !disabled;
+  const interactionsEnabled = (positionerElement ? true : value == null) && !disabled;
   const hoverFloatingElement = positionerElement || viewportElement;
-  const hoverInteractionsEnabled = (hoverFloatingElement ? true : !value) && !disabled;
+  const hoverInteractionsEnabled = (hoverFloatingElement ? true : value == null) && !disabled;
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement, false, false);
 

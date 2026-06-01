@@ -285,11 +285,16 @@ function TestNavigationMenuOrientationAttributes() {
 
 function TestInlineNestedNavigationMenu(
   props: {
-    nestedDefaultValue?: string | null;
+    nestedDefaultValue?: string | number | null;
+    nestedItem1Value?: string | number;
     keepMountedContent?: boolean;
   } = {},
 ) {
-  const { nestedDefaultValue = 'nested-item-1', keepMountedContent = false } = props;
+  const {
+    nestedDefaultValue = 'nested-item-1',
+    nestedItem1Value = 'nested-item-1',
+    keepMountedContent = false,
+  } = props;
   const nestedRootProps =
     nestedDefaultValue == null ? undefined : { defaultValue: nestedDefaultValue };
 
@@ -303,7 +308,7 @@ function TestInlineNestedNavigationMenu(
             <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
             <NavigationMenu.Root {...nestedRootProps}>
               <NavigationMenu.List data-testid="inline-nested-list">
-                <NavigationMenu.Item value="nested-item-1">
+                <NavigationMenu.Item value={nestedItem1Value}>
                   <NavigationMenu.Trigger data-testid="nested-trigger-1">
                     Nested Item 1
                   </NavigationMenu.Trigger>
@@ -2595,6 +2600,27 @@ describe('<NavigationMenu.Root />', () => {
         expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'false');
         expect(screen.queryByTestId('nested-popup-2')).not.toBe(null);
         expect(screen.queryByTestId('nested-popup-1')).toBe(null);
+      });
+
+      it('treats a falsy value as open for inline nested trigger interactions', async () => {
+        await render(
+          <TestInlineNestedNavigationMenu nestedDefaultValue={0} nestedItem1Value={0} />,
+        );
+        const trigger1 = screen.getByTestId('trigger-1');
+
+        fireEvent.click(trigger1);
+        await flushMicrotasks();
+
+        const popup1 = screen.getByTestId('popup-1');
+        const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
+
+        fireEvent.click(nestedTrigger1);
+        await flushMicrotasks();
+
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
       });
 
       it('allows arrow key navigation to submenu triggers', async () => {
