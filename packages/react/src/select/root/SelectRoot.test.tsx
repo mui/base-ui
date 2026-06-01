@@ -795,7 +795,7 @@ describe('<Select.Root />', () => {
     });
   });
 
-  it('matches browser autofill by serialized value before a later rendered label', async () => {
+  it('matches browser autofill by serialized value before an earlier rendered label', async () => {
     const { user } = await render(
       <Select.Root name="country">
         <Select.Trigger data-testid="trigger">
@@ -804,8 +804,8 @@ describe('<Select.Root />', () => {
         <Select.Portal>
           <Select.Positioner>
             <Select.Popup>
-              <Select.Item value="US">United States</Select.Item>
               <Select.Item value="CA">US</Select.Item>
+              <Select.Item value="US">United States</Select.Item>
             </Select.Popup>
           </Select.Positioner>
         </Select.Portal>

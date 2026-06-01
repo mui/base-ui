@@ -567,19 +567,24 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   return;
                 }
 
-                // Browsers can autofill the rendered text (e.g. "United States"), which is
-                // neither the serialized value nor serialized label, so match `labelsRef` too.
+                // Prefer serialized matches before falling back to rendered text, which is what
+                // browsers can autofill for primitive values like `value="US">United States`.
                 const nextValueLower = nextValue.toLowerCase();
-                const matchingValue = valuesRef.current.find((candidate, index) => {
-                  const renderedLabel = labelsRef.current[index];
-                  return (
-                    stringifyAsValue(candidate, itemToStringValue).toLowerCase() ===
-                      nextValueLower ||
-                    stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() ===
-                      nextValueLower ||
-                    (renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower)
-                  );
-                });
+                const matchingValue =
+                  valuesRef.current.find(
+                    (candidate) =>
+                      stringifyAsValue(candidate, itemToStringValue).toLowerCase() ===
+                      nextValueLower,
+                  ) ??
+                  valuesRef.current.find(
+                    (candidate) =>
+                      stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() ===
+                      nextValueLower,
+                  ) ??
+                  valuesRef.current.find((_, index) => {
+                    const renderedLabel = labelsRef.current[index];
+                    return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
+                  });
 
                 if (matchingValue != null) {
                   // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
