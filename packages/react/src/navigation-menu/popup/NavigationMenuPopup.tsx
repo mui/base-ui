@@ -11,6 +11,7 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { Align, Side } from '../../utils/useAnchorPositioning';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuPopupState> = {
   ...baseMapping,
@@ -67,6 +68,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
             }
           : {},
       },
+      getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],
     stateAttributesMapping,

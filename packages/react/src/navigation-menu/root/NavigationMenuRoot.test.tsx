@@ -1506,6 +1506,46 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
+
+    it('marks the positioner instant while opening a kept portal', async () => {
+      await render(<TestNavigationMenu keepMountedPortal />);
+
+      fireEvent.click(screen.getByTestId('trigger-1'));
+
+      expect(screen.getByTestId('top-level-positioner')).toHaveAttribute('data-instant');
+    });
+
+    it('disables popup and arrow transitions while a kept portal opens', async () => {
+      await render(
+        <NavigationMenu.Root>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value="item-1">
+              <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal keepMounted>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup data-testid="popup-root">
+                <NavigationMenu.Arrow data-testid="arrow" />
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>,
+      );
+
+      fireEvent.click(screen.getByTestId('trigger-1'));
+
+      expect(screen.getByTestId('popup-root')).toHaveStyle({
+        transition: 'none',
+      });
+      expect(screen.getByTestId('arrow')).toHaveStyle({
+        transition: 'none',
+      });
+    });
   });
 
   describe('prop: onValueChange', () => {

@@ -72,9 +72,9 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const keepMounted = useNavigationMenuPortalContext();
   const nodeId = useNavigationMenuTreeContext();
 
-  const resizeTimeout = useTimeout();
+  const instantTimeout = useTimeout();
 
-  const [instant, setInstant] = React.useState(false);
+  const [instant, setInstant] = React.useState(open);
 
   const positionerRef = React.useRef<HTMLDivElement | null>(null);
   const prevTriggerElementRef = React.useRef<Element | null>(null);
@@ -133,7 +133,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     side: positioning.side,
     align: positioning.align,
     anchorHidden: positioning.anchorHidden,
-    instant,
+    instant: instant || transitionStatus === 'starting',
   };
 
   React.useEffect(() => {
@@ -141,19 +141,25 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
       return undefined;
     }
 
+    if (instant) {
+      instantTimeout.start(0, () => {
+        setInstant(false);
+      });
+    }
+
     function handleResize() {
       ReactDOM.flushSync(() => {
         setInstant(true);
       });
 
-      resizeTimeout.start(100, () => {
+      instantTimeout.start(100, () => {
         setInstant(false);
       });
     }
 
     const win = ownerWindow(positionerElement);
     return addEventListener(win, 'resize', handleResize);
-  }, [open, resizeTimeout, positionerElement]);
+  }, [open, instant, instantTimeout, positionerElement]);
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,
