@@ -4,6 +4,7 @@ import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
+import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
@@ -181,10 +182,14 @@ export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>
   closeOnActiveUnmount: boolean = false,
 ) {
   const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
+  const previousElementRef = React.useRef<Element | null>(null);
 
   const baseRegisterTrigger = useTriggerRegistration(triggerId, store);
 
   const registerTrigger = useStableCallback((element: Element | null) => {
+    if (element !== null) {
+      previousElementRef.current = element;
+    }
     baseRegisterTrigger(element);
 
     if (!element) {
@@ -214,30 +219,24 @@ export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>
     }
   });
 
-  const handleCleanup = useStableCallback(() => {
-    const previousElement = triggerElementRef.current;
-    if (previousElement === null) {
+  useOnMount(() => () => {
+    const previousElement = previousElementRef.current;
+    if (
+      previousElement === null ||
+      previousElement.isConnected ||
+      triggerId === undefined ||
+      store.select('activeTriggerId') !== triggerId
+    ) {
       return;
     }
-    queueMicrotask(() => {
-      if (
-        previousElement.isConnected ||
-        triggerId === undefined ||
-        store.select('activeTriggerId') !== triggerId
-      ) {
-        return;
-      }
-      store.update({
-        activeTriggerId: null,
-        activeTriggerElement: null,
-      } as Partial<State>);
-      if (closeOnActiveUnmount && store.select('open')) {
-        store.setOpen(false, createChangeEventDetails(REASONS.none));
-      }
-    });
+    store.update({
+      activeTriggerId: null,
+      activeTriggerElement: null,
+    } as Partial<State>);
+    if (closeOnActiveUnmount && store.select('open')) {
+      store.setOpen(false, createChangeEventDetails(REASONS.none));
+    }
   });
-
-  useIsoLayoutEffect(() => handleCleanup, [handleCleanup]);
 
   useIsoLayoutEffect(() => {
     if (isMountedByThisTrigger) {
