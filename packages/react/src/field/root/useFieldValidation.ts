@@ -3,6 +3,7 @@ import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../../internals/field-constants/constants';
@@ -36,6 +37,26 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
   return onlyValueMissing;
 }
 
+/**
+ * Picks the input whose native validity should represent a field that owns several inputs (such as a
+ * checkbox group). Prefers the first currently-invalid input (e.g. an unchecked required checkbox) and
+ * otherwise returns the first enabled input. Disabled inputs are skipped because they're barred from
+ * constraint validation, mirroring native form submission.
+ */
+function findRepresentativeInput(inputs: Set<HTMLInputElement>): HTMLInputElement | null {
+  let fallback: HTMLInputElement | null = null;
+  for (const input of inputs) {
+    if (input.disabled) {
+      continue;
+    }
+    if (!input.validity.valid) {
+      return input;
+    }
+    fallback ??= input;
+  }
+  return fallback;
+}
+
 export function useFieldValidation(
   params: UseFieldValidationParameters,
 ): UseFieldValidationReturnValue {
@@ -57,10 +78,29 @@ export function useFieldValidation(
 
   const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const registeredInputs = useRefWithInit(() => new Set<HTMLInputElement>()).current;
   const validationCommitIdRef = React.useRef(0);
 
+  // Checkbox groups register several inputs against a single field. Track them so a `required`
+  // checkbox can't be satisfied by another input in the group, matching native per-checkbox behavior.
+  const registerInput = React.useCallback(
+    (element: HTMLInputElement | null) => {
+      if (!element) {
+        return undefined;
+      }
+      registeredInputs.add(element);
+      return () => {
+        registeredInputs.delete(element);
+      };
+    },
+    [registeredInputs],
+  );
+
   const commit = useStableCallback(async (value: unknown, revalidate = false) => {
-    const element = inputRef.current;
+    // A field can own several inputs (a checkbox group), but only the last-mounted one wins the shared
+    // `inputRef`. Validate against the registry instead so every input counts; `inputRef` is the
+    // fallback only when no registered input applies (none registered, or all of them disabled).
+    const element = findRepresentativeInput(registeredInputs) ?? inputRef.current;
     if (!element) {
       return;
     }
@@ -279,10 +319,11 @@ export function useFieldValidation(
     () => ({
       getValidationProps,
       inputRef,
+      registerInput,
       commit,
       change,
     }),
-    [getValidationProps, commit, change],
+    [getValidationProps, registerInput, commit, change],
   );
 }
 
@@ -304,6 +345,7 @@ export interface UseFieldValidationParameters {
 export interface UseFieldValidationReturnValue {
   getValidationProps: (disabled: boolean, props?: HTMLProps) => HTMLProps;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  registerInput: React.RefCallback<HTMLInputElement>;
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown) => void;
 }
