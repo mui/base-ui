@@ -1507,14 +1507,6 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it('marks the positioner instant while opening a kept portal', async () => {
-      await render(<TestNavigationMenu keepMountedPortal />);
-
-      fireEvent.click(screen.getByTestId('trigger-1'));
-
-      expect(screen.getByTestId('top-level-positioner')).toHaveAttribute('data-instant');
-    });
-
     it('disables popup and arrow transitions while a kept portal opens', async () => {
       await render(
         <NavigationMenu.Root>

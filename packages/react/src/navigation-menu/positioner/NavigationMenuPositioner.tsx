@@ -133,7 +133,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     side: positioning.side,
     align: positioning.align,
     anchorHidden: positioning.anchorHidden,
-    instant: instant || transitionStatus === 'starting',
+    instant,
   };
 
   React.useEffect(() => {
