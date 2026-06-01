@@ -30,9 +30,6 @@ function getUncontrolledElementsSet(controlAttribute: ControlAttribute) {
   return uncontrolledElementsSets[controlAttribute];
 }
 
-export const supportsInert = (): boolean =>
-  typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
-
 function unwrapHost(node: Node | null): Element | null {
   if (!node) {
     return null;
