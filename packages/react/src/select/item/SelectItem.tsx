@@ -61,11 +61,13 @@ export const SelectItem = React.memo(
       valuesRef,
       multiple,
       selectedItemTextRef,
+      disabled: selectDisabled,
+      readOnly,
     } = useSelectRootContext();
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const open = useStore(store, selectors.open);
-    const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
+    const selected = useStore(store, selectors.isSelected, itemValue);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
@@ -130,6 +132,12 @@ export const SelectItem = React.memo(
     };
 
     function commitSelection(event: MouseEvent | KeyboardEvent | PointerEvent) {
+      // A forced-open select (`open`/`defaultOpen`) can still receive item activations even
+      // when the root is disabled or read-only, so guard the commit here too.
+      if (selectDisabled || readOnly) {
+        return;
+      }
+
       const selectedValue = store.state.value;
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
