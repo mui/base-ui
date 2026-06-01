@@ -903,6 +903,34 @@ describe('<Select.Root />', () => {
     expect(trigger).toHaveAttribute('data-dirty', '');
   });
 
+  it('does not process browser autofill after the root unmounts', async () => {
+    const onValueChange = vi.fn();
+
+    const { unmount } = await render(
+      <Select.Root name="country" onValueChange={onValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="US">United States</Select.Item>
+              <Select.Item value="CA">Canada</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const selectInput = screen.getByRole('textbox', { hidden: true });
+
+    fireEvent.change(selectInput, { target: { value: 'CA' } });
+    unmount();
+    await flushMicrotasks();
+
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
   it('does not mark the field dirty when autofill is canceled', async () => {
     await render(
       <Field.Root>
@@ -1700,7 +1728,10 @@ describe('<Select.Root />', () => {
                       <Select.Item value="two">Two</Select.Item>
                       <Select.Item value="three">Three</Select.Item>
                     </Select.List>
-                    <Select.ScrollDownArrow className="animation-test-scroll-arrow" />
+                    <Select.ScrollDownArrow
+                      className="animation-test-scroll-arrow"
+                      data-testid="scroll-arrow"
+                    />
                   </Select.Popup>
                 </Select.Positioner>
               </Select.Portal>
@@ -1711,14 +1742,18 @@ describe('<Select.Root />', () => {
         const list = screen.getByRole('listbox');
 
         await waitFor(() => {
-          expect(screen.getByText('▼')).toHaveAttribute('data-visible');
+          expect(screen.getByTestId('scroll-arrow')).toHaveAttribute('data-visible');
         });
 
         scrollTop = 40;
         fireEvent.scroll(list);
 
         await waitFor(() => {
-          expect(screen.getByText('▼')).toHaveAttribute('data-ending-style');
+          expect(screen.getByTestId('scroll-arrow')).toHaveAttribute('data-ending-style');
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('scroll-arrow')).toBe(null);
         });
       },
     );
@@ -3006,6 +3041,33 @@ describe('<Select.Root />', () => {
           <Field.Root>
             <Select.Root
               value={emptyValue}
+              itemToStringLabel={(item) => item.label}
+              itemToStringValue={() => ''}
+            >
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value={emptyValue}>Empty option</Select.Item>
+                    <Select.Item value={{ id: 2, label: 'Option 1' }}>Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        expect(screen.getByTestId('trigger')).not.toHaveAttribute('data-filled');
+      });
+
+      it('does not add [data-filled] attribute when multiple values serialize to empty strings', async () => {
+        const emptyValue = { id: 1, label: 'Empty option' };
+
+        await render(
+          <Field.Root>
+            <Select.Root
+              multiple
+              value={[emptyValue]}
               itemToStringLabel={(item) => item.label}
               itemToStringValue={() => ''}
             >
