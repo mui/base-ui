@@ -222,10 +222,12 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     );
   }, [portalNode, modal]);
 
-  React.useEffect(() => {
-    if (!portalNode || open !== false) {
+  useIsoLayoutEffect(() => {
+    if (!portalNode || open !== true || !focusInsideDisabledRef.current) {
       return;
     }
+
+    // Restore tabbability before the focus manager's queued focus-on-open step runs.
     enableFocusInside(portalNode);
     focusInsideDisabledRef.current = false;
   }, [open, portalNode]);
