@@ -59,6 +59,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const [tabMap, setTabMap] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
+  const lastKnownTabElementRef = React.useRef<Node | undefined>(undefined);
 
   // Used for activation direction detection via tab element positions.
   const getTabElementBySelectedValue = React.useCallback(
@@ -245,6 +246,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // Implicit uncontrolled selections are still automatic changes, so notify
   // once when the tabs first register. Explicit defaults are treated as user-owned.
   const shouldNotifyInitialValueChangeRef = React.useRef(!hasExplicitDefaultValueProp);
+  // useControlled warns if defaultValue changes after mount, but the
+  // disabled-default honor policy below still needs a stable initial value.
+  const initialDefaultValueRef = React.useRef(defaultValueProp);
   // An explicit defaultValue can intentionally point at a disabled tab on mount.
   // Once that selection becomes valid, later disabled states should fall back.
   const shouldHonorDisabledDefaultValueRef = React.useRef(hasExplicitDefaultValueProp);
@@ -282,27 +286,32 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     }
 
     if (tabMap.size === 0) {
-      if (!didRegisterTabsRef.current || value === null) {
-        return;
+      // A Suspense boundary outside the root can clean up layout effects while
+      // keeping the previous tabs connected. Don't treat that as removal.
+      if (
+        didRegisterTabsRef.current &&
+        value !== null &&
+        !lastKnownTabElementRef.current?.isConnected
+      ) {
+        commitAutomaticValueChange(null, REASONS.missing);
       }
-
-      commitAutomaticValueChange(null, REASONS.missing);
       return;
     }
 
     didRegisterTabsRef.current = true;
+    lastKnownTabElementRef.current = tabMap.keys().next().value;
 
     const selectionIsDisabled = selectedTabMetadata?.disabled;
     const selectionIsMissing = selectedTabMetadata == null && value !== null;
 
-    if (!selectionIsDisabled && value === defaultValueProp) {
+    if (!selectionIsDisabled && value === initialDefaultValueRef.current) {
       shouldHonorDisabledDefaultValueRef.current = false;
     }
 
     if (
       shouldHonorDisabledDefaultValueRef.current &&
       selectionIsDisabled &&
-      value === defaultValueProp
+      value === initialDefaultValueRef.current
     ) {
       return;
     }
@@ -336,7 +345,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       shouldNotifyInitialValueChangeRef.current = false;
     }
   }, [
-    defaultValueProp,
     firstEnabledTabValue,
     isControlled,
     notifyAutomaticValueChange,

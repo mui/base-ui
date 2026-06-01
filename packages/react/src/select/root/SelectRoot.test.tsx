@@ -1614,6 +1614,59 @@ describe('<Select.Root />', () => {
       expect(screen.queryByTestId('popover-popup')).not.toBe(null);
     });
 
+    it('returns focus to the opener when a select is opened programmatically inside a popover', async () => {
+      function Test() {
+        const [selectOpen, setSelectOpen] = React.useState(false);
+
+        return (
+          <Popover.Root defaultOpen>
+            <Popover.Trigger>Open popover</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popover-popup">
+                  <button type="button" onClick={() => setSelectOpen(true)}>
+                    Open select programmatically
+                  </button>
+                  <Select.Root open={selectOpen} onOpenChange={setSelectOpen}>
+                    <Select.Trigger data-testid="select-trigger">
+                      <Select.Value placeholder="Pick one" />
+                    </Select.Trigger>
+                    <Select.Portal>
+                      <Select.Positioner>
+                        <Select.Popup>
+                          <Select.Item value="one">One</Select.Item>
+                          <Select.Item value="two">Two</Select.Item>
+                        </Select.Popup>
+                      </Select.Positioner>
+                    </Select.Portal>
+                  </Select.Root>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const selectOpener = screen.getByRole('button', {
+        name: 'Open select programmatically',
+      });
+      await user.click(selectOpener);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+      });
+
+      await user.click(screen.getByRole('option', { name: 'Two' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+      expect(selectOpener).toHaveFocus();
+      expect(screen.queryByTestId('popover-popup')).not.toBe(null);
+    });
+
     it('does not consume the next outside press after a native drag from a modal select trigger outside all popups', async () => {
       ignoreActWarnings();
 

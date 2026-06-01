@@ -235,14 +235,6 @@
   }
 }
 
-.Meta {
-  margin: 0 0 1.5rem;
-  font-size: 0.9375rem;
-  line-height: 1.5rem;
-  color: oklch(50% 55% 31deg);
-  text-align: center;
-}
-
 .Cards {
   display: grid;
   gap: 0.75rem;

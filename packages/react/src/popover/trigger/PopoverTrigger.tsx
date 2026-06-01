@@ -80,6 +80,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const hoverProps = useHoverReferenceInteraction(floatingContext, {
     enabled:
+      !disabled &&
       floatingContext != null &&
       openOnHover &&
       (openMethod !== 'touch' || openReason !== REASONS.triggerPress),

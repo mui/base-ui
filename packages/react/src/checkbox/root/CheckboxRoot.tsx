@@ -191,7 +191,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   }, [checked, groupIndeterminate, setFilled]);
 
   useValueChanged(checked, () => {
-    if (groupContext && !parent) {
+    if (groupContext) {
       return;
     }
 
@@ -259,10 +259,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
       : EMPTY_OBJECT,
     getDescriptionProps,
-    (props) =>
-      groupContext
-        ? validation.getValidationProps(disabled, props)
-        : validation.getInputValidationProps(disabled, props),
+    (props) => validation.getValidationProps(disabled, props),
   );
 
   const computedChecked = isGroupedWithParent ? Boolean(groupChecked) : checked;
