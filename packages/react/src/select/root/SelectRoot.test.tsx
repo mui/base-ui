@@ -1576,6 +1576,52 @@ describe('<Select.Root />', () => {
         expect(screen.queryByRole('listbox')).toBe(null);
       });
     });
+
+    it('does not leave a tabbable option while closed and kept mounted after tabbing out', async () => {
+      const actionsRef = {
+        current: {
+          unmount: vi.fn(),
+        },
+      };
+
+      const { user } = await render(
+        <div>
+          <input />
+          <Select.Root defaultValue="1" modal={false} actionsRef={actionsRef}>
+            <Select.Trigger>Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="1">1</Select.Item>
+                  <Select.Item value="2">2</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <input data-testid="after" />
+        </div>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      await user.click(trigger);
+
+      const option = await screen.findByRole('option', { name: '1' });
+      await act(async () => {
+        option.focus();
+      });
+      await waitFor(() => {
+        expect(option).toHaveFocus();
+      });
+      expect(option).toHaveAttribute('tabindex', '0');
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('after')).toHaveFocus();
+      });
+      expect(screen.getByRole('listbox')).not.toHaveAttribute('data-open');
+      expect(option).toHaveAttribute('tabindex', '-1');
+    });
   });
 
   describe('scroll arrows', () => {
