@@ -42,11 +42,14 @@
   }
 
   .HeaderInner {
+    box-sizing: border-box;
     position: relative;
     z-index: 1;
     height: inherit;
-    width: calc(100% - var(--root-layout-padding-inline) - var(--root-layout-padding-inline));
-    max-width: var(--content-layout-max-width);
+    width: min(
+      var(--content-layout-max-width),
+      calc(100% - var(--root-layout-padding-inline) - var(--root-layout-padding-inline))
+    );
     display: flex;
     align-items: center;
     justify-content: space-between;
