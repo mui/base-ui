@@ -392,6 +392,25 @@ describe('<ScrollArea.Scrollbar />', () => {
       await waitFor(() => expect(scrollbar).toHaveAttribute('data-scrolling'));
     });
 
+    it('marks the scroll area as scrolling when wheeling over the horizontal scrollbar', async () => {
+      const { scrollbar } = await renderWheelTest({ orientation: 'horizontal' });
+
+      fireEvent.wheel(scrollbar, { deltaX: 50 });
+
+      await waitFor(() => expect(scrollbar).toHaveAttribute('data-scrolling'));
+    });
+
+    it('does not mark the scroll area as scrolling when chaining at an edge', async () => {
+      const { viewport, scrollbar } = await renderWheelTest({ orientation: 'vertical' });
+
+      // At the end edge scrolling further chains to the page without consuming the
+      // scroll, so the area must not be marked as scrolling.
+      viewport.scrollTop = 800;
+      fireEvent.wheel(scrollbar, { deltaY: 50 });
+
+      expect(scrollbar).not.toHaveAttribute('data-scrolling');
+    });
+
     it.skipIf(isJSDOM)('registers after the horizontal scrollbar becomes visible', async () => {
       await render(
         <DirectionProvider direction="rtl">

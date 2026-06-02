@@ -36,8 +36,10 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
       if (!hasInitialized) {
         hasInitialized = true;
 
-        // Skip the normal mount callback, but recompute if content mounted after
-        // the viewport's initial measurement.
+        // ResizeObserver fires once upon observing. Skip that initial call to avoid
+        // double-calculating the thumb position on mount, unless the content mounted
+        // after the viewport's initial measurement (in which case this fire is what
+        // brings the overflow state in sync).
         if (!computeOnInitialResizeRef.current) {
           return;
         }

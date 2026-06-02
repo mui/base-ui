@@ -203,6 +203,9 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       handlePointerDown(event);
     },
     onPointerUp: handlePointerUp,
+    // Mirror `onPointerUp` so a browser-cancelled gesture on the track (no thumb
+    // child captures the pointer) still clears the drag state.
+    onPointerCancel: handlePointerUp,
     style: {
       position: 'absolute',
       touchAction: 'none',
