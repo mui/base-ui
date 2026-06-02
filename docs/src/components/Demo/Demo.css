@@ -50,21 +50,23 @@
 
   .DemoToolbar {
     box-sizing: border-box;
+    position: relative;
+    z-index: 1;
     font-size: var(--font-size-13);
     line-height: 1.25rem;
     white-space: nowrap;
     color: var(--gray-t2);
     background-clip: padding-box;
-    border-bottom: 1px solid var(--gray-c2);
     display: flex;
     align-items: end;
-    gap: 2rem;
+    gap: 1.5rem;
     height: 2.25rem;
     padding: 0 0 0 0.5rem;
     -webkit-user-select: none;
     user-select: none;
 
     /* Scroll */
+    overflow: auto hidden;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
 
@@ -88,14 +90,33 @@
     align-items: center;
     margin-left: auto;
     padding-right: 0.5rem;
-    background-color: var(--gray-content);
     height: 100%;
     gap: var(--space-4);
 
     /* Apply sticky only on wider viewports to avoid actions taking up most of it */
     @media (min-width: 48rem) {
       position: sticky;
-      padding-left: 1rem;
+      padding-left: 0.75rem;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 1px;
+        border-radius: inherit;
+        background-color: var(--color-content);
+        pointer-events: none;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 1px;
+        left: -24px;
+        width: 24px;
+        background: linear-gradient(to right, transparent, var(--color-content));
+        pointer-events: none;
+      }
     }
   }
 
@@ -124,9 +145,20 @@
     justify-content: center;
     line-height: 1;
 
+    > span {
+      position: relative;
+    }
+
     @media (hover: hover) {
       &:hover:not([data-active]) {
-        background-color: var(--gray-s2);
+        &::before {
+          content: '';
+          position: absolute;
+          inset: 0 0 1px;
+          border-radius: inherit;
+          background-color: var(--gray-s2);
+          pointer-events: none;
+        }
       }
     }
 
@@ -136,7 +168,7 @@
       &::after {
         content: '';
         position: absolute;
-        bottom: -1px;
+        bottom: 0;
         left: 0;
         width: 100%;
         height: 1px;
@@ -159,6 +191,8 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    border-top: 1px solid var(--gray-c2);
+    margin-top: -1px;
 
     &:not([data-open], [data-compact]) {
       .DemoCollapseButton {
