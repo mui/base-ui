@@ -17,27 +17,29 @@
       pointer-events: none;
     }
 
+    &::before {
+      @media (--lg) {
+        content: '';
+        position: absolute;
+        inset: 0;
+        display: block;
+        pointer-events: none;
+        background: linear-gradient(
+          to bottom,
+          color-mix(in oklab, var(--color-content), transparent 0%) 0%,
+          color-mix(in oklab, var(--color-content), transparent 2%) 20%,
+          color-mix(in oklab, var(--color-content), transparent 6%) 40%,
+          color-mix(in oklab, var(--color-content), transparent 14%) 60%,
+          color-mix(in oklab, var(--color-content), transparent 35%) 70%,
+          color-mix(in oklab, var(--color-content), transparent 70%) 76%,
+          transparent 80%
+        );
+      }
+    }
+
     @media print {
       /* Prevent the header to be visible on each printed page */
       position: absolute;
-    }
-  }
-
-  .Header::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    display: none;
-    pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      var(--color-content) 0%,
-      color-mix(in oklab, var(--color-content), transparent 12%) 10%,
-      transparent 100%
-    );
-
-    @media (--lg) {
-      display: block;
     }
   }
 
