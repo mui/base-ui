@@ -10,6 +10,7 @@ export const closePress = 'close-press' as const;
 export const linkPress = 'link-press' as const;
 export const clearPress = 'clear-press' as const;
 export const chipRemovePress = 'chip-remove-press' as const;
+export const selectAllPress = 'select-all-press' as const;
 export const trackPress = 'track-press' as const;
 export const incrementPress = 'increment-press' as const;
 export const decrementPress = 'decrement-press' as const;

@@ -49,6 +49,7 @@ import { Combobox } from '@base-ui/react/combobox';
 
         <Combobox.Status />
         <Combobox.Empty />
+        <Combobox.SelectAll />
 
         <Combobox.List>
           <Combobox.Row>
@@ -101,6 +102,14 @@ Selection chips are rendered with `<Combobox.Chip>` inside the input that can be
 import { DemoComboboxMultiple } from './demos/multiple';
 
 <DemoComboboxMultiple compact />
+
+### Select all
+
+Use `<Combobox.SelectAll>` inside `<Combobox.Popup>` to add a control that selects or deselects all currently filtered items. It only applies when `multiple` is set on `<Combobox.Root>`.
+
+import { DemoComboboxSelectAll } from './demos/select-all';
+
+<DemoComboboxSelectAll compact />
 
 Visible chips can be limited by slicing the selected values rendered in `<Combobox.Value>`:
 

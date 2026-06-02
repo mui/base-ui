@@ -1622,6 +1622,7 @@ export namespace AriaCombobox {
     | typeof REASONS.inputClear
     | typeof REASONS.clearPress
     | typeof REASONS.chipRemovePress
+    | typeof REASONS.selectAllPress
     | typeof REASONS.none;
   export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }
