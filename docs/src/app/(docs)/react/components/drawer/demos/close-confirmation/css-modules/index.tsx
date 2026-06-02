@@ -33,8 +33,7 @@ export default function ExampleDrawer() {
         <Drawer.Backdrop className={styles.Backdrop} />
         <Drawer.Viewport className={styles.Viewport}>
           <Drawer.Popup
-            className={styles.Popup}
-            data-alert-dialog-open={confirmationOpen ? '' : undefined}
+            className={`${styles.Popup} ${confirmationOpen ? styles.PopupDimmed : ''}`.trim()}
           >
             <Drawer.Content className={styles.Content}>
               <Drawer.Title id={titleId} className={styles.Title}>

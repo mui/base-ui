@@ -141,10 +141,6 @@
     transition: opacity 100ms ease-out;
   }
 
-  &[data-alert-dialog-open]::after {
-    opacity: 1;
-  }
-
   @media (prefers-color-scheme: dark) {
     border-left: 1px solid white;
     background-color: oklch(14.5% 0 0deg);
@@ -175,6 +171,10 @@
       border: 1px solid white;
     }
   }
+}
+
+.PopupDimmed::after {
+  opacity: 1;
 }
 
 .Content {
