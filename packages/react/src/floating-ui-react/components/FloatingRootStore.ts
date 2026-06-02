@@ -60,6 +60,10 @@ interface FloatingRootStoreOptions {
     | undefined;
 }
 
+type HoverInteractionContextData = ContextData & {
+  hoverInteractionState?: { reset(): void } | undefined;
+};
+
 export class FloatingRootStore extends ReactStore<
   Readonly<FloatingRootState>,
   FloatingRootStoreContext,
@@ -88,6 +92,11 @@ export class FloatingRootStore extends ReactStore<
 
     this.syncOnly = syncOnly;
   }
+
+  resetHoverInteraction = () => {
+    const data = this.context.dataRef.current as HoverInteractionContextData;
+    data.hoverInteractionState?.reset();
+  };
 
   /**
    * Syncs the event used by hover logic to distinguish hover-open from click-like interaction.

@@ -1,6 +1,5 @@
 'use client';
 import { useOnMount } from '@base-ui/utils/useOnMount';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
 
@@ -45,6 +44,12 @@ export class HoverInteraction {
   dispose = () => {
     this.openChangeTimeout.clear();
     this.restTimeout.clear();
+  };
+
+  reset = () => {
+    this.dispose();
+    this.restTimeoutPending = false;
+    this.blockMouseMove = true;
   };
 
   disposeEffect = () => {
@@ -115,32 +120,6 @@ export function applySafePolygonPointerEventsMutation(
 type HoverContextData = ContextData & {
   hoverInteractionState?: HoverInteraction | undefined;
 };
-
-export function resetHoverInteractionSharedState(store: FloatingRootContext) {
-  const data = store.context.dataRef.current as HoverContextData;
-  const instance = data.hoverInteractionState;
-
-  if (!instance) {
-    return;
-  }
-
-  instance.dispose();
-  instance.restTimeoutPending = false;
-  instance.blockMouseMove = true;
-  instance.interactedInside = false;
-  instance.pointerType = undefined;
-  instance.handleCloseOptions = undefined;
-
-  if (instance.handler) {
-    ownerDocument(store.select('domReferenceElement')).removeEventListener(
-      'mousemove',
-      instance.handler,
-    );
-    instance.handler = undefined;
-  }
-
-  clearSafePolygonPointerEventsMutation(instance);
-}
 
 export function useHoverInteractionSharedState(store: FloatingRootContext): HoverInteraction {
   const data = store.context.dataRef.current as HoverContextData;
