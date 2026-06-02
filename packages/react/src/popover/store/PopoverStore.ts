@@ -6,6 +6,7 @@ import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type PopoverRoot } from '../root/PopoverRoot';
+import { resetHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 import { REASONS } from '../../internals/reasons';
 import {
   createPopupFloatingRootContext,
@@ -193,6 +194,9 @@ export class PopoverStore<Payload> extends ReactStore<
     // Keep the external handle reusable, but clear state owned by the unmounted
     // root so route changes don't preserve an open popup or stale trigger data.
     this.context.stickIfOpenTimeout.clear();
+    // Detached hover triggers can stay mounted after the root unmounts. Cancel
+    // their pending hover-open timers so they cannot reopen a rootless handle.
+    resetHoverInteractionSharedState(this.state.floatingRootContext);
     this.update({
       ...createInitialState<Payload>(),
       floatingRootContext: this.state.floatingRootContext,

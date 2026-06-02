@@ -2,7 +2,7 @@ import { expect } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Popover } from '@base-ui/react/popover';
 
 describe('<Popover.Root />', () => {
@@ -795,6 +795,70 @@ describe('<Popover.Root />', () => {
       const trigger = screen.getByRole('button', { name: 'Trigger 2' });
       expect(screen.queryByRole('dialog')).toBe(null);
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    describe('hover open cleanup', () => {
+      const { render: renderFakeTimers, clock } = createRenderer();
+      clock.withFakeTimers();
+
+      it('clears pending detached hover opens when the root unmounts', async () => {
+        const testPopover = Popover.createHandle<number>();
+
+        function DetachedTriggerRoute({ showRoot }: { showRoot: boolean }) {
+          return (
+            <React.Fragment>
+              <Popover.Trigger
+                handle={testPopover}
+                id="trigger-1"
+                payload={1}
+                openOnHover
+                delay={100}
+              >
+                Trigger 1
+              </Popover.Trigger>
+
+              {showRoot ? (
+                <Popover.Root handle={testPopover}>
+                  {({ payload }: NumberPayload) => (
+                    <Popover.Portal>
+                      <Popover.Positioner>
+                        <Popover.Popup>
+                          <Popover.Title>Popover {payload}</Popover.Title>
+                        </Popover.Popup>
+                      </Popover.Positioner>
+                    </Popover.Portal>
+                  )}
+                </Popover.Root>
+              ) : (
+                <button type="button">Other route</button>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        const { setProps } = await renderFakeTimers(<DetachedTriggerRoute showRoot />);
+
+        const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await setProps({ showRoot: false });
+        await flushMicrotasks();
+
+        // The detached trigger is still mounted, so this is where the pending
+        // hover rest timer used to reopen the external handle after reset.
+        clock.tick(100);
+        await flushMicrotasks();
+
+        expect(screen.getByRole('button', { name: 'Other route' })).not.toBe(null);
+        expect(testPopover.isOpen).toBe(false);
+
+        await setProps({ showRoot: true });
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('dialog')).toBe(null);
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
     });
 
     it('allows setting an initially open popover', async () => {
