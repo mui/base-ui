@@ -79,6 +79,7 @@ type AutocompleteRootChangeEventReason =
   | 'input-clear'
   | 'clear-press'
   | 'chip-remove-press'
+  | 'select-all-press'
   | 'none';
 ```
 
@@ -98,6 +99,7 @@ type AutocompleteRootChangeEventDetails = (
   | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'select-all-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
