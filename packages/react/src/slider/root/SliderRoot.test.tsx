@@ -325,7 +325,6 @@ describe('<Slider.Root />', () => {
       const disabledInput = screen.getByTestId('thumb-1').querySelector('input')!;
       expect(disabledInput).toBeDisabled();
 
-      // Press directly on the disabled thumb and try to drag it.
       fireEvent.pointerDown(screen.getByTestId('thumb-1'), { buttons: 1, clientX: 80 });
       fireEvent.pointerMove(document.body, { buttons: 1, clientX: 40 });
       fireEvent.pointerUp(document.body, { buttons: 1, clientX: 40 });
@@ -874,7 +873,6 @@ describe('<Slider.Root />', () => {
       fireEvent.keyDown(slider, { key: ARROW_RIGHT });
 
       expect(handleValueChange).toHaveBeenCalledTimes(1);
-      // The change was canceled, so nothing is committed and the value is unchanged.
       expect(handleValueCommitted).not.toHaveBeenCalled();
       expect(slider).toHaveAttribute('aria-valuenow', '50');
     });
@@ -1041,6 +1039,52 @@ describe('<Slider.Root />', () => {
       expect(handleValueChange.mock.calls[0][0]).toBe(20);
       expect(handleValueCommitted).not.toHaveBeenCalled();
       expect(slider).toHaveAttribute('aria-valuenow', '10');
+    });
+
+    it.skipIf(isJSDOM)('commits the last applied value when a later move is canceled', async () => {
+      let cancel = false;
+      const handleValueChange = vi.fn((_value, details) => {
+        if (cancel) {
+          details.cancel();
+        }
+      });
+      const handleValueCommitted = vi.fn();
+
+      await render(
+        <TestSlider
+          defaultValue={20}
+          onValueChange={handleValueChange}
+          onValueCommitted={handleValueCommitted}
+        />,
+      );
+
+      const slider = screen.getByRole('slider');
+      const thumb = screen.getByTestId('thumb');
+      const sliderControl = screen.getByTestId('control');
+      vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+      vi.spyOn(thumb, 'getBoundingClientRect').mockImplementation(() => ({
+        width: 0,
+        height: 0,
+        bottom: 0,
+        left: 20,
+        right: 20,
+        top: 0,
+        x: 20,
+        y: 0,
+        toJSON() {},
+      }));
+
+      fireEvent.pointerDown(thumb, { buttons: 1, clientX: 20 });
+      fireEvent.pointerMove(document.body, { buttons: 1, clientX: 40 });
+
+      cancel = true;
+      fireEvent.pointerMove(document.body, { buttons: 1, clientX: 60 });
+      fireEvent.pointerUp(document.body, { buttons: 1, clientX: 60 });
+
+      expect(handleValueChange).toHaveBeenCalledTimes(2);
+      expect(handleValueCommitted).toHaveBeenCalledTimes(1);
+      expect(handleValueCommitted.mock.calls[0][0]).toBe(40);
+      expect(slider).toHaveAttribute('aria-valuenow', '40');
     });
   });
 

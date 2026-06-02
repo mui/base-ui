@@ -78,7 +78,9 @@ export interface SliderRootContext {
   setIndicatorPosition: React.Dispatch<React.SetStateAction<(number | undefined)[]>>;
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
   /**
-   * Callback fired when dragging and invokes onValueChange.
+   * Applies a new value through `onValueChange` for keyboard, input, track-press,
+   * and drag interactions. Returns `true` when the value was applied, or `false`
+   * when it was unchanged or the change was canceled.
    */
   setValue: (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => boolean;
   state: SliderRootState;

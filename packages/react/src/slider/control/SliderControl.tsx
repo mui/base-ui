@@ -225,12 +225,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
       minStepsBetweenValues,
     });
 
-    if (thumbCollisionBehavior === 'swap' && collisionResult.didSwap) {
-      updatePressedThumb(collisionResult.thumbIndex);
-    } else {
-      pressedThumbIndexRef.current = collisionResult.thumbIndex;
-    }
-
     return collisionResult;
   }
 
@@ -320,6 +314,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
     if (applied) {
       currentInteractionValueRef.current = finger.value;
       latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
+
+      // Only track the swapped thumb once the change is actually applied so a
+      // canceled swap doesn't leak the new index into subsequent moves.
+      if (finger.didSwap) {
+        updatePressedThumb(finger.thumbIndex);
+      }
     }
 
     return applied;
@@ -366,10 +366,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedInputRef.current = null;
     pressedThumbCenterOffsetRef.current = null;
 
-    const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
-    const finger = fingerCoords != null ? getFingerState(fingerCoords) : null;
-
-    if (finger != null && currentInteractionValueRef.current != null) {
+    if (currentInteractionValueRef.current != null) {
       const commitReason = lastChangeReasonRef.current;
       onValueCommitted(
         currentInteractionValueRef.current,

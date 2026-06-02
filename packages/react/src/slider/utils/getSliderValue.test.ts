@@ -9,9 +9,7 @@ describe('getSliderValue', () => {
 
   describe('range neighbours', () => {
     it('does not let a thumb cross a neighbour whose value is 0', () => {
-      // Lower thumb is clamped to its neighbour at 0 instead of moving past it.
       expect(getSliderValue(5, 0, -10, 10, true, [-10, 0])).toEqual([0, 0]);
-      // Upper thumb is clamped to its neighbour at 0 instead of moving past it.
       expect(getSliderValue(-5, 1, -10, 10, true, [0, 10])).toEqual([0, 0]);
     });
 
