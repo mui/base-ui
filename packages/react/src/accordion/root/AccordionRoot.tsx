@@ -150,7 +150,6 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     props: [
       {
         dir: direction,
-        role: 'region',
       },
       elementProps,
     ],
