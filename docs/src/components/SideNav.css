@@ -97,9 +97,10 @@
   }
 
   .SideNavLink {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.25rem;
+    flex-grow: 1;
     padding: calc(var(--side-nav-item-padding-y) - 1px) 0.75rem;
     border-block: 1px solid transparent; /* Maintain a 1px gap between active an inactive item */
     background-clip: padding-box;
@@ -112,9 +113,9 @@
     }
 
     @media (hover: hover) {
-      &:hover:not([data-active]) {
+      &:hover:not([data-active]) .SideNavLinkText {
         text-decoration: underline;
-        text-underline-offset: 2px;
+        text-underline-offset: 3px;
         text-decoration-thickness: 1px;
         text-decoration-color: currentColor;
       }

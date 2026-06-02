@@ -149,7 +149,7 @@
     @media (hover: hover) {
       &:hover {
         text-decoration: underline;
-        text-underline-offset: 2px;
+        text-underline-offset: 3px;
         text-decoration-thickness: 1px;
         text-decoration-color: var(--gray-p1);
       }

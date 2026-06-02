@@ -81,7 +81,9 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                       }
                                       external={page.tags?.includes('External')}
                                     >
-                                      {(page.title && titleMap[page.title]) || page.title}
+                                      <span className="SideNavLinkText">
+                                        {(page.title && titleMap[page.title]) || page.title}
+                                      </span>
                                       {isPrivatePage && <SideNav.Badge>Private</SideNav.Badge>}
                                       {isPreviewPage && <SideNav.Badge>Preview</SideNav.Badge>}
                                       {isNewPage && !isPreviewPage && !isPrivatePage && (
