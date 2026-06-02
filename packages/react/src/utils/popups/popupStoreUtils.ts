@@ -25,7 +25,7 @@ export const FOCUSABLE_POPUP_PROPS = {
   [FOCUSABLE_ATTRIBUTE]: '',
 } satisfies HTMLProps<HTMLElement> & Record<typeof FOCUSABLE_ATTRIBUTE, string>;
 
-const mountedPopupRootStores = new WeakSet<object>();
+const mountedPopupRootStoreOwners = new WeakMap<object, number>();
 
 type PopupStoreWithOpen<
   State extends PopupStoreState<unknown>,
@@ -345,15 +345,20 @@ export function usePopupRootUnmountCleanup(store: { reset(): void } | undefined)
       return undefined;
     }
 
-    mountedPopupRootStores.add(store);
+    mountedPopupRootStoreOwners.set(store, (mountedPopupRootStoreOwners.get(store) ?? 0) + 1);
 
     return () => {
-      mountedPopupRootStores.delete(store);
+      const ownerCount = (mountedPopupRootStoreOwners.get(store) ?? 1) - 1;
+      if (ownerCount > 0) {
+        mountedPopupRootStoreOwners.set(store, ownerCount);
+      } else {
+        mountedPopupRootStoreOwners.delete(store);
+      }
 
       // React Strict Mode and keyed remounts can mount the next root before this
-      // microtask runs. Only reset if no root has claimed the handle's store.
+      // microtask runs. Only reset if no root still claims the handle's store.
       queueMicrotask(() => {
-        if (mountedPopupRootStores.has(store)) {
+        if (mountedPopupRootStoreOwners.has(store)) {
           return;
         }
 

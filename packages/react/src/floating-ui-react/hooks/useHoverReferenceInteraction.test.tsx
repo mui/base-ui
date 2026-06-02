@@ -3,11 +3,42 @@ import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-t
 import * as React from 'react';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useFloating } from './useFloating';
+import {
+  applySafePolygonPointerEventsMutation,
+  HoverInteraction,
+} from './useHoverInteractionSharedState';
 import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
+  it('clears shared hover cleanup state on reset', () => {
+    const instance = HoverInteraction.create();
+    const handler = vi.fn();
+    const scopeElement = document.createElement('div');
+    const referenceElement = document.createElement('button');
+    const floatingElement = document.createElement('div');
+
+    instance.setMouseMoveHandler(document, handler);
+    applySafePolygonPointerEventsMutation(instance, {
+      scopeElement,
+      referenceElement,
+      floatingElement,
+    });
+
+    document.dispatchEvent(new MouseEvent('mousemove'));
+    expect(handler).toHaveBeenCalledTimes(1);
+    handler.mockClear();
+
+    instance.reset();
+    document.dispatchEvent(new MouseEvent('mousemove'));
+
+    expect(handler).toHaveBeenCalledTimes(0);
+    expect(scopeElement.style.pointerEvents).toBe('');
+    expect(referenceElement.style.pointerEvents).toBe('');
+    expect(floatingElement.style.pointerEvents).toBe('');
+  });
+
   it('does not treat child target as inactive when handlers are on a wrapper', async () => {
     const onOpenChange = vi.fn();
 

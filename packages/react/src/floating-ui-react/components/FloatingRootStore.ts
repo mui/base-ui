@@ -98,6 +98,20 @@ export class FloatingRootStore extends ReactStore<
     data.hoverInteractionState?.reset();
   };
 
+  reset = () => {
+    this.syncOpenEvent(false, undefined);
+
+    this.update({
+      open: false,
+      transitionStatus: undefined,
+      floatingId: undefined,
+      domReferenceElement: null,
+      referenceElement: null,
+      floatingElement: null,
+      positionReference: null,
+    });
+  };
+
   /**
    * Syncs the event used by hover logic to distinguish hover-open from click-like interaction.
    */

@@ -12,6 +12,7 @@ import {
   popupStoreSelectors,
   useImplicitActiveTrigger,
   usePopupInteractionProps,
+  usePopupRootUnmountCleanup,
   useTriggerRegistration,
 } from './';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
@@ -102,6 +103,17 @@ function PopupInteractionPropsTest({
   });
 
   return null;
+}
+
+function RootUnmountCleanupTest({ store }: { store: { reset(): void } | undefined }) {
+  usePopupRootUnmountCleanup(store);
+  return null;
+}
+
+async function flushQueuedMicrotasks() {
+  await act(async () => {
+    await Promise.resolve();
+  });
 }
 
 describe('PopupTriggerMap', () => {
@@ -316,5 +328,32 @@ describe('usePopupInteractionProps', () => {
     expect(store.state.inactiveTriggerProps).toEqual({});
     expect(store.state.popupProps).not.toBe(popupProps);
     expect(store.state.popupProps).toEqual({});
+  });
+});
+
+describe('usePopupRootUnmountCleanup', () => {
+  it('does not reset while another root owns the same store', async () => {
+    const store = { reset: vi.fn() };
+
+    function App({ first = true, second = true }: { first?: boolean; second?: boolean }) {
+      return (
+        <React.Fragment>
+          {first && <RootUnmountCleanupTest key="first" store={store} />}
+          {second && <RootUnmountCleanupTest key="second" store={store} />}
+        </React.Fragment>
+      );
+    }
+
+    const { rerender } = render(<App />);
+
+    rerender(<App first={false} />);
+    await flushQueuedMicrotasks();
+
+    expect(store.reset).not.toHaveBeenCalled();
+
+    rerender(<App first={false} second={false} />);
+    await flushQueuedMicrotasks();
+
+    expect(store.reset).toHaveBeenCalledTimes(1);
   });
 });

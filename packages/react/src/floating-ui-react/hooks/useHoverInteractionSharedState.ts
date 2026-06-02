@@ -21,6 +21,7 @@ export class HoverInteraction {
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
   handleCloseOptions: SafePolygonOptions | undefined;
+  handlerDocument: Document | undefined;
 
   constructor() {
     this.pointerType = undefined;
@@ -35,21 +36,41 @@ export class HoverInteraction {
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();
     this.handleCloseOptions = undefined;
+    this.handlerDocument = undefined;
   }
 
   static create(): HoverInteraction {
     return new HoverInteraction();
   }
 
+  setMouseMoveHandler = (doc: Document, handler: (event: MouseEvent) => void) => {
+    this.clearMouseMoveHandler();
+    this.handler = handler;
+    this.handlerDocument = doc;
+    doc.addEventListener('mousemove', handler);
+  };
+
+  clearMouseMoveHandler = () => {
+    if (!this.handler) {
+      return;
+    }
+
+    this.handlerDocument?.removeEventListener('mousemove', this.handler);
+    this.handler = undefined;
+    this.handlerDocument = undefined;
+  };
+
   dispose = () => {
     this.openChangeTimeout.clear();
     this.restTimeout.clear();
+    this.clearMouseMoveHandler();
   };
 
   reset = () => {
     this.dispose();
     this.restTimeoutPending = false;
     this.blockMouseMove = true;
+    clearSafePolygonPointerEventsMutation(this);
   };
 
   disposeEffect = () => {

@@ -203,17 +203,9 @@ export class PopoverStore<Payload> extends ReactStore<
       nested: this.state.nested,
     });
 
-    // Floating UI keeps its own synchronized references for focus and dismissal.
+    // Floating UI keeps synchronized references and transient interaction data.
     // Clear them with the popover state so they don't point at disconnected nodes.
-    this.state.floatingRootContext.update({
-      open: false,
-      transitionStatus: undefined,
-      floatingId: undefined,
-      domReferenceElement: null,
-      referenceElement: null,
-      floatingElement: null,
-      positionReference: null,
-    });
+    this.state.floatingRootContext.reset();
   };
 
   public static useStore<Payload>(

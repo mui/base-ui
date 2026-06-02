@@ -797,6 +797,45 @@ describe('<Popover.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
+    it('does not reset when a root remounts with the same detached handle before cleanup runs', async () => {
+      const testPopover = Popover.createHandle<number>();
+
+      function DetachedTriggerRoute({ rootKey }: { rootKey: string }) {
+        return (
+          <React.Fragment>
+            <Popover.Trigger handle={testPopover} id="trigger-1" payload={1}>
+              Trigger 1
+            </Popover.Trigger>
+
+            <Popover.Root key={rootKey} handle={testPopover}>
+              {({ payload }: NumberPayload) => (
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup>
+                      <Popover.Title>Popover {payload}</Popover.Title>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              )}
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user, setProps } = await render(<DetachedTriggerRoute rootKey="first" />);
+
+      const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+      await user.click(trigger);
+      await screen.findByRole('dialog', { name: 'Popover 1' });
+
+      await setProps({ rootKey: 'second' });
+      await flushMicrotasks();
+
+      expect(testPopover.isOpen).toBe(true);
+      expect(screen.queryByRole('dialog', { name: 'Popover 1' })).not.toBe(null);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
     describe('hover open cleanup', () => {
       const { render: renderFakeTimers, clock } = createRenderer();
       clock.withFakeTimers();
@@ -858,6 +897,64 @@ describe('<Popover.Root />', () => {
 
         expect(screen.queryByRole('dialog')).toBe(null);
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      it('clears stale click events so delayed hover can reopen after root remount', async () => {
+        const testPopover = Popover.createHandle<number>();
+
+        function DetachedTriggerRoute({ showRoot }: { showRoot: boolean }) {
+          return (
+            <React.Fragment>
+              <Popover.Trigger
+                handle={testPopover}
+                id="trigger-1"
+                payload={1}
+                openOnHover
+                delay={100}
+              >
+                Trigger 1
+              </Popover.Trigger>
+
+              {showRoot ? (
+                <Popover.Root handle={testPopover}>
+                  {({ payload }: NumberPayload) => (
+                    <Popover.Portal>
+                      <Popover.Positioner>
+                        <Popover.Popup>
+                          <Popover.Title>Popover {payload}</Popover.Title>
+                        </Popover.Popup>
+                      </Popover.Positioner>
+                    </Popover.Portal>
+                  )}
+                </Popover.Root>
+              ) : (
+                <button type="button">Other route</button>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        const { setProps } = await renderFakeTimers(<DetachedTriggerRoute showRoot />);
+
+        const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+        expect(screen.queryByRole('dialog', { name: 'Popover 1' })).not.toBe(null);
+
+        await setProps({ showRoot: false });
+        await flushMicrotasks();
+        expect(testPopover.isOpen).toBe(false);
+
+        await setProps({ showRoot: true });
+        await flushMicrotasks();
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        clock.tick(100);
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('dialog', { name: 'Popover 1' })).not.toBe(null);
+        expect(testPopover.isOpen).toBe(true);
       });
     });
 

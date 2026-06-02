@@ -129,13 +129,7 @@ export function useHoverReferenceInteraction(
   );
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
-    if (!instance.handler) {
-      return;
-    }
-
-    const doc = ownerDocument(store.select('domReferenceElement'));
-    doc.removeEventListener('mousemove', instance.handler);
-    instance.handler = undefined;
+    instance.clearMouseMoveHandler();
   });
 
   const clearPointerEvents = useStableCallback(() => {
@@ -314,7 +308,7 @@ export function useHoverReferenceInteraction(
 
         const currentTrigger = triggerElementRef.current;
 
-        instance.handler = handleCloseRef.current({
+        const mouseMoveHandler = handleCloseRef.current({
           ...handleCloseContextBase,
           tree,
           x: event.clientX,
@@ -332,8 +326,8 @@ export function useHoverReferenceInteraction(
           },
         });
 
-        doc.addEventListener('mousemove', instance.handler);
-        instance.handler(event);
+        instance.setMouseMoveHandler(doc, mouseMoveHandler);
+        mouseMoveHandler(event);
 
         return;
       }
