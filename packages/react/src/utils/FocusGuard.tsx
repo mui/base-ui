@@ -15,10 +15,10 @@ export const FocusGuard = React.forwardRef(function FocusGuard(
 
   useIsoLayoutEffect(() => {
     // Unlike NVDA and JAWS, VoiceOver's virtual cursor triggers `onFocus` as
-    // it moves — but only on focusable/role-button elements, and only on
-    // engines that route AX through macOS NSAccessibility (WebKit and Blink).
-    // Firefox on macOS uses Gecko's own AX integration and is excluded.
-    if (platform.screenReader.voiceOver && (platform.engine.webkit || platform.engine.blink)) {
+    // it moves — but only on focusable/role-button elements through WebKit's
+    // NSAccessibility path. Setting `role="button"` lets the focus trap catch
+    // the cursor.
+    if (platform.screenReader.voiceOver && platform.engine.webkit) {
       setRole('button');
     }
   }, []);
