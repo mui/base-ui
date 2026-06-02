@@ -780,6 +780,56 @@ describe('<Drawer.Root />', () => {
     expect(screen.getByTestId('payload').textContent).toBe('2');
   });
 
+  it('resets detached handle state when an open root unmounts', async () => {
+    const handle = Drawer.createHandle<number>();
+
+    function TestRoute({ showRoot }: { showRoot: boolean }) {
+      return (
+        <React.Fragment>
+          <Drawer.Trigger handle={handle} payload={1}>
+            Trigger 1
+          </Drawer.Trigger>
+          <Drawer.Trigger handle={handle} payload={2}>
+            Trigger 2
+          </Drawer.Trigger>
+          {showRoot && (
+            <Drawer.Root handle={handle}>
+              {({ payload }: { payload: number | undefined }) => (
+                <Drawer.Portal>
+                  <Drawer.Viewport>
+                    <Drawer.Popup>
+                      <span data-testid="payload">{payload}</span>
+                    </Drawer.Popup>
+                  </Drawer.Viewport>
+                </Drawer.Portal>
+              )}
+            </Drawer.Root>
+          )}
+        </React.Fragment>
+      );
+    }
+
+    const { user, setProps } = await render(<TestRoute showRoot />);
+
+    await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+    await screen.findByRole('dialog');
+    expect(screen.getByTestId('payload').textContent).toBe('2');
+    expect(handle.isOpen).toBe(true);
+
+    await setProps({ showRoot: false });
+    await flushMicrotasks();
+
+    expect(handle.isOpen).toBe(false);
+    expect(screen.queryByRole('dialog')).toBe(null);
+
+    await setProps({ showRoot: true });
+    await flushMicrotasks();
+
+    const trigger = screen.getByRole('button', { name: 'Trigger 2' });
+    expect(screen.queryByRole('dialog')).toBe(null);
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('synchronizes trigger aria-controls with the popup id', async () => {
     const { user } = await render(
       <Drawer.Root>

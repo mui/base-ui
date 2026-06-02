@@ -351,9 +351,10 @@ export function usePopupRootUnmountCleanup(store: { reset(): void } | undefined)
       const ownerCount = (mountedPopupRootStoreOwners.get(store) ?? 1) - 1;
       if (ownerCount > 0) {
         mountedPopupRootStoreOwners.set(store, ownerCount);
-      } else {
-        mountedPopupRootStoreOwners.delete(store);
+        return;
       }
+
+      mountedPopupRootStoreOwners.delete(store);
 
       // React Strict Mode and keyed remounts can mount the next root before this
       // microtask runs. Only reset if no root still claims the handle's store.

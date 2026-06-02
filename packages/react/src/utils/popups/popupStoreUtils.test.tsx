@@ -356,4 +356,24 @@ describe('usePopupRootUnmountCleanup', () => {
 
     expect(store.reset).toHaveBeenCalledTimes(1);
   });
+
+  it('queues one reset when multiple roots sharing a store unmount together', async () => {
+    const store = { reset: vi.fn() };
+
+    function App({ mounted = true }: { mounted?: boolean }) {
+      return (
+        <React.Fragment>
+          {mounted && <RootUnmountCleanupTest key="first" store={store} />}
+          {mounted && <RootUnmountCleanupTest key="second" store={store} />}
+        </React.Fragment>
+      );
+    }
+
+    const { rerender } = render(<App />);
+
+    rerender(<App mounted={false} />);
+    await flushQueuedMicrotasks();
+
+    expect(store.reset).toHaveBeenCalledTimes(1);
+  });
 });
