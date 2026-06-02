@@ -19,6 +19,10 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
     const referenceElement = document.createElement('button');
     const floatingElement = document.createElement('div');
 
+    instance.pointerType = 'mouse';
+    instance.interactedInside = true;
+    instance.restTimeoutPending = true;
+    instance.blockMouseMove = false;
     instance.setMouseMoveHandler(document, handler);
     applySafePolygonPointerEventsMutation(instance, {
       scopeElement,
@@ -37,6 +41,10 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
     expect(scopeElement.style.pointerEvents).toBe('');
     expect(referenceElement.style.pointerEvents).toBe('');
     expect(floatingElement.style.pointerEvents).toBe('');
+    expect(instance.pointerType).toBe(undefined);
+    expect(instance.interactedInside).toBe(false);
+    expect(instance.restTimeoutPending).toBe(false);
+    expect(instance.blockMouseMove).toBe(true);
   });
 
   it('does not treat child target as inactive when handlers are on a wrapper', async () => {

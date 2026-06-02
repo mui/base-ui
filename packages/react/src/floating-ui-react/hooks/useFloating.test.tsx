@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import * as React from 'react';
-import { flushMicrotasks, render } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, render } from '@mui/internal-test-utils';
 import { PopupTriggerMap } from '../../utils/popups';
 import { FloatingRootStore } from '../components/FloatingRootStore';
 import { useFloating } from './useFloating';
@@ -39,4 +39,26 @@ test('preserves an externally synced floating element when the root context chan
   await flushMicrotasks();
 
   expect(secondStore.state.floatingElement).toBe(secondFloatingElement);
+});
+
+test('clears the root-owned floating context on reset', async () => {
+  const floatingElement = document.createElement('div');
+  const rootStore = createRootStore(floatingElement);
+  const hoverInteractionState = { reset: vi.fn() };
+
+  rootStore.context.dataRef.current.hoverInteractionState = hoverInteractionState;
+
+  const { unmount } = render(<Test rootContext={rootStore} />);
+  await flushMicrotasks();
+
+  expect(rootStore.context.dataRef.current.floatingContext?.rootStore).toBe(rootStore);
+
+  unmount();
+
+  act(() => {
+    rootStore.reset();
+  });
+
+  expect(rootStore.context.dataRef.current.floatingContext).toBe(undefined);
+  expect(rootStore.context.dataRef.current.hoverInteractionState).toBe(hoverInteractionState);
 });

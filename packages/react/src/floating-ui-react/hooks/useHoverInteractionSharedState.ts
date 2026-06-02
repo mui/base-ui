@@ -68,6 +68,9 @@ export class HoverInteraction {
 
   reset = () => {
     this.dispose();
+    // Match the normal close cleanup for detached hover triggers whose root unmounted.
+    this.pointerType = undefined;
+    this.interactedInside = false;
     this.restTimeoutPending = false;
     this.blockMouseMove = true;
     clearSafePolygonPointerEventsMutation(this);
