@@ -28,11 +28,14 @@
           to bottom,
           color-mix(in oklab, var(--color-content), transparent 0%) 0%,
           color-mix(in oklab, var(--color-content), transparent 2%) 20%,
-          color-mix(in oklab, var(--color-content), transparent 6%) 40%,
-          color-mix(in oklab, var(--color-content), transparent 14%) 60%,
-          color-mix(in oklab, var(--color-content), transparent 35%) 70%,
-          color-mix(in oklab, var(--color-content), transparent 70%) 76%,
-          transparent 80%
+          color-mix(in oklab, var(--color-content), transparent 8%) 36%,
+          color-mix(in oklab, var(--color-content), transparent 20%) 50%,
+          color-mix(in oklab, var(--color-content), transparent 38%) 60%,
+          color-mix(in oklab, var(--color-content), transparent 58%) 67%,
+          color-mix(in oklab, var(--color-content), transparent 76%) 71.5%,
+          color-mix(in oklab, var(--color-content), transparent 88%) 74%,
+          color-mix(in oklab, var(--color-content), transparent 96%) 76%,
+          transparent 77%
         );
       }
     }
