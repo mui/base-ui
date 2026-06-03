@@ -3242,7 +3242,15 @@ describe('<NavigationMenu.Root />', () => {
           popupHeight = 180;
 
           fireEvent(window, new Event('resize'));
+          expect(positioner).toHaveAttribute('data-instant');
+
+          clock.tick(0);
           await flushMicrotasks();
+          expect(positioner).toHaveAttribute('data-instant');
+
+          clock.tick(100);
+          await flushMicrotasks();
+          expect(positioner).not.toHaveAttribute('data-instant');
 
           await waitFor(() => {
             expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
