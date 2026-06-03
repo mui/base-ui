@@ -1373,7 +1373,11 @@ describe('<Dialog.Root />', () => {
 
       const menuTrigger = screen.getByRole('button', { name: 'Open menu' });
       await user.click(menuTrigger);
-      expect(menuTrigger).toHaveFocus();
+
+      const menu = await screen.findByRole('menu');
+      await waitFor(() => {
+        expect(menu).toHaveFocus();
+      });
 
       const dialogTrigger = await screen.findByRole('menuitem', { name: 'Open dialog' });
       await user.click(dialogTrigger);
