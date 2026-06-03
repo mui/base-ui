@@ -103,6 +103,7 @@ export class FloatingRootStore extends ReactStore<
     // The mounted root owns the current Floating context. Detached triggers can keep
     // dataRef alive after root unmount, so clear the stale root-owned context only.
     this.context.dataRef.current.floatingContext = undefined;
+    this.context.onOpenChange = undefined;
 
     this.update({
       open: false,

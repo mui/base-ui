@@ -521,6 +521,12 @@ describe('<Dialog.Root />', () => {
       expect(screen.getByRole('button', { name: 'Other route' })).not.toBe(null);
       expect(testDialog.isOpen).toBe(false);
 
+      await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+      await flushMicrotasks();
+
+      expect(testDialog.isOpen).toBe(false);
+      expect(screen.queryByRole('dialog')).toBe(null);
+
       await setProps({ route: 'dialog' });
       await flushMicrotasks();
 

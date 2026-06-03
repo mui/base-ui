@@ -830,6 +830,16 @@ describe('<Tooltip.Root />', () => {
       expect(screen.getByRole('button', { name: 'Other route' })).not.toBe(null);
       expect(testTooltip.isOpen).toBe(false);
 
+      fireEvent.mouseLeave(trigger);
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(testTooltip.isOpen).toBe(false);
+      expect(screen.queryByTestId('content')).toBe(null);
+
       await setProps({ showRoot: true });
       await flushMicrotasks();
 
