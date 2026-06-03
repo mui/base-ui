@@ -1523,6 +1523,17 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
+    it.skipIf(isJSDOM)('disables positioner transitions while initially open', async () => {
+      await render(<TestNavigationMenu defaultValue="item-1" />);
+
+      const positioner = screen.getByTestId('top-level-positioner');
+      expect(positioner).toHaveAttribute('data-instant');
+
+      await waitFor(() => {
+        expect(positioner).not.toHaveAttribute('data-instant');
+      });
+    });
+
     it('disables popup and arrow transitions while a kept portal opens', async () => {
       await render(
         <NavigationMenu.Root>
@@ -1851,7 +1862,8 @@ describe('<NavigationMenu.Root />', () => {
       await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
       const trigger = screen.getByTestId('trigger-1');
 
-      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
 
@@ -2721,6 +2733,44 @@ describe('<NavigationMenu.Root />', () => {
         expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'false');
         expect(screen.queryByTestId('nested-popup-2')).not.toBe(null);
         expect(screen.queryByTestId('nested-popup-1')).toBe(null);
+      });
+
+      it('adds popup-open data attributes to the active icon', async () => {
+        await render(
+          <NavigationMenu.Root defaultValue="item-1">
+            <NavigationMenu.List>
+              <NavigationMenu.Item value="item-1">
+                <NavigationMenu.Trigger>
+                  Item 1
+                  <NavigationMenu.Icon data-testid="icon-1" />
+                </NavigationMenu.Trigger>
+                <NavigationMenu.Content>
+                  <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+              <NavigationMenu.Item value="item-2">
+                <NavigationMenu.Trigger>
+                  Item 2
+                  <NavigationMenu.Icon data-testid="icon-2" />
+                </NavigationMenu.Trigger>
+                <NavigationMenu.Content>
+                  <NavigationMenu.Link href="#link-2">Link 2</NavigationMenu.Link>
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+
+            <NavigationMenu.Portal>
+              <NavigationMenu.Positioner>
+                <NavigationMenu.Popup>
+                  <NavigationMenu.Viewport />
+                </NavigationMenu.Popup>
+              </NavigationMenu.Positioner>
+            </NavigationMenu.Portal>
+          </NavigationMenu.Root>,
+        );
+
+        expect(screen.getByTestId('icon-1')).toHaveAttribute('data-popup-open');
+        expect(screen.getByTestId('icon-2')).not.toHaveAttribute('data-popup-open');
       });
 
       it.each(falsyNavigationMenuValueCases)(

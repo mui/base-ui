@@ -146,9 +146,12 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     }
 
     if (needsInitialInstantResetRef.current) {
-      needsInitialInstantResetRef.current = false;
       initialInstantTimeout.start(0, () => {
-        setInstant(false);
+        needsInitialInstantResetRef.current = false;
+
+        if (!resizeTimeout.isStarted()) {
+          setInstant(false);
+        }
       });
     }
 
