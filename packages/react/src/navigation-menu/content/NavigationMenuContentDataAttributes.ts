@@ -19,6 +19,7 @@ export enum NavigationMenuContentDataAttributes {
   endingStyle = CommonPopupDataAttributes.endingStyle,
   /**
    * Which direction another trigger was activated from.
+   * @type {'left' | 'right' | 'up' | 'down'}
    */
   activationDirection = 'data-activation-direction',
 }
