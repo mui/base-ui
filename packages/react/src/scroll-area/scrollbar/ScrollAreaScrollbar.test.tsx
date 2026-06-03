@@ -251,6 +251,76 @@ describe('<ScrollArea.Scrollbar />', () => {
       expect(viewport.scrollTop).not.toBe(0);
       await waitFor(() => expect(verticalScrollbar).toHaveAttribute('data-scrolling'));
     });
+
+    it('clears track drag state on pointer cancel', async () => {
+      await render(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted>
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const verticalScrollbar = screen.getByTestId('vertical');
+      const thumb = screen.getByTestId('thumb');
+
+      Object.defineProperties(viewport, {
+        clientHeight: {
+          configurable: true,
+          value: 200,
+        },
+        scrollHeight: {
+          configurable: true,
+          value: 1000,
+        },
+        scrollTop: {
+          configurable: true,
+          writable: true,
+          value: 0,
+        },
+      });
+
+      Object.defineProperties(verticalScrollbar, {
+        offsetHeight: {
+          configurable: true,
+          value: 200,
+        },
+        getBoundingClientRect: {
+          configurable: true,
+          value: () => ({
+            top: 0,
+          }),
+        },
+      });
+
+      Object.defineProperties(thumb, {
+        offsetHeight: {
+          configurable: true,
+          value: 40,
+        },
+        setPointerCapture: {
+          configurable: true,
+          value: () => {},
+        },
+        hasPointerCapture: {
+          configurable: true,
+          value: () => false,
+        },
+      });
+
+      fireEvent.pointerDown(verticalScrollbar, { button: 0, clientY: 160, pointerId: 1 });
+
+      const scrollTopAfterTrackPress = viewport.scrollTop;
+
+      fireEvent.pointerCancel(verticalScrollbar, { pointerId: 1 });
+      fireEvent.pointerMove(thumb, { clientY: 180, pointerId: 1 });
+
+      expect(viewport.scrollTop).toBe(scrollTopAfterTrackPress);
+    });
   });
 
   describe('wheel', () => {
@@ -382,6 +452,21 @@ describe('<ScrollArea.Scrollbar />', () => {
       // At the end edge scrolling further: not consumed, so the event chains to the parent/page.
       viewport.scrollTop = 800;
       expect(fireEvent.wheel(scrollbar, { deltaY: 50 })).toBe(true);
+
+      // At the start edge scrolling further backward, the event chains too.
+      viewport.scrollTop = 0;
+      expect(fireEvent.wheel(scrollbar, { deltaY: -50 })).toBe(true);
+    });
+
+    it('ignores zero-delta wheel events', async () => {
+      const { viewport, scrollbar } = await renderWheelTest({
+        orientation: 'vertical',
+        scrollTop: 400,
+      });
+
+      expect(fireEvent.wheel(scrollbar, { deltaY: 0 })).toBe(true);
+      expect(viewport.scrollTop).toBe(400);
+      expect(scrollbar).not.toHaveAttribute('data-scrolling');
     });
 
     it('marks the scroll area as scrolling when wheeling over the scrollbar', async () => {

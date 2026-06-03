@@ -704,6 +704,53 @@ describe('<ScrollArea.Root />', () => {
       expect(horizontalEndPx).not.toBe('0px');
     });
 
+    it('applies numeric overflowEdgeThreshold to every edge', async () => {
+      await render(
+        <ScrollArea.Root
+          data-testid="root"
+          overflowEdgeThreshold={20}
+          style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+        >
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <ScrollArea.Content>
+              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar orientation="horizontal">
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      await waitFor(() => expect(viewport).toHaveAttribute('data-has-overflow-x'));
+
+      fireEvent.scroll(viewport, {
+        target: { scrollLeft: 15, scrollTop: 15 },
+      });
+
+      expect(viewport).not.toHaveAttribute('data-overflow-x-start');
+      expect(viewport).not.toHaveAttribute('data-overflow-y-start');
+      expect(viewport).toHaveAttribute('data-overflow-x-end');
+      expect(viewport).toHaveAttribute('data-overflow-y-end');
+
+      fireEvent.scroll(viewport, {
+        target: {
+          scrollLeft: viewport.scrollWidth - viewport.clientWidth - 15,
+          scrollTop: viewport.scrollHeight - viewport.clientHeight - 15,
+        },
+      });
+
+      expect(viewport).toHaveAttribute('data-overflow-x-start');
+      expect(viewport).toHaveAttribute('data-overflow-y-start');
+      expect(viewport).not.toHaveAttribute('data-overflow-x-end');
+      expect(viewport).not.toHaveAttribute('data-overflow-y-end');
+    });
+
     it('recomputes overflow edges when overflowEdgeThreshold changes', async () => {
       const renderArea = (yStart: number) => (
         <ScrollArea.Root

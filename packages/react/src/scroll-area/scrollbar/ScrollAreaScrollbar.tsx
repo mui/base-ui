@@ -92,6 +92,10 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
       const horizontal = orientation === 'horizontal';
       const scrollProperty = horizontal ? 'scrollLeft' : 'scrollTop';
       const delta = horizontal ? event.deltaX : event.deltaY;
+      if (delta === 0) {
+        return;
+      }
+
       const maxScroll = horizontal
         ? viewportEl.scrollWidth - viewportEl.clientWidth
         : viewportEl.scrollHeight - viewportEl.clientHeight;
