@@ -542,6 +542,57 @@ describe('<Drawer.Viewport />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'sets the keyboard inset CSS variable for a focused input without a scroll target',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport data-testid="viewport">
+                  <Drawer.Popup data-testid="popup">
+                    <div>
+                      <input data-testid="input" type="text" />
+                    </div>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const viewport = screen.getByTestId('viewport');
+        const popup = screen.getByTestId('popup');
+        const input = screen.getByTestId('input');
+
+        await act(async () => {
+          input.focus();
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+          expect(getComputedStyle(popup).getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+        });
+
+        await act(async () => {
+          input.blur();
+        });
+
+        await waitFor(() => {
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('0px');
+        });
+      } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
   it.skipIf(isJSDOM)('does not add keyboard scroll slack by default', async () => {
     const restoreInnerHeight = mockWindowInnerHeight(800);
     const visualViewport = mockVisualViewport(800);

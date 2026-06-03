@@ -128,6 +128,7 @@
 
 .Popup {
   --bleed: 3rem;
+  --footer-reserved-height: calc(5.25rem + var(--bleed));
   box-sizing: border-box;
   position: relative;
   z-index: 1;
@@ -237,7 +238,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   touch-action: auto;
-  padding: 1rem 1.5rem calc(1rem + env(safe-area-inset-bottom, 0px) + var(--bleed));
+  padding: 1rem 1.5rem 1.5rem;
 }
 
 .Form {
@@ -319,4 +320,127 @@
   min-height: 5.5rem;
   padding: 0.5rem;
   resize: vertical;
+}
+
+.FooterSlot {
+  position: relative;
+  flex-shrink: 0;
+  min-height: var(--footer-reserved-height);
+  transition-duration: 260ms;
+  transition-property: min-height;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+
+  &:focus-within {
+    min-height: calc(var(--footer-reserved-height) + var(--drawer-keyboard-inset, 0));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 0ms;
+  }
+}
+
+.StickyFooter {
+  --footer-underlay-height: 0;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  border-top: 1px solid oklch(87% 0 0deg);
+  background-color: white;
+  padding: 0.625rem 1.5rem calc(0.625rem + env(safe-area-inset-bottom, 0px) + var(--bleed));
+  box-shadow: 0 -0.5rem 1rem rgb(0 0 0 / 8%);
+  transition-duration: 260ms;
+  transition-property: bottom;
+  transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: bottom;
+
+  &:focus-within {
+    --footer-underlay-height: var(--drawer-keyboard-inset, 0);
+    position: fixed;
+    z-index: 3;
+    bottom: var(--drawer-keyboard-inset, 0);
+    transform: translate3d(0, 0, 0);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: var(--footer-underlay-height);
+    background-color: inherit;
+    pointer-events: none;
+    transition-duration: 260ms;
+    transition-property: height;
+    transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-top-color: oklch(37.1% 0 0deg);
+    background-color: oklch(14.5% 0 0deg);
+    box-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: 0ms;
+
+    &::after {
+      transition-duration: 0ms;
+    }
+  }
+}
+
+.Composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 22.5rem;
+  margin: 0 auto;
+}
+
+.ComposerInput {
+  box-sizing: border-box;
+  width: 100%;
+  height: 2.5rem;
+  margin: 0;
+  border-radius: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  padding: 0 0.625rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &::placeholder {
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
+
+  &:focus {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
 }

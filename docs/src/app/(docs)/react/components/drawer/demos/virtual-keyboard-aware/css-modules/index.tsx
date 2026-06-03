@@ -51,6 +51,19 @@ export default function ExampleDrawerVirtualKeyboardAware() {
                   </label>
                 </div>
               </Drawer.Content>
+
+              <div className={styles.FooterSlot}>
+                <div className={styles.StickyFooter}>
+                  <label className={styles.Composer}>
+                    <span className={styles.FieldLabel}>Delivery note</span>
+                    <input
+                      className={styles.ComposerInput}
+                      placeholder="Add a note for the driver"
+                      type="text"
+                    />
+                  </label>
+                </div>
+              </div>
             </Drawer.Popup>
           </Drawer.Viewport>
         </Drawer.Portal>

@@ -293,15 +293,16 @@ Renders a `<div>` element.
 
 **Popup CSS Variables:**
 
-| Variable                     | Type     | Description                                                                  |
-| :--------------------------- | :------- | :--------------------------------------------------------------------------- |
-| `--drawer-frontmost-height`  | `CSS`    | The height of the frontmost open drawer in the current nested drawer stack.  |
-| `--drawer-height`            | `CSS`    | The height of the drawer popup.                                              |
-| `--drawer-snap-point-offset` | `CSS`    | The snap point offset used for translating the drawer.                       |
-| `--drawer-swipe-movement-x`  | `CSS`    | The swipe movement on the X axis.                                            |
-| `--drawer-swipe-movement-y`  | `CSS`    | The swipe movement on the Y axis.                                            |
-| `--drawer-swipe-strength`    | `number` | A scalar (0.1-1) used to scale the swipe release transition duration in CSS. |
-| `--nested-drawers`           | `number` | The number of nested drawers that are currently open.                        |
+| Variable                     | Type     | Description                                                                       |
+| :--------------------------- | :------- | :-------------------------------------------------------------------------------- |
+| `--drawer-frontmost-height`  | `CSS`    | The height of the frontmost open drawer in the current nested drawer stack.       |
+| `--drawer-height`            | `CSS`    | The height of the drawer popup.                                                   |
+| `--drawer-keyboard-inset`    | `CSS`    | The software keyboard inset measured from the bottom edge of the layout viewport. |
+| `--drawer-snap-point-offset` | `CSS`    | The snap point offset used for translating the drawer.                            |
+| `--drawer-swipe-movement-x`  | `CSS`    | The swipe movement on the X axis.                                                 |
+| `--drawer-swipe-movement-y`  | `CSS`    | The swipe movement on the Y axis.                                                 |
+| `--drawer-swipe-strength`    | `number` | A scalar (0.1-1) used to scale the swipe release transition duration in CSS.      |
+| `--nested-drawers`           | `number` | The number of nested drawers that are currently open.                             |
 
 ### Popup.Props
 
