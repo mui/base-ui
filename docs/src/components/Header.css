@@ -194,7 +194,7 @@
     content: '';
     display: block;
     width: 0.875rem;
-    height: 2px;
+    height: 1px;
     background-color: currentColor;
   }
 }
