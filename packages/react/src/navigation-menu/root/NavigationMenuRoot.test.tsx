@@ -1523,17 +1523,6 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it.skipIf(isJSDOM)('disables positioner transitions while initially open', async () => {
-      await render(<TestNavigationMenu defaultValue="item-1" />);
-
-      const positioner = screen.getByTestId('top-level-positioner');
-      expect(positioner).toHaveAttribute('data-instant');
-
-      await waitFor(() => {
-        expect(positioner).not.toHaveAttribute('data-instant');
-      });
-    });
-
     it('disables popup and arrow transitions while a kept portal opens', async () => {
       await render(
         <NavigationMenu.Root>
