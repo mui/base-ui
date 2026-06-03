@@ -297,9 +297,18 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   }, [viewportRef]);
 
   useIsoLayoutEffect(() => {
-    // Wait for scrollbar and thumb refs after hidden-state toggles, and refresh math on direction flips.
+    // Wait for scrollbar and thumb refs after hidden-state toggles, refresh math on direction
+    // flips, and re-evaluate overflow edges when the threshold changes.
     queueMicrotask(computeThumbPosition);
-  }, [computeThumbPosition, hiddenState, direction]);
+  }, [
+    computeThumbPosition,
+    hiddenState,
+    direction,
+    overflowEdgeThreshold.xStart,
+    overflowEdgeThreshold.xEnd,
+    overflowEdgeThreshold.yStart,
+    overflowEdgeThreshold.yEnd,
+  ]);
 
   useIsoLayoutEffect(() => {
     // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already
