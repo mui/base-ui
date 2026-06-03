@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ToastContext } from './ToastProviderContext';
 import type { ToastManager } from '../createToastManager';
 import { ToastStore } from '../store';
@@ -55,7 +56,11 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     [store, toastManager],
   );
 
-  store.useSyncedValues({ timeout, limit });
+  // `limit` needs custom syncing because changing it must also recompute each
+  // toast's `limited` flag; `useSyncedValues` would only update the raw value.
+  useIsoLayoutEffect(() => {
+    store.syncProviderProps({ timeout, limit });
+  }, [store, timeout, limit]);
 
   return <ToastContext.Provider value={store}>{children}</ToastContext.Provider>;
 };
@@ -72,7 +77,8 @@ export interface ToastProviderProps {
   timeout?: number | undefined;
   /**
    * The maximum number of toasts that can be displayed at once.
-   * When the limit is reached, the oldest toast will be removed to make room for the new one.
+   * When the limit is exceeded, the oldest toasts are marked as `limited` (via the `data-limited`
+   * attribute) rather than removed, so they can be hidden or animated out.
    * @default 3
    */
   limit?: number | undefined;
