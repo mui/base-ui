@@ -109,6 +109,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     inputRef: inputRefProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
+    onKeyDown: onKeyDownProp,
     tabIndex: tabIndexProp,
     style,
     ...elementProps
@@ -361,9 +362,14 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
       },
       onKeyDown(event: React.KeyboardEvent) {
+        if (event.defaultPrevented) {
+          return;
+        }
+
         if (!ALL_KEYS.has(event.key)) {
           return;
         }
+
         if (COMPOSITE_KEYS.has(event.key)) {
           event.stopPropagation();
         }
@@ -454,6 +460,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       value: thumbValue ?? '',
     },
     (props) => validation.getValidationProps(disabled, props),
+    { onKeyDown: onKeyDownProp },
   );
 
   const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp);
@@ -525,7 +532,7 @@ export interface SliderThumbState extends SliderRootState {}
 
 export interface SliderThumbProps extends Omit<
   BaseUIComponentProps<'div', SliderThumbState>,
-  'onBlur' | 'onFocus'
+  'onBlur' | 'onFocus' | 'onKeyDown'
 > {
   /**
    * Whether the thumb should ignore user interaction.
@@ -575,6 +582,10 @@ export interface SliderThumbProps extends Omit<
    * A focus handler forwarded to the `input`.
    */
   onFocus?: React.FocusEventHandler<HTMLInputElement> | undefined;
+  /**
+   * A keydown handler forwarded to the `input`.
+   */
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
   /**
    * Optional tab index attribute forwarded to the `input`.
    */

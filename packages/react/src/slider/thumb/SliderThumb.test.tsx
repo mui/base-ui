@@ -67,6 +67,50 @@ describe('<Slider.Thumb />', () => {
       fireEvent.keyDown(slider, { key: 'Enter' });
       expect(handleKeyDown).toHaveBeenCalledTimes(1);
     });
+
+    ['ArrowRight', 'PageUp'].forEach((key) => {
+      it(`forwards handled ${key} key events`, async () => {
+        const handleKeyDown = vi.fn();
+        await render(
+          <Slider.Root defaultValue={50}>
+            <Slider.Control>
+              <Slider.Thumb onKeyDown={handleKeyDown} />
+            </Slider.Control>
+          </Slider.Root>,
+        );
+
+        const slider = screen.getByRole('slider');
+        await act(async () => {
+          slider.focus();
+        });
+        fireEvent.keyDown(slider, { key });
+
+        expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('allows preventing the internal key handling', async () => {
+      const handleKeyDown = vi.fn((event: React.KeyboardEvent<HTMLInputElement>) => {
+        event.preventDefault();
+      });
+
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb onKeyDown={handleKeyDown} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: 'ArrowRight' });
+
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      expect(slider).toHaveAttribute('aria-valuenow', '50');
+    });
   });
 
   // AT (e.g. Android Talkback) may use increase/decrease actions to interact
