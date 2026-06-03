@@ -905,6 +905,31 @@ describe('<Slider.Root />', () => {
       expect(slider).toHaveAttribute('aria-valuenow', '100');
     });
 
+    it('does not commit when keyboard interaction leaves a range value unchanged', async () => {
+      const handleValueChange = vi.fn();
+      const handleValueCommitted = vi.fn();
+
+      await render(
+        <TestRangeSlider
+          defaultValue={[50, 50]}
+          onValueChange={handleValueChange}
+          onValueCommitted={handleValueCommitted}
+        />,
+      );
+
+      const [slider1, slider2] = screen.getAllByRole('slider');
+      await act(async () => {
+        slider1.focus();
+      });
+
+      fireEvent.keyDown(slider1, { key: ARROW_RIGHT });
+
+      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(handleValueCommitted).not.toHaveBeenCalled();
+      expect(slider1).toHaveAttribute('aria-valuenow', '50');
+      expect(slider2).toHaveAttribute('aria-valuenow', '50');
+    });
+
     it.skipIf(isJSDOM)('does not commit when thumb press leaves the value unchanged', async () => {
       const handleValueChange = vi.fn();
       const handleValueCommitted = vi.fn();

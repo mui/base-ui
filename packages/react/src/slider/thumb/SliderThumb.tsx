@@ -487,8 +487,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         onBlur: onBlurProp,
         onFocus: onFocusProp,
         onPointerDown(event) {
-          // A disabled thumb must not register itself as pressed; otherwise the
-          // stale index leaks into a later track press that targets it.
+          // Keep disabled thumbs from writing transient pointer state.
           if (disabled) {
             return;
           }
