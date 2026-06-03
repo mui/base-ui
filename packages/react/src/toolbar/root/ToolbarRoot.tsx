@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import {
   BaseUIComponentProps,
   Orientation as BaseOrientation,
@@ -35,16 +36,22 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 
   const disabledIndices = React.useMemo(() => {
     const output: number[] = [];
-    for (const itemMetadata of itemMap.values()) {
-      // Only items that are disabled and not focusable when disabled are removed
-      // from roving focus. Items without toolbar metadata (e.g. a Toggle rendered
-      // directly inside a ToggleGroup) stay navigable.
-      if (
-        itemMetadata?.index != null &&
-        itemMetadata.disabled &&
-        !itemMetadata.focusableWhenDisabled
-      ) {
-        output.push(itemMetadata.index);
+    for (const [node, itemMetadata] of itemMap) {
+      const index = itemMetadata?.index;
+      if (index == null) {
+        continue;
+      }
+
+      if (hasToolbarRootItemMetadata(itemMetadata)) {
+        // Only toolbar items that are disabled and not focusable when disabled
+        // are removed from roving focus.
+        if (itemMetadata.disabled && !itemMetadata.focusableWhenDisabled) {
+          output.push(index);
+        }
+      } else if (isElementDisabled(node as HTMLElement)) {
+        // Items without toolbar metadata, such as direct ToggleGroup > Toggle
+        // children, still rely on their DOM disabled state.
+        output.push(index);
       }
     }
     return output;
@@ -122,4 +129,10 @@ export namespace ToolbarRoot {
   export type Orientation = ToolbarRootOrientation;
   export type State = ToolbarRootState;
   export type Props = ToolbarRootProps;
+}
+
+function hasToolbarRootItemMetadata(
+  itemMetadata: CompositeMetadata<ToolbarRoot.ItemMetadata> | null,
+): itemMetadata is CompositeMetadata<ToolbarRoot.ItemMetadata> {
+  return itemMetadata?.disabled != null && itemMetadata.focusableWhenDisabled != null;
 }
