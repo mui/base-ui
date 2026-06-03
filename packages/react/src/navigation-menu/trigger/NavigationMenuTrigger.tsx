@@ -50,6 +50,7 @@ import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
+import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
 import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
@@ -126,9 +127,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);
-  const interactionsEnabled = positionerElement ? true : !value;
+  const interactionsEnabled = (positionerElement != null || value == null) && !disabled;
   const hoverFloatingElement = positionerElement || viewportElement;
-  const hoverInteractionsEnabled = hoverFloatingElement ? true : !value;
+  const hoverInteractionsEnabled = (hoverFloatingElement != null || value == null) && !disabled;
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement, false, false);
 
@@ -175,23 +176,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     popupElement.style.removeProperty(NavigationMenuPopupCssVars.popupHeight);
     positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerWidth);
     positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerHeight);
-  }
-
-  function setSharedFixedSizes(width: number, height: number) {
-    if (!popupElement || !positionerElement) {
-      return;
-    }
-
-    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
-    popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
-    positionerElement.style.setProperty(
-      NavigationMenuPositionerCssVars.positionerWidth,
-      `${width}px`,
-    );
-    positionerElement.style.setProperty(
-      NavigationMenuPositionerCssVars.positionerHeight,
-      `${height}px`,
-    );
   }
 
   function scheduleAutoSizeReset() {
@@ -293,7 +277,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
-      setSharedFixedSizes(currentWidth, currentHeight);
+      setSharedFixedSize(popupElement, positionerElement, currentWidth, currentHeight);
 
       mutationFrame.request(() => {
         mutationFrame.request(() => {
@@ -303,14 +287,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
           const measuredWidth = width || currentWidth || prevSizeRef.current.width;
           const measuredHeight = height || currentHeight || prevSizeRef.current.height;
 
-          setSharedFixedSizes(currentWidth, currentHeight);
+          setSharedFixedSize(popupElement, positionerElement, currentWidth, currentHeight);
 
           sizeFrame.request(() => {
             if (!isActiveItemRef.current) {
               return;
             }
 
-            setSharedFixedSizes(measuredWidth, measuredHeight);
+            setSharedFixedSize(popupElement, positionerElement, measuredWidth, measuredHeight);
             scheduleAutoSizeReset();
           });
         });
@@ -387,7 +371,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [mounted]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!popupElement || typeof ResizeObserver !== 'function') {
       return undefined;
     }
@@ -674,7 +658,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
-      if (value != null) {
+      // Keyboard open events reach this activation path after `onKeyDown` has already set
+      // the value with the `listNavigation` reason.
+      if (value != null && event.type !== 'keydown') {
         setValue(
           itemValue,
           createChangeEventDetails(
@@ -711,6 +697,10 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   }
 
   const handleOpenEvent = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
+    if (disabled) {
+      return;
+    }
+
     if (!popupElement || !positionerElement) {
       handleActivation(event);
       return;

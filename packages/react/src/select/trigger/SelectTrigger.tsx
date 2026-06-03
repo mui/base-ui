@@ -146,7 +146,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return undefined;
   }, [open, selectionRef, timeoutMouseDown, selectedDelayTimeout]);
 
-  const props: HTMLProps = mergeProps<'button'>(
+  const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
       id,
@@ -240,10 +240,10 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         });
       },
     },
-    validation.getValidationProps,
     elementProps,
     getButtonProps,
   );
+  const props = validation.getValidationProps(disabled, mergedProps);
 
   // ensure nested useButton does not overwrite the combobox role:
   // <Toolbar.Button render={<Select.Trigger />} />

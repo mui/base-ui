@@ -23,6 +23,37 @@ describe('<Tabs.Indicator />', () => {
     testRenderPropWith: 'div',
   }));
 
+  it('exposes null active tab state when the selected value has no matching tab', async () => {
+    const indicatorStates: Tabs.Indicator.State[] = [];
+
+    function renderIndicator(
+      props: React.HTMLAttributes<HTMLSpanElement>,
+      state: Tabs.Indicator.State,
+    ) {
+      indicatorStates.push(state);
+      return <span data-testid="bubble" {...props} />;
+    }
+
+    await render(
+      <Tabs.Root value="missing">
+        <Tabs.List>
+          <Tabs.Tab value="one">One</Tabs.Tab>
+          <Tabs.Indicator render={renderIndicator} />
+        </Tabs.List>
+      </Tabs.Root>,
+    );
+
+    // Wait for Tabs.List to register its element; before that no tab can be measured.
+    await waitFor(() => {
+      expect(indicatorStates.length).toBeGreaterThan(1);
+    });
+
+    const state = indicatorStates.at(-1)!;
+    expect(state.activeTabPosition).toBe(null);
+    expect(state.activeTabSize).toBe(null);
+    expect(screen.getByTestId('bubble')).toHaveAttribute('hidden');
+  });
+
   describe.skipIf(isJSDOM)('rendering', () => {
     it('should not render when no tab is active', async () => {
       await render(

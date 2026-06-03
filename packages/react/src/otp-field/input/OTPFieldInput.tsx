@@ -110,7 +110,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     readOnly,
     required,
     'aria-labelledby': ariaLabel == null ? inheritedLabel : undefined,
-    'aria-invalid': invalid || undefined,
+    'aria-invalid': !disabled && invalid ? true : undefined,
     'aria-label': ariaLabel,
     onMouseDown(event) {
       if (event.defaultPrevented || disabled) {

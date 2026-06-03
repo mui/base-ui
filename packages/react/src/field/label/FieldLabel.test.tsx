@@ -44,6 +44,18 @@ describe('<Field.Label />', () => {
     expect(control).toHaveFocus();
   });
 
+  it('reflects the disabled state from Field.Item', async () => {
+    await render(
+      <Field.Root>
+        <Field.Item disabled>
+          <Field.Label data-testid="label">Label</Field.Label>
+        </Field.Item>
+      </Field.Root>,
+    );
+
+    expect(screen.getByTestId('label')).toHaveAttribute('data-disabled');
+  });
+
   describe('dev warnings', () => {
     it('does not warn by default', async () => {
       const errorSpy = vi

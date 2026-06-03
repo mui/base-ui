@@ -27,11 +27,6 @@ import { getNodeChildren } from '../utils/nodes';
 
 type PressType = 'intentional' | 'sloppy';
 
-const bubbleHandlerKeys = {
-  intentional: 'onClick',
-  sloppy: 'onPointerDown',
-} as const;
-
 function alwaysFalse() {
   return false;
 }
@@ -68,13 +63,6 @@ export interface UseDismissProps {
    * @default false
    */
   referencePress?: (() => boolean) | undefined;
-  /**
-   * The type of event to use to determine a "press".
-   * - `down` is `pointerdown` on mouse input, but special iOS-like touch handling on touch input.
-   * - `up` is lazy on both mouse + touch input (equivalent to `click`).
-   * @default 'down'
-   */
-  referencePressEvent?: PressType | undefined;
   /**
    * Whether to dismiss the floating element upon pressing outside of the
    * floating element.
@@ -136,7 +124,6 @@ export function useDismiss(
     outsidePress: outsidePressProp = true,
     outsidePressEvent = 'sloppy',
     referencePress = alwaysFalse,
-    referencePressEvent = 'sloppy',
     bubbles,
     externalTree,
   } = props;
@@ -725,12 +712,10 @@ export function useDismiss(
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
-      [bubbleHandlerKeys[referencePressEvent]]: closeOnReferencePress,
-      ...(referencePressEvent !== 'intentional' && {
-        onClick: closeOnReferencePress,
-      }),
+      onPointerDown: closeOnReferencePress,
+      onClick: closeOnReferencePress,
     }),
-    [closeOnEscapeKeyDown, closeOnReferencePress, referencePressEvent],
+    [closeOnEscapeKeyDown, closeOnReferencePress],
   );
 
   const floating: ElementProps['floating'] = React.useMemo(

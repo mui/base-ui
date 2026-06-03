@@ -26,7 +26,13 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
 
 export interface MenuSubmenuRootProps extends Omit<
   MenuRoot.Props,
-  'modal' | 'openOnHover' | 'onOpenChange'
+  | 'modal'
+  | 'openOnHover'
+  | 'onOpenChange'
+  | 'handle'
+  | 'triggerId'
+  | 'defaultTriggerId'
+  | 'children'
 > {
   /**
    * Event handler called when the menu is opened or closed.
@@ -40,6 +46,10 @@ export interface MenuSubmenuRootProps extends Omit<
    * @default false
    */
   closeParentOnEsc?: boolean | undefined;
+  /**
+   * The content of the submenu.
+   */
+  children?: React.ReactNode;
 }
 
 export interface MenuSubmenuRootState {}
