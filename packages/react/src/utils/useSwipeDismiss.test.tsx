@@ -466,6 +466,56 @@ describe('useSwipeDismiss', () => {
     expect(element.style.transition).toBe(initialTransition);
   });
 
+  it('applies the drag transform imperatively while swiping', async () => {
+    await render(<SwipeBox />);
+    const element = screen.getByTestId('el');
+
+    fireEvent.pointerDown(element, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    // The first move only establishes the drag baseline.
+    fireEvent.pointerMove(element, {
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(element, {
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 40,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 40,
+    });
+
+    await flushMicrotasks();
+
+    expect(element.style.transition).toBe('none');
+    expect(element.style.transform).toContain('translateY(40px)');
+    expect(element.style.getPropertyValue('--y')).toBe('40px');
+  });
+
   it('respects custom swipeThreshold', async () => {
     const onDismiss = vi.fn();
 

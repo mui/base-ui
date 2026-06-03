@@ -72,6 +72,10 @@ function getValidTimeStamp(timeStamp: number): number | null {
   return Number.isFinite(timeStamp) && timeStamp > 0 ? timeStamp : null;
 }
 
+function getDragTransform(dragOffset: { x: number; y: number }, scale: number): string {
+  return `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${scale})`;
+}
+
 function hasPrimaryMouseButton(buttons: number): boolean {
   return buttons % 2 === 1;
 }
@@ -259,7 +263,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     const deltaY = dragOffset.y - initialTransform.y;
 
     if (swiping) {
-      style.transform = `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`;
+      style.transform = getDragTransform(dragOffset, initialTransform.scale);
     }
 
     style.setProperty(movementCssVars.x, `${deltaX}px`);
@@ -1020,9 +1024,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       transition: isSwiping ? 'none' : undefined,
       // While swiping, freeze the element at its current visual transform so it doesn't snap to the
       // end position.
-      transform: isSwiping
-        ? `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${initialTransform.scale})`
-        : undefined,
+      transform: isSwiping ? getDragTransform(dragOffset, initialTransform.scale) : undefined,
       [movementCssVars.x]: `${deltaX}px`,
       [movementCssVars.y]: `${deltaY}px`,
     } as React.CSSProperties;
@@ -1108,8 +1110,8 @@ export interface UseSwipeDismissOptions {
    */
   ignoreSelectorWhenTouch?: boolean | undefined;
   /**
-   * Whether to update drag offsets in React state on every move.
-   * Disable for event-only usage to avoid re-renders.
+   * Whether to apply drag transform and movement styles to the element imperatively during a swipe.
+   * Disable for event-only usage where the consumer drives styling itself.
    * @default true
    */
   trackDrag?: boolean | undefined;

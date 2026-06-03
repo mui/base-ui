@@ -431,7 +431,13 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       updateNestedSwipeActive(details);
 
       const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
-      if (swipingRef.current && swipeDirection === 'down' && hasSnapPoints && details) {
+      if (
+        swipingRef.current &&
+        swipeDirection === 'down' &&
+        hasSnapPoints &&
+        details &&
+        Number.isFinite(details.deltaY)
+      ) {
         const popupElement = store.context.popupRef.current;
         if (popupElement) {
           popupElement.style.removeProperty('transform');
