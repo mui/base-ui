@@ -3744,3 +3744,26 @@ describe('<NavigationMenu.Root />', () => {
     });
   });
 });
+
+describe('initial open', () => {
+  // A dedicated renderer without `shouldAdvanceTime` so the one-frame instant reset
+  // (scheduled via a zero-delay timeout) can be observed deterministically rather
+  // than racing the assertion.
+  const { render, clock } = createRenderer();
+
+  clock.withFakeTimers();
+
+  it('suppresses the positioner transition for the first frame while initially open', async () => {
+    await render(<TestNavigationMenu defaultValue="item-1" />);
+
+    // While initially open, the positioner starts with its transition suppressed so a
+    // default value does not animate in from the unpositioned portal state.
+    const positioner = screen.getByTestId('top-level-positioner');
+    expect(positioner).toHaveAttribute('data-instant');
+
+    // The suppression is released on the next tick.
+    clock.tick(0);
+    await flushMicrotasks();
+    expect(positioner).not.toHaveAttribute('data-instant');
+  });
+});
