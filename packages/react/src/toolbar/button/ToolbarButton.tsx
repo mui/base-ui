@@ -27,13 +27,16 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     ...elementProps
   } = componentProps;
 
-  const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
-
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
   const groupContext = useToolbarGroupContext(true);
 
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
+
+  const itemMetadata = React.useMemo(
+    () => ({ disabled, focusableWhenDisabled }),
+    [disabled, focusableWhenDisabled],
+  );
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
