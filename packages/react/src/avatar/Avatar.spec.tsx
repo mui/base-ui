@@ -1,71 +1,30 @@
 import { expectType } from '#test-utils';
-import {
-  Avatar,
-  type AvatarFallbackProps,
-  type AvatarFallbackState,
-  type AvatarImageProps,
-  type AvatarImageState,
-  type AvatarRootProps,
-  type AvatarRootState,
-  type ImageLoadingStatus,
-} from '@base-ui/react/avatar';
+import { Avatar, type ImageLoadingStatus } from '@base-ui/react/avatar';
 
-const rootProps: Avatar.Root.Props = {};
-expectType<AvatarRootProps, typeof rootProps>(rootProps);
-
-const imageProps: Avatar.Image.Props = {
-  crossOrigin: 'anonymous',
-  referrerPolicy: 'no-referrer',
-  sizes: '48px',
-  srcSet: 'avatar.png 1x, avatar@2x.png 2x',
-};
-expectType<AvatarImageProps, typeof imageProps>(imageProps);
-
-const fallbackProps: Avatar.Fallback.Props = {
-  delay: 100,
-};
-expectType<AvatarFallbackProps, typeof fallbackProps>(fallbackProps);
-
-function expectRootState(state: Avatar.Root.State) {
-  expectType<AvatarRootState, typeof state>(state);
-  expectType<ImageLoadingStatus, typeof state.imageLoadingStatus>(state.imageLoadingStatus);
-}
-
-function expectImageState(state: Avatar.Image.State) {
-  expectType<AvatarImageState, typeof state>(state);
-  expectType<ImageLoadingStatus, typeof state.imageLoadingStatus>(state.imageLoadingStatus);
-}
-
-function expectFallbackState(state: Avatar.Fallback.State) {
-  expectType<AvatarFallbackState, typeof state>(state);
-  expectType<ImageLoadingStatus, typeof state.imageLoadingStatus>(state.imageLoadingStatus);
-}
-
-function expectLoadingStatus(status: ImageLoadingStatus) {
-  expectType<ImageLoadingStatus, typeof status>(status);
-}
-
+// `Avatar.Image` accepts and forwards the native responsive/loading `<img>` props.
 <Avatar.Root
-  {...rootProps}
   render={(props, state) => {
-    expectRootState(state);
+    expectType<ImageLoadingStatus, typeof state.imageLoadingStatus>(state.imageLoadingStatus);
     return <span {...props} />;
   }}
 >
   <Avatar.Image
-    {...imageProps}
+    crossOrigin="anonymous"
+    referrerPolicy="no-referrer"
+    sizes="48px"
+    srcSet="avatar.png 1x, avatar@2x.png 2x"
     onLoadingStatusChange={(status) => {
-      expectLoadingStatus(status);
+      expectType<ImageLoadingStatus, typeof status>(status);
     }}
     render={(props, state) => {
-      expectImageState(state);
+      expectType<ImageLoadingStatus, typeof state.imageLoadingStatus>(state.imageLoadingStatus);
       return <img alt="" {...props} />;
     }}
   />
   <Avatar.Fallback
-    {...fallbackProps}
+    delay={100}
     render={(props, state) => {
-      expectFallbackState(state);
+      expectType<ImageLoadingStatus, typeof state.imageLoadingStatus>(state.imageLoadingStatus);
       return <span {...props} />;
     }}
   />

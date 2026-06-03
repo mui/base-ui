@@ -25,7 +25,6 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
 
   React.useEffect(() => {
     if (delay !== undefined) {
-      setDelayPassed(false);
       timeout.start(delay, () => setDelayPassed(true));
     }
     return timeout.clear;
