@@ -30,7 +30,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
-  const { filteredItems, hasItems } = useComboboxDerivedItemsContext();
+  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
@@ -117,10 +117,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   }
 
   return (
-    <CompositeList
-      elementsRef={store.state.listRef}
-      labelsRef={hasItems ? undefined : store.state.labelsRef}
-    >
+    <CompositeList elementsRef={store.state.listRef} labelsRef={store.state.labelsRef}>
       {element}
     </CompositeList>
   );

@@ -528,7 +528,7 @@ describe('<Combobox.Trigger />', () => {
       expect(trigger).not.toHaveAttribute('aria-controls');
     });
 
-    it('sets all aria attributes on the input when open', async () => {
+    it('sets all aria attributes on the trigger when open', async () => {
       const { user } = await render(
         <Combobox.Root>
           <Combobox.Trigger data-testid="trigger" />
@@ -545,12 +545,14 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
-      const listbox = await screen.findByRole('listbox');
+      await screen.findByRole('listbox');
+      const popup = screen.getByRole('dialog');
 
       expect(trigger).toHaveAttribute('tabindex', '0');
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
       expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
-      expect(trigger).toHaveAttribute('aria-controls', listbox.id);
+      expect(popup.id).not.toBe('');
+      expect(trigger).toHaveAttribute('aria-controls', popup.id);
     });
   });
 
