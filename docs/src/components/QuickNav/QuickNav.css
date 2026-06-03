@@ -6,8 +6,8 @@
     padding: 0;
     position: relative;
     display: grid;
-    gap: var(--content-layout-gap);
-    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: var(--docs-layout-gap);
+    grid-template-columns: var(--docs-layout-grid-template);
   }
 
   .QuickNavContent {
@@ -28,20 +28,10 @@
   }
 
   .QuickNavRoot {
-    --quick-nav-scrollbar-thumb-width: 0.25rem;
-    --quick-nav-scrollbar-width: 1.5rem;
-
-    /* Use line height instead of fixed item height in case text breaks into multiple lines */
-    --quick-nav-item-height: 1.75rem;
-    --quick-nav-item-line-height: 1.375rem;
-    --quick-nav-item-padding-y: calc(
-      var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
-    );
-
     font-size: var(--font-size-14);
-    line-height: 1.375rem;
+    line-height: var(--docs-nav-item-line-height);
     z-index: 1;
-    grid-column: 7 / 9;
+    grid-column: var(--docs-layout-end-rail-column);
     grid-row: 1;
     align-self: start;
     min-width: 0;
@@ -52,9 +42,9 @@
       display: block;
       position: fixed;
       top: var(--header-height);
-      right: var(--content-layout-inline-offset);
+      right: var(--docs-layout-inline-offset);
       bottom: 0;
-      width: var(--content-layout-sidebar-width);
+      width: var(--docs-layout-sidebar-width);
     }
   }
 
@@ -69,7 +59,7 @@
 
   .QuickNavViewport {
     max-height: calc(100dvh - var(--header-height));
-    padding-right: var(--quick-nav-scrollbar-width);
+    padding-right: var(--docs-nav-scrollbar-width);
     padding-bottom: 1.5rem;
     padding-left: 0;
 
@@ -88,7 +78,7 @@
     padding-bottom: 0.75rem;
 
     /* Click target width */
-    width: var(--quick-nav-scrollbar-width);
+    width: var(--docs-nav-scrollbar-width);
 
     opacity: 0;
     transition: opacity 200ms 500ms;
@@ -112,7 +102,7 @@
       display: block;
       height: 100%;
       /* Visible thumb width */
-      width: var(--quick-nav-scrollbar-thumb-width);
+      width: var(--docs-nav-scrollbar-thumb-width);
       border-radius: var(--radius-4);
       background-color: var(--gray-p2);
     }
@@ -137,7 +127,7 @@
 
   .QuickNavLink {
     display: inline-flex;
-    padding-block: var(--quick-nav-item-padding-y);
+    padding-block: var(--docs-nav-item-padding-y);
     border-radius: var(--radius-6);
 
     &:focus-visible {

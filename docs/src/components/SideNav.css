@@ -2,17 +2,10 @@
 
 @layer components {
   .SideNavRoot {
-    /* Match quick nav spacing so side nav and quick nav are visually aligned */
-    --side-nav-item-height: 1.75rem;
-    --side-nav-item-line-height: 1.375rem;
-    --side-nav-item-padding-y: calc(
-      var(--side-nav-item-height) / 2 - var(--side-nav-item-line-height) / 2
-    );
-
     font-size: var(--font-size-14);
-    line-height: 1.375rem;
+    line-height: var(--docs-nav-item-line-height);
     z-index: 1;
-    grid-column: 1 / 3;
+    grid-column: var(--docs-layout-start-rail-column);
     grid-row: 1;
     min-width: 0;
 
@@ -23,8 +16,8 @@
       position: fixed;
       top: var(--header-height);
       bottom: 0;
-      left: var(--content-layout-inline-offset);
-      width: var(--content-layout-sidebar-width);
+      left: var(--docs-layout-inline-offset);
+      width: var(--docs-layout-sidebar-width);
     }
   }
 
@@ -51,7 +44,7 @@
     padding-bottom: 0.75rem;
 
     /* Click target width */
-    width: 1.5rem;
+    width: var(--docs-nav-scrollbar-width);
 
     opacity: 0;
     transition: opacity 200ms 500ms;
@@ -75,7 +68,7 @@
       display: block;
       height: 100%;
       /* Visible thumb width */
-      width: 0.25rem;
+      width: var(--docs-nav-scrollbar-thumb-width);
       border-radius: var(--radius-4);
       background-color: var(--gray-p2);
     }
@@ -87,7 +80,7 @@
 
   .SideNavHeading {
     display: inline-flex;
-    padding-block: var(--side-nav-item-padding-y);
+    padding-block: var(--docs-nav-item-padding-y);
     font-weight: var(--font-weight-400);
     color: var(--gray-t1);
   }
@@ -101,7 +94,7 @@
     align-items: center;
     gap: 0.25rem;
     flex-grow: 1;
-    padding: calc(var(--side-nav-item-padding-y) - 1px) 0.75rem;
+    padding: calc(var(--docs-nav-item-padding-y) - 1px) 0.75rem;
     border-block: 1px solid transparent; /* Maintain a 1px gap between active an inactive item */
     background-clip: padding-box;
     border-radius: var(--radius-6);
@@ -123,7 +116,7 @@
 
     &[data-active] {
       border: none;
-      padding: var(--side-nav-item-padding-y) 0.75rem;
+      padding: var(--docs-nav-item-padding-y) 0.75rem;
       background-color: var(--gray-s2);
       outline: 1px solid var(--gray-c2);
       outline-offset: -1px;

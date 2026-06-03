@@ -13,8 +13,23 @@
 
 @layer components {
   .RootLayout {
-    --content-layout-gap: 2.5rem;
-    --content-layout-max-width: 48rem;
+    --docs-layout-gap: 2.5rem;
+    --docs-layout-max-width: 48rem;
+    --docs-layout-width: min(
+      var(--docs-layout-max-width),
+      calc(100% - var(--root-layout-padding-inline) - var(--root-layout-padding-inline))
+    );
+    /* The desktop docs shell is an 8-column grid with two-column side rails. */
+    --docs-layout-grid-template: repeat(8, minmax(0, 1fr));
+    --docs-layout-start-rail-column: 1 / 3;
+    --docs-layout-end-rail-column: 7 / 9;
+    --docs-nav-scrollbar-thumb-width: 0.25rem;
+    --docs-nav-scrollbar-width: 1.5rem;
+    --docs-nav-item-height: 1.75rem;
+    --docs-nav-item-line-height: 1.375rem;
+    --docs-nav-item-padding-y: calc(
+      var(--docs-nav-item-height) / 2 - var(--docs-nav-item-line-height) / 2
+    );
     --root-layout-padding-inline: 1.5rem;
 
     z-index: 0;
@@ -22,28 +37,22 @@
     padding-inline: var(--root-layout-padding-inline);
 
     @media (--md) {
-      --content-layout-gap: 3rem;
+      --docs-layout-gap: 3rem;
       --root-layout-padding-inline: 3rem;
     }
 
     @media (--show-side-nav) {
-      --content-layout-max-width: 92.5rem;
-      --content-layout-width: min(
-        var(--content-layout-max-width),
-        calc(100% - var(--root-layout-padding-inline) - var(--root-layout-padding-inline))
+      --docs-layout-max-width: 92.5rem;
+      --docs-layout-inline-offset: calc((100% - var(--docs-layout-width)) / 2);
+      --docs-layout-gap-width: calc(
+        var(--docs-layout-gap) + var(--docs-layout-gap) + var(--docs-layout-gap) +
+          var(--docs-layout-gap) + var(--docs-layout-gap) + var(--docs-layout-gap) +
+          var(--docs-layout-gap)
       );
-      --content-layout-inline-offset: calc((100% - var(--content-layout-width)) / 2);
-      --content-layout-column-width: calc(
-        (
-            var(--content-layout-width) - var(--content-layout-gap) - var(--content-layout-gap) -
-              var(--content-layout-gap) - var(--content-layout-gap) - var(--content-layout-gap) -
-              var(--content-layout-gap) - var(--content-layout-gap)
-          ) /
-          8
-      );
-      --content-layout-sidebar-width: calc(
-        var(--content-layout-column-width) + var(--content-layout-column-width) +
-          var(--content-layout-gap)
+      --docs-layout-track-width: calc(var(--docs-layout-width) - var(--docs-layout-gap-width));
+      --docs-layout-column-width: calc(var(--docs-layout-track-width) / 8);
+      --docs-layout-sidebar-width: calc(
+        var(--docs-layout-column-width) + var(--docs-layout-column-width) + var(--docs-layout-gap)
       );
     }
   }
@@ -54,7 +63,7 @@
     flex-direction: column;
     margin-inline: auto;
     min-height: 100dvh;
-    max-width: var(--content-layout-max-width);
+    max-width: var(--docs-layout-max-width);
 
     @media (--show-side-nav) {
       padding-block: var(--header-height);
@@ -71,9 +80,9 @@
   .ContentLayoutRoot {
     display: grid;
     align-items: start;
-    gap: var(--content-layout-gap);
+    gap: var(--docs-layout-gap);
     padding-top: var(--header-height);
-    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-columns: var(--docs-layout-grid-template);
 
     @media (--show-side-nav) {
       padding-top: 0;
