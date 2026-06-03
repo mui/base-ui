@@ -811,6 +811,61 @@ describe('<Tooltip.Root />', () => {
       expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
+    it('resets detached handle state when an open root unmounts', async () => {
+      const tooltip = Tooltip.createHandle<number>();
+
+      function TestRoute({ showRoot }: { showRoot: boolean }) {
+        return (
+          <React.Fragment>
+            <Tooltip.Trigger handle={tooltip} id="trigger1" payload={1}>
+              Trigger 1
+            </Tooltip.Trigger>
+            <Tooltip.Trigger handle={tooltip} id="trigger2" payload={2}>
+              Trigger 2
+            </Tooltip.Trigger>
+            {showRoot && (
+              <Tooltip.Root handle={tooltip}>
+                {({ payload }: { payload: number | undefined }) => (
+                  <Tooltip.Portal>
+                    <Tooltip.Positioner>
+                      <Tooltip.Popup data-testid="content">{payload}</Tooltip.Popup>
+                    </Tooltip.Positioner>
+                  </Tooltip.Portal>
+                )}
+              </Tooltip.Root>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<TestRoute showRoot />);
+
+      await act(() => tooltip.open('trigger2'));
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
+      expect(tooltip.isOpen).toBe(true);
+
+      await setProps({ showRoot: false });
+      await flushMicrotasks();
+
+      expect(tooltip.isOpen).toBe(false);
+      expect(screen.queryByTestId('content')).toBe(null);
+
+      await setProps({ showRoot: true });
+      await flushMicrotasks();
+
+      const trigger = screen.getByRole('button', { name: 'Trigger 2' });
+      expect(screen.queryByTestId('content')).toBe(null);
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      await act(() => tooltip.open('trigger2'));
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
+      expect(tooltip.isOpen).toBe(true);
+    });
+
     it('sets the payload associated with the trigger', async () => {
       const tooltip = Tooltip.createHandle<number>();
       await render(

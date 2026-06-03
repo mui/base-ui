@@ -828,6 +828,11 @@ describe('<Drawer.Root />', () => {
     const trigger = screen.getByRole('button', { name: 'Trigger 2' });
     expect(screen.queryByRole('dialog')).toBe(null);
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(trigger);
+    await screen.findByRole('dialog');
+    expect(screen.getByTestId('payload').textContent).toBe('2');
+    expect(handle.isOpen).toBe(true);
   });
 
   it('synchronizes trigger aria-controls with the popup id', async () => {

@@ -127,6 +127,20 @@ export class TooltipStore<Payload> extends ReactStore<
     );
   }
 
+  public reset = () => {
+    // Detached hover triggers can stay mounted after the root unmounts. Cancel
+    // their pending hover-open timers so they cannot reopen a rootless handle.
+    this.state.floatingRootContext.resetHoverInteraction();
+    this.update({
+      ...createInitialState<Payload>(),
+      floatingRootContext: this.state.floatingRootContext,
+    });
+
+    // Floating UI keeps synchronized references and transient interaction data.
+    // Clear them with the tooltip state so they don't point at disconnected nodes.
+    this.state.floatingRootContext.reset();
+  };
+
   static useStore<Payload>(
     externalStore: TooltipStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,

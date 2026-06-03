@@ -127,6 +127,22 @@ export class PreviewCardStore<Payload> extends ReactStore<
     }
   };
 
+  public reset = () => {
+    // Detached hover triggers can stay mounted after the root unmounts. Cancel
+    // their pending hover-open timers so they cannot reopen a rootless handle.
+    this.state.floatingRootContext.resetHoverInteraction();
+    this.context.closeDelayRef.current = CLOSE_DELAY;
+    this.context.inlineRectCoordsRef.current = undefined;
+    this.update({
+      ...createInitialState<Payload>(),
+      floatingRootContext: this.state.floatingRootContext,
+    });
+
+    // Floating UI keeps synchronized references and transient interaction data.
+    // Clear them with the preview card state so they don't point at disconnected nodes.
+    this.state.floatingRootContext.reset();
+  };
+
   public static useStore<Payload>(
     externalStore: PreviewCardStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,

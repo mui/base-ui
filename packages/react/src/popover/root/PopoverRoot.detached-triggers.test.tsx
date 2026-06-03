@@ -795,6 +795,10 @@ describe('<Popover.Root />', () => {
       const trigger = screen.getByRole('button', { name: 'Trigger 2' });
       expect(screen.queryByRole('dialog')).toBe(null);
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(trigger);
+      await screen.findByRole('dialog', { name: 'Popover 2' });
+      expect(testPopover.isOpen).toBe(true);
     });
 
     it('does not reset when a root remounts with the same detached handle before cleanup runs', async () => {

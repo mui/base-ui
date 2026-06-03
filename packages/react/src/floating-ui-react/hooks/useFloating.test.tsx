@@ -43,6 +43,8 @@ test('preserves an externally synced floating element when the root context chan
 
 test('clears the root-owned floating context on reset', async () => {
   const floatingElement = document.createElement('div');
+  const referenceElement = document.createElement('button');
+  const positionReference = document.createElement('div');
   const rootStore = createRootStore(floatingElement);
   const hoverInteractionState = { reset: vi.fn() };
 
@@ -56,9 +58,25 @@ test('clears the root-owned floating context on reset', async () => {
   unmount();
 
   act(() => {
+    rootStore.update({
+      open: true,
+      transitionStatus: 'starting',
+      floatingId: 'floating',
+      domReferenceElement: referenceElement,
+      referenceElement,
+      floatingElement,
+      positionReference,
+    });
     rootStore.reset();
   });
 
+  expect(rootStore.state.open).toBe(false);
+  expect(rootStore.state.transitionStatus).toBe(undefined);
+  expect(rootStore.state.floatingId).toBe(undefined);
+  expect(rootStore.state.domReferenceElement).toBe(null);
+  expect(rootStore.state.referenceElement).toBe(null);
+  expect(rootStore.state.floatingElement).toBe(null);
+  expect(rootStore.state.positionReference).toBe(null);
   expect(rootStore.context.dataRef.current.floatingContext).toBe(undefined);
   expect(rootStore.context.dataRef.current.hoverInteractionState).toBe(hoverInteractionState);
 });

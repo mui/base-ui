@@ -782,6 +782,10 @@ describe('<AlertDialog.Root />', () => {
       const trigger = screen.getByRole('button', { name: 'Trigger 2' });
       expect(screen.queryByRole('alertdialog')).toBe(null);
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(trigger);
+      await screen.findByRole('alertdialog', { name: 'Alert dialog 2' });
+      expect(testDialog.isOpen).toBe(true);
     });
 
     it('keeps detached triggers clickable when reparented during Fast Refresh-like handle recreation', async () => {

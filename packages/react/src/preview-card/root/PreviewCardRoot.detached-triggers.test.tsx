@@ -1159,6 +1159,62 @@ describe('<PreviewCard.Root />', () => {
       expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
+    it('resets detached handle state when an open root unmounts', async () => {
+      const handle = PreviewCard.createHandle<number>();
+
+      function TestRoute({ showRoot }: { showRoot: boolean }) {
+        return (
+          <React.Fragment>
+            <button type="button" aria-label="Initial focus" autoFocus />
+            <PreviewCard.Trigger href="#" handle={handle} id="trigger1" payload={1}>
+              Trigger 1
+            </PreviewCard.Trigger>
+            <PreviewCard.Trigger href="#" handle={handle} id="trigger2" payload={2}>
+              Trigger 2
+            </PreviewCard.Trigger>
+            {showRoot && (
+              <PreviewCard.Root handle={handle}>
+                {({ payload }: { payload: number | undefined }) => (
+                  <PreviewCard.Portal>
+                    <PreviewCard.Positioner>
+                      <PreviewCard.Popup data-testid="content">{payload}</PreviewCard.Popup>
+                    </PreviewCard.Positioner>
+                  </PreviewCard.Portal>
+                )}
+              </PreviewCard.Root>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<TestRoute showRoot />);
+
+      await act(() => handle.open('trigger2'));
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
+      expect(handle.isOpen).toBe(true);
+
+      await setProps({ showRoot: false });
+      await flushMicrotasks();
+
+      expect(handle.isOpen).toBe(false);
+      expect(screen.queryByTestId('content')).toBe(null);
+
+      await setProps({ showRoot: true });
+      await flushMicrotasks();
+
+      const trigger = screen.getByRole('link', { name: 'Trigger 2' });
+      expect(screen.queryByTestId('content')).toBe(null);
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      await act(() => handle.open('trigger2'));
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
+      expect(handle.isOpen).toBe(true);
+    });
+
     it('sets the payload associated with the trigger', async () => {
       const handle = PreviewCard.createHandle<number>();
       await render(

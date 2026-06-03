@@ -532,6 +532,10 @@ describe('<Dialog.Root />', () => {
       const trigger = screen.getByRole('button', { name: 'Trigger 2' });
       expect(screen.queryByRole('dialog')).toBe(null);
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(trigger);
+      await screen.findByRole('dialog', { name: 'Dialog 2' });
+      expect(testDialog.isOpen).toBe(true);
     });
 
     it('keeps ARIA controls in sync when a detached handle is recreated while open', async () => {
