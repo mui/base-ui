@@ -360,11 +360,6 @@
     padding: 0.5rem;
   }
 
-  @media (min-width: 48rem) {
-    .AdditionalTypeWrapper {
-    }
-  }
-
   /* ---- Section heading (used in ReferenceTable) ---- */
 
   .ReferenceSectionHeading {
