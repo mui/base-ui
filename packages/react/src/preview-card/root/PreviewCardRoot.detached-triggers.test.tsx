@@ -2,7 +2,14 @@ import { expect } from 'vitest';
 import * as React from 'react';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  randomStringValue,
+  act,
+  flushMicrotasks,
+} from '@mui/internal-test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 const CLOSE_TRANSITION_MS = 50;
@@ -1118,6 +1125,79 @@ describe('<PreviewCard.Root />', () => {
       await waitFor(() => {
         expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('hover open cleanup', () => {
+    type NumberPayload = { payload: number | undefined };
+
+    const { render: renderFakeTimers, clock } = createRenderer();
+    clock.withFakeTimers();
+
+    it('clears pending detached hover opens when the root unmounts', async () => {
+      const testPreviewCard = PreviewCard.createHandle<number>();
+
+      function DetachedTriggerRoute({ showRoot }: { showRoot: boolean }) {
+        return (
+          <React.Fragment>
+            <button type="button" aria-label="Initial focus" autoFocus />
+            <PreviewCard.Trigger
+              href="#"
+              handle={testPreviewCard}
+              id="trigger-1"
+              payload={1}
+              delay={100}
+            >
+              Trigger 1
+            </PreviewCard.Trigger>
+
+            {showRoot ? (
+              <PreviewCard.Root handle={testPreviewCard}>
+                {({ payload }: NumberPayload) => (
+                  <PreviewCard.Portal>
+                    <PreviewCard.Positioner>
+                      <PreviewCard.Popup data-testid="content">{payload}</PreviewCard.Popup>
+                    </PreviewCard.Positioner>
+                  </PreviewCard.Portal>
+                )}
+              </PreviewCard.Root>
+            ) : (
+              <button type="button">Other route</button>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await renderFakeTimers(<DetachedTriggerRoute showRoot />);
+
+      const trigger = screen.getByRole('link', { name: 'Trigger 1' });
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      await setProps({ showRoot: false });
+      await flushMicrotasks();
+
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.getByRole('button', { name: 'Other route' })).not.toBe(null);
+      expect(testPreviewCard.isOpen).toBe(false);
+
+      await setProps({ showRoot: true });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('content')).toBe(null);
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('content').textContent).toBe('1');
+      expect(testPreviewCard.isOpen).toBe(true);
     });
   });
 

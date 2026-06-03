@@ -13,6 +13,7 @@ import {
   updateInlineRectCoords,
   usePopupStore,
 } from '../../utils/popups';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY } from '../utils/constants';
@@ -130,6 +131,10 @@ export class PreviewCardStore<Payload> extends ReactStore<
   public reset = () => {
     // Detached hover triggers can stay mounted after the root unmounts. Cancel
     // their pending hover-open timers so they cannot reopen a rootless handle.
+    if (this.select('open')) {
+      this.setOpen(false, createChangeEventDetails(REASONS.none));
+    }
+
     this.state.floatingRootContext.resetHoverInteraction();
     this.context.closeDelayRef.current = CLOSE_DELAY;
     this.context.inlineRectCoordsRef.current = undefined;

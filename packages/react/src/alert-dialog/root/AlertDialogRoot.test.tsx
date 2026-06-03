@@ -718,7 +718,7 @@ describe('<AlertDialog.Root />', () => {
     it('resets controlled detached handle state when an open root unmounts', async () => {
       const testDialog = AlertDialog.createHandle<number>();
 
-      function ControlledAlertDialog() {
+      function TestRoute({ route }: { route: 'alert-dialog' | 'other' }) {
         const [open, setOpen] = React.useState(false);
         const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
@@ -738,30 +738,25 @@ describe('<AlertDialog.Root />', () => {
             <AlertDialog.Trigger handle={testDialog} id="trigger-2" payload={2}>
               Trigger 2
             </AlertDialog.Trigger>
-            <AlertDialog.Root
-              handle={testDialog}
-              open={open}
-              onOpenChange={handleOpenChange}
-              triggerId={triggerId}
-            >
-              {({ payload }: NumberPayload) => (
-                <AlertDialog.Portal>
-                  <AlertDialog.Popup>
-                    <AlertDialog.Title>Alert dialog {payload}</AlertDialog.Title>
-                  </AlertDialog.Popup>
-                </AlertDialog.Portal>
-              )}
-            </AlertDialog.Root>
+            {route === 'other' && <button type="button">Other route</button>}
+            {route === 'alert-dialog' && (
+              <AlertDialog.Root
+                handle={testDialog}
+                open={open}
+                onOpenChange={handleOpenChange}
+                triggerId={triggerId}
+              >
+                {({ payload }: NumberPayload) => (
+                  <AlertDialog.Portal>
+                    <AlertDialog.Popup>
+                      <AlertDialog.Title>Alert dialog {payload}</AlertDialog.Title>
+                    </AlertDialog.Popup>
+                  </AlertDialog.Portal>
+                )}
+              </AlertDialog.Root>
+            )}
           </React.Fragment>
         );
-      }
-
-      function TestRoute({ route }: { route: 'alert-dialog' | 'other' }) {
-        if (route === 'other') {
-          return <button type="button">Other route</button>;
-        }
-
-        return <ControlledAlertDialog />;
       }
 
       const { user, setProps } = await render(<TestRoute route="alert-dialog" />);

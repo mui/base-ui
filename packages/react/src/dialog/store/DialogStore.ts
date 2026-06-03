@@ -2,6 +2,8 @@ import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
@@ -113,6 +115,10 @@ export class DialogStore<Payload> extends ReactStore<
   public reset = () => {
     // Keep the external handle reusable, but clear state owned by the unmounted
     // root so route changes don't preserve an open modal or stale trigger data.
+    if (this.select('open')) {
+      this.setOpen(false, createChangeEventDetails(REASONS.none));
+    }
+
     this.update(
       createInitialState<Payload>({
         floatingRootContext: this.state.floatingRootContext,

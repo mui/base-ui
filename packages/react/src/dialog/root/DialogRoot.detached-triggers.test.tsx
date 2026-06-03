@@ -467,7 +467,7 @@ describe('<Dialog.Root />', () => {
     it('resets controlled detached handle state when an open root unmounts', async () => {
       const testDialog = Dialog.createHandle<number>();
 
-      function ControlledDialog() {
+      function TestRoute({ route }: { route: 'dialog' | 'other' }) {
         const [open, setOpen] = React.useState(false);
         const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
@@ -487,31 +487,26 @@ describe('<Dialog.Root />', () => {
             <Dialog.Trigger handle={testDialog} id="trigger-2" payload={2}>
               Trigger 2
             </Dialog.Trigger>
-            <Dialog.Root
-              handle={testDialog}
-              open={open}
-              onOpenChange={handleOpenChange}
-              triggerId={triggerId}
-            >
-              {({ payload }: NumberPayload) => (
-                <Dialog.Portal>
-                  <Dialog.Backdrop />
-                  <Dialog.Popup>
-                    <Dialog.Title>Dialog {payload}</Dialog.Title>
-                  </Dialog.Popup>
-                </Dialog.Portal>
-              )}
-            </Dialog.Root>
+            {route === 'other' && <button type="button">Other route</button>}
+            {route === 'dialog' && (
+              <Dialog.Root
+                handle={testDialog}
+                open={open}
+                onOpenChange={handleOpenChange}
+                triggerId={triggerId}
+              >
+                {({ payload }: NumberPayload) => (
+                  <Dialog.Portal>
+                    <Dialog.Backdrop />
+                    <Dialog.Popup>
+                      <Dialog.Title>Dialog {payload}</Dialog.Title>
+                    </Dialog.Popup>
+                  </Dialog.Portal>
+                )}
+              </Dialog.Root>
+            )}
           </React.Fragment>
         );
-      }
-
-      function TestRoute({ route }: { route: 'dialog' | 'other' }) {
-        if (route === 'other') {
-          return <button type="button">Other route</button>;
-        }
-
-        return <ControlledDialog />;
       }
 
       const { user, setProps } = await render(<TestRoute route="dialog" />);

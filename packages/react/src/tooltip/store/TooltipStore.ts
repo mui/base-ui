@@ -130,6 +130,10 @@ export class TooltipStore<Payload> extends ReactStore<
   public reset = () => {
     // Detached hover triggers can stay mounted after the root unmounts. Cancel
     // their pending hover-open timers so they cannot reopen a rootless handle.
+    if (this.select('open')) {
+      this.setOpen(false, createChangeEventDetails(REASONS.none));
+    }
+
     this.state.floatingRootContext.resetHoverInteraction();
     this.update({
       ...createInitialState<Payload>(),

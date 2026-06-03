@@ -2,7 +2,14 @@ import { vi, expect } from 'vitest';
 import * as React from 'react';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  randomStringValue,
+  act,
+  flushMicrotasks,
+} from '@mui/internal-test-utils';
 
 describe('<Tooltip.Root />', () => {
   beforeEach(async () => {
@@ -771,6 +778,72 @@ describe('<Tooltip.Root />', () => {
       // The popup should not have an inline scale style that would override CSS transitions
       const popup = screen.getByTestId('popup');
       expect(popup.style.scale).toBe('');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('hover open cleanup', () => {
+    type NumberPayload = { payload: number | undefined };
+
+    const { render: renderFakeTimers, clock } = createRenderer();
+    clock.withFakeTimers();
+
+    it('clears pending detached hover opens when the root unmounts', async () => {
+      const testTooltip = Tooltip.createHandle<number>();
+
+      function DetachedTriggerRoute({ showRoot }: { showRoot: boolean }) {
+        return (
+          <React.Fragment>
+            <Tooltip.Trigger handle={testTooltip} id="trigger-1" payload={1} delay={100}>
+              Trigger 1
+            </Tooltip.Trigger>
+
+            {showRoot ? (
+              <Tooltip.Root handle={testTooltip}>
+                {({ payload }: NumberPayload) => (
+                  <Tooltip.Portal>
+                    <Tooltip.Positioner>
+                      <Tooltip.Popup data-testid="content">{payload}</Tooltip.Popup>
+                    </Tooltip.Positioner>
+                  </Tooltip.Portal>
+                )}
+              </Tooltip.Root>
+            ) : (
+              <button type="button">Other route</button>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await renderFakeTimers(<DetachedTriggerRoute showRoot />);
+
+      const trigger = screen.getByRole('button', { name: 'Trigger 1' });
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      await setProps({ showRoot: false });
+      await flushMicrotasks();
+
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.getByRole('button', { name: 'Other route' })).not.toBe(null);
+      expect(testTooltip.isOpen).toBe(false);
+
+      await setProps({ showRoot: true });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('content')).toBe(null);
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(100);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('content').textContent).toBe('1');
+      expect(testTooltip.isOpen).toBe(true);
     });
   });
 

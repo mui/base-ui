@@ -727,7 +727,7 @@ describe('<Popover.Root />', () => {
     it('resets controlled detached handle state when an open root unmounts', async () => {
       const testPopover = Popover.createHandle<number>();
 
-      function ControlledPopover() {
+      function TestRoute({ route }: { route: 'popover' | 'other' }) {
         const [open, setOpen] = React.useState(false);
         const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
@@ -747,34 +747,29 @@ describe('<Popover.Root />', () => {
             <Popover.Trigger handle={testPopover} id="trigger-2" payload={2}>
               Trigger 2
             </Popover.Trigger>
-            <Popover.Root
-              handle={testPopover}
-              open={open}
-              onOpenChange={handleOpenChange}
-              triggerId={triggerId}
-              modal
-            >
-              {({ payload }: NumberPayload) => (
-                <Popover.Portal>
-                  <Popover.Positioner>
-                    <Popover.Popup>
-                      <Popover.Title>Popover {payload}</Popover.Title>
-                      <Popover.Close>Close</Popover.Close>
-                    </Popover.Popup>
-                  </Popover.Positioner>
-                </Popover.Portal>
-              )}
-            </Popover.Root>
+            {route === 'other' && <button type="button">Other route</button>}
+            {route === 'popover' && (
+              <Popover.Root
+                handle={testPopover}
+                open={open}
+                onOpenChange={handleOpenChange}
+                triggerId={triggerId}
+                modal
+              >
+                {({ payload }: NumberPayload) => (
+                  <Popover.Portal>
+                    <Popover.Positioner>
+                      <Popover.Popup>
+                        <Popover.Title>Popover {payload}</Popover.Title>
+                        <Popover.Close>Close</Popover.Close>
+                      </Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                )}
+              </Popover.Root>
+            )}
           </React.Fragment>
         );
-      }
-
-      function TestRoute({ route }: { route: 'popover' | 'other' }) {
-        if (route === 'other') {
-          return <button type="button">Other route</button>;
-        }
-
-        return <ControlledPopover />;
       }
 
       const { user, setProps } = await render(<TestRoute route="popover" />);

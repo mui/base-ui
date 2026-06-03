@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { act, render } from '@testing-library/react';
+import { flushMicrotasks } from '@mui/internal-test-utils';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
@@ -108,12 +109,6 @@ function PopupInteractionPropsTest({
 function RootUnmountCleanupTest({ store }: { store: { reset(): void } | undefined }) {
   usePopupRootUnmountCleanup(store);
   return null;
-}
-
-async function flushQueuedMicrotasks() {
-  await act(async () => {
-    await Promise.resolve();
-  });
 }
 
 describe('PopupTriggerMap', () => {
@@ -347,12 +342,12 @@ describe('usePopupRootUnmountCleanup', () => {
     const { rerender } = render(<App />);
 
     rerender(<App first={false} />);
-    await flushQueuedMicrotasks();
+    await flushMicrotasks();
 
     expect(store.reset).not.toHaveBeenCalled();
 
     rerender(<App first={false} second={false} />);
-    await flushQueuedMicrotasks();
+    await flushMicrotasks();
 
     expect(store.reset).toHaveBeenCalledTimes(1);
   });
@@ -372,7 +367,7 @@ describe('usePopupRootUnmountCleanup', () => {
     const { rerender } = render(<App />);
 
     rerender(<App mounted={false} />);
-    await flushQueuedMicrotasks();
+    await flushMicrotasks();
 
     expect(store.reset).toHaveBeenCalledTimes(1);
   });
