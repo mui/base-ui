@@ -21,9 +21,7 @@ export default function ExampleDrawerNested() {
               <div className={styles.Actions}>
                 <div className={styles.ActionsLeft}>
                   <Drawer.Root>
-                    <Drawer.Trigger className={styles.GhostButton}>
-                      Security settings
-                    </Drawer.Trigger>
+                    <Drawer.Trigger className={styles.Button}>Security settings</Drawer.Trigger>
                     <Drawer.Portal>
                       <Drawer.Viewport className={styles.Viewport}>
                         <Drawer.Popup className={styles.Popup}>
@@ -43,7 +41,7 @@ export default function ExampleDrawerNested() {
                             <div className={styles.Actions}>
                               <div className={styles.ActionsLeft}>
                                 <Drawer.Root>
-                                  <Drawer.Trigger className={styles.GhostButton}>
+                                  <Drawer.Trigger className={styles.Button}>
                                     Advanced options
                                   </Drawer.Trigger>
                                   <Drawer.Portal>

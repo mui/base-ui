@@ -128,6 +128,29 @@ describe('<CheckboxGroup />', () => {
 
       expect(handleValueChange.mock.calls[2][0]).toEqual(['green']);
     });
+
+    it('does not update the group when onValueChange cancels the event', () => {
+      const handleValueChange = vi.fn((_, eventDetails: CheckboxGroup.ChangeEventDetails) => {
+        eventDetails.cancel();
+      });
+
+      render(
+        <CheckboxGroup onValueChange={handleValueChange}>
+          <Checkbox.Root value="red" data-testid="red" />
+          <Checkbox.Root value="green" data-testid="green" />
+        </CheckboxGroup>,
+      );
+
+      const red = screen.getByTestId('red');
+      const green = screen.getByTestId('green');
+
+      fireEvent.click(red);
+
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['red']);
+      expect(red).toHaveAttribute('aria-checked', 'false');
+      expect(green).toHaveAttribute('aria-checked', 'false');
+    });
   });
 
   describe('prop: defaultValue', () => {
@@ -326,6 +349,30 @@ describe('<CheckboxGroup />', () => {
       checkboxes.forEach((checkbox) => expect(checkbox).toHaveAttribute('aria-invalid', 'true'));
     });
 
+    it('validates with the group value when toggling the parent checkbox', async () => {
+      const validateSpy = vi.fn((_value: unknown) => null);
+
+      const { user } = render(
+        <Field.Root validationMode="onChange" validate={validateSpy} name="fruits">
+          <CheckboxGroup allValues={['apple', 'orange']}>
+            <Checkbox.Root parent data-testid="parent" />
+            <Checkbox.Root value="apple" />
+            <Checkbox.Root value="orange" />
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const parent = screen.getByTestId('parent');
+
+      await user.click(parent);
+      expect(validateSpy).toHaveBeenCalledTimes(1);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual(['apple', 'orange']);
+
+      await user.click(parent);
+      expect(validateSpy).toHaveBeenCalledTimes(2);
+      expect(validateSpy.mock.lastCall?.[0]).toEqual([]);
+    });
+
     it('revalidates when the controlled value changes externally', async () => {
       const validateSpy = vi.fn((value: unknown) => {
         const values = value as string[];
@@ -519,11 +566,11 @@ describe('<CheckboxGroup />', () => {
     it('links the group and individual checkboxes', async () => {
       await render(
         <Field.Root name="apple">
-          <CheckboxGroup defaultValue={[]}>
+          <CheckboxGroup defaultValue={[]} aria-describedby="external-description">
             <Field.Description data-testid="group-description">Group description</Field.Description>
             <Field.Item>
               <Field.Label>
-                <Checkbox.Root value="fuji-apple" />
+                <Checkbox.Root value="fuji-apple" aria-describedby="checkbox-description" />
                 Fuji
               </Field.Label>
             </Field.Item>
@@ -539,6 +586,14 @@ describe('<CheckboxGroup />', () => {
       );
       expect(screen.getByRole('checkbox').getAttribute('aria-describedby')).toContain(
         groupDescriptionId,
+      );
+      expect(screen.getByRole('checkbox')).toHaveAttribute(
+        'aria-describedby',
+        `checkbox-description ${groupDescriptionId}`,
+      );
+      expect(screen.getByRole('group')).toHaveAttribute(
+        'aria-describedby',
+        `external-description ${groupDescriptionId}`,
       );
     });
   });
@@ -645,7 +700,7 @@ describe('<CheckboxGroup />', () => {
     });
 
     it('excludes parent checkboxes from form submission', async () => {
-      const allValues = ['fuji-apple', 'gala-apple', 'granny-smith'];
+      const allValues = ['fuji-apple', 'gala-apple', 'granny-smith-apple'];
 
       function App() {
         const [value, setValue] = React.useState<string[]>(['fuji-apple', 'gala-apple']);

@@ -9,14 +9,19 @@ type TextDirection = 'ltr' | 'rtl';
 describe('<Menu.SubmenuTrigger />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Menu.Trigger />, () => ({
-    refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+  describeConformance(<Menu.SubmenuTrigger />, () => ({
+    refInstanceof: window.HTMLDivElement,
     button: true,
     render(node) {
       return render(
         <Menu.Root open>
-          <Menu.SubmenuRoot>{node}</Menu.SubmenuRoot>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot>{node}</Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
     },
@@ -97,6 +102,39 @@ describe('<Menu.SubmenuTrigger />', () => {
 
     await waitFor(() => {
       expect(submenuTrigger).toHaveAttribute('tabIndex', '0');
+    });
+  });
+
+  it('uses the label prop for text navigation', async () => {
+    const { user } = await render(
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item>Alpha</Menu.Item>
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger data-testid="submenu-trigger" label="Reports">
+                  More
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Monthly</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    fireEvent.focus(screen.getByText('Alpha'));
+    await user.keyboard('r');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
     });
   });
 

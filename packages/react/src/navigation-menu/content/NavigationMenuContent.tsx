@@ -2,6 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FloatingNode } from '../../floating-ui-react';
@@ -43,7 +44,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
   componentProps: NavigationMenuContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, keepMounted = false, style, ...elementProps } = componentProps;
+  const { render, className, style, keepMounted = false, ...elementProps } = componentProps;
 
   const {
     mounted: popupMounted,
@@ -97,14 +98,13 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     activationDirection,
   };
 
-  const handleCurrentContentRef = React.useCallback(
-    (node: HTMLDivElement | null) => {
-      if (node) {
-        currentContentRef.current = node;
-      }
-    },
-    [currentContentRef],
-  );
+  const handleCurrentContentRef = useStableCallback((node: HTMLDivElement | null) => {
+    // Inactive `keepMounted` content also mounts in the viewport; only the
+    // active content can own the shared sizing observer target.
+    if (node && open) {
+      currentContentRef.current = node;
+    }
+  });
 
   const commonProps: HTMLProps<HTMLDivElement> = {
     onFocus(event) {

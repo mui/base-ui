@@ -21,6 +21,7 @@ import { normalizeScrollOffset } from '../../utils/scrollEdges';
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Scroll Area components are mounted.
 let scrollAreaOverflowVarsRegistered = false;
+
 /**
  * Removes inheritance of the scroll area overflow CSS variables, which
  * improves rendering performance in complex scroll areas with deep subtrees.
@@ -130,6 +131,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     const scrollLeft = viewportEl.scrollLeft;
     const lastMeasuredViewportMetrics = lastMeasuredViewportMetricsRef.current;
     const isFirstMeasurement = Number.isNaN(lastMeasuredViewportMetrics[0]);
+
     lastMeasuredViewportMetrics[0] = viewportHeight;
     lastMeasuredViewportMetrics[1] = scrollableContentHeight;
     lastMeasuredViewportMetrics[2] = viewportWidth;
@@ -295,9 +297,18 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   }, [viewportRef]);
 
   useIsoLayoutEffect(() => {
-    // Wait for scrollbar and thumb refs after hidden-state toggles, and refresh math on direction flips.
+    // Wait for scrollbar and thumb refs after hidden-state toggles, refresh math on direction
+    // flips, and re-evaluate overflow edges when the threshold changes.
     queueMicrotask(computeThumbPosition);
-  }, [computeThumbPosition, hiddenState, direction]);
+  }, [
+    computeThumbPosition,
+    hiddenState,
+    direction,
+    overflowEdgeThreshold.xStart,
+    overflowEdgeThreshold.xEnd,
+    overflowEdgeThreshold.yStart,
+    overflowEdgeThreshold.yEnd,
+  ]);
 
   useIsoLayoutEffect(() => {
     // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already
@@ -307,14 +318,14 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     }
   }, [viewportRef, setHovering]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     const viewport = viewportRef.current;
     if (typeof ResizeObserver === 'undefined' || !viewport) {
       return undefined;
     }
 
     let hasInitialized = false;
-    const ro = new ResizeObserver(() => {
+    const resizeObserver = new ResizeObserver(() => {
       // Avoid duplicate mount-time recompute when observer data matches what the mount
       // scheduling pass already measured. If dimensions changed before the first observer
       // delivery, keep the recompute so overflow transitions stay in sync.
@@ -334,15 +345,10 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       computeThumbPosition();
     });
 
-    ro.observe(viewport);
+    resizeObserver.observe(viewport);
 
-    // If there are animations in the viewport, wait for them to finish and then recompute the thumb position.
-    // This is necessary when the viewport contains a Dialog that is animating its popup on open
-    // and the popup is using a transform for the animation, which affects the size of the viewport.
-    // Without this, the thumb position will be incorrect until scrolling (i.e. if the scrollbar shows
-    // on hover, the thumb has an incorrect size).
-    // We assume the user is using `onOpenChangeComplete` to hide the scrollbar
-    // until animations complete because otherwise the scrollbar would show the thumb resizing mid-animation.
+    // Wait for subtree animations to finish, then recompute thumb geometry that
+    // may have been affected by transform-based animations.
     waitForAnimationsTimeout.start(0, () => {
       const animations = viewport.getAnimations({ subtree: true });
       if (animations.length === 0) {
@@ -355,7 +361,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     });
 
     return () => {
-      ro.disconnect();
+      resizeObserver.disconnect();
       waitForAnimationsTimeout.clear();
     };
   }, [computeThumbPosition, viewportRef, waitForAnimationsTimeout]);

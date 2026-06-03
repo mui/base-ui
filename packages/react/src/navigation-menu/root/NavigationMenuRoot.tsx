@@ -3,6 +3,7 @@ import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
   FloatingNode,
@@ -22,11 +23,10 @@ import {
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { getCssDimensions } from '../../utils/getCssDimensions';
 import { type BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { NavigationMenuPopupCssVars } from '../popup/NavigationMenuPopupCssVars';
 import { NavigationMenuPositionerCssVars } from '../positioner/NavigationMenuPositionerCssVars';
+import { setSharedFixedSize } from '../utils/setSharedFixedSize';
 
 const blockedReturnFocusReasons = new Set<string>([
   REASONS.triggerHover,
@@ -34,23 +34,24 @@ const blockedReturnFocusReasons = new Set<string>([
   REASONS.focusOut,
 ]);
 
-function setSharedFixedSize(popupElement: HTMLElement, positionerElement: HTMLElement) {
-  const { width, height } = getCssDimensions(popupElement);
+function getPositionerFixedSize(positionerElement: HTMLElement) {
+  // Read the last fixed positioner size rather than measuring the popup now:
+  // during a controlled close, the popup can already be in its exit render and
+  // report 0 before the closing transition gets a stable size to animate from.
+  const width =
+    parseFloat(
+      positionerElement.style.getPropertyValue(NavigationMenuPositionerCssVars.positionerWidth),
+    ) || 0;
+  const height =
+    parseFloat(
+      positionerElement.style.getPropertyValue(NavigationMenuPositionerCssVars.positionerHeight),
+    ) || 0;
 
-  if (width === 0 || height === 0) {
-    return;
+  if (width <= 0 || height <= 0) {
+    return null;
   }
 
-  popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
-  popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
-  positionerElement.style.setProperty(
-    NavigationMenuPositionerCssVars.positionerWidth,
-    `${width}px`,
-  );
-  positionerElement.style.setProperty(
-    NavigationMenuPositionerCssVars.positionerHeight,
-    `${height}px`,
-  );
+  return { width, height };
 }
 
 /**
@@ -118,6 +119,32 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  useIsoLayoutEffect(() => {
+    if (open) {
+      return;
+    }
+
+    if (!positionerElement || !popupElement) {
+      return;
+    }
+
+    const closeTransitionSize = getPositionerFixedSize(positionerElement);
+
+    if (!closeTransitionSize) {
+      return;
+    }
+
+    // No cleanup is needed for this fixed size: if the popup unmounts, the inline
+    // styles are removed with it. If it stays mounted, reopening runs the trigger's
+    // sizing logic which clears these vars via `clearFixedSizes`/`setAutoSizes`.
+    setSharedFixedSize(
+      popupElement,
+      positionerElement,
+      closeTransitionSize.width,
+      closeTransitionSize.height,
+    );
+  }, [open, popupElement, positionerElement]);
+
   React.useEffect(() => {
     setViewportInert(false);
   }, [value]);
@@ -129,12 +156,6 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     ) => {
       if (!nextValue) {
         closeReasonRef.current = eventDetails.reason;
-        setActivationDirection(null);
-        setFloatingRootContext(undefined);
-
-        if (positionerElement && popupElement) {
-          setSharedFixedSize(popupElement, positionerElement);
-        }
       }
 
       if (nextValue !== value) {
@@ -143,6 +164,11 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
 
       if (eventDetails.isCanceled) {
         return;
+      }
+
+      if (!nextValue) {
+        setActivationDirection(null);
+        setFloatingRootContext(undefined);
       }
 
       setValueUnwrapped(nextValue);
@@ -202,6 +228,8 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     },
   });
 
+  const contextActivationDirection = open ? activationDirection : null;
+
   const contextValue: NavigationMenuRootContext<Value> = React.useMemo(
     () => ({
       open,
@@ -217,7 +245,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       setViewportElement,
       viewportTargetElement,
       setViewportTargetElement,
-      activationDirection,
+      activationDirection: contextActivationDirection,
       setActivationDirection,
       floatingRootContext,
       setFloatingRootContext,
@@ -246,7 +274,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
       popupElement,
       viewportElement,
       viewportTargetElement,
-      activationDirection,
+      contextActivationDirection,
       floatingRootContext,
       nested,
       delay,
@@ -295,9 +323,7 @@ function TreeContext<Value>(props: {
   } = props.componentProps;
 
   const nodeId = useFloatingNodeId();
-  const { rootRef, nested } = useNavigationMenuRootContext();
-
-  const { open } = useNavigationMenuRootContext();
+  const { rootRef, nested, open } = useNavigationMenuRootContext();
 
   const state: NavigationMenuRootState = {
     open,

@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { isElementVisible } from '../utils/composite';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { contains } from '../utils/element';
 import { stopEvent } from '../utils/event';
-import { isElementVisible } from '../utils/composite';
-
-import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
 export interface UseTypeaheadProps {
   /**
@@ -33,9 +32,9 @@ export interface UseTypeaheadProps {
    */
   elementsRef?: React.RefObject<Array<HTMLElement | null>> | undefined;
   /**
-   * Callback invoked with the typing state as the user types.
+   * Callback invoked with the current typing activity as the user types.
    */
-  onTypingChange?: ((isTyping: boolean) => void) | undefined;
+  onTyping?: ((isTyping: boolean) => void) | undefined;
   /**
    * Whether the Hook is enabled, including all internal Effects and event
    * handlers.
@@ -63,56 +62,25 @@ export function useTypeahead(
   context: FloatingRootContext | FloatingContext,
   props: UseTypeaheadProps,
 ): ElementProps {
-  const store = 'rootStore' in context ? context.rootStore : context;
-  const dataRef = store.context.dataRef;
-  const open = store.useState('open');
   const {
     listRef,
     elementsRef,
     activeIndex,
     onMatch: onMatchProp,
-    onTypingChange,
+    onTyping,
     enabled = true,
     resetMs = 750,
     selectedIndex = null,
   } = props;
 
+  const store = 'rootStore' in context ? context.rootStore : context;
+
+  const open = store.useState('open');
+
   const timeout = useTimeout();
   const stringRef = React.useRef('');
   const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
   const matchIndexRef = React.useRef<number | null>(null);
-
-  useIsoLayoutEffect(() => {
-    if (!open && selectedIndex !== null) {
-      return;
-    }
-
-    timeout.clear();
-    matchIndexRef.current = null;
-
-    if (stringRef.current !== '') {
-      stringRef.current = '';
-    }
-  }, [open, selectedIndex, timeout]);
-
-  useIsoLayoutEffect(() => {
-    // Sync arrow key navigation but not typeahead navigation.
-    if (open && stringRef.current === '') {
-      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
-    }
-  }, [open, selectedIndex, activeIndex]);
-
-  const setTypingChange = useStableCallback((value: boolean) => {
-    if (value) {
-      if (!dataRef.current.typing) {
-        dataRef.current.typing = value;
-        onTypingChange?.(value);
-      }
-    } else if (dataRef.current.typing) {
-      dataRef.current.typing = value;
-      onTypingChange?.(value);
-    }
-  });
 
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     function isVisible(index: number) {
@@ -144,12 +112,12 @@ export function useTypeahead(
     if (stringRef.current.length > 0 && event.key === ' ') {
       // Space should continue the in-progress typeahead session.
       stopEvent(event);
-      setTypingChange(true);
+      onTyping?.(true);
     }
 
     if (stringRef.current.length > 0 && stringRef.current[0] !== ' ') {
       if (getMatchingIndex(listContent, stringRef.current) === -1 && event.key !== ' ') {
-        setTypingChange(false);
+        onTyping?.(false);
       }
     }
 
@@ -167,7 +135,7 @@ export function useTypeahead(
 
     if (open && event.key !== ' ') {
       stopEvent(event);
-      setTypingChange(true);
+      onTyping?.(true);
     }
 
     // Capture whether this is a new typing session before mutating the string.
@@ -193,7 +161,7 @@ export function useTypeahead(
     timeout.start(resetMs, () => {
       stringRef.current = '';
       prevIndexRef.current = matchIndexRef.current;
-      setTypingChange(false);
+      onTyping?.(false);
     });
 
     // Compute the starting index for this search.
@@ -209,7 +177,7 @@ export function useTypeahead(
       matchIndexRef.current = index;
     } else if (event.key !== ' ') {
       stringRef.current = '';
-      setTypingChange(false);
+      onTyping?.(false);
     }
   });
 
@@ -217,11 +185,11 @@ export function useTypeahead(
     const next = event.relatedTarget as Element | null;
     const currentDomReferenceElement = store.select('domReferenceElement');
     const currentFloatingElement = store.select('floatingElement');
-    const withinReference = contains(currentDomReferenceElement, next);
-    const withinFloating = contains(currentFloatingElement, next);
+    const withinComposite =
+      contains(currentDomReferenceElement, next) || contains(currentFloatingElement, next);
 
     // Keep the session if focus moves within the composite (reference <-> floating).
-    if (withinReference || withinFloating) {
+    if (withinComposite) {
       return;
     }
 
@@ -229,23 +197,33 @@ export function useTypeahead(
     timeout.clear();
     stringRef.current = '';
     prevIndexRef.current = matchIndexRef.current;
-    setTypingChange(false);
+    onTyping?.(false);
   });
 
-  const reference: ElementProps['reference'] = React.useMemo(
-    () => ({ onKeyDown, onBlur }),
-    [onKeyDown, onBlur],
-  );
+  useIsoLayoutEffect(() => {
+    if (!open && selectedIndex !== null) {
+      return;
+    }
 
-  const floating: ElementProps['floating'] = React.useMemo(() => {
-    return {
-      onKeyDown,
-      onBlur,
-    };
-  }, [onKeyDown, onBlur]);
+    timeout.clear();
+    matchIndexRef.current = null;
+
+    if (stringRef.current !== '') {
+      stringRef.current = '';
+    }
+  }, [open, selectedIndex, timeout]);
+
+  useIsoLayoutEffect(() => {
+    // Sync arrow key navigation but not typeahead navigation.
+    if (open && stringRef.current === '') {
+      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
+    }
+  }, [open, selectedIndex, activeIndex]);
+
+  const sharedProps = React.useMemo(() => ({ onKeyDown, onBlur }), [onKeyDown, onBlur]);
 
   return React.useMemo(
-    () => (enabled ? { reference, floating } : {}),
-    [enabled, reference, floating],
+    () => (enabled ? { reference: sharedProps, floating: sharedProps } : {}),
+    [enabled, sharedProps],
   );
 }

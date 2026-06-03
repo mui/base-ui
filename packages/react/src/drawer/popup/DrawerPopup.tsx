@@ -23,6 +23,8 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
 import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Drawer components are mounted.
 let drawerSwipeVarsRegistered = false;
@@ -30,7 +32,6 @@ let drawerSwipeVarsRegistered = false;
 /**
  * Removes inheritance of high-frequency drawer swipe CSS variables, which
  * reduces style recalculation cost in complex drawers with deep subtrees.
- * Child elements that need these values can still opt-in by using `inherit`.
  * See https://motion.dev/blog/web-animation-performance-tier-list
  * under the "Improving CSS variable performance" section.
  */
@@ -117,7 +118,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   componentProps: DrawerPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, initialFocus, render, style, ...elementProps } = componentProps;
+  const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
 
   const { store } = useDialogRootContext();
 
@@ -145,15 +146,17 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const openMethod = store.useState('openMethod');
   const titleElementId = store.useState('titleElementId');
   const role = store.useState('role');
+  const floatingId = floatingRootContext.useState('floatingId');
 
-  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
+  const popupId = elementProps.id ?? floatingId;
 
   const swipe = useDrawerViewportContext(true);
-  const swiping = swipe?.swiping ?? false;
-  const swipeStrength = swipe?.swipeStrength ?? null;
+  useDialogPortalContext();
   const { snapPoints, activeSnapPoint, activeSnapPointOffset } = useDrawerSnapPoints();
 
-  useDialogPortalContext();
+  const nestedDrawerOpen = nestedOpenDrawerCount > 0;
+  const swiping = swipe?.swiping ?? false;
+  const swipeStrength = swipe?.swipeStrength ?? null;
 
   const [popupHeight, setPopupHeight] = React.useState(0);
 
@@ -304,6 +307,8 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   const resolvedInitialFocus = initialFocus === undefined ? store.context.popupRef : initialFocus;
 
+  const setPopupElement = store.useStateSetter('popupElement');
+
   const state: DrawerPopupState = {
     open,
     nested,
@@ -341,6 +346,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       const overshoot = Math.abs(nextOffset);
       const dampedOffset = -Math.sqrt(overshoot);
       const dampedMovement = dampedOffset - baseOffset;
+
       dragStyles = {
         ...dragStyles,
         transform: undefined,
@@ -359,10 +365,11 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     props: [
       rootPopupProps,
       {
+        id: popupId,
         'aria-labelledby': titleElementId,
         'aria-describedby': descriptionElementId,
         role,
-        tabIndex: -1,
+        ...FOCUSABLE_POPUP_PROPS,
         hidden: !mounted,
         onKeyDown(event: React.KeyboardEvent) {
           if (COMPOSITE_KEYS.has(event.key)) {
@@ -387,7 +394,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       },
       elementProps,
     ],
-    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement],
     stateAttributesMapping,
   });
 

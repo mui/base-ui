@@ -612,6 +612,32 @@ describe('Composite', () => {
   });
 
   describe('prop: disabledIndices', () => {
+    it('moves the initial tab stop to the first enabled item when the default item is disabled', async () => {
+      await render(
+        <CompositeRoot disabledIndices={[0]}>
+          <CompositeItem data-testid="1" />
+          <CompositeItem data-testid="2" />
+          <CompositeItem data-testid="3" />
+        </CompositeRoot>,
+      );
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('keeps the initial tab stop when all items are disabled', async () => {
+      await render(
+        <CompositeRoot disabledIndices={[0, 1]}>
+          <CompositeItem data-testid="1" />
+          <CompositeItem data-testid="2" />
+        </CompositeRoot>,
+      );
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    });
+
     it('disables navigating item when their index is included', async () => {
       function App() {
         const [highlightedIndex, setHighlightedIndex] = React.useState(0);

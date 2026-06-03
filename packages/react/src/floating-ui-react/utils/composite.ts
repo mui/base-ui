@@ -390,6 +390,8 @@ export function createGridCellMap(sizes: Dimensions[], cols: number, dense: bool
   sizes.forEach(({ width, height }, index) => {
     if (width > cols) {
       if (process.env.NODE_ENV !== 'production') {
+        // TODO: fix mui/no-guarded-throw
+        // eslint-disable-next-line mui/no-guarded-throw
         throw new Error(
           `[Floating UI]: Invalid grid - item width at index ${index} is greater than grid columns`,
         );

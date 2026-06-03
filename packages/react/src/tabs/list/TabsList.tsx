@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
@@ -39,22 +40,15 @@ export const TabsList = React.forwardRef(function TabsList(
   const tabResizeObserverElementsRef = React.useRef(new Set<HTMLElement>());
   const resizeObserverRef = React.useRef<ResizeObserver | null>(null);
 
-  const notifyIndicatorUpdateListeners = useStableCallback(() => {
-    indicatorUpdateListenersRef.current.forEach((listener) => {
-      listener();
-    });
-  });
-
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
     const resizeObserver = new ResizeObserver(() => {
-      if (!indicatorUpdateListenersRef.current.size) {
-        return;
-      }
-      notifyIndicatorUpdateListeners();
+      indicatorUpdateListenersRef.current.forEach((listener) => {
+        listener();
+      });
     });
 
     resizeObserverRef.current = resizeObserver;
@@ -71,7 +65,7 @@ export const TabsList = React.forwardRef(function TabsList(
       resizeObserver.disconnect();
       resizeObserverRef.current = null;
     };
-  }, [tabsListElement, notifyIndicatorUpdateListeners]);
+  }, [tabsListElement]);
 
   const registerIndicatorUpdateListener = useStableCallback((listener: () => void) => {
     indicatorUpdateListenersRef.current.add(listener);

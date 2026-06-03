@@ -13,7 +13,7 @@ export const ComboboxIcon = React.forwardRef(function ComboboxIcon(
   componentProps: ComboboxIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const element = useRenderElement('span', componentProps, {
     ref: forwardedRef,

@@ -43,6 +43,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     () => toasts.some((toast) => toast.transitionStatus === 'ending'),
     [toasts],
   );
+  const highPriorityToasts = React.useMemo(
+    () => toasts.filter((toast) => toast.priority === 'high'),
+    [toasts],
+  );
 
   // Listen globally for F6 so we can force-focus the viewport.
   React.useEffect(() => {
@@ -137,9 +141,17 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
     handlingFocusGuardRef.current = true;
 
-    // If we're coming off the container, move to the first toast
+    // If we're coming off the container, move to the first toast that can hold
+    // focus, skipping toasts that are animating out or inert because they're limited.
     if (event.relatedTarget === viewport) {
-      toasts[0]?.ref?.current?.focus();
+      const firstFocusableToast = toasts.find(
+        (toast) => toast.transitionStatus !== 'ending' && !toast.limited,
+      );
+      if (firstFocusableToast) {
+        firstFocusableToast.ref?.current?.focus();
+      } else {
+        store.restoreFocusToPrevElement();
+      }
     } else {
       store.restoreFocusToPrevElement();
     }
@@ -153,6 +165,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     ) {
       event.preventDefault();
       store.restoreFocusToPrevElement();
+      // Shift+Tab is explicit keyboard navigation out of the viewport.
       store.resumeTimers();
     }
   }
@@ -160,19 +173,16 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   function flushMouseLeave() {
     const hasEndingToasts = store.state.toasts.some((toast) => toast.transitionStatus === 'ending');
 
-    if (
-      !store.state.isWindowFocused ||
-      hasEndingToasts ||
-      touchActiveRef.current ||
-      !markedReadyForMouseLeaveRef.current
-    ) {
+    if (hasEndingToasts || touchActiveRef.current || !markedReadyForMouseLeaveRef.current) {
       return;
     }
 
     // Once transitions have finished, see if a mouseleave was already triggered
-    // but blocked from taking effect. If so, we can now safely resume timers and
-    // collapse the viewport.
-    store.resumeTimers();
+    // but blocked from taking effect. If so, we can now safely collapse the viewport
+    // without restarting timers while the window is blurred.
+    if (store.state.isWindowFocused) {
+      store.resumeTimers();
+    }
     store.setHovering(false);
     markedReadyForMouseLeaveRef.current = false;
   }
@@ -185,13 +195,21 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     markedReadyForMouseLeaveRef.current = false;
   }
 
+  function resumeTimersIfWindowFocused() {
+    if (store.state.isWindowFocused) {
+      store.resumeTimers();
+    }
+  }
+
   function handleMouseLeave() {
-    if (hasTransitioningToasts || touchActiveRef.current) {
+    const hasEndingToasts = store.state.toasts.some((toast) => toast.transitionStatus === 'ending');
+
+    if (hasEndingToasts || touchActiveRef.current) {
       // When swiping to dismiss, wait until the transitions have settled
       // or the touch interaction ends to avoid collapsing mid-gesture.
       markedReadyForMouseLeaveRef.current = true;
     } else {
-      store.resumeTimers();
+      resumeTimersIfWindowFocused();
       store.setHovering(false);
     }
   }
@@ -236,7 +254,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     store.setFocused(false);
-    store.resumeTimers();
+    resumeTimersIfWindowFocused();
   }
 
   const defaultProps: HTMLProps = {
@@ -286,11 +304,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       },
     ],
   });
-
-  const highPriorityToasts = React.useMemo(
-    () => toasts.filter((toast) => toast.priority === 'high'),
-    [toasts],
-  );
 
   return (
     <React.Fragment>

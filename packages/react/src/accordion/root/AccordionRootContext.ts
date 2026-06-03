@@ -6,9 +6,14 @@ import type { AccordionRoot } from './AccordionRoot';
 
 export interface AccordionRootContext<Value = any> {
   accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
+  accordionTriggerRefs: React.RefObject<(HTMLElement | null)[]>;
   direction: TextDirection;
   disabled: boolean;
-  handleValueChange: (newValue: AccordionRoot.Value<Value>[number], nextOpen: boolean) => void;
+  handleValueChange: (
+    newValue: AccordionRoot.Value<Value>[number],
+    nextOpen: boolean,
+    eventDetails: AccordionRoot.ChangeEventDetails,
+  ) => void;
   hiddenUntilFound: boolean;
   keepMounted: boolean;
   loopFocus: boolean;

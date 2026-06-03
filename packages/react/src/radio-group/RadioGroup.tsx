@@ -51,7 +51,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   const {
     setTouched: setFieldTouched,
     setFocused,
-    shouldValidateOnChange,
     validationMode,
     name: fieldName,
     disabled: fieldDisabled,
@@ -75,12 +74,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     name: 'RadioGroup',
     state: 'value',
   });
-
-  const onValueChange = useStableCallback(onValueChangeProp);
+  const [touched, setTouched] = React.useState(false);
 
   const setCheckedValue = useStableCallback(
     (value: Value, eventDetails: RadioGroup.ChangeEventDetails) => {
-      onValueChange(value, eventDetails);
+      onValueChangeProp?.(value, eventDetails);
 
       if (eventDetails.isCanceled) {
         return;
@@ -147,13 +145,18 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return undefined;
   });
 
-  const getFieldValue = useStableCallback(() => checkedValue ?? null);
+  const getFormValue = useStableCallback(() => {
+    // Disabled radios are excluded from native form submission, so a disabled
+    // selection shouldn't be reported as the field's value either.
+    const input = groupInputRef.current;
+    if (!input || input.disabled || !input.checked) {
+      return null;
+    }
 
-  useRegisterFieldControl(controlRef, {
-    id,
-    value: checkedValue,
-    getValue: getFieldValue,
+    return checkedValue ?? null;
   });
+
+  useRegisterFieldControl(controlRef, id, checkedValue ?? null, getFormValue, !disabled, nameProp);
 
   useValueChanged(checkedValue, () => {
     clearErrors(name);
@@ -161,19 +164,13 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     setDirty(checkedValue !== validityData.initialValue);
     setFilled(checkedValue != null);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(checkedValue);
-    } else {
-      validation.commit(checkedValue, true);
-    }
+    validation.change(checkedValue);
 
     const fallbackInput = firstEnabledInputRef.current;
     if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
       setInputRef(fallbackInput);
     }
   });
-
-  const [touched, setTouched] = React.useState(false);
 
   const ariaLabelledby = elementProps['aria-labelledby'] ?? labelId ?? fieldsetContext?.legendId;
 
@@ -192,7 +189,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       form,
       validation,
       name,
-      onValueChange,
       readOnly,
       registerControlRef,
       registerInputRef,
@@ -208,7 +204,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       validation,
       fieldState,
       name,
-      onValueChange,
       readOnly,
       registerControlRef,
       registerInputRef,
@@ -254,7 +249,11 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
         className={className}
         style={style}
         state={state}
-        props={[defaultProps, validation.getValidationProps, elementProps]}
+        props={[
+          defaultProps,
+          elementProps,
+          (props: HTMLProps) => validation.getValidationProps(disabled ?? false, props),
+        ]}
         refs={[forwardedRef]}
         stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}

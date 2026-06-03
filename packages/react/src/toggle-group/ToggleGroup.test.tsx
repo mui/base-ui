@@ -453,8 +453,28 @@ describe('<ToggleGroup />', () => {
       expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
     });
 
+    it('does not change the value when the event is canceled', async () => {
+      const onValueChange = vi.fn((_value, eventDetails) => {
+        eventDetails.cancel();
+      });
+
+      const { user } = await render(
+        <ToggleGroup onValueChange={onValueChange}>
+          <Toggle value="one" />
+          <Toggle value="two" />
+        </ToggleGroup>,
+      );
+
+      const [button1] = screen.getAllByRole('button');
+
+      await user.pointer({ keys: '[MouseLeft]', target: button1 });
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(button1).toHaveAttribute('aria-pressed', 'false');
+    });
+
     ['Enter', 'Space'].forEach((key) => {
-      it(`fires when when the ${key} is pressed`, async ({ skip }) => {
+      it(`fires when the ${key} is pressed`, async ({ skip }) => {
         if (isJSDOM) {
           skip();
         }
