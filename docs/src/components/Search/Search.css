@@ -1,3 +1,5 @@
+@import 'docs/src/css/custom-media.css';
+
 /* Keep layer order stable when this file is emitted from a client CSS chunk. */
 @layer all, base, theme, components, utilities;
 
@@ -58,6 +60,24 @@
 
   .SearchTriggerShortcut {
     color: var(--gray-t1);
+  }
+
+  .SearchTriggerIcon {
+    display: flex;
+
+    @media (--lg) {
+      display: none;
+    }
+  }
+
+  .SearchTriggerText {
+    display: none;
+    align-items: center;
+    gap: 0.25rem;
+
+    @media (--lg) {
+      display: inline-flex;
+    }
   }
 
   .SearchTrigger kbd {

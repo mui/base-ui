@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { Search } from './Search';
 
 interface SearchTriggerProps {
@@ -16,13 +17,18 @@ export function SearchTrigger({ enableKeyboardShortcut, ...props }: SearchTrigge
     >
       {({ isCmd }) => (
         <React.Fragment>
-          Search
-          {enableKeyboardShortcut && (
-            <span className="SearchTriggerShortcut">
-              ({isCmd ? <kbd>⌘</kbd> : <kbd>Ctrl+</kbd>}
-              <kbd>k</kbd>)
-            </span>
-          )}
+          <span className="SearchTriggerIcon">
+            <MagnifyingGlassIcon aria-hidden="true" />
+          </span>
+          <span className="SearchTriggerText">
+            Search
+            {enableKeyboardShortcut && (
+              <span className="SearchTriggerShortcut">
+                ({isCmd ? <kbd>⌘</kbd> : <kbd>Ctrl+</kbd>}
+                <kbd>k</kbd>)
+              </span>
+            )}
+          </span>
         </React.Fragment>
       )}
     </Search>
