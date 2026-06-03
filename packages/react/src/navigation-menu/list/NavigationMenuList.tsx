@@ -95,8 +95,8 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   ];
 
   // When nested, skip the CompositeRoot wrapper so that triggers can participate
-  // in the parent Content's composite navigation context. Also skip the onKeyDown
-  // handler that blocks propagation so arrow keys can reach the parent CompositeRoot.
+  // in the parent Content's composite navigation context. The key propagation
+  // guard is already omitted through `defaultProps` above.
   const element = useRenderElement('ul', componentProps, {
     state,
     ref: forwardedRef,

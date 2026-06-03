@@ -658,8 +658,8 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         return;
       }
 
-      // Keyboard opening already sets the value with the `listNavigation` reason in the
-      // trigger's `onKeyDown`, so re-setting it here would emit a duplicate `onValueChange`.
+      // Keyboard open events reach this activation path after `onKeyDown` has already set
+      // the value with the `listNavigation` reason.
       if (value != null && event.type !== 'keydown') {
         setValue(
           itemValue,

@@ -3,10 +3,19 @@ import * as React from 'react';
 import { fireEvent, screen, flushMicrotasks, act, within, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { Dialog } from '@base-ui/react/dialog';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { OPEN_DELAY } from '../utils/constants';
+
+type FalsyNavigationMenuValue = 0 | '' | false;
+
+const falsyNavigationMenuValueCases = [
+  ['0', 0],
+  ['empty string', ''],
+  ['false', false],
+] as const satisfies ReadonlyArray<[string, FalsyNavigationMenuValue]>;
 
 function TestNavigationMenu(
   props: NavigationMenu.Root.Props & {
@@ -285,15 +294,17 @@ function TestNavigationMenuOrientationAttributes() {
 
 function TestInlineNestedNavigationMenu(
   props: {
-    nestedDefaultValue?: string | number | null;
-    nestedItem1Value?: string | number;
+    nestedDefaultValue?: string | number | boolean | null;
+    nestedItem1Value?: string | number | boolean;
     keepMountedContent?: boolean;
+    nestedLinkCloseOnClick?: boolean;
   } = {},
 ) {
   const {
     nestedDefaultValue = 'nested-item-1',
     nestedItem1Value = 'nested-item-1',
     keepMountedContent = false,
+    nestedLinkCloseOnClick = false,
   } = props;
   const nestedRootProps =
     nestedDefaultValue == null ? undefined : { defaultValue: nestedDefaultValue };
@@ -316,7 +327,12 @@ function TestInlineNestedNavigationMenu(
                     data-testid="nested-popup-1"
                     keepMounted={keepMountedContent}
                   >
-                    <NavigationMenu.Link href="#nested-link-1">Nested Link 1</NavigationMenu.Link>
+                    <NavigationMenu.Link
+                      href="#nested-link-1"
+                      closeOnClick={nestedLinkCloseOnClick}
+                    >
+                      Nested Link 1
+                    </NavigationMenu.Link>
                   </NavigationMenu.Content>
                 </NavigationMenu.Item>
                 <NavigationMenu.Item value="nested-item-2">
@@ -1537,6 +1553,15 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.getByTestId('arrow')).toHaveStyle({
         transition: 'none',
       });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup-root')).not.toHaveStyle({
+          transition: 'none',
+        });
+      });
+      expect(screen.getByTestId('arrow')).not.toHaveStyle({
+        transition: 'none',
+      });
     });
   });
 
@@ -1564,19 +1589,19 @@ describe('<NavigationMenu.Root />', () => {
       const trigger1 = screen.getByTestId('trigger-1');
       const trigger2 = screen.getByTestId('trigger-2');
 
-      await act(async () => {
-        trigger1.focus();
-      });
-      await user.keyboard('{ArrowDown}');
+      await user.click(trigger1);
       await flushMicrotasks();
       expect(onValueChange.mock.calls.length).toBe(1);
       expect(onValueChange.mock.lastCall?.[0]).toBe('item-1');
 
-      // Switching to another open item via the arrow key previously also ran the activation
-      // path's `triggerPress` setValue, emitting a second onValueChange for the same item.
       await act(async () => {
-        trigger2.focus();
+        trigger1.focus();
       });
+      await user.keyboard('{ArrowRight}');
+      await flushMicrotasks();
+      expect(trigger2).toHaveFocus();
+      expect(onValueChange.mock.calls.filter((call) => call[0] === 'item-2')).toHaveLength(0);
+
       await user.keyboard('{ArrowDown}');
       await flushMicrotasks();
 
@@ -1584,38 +1609,41 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
     });
 
-    it('treats a falsy item value as a valid open value', async () => {
-      const onValueChange = vi.fn();
-      await render(
-        <NavigationMenu.Root onValueChange={onValueChange}>
-          <NavigationMenu.List>
-            <NavigationMenu.Item value={0}>
-              <NavigationMenu.Trigger data-testid="trigger-0">Zero</NavigationMenu.Trigger>
-              <NavigationMenu.Content data-testid="popup-0">
-                <NavigationMenu.Link href="#link-0">Zero link</NavigationMenu.Link>
-              </NavigationMenu.Content>
-            </NavigationMenu.Item>
-          </NavigationMenu.List>
-          <NavigationMenu.Portal>
-            <NavigationMenu.Positioner>
-              <NavigationMenu.Popup>
-                <NavigationMenu.Viewport />
-              </NavigationMenu.Popup>
-            </NavigationMenu.Positioner>
-          </NavigationMenu.Portal>
-        </NavigationMenu.Root>,
-      );
+    it.each(falsyNavigationMenuValueCases)(
+      'treats a falsy item value (%s) as a valid open value',
+      async (_label, itemValue) => {
+        const onValueChange = vi.fn();
+        await render(
+          <NavigationMenu.Root<FalsyNavigationMenuValue> onValueChange={onValueChange}>
+            <NavigationMenu.List>
+              <NavigationMenu.Item value={itemValue}>
+                <NavigationMenu.Trigger data-testid="trigger-0">Zero</NavigationMenu.Trigger>
+                <NavigationMenu.Content data-testid="popup-0">
+                  <NavigationMenu.Link href="#link-0">Zero link</NavigationMenu.Link>
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+            <NavigationMenu.Portal>
+              <NavigationMenu.Positioner>
+                <NavigationMenu.Popup>
+                  <NavigationMenu.Viewport />
+                </NavigationMenu.Popup>
+              </NavigationMenu.Positioner>
+            </NavigationMenu.Portal>
+          </NavigationMenu.Root>,
+        );
 
-      const trigger = screen.getByTestId('trigger-0');
+        const trigger = screen.getByTestId('trigger-0');
 
-      fireEvent.click(trigger);
-      await flushMicrotasks();
+        fireEvent.click(trigger);
+        await flushMicrotasks();
 
-      expect(onValueChange.mock.calls.length).toBe(1);
-      expect(onValueChange.mock.lastCall?.[0]).toBe(0);
-      expect(trigger).toHaveAttribute('aria-expanded', 'true');
-      expect(screen.queryByTestId('popup-0')).not.toBe(null);
-    });
+        expect(onValueChange.mock.calls.length).toBe(1);
+        expect(onValueChange.mock.lastCall?.[0]).toBe(itemValue);
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.queryByTestId('popup-0')).not.toBe(null);
+      },
+    );
 
     it('should be controlled by value prop', async () => {
       const { setProps } = await render(<TestNavigationMenu value="item-1" />);
@@ -1823,8 +1851,7 @@ describe('<NavigationMenu.Root />', () => {
       await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
       const trigger = screen.getByTestId('trigger-1');
 
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
 
@@ -1838,6 +1865,21 @@ describe('<NavigationMenu.Root />', () => {
       await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
       const trigger = screen.getByTestId('trigger-1');
 
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not open on touch when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.pointerUp(trigger, { pointerType: 'touch' });
       fireEvent.click(trigger);
       await flushMicrotasks();
 
@@ -1891,38 +1933,85 @@ describe('<NavigationMenu.Root />', () => {
 
       expect(screen.queryByTestId('popup-root')).toBe(null);
     });
+
+    it('unmounts immediately when called while the popup is closing', async () => {
+      const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      try {
+        const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+
+        function ControlledNavigationMenu(props: { value: string | null }) {
+          return <TestNavigationMenu value={props.value} actionsRef={actionsRef} />;
+        }
+
+        const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+        const popupRoot = screen.getByTestId('popup-root');
+        const animations = mockAnimations(popupRoot);
+        const closingAnimation = animations.start();
+
+        await rerender(<ControlledNavigationMenu value={null} />);
+        await flushMicrotasks();
+
+        expect(popupRoot).toHaveAttribute('data-ending-style');
+
+        await act(async () => {
+          actionsRef.current?.unmount();
+        });
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('popup-root')).toBe(null);
+
+        await act(async () => {
+          animations.finish(closingAnimation);
+          await flushMicrotasks();
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+      }
+    });
   });
 
   describe('prop: side', () => {
-    it('pins the popup to the right edge when side="left" so it grows leftward', async () => {
-      await render(
-        <NavigationMenu.Root>
-          <NavigationMenu.List>
-            <NavigationMenu.Item value="item-1">
-              <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
-              <NavigationMenu.Content>
-                <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
-              </NavigationMenu.Content>
-            </NavigationMenu.Item>
-          </NavigationMenu.List>
-          <NavigationMenu.Portal>
-            <NavigationMenu.Positioner side="left">
-              <NavigationMenu.Popup data-testid="popup-root">
-                <NavigationMenu.Viewport />
-              </NavigationMenu.Popup>
-            </NavigationMenu.Positioner>
-          </NavigationMenu.Portal>
-        </NavigationMenu.Root>,
-      );
+    it.each([
+      ['left in LTR', 'ltr', 'left'],
+      ['inline-start in LTR', 'ltr', 'inline-start'],
+      ['inline-end in RTL', 'rtl', 'inline-end'],
+    ] as const)(
+      'pins the popup to the right edge when side is %s so it grows leftward',
+      async (_label, direction, side) => {
+        await render(
+          <DirectionProvider direction={direction as TextDirection}>
+            <NavigationMenu.Root>
+              <NavigationMenu.List>
+                <NavigationMenu.Item value="item-1">
+                  <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+                  <NavigationMenu.Content>
+                    <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+                  </NavigationMenu.Content>
+                </NavigationMenu.Item>
+              </NavigationMenu.List>
+              <NavigationMenu.Portal>
+                <NavigationMenu.Positioner side={side}>
+                  <NavigationMenu.Popup data-testid="popup-root">
+                    <NavigationMenu.Viewport />
+                  </NavigationMenu.Popup>
+                </NavigationMenu.Positioner>
+              </NavigationMenu.Portal>
+            </NavigationMenu.Root>
+          </DirectionProvider>,
+        );
 
-      const trigger = screen.getByTestId('trigger-1');
-      fireEvent.click(trigger);
-      await flushMicrotasks();
+        const trigger = screen.getByTestId('trigger-1');
+        fireEvent.click(trigger);
+        await flushMicrotasks();
 
-      const popup = screen.getByTestId('popup-root');
-      expect(popup).toHaveAttribute('data-side', 'left');
-      expect(popup).toHaveStyle({ position: 'absolute', top: '0px', right: '0px' });
-    });
+        const popup = screen.getByTestId('popup-root');
+        expect(popup).toHaveAttribute('data-side', side);
+        expect(popup).toHaveStyle({ position: 'absolute', top: '0px', right: '0px' });
+      },
+    );
   });
 
   describe('tabbing', () => {
@@ -2634,9 +2723,40 @@ describe('<NavigationMenu.Root />', () => {
         expect(screen.queryByTestId('nested-popup-1')).toBe(null);
       });
 
-      it('treats a falsy value as open for inline nested trigger interactions', async () => {
+      it.each(falsyNavigationMenuValueCases)(
+        'treats a falsy value (%s) as open for inline nested trigger interactions',
+        async (_label, itemValue) => {
+          await render(
+            <TestInlineNestedNavigationMenu
+              nestedDefaultValue={itemValue}
+              nestedItem1Value={itemValue}
+            />,
+          );
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+          await flushMicrotasks();
+
+          const popup1 = screen.getByTestId('popup-1');
+          const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+          expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+          expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
+
+          fireEvent.click(nestedTrigger1);
+          await flushMicrotasks();
+
+          expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+          expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
+        },
+      );
+
+      it('propagates a nested close with a falsy open value to the parent root', async () => {
         await render(
-          <TestInlineNestedNavigationMenu nestedDefaultValue={0} nestedItem1Value={0} />,
+          <TestInlineNestedNavigationMenu
+            nestedDefaultValue={false}
+            nestedItem1Value={false}
+            nestedLinkCloseOnClick
+          />,
         );
         const trigger1 = screen.getByTestId('trigger-1');
 
@@ -2646,13 +2766,12 @@ describe('<NavigationMenu.Root />', () => {
         const popup1 = screen.getByTestId('popup-1');
         const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
         expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
-        expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
 
-        fireEvent.click(nestedTrigger1);
+        fireEvent.click(screen.getByText('Nested Link 1'));
         await flushMicrotasks();
 
-        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
-        expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByTestId('popup-1')).toBe(null);
       });
 
       it('allows arrow key navigation to submenu triggers', async () => {

@@ -137,14 +137,20 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   };
 
   React.useEffect(() => {
-    if (!open) {
+    if (!open || !instant) {
       return undefined;
     }
 
-    if (instant) {
-      instantTimeout.start(0, () => {
-        setInstant(false);
-      });
+    instantTimeout.start(0, () => {
+      setInstant(false);
+    });
+
+    return undefined;
+  }, [open, instant, instantTimeout]);
+
+  React.useEffect(() => {
+    if (!open) {
+      return undefined;
     }
 
     function handleResize() {
@@ -159,7 +165,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
     const win = ownerWindow(positionerElement);
     return addEventListener(win, 'resize', handleResize);
-  }, [open, instant, instantTimeout, positionerElement]);
+  }, [open, instantTimeout, positionerElement]);
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,

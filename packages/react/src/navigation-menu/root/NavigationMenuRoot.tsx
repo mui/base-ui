@@ -211,6 +211,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot<V
     closeReasonRef.current = undefined;
   });
 
+  // Providing `actionsRef` opts into manual unmounting, so close completion hooks leave it mounted.
   React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   useOpenChangeComplete({
