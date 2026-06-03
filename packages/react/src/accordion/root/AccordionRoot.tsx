@@ -32,7 +32,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     disabled = false,
     hiddenUntilFound: hiddenUntilFoundProp,
     keepMounted: keepMountedProp,
-    loopFocus = true,
+    loopFocus,
     onValueChange,
     multiple = false,
     orientation = 'vertical',
@@ -66,8 +66,6 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
   }, [valueProp, defaultValueProp]);
 
   const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
-  // Mirrors `accordionItemRefs` indexes so focus navigation targets only Accordion.Trigger.
-  const accordionTriggerRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
@@ -119,29 +117,14 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
 
   const contextValue: AccordionRootContext<Value> = React.useMemo(
     () => ({
-      accordionItemRefs,
-      accordionTriggerRefs,
-      direction,
       disabled,
       handleValueChange,
       hiddenUntilFound: hiddenUntilFoundProp ?? false,
       keepMounted: keepMountedProp ?? false,
-      loopFocus,
-      orientation,
       state,
       value,
     }),
-    [
-      direction,
-      disabled,
-      handleValueChange,
-      hiddenUntilFoundProp,
-      keepMountedProp,
-      loopFocus,
-      orientation,
-      state,
-      value,
-    ],
+    [disabled, handleValueChange, hiddenUntilFoundProp, keepMountedProp, state, value],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -179,6 +162,7 @@ export interface AccordionRootState<Value = any> {
   disabled: boolean;
   /**
    * The component orientation.
+   * @deprecated Roving focus has been removed from the accordion.
    */
   orientation: Orientation;
 }
@@ -222,6 +206,7 @@ export interface AccordionRootProps<Value = any> extends BaseUIComponentProps<
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
+   * @deprecated Roving focus has been removed from the accordion.
    */
   loopFocus?: boolean | undefined;
   /**
@@ -240,6 +225,7 @@ export interface AccordionRootProps<Value = any> extends BaseUIComponentProps<
    * The visual orientation of the accordion.
    * Controls whether roving focus uses left/right or up/down arrow keys.
    * @default 'vertical'
+   * @deprecated Roving focus has been removed from the accordion.
    */
   orientation?: Orientation | undefined;
 }

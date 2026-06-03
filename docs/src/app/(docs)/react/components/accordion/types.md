@@ -45,7 +45,10 @@ type AccordionRootState<TValue = any> = {
   value: TValue[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
-  /** The component orientation. */
+  /**
+   * The component orientation.
+   * @deprecated Roving focus has been removed from the accordion.
+   */
   orientation: Orientation;
 };
 ```
@@ -121,7 +124,10 @@ type AccordionTriggerState = {
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
-  /** The component orientation. */
+  /**
+   * The component orientation.
+   * @deprecated Roving focus has been removed from the accordion.
+   */
   orientation: Orientation;
 };
 ```
@@ -177,7 +183,10 @@ type AccordionItemState = {
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
-  /** The component orientation. */
+  /**
+   * The component orientation.
+   * @deprecated Roving focus has been removed from the accordion.
+   */
   orientation: Orientation;
 };
 ```
@@ -247,7 +256,10 @@ type AccordionHeaderState = {
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
-  /** The component orientation. */
+  /**
+   * The component orientation.
+   * @deprecated Roving focus has been removed from the accordion.
+   */
   orientation: Orientation;
 };
 ```
@@ -305,7 +317,10 @@ type AccordionPanelState = {
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
-  /** The component orientation. */
+  /**
+   * The component orientation.
+   * @deprecated Roving focus has been removed from the accordion.
+   */
   orientation: Orientation;
 };
 ```
