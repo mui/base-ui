@@ -534,6 +534,11 @@ export interface SliderThumbProps extends Omit<
    */
   disabled?: boolean | undefined;
   /**
+   * A string value forwarded to the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.
+   * Ignored when `getAriaValueText` is provided.
+   */
+  'aria-valuetext'?: React.AriaAttributes['aria-valuetext'] | undefined;
+  /**
    * A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.
    */
   getAriaLabel?: ((index: number) => string) | null | undefined;

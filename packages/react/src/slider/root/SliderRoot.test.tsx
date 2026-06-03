@@ -1086,6 +1086,59 @@ describe('<Slider.Root />', () => {
       expect(handleValueCommitted.mock.calls[0][0]).toBe(40);
       expect(slider).toHaveAttribute('aria-valuenow', '40');
     });
+
+    it.skipIf(isJSDOM)(
+      'commits the last applied range value when a later move is canceled',
+      async () => {
+        let cancel = false;
+        const handleValueChange = vi.fn((_value, details) => {
+          if (cancel) {
+            details.cancel();
+          }
+        });
+        const handleValueCommitted = vi.fn();
+
+        await render(
+          <TestRangeSlider
+            defaultValue={[20, 80]}
+            onValueChange={handleValueChange}
+            onValueCommitted={handleValueCommitted}
+          />,
+        );
+
+        const thumb = screen.getAllByTestId('thumb')[0];
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+        vi.spyOn(thumb, 'getBoundingClientRect').mockImplementation(() => ({
+          width: 0,
+          height: 0,
+          bottom: 0,
+          left: 20,
+          right: 20,
+          top: 0,
+          x: 20,
+          y: 0,
+          toJSON() {},
+        }));
+
+        fireEvent.pointerDown(thumb, { buttons: 1, clientX: 20 });
+        fireEvent.pointerMove(document.body, { buttons: 1, clientX: 40 });
+
+        cancel = true;
+        fireEvent.pointerMove(document.body, { buttons: 1, clientX: 60 });
+        fireEvent.pointerUp(document.body, { buttons: 1, clientX: 60 });
+
+        const [slider1, slider2] = screen.getAllByRole('slider');
+
+        expect(handleValueChange).toHaveBeenCalledTimes(2);
+        expect(handleValueCommitted).toHaveBeenCalledTimes(1);
+        expect(handleValueCommitted.mock.calls[0][0]).toEqual([40, 80]);
+        expect(slider1).toHaveAttribute('aria-valuenow', '40');
+        expect(slider2).toHaveAttribute('aria-valuenow', '80');
+      },
+    );
   });
 
   describe('events', () => {
