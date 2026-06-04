@@ -47,7 +47,7 @@ type AccordionRootState<TValue = any> = {
   disabled: boolean;
   /**
    * The component orientation.
-   * @deprecated Roving focus has been removed from the accordion.
+   * @deprecated Roving focus was removed from Accordion following the APG guidance update
    */
   orientation: Orientation;
 };
@@ -126,7 +126,7 @@ type AccordionTriggerState = {
   disabled: boolean;
   /**
    * The component orientation.
-   * @deprecated Roving focus has been removed from the accordion.
+   * @deprecated Roving focus was removed from Accordion following the APG guidance update
    */
   orientation: Orientation;
 };
@@ -185,7 +185,7 @@ type AccordionItemState = {
   disabled: boolean;
   /**
    * The component orientation.
-   * @deprecated Roving focus has been removed from the accordion.
+   * @deprecated Roving focus was removed from Accordion following the APG guidance update
    */
   orientation: Orientation;
 };
@@ -258,7 +258,7 @@ type AccordionHeaderState = {
   disabled: boolean;
   /**
    * The component orientation.
-   * @deprecated Roving focus has been removed from the accordion.
+   * @deprecated Roving focus was removed from Accordion following the APG guidance update
    */
   orientation: Orientation;
 };
@@ -319,7 +319,7 @@ type AccordionPanelState = {
   disabled: boolean;
   /**
    * The component orientation.
-   * @deprecated Roving focus has been removed from the accordion.
+   * @deprecated Roving focus was removed from Accordion following the APG guidance update
    */
   orientation: Orientation;
 };

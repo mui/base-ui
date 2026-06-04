@@ -162,7 +162,7 @@ export interface AccordionRootState<Value = any> {
   disabled: boolean;
   /**
    * The component orientation.
-   * @deprecated Roving focus has been removed from the accordion.
+   * @deprecated Roving focus was removed from Accordion following the APG guidance update
    */
   orientation: Orientation;
 }
@@ -206,7 +206,7 @@ export interface AccordionRootProps<Value = any> extends BaseUIComponentProps<
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
-   * @deprecated Roving focus has been removed from the accordion.
+   * @deprecated Roving focus was removed from Accordion following the APG guidance update
    */
   loopFocus?: boolean | undefined;
   /**
@@ -225,7 +225,7 @@ export interface AccordionRootProps<Value = any> extends BaseUIComponentProps<
    * The visual orientation of the accordion.
    * Controls whether roving focus uses left/right or up/down arrow keys.
    * @default 'vertical'
-   * @deprecated Roving focus has been removed from the accordion.
+   * @deprecated Roving focus was removed from Accordion following the APG guidance update
    */
   orientation?: Orientation | undefined;
 }
