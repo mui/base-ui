@@ -156,6 +156,10 @@ export class PopupFloatingRootContext<
     return this.snapshot;
   };
 
+  toJSON() {
+    return this.snapshot;
+  }
+
   subscribe = (listener: Listener) => {
     this.listeners.add(listener);
     return () => {

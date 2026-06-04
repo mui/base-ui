@@ -169,4 +169,37 @@ describe('PopupFloatingRootContext', () => {
       }),
     );
   });
+
+  it('serializes to floating state without traversing the popup store back-reference', () => {
+    const store = createStore();
+    const floatingRootContext = new PopupFloatingRootContext({
+      popupStore: store,
+      nested: false,
+      onOpenChange: undefined,
+    });
+
+    (store.context as Context & { floatingRootContext: unknown }).floatingRootContext =
+      floatingRootContext;
+
+    store.update({
+      open: true,
+      mounted: true,
+      floatingId: 'popup-id',
+      transitionStatus: 'starting',
+    });
+
+    const serialized = JSON.stringify(store.context);
+    const parsed = JSON.parse(serialized);
+
+    expect(serialized).not.toContain('popupStore');
+    expect(parsed.floatingRootContext).toEqual({
+      open: true,
+      transitionStatus: 'starting',
+      domReferenceElement: null,
+      referenceElement: null,
+      floatingElement: null,
+      positionReference: null,
+      floatingId: 'popup-id',
+    });
+  });
 });

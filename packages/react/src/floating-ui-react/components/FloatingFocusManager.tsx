@@ -693,10 +693,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       enqueueFocus(elToFocus, {
         preventScroll: elToFocus === floatingFocusElement,
+        // Modal popups hide the outside tree from assistive tech in a passive effect.
+        // Move focus before that effect runs so the reference is not focused when hidden.
+        sync: modal,
         shouldFocus() {
-          // This focus is queued on the next animation frame. If the floating element has closed
-          // before it runs — e.g. tabbing out of a kept-mounted popup — don't pull focus back
-          // onto the initial element after it has legitimately moved elsewhere.
+          // If the floating element has closed before this runs — e.g. tabbing out of a
+          // kept-mounted popup — don't pull focus back onto the initial element after
+          // it has legitimately moved elsewhere.
           if (!openRef.current) {
             return false;
           }
@@ -720,6 +723,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floatingFocusElement,
     getTabbableContent,
     initialFocusRef,
+    modal,
     openInteractionTypeRef,
     openRef,
   ]);
