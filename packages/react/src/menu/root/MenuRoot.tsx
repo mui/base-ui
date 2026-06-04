@@ -14,7 +14,6 @@ import {
   useFloatingParentNodeId,
   useListNavigation,
   useTypeahead,
-  useSyncedFloatingRootContext,
 } from '../../floating-ui-react';
 import { MenuRootContext, useMenuRootContext } from './MenuRootContext';
 import { MenubarContext, useMenubarContext } from '../../menubar/MenubarContext';
@@ -39,6 +38,7 @@ import {
   setPopupOpenState,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
+  usePopupFloatingRootContext,
   usePopupInteractionProps,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
@@ -261,7 +261,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         return;
       }
 
-      store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
+      store.context.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
       const nativeEvent = eventDetails.event as Event;
       if (
@@ -319,11 +319,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     },
   );
 
-  const floatingRootContext = useSyncedFloatingRootContext({
-    popupStore: store,
+  const floatingRootContext = usePopupFloatingRootContext(store, {
     floatingId,
     nested: floatingParentNodeIdFromContext != null,
-    onOpenChange: setOpen,
   });
 
   const floatingEvents = floatingRootContext.context.events;
@@ -511,7 +509,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const itemProps = listNavigation.item ?? EMPTY_OBJECT;
 
   usePopupInteractionProps(store, {
-    floatingRootContext,
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,
