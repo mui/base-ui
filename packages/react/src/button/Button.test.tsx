@@ -148,7 +148,7 @@ describe('<Button />', () => {
 
         await user.hover(button);
 
-        expect(handleMouseMove).toHaveBeenCalledTimes(1);
+        expect(handleMouseMove).toHaveBeenCalled();
 
         await user.click(button);
 

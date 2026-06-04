@@ -59,10 +59,11 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
       refs={[forwardedRef, buttonRef]}
       props={[
         elementProps,
-        // When composing with another Base UI component, `disabled` must be passed
-        // through so the rendered component can derive its own disabled state.
-        // For the default toolbar button, avoid forwarding a React `disabled` prop
-        // so focusable disabled buttons remain hoverable for interactions like tooltips.
+        // When a render prop is provided (typically another Base UI component
+        // like Menu.Trigger), forward `disabled` so the rendered component can
+        // derive its own disabled state. For the default toolbar button, avoid
+        // forwarding a React `disabled` prop so focusable disabled buttons remain
+        // hoverable for interactions like tooltips.
         // TODO: follow up after https://github.com/mui/base-ui/issues/1976#issuecomment-2916905663
         render ? { disabled } : EMPTY_OBJECT,
         getButtonProps,
