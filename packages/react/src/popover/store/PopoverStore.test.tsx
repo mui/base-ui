@@ -22,8 +22,9 @@ function createVirtualReference(): ReferenceType {
 }
 
 describe('PopoverStore', () => {
-  it('acts as the floating root context by deriving values from popup state', () => {
+  it('creates a floating root context that derives values from popup state', () => {
     const store = new PopoverStore(undefined, 'generated-id');
+    const floatingRootContext = store.context.floatingRootContext;
     const trigger = document.createElement('button');
     const positioner = document.createElement('div');
 
@@ -35,16 +36,17 @@ describe('PopoverStore', () => {
       transitionStatus: 'starting',
     });
 
-    expect(store.select('open')).toBe(true);
-    expect(store.select('transitionStatus')).toBe('starting');
-    expect(store.select('referenceElement')).toBe(trigger);
-    expect(store.select('domReferenceElement')).toBe(trigger);
-    expect(store.select('floatingElement')).toBe(positioner);
-    expect(store.select('floatingId')).toBe('generated-id');
+    expect(floatingRootContext.select('open')).toBe(true);
+    expect(floatingRootContext.select('transitionStatus')).toBe('starting');
+    expect(floatingRootContext.select('referenceElement')).toBe(trigger);
+    expect(floatingRootContext.select('domReferenceElement')).toBe(trigger);
+    expect(floatingRootContext.select('floatingElement')).toBe(positioner);
+    expect(floatingRootContext.select('floatingId')).toBe('generated-id');
   });
 
-  it('keeps positioning overrides local to the floating root surface', () => {
+  it('keeps positioning overrides out of the popup store state', () => {
     const store = new PopoverStore();
+    const floatingRootContext = store.context.floatingRootContext;
     const trigger = document.createElement('button');
     const positioner = document.createElement('div');
     const virtualReference = createVirtualReference();
@@ -56,30 +58,31 @@ describe('PopoverStore', () => {
       positionerElement: positioner,
     });
 
-    store.set('referenceElement', trigger);
-    store.set('floatingElement', positioner);
+    floatingRootContext.set('referenceElement', trigger);
+    floatingRootContext.set('floatingElement', positioner);
 
-    expect(store.state.referenceElement).toBe(null);
-    expect(store.state.floatingElement).toBe(null);
-    expect(store.select('referenceElement')).toBe(trigger);
-    expect(store.select('floatingElement')).toBe(positioner);
+    expect((store.state as Record<string, unknown>).referenceElement).toBeUndefined();
+    expect((store.state as Record<string, unknown>).floatingElement).toBeUndefined();
+    expect(floatingRootContext.select('referenceElement')).toBe(trigger);
+    expect(floatingRootContext.select('floatingElement')).toBe(positioner);
 
-    store.set('positionReference', virtualReference);
+    floatingRootContext.set('positionReference', virtualReference);
 
-    expect(store.select('referenceElement')).toBe(virtualReference);
-    expect(store.select('domReferenceElement')).toBe(trigger);
+    expect((store.state as Record<string, unknown>).positionReference).toBeUndefined();
+    expect(floatingRootContext.select('referenceElement')).toBe(virtualReference);
+    expect(floatingRootContext.select('domReferenceElement')).toBe(trigger);
 
-    store.set('positionReference', null);
+    floatingRootContext.set('positionReference', null);
 
-    expect(store.select('referenceElement')).toBe(trigger);
+    expect(floatingRootContext.select('referenceElement')).toBe(trigger);
   });
 
-  it('emits floating openchange events from the popover store', () => {
+  it('emits floating openchange events through the floating context', () => {
     const store = new PopoverStore();
     const openChange = vi.fn();
     const details = createChangeEventDetails(REASONS.triggerPress);
 
-    store.context.events.on('openchange', openChange);
+    store.context.floatingRootContext.context.events.on('openchange', openChange);
 
     store.setOpen(true, details);
 
