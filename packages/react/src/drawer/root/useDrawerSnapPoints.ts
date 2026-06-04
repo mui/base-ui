@@ -14,6 +14,19 @@ export interface ResolvedDrawerSnapPoint {
   offset: number;
 }
 
+/**
+ * Resolves the vertical swipe movement for a snap point, applying square-root damping once the drag
+ * overshoots the fully-open edge (`nextOffset < 0`) so the popup resists travelling past it.
+ */
+export function getSnapPointSwipeMovement(baseOffset: number, movementValue: number): number {
+  const nextOffset = baseOffset + movementValue;
+  if (nextOffset >= 0) {
+    return movementValue;
+  }
+
+  return -Math.sqrt(-nextOffset) - baseOffset;
+}
+
 function resolveSnapPointValue(
   snapPoint: DrawerSnapPoint,
   viewportHeight: number,
