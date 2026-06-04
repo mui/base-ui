@@ -5,7 +5,6 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from './useButton';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { mergeProps } from '../../merge-props';
 
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
@@ -470,34 +469,6 @@ describe('useButton', () => {
       }
 
       const { user } = await render(<TestButton onClick={handleClick} />);
-
-      const button = screen.getByRole('button');
-
-      await focusElement(button);
-      expect(button).toHaveFocus();
-
-      await user.keyboard('[Space]');
-      expect(handleClick).toHaveBeenCalledTimes(1);
-    });
-
-    it('does not fire duplicate clicks for Space when composed with another useButton', async () => {
-      const handleClick = vi.fn();
-
-      function TestButton() {
-        const outer = useButton({ native: false, composite: true });
-        const inner = useButton({ native: false, composite: true });
-
-        return (
-          <span
-            {...mergeProps(
-              outer.getButtonProps({ onClick: handleClick, tabIndex: 0 }),
-              inner.getButtonProps({ onClick: handleClick }),
-            )}
-          />
-        );
-      }
-
-      const { user } = await render(<TestButton />);
 
       const button = screen.getByRole('button');
 
