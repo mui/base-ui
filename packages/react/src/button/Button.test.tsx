@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import { Button } from '@base-ui/react/button';
 import { screen } from '@mui/internal-test-utils';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Button />', () => {
   const { render } = createRenderer();
@@ -124,6 +124,37 @@ describe('<Button />', () => {
       expect(handlePointerDown.mock.calls.length).toBe(0);
       expect(handleKeyDown.mock.calls.length).toBe(0);
     });
+
+    it.skipIf(isJSDOM)(
+      'native button: allows hover handlers while blocking activation',
+      async () => {
+        const handleClick = vi.fn();
+        const handleMouseMove = vi.fn();
+
+        const { user } = await render(
+          <Button
+            disabled
+            focusableWhenDisabled
+            onClick={handleClick}
+            onMouseMove={handleMouseMove}
+          />,
+        );
+
+        const button = screen.getByRole('button');
+
+        expect(button).not.toHaveAttribute('disabled');
+        expect(button).toHaveAttribute('data-disabled');
+        expect(button).toHaveAttribute('aria-disabled', 'true');
+
+        await user.hover(button);
+
+        expect(handleMouseMove).toHaveBeenCalled();
+
+        await user.click(button);
+
+        expect(handleClick).toHaveBeenCalledTimes(0);
+      },
+    );
 
     it('custom element: prevents interactions but remains focusable', async () => {
       const handleClick = vi.fn();
