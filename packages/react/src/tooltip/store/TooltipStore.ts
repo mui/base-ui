@@ -11,6 +11,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  resetPopupRootStore,
   setPopupOpenState,
   usePopupStore,
 } from '../../utils/popups';
@@ -128,21 +129,10 @@ export class TooltipStore<Payload> extends ReactStore<
   }
 
   public reset = () => {
-    // Detached hover triggers can stay mounted after the root unmounts. Cancel
-    // their pending hover-open timers so they cannot reopen a rootless handle.
-    if (this.select('open')) {
-      this.setOpen(false, createChangeEventDetails(REASONS.none));
-    }
-
-    this.state.floatingRootContext.resetHoverInteraction();
-    this.update({
+    resetPopupRootStore(this, createChangeEventDetails(REASONS.none), {
       ...createInitialState<Payload>(),
       floatingRootContext: this.state.floatingRootContext,
     });
-
-    // Floating UI keeps synchronized references and transient interaction data.
-    // Clear them with the tooltip state so they don't point at disconnected nodes.
-    this.state.floatingRootContext.reset();
   };
 
   static useStore<Payload>(

@@ -9,6 +9,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  resetPopupRootStore,
   setPopupOpenState,
   updateInlineRectCoords,
   usePopupStore,
@@ -129,23 +130,18 @@ export class PreviewCardStore<Payload> extends ReactStore<
   };
 
   public reset = () => {
-    // Detached hover triggers can stay mounted after the root unmounts. Cancel
-    // their pending hover-open timers so they cannot reopen a rootless handle.
-    if (this.select('open')) {
-      this.setOpen(false, createChangeEventDetails(REASONS.none));
-    }
-
-    this.state.floatingRootContext.resetHoverInteraction();
-    this.context.closeDelayRef.current = CLOSE_DELAY;
-    this.context.inlineRectCoordsRef.current = undefined;
-    this.update({
-      ...createInitialState<Payload>(),
-      floatingRootContext: this.state.floatingRootContext,
-    });
-
-    // Floating UI keeps synchronized references and transient interaction data.
-    // Clear them with the preview card state so they don't point at disconnected nodes.
-    this.state.floatingRootContext.reset();
+    resetPopupRootStore(
+      this,
+      createChangeEventDetails(REASONS.none),
+      {
+        ...createInitialState<Payload>(),
+        floatingRootContext: this.state.floatingRootContext,
+      },
+      () => {
+        this.context.closeDelayRef.current = CLOSE_DELAY;
+        this.context.inlineRectCoordsRef.current = undefined;
+      },
+    );
   };
 
   public static useStore<Payload>(

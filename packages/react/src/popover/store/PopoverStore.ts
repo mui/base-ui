@@ -15,6 +15,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  resetPopupRootStore,
   setPopupOpenState,
   usePopupStore,
 } from '../../utils/popups';
@@ -191,26 +192,17 @@ export class PopoverStore<Payload> extends ReactStore<
   };
 
   public reset = () => {
-    // Keep the external handle reusable, but clear state owned by the unmounted
-    // root so route changes don't preserve an open popup or stale trigger data.
-    if (this.select('open')) {
-      this.setOpen(false, createChangeEventDetails(REASONS.none));
-    }
-
-    this.context.stickIfOpenTimeout.clear();
-    // Detached hover triggers can stay mounted after the root unmounts. Cancel
-    // their pending hover-open timers so they cannot reopen a rootless handle.
-    this.state.floatingRootContext.resetHoverInteraction();
-    this.update({
-      ...createInitialState<Payload>(),
-      floatingRootContext: this.state.floatingRootContext,
-      modal: this.state.modal,
-      nested: this.state.nested,
-    });
-
-    // Floating UI keeps synchronized references and transient interaction data.
-    // Clear them with the popover state so they don't point at disconnected nodes.
-    this.state.floatingRootContext.reset();
+    resetPopupRootStore(
+      this,
+      createChangeEventDetails(REASONS.none),
+      {
+        ...createInitialState<Payload>(),
+        floatingRootContext: this.state.floatingRootContext,
+        modal: this.state.modal,
+        nested: this.state.nested,
+      },
+      () => this.context.stickIfOpenTimeout.clear(),
+    );
   };
 
   public static useStore<Payload>(

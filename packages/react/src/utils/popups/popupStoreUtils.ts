@@ -31,7 +31,7 @@ export const FOCUSABLE_POPUP_PROPS = {
 // track owners instead of a simple mounted/unmounted boolean.
 const mountedPopupRootStoreOwners = new WeakMap<object, number>();
 
-type PopupStoreWithOpen<
+export type PopupStoreWithOpen<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
 > = ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors> & {
@@ -344,6 +344,61 @@ export function usePopupRootSync<
 }
 
 /**
+ * A popup store that can be reset to its initial state when its root unmounts.
+ */
+export interface ResettablePopupStore {
+  reset(): void;
+}
+
+/**
+ * Resets a popup root's store after its root component unmounts while the
+ * external handle (and any detached triggers) lives on.
+ *
+ * Shared by every popup store's `reset()` method to keep the cleanup steps and
+ * their ordering in one place. It closes the popup, cancels pending hover-open
+ * timers, and drops stale Floating UI references, while leaving the handle
+ * reusable by a future root. Callers supply the per-store `nextState` (initial
+ * state plus any fields that must survive the reset) and an optional callback to
+ * clear store-specific timers or refs.
+ *
+ * @param store The popup store to reset.
+ * @param closeEventDetails Event details used to close the popup if it is currently open.
+ * @param nextState The state to reset the store to (initial state plus any preserved fields).
+ * @param clearRootOwnedContext Optional callback to clear store-specific context (timers, refs).
+ */
+export function resetPopupRootStore<
+  State extends PopupStoreState<unknown>,
+  SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
+>(
+  store: PopupStoreWithOpen<State, SetOpenEventDetails>,
+  // `State`/`SetOpenEventDetails` are inferred from `store` alone; `NoInfer` keeps
+  // these arguments from narrowing them (e.g. `nextState.openProp` is always set,
+  // which would otherwise conflict with the store's `boolean | undefined`).
+  closeEventDetails: NoInfer<SetOpenEventDetails>,
+  nextState: NoInfer<Partial<State>>,
+  clearRootOwnedContext?: () => void,
+): void {
+  // Keep the external handle reusable, but clear state owned by the unmounted
+  // root so route changes don't preserve an open popup or stale trigger data.
+  if (store.select('open')) {
+    store.setOpen(false, closeEventDetails);
+  }
+
+  // Detached hover triggers can stay mounted after the root unmounts. Cancel
+  // their pending hover-open timers so they cannot reopen a rootless handle.
+  // No-op for stores without hover interactions (e.g. Dialog).
+  store.state.floatingRootContext.resetHoverInteraction();
+
+  clearRootOwnedContext?.();
+
+  store.update(nextState);
+
+  // Floating UI keeps synchronized references and transient interaction data.
+  // Clear them with the popup state so they don't point at disconnected nodes.
+  store.state.floatingRootContext.reset();
+}
+
+/**
  * Resets a popup handle's store once the last root using it unmounts.
  *
  * A handle (e.g. for detached triggers) can outlive the root component that
@@ -355,7 +410,7 @@ export function usePopupRootSync<
  *
  * @param store The handle's store to reset, or `undefined` when no handle is attached.
  */
-export function usePopupRootUnmountCleanup(store: { reset(): void } | undefined) {
+export function usePopupRootUnmountCleanup(store: ResettablePopupStore | undefined) {
   useIsoLayoutEffect(() => {
     if (!store) {
       return undefined;
