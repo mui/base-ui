@@ -81,7 +81,7 @@ export type PopupStoreStateBase<Payload> = {
 };
 
 export type PopupStoreState<Payload> = PopupStoreStateBase<Payload> & {
-  floatingRootContext: FloatingRootStore;
+  floatingRootContext: FloatingRootContext;
 };
 
 export function createInitialPopupStoreStateBase<Payload>(): PopupStoreStateBase<Payload> {
@@ -108,7 +108,7 @@ export function createInitialPopupStoreStateBase<Payload>(): PopupStoreStateBase
 export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload> {
   return {
     ...createInitialPopupStoreStateBase<Payload>(),
-    floatingRootContext: getEmptyRootContext() as FloatingRootStore,
+    floatingRootContext: getEmptyRootContext(),
   };
 }
 
@@ -150,7 +150,7 @@ export type PopupStoreContext<ChangeEventDetails> = {
 };
 
 type S = PopupStoreStateBase<unknown> & {
-  floatingRootContext?: FloatingRootStore | undefined;
+  floatingRootContext?: FloatingRootContext | undefined;
 };
 
 const activeTriggerIdSelector = createSelector(

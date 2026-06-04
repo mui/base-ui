@@ -130,8 +130,9 @@ export interface FloatingRootContextBag {
 
 export interface FloatingRootContext {
   readonly context: FloatingRootContextBag;
-  subscribe(listener: (state: unknown) => void): () => void;
-  getSnapshot(): unknown;
+  readonly state: Readonly<FloatingRootState>;
+  subscribe(listener: (state: Readonly<FloatingRootState>) => void): () => void;
+  getSnapshot(): Readonly<FloatingRootState>;
   setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   dispatchOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   syncOpenEvent(open: boolean, event: Event | undefined): void;
