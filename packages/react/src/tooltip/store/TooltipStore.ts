@@ -1,21 +1,28 @@
+'use client';
+/* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { useId } from '@base-ui/utils/useId';
 import { type TooltipRoot } from '../root/TooltipRoot';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
-  createPopupFloatingRootContext,
-  createInitialPopupStoreState,
+  createInitialPopupStoreStateBase,
+  PopupFloatingRootContext,
   PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreState,
+  PopupStoreStateBase,
   PopupTriggerMap,
   setPopupOpenState,
-  usePopupStore,
+  usePopupFloatingRootContext,
 } from '../../utils/popups';
+import { useFloatingParentNodeId } from '../../floating-ui-react';
 
-export type State<Payload> = PopupStoreState<Payload> & {
+export type State<Payload> = PopupStoreStateBase<Payload> & {
   disabled: boolean;
   instantType: 'delay' | 'dismiss' | 'focus' | undefined;
   isInstantPhase: boolean;
@@ -28,6 +35,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 };
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
+  floatingRootContext: PopupFloatingRootContext<State<unknown>, TooltipRoot.ChangeEventDetails>;
   readonly popupRef: React.RefObject<HTMLElement | null>;
 };
 
@@ -56,12 +64,12 @@ export class TooltipStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
-
-    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+    state.floatingId = floatingId;
 
     super(
       state,
       {
+        floatingRootContext: undefined as never,
         popupRef: React.createRef<HTMLElement | null>(),
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
@@ -69,6 +77,19 @@ export class TooltipStore<Payload> extends ReactStore<
       },
       selectors,
     );
+
+    this.context.floatingRootContext = new PopupFloatingRootContext({
+      popupStore: this as unknown as ReactStore<
+        State<unknown>,
+        PopupStoreContext<TooltipRoot.ChangeEventDetails>,
+        typeof popupStoreSelectors
+      >,
+      nested,
+      onOpenChange: this.setOpen as (
+        open: boolean,
+        eventDetails: BaseUIChangeEventDetails<string>,
+      ) => void,
+    }) as Context['floatingRootContext'];
   }
 
   setOpen = (
@@ -92,7 +113,7 @@ export class TooltipStore<Payload> extends ReactStore<
       return;
     }
 
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
+    this.context.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
@@ -121,7 +142,7 @@ export class TooltipStore<Payload> extends ReactStore<
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
   cancelPendingOpen(event: MouseEvent | PointerEvent) {
-    this.state.floatingRootContext.dispatchOpenChange(
+    this.context.floatingRootContext.dispatchOpenChange(
       false,
       createChangeEventDetails(REASONS.triggerPress, event),
     );
@@ -131,12 +152,17 @@ export class TooltipStore<Payload> extends ReactStore<
     externalStore: TooltipStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
-    /* eslint-disable react-hooks/rules-of-hooks */
-    const store = usePopupStore(
-      externalStore,
-      (floatingId, nested) => new TooltipStore<Payload>(initialState, floatingId, nested),
-    ).store;
-    /* eslint-enable react-hooks/rules-of-hooks */
+    const floatingId = useId();
+    const nested = useFloatingParentNodeId() != null;
+
+    const internalStoreRef = React.useRef<TooltipStore<Payload> | null>(null);
+    if (externalStore === undefined && internalStoreRef.current === null) {
+      internalStoreRef.current = new TooltipStore<Payload>(initialState, floatingId, nested);
+    }
+
+    const store = externalStore ?? internalStoreRef.current!;
+
+    usePopupFloatingRootContext(store, { floatingId, nested });
 
     return store;
   }
@@ -144,7 +170,7 @@ export class TooltipStore<Payload> extends ReactStore<
 
 function createInitialState<Payload>(): State<Payload> {
   return {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreStateBase<Payload>(),
     disabled: false,
     instantType: undefined,
     isInstantPhase: false,
