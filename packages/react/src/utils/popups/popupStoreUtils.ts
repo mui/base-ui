@@ -25,6 +25,10 @@ export const FOCUSABLE_POPUP_PROPS = {
   [FOCUSABLE_ATTRIBUTE]: '',
 } satisfies HTMLProps<HTMLElement> & Record<typeof FOCUSABLE_ATTRIBUTE, string>;
 
+// Reference count of currently mounted roots that share a given handle's store.
+// A handle's store can briefly be claimed by more than one root (e.g. a keyed
+// remount mounts the next root before the previous one's cleanup runs), so we
+// track owners instead of a simple mounted/unmounted boolean.
 const mountedPopupRootStoreOwners = new WeakMap<object, number>();
 
 type PopupStoreWithOpen<
@@ -339,6 +343,18 @@ export function usePopupRootSync<
   );
 }
 
+/**
+ * Resets a popup handle's store once the last root using it unmounts.
+ *
+ * A handle (e.g. for detached triggers) can outlive the root component that
+ * renders the popup. When that root unmounts we must clear the now-orphaned
+ * state so a later route change or remount doesn't reuse stale, open, or
+ * disconnected data. Because React may mount a replacement root before tearing
+ * down the previous one, ownership is reference counted and the reset is
+ * deferred to a microtask so a still-mounted successor can cancel it.
+ *
+ * @param store The handle's store to reset, or `undefined` when no handle is attached.
+ */
 export function usePopupRootUnmountCleanup(store: { reset(): void } | undefined) {
   useIsoLayoutEffect(() => {
     if (!store) {

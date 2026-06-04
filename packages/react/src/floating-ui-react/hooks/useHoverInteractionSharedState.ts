@@ -46,6 +46,9 @@ export class HoverInteraction {
   setMouseMoveHandler = (doc: Document, handler: (event: MouseEvent) => void) => {
     this.clearMouseMoveHandler();
     this.handler = handler;
+    // Remember the document the listener was attached to. The reference element
+    // (which we'd otherwise derive the document from) may be detached by the
+    // time we clean up, so we must remove the listener from this exact document.
     this.handlerDocument = doc;
     doc.addEventListener('mousemove', handler);
   };
