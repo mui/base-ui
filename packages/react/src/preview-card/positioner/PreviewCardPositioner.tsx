@@ -52,7 +52,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
-  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingRootContext = store.context.floatingRootContext;
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const hasViewport = store.useState('hasViewport');

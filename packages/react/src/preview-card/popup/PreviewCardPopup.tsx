@@ -38,7 +38,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
-  const floatingContext = store.useState('floatingRootContext');
+  const floatingContext = store.context.floatingRootContext;
 
   useOpenChangeComplete({
     open,
