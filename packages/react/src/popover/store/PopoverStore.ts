@@ -5,37 +5,59 @@ import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useId } from '@base-ui/utils/useId';
+import { isElement } from '@floating-ui/utils/dom';
 import { type PopoverRoot } from '../root/PopoverRoot';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
-  createPopupFloatingRootContext,
-  createInitialPopupStoreState,
+  createInitialPopupStoreStateBase,
   PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreState,
+  PopupStoreStateBase,
   PopupTriggerMap,
   setPopupOpenState,
-  usePopupStore,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
+import {
+  useFloatingParentNodeId,
+  type ContextData,
+  type FloatingEvents,
+  type FloatingRootContext,
+} from '../../floating-ui-react';
+import { createEventEmitter } from '../../floating-ui-react/utils/createEventEmitter';
+import {
+  dispatchFloatingOpenChange,
+  type FloatingRootState,
+  syncFloatingOpenEvent,
+} from '../../floating-ui-react/components/FloatingRootStore';
 
-export type State<Payload> = PopupStoreState<Payload> & {
-  disabled: boolean;
-  instantType: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
-  modal: boolean | 'trap-focus';
-  focusManagerModal: boolean;
-  openMethod: InteractionType | null;
-  openChangeReason: PopoverRoot.ChangeEventReason | null;
-  stickIfOpen: boolean;
-  nested: boolean;
-  titleElementId: string | undefined;
-  descriptionElementId: string | undefined;
-  openOnHover: boolean;
-  closeDelay: number;
-  hasViewport: boolean;
-};
+type PopoverFloatingState = Pick<
+  FloatingRootState,
+  'domReferenceElement' | 'floatingElement' | 'positionReference' | 'referenceElement'
+>;
+
+export type State<Payload> = PopupStoreStateBase<Payload> &
+  PopoverFloatingState & {
+    disabled: boolean;
+    instantType: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
+    modal: boolean | 'trap-focus';
+    focusManagerModal: boolean;
+    openMethod: InteractionType | null;
+    openChangeReason: PopoverRoot.ChangeEventReason | null;
+    stickIfOpen: boolean;
+    nested: boolean;
+    titleElementId: string | undefined;
+    descriptionElementId: string | undefined;
+    openOnHover: boolean;
+    closeDelay: number;
+    hasViewport: boolean;
+  };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
+  readonly dataRef: React.RefObject<ContextData>;
+  readonly events: FloatingEvents;
+  nested: boolean;
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
@@ -46,13 +68,17 @@ type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
 
 function createInitialState<Payload>(): State<Payload> {
   return {
-    ...createInitialPopupStoreState(),
+    ...createInitialPopupStoreStateBase(),
     disabled: false,
     modal: false,
     focusManagerModal: false,
     instantType: undefined,
     openMethod: null,
     openChangeReason: null,
+    referenceElement: null,
+    domReferenceElement: null,
+    floatingElement: null,
+    positionReference: null,
     titleElementId: undefined,
     descriptionElementId: undefined,
     stickIfOpen: true,
@@ -61,6 +87,19 @@ function createInitialState<Payload>(): State<Payload> {
     closeDelay: 0,
     hasViewport: false,
   };
+}
+
+function getBaseReferenceElement(state: State<unknown>) {
+  return state.referenceElement ?? (state.mounted ? state.activeTriggerElement : null);
+}
+
+function getDomReferenceElement(state: State<unknown>) {
+  if (state.domReferenceElement) {
+    return state.domReferenceElement;
+  }
+
+  const referenceElement = getBaseReferenceElement(state);
+  return isElement(referenceElement) ? referenceElement : null;
 }
 
 const selectors = {
@@ -77,13 +116,21 @@ const selectors = {
   openOnHover: createSelector((state: State<unknown>) => state.openOnHover),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
   hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  floatingId: createSelector((state: State<unknown>) => state.floatingId),
+  referenceElement: createSelector(
+    (state: State<unknown>) => state.positionReference ?? getBaseReferenceElement(state),
+  ),
+  domReferenceElement: createSelector(getDomReferenceElement),
+  floatingElement: createSelector(
+    (state: State<unknown>) => state.floatingElement ?? state.positionerElement,
+  ),
+  positionReference: createSelector((state: State<unknown>) => state.positionReference),
 };
 
-export class PopoverStore<Payload> extends ReactStore<
-  Readonly<State<Payload>>,
-  Context,
-  Selectors
-> {
+export class PopoverStore<Payload>
+  extends ReactStore<Readonly<State<Payload>>, Context, Selectors>
+  implements FloatingRootContext
+{
   constructor(
     initialState?: Partial<State<Payload>>,
     floatingId?: string | undefined,
@@ -96,15 +143,14 @@ export class PopoverStore<Payload> extends ReactStore<
       initial.mounted = true;
     }
 
-    initial.floatingRootContext = createPopupFloatingRootContext(
-      triggerElements,
-      floatingId,
-      nested,
-    );
+    initial.floatingId = floatingId;
 
     super(
       initial,
       {
+        dataRef: { current: {} },
+        events: createEventEmitter(),
+        nested,
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
@@ -117,6 +163,82 @@ export class PopoverStore<Payload> extends ReactStore<
       },
       selectors,
     );
+  }
+
+  syncOpenEvent = (newOpen: boolean, event: Event | undefined) => {
+    syncFloatingOpenEvent(this.context, this.select('open'), newOpen, event);
+  };
+
+  dispatchOpenChange = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
+    dispatchFloatingOpenChange(this.context, this.select('open'), newOpen, eventDetails);
+  };
+
+  set<T>(key: keyof State<Payload>, value: T) {
+    super.set(key, this.getNormalizedValue(key, value));
+  }
+
+  update(changes: Partial<Readonly<State<Payload>>>) {
+    super.update(this.getNormalizedChanges(changes));
+  }
+
+  setState(newState: Readonly<State<Payload>>) {
+    super.setState(this.getNormalizedChanges(newState) as Readonly<State<Payload>>);
+  }
+
+  private getNormalizedChanges(changes: Partial<Readonly<State<Payload>>>) {
+    let normalizedChanges: Partial<State<Payload>> | undefined;
+
+    for (const key of Object.keys(changes) as Array<keyof State<Payload>>) {
+      const value = changes[key];
+      const normalizedValue = this.getNormalizedValue(key, value);
+
+      if (!Object.is(value, normalizedValue)) {
+        normalizedChanges ??= { ...changes } as Partial<State<Payload>>;
+        (normalizedChanges as Record<keyof State<Payload>, unknown>)[key] = normalizedValue;
+      }
+    }
+
+    return (normalizedChanges ?? changes) as Partial<State<Payload>>;
+  }
+
+  private getNormalizedValue<Key extends keyof State<Payload>>(key: Key, value: unknown) {
+    switch (key) {
+      case 'referenceElement':
+        return (
+          value == null || Object.is(value, this.getPopupReferenceElement()) ? null : value
+        ) as State<Payload>[Key];
+      case 'domReferenceElement':
+        return (
+          value == null || Object.is(value, this.getPopupDomReferenceElement()) ? null : value
+        ) as State<Payload>[Key];
+      case 'floatingElement':
+        return (
+          value == null || Object.is(value, this.getPopupFloatingElement()) ? null : value
+        ) as State<Payload>[Key];
+      default:
+        return value;
+    }
+  }
+
+  private getPopupReferenceElement() {
+    if (!this.state.mounted) {
+      return null;
+    }
+
+    const activeTriggerId = this.select('activeTriggerId');
+    const triggerElement =
+      activeTriggerId == null ? undefined : this.context.triggerElements.getById(activeTriggerId);
+
+    return triggerElement ?? this.state.activeTriggerElement;
+  }
+
+  private getPopupDomReferenceElement() {
+    const referenceElement = this.getPopupReferenceElement();
+    return isElement(referenceElement) ? referenceElement : null;
+  }
+
+  private getPopupFloatingElement() {
+    return this.state.positionerElement;
   }
 
   setOpen = (
@@ -154,7 +276,7 @@ export class PopoverStore<Payload> extends ReactStore<
       return;
     }
 
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
+    this.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = {
@@ -193,10 +315,19 @@ export class PopoverStore<Payload> extends ReactStore<
     externalStore: PopoverStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
-    const { store, internalStore } = usePopupStore(
-      externalStore,
-      (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
-    );
+    const floatingId = useId();
+    const nested = useFloatingParentNodeId() != null;
+
+    const internalStoreRef = React.useRef<PopoverStore<Payload> | null>(null);
+    if (externalStore === undefined && internalStoreRef.current === null) {
+      internalStoreRef.current = new PopoverStore<Payload>(initialState, floatingId, nested);
+    }
+
+    const store = externalStore ?? internalStoreRef.current!;
+    const internalStore = internalStoreRef.current;
+
+    store.context.nested = nested;
+    store.useSyncedValue('floatingId', floatingId);
 
     React.useEffect(() => internalStore?.disposeEffect(), [internalStore]);
     return store;

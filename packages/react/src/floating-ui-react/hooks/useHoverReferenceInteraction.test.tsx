@@ -221,8 +221,11 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
       };
 
       // Simulate active close transition lifecycle while closed.
-      (context.rootStore.state as { transitionStatus?: 'ending' | undefined }).transitionStatus =
-        open ? undefined : 'ending';
+      (
+        context.rootStore as unknown as {
+          state: { transitionStatus?: 'ending' | undefined };
+        }
+      ).state.transitionStatus = open ? undefined : 'ending';
 
       const hoverProps = useHoverReferenceInteraction(context, {
         mouseOnly: true,

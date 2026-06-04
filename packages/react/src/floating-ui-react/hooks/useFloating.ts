@@ -3,10 +3,10 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useFloating as usePosition, type VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { FloatingRootStore } from '../components/FloatingRootStore';
 import { useFloatingTree } from '../components/FloatingTree';
 import type {
   FloatingContext,
+  FloatingRootContext,
   NarrowedElement,
   ReferenceType,
   UseFloatingOptions,
@@ -22,7 +22,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const { nodeId, externalTree } = options;
 
   const internalStore = useFloatingRootContext(options);
-  const store = options.rootContext || internalStore;
+  const store: FloatingRootContext = options.rootContext || internalStore;
 
   const referenceElement = store.useState('referenceElement');
   const floatingElement = store.useState('floatingElement');
@@ -64,7 +64,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     : null;
 
   const syncedFloatingElement =
-    localFloatingElement === undefined ? store.state.floatingElement : localFloatingElement;
+    localFloatingElement === undefined ? store.select('floatingElement') : localFloatingElement;
 
   store.useSyncedValue('referenceElement', localDomReference ?? null);
   store.useSyncedValue(
@@ -177,7 +177,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
       context,
       refs,
       elements,
-      rootStore: store as unknown as FloatingRootStore,
+      rootStore: store,
     }),
     [position, refs, elements, context, store],
   ) as UseFloatingReturn;

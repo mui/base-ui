@@ -14,7 +14,7 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { HTMLProps } from '../../internals/types';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import {
-  PopupStoreState,
+  PopupStoreStateBase,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreSelectors,
@@ -26,14 +26,14 @@ export const FOCUSABLE_POPUP_PROPS = {
 } satisfies HTMLProps<HTMLElement> & Record<typeof FOCUSABLE_ATTRIBUTE, string>;
 
 type PopupStoreWithOpen<
-  State extends PopupStoreState<unknown>,
+  State extends PopupStoreStateBase<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
 > = ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors> & {
   setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
 };
 
 export function usePopupStore<
-  State extends PopupStoreState<unknown>,
+  State extends PopupStoreStateBase<unknown> & { floatingRootContext: any },
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
   Store extends PopupStoreWithOpen<State, SetOpenEventDetails>,
 >(
@@ -68,7 +68,7 @@ export function usePopupStore<
  *
  * @param store The Store instance where the trigger should be registered.
  */
-export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
+export function useTriggerRegistration<State extends PopupStoreStateBase<unknown>>(
   id: string | undefined,
   store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
 ) {
@@ -117,7 +117,7 @@ export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
 }
 
 export function setPopupOpenState(
-  state: Partial<PopupStoreState<unknown>>,
+  state: Partial<PopupStoreStateBase<unknown>>,
   open: boolean,
   trigger: Element | undefined,
 ) {
@@ -144,7 +144,7 @@ export function setPopupOpenState(
  * @param store The Store instance managing the popup state.
  * @param stateUpdates An object with state updates to apply when the trigger is active.
  */
-export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>(
+export function useTriggerDataForwarding<State extends PopupStoreStateBase<unknown>>(
   triggerId: string | undefined,
   triggerElementRef: React.RefObject<Element | null>,
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
@@ -210,7 +210,7 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  *
  * @param store The Store instance managing the popup state.
  */
-export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>(
+export function useImplicitActiveTrigger<State extends PopupStoreStateBase<unknown>>(
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
 ) {
   const open = store.useState('open');
@@ -225,7 +225,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
     }
 
     const triggerCount = store.context.triggerElements.size;
-    const stateUpdates: Partial<PopupStoreState<unknown>> = {};
+    const stateUpdates: Partial<PopupStoreStateBase<unknown>> = {};
 
     if (store.state.triggerCount !== triggerCount) {
       stateUpdates.triggerCount = triggerCount;
@@ -257,7 +257,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  *
  * @returns A function to forcibly unmount the popup.
  */
-export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
+export function useOpenStateTransitions<State extends PopupStoreStateBase<unknown>>(
   open: boolean,
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
   onUnmount?: () => void,
@@ -297,7 +297,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   return { forceUnmount, transitionStatus };
 }
 
-export function usePopupInteractionProps<State extends PopupStoreState<unknown>>(
+export function usePopupInteractionProps<State extends PopupStoreStateBase<unknown>>(
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
   statePart: Partial<State> &
     Pick<State, 'activeTriggerProps' | 'inactiveTriggerProps' | 'popupProps'>,
@@ -317,7 +317,7 @@ export function usePopupInteractionProps<State extends PopupStoreState<unknown>>
 }
 
 export function usePopupRootSync<
-  State extends PopupStoreState<unknown> & {
+  State extends PopupStoreStateBase<unknown> & {
     openMethod: InteractionType | null;
   },
 >(store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>, open: boolean) {

@@ -7,7 +7,8 @@ import type * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 
 import type { FloatingTreeStore } from './components/FloatingTreeStore';
-import type { FloatingRootStore } from './components/FloatingRootStore';
+import type { FloatingRootState } from './components/FloatingRootStore';
+import type { PopupTriggerMap } from '../utils/popups';
 
 export * from '.';
 export type { FloatingDelayGroupProps } from './components/FloatingDelayGroup';
@@ -119,7 +120,39 @@ export interface ContextData {
   [key: string]: any;
 }
 
-export type FloatingRootContext = FloatingRootStore;
+export interface FloatingRootContextBag {
+  onOpenChange?: ((open: boolean, eventDetails: any) => void) | undefined;
+  readonly dataRef: React.RefObject<ContextData>;
+  readonly events: FloatingEvents;
+  nested: boolean;
+  readonly triggerElements: PopupTriggerMap;
+}
+
+export interface FloatingRootContext {
+  readonly context: FloatingRootContextBag;
+  subscribe(listener: (state: unknown) => void): () => void;
+  getSnapshot(): unknown;
+  setOpen(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+  dispatchOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
+  syncOpenEvent(open: boolean, event: Event | undefined): void;
+  set(key: any, value: any): void;
+  update(state: Partial<FloatingRootState>): void;
+  select(key: 'open', ...args: any[]): boolean;
+  select(key: 'transitionStatus', ...args: any[]): FloatingRootState['transitionStatus'];
+  select(key: 'domReferenceElement', ...args: any[]): Element | null;
+  select(key: 'referenceElement', ...args: any[]): ReferenceType | null;
+  select(key: 'floatingElement', ...args: any[]): HTMLElement | null;
+  select(key: 'positionReference', ...args: any[]): ReferenceType | null;
+  select(key: 'floatingId', ...args: any[]): string | undefined;
+  useState(key: 'open', ...args: any[]): boolean;
+  useState(key: 'transitionStatus', ...args: any[]): FloatingRootState['transitionStatus'];
+  useState(key: 'domReferenceElement', ...args: any[]): Element | null;
+  useState(key: 'referenceElement', ...args: any[]): ReferenceType | null;
+  useState(key: 'floatingElement', ...args: any[]): HTMLElement | null;
+  useState(key: 'positionReference', ...args: any[]): ReferenceType | null;
+  useState(key: 'floatingId', ...args: any[]): string | undefined;
+  useSyncedValue(key: keyof FloatingRootState, value: any): void;
+}
 
 export type FloatingContext = Omit<
   UsePositionFloatingReturn<ReferenceType>,

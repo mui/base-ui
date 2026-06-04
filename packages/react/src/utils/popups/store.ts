@@ -10,7 +10,7 @@ import { HTMLProps } from '../../internals/types';
 /**
  * State common to all popup stores.
  */
-export type PopupStoreState<Payload> = {
+export type PopupStoreStateBase<Payload> = {
   /**
    * Whether the popup is open (internal state).
    */
@@ -29,7 +29,6 @@ export type PopupStoreState<Payload> = {
    */
   transitionStatus: TransitionStatus;
 
-  floatingRootContext: FloatingRootContext;
   floatingId: string | undefined;
   /**
    * Number of trigger elements currently registered for this popup.
@@ -81,13 +80,16 @@ export type PopupStoreState<Payload> = {
   popupProps: HTMLProps;
 };
 
-export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload> {
+export type PopupStoreState<Payload> = PopupStoreStateBase<Payload> & {
+  floatingRootContext: FloatingRootStore;
+};
+
+export function createInitialPopupStoreStateBase<Payload>(): PopupStoreStateBase<Payload> {
   return {
     open: false,
     openProp: undefined,
     mounted: false,
     transitionStatus: undefined,
-    floatingRootContext: getEmptyRootContext(),
     floatingId: undefined,
     triggerCount: 0,
     preventUnmountingOnClose: false,
@@ -100,6 +102,13 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     activeTriggerProps: EMPTY_OBJECT as HTMLProps,
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
+  };
+}
+
+export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload> {
+  return {
+    ...createInitialPopupStoreStateBase<Payload>(),
+    floatingRootContext: getEmptyRootContext() as FloatingRootStore,
   };
 }
 
@@ -140,7 +149,9 @@ export type PopupStoreContext<ChangeEventDetails> = {
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
 };
 
-type S = PopupStoreState<unknown>;
+type S = PopupStoreStateBase<unknown> & {
+  floatingRootContext?: FloatingRootStore | undefined;
+};
 
 const activeTriggerIdSelector = createSelector(
   (state: S) => state.triggerIdProp ?? state.activeTriggerId,
@@ -176,7 +187,9 @@ export const popupStoreSelectors = {
   open: openSelector,
   mounted: createSelector((state: S) => state.mounted),
   transitionStatus: createSelector((state: S) => state.transitionStatus),
-  floatingRootContext: createSelector((state: S) => state.floatingRootContext),
+  floatingRootContext: createSelector(
+    (state: S) => state.floatingRootContext as FloatingRootContext,
+  ),
   triggerCount: createSelector((state: S) => state.triggerCount),
   preventUnmountingOnClose: createSelector((state: S) => state.preventUnmountingOnClose),
   payload: createSelector((state: S) => state.payload),

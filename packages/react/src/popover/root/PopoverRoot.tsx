@@ -230,9 +230,7 @@ function PopoverInteractions({
   store: PopoverStore<any>;
   modal: boolean | 'trap-focus';
 }) {
-  const floatingRootContext = store.useState('floatingRootContext');
-
-  const dismiss = useDismiss(floatingRootContext, {
+  const dismiss = useDismiss(store, {
     outsidePressEvent: {
       // Ensure `aria-hidden` on outside elements is removed immediately
       // on outside press when trapping focus.
