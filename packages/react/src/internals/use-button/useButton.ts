@@ -10,11 +10,6 @@ import { useCompositeRootContext } from '../composite/root/CompositeRootContext'
 import { BaseUIEvent, HTMLProps } from '../types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
 
-// Keyboard activation dispatches a real click so capture/bubble and delegated ancestor handlers run.
-function dispatchClick(element: HTMLElement) {
-  element.click();
-}
-
 export function useButton(parameters: UseButtonParameters = {}): UseButtonReturnValue {
   const {
     disabled = false,
@@ -148,7 +143,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
               if (isLink || (isNativeButton && isButton) || shouldClick) {
                 event.preventBaseUIHandler();
-                dispatchClick(currentTarget);
+                currentTarget.click();
               }
 
               return;
@@ -162,7 +157,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
               if (!isNativeButton && isEnterKey) {
                 event.preventBaseUIHandler();
-                dispatchClick(currentTarget);
+                currentTarget.click();
               }
             }
           },
@@ -199,7 +194,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               event.key === ' '
             ) {
               event.preventBaseUIHandler();
-              dispatchClick(event.currentTarget as HTMLElement);
+              (event.currentTarget as HTMLElement).click();
             }
           },
           onPointerDown(event: React.PointerEvent) {

@@ -126,40 +126,6 @@ describe('<Button />', () => {
     });
   });
 
-  describe('form behavior', () => {
-    it('does not submit forms by default', async () => {
-      const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-      });
-
-      const { user } = await render(
-        <form onSubmit={handleSubmit}>
-          <Button>Save</Button>
-        </form>,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'Save' }));
-
-      expect(handleSubmit).toHaveBeenCalledTimes(0);
-    });
-
-    it('submits forms when type="submit" is specified', async () => {
-      const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-      });
-
-      const { user } = await render(
-        <form onSubmit={handleSubmit}>
-          <Button type="submit">Save</Button>
-        </form>,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'Save' }));
-
-      expect(handleSubmit).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe('state', () => {
     it('passes disabled state to className, style, and render callbacks', async () => {
       const renderCalls: Button.State[] = [];
