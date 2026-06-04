@@ -20,7 +20,7 @@ import {
   setPopupOpenState,
   usePopupFloatingRootContext,
 } from '../../utils/popups';
-import { useFloatingParentNodeId } from '../../floating-ui-react';
+import { type FloatingRootContext, useFloatingParentNodeId } from '../../floating-ui-react';
 
 export type State<Payload> = PopupStoreStateBase<Payload> & {
   disabled: boolean;
@@ -35,7 +35,7 @@ export type State<Payload> = PopupStoreStateBase<Payload> & {
 };
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
-  floatingRootContext: PopupFloatingRootContext<State<unknown>, TooltipRoot.ChangeEventDetails>;
+  floatingRootContext: FloatingRootContext;
   readonly popupRef: React.RefObject<HTMLElement | null>;
 };
 

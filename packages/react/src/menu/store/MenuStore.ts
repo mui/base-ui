@@ -16,6 +16,7 @@ import {
   PopupTriggerMap,
 } from '../../utils/popups';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { FloatingRootContext } from '../../floating-ui-react';
 
 export type State<Payload> = PopupStoreStateBase<Payload> & {
   disabled: boolean;
@@ -40,7 +41,7 @@ export type State<Payload> = PopupStoreStateBase<Payload> & {
 };
 
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
-  floatingRootContext: PopupFloatingRootContext<State<unknown>, MenuRoot.ChangeEventDetails>;
+  floatingRootContext: FloatingRootContext;
   readonly positionerRef: React.RefObject<HTMLElement | null>;
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly typingRef: React.RefObject<boolean>;

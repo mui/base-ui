@@ -349,20 +349,21 @@ export class PopupFloatingRootContext<
 
 export function usePopupFloatingRootContext(
   popupStore: {
-    readonly context: { readonly floatingRootContext: PopupFloatingRootContext<any, any> };
+    readonly context: { readonly floatingRootContext: FloatingRootContext };
     useSyncedValue(key: 'floatingId', value: string | undefined): void;
   },
   options: { floatingId: string | undefined; nested: boolean },
 ): FloatingRootContext {
   const { floatingId, nested } = options;
   const floatingRootContext = popupStore.context.floatingRootContext;
+  const adapter = floatingRootContext as PopupFloatingRootContext<any, any>;
 
-  floatingRootContext.setOptions({ nested }, false);
+  adapter.setOptions({ nested }, false);
   popupStore.useSyncedValue('floatingId', floatingId);
 
   useIsoLayoutEffect(() => {
-    floatingRootContext.setOptions({ nested });
-  }, [floatingRootContext, nested]);
+    adapter.setOptions({ nested });
+  }, [adapter, nested]);
 
   return floatingRootContext;
 }

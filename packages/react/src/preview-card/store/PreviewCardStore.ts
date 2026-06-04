@@ -20,7 +20,7 @@ import { type PreviewCardRoot } from '../root/PreviewCardRoot';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY } from '../utils/constants';
-import { useFloatingParentNodeId } from '../../floating-ui-react';
+import { type FloatingRootContext, useFloatingParentNodeId } from '../../floating-ui-react';
 
 export type State<Payload> = PopupStoreStateBase<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
@@ -28,10 +28,7 @@ export type State<Payload> = PopupStoreStateBase<Payload> & {
 };
 
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
-  floatingRootContext: PopupFloatingRootContext<
-    State<unknown>,
-    PreviewCardRoot.ChangeEventDetails
-  >;
+  floatingRootContext: FloatingRootContext;
   closeDelayRef: React.RefObject<number>;
   inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
 };

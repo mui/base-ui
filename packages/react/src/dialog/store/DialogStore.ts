@@ -16,7 +16,7 @@ import {
   usePopupFloatingRootContext,
 } from '../../utils/popups';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { useFloatingParentNodeId } from '../../floating-ui-react';
+import { type FloatingRootContext, useFloatingParentNodeId } from '../../floating-ui-react';
 
 export type State<Payload> = PopupStoreStateBase<Payload> & {
   modal: boolean | 'trap-focus';
@@ -32,7 +32,7 @@ export type State<Payload> = PopupStoreStateBase<Payload> & {
 };
 
 type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
-  floatingRootContext: PopupFloatingRootContext<State<unknown>, DialogRoot.ChangeEventDetails>;
+  floatingRootContext: FloatingRootContext;
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
