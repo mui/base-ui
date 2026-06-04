@@ -1,19 +1,24 @@
+'use client';
+/* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useId } from '@base-ui/utils/useId';
 import { type DialogRoot } from '../root/DialogRoot';
 import {
-  createPopupFloatingRootContext,
-  createInitialPopupStoreState,
+  createInitialPopupStoreStateBase,
+  PopupFloatingRootContext,
   PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreState,
+  PopupStoreStateBase,
   PopupTriggerMap,
   setPopupOpenState,
-  usePopupStore,
+  usePopupFloatingRootContext,
 } from '../../utils/popups';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { useFloatingParentNodeId } from '../../floating-ui-react';
 
-export type State<Payload> = PopupStoreState<Payload> & {
+export type State<Payload> = PopupStoreStateBase<Payload> & {
   modal: boolean | 'trap-focus';
   disablePointerDismissal: boolean;
   openMethod: InteractionType | null;
@@ -27,6 +32,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 };
 
 type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
+  floatingRootContext: PopupFloatingRootContext<State<unknown>, DialogRoot.ChangeEventDetails>;
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
@@ -61,12 +67,12 @@ export class DialogStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(initialState);
-
-    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+    state.floatingId = floatingId;
 
     super(
       state,
       {
+        floatingRootContext: undefined as never,
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
@@ -77,6 +83,20 @@ export class DialogStore<Payload> extends ReactStore<
       },
       selectors,
     );
+
+    this.context.floatingRootContext = new PopupFloatingRootContext({
+      popupStore: this as unknown as ReactStore<
+        State<unknown>,
+        PopupStoreContext<DialogRoot.ChangeEventDetails>,
+        typeof popupStoreSelectors
+      >,
+      nested,
+      treatPopupAsFloatingElement: true,
+      onOpenChange: this.setOpen as (
+        open: boolean,
+        eventDetails: BaseUIChangeEventDetails<string>,
+      ) => void,
+    }) as Context['floatingRootContext'];
   }
 
   public setOpen = (
@@ -99,7 +119,7 @@ export class DialogStore<Payload> extends ReactStore<
       return;
     }
 
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
+    this.context.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const updatedState: Partial<State<Payload>> = {
       open: nextOpen,
@@ -114,13 +134,17 @@ export class DialogStore<Payload> extends ReactStore<
     externalStore: DialogStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
-    /* eslint-disable react-hooks/rules-of-hooks */
-    const store = usePopupStore(
-      externalStore,
-      (floatingId, nested) => new DialogStore<Payload>(initialState, floatingId, nested),
-      true,
-    ).store;
-    /* eslint-enable react-hooks/rules-of-hooks */
+    const floatingId = useId();
+    const nested = useFloatingParentNodeId() != null;
+
+    const internalStoreRef = React.useRef<DialogStore<Payload> | null>(null);
+    if (externalStore === undefined && internalStoreRef.current === null) {
+      internalStoreRef.current = new DialogStore<Payload>(initialState, floatingId, nested);
+    }
+
+    const store = externalStore ?? internalStoreRef.current!;
+
+    usePopupFloatingRootContext(store, { floatingId, nested });
 
     return store;
   }
@@ -128,7 +152,7 @@ export class DialogStore<Payload> extends ReactStore<
 
 function createInitialState<Payload>(initialState: Partial<State<Payload>> = {}): State<Payload> {
   return {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreStateBase<Payload>(),
     modal: true,
     disablePointerDismissal: false,
     popupElement: null,

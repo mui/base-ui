@@ -43,7 +43,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
-  const floatingContext = store.useState('floatingRootContext');
+  const floatingContext = store.context.floatingRootContext;
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 
