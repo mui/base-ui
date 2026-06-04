@@ -236,6 +236,24 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
     ) => {
       const reason = eventDetails.reason;
+      const focusRelatedTarget =
+        eventDetails.event && 'relatedTarget' in eventDetails.event
+          ? eventDetails.event.relatedTarget
+          : null;
+
+      // Pointer-driven menubar trigger switches can briefly bounce focus back to
+      // the previously active trigger. Don't let that reclaim the open menu.
+      if (
+        nextOpen &&
+        open &&
+        parent.type === 'menubar' &&
+        reason === REASONS.triggerFocus &&
+        store.select('openMethod') !== 'keyboard' &&
+        eventDetails.trigger !== activeTriggerElement &&
+        focusRelatedTarget === activeTriggerElement
+      ) {
+        return;
+      }
 
       if (
         open === nextOpen &&
