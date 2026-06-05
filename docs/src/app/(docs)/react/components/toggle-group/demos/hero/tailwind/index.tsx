@@ -5,6 +5,7 @@ import { ToggleGroup } from '@base-ui/react/toggle-group';
 export default function ExampleToggleGroup() {
   return (
     <ToggleGroup
+      aria-label="Text alignment"
       defaultValue={['left']}
       className="flex gap-px p-px border border-neutral-950 dark:border-white"
     >

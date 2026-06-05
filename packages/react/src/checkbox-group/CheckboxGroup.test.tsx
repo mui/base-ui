@@ -128,6 +128,29 @@ describe('<CheckboxGroup />', () => {
 
       expect(handleValueChange.mock.calls[2][0]).toEqual(['green']);
     });
+
+    it('does not update the group when onValueChange cancels the event', () => {
+      const handleValueChange = vi.fn((_, eventDetails: CheckboxGroup.ChangeEventDetails) => {
+        eventDetails.cancel();
+      });
+
+      render(
+        <CheckboxGroup onValueChange={handleValueChange}>
+          <Checkbox.Root value="red" data-testid="red" />
+          <Checkbox.Root value="green" data-testid="green" />
+        </CheckboxGroup>,
+      );
+
+      const red = screen.getByTestId('red');
+      const green = screen.getByTestId('green');
+
+      fireEvent.click(red);
+
+      expect(handleValueChange.mock.calls.length).toBe(1);
+      expect(handleValueChange.mock.calls[0][0]).toEqual(['red']);
+      expect(red).toHaveAttribute('aria-checked', 'false');
+      expect(green).toHaveAttribute('aria-checked', 'false');
+    });
   });
 
   describe('prop: defaultValue', () => {
@@ -677,7 +700,7 @@ describe('<CheckboxGroup />', () => {
     });
 
     it('excludes parent checkboxes from form submission', async () => {
-      const allValues = ['fuji-apple', 'gala-apple', 'granny-smith'];
+      const allValues = ['fuji-apple', 'gala-apple', 'granny-smith-apple'];
 
       function App() {
         const [value, setValue] = React.useState<string[]>(['fuji-apple', 'gala-apple']);
