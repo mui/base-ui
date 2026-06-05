@@ -137,6 +137,10 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const isNestedTriggerHoveredRef = React.useRef(false);
   const nestedTriggerOpenTimeout = useTimeout();
+  React.useEffect(
+    () => hoverInteraction.registerAdditionalOpenTimeout(nestedTriggerOpenTimeout),
+    [hoverInteraction, nestedTriggerOpenTimeout],
+  );
   // Local copy so it can be cleared on mouseLeave without resetting the hover hook's own pointerType.
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
 

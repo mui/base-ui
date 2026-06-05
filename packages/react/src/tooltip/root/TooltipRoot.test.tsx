@@ -1509,6 +1509,81 @@ describe('nested tooltips', () => {
     expect(screen.getByTestId('outer-popup')).toHaveTextContent('Row tooltip');
   });
 
+  it('should clear delayed nested-trigger reopen when a detached parent root unmounts', async () => {
+    const delay = 100;
+    const rowHandle = Tooltip.createHandle<string>();
+
+    function TestRoute({ showRoot }: { showRoot: boolean }) {
+      return (
+        <Tooltip.Provider delay={delay}>
+          <Tooltip.Trigger
+            handle={rowHandle}
+            payload="Row"
+            data-testid="outer-trigger"
+            render={<div />}
+          >
+            <span data-testid="outer-area">Row</span>
+            <Tooltip.Root>
+              <Tooltip.Trigger data-testid="inner-trigger" delay={delay * 10}>
+                Inner
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup data-testid="inner-popup">Inner tooltip</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </Tooltip.Trigger>
+
+          {showRoot ? (
+            <Tooltip.Root handle={rowHandle}>
+              {({ payload }) => (
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup data-testid="outer-popup">{payload} tooltip</Tooltip.Popup>
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              )}
+            </Tooltip.Root>
+          ) : (
+            <button type="button">Other route</button>
+          )}
+        </Tooltip.Provider>
+      );
+    }
+
+    const { setProps } = await render(<TestRoute showRoot />);
+
+    const outerTrigger = screen.getByTestId('outer-trigger');
+    const outerArea = screen.getByTestId('outer-area');
+    const innerTrigger = screen.getByTestId('inner-trigger');
+
+    fireEvent.pointerEnter(outerTrigger, { pointerType: 'mouse', clientX: 10, clientY: 10 });
+    fireEvent.mouseEnter(outerTrigger);
+    fireEvent.pointerEnter(innerTrigger, { pointerType: 'mouse', clientX: 50, clientY: 10 });
+    fireEvent.mouseEnter(innerTrigger);
+    fireEvent.mouseOver(innerTrigger);
+    fireEvent.mouseMove(innerTrigger, { clientX: 50, clientY: 10 });
+
+    clock.tick(delay);
+    await flushMicrotasks();
+
+    expect(screen.queryByTestId('outer-popup')).toBe(null);
+
+    fireEvent.mouseOut(innerTrigger, { relatedTarget: outerArea });
+    fireEvent.mouseOver(outerArea);
+
+    await setProps({ showRoot: false });
+    await flushMicrotasks();
+
+    clock.tick(delay);
+    await flushMicrotasks();
+
+    expect(screen.getByRole('button', { name: 'Other route' })).not.toBe(null);
+    expect(screen.queryByTestId('outer-popup')).toBe(null);
+    expect(rowHandle.isOpen).toBe(false);
+  });
+
   it('should not reopen the outer tooltip when rapidly moving back to a nested trigger', async () => {
     const delay = 100;
 
