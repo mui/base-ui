@@ -29,14 +29,12 @@ import './Demo.css';
 
 export type DemoProps = ContentProps<{
   defaultOpen?: boolean;
-  compact?: boolean;
   className?: string;
   showExtraPlaygroundLink?: boolean;
 }>;
 
 export function Demo({
   defaultOpen = false,
-  compact = false,
   showExtraPlaygroundLink = false,
   className,
   ...demoProps
@@ -192,63 +190,66 @@ export function Demo({
       </div>
       <Collapsible.Root open={demo.expanded} onOpenChange={onOpenChange}>
         <div role="figure" aria-label="Component demo code">
-          {(compact ? demo.expanded : true) && (
-            <div className="DemoToolbar">
-              <DemoFileSelector
-                files={demo.files}
-                selectedFileName={demo.selectedFileName}
-                selectFileName={onSelectFile}
-                onTabChange={demo.expand}
-              />
+          <div className="DemoToolbar">
+            <DemoFileSelector
+              files={demo.files}
+              selectedFileName={demo.selectedFileName}
+              selectFileName={onSelectFile}
+              onTabChange={demo.expand}
+            />
 
-              <div className="DemoToolbarActions">
-                {demo.variants.length > 1 && (
-                  <DemoVariantSelector
-                    onVariantChange={demo.expand}
-                    variants={demo.variants}
-                    selectedVariant={demo.selectedVariant}
-                    selectVariant={demo.selectVariant as any}
+            <div className="DemoToolbarActions">
+              {demo.variants.length > 1 && (
+                <DemoVariantSelector
+                  onVariantChange={demo.expand}
+                  variants={demo.variants}
+                  selectedVariant={demo.selectedVariant}
+                  selectVariant={demo.selectVariant as any}
+                />
+              )}
+              {externalPlaygroundLink}
+              <GhostButton aria-label="Copy code" onClick={demo.copy}>
+                Copy
+                {copyTimeout ? <CheckIcon /> : <CopyIcon />}
+              </GhostButton>
+
+              {githubUrl && (
+                <Menu.Root>
+                  <Menu.Trigger
+                    render={
+                      <GhostButton layout="icon" aria-label="More actions">
+                        <MoreVertIcon aria-hidden="true" />
+                      </GhostButton>
+                    }
                   />
-                )}
-                {externalPlaygroundLink}
-                <GhostButton aria-label="Copy code" onClick={demo.copy}>
-                  Copy
-                  {copyTimeout ? <CheckIcon /> : <CopyIcon />}
-                </GhostButton>
+                  <Menu.Popup align="end" alignOffset={-5}>
+                    <Menu.LinkItem
+                      href={githubUrl}
+                      target="_blank"
+                      rel="noopener"
+                      onClick={onViewSource}
+                    >
+                      <GitHubIcon aria-hidden="true" />
+                      View source on GitHub
+                      <ExternalLinkIcon aria-hidden="true" />
+                    </Menu.LinkItem>
 
-                {githubUrl && (
-                  <Menu.Root>
-                    <Menu.Trigger
-                      render={
-                        <GhostButton layout="icon" aria-label="More actions">
-                          <MoreVertIcon aria-hidden="true" />
-                        </GhostButton>
-                      }
-                    />
-                    <Menu.Popup align="end" alignOffset={-5}>
-                      <Menu.LinkItem href={githubUrl} target="_blank" onClick={onViewSource}>
-                        <GitHubIcon aria-hidden="true" />
-                        View source on GitHub
-                        <ExternalLinkIcon aria-hidden="true" />
-                      </Menu.LinkItem>
-
-                      <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
-                        {sourceLinkCopied ? (
-                          <CheckIcon aria-hidden="true" />
-                        ) : (
-                          <CopyIcon aria-hidden="true" />
-                        )}
-                        Copy link to source
-                        <span className="sr-only" aria-live="polite">
-                          {sourceLinkCopied && 'Link copied!'}
-                        </span>
-                      </Menu.Item>
-                    </Menu.Popup>
-                  </Menu.Root>
-                )}
-              </div>
+                    <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
+                      {sourceLinkCopied ? (
+                        <CheckIcon aria-hidden="true" />
+                      ) : (
+                        <CopyIcon aria-hidden="true" />
+                      )}
+                      Copy link to source
+                      <span className="sr-only" aria-live="polite">
+                        {sourceLinkCopied && 'Link copied!'}
+                      </span>
+                    </Menu.Item>
+                  </Menu.Popup>
+                </Menu.Root>
+              )}
             </div>
-          )}
+          </div>
 
           <DemoCodeBlock
             selectedFile={demo.selectedFile}
@@ -256,7 +257,6 @@ export function Demo({
             selectedFileLines={demo.selectedFileLines}
             collapsibleOpen={demo.expanded}
             collapsibleTriggerRef={collapsibleTriggerRef}
-            compact={compact}
           />
         </div>
       </Collapsible.Root>

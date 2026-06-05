@@ -10,8 +10,6 @@ interface DemoCodeBlockProps {
   /** How many lines should the code block have to get collapsed instead of rendering fully */
   collapsibleLinesThreshold?: number;
   collapsibleTriggerRef: React.Ref<HTMLButtonElement>;
-  /** When compact, we don't show a preview of the collapse code */
-  compact: boolean;
 }
 
 function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
@@ -38,7 +36,6 @@ function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
 export function DemoCodeBlock({
   selectedFile,
   selectedFileLines,
-  compact,
   collapsibleOpen,
   collapsibleLinesThreshold = 12,
   collapsibleTriggerRef,
@@ -58,14 +55,7 @@ export function DemoCodeBlock({
 
   return (
     <React.Fragment>
-      <Root
-        render={
-          <Collapsible.Panel
-            keepMounted={compact ? undefined : true}
-            hidden={compact ? undefined : false}
-          />
-        }
-      >
+      <Root render={<Collapsible.Panel keepMounted hidden={false} />}>
         <ScrollArea.Viewport
           aria-hidden={!collapsibleOpen}
           data-closed={collapsibleOpen ? undefined : ''}
