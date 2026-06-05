@@ -12,6 +12,7 @@ import {
   popupStoreSelectors,
   useImplicitActiveTrigger,
   usePopupInteractionProps,
+  useTriggerDataForwarding,
   useTriggerRegistration,
 } from './';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
@@ -68,6 +69,30 @@ function TestTrigger({
       register(null);
     };
   }, [register, repeat, element]);
+
+  return null;
+}
+
+function TestForwardedTrigger({
+  id,
+  store,
+  element,
+}: {
+  id: string;
+  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
+  element: HTMLElement;
+}) {
+  const elementRef = React.useRef<Element | null>(null);
+  const { registerTrigger } = useTriggerDataForwarding(id, elementRef, store, {});
+
+  useIsoLayoutEffect(() => {
+    elementRef.current = element;
+    registerTrigger(element);
+    return () => {
+      registerTrigger(null);
+      elementRef.current = null;
+    };
+  }, [registerTrigger, element]);
 
   return null;
 }
@@ -290,6 +315,56 @@ describe('useTriggerRegistration', () => {
       expect(store.setOpen).toHaveBeenCalledTimes(1);
       expect(store.state.open).toBe(false);
     });
+  });
+
+  it('keeps the popup open when the active trigger is replaced with the same id', async () => {
+    const store = createStore();
+    const first = document.createElement('button');
+    const replacement = document.createElement('button');
+    const second = document.createElement('button');
+
+    store.update({
+      open: true,
+      activeTriggerId: 'first',
+      activeTriggerElement: first,
+    });
+
+    const { rerender } = render(
+      <React.Fragment>
+        <TestForwardedTrigger key="first" id="first" store={store} element={first} />
+        <TestForwardedTrigger key="second" id="second" store={store} element={second} />
+        <CloseOnActiveTriggerUnmountTest store={store} />
+      </React.Fragment>,
+    );
+
+    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.activeTriggerId).toBe('first');
+    expect(store.state.activeTriggerElement).toBe(first);
+
+    rerender(
+      <React.Fragment>
+        <TestForwardedTrigger
+          key="replacement"
+          id="first"
+          store={store}
+          element={replacement}
+        />
+        <TestForwardedTrigger key="second" id="second" store={store} element={second} />
+        <CloseOnActiveTriggerUnmountTest store={store} />
+      </React.Fragment>,
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(store.context.triggerElements.getById('first')).toBe(replacement);
+    expect(store.context.triggerElements.getById('second')).toBe(second);
+    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.activeTriggerId).toBe('first');
+    expect(store.state.activeTriggerElement).toBe(replacement);
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
   });
 
   it('preserves active trigger ownership without closing by default', async () => {
