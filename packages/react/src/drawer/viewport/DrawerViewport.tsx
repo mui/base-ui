@@ -1119,6 +1119,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           swipeTouchProps.onTouchStart?.(event);
         },
         onTouchMove(event) {
+          virtualKeyboard?.onTouchMove(event);
+
           if (ignoreTouchSwipeRef.current) {
             return;
           }

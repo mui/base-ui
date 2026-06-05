@@ -314,36 +314,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     setKeyboardScrollSlack,
   ]);
 
-  React.useEffect(() => {
-    if (!rootElement || !open || !mounted) {
-      return undefined;
-    }
-
-    const doc = ownerDocument(rootElement);
-
-    const handleNativeTouchMove = (event: TouchEvent) => {
-      const touch = event.touches[0];
-      const touchStart = keyboardTouchStartRef.current;
-
-      if (!touch || !touchStart || pendingKeyboardFocusMovedRef.current) {
-        return;
-      }
-
-      if (
-        Math.abs(touch.clientX - touchStart.x) > INPUT_TAP_MOVE_THRESHOLD ||
-        Math.abs(touch.clientY - touchStart.y) > INPUT_TAP_MOVE_THRESHOLD
-      ) {
-        pendingKeyboardFocusMovedRef.current = true;
-      }
-    };
-
-    doc.addEventListener('touchmove', handleNativeTouchMove, { passive: true, capture: true });
-
-    return () => {
-      doc.removeEventListener('touchmove', handleNativeTouchMove, { capture: true });
-    };
-  }, [mounted, open, rootElement]);
-
   const onTouchStart = useStableCallback((event: React.TouchEvent<Element>) => {
     if (!open || !mounted || nestedDrawerOpen) {
       resetTouchTrackingState();
@@ -357,6 +327,24 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
     pendingKeyboardFocusMovedRef.current = false;
     keyboardTouchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  });
+
+  const onTouchMove = useStableCallback((event: React.TouchEvent<Element>) => {
+    const touch = event.touches[0];
+    const touchStart = keyboardTouchStartRef.current;
+
+    if (!touch || !touchStart || pendingKeyboardFocusMovedRef.current) {
+      return;
+    }
+
+    // Treat the gesture as a scroll/swipe (not a tap-to-focus) once the finger
+    // moves past the threshold, so we don't open the keyboard on a drag.
+    if (
+      Math.abs(touch.clientX - touchStart.x) > INPUT_TAP_MOVE_THRESHOLD ||
+      Math.abs(touch.clientY - touchStart.y) > INPUT_TAP_MOVE_THRESHOLD
+    ) {
+      pendingKeyboardFocusMovedRef.current = true;
+    }
   });
 
   const onTouchEnd = useStableCallback((event: React.TouchEvent<Element>) => {
@@ -409,10 +397,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   const contextValue = React.useMemo<DrawerVirtualKeyboardContextValue>(
     () => ({
       onTouchStart,
+      onTouchMove,
       onTouchEnd,
       onTouchCancel,
     }),
-    [onTouchCancel, onTouchEnd, onTouchStart],
+    [onTouchCancel, onTouchEnd, onTouchMove, onTouchStart],
   );
 
   return (

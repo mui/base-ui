@@ -3,6 +3,7 @@ import * as React from 'react';
 
 export interface DrawerVirtualKeyboardContext {
   onTouchStart: (event: React.TouchEvent<Element>) => void;
+  onTouchMove: (event: React.TouchEvent<Element>) => void;
   onTouchEnd: (event: React.TouchEvent<Element>) => void;
   onTouchCancel: () => void;
 }
