@@ -287,7 +287,49 @@ describe('useTriggerRegistration', () => {
         false,
         expect.objectContaining({ reason: 'none' }),
       );
+      expect(store.setOpen).toHaveBeenCalledTimes(1);
       expect(store.state.open).toBe(false);
+    });
+  });
+
+  it('preserves active trigger ownership without closing by default', async () => {
+    const store = createStore();
+    const first = document.createElement('button');
+    const second = document.createElement('button');
+
+    store.update({
+      open: true,
+      activeTriggerId: 'first',
+      activeTriggerElement: first,
+    });
+
+    const { rerender } = render(
+      <React.Fragment>
+        <TestTrigger key="first" id="first" store={store} element={first} />
+        <TestTrigger key="second" id="second" store={store} element={second} />
+        <ImplicitActiveTriggerTest store={store} />
+      </React.Fragment>,
+    );
+
+    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.activeTriggerId).toBe('first');
+    expect(store.state.activeTriggerElement).toBe(first);
+
+    rerender(
+      <React.Fragment>
+        <TestTrigger key="second" id="second" store={store} element={second} />
+        <ImplicitActiveTriggerTest store={store} />
+      </React.Fragment>,
+    );
+
+    await waitFor(() => {
+      expect(store.context.triggerElements.getById('first')).toBeUndefined();
+      expect(store.context.triggerElements.getById('second')).toBe(second);
+      expect(store.state.triggerCount).toBe(1);
+      expect(store.state.activeTriggerId).toBe('first');
+      expect(store.state.activeTriggerElement).toBe(first);
+      expect(store.state.open).toBe(true);
+      expect(store.setOpen).not.toHaveBeenCalled();
     });
   });
 
