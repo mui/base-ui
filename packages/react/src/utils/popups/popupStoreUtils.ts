@@ -6,6 +6,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
@@ -142,22 +143,17 @@ export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
   defaultOpen: boolean,
   defaultTriggerId: string | null,
 ) {
-  const isFirstEffectRef = React.useRef(true);
-
-  useIsoLayoutEffect(() => {
-    if (!isFirstEffectRef.current) {
-      return;
-    }
-
-    isFirstEffectRef.current = false;
-
+  useOnFirstRender(() => {
     if (openProp === undefined && store.state.open === false && defaultOpen) {
-      store.update({
+      // Avoid notifying detached trigger subscribers while the Root is rendering.
+      store.state = {
+        ...store.state,
         open: true,
         activeTriggerId: defaultTriggerId,
-      } as Partial<State>);
+        preventUnmountingOnClose: false,
+      };
     }
-  }, [store, openProp, defaultOpen, defaultTriggerId]);
+  });
 }
 
 /**
