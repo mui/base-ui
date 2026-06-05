@@ -26,12 +26,12 @@ export const FOCUSABLE_POPUP_PROPS = {
 } satisfies HTMLProps<HTMLElement> & Record<typeof FOCUSABLE_ATTRIBUTE, string>;
 
 // Reference count of currently mounted roots that share a given handle's store.
-// A handle's store can briefly be claimed by more than one root (e.g. a keyed
-// remount mounts the next root before the previous one's cleanup runs), so we
-// track owners instead of a simple mounted/unmounted boolean.
+// A handle's store can briefly be claimed by more than one root during Strict
+// Mode effect replays or overlapping route transitions, so we track owners
+// instead of a simple mounted/unmounted boolean.
 const mountedPopupRootStoreOwners = new WeakMap<object, number>();
 
-export type PopupStoreWithOpen<
+type PopupStoreWithOpen<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
 > = ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors> & {
@@ -344,9 +344,9 @@ export function usePopupRootSync<
 }
 
 /**
- * A popup store that can be reset to its initial state when its root unmounts.
+ * Something that can be reset after the root using it unmounts.
  */
-export interface ResettablePopupStore {
+interface Resettable {
   reset(): void;
 }
 
@@ -371,9 +371,8 @@ export function resetPopupRootStore<
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
 >(
   store: PopupStoreWithOpen<State, SetOpenEventDetails>,
-  // `State`/`SetOpenEventDetails` are inferred from `store` alone; `NoInfer` keeps
-  // these arguments from narrowing them (e.g. `nextState.openProp` is always set,
-  // which would otherwise conflict with the store's `boolean | undefined`).
+  // Defensive: keep these arguments from participating in inference of
+  // `State`/`SetOpenEventDetails`, which should be inferred from `store` alone.
   closeEventDetails: NoInfer<SetOpenEventDetails>,
   nextState: NoInfer<Partial<State>>,
   clearRootOwnedContext?: () => void,
@@ -381,12 +380,13 @@ export function resetPopupRootStore<
   // Keep the external handle reusable, but clear state owned by the unmounted
   // root so route changes don't preserve an open popup or stale trigger data.
   if (store.select('open')) {
+    // Notify controlled owners even though the Root that owned this store has unmounted.
     store.setOpen(false, closeEventDetails);
   }
 
   // Detached hover triggers can stay mounted after the root unmounts. Cancel
   // their pending hover-open timers so they cannot reopen a rootless handle.
-  // No-op for stores without hover interactions (e.g. Dialog).
+  // No-op unless a hover trigger registered shared state on dataRef.
   store.state.floatingRootContext.resetHoverInteraction();
 
   clearRootOwnedContext?.();
@@ -404,13 +404,13 @@ export function resetPopupRootStore<
  * A handle (e.g. for detached triggers) can outlive the root component that
  * renders the popup. When that root unmounts we must clear the now-orphaned
  * state so a later route change or remount doesn't reuse stale, open, or
- * disconnected data. Because React may mount a replacement root before tearing
- * down the previous one, ownership is reference counted and the reset is
- * deferred to a microtask so a still-mounted successor can cancel it.
+ * disconnected data. Ownership is reference counted and the reset is deferred
+ * to a microtask so Strict Mode effect replays or overlapping roots can claim
+ * the store again before cleanup resets it.
  *
  * @param store The handle's store to reset, or `undefined` when no handle is attached.
  */
-export function usePopupRootUnmountCleanup(store: ResettablePopupStore | undefined) {
+export function usePopupRootUnmountCleanup(store: Resettable | undefined) {
   useIsoLayoutEffect(() => {
     if (!store) {
       return undefined;
@@ -427,8 +427,8 @@ export function usePopupRootUnmountCleanup(store: ResettablePopupStore | undefin
 
       mountedPopupRootStoreOwners.delete(store);
 
-      // React Strict Mode and keyed remounts can mount the next root before this
-      // microtask runs. Only reset if no root still claims the handle's store.
+      // React Strict Mode and overlapping roots can leave the store claimed again
+      // before this microtask runs. Only reset if no root still owns the handle's store.
       queueMicrotask(() => {
         if (mountedPopupRootStoreOwners.has(store)) {
           return;

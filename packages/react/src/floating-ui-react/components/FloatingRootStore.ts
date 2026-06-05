@@ -7,6 +7,7 @@ import { type FloatingUIOpenChangeDetails } from '../../internals/types';
 import { type PopupTriggerMap } from '../../utils/popups';
 import { isClickLikeEvent } from '../utils';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import type { HoverContextData } from '../hooks/useHoverInteractionSharedState';
 
 export interface FloatingRootState {
   open: boolean;
@@ -60,10 +61,6 @@ interface FloatingRootStoreOptions {
     | undefined;
 }
 
-type HoverInteractionContextData = ContextData & {
-  hoverInteractionState?: { reset(): void } | undefined;
-};
-
 export class FloatingRootStore extends ReactStore<
   Readonly<FloatingRootState>,
   FloatingRootStoreContext,
@@ -96,7 +93,7 @@ export class FloatingRootStore extends ReactStore<
   // Resets hover state shared via dataRef (pending open timers, safe-polygon
   // listeners) so a detached hover trigger can't reopen a root that unmounted.
   resetHoverInteraction = () => {
-    const data = this.context.dataRef.current as HoverInteractionContextData;
+    const data = this.context.dataRef.current as HoverContextData;
     data.hoverInteractionState?.reset();
   };
 

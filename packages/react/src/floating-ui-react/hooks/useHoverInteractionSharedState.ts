@@ -144,7 +144,7 @@ export function applySafePolygonPointerEventsMutation(
   floatingElement.style.pointerEvents = 'auto';
 }
 
-type HoverContextData = ContextData & {
+export type HoverContextData = ContextData & {
   hoverInteractionState?: HoverInteraction | undefined;
 };
 

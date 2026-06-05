@@ -51,7 +51,6 @@ test('clears the root-owned floating context on reset', async () => {
   rootStore.context.dataRef.current.hoverInteractionState = hoverInteractionState;
 
   const { unmount } = render(<Test rootContext={rootStore} />);
-  await flushMicrotasks();
 
   expect(rootStore.context.dataRef.current.floatingContext?.rootStore).toBe(rootStore);
 

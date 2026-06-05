@@ -796,7 +796,7 @@ describe('<Popover.Root />', () => {
       expect(testPopover.isOpen).toBe(true);
     });
 
-    it('does not reset when a root remounts with the same detached handle before cleanup runs', async () => {
+    it('does not reset when a root remounts with the same detached handle before the deferred cleanup runs', async () => {
       const testPopover = Popover.createHandle<number>();
 
       function DetachedTriggerRoute({ rootKey }: { rootKey: string }) {

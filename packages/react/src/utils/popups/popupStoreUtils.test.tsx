@@ -371,4 +371,34 @@ describe('usePopupRootUnmountCleanup', () => {
 
     expect(store.reset).toHaveBeenCalledTimes(1);
   });
+
+  it('does not reset during React StrictMode effect replays', async () => {
+    const store = { reset: vi.fn() };
+
+    const { unmount } = render(
+      <React.StrictMode>
+        <RootUnmountCleanupTest store={store} />
+      </React.StrictMode>,
+    );
+
+    await flushMicrotasks();
+
+    expect(store.reset).not.toHaveBeenCalled();
+
+    unmount();
+    await flushMicrotasks();
+
+    expect(store.reset).toHaveBeenCalledTimes(1);
+  });
+
+  it('queues reset when a closed root unmounts', async () => {
+    const store = { reset: vi.fn() };
+
+    const { unmount } = render(<RootUnmountCleanupTest store={store} />);
+
+    unmount();
+    await flushMicrotasks();
+
+    expect(store.reset).toHaveBeenCalledTimes(1);
+  });
 });
