@@ -136,6 +136,30 @@ export function setPopupOpenState(
   }
 }
 
+export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
+  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
+  openProp: boolean | undefined,
+  defaultOpen: boolean,
+  defaultTriggerId: string | null,
+) {
+  const isFirstEffectRef = React.useRef(true);
+
+  useIsoLayoutEffect(() => {
+    if (!isFirstEffectRef.current) {
+      return;
+    }
+
+    isFirstEffectRef.current = false;
+
+    if (openProp === undefined && store.state.open === false && defaultOpen) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerId,
+      } as Partial<State>);
+    }
+  }, [store, openProp, defaultOpen, defaultTriggerId]);
+}
+
 /**
  * Sets up trigger data forwarding to the store.
  *
@@ -249,7 +273,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 /**
  * Manages the mounted state of the popup.
  * Sets up the transition status listeners and handles unmounting when needed.
- * Updates the `mounted` and `transitionStatus` states in the store.
+ * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store.
  *
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
@@ -264,12 +288,9 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
 ) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
-  const previousOpenRef = React.useRef(false);
-  const shouldClearPreventUnmountingOnClose =
-    open && !previousOpenRef.current && store.state.preventUnmountingOnClose;
-  const syncedPreventUnmountingOnClose = shouldClearPreventUnmountingOnClose
-    ? false
-    : preventUnmountingOnClose;
+  // Opening starts a new close cycle. Clear during render so the close-completion hook below
+  // reads the synchronized value on the same pass.
+  const syncedPreventUnmountingOnClose = open ? false : preventUnmountingOnClose;
 
   store.useSyncedValues({
     mounted,
@@ -288,10 +309,6 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
     onUnmount?.();
     store.context.onOpenChangeComplete?.(false);
   });
-
-  useIsoLayoutEffect(() => {
-    previousOpenRef.current = open;
-  }, [open]);
 
   useOpenChangeComplete({
     enabled: mounted && !open && !syncedPreventUnmountingOnClose,
