@@ -305,16 +305,14 @@ describe('useTriggerRegistration', () => {
     );
 
     await waitFor(() => {
-      expect(store.state.triggerCount).toBe(0);
-      expect(store.state.activeTriggerId).toBe(null);
-      expect(store.state.activeTriggerElement).toBe(null);
-      expect(store.setOpen).toHaveBeenCalledWith(
-        false,
-        expect.objectContaining({ reason: 'none' }),
-      );
       expect(store.setOpen).toHaveBeenCalledTimes(1);
-      expect(store.state.open).toBe(false);
     });
+
+    expect(store.state.triggerCount).toBe(0);
+    expect(store.state.activeTriggerId).toBe(null);
+    expect(store.state.activeTriggerElement).toBe(null);
+    expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
+    expect(store.state.open).toBe(false);
   });
 
   it('keeps the popup open when the active trigger is replaced with the same id', async () => {
@@ -343,12 +341,7 @@ describe('useTriggerRegistration', () => {
 
     rerender(
       <React.Fragment>
-        <TestForwardedTrigger
-          key="replacement"
-          id="first"
-          store={store}
-          element={replacement}
-        />
+        <TestForwardedTrigger key="replacement" id="first" store={store} element={replacement} />
         <TestForwardedTrigger key="second" id="second" store={store} element={second} />
         <CloseOnActiveTriggerUnmountTest store={store} />
       </React.Fragment>,
