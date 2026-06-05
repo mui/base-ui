@@ -331,7 +331,7 @@
   transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 
   &:focus-within {
-    min-height: calc(var(--footer-reserved-height) + var(--drawer-keyboard-inset, 0));
+    min-height: calc(var(--footer-reserved-height) + var(--drawer-keyboard-inset, 0px));
   }
 
   @media (prefers-reduced-motion: reduce) {
