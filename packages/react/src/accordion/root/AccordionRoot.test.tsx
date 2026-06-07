@@ -451,6 +451,59 @@ describe('<Accordion.Root />', () => {
     });
   });
 
+  describe('keyboard activation timing', () => {
+    [true, false].forEach((isNativeButton) => {
+      it(`opens and closes on Space keyup when rendering ${
+        isNativeButton ? 'interactive' : 'non-interactive'
+      } triggers`, async () => {
+        const onOpenChange = vi.fn();
+
+        const { user } = await render(
+          <Accordion.Root>
+            <Accordion.Item onOpenChange={onOpenChange}>
+              <Accordion.Header>
+                <Accordion.Trigger
+                  nativeButton={isNativeButton}
+                  render={isNativeButton ? undefined : <span />}
+                >
+                  Trigger 1
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel>{PANEL_CONTENT_1}</Accordion.Panel>
+            </Accordion.Item>
+          </Accordion.Root>,
+        );
+
+        const trigger = screen.getByRole('button');
+
+        await user.keyboard('[Tab]');
+        expect(trigger).toHaveFocus();
+
+        await user.keyboard('[Space>]');
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByText(PANEL_CONTENT_1)).not.toBeInTheDocument();
+        expect(onOpenChange).not.toHaveBeenCalled();
+
+        await user.keyboard('[/Space]');
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByText(PANEL_CONTENT_1)).toBeInTheDocument();
+        expect(onOpenChange).toHaveBeenCalledTimes(1);
+        expect(onOpenChange).toHaveBeenLastCalledWith(true, expect.anything());
+
+        await user.keyboard('[Space>]');
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByText(PANEL_CONTENT_1)).toBeInTheDocument();
+        expect(onOpenChange).toHaveBeenCalledTimes(1);
+
+        await user.keyboard('[/Space]');
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByText(PANEL_CONTENT_1)).not.toBeInTheDocument();
+        expect(onOpenChange).toHaveBeenCalledTimes(2);
+        expect(onOpenChange).toHaveBeenLastCalledWith(false, expect.anything());
+      });
+    });
+  });
+
   describe('BaseUIChangeEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       const onValueChange = vi.fn();
