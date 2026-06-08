@@ -10,6 +10,17 @@ describe('Composite', () => {
   const { render } = createRenderer();
 
   describe('list', () => {
+    it('does not add aria-orientation when orientation is set', async () => {
+      const { container } = await render(
+        <CompositeRoot orientation="horizontal">
+          <CompositeItem>1</CompositeItem>
+          <CompositeItem>2</CompositeItem>
+        </CompositeRoot>,
+      );
+
+      expect(container.firstElementChild as HTMLElement).not.toHaveAttribute('aria-orientation');
+    });
+
     it('controlled mode', async () => {
       function App() {
         const [highlightedIndex, setHighlightedIndex] = React.useState(0);

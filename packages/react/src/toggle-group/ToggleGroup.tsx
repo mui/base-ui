@@ -132,7 +132,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
           style={style}
           state={state}
           refs={[forwardedRef]}
-          props={[defaultProps, { 'aria-orientation': undefined }, elementProps]}
+          props={[defaultProps, elementProps]}
           stateAttributesMapping={stateAttributesMapping}
           loopFocus={loopFocus}
           enableHomeAndEndKeys
