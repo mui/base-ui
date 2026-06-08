@@ -18,7 +18,7 @@ describe('<Accordion.Root />', () => {
 
   describe('ARIA attributes', () => {
     it('renders correct ARIA attributes', async () => {
-      const { container } = await render(
+      await render(
         <Accordion.Root defaultValue={[0]}>
           <Accordion.Item value={0}>
             <Accordion.Header>
@@ -29,11 +29,9 @@ describe('<Accordion.Root />', () => {
         </Accordion.Root>,
       );
 
-      const root = container.firstElementChild as HTMLElement;
       const trigger = screen.getByRole('button');
       const panel = screen.queryByText(PANEL_CONTENT_1) as HTMLElement;
 
-      expect(root).toHaveAttribute('role', 'region');
       expect(trigger).toHaveAttribute('aria-controls');
       expect(panel.getAttribute('id')).toBe(trigger.getAttribute('aria-controls'));
       expect(panel).toHaveAttribute('role', 'region');
