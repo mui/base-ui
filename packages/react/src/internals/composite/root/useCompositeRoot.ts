@@ -5,7 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
-  ALL_KEYS,
+  COMPOSITE_KEYS,
   ARROW_DOWN,
   ARROW_KEYS,
   ARROW_LEFT,
@@ -33,8 +33,8 @@ import {
   type ModifierKey,
 } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
-import { CompositeMetadata } from '../list/CompositeList';
-import { HTMLProps } from '../../types';
+import type { CompositeMetadata } from '../list/CompositeList';
+import type { HTMLProps } from '../../types';
 import { getTarget } from '../../../floating-ui-react/utils';
 
 export interface UseCompositeRootParameters {
@@ -124,15 +124,26 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       return;
     }
     hasSetDefaultIndexRef.current = true;
-    const sortedElements = Array.from(map.keys());
-    const activeItem = (sortedElements.find((compositeElement) =>
-      compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-    ) ?? null) as HTMLElement | null;
+    const sortedElements = Array.from(map.keys()) as Array<HTMLElement | null>;
+    const activeItem =
+      sortedElements.find((compositeElement) =>
+        compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
+      ) ?? null;
     // Set the default highlighted index of an arbitrary composite item.
     const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
+    } else if (isListIndexDisabled(sortedElements, highlightedIndex, disabledIndices)) {
+      // The default highlighted item is disabled, so it should not hold the single
+      // roving tab stop: a natively disabled element is removed from the tab order,
+      // and an aria-disabled one should not be the entry point. Move the tab stop
+      // to the first enabled item. If every item is disabled, keep the current
+      // highlighted index.
+      const firstEnabledIndex = findNonDisabledListIndex(sortedElements, { disabledIndices });
+      if (!isIndexOutOfListBounds(sortedElements, firstEnabledIndex)) {
+        onHighlightedIndexChange(firstEnabledIndex);
+      }
     }
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
@@ -159,7 +170,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         target.setSelectionRange(0, target.value.length ?? 0);
       },
       onKeyDown(event) {
-        const RELEVANT_KEYS = enableHomeAndEndKeys ? ALL_KEYS : ARROW_KEYS;
+        const RELEVANT_KEYS = enableHomeAndEndKeys ? COMPOSITE_KEYS : ARROW_KEYS;
         if (!RELEVANT_KEYS.has(event.key)) {
           return;
         }
@@ -172,6 +183,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         if (!element) {
           return;
         }
+
         const isRtl = direction === 'rtl';
 
         const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;

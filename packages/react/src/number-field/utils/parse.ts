@@ -35,6 +35,8 @@ export const FULLWIDTH_RE = new RegExp(`[${FULLWIDTH_NUMERALS.join('')}]`, 'g');
 export const HAN_RE = new RegExp(`[${HAN_NUMERALS.join('')}]`, 'g');
 export const PERCENT_RE = new RegExp(`[${PERCENTAGES.join('')}]`);
 export const PERMILLE_RE = new RegExp(`[${PERMILLE.join('')}]`);
+const PERCENT_GLOBAL_RE = new RegExp(PERCENT_RE.source, 'g');
+const PERMILLE_GLOBAL_RE = new RegExp(PERMILLE_RE.source, 'g');
 
 // Detection regexes (non-global to avoid lastIndex side effects)
 export const ARABIC_DETECT_RE = /[٠١٢٣٤٥٦٧٨٩]/;
@@ -56,6 +58,11 @@ export const MINUS_SIGNS_WITH_ASCII = ['-', ...UNICODE_MINUS_SIGNS];
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const escapeClassChar = (s: string) => s.replace(/[-\\\]^]/g, (m) => `\\${m}`); // escape for use inside [...]
+
+function shiftDecimal(value: number, exponentDelta: number) {
+  const [coefficient, exponent = '0'] = String(value).split('e');
+  return Number(`${coefficient}e${Number(exponent) + exponentDelta}`);
+}
 
 const charClassFrom = (chars: string[]) => `[${chars.map(escapeClassChar).join('')}]`;
 
@@ -136,7 +143,10 @@ export function parseNumber(
     }
   }
 
-  const { group, decimal, currency } = getNumberLocaleDetails(computedLocale, options);
+  const { group, decimal, currency, exponentSeparator } = getNumberLocaleDetails(
+    computedLocale,
+    options,
+  );
 
   // Build robust unit regex from all unit parts (such as "km/h")
   const unitParts = getFormatter(computedLocale, options)
@@ -177,6 +187,12 @@ export function parseNumber(
     // Currency & unit labels
     { regex: currency ? new RegExp(escapeRegExp(currency), 'g') : null, replacement: '' },
     { regex: unitRegex, replacement: '' },
+    { regex: PERCENT_GLOBAL_RE, replacement: '' },
+    { regex: PERMILLE_GLOBAL_RE, replacement: '' },
+    {
+      regex: exponentSeparator ? new RegExp(escapeRegExp(exponentSeparator), 'g') : null,
+      replacement: 'e',
+    },
     // Numeral systems to ASCII digits
     { regex: ARABIC_RE, replacement: (ch) => String(ARABIC_NUMERALS.indexOf(ch)) },
     { regex: PERSIAN_RE, replacement: (ch) => String(PERSIAN_NUMERALS.indexOf(ch)) },
@@ -209,12 +225,12 @@ export function parseNumber(
   const hasPermilleSymbol = PERMILLE_RE.test(formattedNumber);
 
   if (hasPermilleSymbol) {
-    num /= 1000;
+    num = shiftDecimal(num, -3);
   } else if (!isUnitPercent && hasPercentSymbol) {
-    num /= 100;
+    num = shiftDecimal(num, -2);
   }
 
-  if (Number.isNaN(num)) {
+  if (!Number.isFinite(num)) {
     return null;
   }
 

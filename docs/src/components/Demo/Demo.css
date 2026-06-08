@@ -28,14 +28,6 @@
     right: 1.125rem;
   }
 
-  .DemoCopyIconWrap {
-    display: flex;
-    width: 0.875rem;
-    height: 0.875rem;
-    align-items: center;
-    justify-content: center;
-  }
-
   .DemoPlayground {
     position: relative;
 
@@ -50,7 +42,7 @@
 
     /* Scroll containers may be focusable */
     &:focus-visible {
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
       z-index: 1;
     }
@@ -68,11 +60,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    @media (--xs) {
-      padding: 3rem 1.5rem;
-      min-height: 11.25rem; /* Match .DemoCodeBlockRoot pre min-height */
-    }
   }
 
   .DemoToolbar {
@@ -89,6 +76,7 @@
     height: 2.25rem;
     padding: 0;
     padding-inline-start: 0.75rem;
+    -webkit-user-select: none;
     user-select: none;
 
     /* Scroll */
@@ -103,7 +91,7 @@
     /* Scroll containers may be focusable */
     &:focus-visible {
       position: relative;
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
       z-index: 1;
     }
@@ -142,10 +130,15 @@
     color: var(--color-foreground);
     font-weight: bold;
     user-select: text;
-  }
+    border-radius: var(--radius-4);
 
-  .DemoFilename:hover {
-    text-decoration: underline;
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+    }
   }
 
   .DemoTabsList {
@@ -156,7 +149,6 @@
 
   .DemoTab {
     font-family: var(--font-mono);
-    cursor: default;
     position: relative;
     z-index: 0;
     outline: 0;
@@ -291,6 +283,7 @@
     border-bottom: 1px solid transparent;
     background-clip: padding-box;
     margin-bottom: -1px;
+    -webkit-user-select: none;
     user-select: none;
 
     &[data-sticky] {

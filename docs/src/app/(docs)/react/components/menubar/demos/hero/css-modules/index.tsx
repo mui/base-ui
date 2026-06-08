@@ -10,7 +10,7 @@ export default function ExampleMenubar() {
       <Menu.Root>
         <Menu.Trigger className={styles.MenuTrigger}>File</Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className={styles.MenuPositioner} sideOffset={6} alignOffset={-2}>
+          <Menu.Positioner className={styles.MenuPositioner} sideOffset={4}>
             <Menu.Popup className={styles.MenuPopup}>
               <Menu.Item className={styles.MenuItem} onClick={handleClick}>
                 New
@@ -23,12 +23,16 @@ export default function ExampleMenubar() {
               </Menu.Item>
 
               <Menu.SubmenuRoot>
-                <Menu.SubmenuTrigger className={styles.MenuItem}>
+                <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                   Export
-                  <ChevronRightIcon />
+                  <CaretRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
-                  <Menu.Positioner alignOffset={-4}>
+                  <Menu.Positioner
+                    className={styles.MenuPositioner}
+                    sideOffset={-4}
+                    alignOffset={-4}
+                  >
                     <Menu.Popup className={styles.MenuPopup}>
                       <Menu.Item className={styles.MenuItem} onClick={handleClick}>
                         PDF
@@ -56,7 +60,7 @@ export default function ExampleMenubar() {
       <Menu.Root>
         <Menu.Trigger className={styles.MenuTrigger}>Edit</Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className={styles.MenuPositioner} sideOffset={6}>
+          <Menu.Positioner className={styles.MenuPositioner} sideOffset={4}>
             <Menu.Popup className={styles.MenuPopup}>
               <Menu.Item className={styles.MenuItem} onClick={handleClick}>
                 Cut
@@ -75,7 +79,7 @@ export default function ExampleMenubar() {
       <Menu.Root>
         <Menu.Trigger className={styles.MenuTrigger}>View</Menu.Trigger>
         <Menu.Portal>
-          <Menu.Positioner className={styles.MenuPositioner} sideOffset={6}>
+          <Menu.Positioner className={styles.MenuPositioner} sideOffset={4}>
             <Menu.Popup className={styles.MenuPopup}>
               <Menu.Item className={styles.MenuItem} onClick={handleClick}>
                 Zoom In
@@ -87,10 +91,14 @@ export default function ExampleMenubar() {
               <Menu.SubmenuRoot>
                 <Menu.SubmenuTrigger className={styles.MenuItem}>
                   Layout
-                  <ChevronRightIcon />
+                  <CaretRightIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
-                  <Menu.Positioner alignOffset={-4}>
+                  <Menu.Positioner
+                    className={styles.MenuPositioner}
+                    sideOffset={-4}
+                    alignOffset={-4}
+                  >
                     <Menu.Popup className={styles.MenuPopup}>
                       <Menu.Item className={styles.MenuItem} onClick={handleClick}>
                         Single Page
@@ -127,16 +135,17 @@ function handleClick(event: React.MouseEvent<HTMLElement>) {
   console.log(`${event.currentTarget.textContent} clicked`);
 }
 
-function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
+function CaretRightIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
-      <path
-        d="M6 12L10 8L6 4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="M6 12V4l4.5 4z" />
     </svg>
   );
 }

@@ -6,6 +6,7 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 /**
  * Displays an element pointing toward the navigation menu's current anchor.
@@ -17,9 +18,9 @@ export const NavigationMenuArrow = React.forwardRef(function NavigationMenuArrow
   componentProps: NavigationMenuArrow.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
-  const { open } = useNavigationMenuRootContext();
+  const { open, transitionStatus } = useNavigationMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } =
     useNavigationMenuPositionerContext();
 
@@ -33,7 +34,11 @@ export const NavigationMenuArrow = React.forwardRef(function NavigationMenuArrow
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, arrowRef],
-    props: [{ style: arrowStyles, 'aria-hidden': true }, elementProps],
+    props: [
+      { style: arrowStyles, 'aria-hidden': true },
+      getDisabledMountTransitionStyles(transitionStatus),
+      elementProps,
+    ],
     stateAttributesMapping: popupStateMapping,
   });
 

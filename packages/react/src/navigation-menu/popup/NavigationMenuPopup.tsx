@@ -11,6 +11,7 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { Align, Side } from '../../utils/useAnchorPositioning';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuPopupState> = {
   ...baseMapping,
@@ -27,7 +28,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
   componentProps: NavigationMenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { className, render, id: idProp, style, ...elementProps } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const { open, transitionStatus, setPopupElement } = useNavigationMenuRootContext();
   const positioning = useNavigationMenuPositionerContext();
@@ -44,15 +45,13 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
   };
 
   // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
-  let isOriginSide = positioning.side === 'top';
   let isPhysicalLeft = positioning.side === 'left';
   if (direction === 'rtl') {
-    isOriginSide = isOriginSide || positioning.side === 'inline-end';
     isPhysicalLeft = isPhysicalLeft || positioning.side === 'inline-end';
   } else {
-    isOriginSide = isOriginSide || positioning.side === 'inline-start';
     isPhysicalLeft = isPhysicalLeft || positioning.side === 'inline-start';
   }
+  const isOriginSide = positioning.side === 'top' || isPhysicalLeft;
 
   const element = useRenderElement('nav', componentProps, {
     state,
@@ -69,6 +68,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
             }
           : {},
       },
+      getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],
     stateAttributesMapping,

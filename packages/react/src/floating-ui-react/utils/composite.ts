@@ -390,6 +390,8 @@ export function createGridCellMap(sizes: Dimensions[], cols: number, dense: bool
   sizes.forEach(({ width, height }, index) => {
     if (width > cols) {
       if (process.env.NODE_ENV !== 'production') {
+        // TODO: fix mui/no-guarded-throw
+        // eslint-disable-next-line mui/no-guarded-throw
         throw new Error(
           `[Floating UI]: Invalid grid - item width at index ${index} is greater than grid columns`,
         );
@@ -496,10 +498,21 @@ export function isListIndexDisabled(
   );
 }
 
-export function isElementVisible(element: Element) {
+export function isHiddenByStyles(styles: CSSStyleDeclaration) {
+  return styles.visibility === 'hidden' || styles.visibility === 'collapse';
+}
+
+export function isElementVisible(
+  element: Element | null,
+  styles: CSSStyleDeclaration | null = element ? getComputedStyle(element) : null,
+) {
+  if (!element || !element.isConnected || !styles || isHiddenByStyles(styles)) {
+    return false;
+  }
+
   if (typeof element.checkVisibility === 'function') {
     return element.checkVisibility();
   }
 
-  return getComputedStyle(element).display !== 'none';
+  return styles.display !== 'none' && styles.display !== 'contents';
 }

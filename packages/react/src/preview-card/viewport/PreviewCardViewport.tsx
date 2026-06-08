@@ -19,8 +19,8 @@ const stateAttributesMapping: StateAttributesMapping<PreviewCardViewportState> =
 
 /**
  * A viewport for displaying content transitions.
- * This component is only required if one popup can be opened by multiple triggers, its content change based on the trigger
- * and switching between them is animated.
+ * This component is only required if one popup can be opened by multiple triggers, its content
+ * changes based on the trigger, and switching between them is animated.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
@@ -30,6 +30,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, children, ...elementProps } = componentProps;
+
   const store = usePreviewCardRootContext();
   const positioner = usePreviewCardPositionerContext();
 
@@ -71,13 +72,17 @@ export interface PreviewCardViewportState {
   instant: 'dismiss' | 'focus' | undefined;
 }
 
-export namespace PreviewCardViewport {
-  export interface Props extends BaseUIComponentProps<'div', PreviewCardViewportState> {
-    /**
-     * The content to render inside the transition container.
-     */
-    children?: React.ReactNode;
-  }
+export interface PreviewCardViewportProps extends BaseUIComponentProps<
+  'div',
+  PreviewCardViewportState
+> {
+  /**
+   * The content to render inside the transition container.
+   */
+  children?: React.ReactNode;
+}
 
+export namespace PreviewCardViewport {
+  export type Props = PreviewCardViewportProps;
   export type State = PreviewCardViewportState;
 }

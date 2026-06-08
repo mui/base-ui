@@ -2,14 +2,7 @@ import * as React from 'react';
 
 export function Interfere(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="43"
-      height="32"
-      viewBox="0 0 43 32"
-      fill="none"
-      {...props}
-    >
+    <svg width="43" height="32" viewBox="0 0 43 32" fill="none" {...props}>
       <path d="M0 15.2002H1.6V16.8002H0V15.2002Z" fill="currentColor" />
       <path d="M5.6001 8H8.8001V11.2H5.6001V8Z" fill="currentColor" />
       <path d="M5.6001 20.7998H8.8001V23.9998H5.6001V20.7998Z" fill="currentColor" />

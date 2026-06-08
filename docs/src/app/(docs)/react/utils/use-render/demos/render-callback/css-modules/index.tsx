@@ -22,7 +22,7 @@ function Counter(props: CounterProps) {
     type: 'button',
     children: (
       <React.Fragment>
-        Counter: <span>{count}</span>
+        Counter: <span className={styles.count}>{count}</span>
       </React.Fragment>
     ),
     onClick() {

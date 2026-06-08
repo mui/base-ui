@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
@@ -134,14 +135,26 @@ describe('<Menu.Trigger />', () => {
       expect(button).toHaveAttribute('aria-expanded', 'false');
     });
 
-    it('has the aria-expanded=true attribute when open', async () => {
+    it('has aria-expanded=true when the menu is opened', async () => {
       await render(
-        <Menu.Root open>
+        <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
       const button = screen.getByRole('button', { name: 'Toggle' });
+      expect(button).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(button);
+
+      const menuPopup = await screen.findByRole('menu', { hidden: false });
+      expect(menuPopup).not.toBe(null);
+      expect(button).toHaveAttribute('data-popup-open');
       expect(button).toHaveAttribute('aria-expanded', 'true');
     });
   });
@@ -162,6 +175,53 @@ describe('<Menu.Trigger />', () => {
 
       expect(trigger).toHaveAttribute('data-popup-open');
       expect(trigger).toHaveAttribute('data-pressed');
+    });
+
+    it('keeps the data-popup-open attribute and handle.isOpen when a controlled close is vetoed', async () => {
+      const handle = Menu.createHandle();
+
+      function TestCase() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <Menu.Root
+              handle={handle}
+              open={open}
+              onOpenChange={(nextOpen) => {
+                if (nextOpen) {
+                  setOpen(true);
+                }
+              }}
+            >
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <button type="button">Outside</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      await user.click(trigger);
+
+      await screen.findByRole('menu');
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(handle.isOpen).toBe(true);
+
+      await user.click(screen.getByRole('button', { name: 'Outside' }));
+
+      expect(screen.getByRole('menu')).toHaveAttribute('data-open');
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(handle.isOpen).toBe(true);
     });
   });
 

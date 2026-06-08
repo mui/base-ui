@@ -8,6 +8,7 @@ import {
   useCompositeListItem,
 } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
@@ -17,12 +18,7 @@ import { REASONS } from '../../internals/reasons';
 import { useOTPFieldRootContext, getOTPFieldInputState } from '../root/OTPFieldRootContext';
 import type { OTPFieldRootState } from '../root/OTPFieldRoot';
 import { inputStateAttributesMapping } from '../utils/stateAttributesMapping';
-import {
-  normalizeOTPValue,
-  removeOTPCharacter,
-  replaceOTPValue,
-  stripOTPWhitespace,
-} from '../utils/otp';
+import { normalizeOTPValueWithDetails, removeOTPCharacter, replaceOTPValue } from '../utils/otp';
 
 /**
  * An individual OTP character input.
@@ -62,7 +58,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     reportValueInvalid,
     readOnly,
     required,
-    sanitizeValue,
+    normalizeValue,
     setValue,
     state,
     validationType,
@@ -73,6 +69,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const direction = useDirection();
 
   const slotValue = value[index] ?? '';
   const inputState = getOTPFieldInputState(state, slotValue, index);
@@ -104,8 +101,8 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     autoCorrect: 'off',
     spellCheck: 'false',
     enterKeyHint: index === length - 1 ? 'done' : 'next',
-    // Allow the first slot to accept a full code so browser paste/autofill can target it directly.
-    maxLength: index === 0 ? length : 1,
+    // Only the first slot has a max length to avoid password manager bubbles appearing after later inputs.
+    maxLength: index === 0 ? length : undefined,
     tabIndex: activeIndex === index ? 0 : -1,
     disabled,
     form,
@@ -113,7 +110,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     readOnly,
     required,
     'aria-labelledby': ariaLabel == null ? inheritedLabel : undefined,
-    'aria-invalid': invalid || undefined,
+    'aria-invalid': !disabled && invalid ? true : undefined,
     'aria-label': ariaLabel,
     onMouseDown(event) {
       if (event.defaultPrevented || disabled) {
@@ -143,15 +140,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       const rawValue = event.currentTarget.value;
-      const nextDigits = normalizeOTPValue(
-        event.currentTarget.value,
+      const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
+        rawValue,
         length,
         validationType,
-        sanitizeValue,
+        normalizeValue,
       );
-      const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
 
-      if (didSanitize) {
+      if (didRejectCharacters) {
         reportValueInvalid(
           rawValue,
           createGenericEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -177,7 +173,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         nextDigits,
         length,
         validationType,
-        sanitizeValue,
+        normalizeValue,
       );
 
       const committedValue = setValue(
@@ -195,27 +191,35 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
-      if (event.key === 'ArrowLeft') {
+      const firstIndex = 0;
+      const lastIndex = Math.max(length - 1, firstIndex);
+      const endTargetIndex = Math.min(value.length, lastIndex);
+      const hasBoundaryModifier = (event.ctrlKey || event.metaKey) && !event.altKey;
+      const isRtl = direction === 'rtl';
+      const previousKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
+      const nextKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
+
+      if (event.key === previousKey) {
         stopEvent(event);
-        focusInput(Math.max(0, index - 1));
+        focusInput(hasBoundaryModifier ? firstIndex : Math.max(firstIndex, index - 1));
         return;
       }
 
-      if (event.key === 'ArrowRight') {
+      if (event.key === nextKey) {
         stopEvent(event);
-        focusInput(Math.min(length - 1, index + 1));
+        focusInput(hasBoundaryModifier ? endTargetIndex : Math.min(lastIndex, index + 1));
         return;
       }
 
-      if (event.key === 'Home') {
+      if (event.key === 'Home' || event.key === 'ArrowUp') {
         stopEvent(event);
-        focusInput(0);
+        focusInput(firstIndex);
         return;
       }
 
-      if (event.key === 'End') {
+      if (event.key === 'End' || event.key === 'ArrowDown') {
         stopEvent(event);
-        focusInput(Math.max(value.length - 1, 0));
+        focusInput(endTargetIndex);
         return;
       }
 
@@ -223,17 +227,26 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
-      if (event.key === 'Delete') {
-        stopEvent(event);
+      function setKeyboardValue(nextValue: string, targetIndex: number) {
         const committedValue = setValue(
-          removeOTPCharacter(value, index),
+          nextValue,
           createChangeEventDetails(REASONS.keyboard, event.nativeEvent),
         );
 
         if (committedValue != null) {
-          queueFocusInput(index, committedValue);
+          queueFocusInput(targetIndex, committedValue);
         }
+      }
 
+      if (event.key === 'Backspace' && hasBoundaryModifier) {
+        stopEvent(event);
+        setKeyboardValue('', firstIndex);
+        return;
+      }
+
+      if (event.key === 'Delete') {
+        stopEvent(event);
+        setKeyboardValue(removeOTPCharacter(value, index), index);
         return;
       }
 
@@ -244,21 +257,17 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       if (event.key.length === 1 && fullSelection && slotValue === event.key) {
         stopEvent(event);
-        focusInput(Math.min(length - 1, index + 1));
+        if (index < length - 1) {
+          focusInput(index + 1);
+        }
         return;
       }
 
       if (event.key === 'Backspace') {
         stopEvent(event);
-        const deleteIndex = slotValue === '' ? Math.max(0, index - 1) : index;
-        const targetIndex = Math.max(0, index - 1);
-        const committedValue = setValue(
-          removeOTPCharacter(value, deleteIndex),
-          createChangeEventDetails(REASONS.keyboard, event.nativeEvent),
-        );
-        if (committedValue != null) {
-          queueFocusInput(targetIndex, committedValue);
-        }
+        const targetIndex = Math.max(firstIndex, index - 1);
+        const deleteIndex = slotValue === '' ? targetIndex : index;
+        setKeyboardValue(removeOTPCharacter(value, deleteIndex), targetIndex);
       }
     },
     onPaste(event) {
@@ -284,10 +293,14 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
       event.preventDefault();
 
-      const nextDigits = normalizeOTPValue(rawValue, length, validationType, sanitizeValue);
-      const didSanitize = stripOTPWhitespace(rawValue).length > nextDigits.length;
+      const [nextDigits, didRejectCharacters] = normalizeOTPValueWithDetails(
+        rawValue,
+        length,
+        validationType,
+        normalizeValue,
+      );
 
-      if (didSanitize) {
+      if (didRejectCharacters) {
         reportValueInvalid(
           rawValue,
           createGenericEventDetails(REASONS.inputPaste, event.nativeEvent),
@@ -299,7 +312,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
       }
 
       const committedValue = setValue(
-        replaceOTPValue(value, index, nextDigits, length, validationType, sanitizeValue),
+        replaceOTPValue(value, index, nextDigits, length, validationType, normalizeValue),
         createChangeEventDetails(REASONS.inputPaste, event.nativeEvent),
       );
 

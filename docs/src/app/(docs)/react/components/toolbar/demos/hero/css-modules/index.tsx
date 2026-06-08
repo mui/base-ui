@@ -39,22 +39,22 @@ export default function ExampleToolbar() {
       <Select.Root defaultValue="Helvetica">
         <Toolbar.Button render={<Select.Trigger />} className={styles.Button}>
           <Select.Value />
-          <Select.Icon className={styles.SelectIcon}>
-            <ChevronUpDownIcon />
+          <Select.Icon>
+            <CaretUpDownIcon />
           </Select.Icon>
         </Toolbar.Button>
         <Select.Portal>
-          <Select.Positioner className={styles.Positioner} sideOffset={8}>
+          <Select.Positioner className={styles.Positioner} sideOffset={4}>
             <Select.Popup className={styles.Popup}>
               <Select.Item className={styles.Item} value="Helvetica">
                 <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
+                  <CheckIcon />
                 </Select.ItemIndicator>
                 <Select.ItemText className={styles.ItemText}>Helvetica</Select.ItemText>
               </Select.Item>
               <Select.Item className={styles.Item} value="Arial">
                 <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
+                  <CheckIcon />
                 </Select.ItemIndicator>
                 <Select.ItemText className={styles.ItemText}>Arial</Select.ItemText>
               </Select.Item>
@@ -70,27 +70,33 @@ export default function ExampleToolbar() {
   );
 }
 
-function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
+function CaretUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="8"
-      height="12"
-      viewBox="0 0 8 12"
-      fill="none"
-      stroke="currentcolor"
-      strokeWidth="1.5"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
-      <path d="M0.5 4.5L4 1.5L7.5 4.5" />
-      <path d="M0.5 7.5L4 10.5L7.5 7.5" />
+      <path d="M11 10H5l3 3.5zm0-4H5l3-3.5z" />
     </svg>
   );
 }
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
-      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m2.5 8.5 4 4 7-9" />
     </svg>
   );
 }

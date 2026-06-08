@@ -18,11 +18,32 @@
   }
 }
 
-.Panel {
-  overflow: hidden;
-  box-sizing: border-box;
-  width: 100%;
+@keyframes slide-right {
+  from {
+    width: 0;
+  }
 
+  to {
+    width: var(--collapsible-panel-width);
+  }
+}
+
+@keyframes slide-left {
+  from {
+    width: var(--collapsible-panel-width);
+  }
+
+  to {
+    width: 0;
+  }
+}
+
+.root {
+  --duration: 500ms;
+  --icon-duration: 150ms;
+}
+
+.panel {
   &[data-open] {
     animation: slide-down var(--duration) ease-out;
   }
@@ -32,66 +53,6 @@
   }
 }
 
-/* the styles below are irrelevant to the features */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 5rem;
-}
-
-.wrapper {
-  font-family: system-ui, sans-serif;
-  line-height: 1.4;
-  display: flex;
-  flex-flow: column nowrap;
-  align-items: stretch;
-  gap: 1rem;
-  align-self: flex-start;
-}
-
-.Root {
-  --width: 320px;
-  --duration: 900ms;
-
-  width: var(--width);
-
-  & + .Root {
-    margin-top: 2rem;
-  }
-}
-
-.Trigger {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  background-color: var(--color-gray-200);
-  color: var(--color-gray-900);
-
-  &[data-panel-open] .Icon {
-    transform: rotate(90deg);
-  }
-}
-
-.Icon {
-  width: 0.75rem;
-  height: 0.75rem;
-  transition: transform 150ms ease-out;
-}
-
-.Content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  background-color: var(--color-gray-200);
-  cursor: text;
-
-  & p {
-    overflow-wrap: break-word;
-  }
+.slowRoot {
+  --duration: 1600ms;
 }

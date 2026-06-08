@@ -330,6 +330,73 @@ describe('mergeProps', () => {
     });
   });
 
+  it('forwards all arguments for a lone non-standard event handler', () => {
+    const handler = vi.fn();
+
+    const mergedProps = mergeProps<any>(
+      {},
+      {
+        onOpenChange: handler,
+      },
+    );
+
+    const eventDetails = { reason: 'test' };
+    mergedProps.onOpenChange?.(true, eventDetails);
+
+    expect(handler).toHaveBeenCalledWith(true, eventDetails);
+  });
+
+  it('forwards all arguments for merged non-standard event handlers', () => {
+    const log: Array<[string, boolean, { reason: string }]> = [];
+    const eventDetails = { reason: 'test' };
+
+    const mergedProps = mergeProps<any>(
+      {
+        onOpenChange(open: boolean, details: { reason: string }) {
+          log.push(['ours', open, details]);
+        },
+      },
+      {
+        onOpenChange(open: boolean, details: { reason: string }) {
+          log.push(['theirs', open, details]);
+        },
+      },
+    );
+
+    mergedProps.onOpenChange?.(true, eventDetails);
+
+    expect(log).toEqual([
+      ['theirs', true, eventDetails],
+      ['ours', true, eventDetails],
+    ]);
+  });
+
+  it('forwards additional arguments for synthetic event handlers', () => {
+    const log: Array<[string, string]> = [];
+
+    const mergedProps = mergeProps<any>(
+      {
+        onMouseDown(_event: BaseUIEvent<React.MouseEvent>, details: { reason: string }) {
+          log.push(['ours', details.reason]);
+        },
+      },
+      {
+        onMouseDown(_event: BaseUIEvent<React.MouseEvent>, details: { reason: string }) {
+          log.push(['theirs', details.reason]);
+        },
+      },
+    );
+
+    mergedProps.onMouseDown?.({ nativeEvent: new MouseEvent('mousedown') } as any, {
+      reason: 'pointer',
+    });
+
+    expect(log).toEqual([
+      ['theirs', 'pointer'],
+      ['ours', 'pointer'],
+    ]);
+  });
+
   it('merges internal props so that the ones defined first override the ones defined later', () => {
     const mergedProps = mergeProps<'button'>(
       {

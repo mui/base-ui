@@ -47,6 +47,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     readOnly,
     inputRef,
     incrementValue,
+    allowInputSyncRef,
     getStepAmount,
     onValueCommitted,
     lastChangedValueRef,
@@ -166,9 +167,14 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
             // Manually dispatch a click event if no movement happened, since
             // preventDefault on pointerdown prevents the browser click event.
-            if (!didMoveRef.current && pointerDownTargetRef.current != null) {
-              pointerDownTargetRef.current.dispatchEvent(
-                new MouseEvent('click', { bubbles: true, cancelable: true }),
+            const pointerDownTarget = pointerDownTargetRef.current;
+            const input = inputRef.current;
+            if (!didMoveRef.current && pointerDownTarget != null && input) {
+              pointerDownTarget.dispatchEvent(
+                new (ownerWindow(input).MouseEvent)('click', {
+                  bubbles: true,
+                  cancelable: true,
+                }),
               );
             }
 
@@ -208,6 +214,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
           const rawAmount = dValue * stepAmount;
 
           if (rawAmount !== 0) {
+            allowInputSyncRef.current = true;
             incrementValue(Math.abs(rawAmount), {
               direction: rawAmount >= 0 ? 1 : -1,
               event,
@@ -231,6 +238,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     [
       disabled,
       readOnly,
+      allowInputSyncRef,
       incrementValue,
       isScrubbing,
       getStepAmount,

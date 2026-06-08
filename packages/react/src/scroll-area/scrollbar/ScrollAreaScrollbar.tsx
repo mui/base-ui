@@ -45,6 +45,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     thumbXRef,
     handlePointerDown,
     handlePointerUp,
+    handleScroll,
     rootId,
     thumbSize,
     hasMeasuredScrollbar,
@@ -68,8 +69,14 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const direction = useDirection();
   const hideTrackUntilMeasured = !hasMeasuredScrollbar && !keepMounted;
+  const isHidden = orientation === 'vertical' ? hiddenState.y : hiddenState.x;
+  const shouldRender = keepMounted || !isHidden;
 
   React.useEffect(() => {
+    if (!shouldRender) {
+      return undefined;
+    }
+
     const viewportEl = viewportRef.current;
     const scrollbarEl = orientation === 'vertical' ? scrollbarYRef.current : scrollbarXRef.current;
 
@@ -82,39 +89,47 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         return;
       }
 
+      const horizontal = orientation === 'horizontal';
+      const scrollProperty = horizontal ? 'scrollLeft' : 'scrollTop';
+      const delta = horizontal ? event.deltaX : event.deltaY;
+      if (delta === 0) {
+        return;
+      }
+
+      const maxScroll = horizontal
+        ? viewportEl.scrollWidth - viewportEl.clientWidth
+        : viewportEl.scrollHeight - viewportEl.clientHeight;
+      // RTL horizontal scrolling uses a negative `scrollLeft` range, from 0 to `-maxScroll`.
+      const minScroll = horizontal && direction === 'rtl' ? -maxScroll : 0;
+      const maxScrollValue = horizontal && direction === 'rtl' ? 0 : maxScroll;
+      const scrollValue = viewportEl[scrollProperty];
+
+      // At an edge (or with no overflow), let the wheel event chain to the
+      // parent/page instead of swallowing it via `preventDefault`.
+      if ((scrollValue <= minScroll && delta < 0) || (scrollValue >= maxScrollValue && delta > 0)) {
+        return;
+      }
+
       event.preventDefault();
 
-      if (orientation === 'vertical') {
-        if (viewportEl.scrollTop === 0 && event.deltaY < 0) {
-          return;
-        }
-      } else if (viewportEl.scrollLeft === 0 && event.deltaX < 0) {
-        return;
-      }
+      viewportEl[scrollProperty] = Math.min(
+        maxScrollValue,
+        Math.max(minScroll, scrollValue + delta),
+      );
 
-      if (orientation === 'vertical') {
-        if (
-          viewportEl.scrollTop === viewportEl.scrollHeight - viewportEl.clientHeight &&
-          event.deltaY > 0
-        ) {
-          return;
-        }
-      } else if (
-        viewportEl.scrollLeft === viewportEl.scrollWidth - viewportEl.clientWidth &&
-        event.deltaX > 0
-      ) {
-        return;
-      }
-
-      if (orientation === 'vertical') {
-        viewportEl.scrollTop += event.deltaY;
-      } else {
-        viewportEl.scrollLeft += event.deltaX;
-      }
+      handleScroll({ x: viewportEl.scrollLeft, y: viewportEl.scrollTop });
     }
 
     return addEventListener(scrollbarEl, 'wheel', handleWheel, { passive: false });
-  }, [orientation, scrollbarXRef, scrollbarYRef, viewportRef]);
+  }, [
+    direction,
+    handleScroll,
+    orientation,
+    scrollbarXRef,
+    scrollbarYRef,
+    shouldRender,
+    viewportRef,
+  ]);
 
   const props: HTMLProps = {
     ...(rootId && { 'data-id': `${rootId}-scrollbar` }),
@@ -187,9 +202,14 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         viewportRef.current.scrollLeft = newScrollLeft;
       }
 
+      handleScroll({ x: viewportRef.current.scrollLeft, y: viewportRef.current.scrollTop });
+
       handlePointerDown(event);
     },
     onPointerUp: handlePointerUp,
+    // Mirror `onPointerUp` so a browser-cancelled gesture on the track (no thumb
+    // child captures the pointer) still clears the drag state.
+    onPointerCancel: handlePointerUp,
     style: {
       position: 'absolute',
       touchAction: 'none',
@@ -220,9 +240,6 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const contextValue = React.useMemo(() => ({ orientation }), [orientation]);
 
-  const isHidden = orientation === 'vertical' ? hiddenState.y : hiddenState.x;
-
-  const shouldRender = keepMounted || !isHidden;
   if (!shouldRender) {
     return null;
   }

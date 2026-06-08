@@ -30,8 +30,7 @@ export const ComboboxItemIndicator = React.forwardRef(function ComboboxItemIndic
   return <Inner {...componentProps} ref={forwardedRef} />;
 });
 
-/** The core implementation of the indicator is split here to avoid paying the hooks
- * costs unless the element needs to be mounted. */
+// Split the core implementation to avoid paying the hook costs unless the element needs to mount.
 const Inner = React.memo(
   React.forwardRef(
     (

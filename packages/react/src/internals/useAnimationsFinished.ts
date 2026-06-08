@@ -40,6 +40,7 @@ export function useAnimationsFinished(
       if (element == null) {
         return;
       }
+
       const resolvedElement = element;
 
       const done = () => {

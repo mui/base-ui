@@ -1,5 +1,3 @@
-<!-- markdownlint-disable MD038 -->
-
 # Repository Guidelines
 
 This repository contains the source code and documentation for Base UI: a headless, unstyled React component library.
@@ -20,12 +18,16 @@ This repository contains the source code and documentation for Base UI: a headl
 - Always use the shadow DOM-safe utilities for DOM traversal and event targeting: `contains`, `getTarget`, and `activeElement`. Always use the owner utilities `ownerDocument` and `ownerWindow` instead of global `document`/`window` lookups when the code is tied to a DOM node, including realm-sensitive checks such as `instanceof`.
 - Avoid duplicating logic where necessary. If two components can share logic (such as event handlers), define the logic/handlers in the parent and share it through a context to the child; use the existing context if it exists.
 
+## Styling
+
+- In CSS Modules demos (`docs/src/app/(docs)/**/demos/**/*.module.css`), use raw color values from the Tailwind `@theme` block in `docs/src/css/index.css`. For example, use `oklch(14.5% 0 0deg)` instead of `var(--color-neutral-950)`.
+- When using `user-select: none;` in CSS, also add `-webkit-user-select: none;` to support Safari. Tailwind's `select-none` class already includes this.
+
 ## Linting, typechecking, and formatting
 
 - Do not randomly cast (for example `as any`) if there are no type errors without doing so. Run `pnpm typescript` to verify types.
 - Ensure your changes pass linting - run `pnpm eslint`.
 - Ensure your styles pass stylelint - run `pnpm stylelint`.
-- Ensure your markdown passes markdownlint - run `pnpm markdownlint`.
 - Ensure your changes are formatted correctly - run `pnpm prettier`.
 - When you change a public component API (props or JSDoc), run `pnpm docs:api`.
 
@@ -56,7 +58,7 @@ Every error message must:
 
 Format:
 
-- Prefix with `Base UI: `
+- Prefix with `Base UI:`
 - Use string concatenation for readability
 - Include a documentation link when applicable (`https://base-ui.com/...`)
 

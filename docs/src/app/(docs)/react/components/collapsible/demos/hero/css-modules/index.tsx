@@ -6,8 +6,8 @@ export default function ExampleCollapsible() {
   return (
     <Collapsible.Root className={styles.Collapsible}>
       <Collapsible.Trigger className={styles.Trigger}>
-        <ChevronIcon className={styles.Icon} />
         Recovery keys
+        <CaretRightIcon className={styles.Icon} />
       </Collapsible.Trigger>
       <Collapsible.Panel className={styles.Panel}>
         <div className={styles.Content}>
@@ -20,10 +20,17 @@ export default function ExampleCollapsible() {
   );
 }
 
-export function ChevronIcon(props: React.ComponentProps<'svg'>) {
+export function CaretRightIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentcolor" />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="M6 12V4l4.5 4z" />
     </svg>
   );
 }

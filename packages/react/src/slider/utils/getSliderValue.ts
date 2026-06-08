@@ -18,7 +18,7 @@ export function getSliderValue(
       values,
       index,
       // Bound the new value to the thumb's neighbours.
-      clamp(newValue, values[index - 1] || -Infinity, values[index + 1] || Infinity),
+      clamp(newValue, values[index - 1] ?? -Infinity, values[index + 1] ?? Infinity),
     );
   }
 

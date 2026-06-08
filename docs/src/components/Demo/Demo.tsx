@@ -213,9 +213,7 @@ export function Demo({
                 {externalPlaygroundLink}
                 <GhostButton aria-label="Copy code" onClick={demo.copy}>
                   Copy
-                  <span className="DemoCopyIconWrap">
-                    {copyTimeout ? <CheckIcon /> : <CopyIcon />}
-                  </span>
+                  {copyTimeout ? <CheckIcon /> : <CopyIcon />}
                 </GhostButton>
 
                 {githubUrl && (
@@ -228,24 +226,18 @@ export function Demo({
                       }
                     />
                     <Menu.Popup align="end" alignOffset={-5}>
-                      <Menu.LinkItem
-                        href={githubUrl}
-                        target="_blank"
-                        rel="noopener"
-                        onClick={onViewSource}
-                      >
-                        <GitHubIcon aria-hidden="true" height={14} width={14} />
+                      <Menu.LinkItem href={githubUrl} target="_blank" onClick={onViewSource}>
+                        <GitHubIcon aria-hidden="true" />
                         View source on GitHub
+                        <ExternalLinkIcon aria-hidden="true" />
                       </Menu.LinkItem>
 
                       <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
-                        <span className="DemoCopyIconWrap">
-                          {sourceLinkCopied ? (
-                            <CheckIcon aria-hidden="true" />
-                          ) : (
-                            <CopyIcon aria-hidden="true" />
-                          )}
-                        </span>
+                        {sourceLinkCopied ? (
+                          <CheckIcon aria-hidden="true" />
+                        ) : (
+                          <CopyIcon aria-hidden="true" />
+                        )}
                         Copy link to source
                         <span className="sr-only" aria-live="polite">
                           {sourceLinkCopied && 'Link copied!'}

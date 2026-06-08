@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { useDrawerRootContext } from './DrawerRootContext';
@@ -626,6 +626,20 @@ function CanceledSwipeCloseSnapPointCase() {
   );
 }
 
+function SnapPointOvershootCase() {
+  return (
+    <Drawer.Root open defaultSnapPoint={1} snapPoints={['100px', 1]} swipeDirection="down">
+      <Drawer.Portal>
+        <Drawer.Viewport data-testid="viewport" style={{ height: 400 }}>
+          <Drawer.Popup data-testid="popup" style={{ height: 400 }}>
+            Drawer
+          </Drawer.Popup>
+        </Drawer.Viewport>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
+}
+
 function SnapPointSwipeCase({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
   const snapPoints = ['100px', '300px', 1];
   const [open, setOpen] = React.useState(true);
@@ -778,6 +792,29 @@ describe('<Drawer.Root />', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Trigger 2' }));
     await flushMicrotasks();
     expect(screen.getByTestId('payload').textContent).toBe('2');
+  });
+
+  it('synchronizes trigger aria-controls with the popup id', async () => {
+    const { user } = await render(
+      <Drawer.Root>
+        <Drawer.Trigger>Open</Drawer.Trigger>
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    await user.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).not.toBe(null);
+    });
+
+    const popup = screen.getByTestId('popup');
+    expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
   });
 
   it('resets the active snap point when closing', async () => {
@@ -944,6 +981,74 @@ describe('<Drawer.Root />', () => {
         expect(popup).not.toHaveAttribute('data-swipe-dismiss');
         expect(popup).not.toHaveAttribute('data-ending-style');
         expect(popup.style.getPropertyValue('--drawer-swipe-movement-y')).toBe('0px');
+      } finally {
+        env.cleanup();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'damps active snap point overshoot after the swipe direction is established',
+    async () => {
+      const env = setupSwipeTestEnv();
+
+      try {
+        await render(<SnapPointOvershootCase />);
+
+        const viewport = screen.getByTestId('viewport');
+        const popup = screen.getByTestId('popup');
+
+        env.pointAt(popup);
+
+        fireEvent.pointerDown(viewport, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 200,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 200,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 100,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 50,
+          bubbles: true,
+          pointerType: 'mouse',
+        });
+
+        await flushMicrotasks();
+
+        expect(popup.style.transform).toBe('');
+        expect(
+          Number.parseFloat(popup.style.getPropertyValue('--drawer-swipe-movement-y')),
+        ).toBeCloseTo(-Math.sqrt(150));
       } finally {
         env.cleanup();
       }

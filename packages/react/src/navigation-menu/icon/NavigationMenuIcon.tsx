@@ -15,7 +15,7 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
   componentProps: NavigationMenuIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { value: itemValue } = useNavigationMenuItemContext();
   const { open, value } = useNavigationMenuRootContext();
