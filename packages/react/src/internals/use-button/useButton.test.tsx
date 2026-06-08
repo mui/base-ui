@@ -283,7 +283,7 @@ describe('useButton', () => {
       const handleKeyUp = vi.fn();
       const handleClick = vi.fn();
 
-      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+      function TestButton(props: React.HTMLAttributes<HTMLSpanElement>) {
         const { getButtonProps } = useButton({ native: false });
 
         return <span {...getButtonProps(props)} />;

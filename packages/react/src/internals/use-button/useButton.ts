@@ -124,7 +124,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
             }
 
             const isCurrentTarget = event.target === event.currentTarget;
-            const currentTarget = event.currentTarget as HTMLElement;
+            const currentTarget = event.currentTarget as Element;
             const isButton = isButtonElement(currentTarget);
             const isLink = !isNativeButton && isValidLinkElement(currentTarget);
             const shouldClick = isCurrentTarget && (isNativeButton ? isButton : !isLink);
@@ -142,23 +142,21 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               event.preventDefault();
 
               if (isLink || (isNativeButton && isButton) || shouldClick) {
-                event.preventBaseUIHandler();
-                currentTarget.click();
+                activateElement(event, currentTarget, externalOnClick);
               }
 
               return;
             }
 
             // Keyboard accessibility for native and non-native elements.
-            if (shouldClick) {
-              if (!isNativeButton && (isSpaceKey || isEnterKey)) {
-                event.preventDefault();
-              }
+            if (!shouldClick || isNativeButton || (!isSpaceKey && !isEnterKey)) {
+              return;
+            }
 
-              if (!isNativeButton && isEnterKey) {
-                event.preventBaseUIHandler();
-                currentTarget.click();
-              }
+            event.preventDefault();
+
+            if (isEnterKey) {
+              activateElement(event, currentTarget, externalOnClick);
             }
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
@@ -193,8 +191,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               !isCompositeItem &&
               event.key === ' '
             ) {
-              event.preventBaseUIHandler();
-              (event.currentTarget as HTMLElement).click();
+              activateElement(event, event.currentTarget as Element, externalOnClick);
             }
           },
           onPointerDown(event: React.PointerEvent) {
@@ -224,14 +221,28 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
   };
 }
 
-function isButtonElement(
-  elem: HTMLButtonElement | HTMLAnchorElement | HTMLElement | null,
-): elem is HTMLButtonElement {
+function activateElement(
+  event: BaseUIEvent<React.KeyboardEvent>,
+  element: Element,
+  fallback: ((event: React.SyntheticEvent) => void) | undefined,
+) {
+  event.preventBaseUIHandler();
+
+  if (!isHTMLElement(element)) {
+    // Preserve the previous direct-handler behavior for non-HTML render roots.
+    fallback?.(event);
+    return;
+  }
+
+  element.click();
+}
+
+function isButtonElement(elem: Element | null): elem is HTMLButtonElement {
   return isHTMLElement(elem) && elem.tagName === 'BUTTON';
 }
 
-function isValidLinkElement(elem: HTMLElement | null): elem is HTMLAnchorElement {
-  return Boolean(elem?.tagName === 'A' && (elem as HTMLAnchorElement)?.href);
+function isValidLinkElement(elem: Element | null): elem is HTMLAnchorElement {
+  return isHTMLElement(elem) && elem.tagName === 'A' && Boolean((elem as HTMLAnchorElement).href);
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
