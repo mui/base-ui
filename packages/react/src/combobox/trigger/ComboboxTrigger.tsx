@@ -94,7 +94,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   useLabelableId({ id: inputInsidePopup ? idProp : undefined });
   const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
   const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, comboboxLabelId);
+
   let ariaControls: string | undefined;
+
   if (open && inputInsidePopup) {
     // Fall back to the default id while the popup registers its own (custom ids are stored once the
     // popup mounts), so `aria-controls` is set on the same commit `open` becomes `true`.

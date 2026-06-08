@@ -60,7 +60,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   useIsoLayoutEffect(() => {
     store.set('popupId', popupId);
-
     return () => {
       store.set('popupId', undefined);
     };
