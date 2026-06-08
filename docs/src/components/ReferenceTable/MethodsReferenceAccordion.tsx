@@ -30,7 +30,7 @@ export function MethodsReferenceAccordion({
         <Accordion.HeaderCell className="ReferenceHeaderTypeCell">Returns</Accordion.HeaderCell>
         <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map((name, index) => {
+      {Object.keys(data).map((name) => {
         const method = data[name];
 
         // anchor hash for each method
@@ -45,7 +45,6 @@ export function MethodsReferenceAccordion({
           >
             <Accordion.Trigger
               id={id}
-              index={index}
               aria-label={`Method: ${name}, returns: ${method.returnValue ? 'value' : 'void'}`}
               className="MethodsTrigger"
             >
