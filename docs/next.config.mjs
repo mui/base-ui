@@ -136,7 +136,10 @@ const nextConfig = {
       test: /[/\\\\]demos[/\\\\][^/\\\\]+[/\\\\]index\.ts$/,
       use: [
         defaultLoaders.babel,
-        '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
+        {
+          loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
+          options: { emphasisOptions: { focusFramesMaxSize: 4 } },
+        },
       ],
     });
     config.module.rules.push({
