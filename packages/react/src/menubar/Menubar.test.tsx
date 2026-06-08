@@ -971,6 +971,11 @@ describe('<Menubar />', () => {
         expect(screen.queryByRole('menubar')).not.toBe(null);
       });
 
+      it('sets aria-orientation on the root element', async () => {
+        await render(<Menubar orientation="vertical" />);
+        expect(screen.getByRole('menubar')).toHaveAttribute('aria-orientation', 'vertical');
+      });
+
       it('sets role="menuitem" on menu triggers', async () => {
         await render(<TestMenubar />);
         const menuItems = screen.getAllByRole('menuitem');
