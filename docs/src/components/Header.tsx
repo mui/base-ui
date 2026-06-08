@@ -30,13 +30,12 @@ export function Header() {
           <a
             className="HeaderLink"
             href="https://www.npmjs.com/package/@base-ui/react"
-            rel="noopener"
             aria-label={`npm version ${process.env.LIB_VERSION}`}
           >
             <NpmIcon />
             {process.env.LIB_VERSION}
           </a>
-          <a className="HeaderLink" href="https://github.com/mui/base-ui" rel="noopener">
+          <a className="HeaderLink" href="https://github.com/mui/base-ui">
             <GitHubIcon />
             GitHub
           </a>
@@ -89,17 +88,14 @@ export function Header() {
                   <MobileNav.Section>
                     <MobileNav.Heading>Resources</MobileNav.Heading>
                     <MobileNav.List>
-                      <MobileNav.Item
-                        href="https://www.npmjs.com/package/@base-ui/react"
-                        rel="noopener"
-                      >
+                      <MobileNav.Item href="https://www.npmjs.com/package/@base-ui/react">
                         <NpmIcon />
                         <span className="HeaderResourceRow">
                           npm package
                           <span className="HeaderVersion">{process.env.LIB_VERSION}</span>
                         </span>
                       </MobileNav.Item>
-                      <MobileNav.Item href="https://github.com/mui/base-ui" rel="noopener">
+                      <MobileNav.Item href="https://github.com/mui/base-ui">
                         <GitHubIcon className="HeaderGitHubIcon" />
                         GitHub
                       </MobileNav.Item>

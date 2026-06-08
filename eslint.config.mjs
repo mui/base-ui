@@ -94,6 +94,12 @@ export default defineConfig(
           additionalHooks: 'useIsoLayoutEffect',
         },
       ],
+
+      // Modern browsers imply rel="noopener" for target="_blank", so no rel is required.
+      // See https://github.com/mui/material-ui/pull/40447
+      // TODO move to mui/mui-public.
+      'react/jsx-no-target-blank': 'off',
+
       // This prevents us from creating components like `<h1 {...props} />`
       'jsx-a11y/heading-has-content': 'off',
       'jsx-a11y/anchor-has-content': 'off',
