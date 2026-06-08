@@ -46,14 +46,12 @@ export function DemoCodeBlock({
     return (
       <Root>
         <ScrollArea.Viewport>
-          <div className="DemoSourceBrowser">
-            {selectedFile}
-            {copyButton}
-          </div>
+          <div className="DemoSourceBrowser">{selectedFile}</div>
         </ScrollArea.Viewport>
         <ScrollArea.Corner />
         <ScrollArea.Scrollbar orientation="vertical" />
         <ScrollArea.Scrollbar orientation="horizontal" />
+        {copyButton}
       </Root>
     );
   }
@@ -73,10 +71,7 @@ export function DemoCodeBlock({
             />
           }
         >
-          <div className="DemoSourceBrowser">
-            {selectedFile}
-            {copyButton}
-          </div>
+          <div className="DemoSourceBrowser">{selectedFile}</div>
         </Collapsible.Panel>
 
         <Collapsible.Trigger
@@ -94,6 +89,7 @@ export function DemoCodeBlock({
             <ScrollArea.Scrollbar orientation="horizontal" />
           </React.Fragment>
         )}
+        {copyButton}
       </Root>
     </div>
   );

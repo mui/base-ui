@@ -312,7 +312,12 @@
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
-    z-index: 3;
+    background-color: color-mix(in srgb, var(--gray-s1), transparent 10%);
+
+    @media (--md) {
+      background-color: transparent;
+      box-shadow: none;
+    }
   }
 
   .DemoCollapseButton {
