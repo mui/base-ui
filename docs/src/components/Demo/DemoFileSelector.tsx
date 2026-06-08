@@ -74,7 +74,7 @@ export function DemoFileSelector({
             nativeButton={false}
             onPointerDown={onTabPointerDown}
           >
-            {tab.name}
+            <span>{tab.name}</span>
           </Tabs.Tab>
         ))}
       </Tabs.List>

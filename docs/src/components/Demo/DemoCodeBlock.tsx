@@ -10,6 +10,7 @@ interface DemoCodeBlockProps {
   /** How many lines should the code block have to get collapsed instead of rendering fully */
   collapsibleLinesThreshold?: number;
   collapsibleTriggerRef: React.Ref<HTMLButtonElement>;
+  copyButton: React.ReactNode;
 }
 
 function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
@@ -39,12 +40,16 @@ export function DemoCodeBlock({
   collapsibleOpen,
   collapsibleLinesThreshold = 12,
   collapsibleTriggerRef,
+  copyButton,
 }: DemoCodeBlockProps) {
   if (selectedFileLines < collapsibleLinesThreshold) {
     return (
       <Root>
         <ScrollArea.Viewport>
-          <div className="DemoSourceBrowser">{selectedFile}</div>
+          <div className="DemoSourceBrowser">
+            {copyButton}
+            {selectedFile}
+          </div>
         </ScrollArea.Viewport>
         <ScrollArea.Corner />
         <ScrollArea.Scrollbar orientation="vertical" />
@@ -54,16 +59,33 @@ export function DemoCodeBlock({
   }
 
   return (
-    <React.Fragment>
-      <Root render={<Collapsible.Panel keepMounted hidden={false} />}>
-        <ScrollArea.Viewport
-          aria-hidden={!collapsibleOpen}
-          data-closed={collapsibleOpen ? undefined : ''}
-          className="DemoCodeBlockViewport"
-          {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
+    <div className="DemoCodeBlockCollapsible" data-open={collapsibleOpen ? '' : undefined}>
+      <Root data-closed={collapsibleOpen ? undefined : ''}>
+        <Collapsible.Panel
+          keepMounted
+          hidden={false}
+          render={
+            <ScrollArea.Viewport
+              aria-hidden={!collapsibleOpen}
+              data-closed={collapsibleOpen ? undefined : ''}
+              className="DemoCodeBlockViewport"
+              {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
+            />
+          }
         >
-          <div className="DemoSourceBrowser">{selectedFile}</div>
-        </ScrollArea.Viewport>
+          <div className="DemoSourceBrowser">
+            {copyButton}
+            {selectedFile}
+          </div>
+        </Collapsible.Panel>
+
+        <Collapsible.Trigger
+          ref={collapsibleTriggerRef}
+          className="DemoCollapseButton"
+          data-sticky={collapsibleOpen ? '' : undefined}
+        >
+          <span>{collapsibleOpen ? 'Hide' : 'Show'} code</span>
+        </Collapsible.Trigger>
 
         {collapsibleOpen && (
           <React.Fragment>
@@ -73,14 +95,6 @@ export function DemoCodeBlock({
           </React.Fragment>
         )}
       </Root>
-
-      <Collapsible.Trigger
-        ref={collapsibleTriggerRef}
-        className="DemoCollapseButton"
-        data-sticky={collapsibleOpen ? '' : undefined}
-      >
-        {collapsibleOpen ? 'Hide' : 'Show'} code
-      </Collapsible.Trigger>
-    </React.Fragment>
+    </div>
   );
 }
