@@ -194,27 +194,24 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    border-top: 1px solid var(--gray-c2);
-    border-bottom-left-radius: var(--demo-radius);
-    border-bottom-right-radius: var(--demo-radius);
-    margin-top: -1px;
-    background-color: var(--gray-s1);
 
     &:not([data-open]) {
       .DemoCollapseButton {
         position: absolute;
-        left: 50%;
-        bottom: 0.5rem;
-        transform: translateX(-50%);
+        inset: 0;
+        align-items: flex-end;
+        padding-bottom: 0.5rem;
       }
     }
 
     &[data-open] {
       .DemoCollapseButton {
         position: sticky;
-        bottom: 0.5rem;
-        align-self: center;
-        margin-bottom: 0.5rem;
+        bottom: 0;
+        align-self: stretch;
+        align-items: flex-start;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
       }
     }
   }
@@ -224,6 +221,11 @@
     flex-direction: column;
     position: relative;
     outline: 0;
+    border-top: 1px solid var(--gray-c2);
+    border-bottom-left-radius: var(--demo-radius);
+    border-bottom-right-radius: var(--demo-radius);
+    margin-top: -1px;
+    background-color: var(--gray-s1);
 
     &[data-closed] {
       &::before {
@@ -240,8 +242,8 @@
         border-bottom-right-radius: calc(var(--demo-radius) - 1px);
         background: linear-gradient(
           to bottom,
-          transparent 25%,
-          color-mix(in srgb, var(--gray-s1), transparent 30%) 100%
+          transparent 20%,
+          color-mix(in srgb, var(--gray-s1), transparent 20%) 100%
         );
       }
     }
@@ -273,12 +275,6 @@
     line-height: 1.25rem; /* 20px */
     cursor: text;
     display: flex;
-
-    > .GhostButton {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-    }
 
     & pre {
       /* Different fonts may introduce vertical align issues */
@@ -312,29 +308,63 @@
     }
   }
 
+  .DemoCodeBlockCopyButton {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 3;
+  }
+
   .DemoCollapseButton {
+    box-sizing: border-box;
     position: relative;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    gap: var(--space-8);
     border: none;
+    padding: 0;
     color: var(--color-foreground);
+    background: transparent;
     font-family: inherit;
     font-size: var(--font-size-13);
     font-weight: 500;
     line-height: 1;
     vertical-align: top;
+    cursor: default;
+    z-index: 2;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    appearance: none;
+
+    &[data-sticky] {
+      z-index: 1;
+    }
+
+    &:focus-visible {
+      outline: 0;
+    }
+
+    &:focus-visible .DemoCollapseButtonVisual {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: -1px;
+    }
+  }
+
+  .DemoCollapseButtonVisual {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-8);
     height: var(--space-28);
     padding-inline: var(--space-12);
     border-radius: var(--radius-pill);
     background: linear-gradient(to bottom, hsl(0deg 0% 0% / 8%), hsl(0deg 0% 0% / 16%));
     white-space: nowrap;
-    z-index: 2;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
+    pointer-events: none;
+    z-index: 0;
 
     &::before {
       content: '';
@@ -351,12 +381,8 @@
         0 2px 4px -2px hsl(0deg 0% 0% / 4%);
     }
 
-    &[data-sticky] {
-      z-index: 1;
-    }
-
     @media (hover: hover) {
-      &:hover {
+      .DemoCollapseButton:hover & {
         background: linear-gradient(to bottom, hsl(0deg 0% 0% / 16%), hsl(0deg 0% 0% / 32%));
       }
     }
@@ -373,15 +399,10 @@
       }
 
       @media (hover: hover) {
-        &:hover {
+        .DemoCollapseButton:hover & {
           background: linear-gradient(to bottom, hsl(0deg 0% 100% / 24%), hsl(0deg 0% 100% / 36%));
         }
       }
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--gray-t2);
-      outline-offset: -1px;
     }
   }
 }

@@ -261,7 +261,12 @@ export function Demo({
             collapsibleOpen={demo.expanded}
             collapsibleTriggerRef={collapsibleTriggerRef}
             copyButton={
-              <GhostButton layout="icon" aria-label="Copy code" onClick={demo.copy}>
+              <GhostButton
+                layout="icon"
+                aria-label="Copy code"
+                onClick={demo.copy}
+                className="DemoCodeBlockCopyButton"
+              >
                 {copyTimeout ? <CheckIcon /> : <CopyIcon />}
               </GhostButton>
             }

@@ -47,8 +47,8 @@ export function DemoCodeBlock({
       <Root>
         <ScrollArea.Viewport>
           <div className="DemoSourceBrowser">
-            {copyButton}
             {selectedFile}
+            {copyButton}
           </div>
         </ScrollArea.Viewport>
         <ScrollArea.Corner />
@@ -74,8 +74,8 @@ export function DemoCodeBlock({
           }
         >
           <div className="DemoSourceBrowser">
-            {copyButton}
             {selectedFile}
+            {copyButton}
           </div>
         </Collapsible.Panel>
 
@@ -84,7 +84,7 @@ export function DemoCodeBlock({
           className="DemoCollapseButton"
           data-sticky={collapsibleOpen ? '' : undefined}
         >
-          <span>{collapsibleOpen ? 'Hide' : 'Show'} code</span>
+          <span className="DemoCollapseButtonVisual">{collapsibleOpen ? 'Hide' : 'Show'} code</span>
         </Collapsible.Trigger>
 
         {collapsibleOpen && (
