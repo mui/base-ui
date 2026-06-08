@@ -74,6 +74,11 @@
   transition-property: opacity;
   transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 
+  /* iOS 26+: Ensure the backdrop covers the entire visible viewport. */
+  @supports (-webkit-touch-callout: none) {
+    position: absolute;
+  }
+
   @media (prefers-color-scheme: dark) {
     --backdrop-opacity: 0.7;
   }
