@@ -195,26 +195,6 @@
     position: relative;
     display: flex;
     flex-direction: column;
-
-    &:not([data-open]) {
-      .DemoCollapseButton {
-        position: absolute;
-        inset: 0;
-        align-items: flex-end;
-        padding-bottom: 0.75rem;
-      }
-    }
-
-    &[data-open] {
-      .DemoCollapseButton {
-        position: sticky;
-        bottom: 0;
-        align-self: stretch;
-        align-items: flex-start;
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
-      }
-    }
   }
 
   .DemoCodeBlockRoot {
@@ -324,13 +304,14 @@
 
   .DemoCollapseButton {
     box-sizing: border-box;
-    position: relative;
+    position: absolute;
+    inset: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     flex-shrink: 0;
     border: none;
-    padding: 0;
+    padding: 0 0 0.75rem;
     color: var(--color-foreground);
     background: transparent;
     font-family: inherit;
@@ -344,10 +325,6 @@
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     appearance: none;
-
-    &[data-sticky] {
-      z-index: 1;
-    }
 
     &:focus-visible {
       outline: 0;

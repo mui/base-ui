@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { Collapsible } from '@base-ui/react/collapsible';
 import * as Menu from 'docs/src/components/Menu';
 import { usePathname } from 'next/navigation';
@@ -41,7 +40,6 @@ export function Demo({
   className,
   ...demoProps
 }: DemoProps) {
-  const collapsibleTriggerRef = React.useRef<HTMLButtonElement>(null);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
   const sourceLinkCopyResetTimeout = useTimeout();
@@ -127,25 +125,6 @@ export function Demo({
       label: demoId,
       params: { [action]: demoId, slug: demoSlug || '' },
     });
-
-    if (!nextOpen && collapsibleTriggerRef.current != null) {
-      const triggerEl = collapsibleTriggerRef.current;
-      const rectTopBeforeClose = triggerEl.getBoundingClientRect().top;
-
-      ReactDOM.flushSync(() => demo.setExpanded(nextOpen));
-
-      const rectTopAfterClose = triggerEl.getBoundingClientRect().top;
-      const delta = rectTopAfterClose - rectTopBeforeClose;
-      // don't scroll if the trigger is still in the viewport after closing
-      if (rectTopAfterClose < 0) {
-        window.scrollBy({
-          top: delta,
-          behavior: 'instant',
-        });
-      }
-      return;
-    }
-
     demo.setExpanded(nextOpen);
   });
 
@@ -256,10 +235,8 @@ export function Demo({
 
           <DemoCodeBlock
             selectedFile={demo.selectedFile}
-            selectedFileName={demo.selectedFileName}
             selectedFileLines={demo.selectedFileLines}
             collapsibleOpen={demo.expanded}
-            collapsibleTriggerRef={collapsibleTriggerRef}
             copyButton={
               <GhostButton
                 layout="icon"
