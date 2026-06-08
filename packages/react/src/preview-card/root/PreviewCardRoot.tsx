@@ -18,7 +18,6 @@ import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
-  usePopupRootUnmountCleanup,
 } from '../../utils/popups';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
 import { mergeProps } from '../../merge-props';
@@ -42,8 +41,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
   });
-
-  usePopupRootUnmountCleanup(handle?.store);
 
   // Support initially open state when uncontrolled
   useOnFirstRender(() => {

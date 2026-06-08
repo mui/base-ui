@@ -16,7 +16,6 @@ import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
-  usePopupRootUnmountCleanup,
   usePopupRootSync,
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
@@ -42,8 +41,6 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
   });
-
-  usePopupRootUnmountCleanup(handle?.store);
 
   // Support initially open state when uncontrolled
   useOnFirstRender(() => {

@@ -14,7 +14,6 @@ import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
   usePopupInteractionProps,
-  usePopupRootUnmountCleanup,
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
@@ -52,8 +51,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
   });
-
-  usePopupRootUnmountCleanup(handle?.store);
 
   // Support initially open state when uncontrolled
   useOnFirstRender(() => {

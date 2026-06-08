@@ -90,14 +90,12 @@ export class FloatingRootStore extends ReactStore<
     this.syncOnly = syncOnly;
   }
 
-  // Resets hover state shared via dataRef (pending open timers, safe-polygon
-  // listeners) so a detached hover trigger can't reopen a root that unmounted.
-  resetHoverInteraction = () => {
+  reset = () => {
+    // Detached hover triggers can stay mounted after the root unmounts. Cancel
+    // their pending hover-open timers before clearing the root-owned context.
     const data = this.context.dataRef.current as HoverContextData;
     data.hoverInteractionState?.reset();
-  };
 
-  reset = () => {
     this.syncOpenEvent(false, undefined);
     // The mounted root owns the current Floating context. Detached triggers can keep
     // dataRef alive after root unmount, so clear the stale root-owned context only.

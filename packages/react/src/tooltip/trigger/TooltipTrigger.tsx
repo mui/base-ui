@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
@@ -136,11 +135,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const disableHoverablePopup = store.useState('disableHoverablePopup');
 
   const isNestedTriggerHoveredRef = React.useRef(false);
-  const nestedTriggerOpenTimeout = useTimeout();
-  React.useEffect(
-    () => hoverInteraction.registerAdditionalOpenTimeout(nestedTriggerOpenTimeout),
-    [hoverInteraction, nestedTriggerOpenTimeout],
-  );
+  const nestedTriggerOpenTimeout = hoverInteraction.nestedTriggerOpenTimeout;
   // Local copy so it can be cleared on mouseLeave without resetting the hover hook's own pointerType.
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
 

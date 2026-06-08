@@ -38,10 +38,17 @@ type PopupStoreWithOpen<
   setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
 };
 
+/**
+ * Something that can be reset after the root using it unmounts.
+ */
+interface Resettable {
+  reset(): void;
+}
+
 export function usePopupStore<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
-  Store extends PopupStoreWithOpen<State, SetOpenEventDetails>,
+  Store extends PopupStoreWithOpen<State, SetOpenEventDetails> & Resettable,
 >(
   externalStore: Store | undefined,
   createStore: (floatingId: string | undefined, nested: boolean) => Store,
@@ -65,6 +72,8 @@ export function usePopupStore<
     nested,
     onOpenChange: store.setOpen,
   });
+
+  usePopupRootUnmountCleanup(externalStore);
 
   return { store, internalStore: internalStoreRef.current };
 }
@@ -344,13 +353,6 @@ export function usePopupRootSync<
 }
 
 /**
- * Something that can be reset after the root using it unmounts.
- */
-interface Resettable {
-  reset(): void;
-}
-
-/**
  * Resets a popup root's store after its root component unmounts while the
  * external handle (and any detached triggers) lives on.
  *
@@ -383,11 +385,6 @@ export function resetPopupRootStore<
     // Notify controlled owners even though the Root that owned this store has unmounted.
     store.setOpen(false, closeEventDetails);
   }
-
-  // Detached hover triggers can stay mounted after the root unmounts. Cancel
-  // their pending hover-open timers so they cannot reopen a rootless handle.
-  // No-op unless a hover trigger registered shared state on dataRef.
-  store.state.floatingRootContext.resetHoverInteraction();
 
   clearRootOwnedContext?.();
 

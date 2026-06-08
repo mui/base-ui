@@ -20,7 +20,7 @@ export class HoverInteraction {
   restTimeoutPending: boolean;
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
-  additionalOpenTimeouts: Set<Timeout>;
+  nestedTriggerOpenTimeout: Timeout;
   handleCloseOptions: SafePolygonOptions | undefined;
   handlerDocument: Document | undefined;
 
@@ -36,7 +36,7 @@ export class HoverInteraction {
     this.restTimeoutPending = false;
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();
-    this.additionalOpenTimeouts = new Set();
+    this.nestedTriggerOpenTimeout = new Timeout();
     this.handleCloseOptions = undefined;
     this.handlerDocument = undefined;
   }
@@ -65,23 +65,10 @@ export class HoverInteraction {
     this.handlerDocument = undefined;
   };
 
-  registerAdditionalOpenTimeout = (timeout: Timeout) => {
-    this.additionalOpenTimeouts.add(timeout);
-    return () => {
-      this.additionalOpenTimeouts.delete(timeout);
-    };
-  };
-
-  clearAdditionalOpenTimeouts = () => {
-    this.additionalOpenTimeouts.forEach((timeout) => {
-      timeout.clear();
-    });
-  };
-
   dispose = () => {
     this.openChangeTimeout.clear();
     this.restTimeout.clear();
-    this.clearAdditionalOpenTimeouts();
+    this.nestedTriggerOpenTimeout.clear();
     this.clearMouseMoveHandler();
   };
 
