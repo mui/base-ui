@@ -479,6 +479,30 @@ describe('useButton', () => {
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
 
+    it('fires a single click for nested non-native composite buttons', async () => {
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.HTMLAttributes<HTMLSpanElement>) {
+        const outer = useButton({ native: false, composite: true });
+        const inner = useButton({ native: false, composite: true });
+
+        return <span {...outer.getButtonProps(inner.getButtonProps(props))} />;
+      }
+
+      const { user } = await render(<TestButton tabIndex={0} onClick={handleClick} />);
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      await user.keyboard('[Space]');
+      expect(handleClick).toHaveBeenCalledTimes(1);
+
+      await user.keyboard('[Enter]');
+      expect(handleClick).toHaveBeenCalledTimes(2);
+    });
+
     it('key: Space preserves native submit semantics on composite buttons', async () => {
       const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -566,6 +590,44 @@ describe('useButton', () => {
       expect(button).toHaveFocus();
 
       fireEvent.keyDown(button, { key: ' ' });
+      expect(handleClick).toHaveBeenCalledTimes(0);
+    });
+
+    it('does not click non-composite buttons when keydown/keyup calls preventBaseUIHandler', async () => {
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { getButtonProps } = useButton({ native: false });
+
+        return <span {...getButtonProps(props)} />;
+      }
+
+      const preventBaseUIHandler = (event: React.SyntheticEvent) =>
+        (
+          event as React.SyntheticEvent & { preventBaseUIHandler: () => void }
+        ).preventBaseUIHandler();
+
+      await render(
+        <TestButton
+          tabIndex={0}
+          onKeyDown={preventBaseUIHandler}
+          onKeyUp={preventBaseUIHandler}
+          onClick={handleClick}
+        />,
+      );
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      // Enter activates on keydown; the consumer prevents it.
+      fireEvent.keyDown(button, { key: 'Enter' });
+      expect(handleClick).toHaveBeenCalledTimes(0);
+
+      // Space activates on keyup; the consumer prevents it.
+      fireEvent.keyDown(button, { key: ' ' });
+      fireEvent.keyUp(button, { key: ' ' });
       expect(handleClick).toHaveBeenCalledTimes(0);
     });
 
