@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { getComputedStyle, isHTMLElement } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -285,20 +286,26 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
     };
 
-    visualViewport?.addEventListener('resize', handleViewportUpdate);
-    visualViewport?.addEventListener('scroll', handleViewportUpdate);
-    doc.addEventListener('focusin', handleFocusIn, true);
-    doc.addEventListener('focusout', handleFocusOut, true);
+    const cleanupListeners: Array<() => void> = [];
+
+    if (visualViewport) {
+      cleanupListeners.push(
+        addEventListener(visualViewport, 'resize', handleViewportUpdate),
+        addEventListener(visualViewport, 'scroll', handleViewportUpdate),
+      );
+    }
+
+    cleanupListeners.push(
+      addEventListener(doc, 'focusin', handleFocusIn, true),
+      addEventListener(doc, 'focusout', handleFocusOut, true),
+    );
 
     if (captureFocusedKeyboardTarget(activeElement(doc))) {
       scheduleKeyboardFocusAlignment();
     }
 
     return () => {
-      visualViewport?.removeEventListener('resize', handleViewportUpdate);
-      visualViewport?.removeEventListener('scroll', handleViewportUpdate);
-      doc.removeEventListener('focusin', handleFocusIn, true);
-      doc.removeEventListener('focusout', handleFocusOut, true);
+      cleanupListeners.forEach((cleanup) => cleanup());
       clearFocusedKeyboardTarget();
       rootElement.style.removeProperty(DrawerPopupCssVars.keyboardInset);
     };
@@ -390,18 +397,14 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     resetTouchTrackingState();
   });
 
-  const onTouchCancel = useStableCallback(() => {
-    resetTouchTrackingState();
-  });
-
   const contextValue = React.useMemo<DrawerVirtualKeyboardContextValue>(
     () => ({
       onTouchStart,
       onTouchMove,
       onTouchEnd,
-      onTouchCancel,
+      onTouchCancel: resetTouchTrackingState,
     }),
-    [onTouchCancel, onTouchEnd, onTouchMove, onTouchStart],
+    [onTouchEnd, onTouchMove, onTouchStart, resetTouchTrackingState],
   );
 
   return (

@@ -346,10 +346,9 @@
   bottom: 0;
   left: 0;
   z-index: 1;
-  border-top: 1px solid oklch(87% 0 0deg);
+  border-top: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   padding: 0.625rem 1.5rem calc(0.625rem + env(safe-area-inset-bottom, 0px) + var(--bleed));
-  box-shadow: 0 -0.5rem 1rem rgb(0 0 0 / 8%);
   transition-duration: 260ms;
   transition-property: bottom;
   transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
@@ -378,9 +377,8 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    border-top-color: oklch(37.1% 0 0deg);
+    border-top-color: white;
     background-color: oklch(14.5% 0 0deg);
-    box-shadow: none;
   }
 
   @media (prefers-reduced-motion: reduce) {

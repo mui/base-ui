@@ -100,7 +100,6 @@ Positioning is handled by your styles. `swipeDirection` defaults to `"down"` for
 ```
 
 import { DemoDrawerPosition } from './demos/position';
-import { DemoDrawerVirtualKeyboardAware } from './demos/virtual-keyboard-aware';
 
 <DemoDrawerPosition />
 
@@ -143,13 +142,19 @@ By default, the drawer can skip snap points when swiping quickly. Specify the `s
 
 ### Virtual keyboard aware
 
-Wrap a bottom-sheet drawer in `<Drawer.VirtualKeyboardProvider>` when it contains form controls and you want the drawer to react to software keyboards. Keep the popup frame stable, place header and footer content outside a plain scrollable body, and let the provider scroll the focused field into the visible viewport when the keyboard opens. If a footer contains its own input, reserve a footer slot below the scroll area and lift the pinned footer with `--drawer-keyboard-inset`.
+Wrap a bottom-sheet drawer in `<Drawer.VirtualKeyboardProvider>` when it contains form controls and you want the drawer to react to software keyboards.
+
+Keep the popup frame stable and place header and footer content outside a plain scrollable body. The provider scrolls the focused field into the visible viewport when the keyboard opens.
+
+If a footer contains its own input, reserve a footer slot below the scroll area and lift the pinned footer with `--drawer-keyboard-inset`.
 
 ```tsx title="Virtual keyboard aware drawer"
 <Drawer.Root>
   <Drawer.VirtualKeyboardProvider>{/* ... */}</Drawer.VirtualKeyboardProvider>
 </Drawer.Root>
 ```
+
+import { DemoDrawerVirtualKeyboardAware } from './demos/virtual-keyboard-aware';
 
 <DemoDrawerVirtualKeyboardAware />
 
