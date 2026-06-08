@@ -151,7 +151,7 @@
 
     @media (hover: hover) {
       &:hover:not([data-active]) {
-        border-color: var(--gray-c1);
+        border-color: var(--gray-s2);
 
         &::before {
           content: '';
@@ -159,7 +159,7 @@
           inset: 0 0 1px;
           border-top-left-radius: calc(var(--radius-8) - 1px);
           border-top-right-radius: calc(var(--radius-8) - 1px);
-          background-color: var(--gray-c1);
+          background-color: var(--gray-s2);
           pointer-events: none;
         }
       }
