@@ -19,7 +19,6 @@ import {
 const KEYBOARD_RESIZE_THRESHOLD = 60;
 const KEYBOARD_VISIBILITY_MARGIN = 16;
 const KEYBOARD_SCROLL_SLACK = 48;
-const KEYBOARD_SCROLL_DURATION = 260;
 const INPUT_TAP_MOVE_THRESHOLD = 10;
 const INPUT_TAP_HIT_SLOP = 16;
 const KEYBOARD_INPUT_TYPES = new Set([
@@ -70,7 +69,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   const focusedKeyboardTargetRef = React.useRef<HTMLElement | null>(null);
   const keyboardScrollAdjustmentRef = React.useRef<ScrollAdjustment | null>(null);
   const keyboardFocusFrame = useAnimationFrame();
-  const keyboardScrollFrame = useAnimationFrame();
 
   const restoreKeyboardScrollAdjustment = useStableCallback(() => {
     const adjustment = keyboardScrollAdjustmentRef.current;
@@ -126,34 +124,12 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   });
 
   const animateKeyboardScroll = useStableCallback((element: HTMLElement, scrollTop: number) => {
-    const startScrollTop = element.scrollTop;
-    const distance = scrollTop - startScrollTop;
     const win = ownerWindow(element);
+    const behavior: ScrollBehavior = win.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      ? 'auto'
+      : 'smooth';
 
-    keyboardScrollFrame.cancel();
-
-    if (Math.abs(distance) <= 1 || win.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      element.scrollTop = scrollTop;
-      return;
-    }
-
-    const startTime = win.performance.now();
-
-    const step = () => {
-      const elapsed = win.performance.now() - startTime;
-      const progress = clamp(elapsed / KEYBOARD_SCROLL_DURATION, 0, 1);
-      const easedProgress = 1 - (1 - progress) ** 3;
-
-      element.scrollTop = startScrollTop + distance * easedProgress;
-
-      if (progress < 1) {
-        keyboardScrollFrame.request(step);
-      } else {
-        element.scrollTop = scrollTop;
-      }
-    };
-
-    keyboardScrollFrame.request(step);
+    element.scrollTo({ top: scrollTop, behavior });
   });
 
   const resetTouchTrackingState = useStableCallback(() => {
@@ -166,7 +142,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       focusedKeyboardTargetRef.current = null;
       restoreKeyboardScrollAdjustment();
       keyboardFocusFrame.cancel();
-      keyboardScrollFrame.cancel();
       return undefined;
     }
 
@@ -195,7 +170,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       resetDrawerKeyboardInset();
       restoreKeyboardScrollAdjustment();
       keyboardFocusFrame.cancel();
-      keyboardScrollFrame.cancel();
     };
 
     const alignFocusedKeyboardTarget = () => {
@@ -312,7 +286,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   }, [
     animateKeyboardScroll,
     keyboardFocusFrame,
-    keyboardScrollFrame,
     mounted,
     nestedDrawerOpen,
     open,
