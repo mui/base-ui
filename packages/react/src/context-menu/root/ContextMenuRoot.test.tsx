@@ -11,14 +11,16 @@ import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
-vi.mock('@base-ui/utils/detectBrowser', async () => {
-  const actual = await vi.importActual<typeof import('@base-ui/utils/detectBrowser')>(
-    '@base-ui/utils/detectBrowser',
-  );
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
 
   return {
     ...actual,
-    isMac: true,
+    platform: {
+      ...actual.platform,
+      os: { ...actual.platform.os, mac: true, apple: true },
+    },
   };
 });
 

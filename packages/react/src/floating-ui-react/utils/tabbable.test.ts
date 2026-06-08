@@ -1,4 +1,4 @@
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
+import { isJSDOM } from '#test-utils';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { isTabbable, tabbable } from './tabbable';
 

@@ -4,8 +4,7 @@ import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/i
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { useTestInteractions } from '#test-utils';
+import { isJSDOM, useTestInteractions } from '#test-utils';
 import {
   FloatingFocusManager,
   FloatingNode,

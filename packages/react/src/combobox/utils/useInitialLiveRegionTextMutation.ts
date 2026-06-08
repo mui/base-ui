@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { isIOS } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 
 // Word Joiner is invisible and zero-width, so it forces a text mutation without shifting layout.
@@ -28,7 +28,7 @@ export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
 
   // Only the initial mounted announcement needs the marker; later text updates announce naturally.
   React.useEffect(() => {
-    if (isIOS) {
+    if (platform.os.ios) {
       return undefined;
     }
 
