@@ -87,10 +87,17 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
         const nextPressed = !pressed;
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
+        // `onPressedChange` runs before the group commits so that canceling here
+        // can also veto the group value change, which shares this `details` object.
+        onPressedChange?.(nextPressed, details);
+
+        if (details.isCanceled) {
+          return;
+        }
+
         if (value) {
           groupContext?.setGroupValue?.(value, nextPressed, details);
         }
-        onPressedChange?.(nextPressed, details);
 
         if (details.isCanceled) {
           return;

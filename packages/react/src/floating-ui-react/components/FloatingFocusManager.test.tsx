@@ -2146,6 +2146,7 @@ describe('FloatingFocusManager', () => {
       await userEvent.click(screen.getByTestId('reference'));
       await flushMicrotasks();
 
+      expect(screen.getByTestId('floating')).toHaveAttribute('tabindex', '-1');
       expect(screen.getByTestId('inner')).toHaveFocus();
       await userEvent.tab({ shift: true });
       expect(screen.getByTestId('reference')).toHaveFocus();

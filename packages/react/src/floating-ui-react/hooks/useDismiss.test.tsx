@@ -162,9 +162,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
-    test('dismisses with reference press', async () => {
+    test('dismisses with reference press', () => {
       render(<App referencePress={() => true} />);
-      await userEvent.click(screen.getByRole('button'));
+      fireEvent.pointerDown(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 

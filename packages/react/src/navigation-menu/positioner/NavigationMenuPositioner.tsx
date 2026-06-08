@@ -72,9 +72,13 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const keepMounted = useNavigationMenuPortalContext();
   const nodeId = useNavigationMenuTreeContext();
 
+  const initialInstantTimeout = useTimeout();
   const resizeTimeout = useTimeout();
 
-  const [instant, setInstant] = React.useState(false);
+  // When the menu is initially open, disable the positioner's transition for one frame
+  // so a default value does not animate in from the unpositioned portal state.
+  const [instant, setInstant] = React.useState(open);
+  const needsInitialInstantResetRef = React.useRef(open);
 
   const positionerRef = React.useRef<HTMLDivElement | null>(null);
   const prevTriggerElementRef = React.useRef<Element | null>(null);
@@ -141,6 +145,16 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
       return undefined;
     }
 
+    if (needsInitialInstantResetRef.current) {
+      initialInstantTimeout.start(0, () => {
+        needsInitialInstantResetRef.current = false;
+
+        if (!resizeTimeout.isStarted()) {
+          setInstant(false);
+        }
+      });
+    }
+
     function handleResize() {
       ReactDOM.flushSync(() => {
         setInstant(true);
@@ -153,7 +167,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
     const win = ownerWindow(positionerElement);
     return addEventListener(win, 'resize', handleResize);
-  }, [open, resizeTimeout, positionerElement]);
+  }, [open, initialInstantTimeout, resizeTimeout, positionerElement]);
 
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,

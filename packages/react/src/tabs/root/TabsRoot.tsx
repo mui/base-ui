@@ -59,6 +59,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const [tabMap, setTabMap] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
+  const lastKnownTabElementRef = React.useRef<Node | undefined>(undefined);
 
   // Used for activation direction detection via tab element positions.
   const getTabElementBySelectedValue = React.useCallback(
@@ -285,15 +286,20 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     }
 
     if (tabMap.size === 0) {
-      if (!didRegisterTabsRef.current || value === null) {
-        return;
+      // A Suspense boundary outside the root can clean up layout effects while
+      // keeping the previous tabs connected. Don't treat that as removal.
+      if (
+        didRegisterTabsRef.current &&
+        value !== null &&
+        !lastKnownTabElementRef.current?.isConnected
+      ) {
+        commitAutomaticValueChange(null, REASONS.missing);
       }
-
-      commitAutomaticValueChange(null, REASONS.missing);
       return;
     }
 
     didRegisterTabsRef.current = true;
+    lastKnownTabElementRef.current = tabMap.keys().next().value;
 
     const selectionIsDisabled = selectedTabMetadata?.disabled;
     const selectionIsMissing = selectedTabMetadata == null && value !== null;

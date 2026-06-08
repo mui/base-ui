@@ -226,12 +226,7 @@ export function Demo({
                       }
                     />
                     <Menu.Popup align="end" alignOffset={-5}>
-                      <Menu.LinkItem
-                        href={githubUrl}
-                        target="_blank"
-                        rel="noopener"
-                        onClick={onViewSource}
-                      >
+                      <Menu.LinkItem href={githubUrl} target="_blank" onClick={onViewSource}>
                         <GitHubIcon aria-hidden="true" />
                         View source on GitHub
                         <ExternalLinkIcon aria-hidden="true" />

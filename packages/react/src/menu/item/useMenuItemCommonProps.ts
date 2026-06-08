@@ -52,6 +52,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const { closeOnClick, highlighted, id, nodeId, store, typingRef, itemRef, itemMetadata } = params;
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
+  const open = store.useState('open');
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
 
@@ -59,7 +60,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     () => ({
       id,
       role: 'menuitem' as const,
-      tabIndex: highlighted ? 0 : -1,
+      tabIndex: open && highlighted ? 0 : -1,
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
@@ -121,6 +122,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       id,
       menuEvents,
       nodeId,
+      open,
       store,
       typingRef,
       itemRef,
