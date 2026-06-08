@@ -238,6 +238,7 @@
         z-index: 1;
         pointer-events: none;
         height: 100%;
+        max-height: 6rem;
         bottom: 0;
         left: 0;
         right: 0;
