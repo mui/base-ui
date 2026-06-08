@@ -103,7 +103,12 @@ const nextConfig = {
       },
       './src/app/**/demos/*/index.ts': {
         as: '*.ts',
-        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter'],
+        loaders: [
+          {
+            loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
+            options: { emphasisOptions: { focusFramesMaxSize: 4 } },
+          },
+        ],
       },
       './src/demo-data/*/index.ts': {
         as: '*.ts',

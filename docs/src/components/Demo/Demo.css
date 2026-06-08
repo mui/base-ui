@@ -203,7 +203,8 @@
         content: '';
         position: absolute;
         pointer-events: none;
-        height: 7.5rem;
+        height: 100%;
+        max-height: 6rem;
         bottom: 0;
         left: 0;
         right: 0;
@@ -230,6 +231,12 @@
     &[data-closed] {
       overflow: hidden;
       max-height: calc(8.75lh + 0.5rem); /* Show almost 9 code lines plus top padding */
+    }
+
+    &[data-closed] code .frame:not([data-frame-type]),
+    &[data-closed] code .frame[data-frame-type='highlighted-unfocused'],
+    &[data-closed] code .frame[data-frame-type='focus-unfocused'] {
+      display: none;
     }
   }
 
