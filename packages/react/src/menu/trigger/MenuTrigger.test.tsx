@@ -135,14 +135,26 @@ describe('<Menu.Trigger />', () => {
       expect(button).toHaveAttribute('aria-expanded', 'false');
     });
 
-    it('has the aria-expanded=true attribute when open', async () => {
+    it('has aria-expanded=true when the menu is opened', async () => {
       await render(
-        <Menu.Root open>
+        <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
       const button = screen.getByRole('button', { name: 'Toggle' });
+      expect(button).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(button);
+
+      const menuPopup = await screen.findByRole('menu', { hidden: false });
+      expect(menuPopup).not.toBe(null);
+      expect(button).toHaveAttribute('data-popup-open');
       expect(button).toHaveAttribute('aria-expanded', 'true');
     });
   });

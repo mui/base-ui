@@ -41,8 +41,9 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 
   const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
-  const interactionsEnabled = positionerElement ? true : !value;
-  const hoverInteractionsEnabled = positionerElement || viewportElement ? true : !value;
+  const interactionsEnabled = positionerElement != null || value == null;
+  const hoverInteractionsEnabled =
+    positionerElement != null || viewportElement != null || value == null;
 
   useHoverFloatingInteraction(context, {
     enabled: Boolean(floatingRootContext) && hoverInteractionsEnabled,
@@ -94,8 +95,8 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   ];
 
   // When nested, skip the CompositeRoot wrapper so that triggers can participate
-  // in the parent Content's composite navigation context. Also skip the onKeyDown
-  // handler that blocks propagation so arrow keys can reach the parent CompositeRoot.
+  // in the parent Content's composite navigation context. The key propagation
+  // guard is already omitted through `defaultProps` above.
   const element = useRenderElement('ul', componentProps, {
     state,
     ref: forwardedRef,

@@ -92,7 +92,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
     disabled,
     dragging,
     inset,
-    lastChangedValueRef,
     lastChangeReasonRef,
     max,
     min,
@@ -134,6 +133,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   // The offset amount to each side of the control for inset sliders.
   // This value should be equal to the radius or half the width/height of the thumb.
   const insetThumbOffsetRef = React.useRef(0);
+  const currentInteractionValueRef = React.useRef<number | number[] | null>(null);
   const latestValuesRef = useValueAsRef(values);
 
   function updatePressedThumb(nextIndex: number) {
@@ -152,10 +152,31 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedInputRef.current = thumbElement.querySelector<HTMLInputElement>('input[type="range"]');
   }
 
+  function resetPressedThumb() {
+    pressedThumbIndexRef.current = -1;
+    pressedThumbCenterOffsetRef.current = null;
+    pressedInputRef.current = null;
+  }
+
+  function isTargetDisabledThumb(target: EventTarget | null) {
+    if (!isElement(target)) {
+      return false;
+    }
+
+    return thumbRefs.current.some((thumbEl) => {
+      if (!isElement(thumbEl) || !contains(thumbEl, target)) {
+        return false;
+      }
+
+      return thumbEl.querySelector<HTMLInputElement>('input[type="range"]')?.disabled === true;
+    });
+  }
+
   function getFingerState(fingerCoords: Coords): FingerState | null {
     const control = controlRef.current;
+    const thumbIndex = pressedThumbIndexRef.current;
 
-    if (!control) {
+    if (!control || (!range && (thumbIndex < 0 || thumbIndex >= values.length))) {
       return null;
     }
 
@@ -182,12 +203,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
     if (!range) {
       return {
         value: newValue,
-        thumbIndex: 0,
+        thumbIndex,
         didSwap: false,
       };
     }
-
-    const thumbIndex = pressedThumbIndexRef.current;
 
     if (thumbIndex < 0) {
       return null;
@@ -206,17 +225,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
       minStepsBetweenValues,
     });
 
-    if (thumbCollisionBehavior === 'swap' && collisionResult.didSwap) {
-      updatePressedThumb(collisionResult.thumbIndex);
-    } else {
-      pressedThumbIndexRef.current = collisionResult.thumbIndex;
-    }
-
     return collisionResult;
   }
 
   function startPressing(fingerCoords: Coords) {
     pressedValuesRef.current = range ? values.slice() : null;
+    currentInteractionValueRef.current = null;
     latestValuesRef.current = values;
 
     const pressedThumbIndex = pressedThumbIndexRef.current;
@@ -241,7 +255,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
       for (let i = 0; i < thumbRefs.current.length; i += 1) {
         const thumbEl = thumbRefs.current[i];
-        if (isElement(thumbEl)) {
+        if (
+          isElement(thumbEl) &&
+          !thumbEl.querySelector<HTMLInputElement>('input[type="range"]')?.disabled
+        ) {
           const midpoint = getMidpoint(thumbEl);
           const distance = Math.abs(fingerCoords[axis] - midpoint[axis]);
 
@@ -282,6 +299,32 @@ export const SliderControl = React.forwardRef(function SliderControl(
     });
   }
 
+  function setValueFromPointer(
+    finger: FingerState,
+    reason: typeof REASONS.trackPress | typeof REASONS.drag,
+    nativeEvent: TouchEvent | PointerEvent,
+  ) {
+    const applied = setValue(
+      finger.value,
+      createChangeEventDetails(reason, nativeEvent, undefined, {
+        activeThumbIndex: finger.thumbIndex,
+      }),
+    );
+
+    if (applied) {
+      currentInteractionValueRef.current = finger.value;
+      latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
+
+      // Only track the swapped thumb once the change is actually applied so a
+      // canceled swap doesn't leak the new index into subsequent moves.
+      if (finger.didSwap) {
+        updatePressedThumb(finger.thumbIndex);
+      }
+    }
+
+    return applied;
+  }
+
   const handleTouchMove = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
     const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
 
@@ -308,16 +351,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
         setDragging(true);
       }
 
-      setValue(
-        finger.value,
-        createChangeEventDetails(REASONS.drag, nativeEvent, undefined, {
-          activeThumbIndex: finger.thumbIndex,
-        }),
-      );
+      const applied = setValueFromPointer(finger, REASONS.drag, nativeEvent);
 
-      latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
-
-      if (finger.didSwap) {
+      if (applied && finger.didSwap) {
         focusThumb(finger.thumbIndex);
       }
     }
@@ -330,13 +366,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedInputRef.current = null;
     pressedThumbCenterOffsetRef.current = null;
 
-    const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
-    const finger = fingerCoords != null ? getFingerState(fingerCoords) : null;
-
-    if (finger != null) {
+    if (currentInteractionValueRef.current != null) {
       const commitReason = lastChangeReasonRef.current;
       onValueCommitted(
-        lastChangedValueRef.current ?? finger.value,
+        currentInteractionValueRef.current,
         createGenericEventDetails(commitReason, nativeEvent),
       );
     }
@@ -351,12 +384,18 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedThumbIndexRef.current = -1;
     touchIdRef.current = null;
     pressedValuesRef.current = null;
+    currentInteractionValueRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
   }
 
   const handleTouchStart = useStableCallback((nativeEvent: TouchEvent) => {
     if (disabled) {
+      return;
+    }
+
+    if (isTargetDisabledThumb(getTarget(nativeEvent))) {
+      resetPressedThumb();
       return;
     }
 
@@ -378,16 +417,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
       }
 
       focusThumb(finger.thumbIndex);
-      setValue(
-        finger.value,
-        createChangeEventDetails(REASONS.trackPress, nativeEvent, undefined, {
-          activeThumbIndex: finger.thumbIndex,
-        }),
-      );
+      const applied = setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
 
-      latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
-
-      if (finger.didSwap) {
+      if (applied && finger.didSwap) {
         focusThumb(finger.thumbIndex);
       }
     }
@@ -405,6 +437,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     doc.removeEventListener('touchmove', handleTouchMove);
     doc.removeEventListener('touchend', handleTouchEnd);
     pressedValuesRef.current = null;
+    currentInteractionValueRef.current = null;
   });
 
   const focusFrame = useAnimationFrame();
@@ -454,6 +487,11 @@ export const SliderControl = React.forwardRef(function SliderControl(
             return;
           }
 
+          if (isTargetDisabledThumb(target)) {
+            resetPressedThumb();
+            return;
+          }
+
           const fingerCoords = getFingerCoords(event, touchIdRef);
 
           if (fingerCoords != null) {
@@ -482,16 +520,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
             const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
             if (!pressedOnAnyThumb) {
-              setValue(
-                finger.value,
-                createChangeEventDetails(REASONS.trackPress, event.nativeEvent, undefined, {
-                  activeThumbIndex: finger.thumbIndex,
-                }),
-              );
+              const applied = setValueFromPointer(finger, REASONS.trackPress, event.nativeEvent);
 
-              latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
-
-              if (finger.didSwap) {
+              if (applied && finger.didSwap) {
                 focusThumb(finger.thumbIndex);
               }
             }

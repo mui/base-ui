@@ -33,6 +33,16 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 
   const state: ScrollAreaThumbState = { orientation };
 
+  function endDrag(event: React.PointerEvent) {
+    if (orientation === 'vertical') {
+      setScrollingY(false);
+    }
+    if (orientation === 'horizontal') {
+      setScrollingX(false);
+    }
+    handlePointerUp(event);
+  }
+
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef],
     state,
@@ -40,15 +50,8 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
       {
         onPointerDown: handlePointerDown,
         onPointerMove: handlePointerMove,
-        onPointerUp(event) {
-          if (orientation === 'vertical') {
-            setScrollingY(false);
-          }
-          if (orientation === 'horizontal') {
-            setScrollingX(false);
-          }
-          handlePointerUp(event);
-        },
+        onPointerUp: endDrag,
+        onPointerCancel: endDrag,
         style: {
           visibility: hasMeasuredScrollbar ? undefined : 'hidden',
           ...(orientation === 'vertical' && {
