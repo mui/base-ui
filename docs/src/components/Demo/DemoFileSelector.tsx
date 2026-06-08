@@ -57,12 +57,8 @@ export function DemoFileSelector({
     }
   }, []);
 
-  if (files.length === 1) {
-    return (
-      <a className="DemoFilename" href={files[0].slug ? `#${files[0].slug}` : undefined}>
-        {files[0].name}
-      </a>
-    );
+  if (files.length <= 1) {
+    return null;
   }
 
   return (
