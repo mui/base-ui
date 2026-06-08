@@ -64,9 +64,10 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
 
   if (value != null && tabsListElement != null) {
     const activeTab = getTabElementBySelectedValue(value);
-    isTabSelected = true;
 
     if (activeTab != null) {
+      isTabSelected = true;
+
       const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
       const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabsListElement);
       const tabRect = activeTab.getBoundingClientRect();

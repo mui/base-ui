@@ -34,7 +34,6 @@ import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
-import type { MaybeBaseUIEvent } from '../../internals/types';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
@@ -195,7 +194,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const initialValueRef = React.useRef(value);
-  const hasSelectedValue = multiple ? Array.isArray(value) && value.length > 0 : value != null;
+  // Mirror the `hasSelectedValue` store selector so the Field's filled state agrees with the
+  // trigger/value placeholder semantics (a value serializing to `''` counts as empty).
+  const hasSelectedValue = multiple
+    ? Array.isArray(value) && value.length > 0
+    : value != null && stringifyAsValue(value, itemToStringValue) !== '';
 
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
@@ -276,20 +279,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         if (validationMode === 'onBlur') {
           validation.commit(value);
         }
-      }
-
-      // The active index will sync to the last selected index on the next open.
-      // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-      // option upon close when tabbing out due to `keepMounted=true`:
-      // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-      // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
-      // when tabbing outside.
-      if (!nextOpen && store.state.activeIndex !== null) {
-        const activeOption = listRef.current[store.state.activeIndex];
-        // Wait for Floating UI's focus effect to have fired
-        queueMicrotask(() => {
-          activeOption?.setAttribute('tabindex', '-1');
-        });
       }
     },
   );
@@ -552,7 +541,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       <SelectFloatingContext.Provider value={floatingContext}>
         {children}
         <input
-          {...validation.getInputValidationProps(disabled, {
+          {...validation.getValidationProps(disabled, {
             onFocus() {
               // Move focus to the trigger element when the hidden input is focused.
               store.state.triggerElement?.focus({
@@ -561,16 +550,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               });
             },
             // Handle browser autofill.
-            onChange(event: MaybeBaseUIEvent<React.ChangeEvent<HTMLInputElement>>) {
+            onChange(event: React.ChangeEvent<HTMLInputElement>) {
               // Workaround for https://github.com/facebook/react/issues/9023
               if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
-                // Outside Field.Root, the event is not wrapped by mergeProps.
-                event.preventBaseUIHandler?.();
                 return;
               }
-
-              event.preventBaseUIHandler?.();
-              clearErrors(name);
 
               const nextValue = event.currentTarget.value;
               const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
@@ -581,26 +565,29 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
                   return;
                 }
 
-                // Handle single selection: match against registered values using serialization
-                const matchingValue = valuesRef.current.find((v) => {
-                  // Try matching by value first (e.g., "US" for country code)
-                  const candidateValue = stringifyAsValue(v, itemToStringValue);
-                  if (candidateValue.toLowerCase() === nextValue.toLowerCase()) {
-                    return true;
-                  }
-                  // Also try matching by label for browser autofill compatibility
-                  // (browsers autofill with displayed text like "United States", not the underlying value)
-                  const candidateLabel = stringifyAsLabel(v, itemToStringLabel);
-                  if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
-                    return true;
-                  }
-                  return false;
-                });
+                // Preserve the original serialized matching, then fall back to rendered text,
+                // which browsers can autofill for primitive values like `value="US">United States`.
+                const nextValueLower = nextValue.toLowerCase();
+                let matchingIndex = valuesRef.current.findIndex(
+                  (candidate) =>
+                    stringifyAsValue(candidate, itemToStringValue).toLowerCase() ===
+                      nextValueLower ||
+                    stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
+                );
 
+                if (matchingIndex === -1) {
+                  matchingIndex = valuesRef.current.findIndex((_, index) => {
+                    const renderedLabel = labelsRef.current[index];
+                    return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
+                  });
+                }
+
+                const matchingValue =
+                  matchingIndex === -1 ? undefined : valuesRef.current[matchingIndex];
                 if (matchingValue != null) {
-                  setDirty(matchingValue !== validityData.initialValue);
+                  // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
+                  // mark the field dirty and run validation only when the value actually changes.
                   setValue(matchingValue, details);
-                  validation.change(matchingValue);
                 }
               }
 

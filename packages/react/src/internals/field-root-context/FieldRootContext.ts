@@ -72,8 +72,8 @@ export const DEFAULT_FIELD_ROOT_CONTEXT: FieldRootContext = {
   registerFieldControl: NOOP,
   validation: {
     getValidationProps: (_disabled: boolean, props: HTMLProps = EMPTY_OBJECT) => props,
-    getInputValidationProps: (_disabled: boolean, props: HTMLProps = EMPTY_OBJECT) => props,
     inputRef: { current: null },
+    registerInput: NOOP,
     commit: async () => {},
     change: NOOP,
   },

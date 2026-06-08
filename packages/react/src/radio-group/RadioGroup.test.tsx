@@ -60,6 +60,30 @@ describe('<RadioGroup />', () => {
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.results[0]?.value.event.shiftKey).toBe(true);
     });
+
+    it('should select an item with Space on keyup', async () => {
+      const handleChange = vi.fn();
+      const { user } = await render(
+        <RadioGroup onValueChange={handleChange}>
+          <Radio.Root value="a" data-testid="item" />
+        </RadioGroup>,
+      );
+
+      const item = screen.getByTestId('item');
+
+      act(() => {
+        item.focus();
+      });
+
+      await user.keyboard('[Space>]');
+
+      expect(handleChange).not.toHaveBeenCalled();
+
+      await user.keyboard('[/Space]');
+
+      expect(handleChange).toHaveBeenCalledOnce();
+      expect(handleChange).toHaveBeenLastCalledWith('a', expect.anything());
+    });
   });
 
   describe('prop: disabled', () => {
@@ -1029,6 +1053,98 @@ describe('<RadioGroup />', () => {
       fireEvent.click(screen.getByText('Submit'));
 
       expect(handleSubmit.mock.calls.length).toBe(1);
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
+    });
+
+    it('excludes a disabled selected radio from onFormSubmit to match native form data', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        return (
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="test">
+              <RadioGroup name="group" defaultValue="a">
+                <Radio.Root value="a" disabled={disabled} data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setDisabled(true)}>
+              Disable
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      await renderFakeTimers(<App />);
+
+      fireEvent.click(screen.getByText('Disable'));
+
+      const form = screen.getByTestId('form') as HTMLFormElement;
+      expect(new FormData(form).get('test')).toBe(null);
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
+    });
+
+    it('includes a selected radio again when it is re-enabled before form submission', async () => {
+      const handleSubmit = vi.fn();
+
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        return (
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <Field.Root name="test">
+              <RadioGroup name="group" defaultValue="a">
+                <Radio.Root value="a" disabled={disabled} data-testid="item-a" />
+                <Radio.Root value="b" data-testid="item-b" />
+              </RadioGroup>
+            </Field.Root>
+            <button type="button" onClick={() => setDisabled((value) => !value)}>
+              Toggle disabled
+            </button>
+            <button type="submit">Submit</button>
+          </Form>
+        );
+      }
+
+      await renderFakeTimers(<App />);
+
+      const form = screen.getByTestId('form') as HTMLFormElement;
+
+      fireEvent.click(screen.getByText('Toggle disabled'));
+      expect(new FormData(form).get('test')).toBe(null);
+
+      fireEvent.click(screen.getByText('Toggle disabled'));
+      expect(new FormData(form).get('test')).toBe('a');
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ test: 'a' });
+    });
+
+    it('excludes an initially disabled selected radio from onFormSubmit to match native form data', async () => {
+      const handleSubmit = vi.fn();
+
+      await renderFakeTimers(
+        <Form onFormSubmit={handleSubmit} data-testid="form">
+          <Field.Root name="test">
+            <RadioGroup name="group" defaultValue="a">
+              <Radio.Root value="a" disabled data-testid="item-a" />
+              <Radio.Root value="b" data-testid="item-b" />
+            </RadioGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const form = screen.getByTestId('form') as HTMLFormElement;
+      expect(new FormData(form).get('test')).toBe(null);
+
+      fireEvent.click(screen.getByText('Submit'));
+
       expect(handleSubmit.mock.calls[0][0]).toEqual({ test: null });
     });
 

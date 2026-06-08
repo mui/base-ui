@@ -1102,6 +1102,7 @@ A collection of links and menus for website navigation.
     - Data Attributes: data-popup-open, data-pressed
   - Navigation Menu - Icon
     - Props: className, render, style
+    - Data Attributes: data-popup-open
   - Navigation Menu - List
     - Props: className, render, style
   - Navigation Menu - Portal
@@ -1115,7 +1116,7 @@ A collection of links and menus for website navigation.
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Navigation Menu - Popup
     - Props: className, render, style
-    - Data Attributes: data-align, data-closed, data-ending-style, data-open, data-side, data-starting-style
+    - Data Attributes: data-align, data-anchor-hidden, data-closed, data-ending-style, data-open, data-side, data-starting-style
     - CSS Variables: --popup-height, --popup-width
   - Navigation Menu - Arrow
     - Props: className, render, style
@@ -1460,6 +1461,7 @@ A native scroll container with custom scrollbars.
     - CSS Variables: --scroll-area-corner-height, --scroll-area-corner-width
   - Scroll Area - Content
     - Props: className, render, style
+    - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
   - Scroll Area - Viewport
     - Props: className, render, style
     - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
@@ -1639,7 +1641,7 @@ An easily stylable range input.
     - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Thumb
-    - Props: className, disabled, getAriaLabel, getAriaValueText, index, inputRef, onBlur, onFocus, render, style, tabIndex
+    - Props: aria-valuetext, className, disabled, getAriaLabel, getAriaValueText, index, inputRef, onBlur, onFocus, onKeyDown, render, style, tabIndex
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-index, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Control
     - Props: className, render, style
@@ -1750,8 +1752,8 @@ Generates toast notifications.
     - Varying heights
   - API reference
     - Provider
-    - Viewport
     - Portal
+    - Viewport
     - Root
     - Content
     - Title
@@ -1824,7 +1826,7 @@ A two-state button that can be on or off.
 - Exports:
   - Toggle
     - Props: className, defaultPressed, disabled, nativeButton, onPressedChange, pressed, render, style, value
-    - Data Attributes: data-pressed
+    - Data Attributes: data-disabled, data-pressed
 - Types: Toggle.ChangeEventDetails, Toggle.ChangeEventReason, Toggle.Props, Toggle.State
 
 </details>

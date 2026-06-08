@@ -14,7 +14,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setOpenTriggerState,
+  setPopupOpenState,
   usePopupStore,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
@@ -162,7 +162,7 @@ export class PopoverStore<Payload> extends ReactStore<
         openChangeReason: eventDetails.reason,
       };
 
-      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
+      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
 
       this.update(updatedState);
     };

@@ -1874,6 +1874,38 @@ describe.skipIf(!isJSDOM)('useToast', () => {
       expect(savedToast).toHaveAttribute('data-limited');
       expect(screen.getByTestId('Other toast')).not.toHaveAttribute('data-limited');
     });
+
+    it('recomputes limited toasts when the limit prop changes', async () => {
+      function App(props: { limit: number }) {
+        return (
+          <Toast.Provider limit={props.limit}>
+            <Toast.Viewport>
+              <TestList />
+            </Toast.Viewport>
+          </Toast.Provider>
+        );
+      }
+
+      const { setProps } = await render(<App limit={1} />);
+
+      const addButton = screen.getByRole('button', { name: 'add' });
+      fireEvent.click(addButton);
+      fireEvent.click(addButton);
+
+      const toast1 = screen.getByTestId('toast-1');
+      const toast2 = screen.getByTestId('toast-2');
+
+      expect(toast2).not.toHaveAttribute('data-limited');
+      expect(toast1).toHaveAttribute('data-limited');
+
+      // Raising the limit un-limits the older toast.
+      await setProps({ limit: 2 });
+      expect(toast1).not.toHaveAttribute('data-limited');
+
+      // Lowering it again re-limits it.
+      await setProps({ limit: 1 });
+      expect(toast1).toHaveAttribute('data-limited');
+    });
   });
 
   describe('in dialog', () => {
