@@ -8,6 +8,7 @@ import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { contains } from '../../internals/shadowDom';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -50,6 +51,48 @@ export const usePortalContext = () => React.useContext(PortalContext);
 
 const attr = createAttribute('portal');
 
+interface PrefixedFullscreenDocument {
+  fullscreenElement?: Element | null | undefined;
+  webkitFullscreenElement?: Element | null | undefined;
+}
+
+function getCurrentFullscreenElement(): Element | null {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  const doc = document as Document & PrefixedFullscreenDocument;
+  return doc.fullscreenElement ?? doc.webkitFullscreenElement ?? null;
+}
+
+/**
+ * Subscribes to `fullscreenchange` events and returns the current
+ * `document.fullscreenElement` (with a webkit fallback).
+ *
+ * Used by `useFloatingPortalNode` to re-route portals into the fullscreen
+ * element while a fullscreen view is active.
+ */
+function useFullscreenElement(): Element | null {
+  const [fullscreenElement, setFullscreenElement] = React.useState<Element | null>(
+    getCurrentFullscreenElement,
+  );
+
+  React.useEffect(() => {
+    if (typeof document === 'undefined') {
+      return undefined;
+    }
+    function update() {
+      setFullscreenElement(getCurrentFullscreenElement());
+    }
+    update();
+    return mergeCleanups(
+      addEventListener(document, 'fullscreenchange', update),
+      addEventListener(document, 'webkitfullscreenchange' as 'fullscreenchange', update),
+    );
+  }, []);
+
+  return fullscreenElement;
+}
+
 export interface UseFloatingPortalNodeProps {
   ref?: React.Ref<HTMLDivElement> | undefined;
   container?:
@@ -75,6 +118,13 @@ export function useFloatingPortalNode(
   const uniqueId = useId();
   const portalContext = usePortalContext();
   const parentPortalNode = portalContext?.portalNode;
+
+  // Tracks `document.fullscreenElement` so portals can re-route into it when
+  // the default container (`document.body` or a parent portal) would otherwise
+  // be hidden by the browser's fullscreen rendering. Anything outside the
+  // fullscreen subtree is not painted, so a Dialog/Popover/Menu portalled to
+  // body would render but be invisible. See the resolution logic below.
+  const fullscreenElement = useFullscreenElement();
 
   const [containerElement, setContainerElement] = React.useState<HTMLElement | ShadowRoot | null>(
     null,
@@ -107,10 +157,25 @@ export function useFloatingPortalNode(
       return;
     }
 
-    const resolvedContainer =
-      (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
-      parentPortalNode ??
-      document.body;
+    const userContainer =
+      containerProp && (isNode(containerProp) ? containerProp : containerProp.current);
+
+    let resolvedContainer: HTMLElement | ShadowRoot | null =
+      userContainer ?? parentPortalNode ?? document.body;
+
+    // If a fullscreen element is active and the default container chain
+    // (parent portal -> body) lands outside of it, the portal would mount
+    // into the DOM but never paint. Reroute to the fullscreen element so
+    // popups, menus, and dialogs remain visible. The user's explicit
+    // `container` prop is always respected.
+    if (
+      !userContainer &&
+      fullscreenElement &&
+      resolvedContainer instanceof Element &&
+      !contains(fullscreenElement, resolvedContainer)
+    ) {
+      resolvedContainer = fullscreenElement as HTMLElement;
+    }
 
     if (resolvedContainer == null) {
       if (containerRef.current) {
@@ -126,7 +191,7 @@ export function useFloatingPortalNode(
       setPortalNode(null);
       setContainerElement(resolvedContainer);
     }
-  }, [containerProp, parentPortalNode, uniqueId]);
+  }, [containerProp, parentPortalNode, uniqueId, fullscreenElement]);
 
   const portalElement = useRenderElement('div', componentProps, {
     ref: [ref, setPortalNodeRef],

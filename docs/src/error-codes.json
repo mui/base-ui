@@ -95,5 +95,9 @@
   "95": "Base UI: SharedCalendarDayGridBodyContext is missing. <Calendar.DayGridRow /> must be placed within <Calendar.DayGridBody /> and <RangeCalendar.DayGridRow /> must be placed within <RangeCalendar.DayGridBody />.",
   "96": "Base UI: SharedCalendarDayGridCellContext is missing. <Calendar.DayButton /> must be placed within <Calendar.DayGridCell /> and <RangeCalendar.DayButton /> must be placed within <RangeCalendar.DayGridCell />.",
   "97": "Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />.",
-  "98": "Base UI: OTPFieldRootContext is missing. OTPField parts must be placed within <OTPField.Root>."
+  "98": "Base UI: OTPFieldRootContext is missing. OTPField parts must be placed within <OTPField.Root>.",
+  "99": "Base UI: FullscreenRootContext is missing. Fullscreen parts must be placed within <Fullscreen.Root>, or provided with a handle.",
+  "100": "Base UI: <Fullscreen.Trigger> must be used within <Fullscreen.Root> or provided with a handle.",
+  "101": "Base UI: Fullscreen.request() was called on an element whose owner document does not support the Fullscreen API. Check `document.fullscreenEnabled` before calling. See https://base-ui.com/react/components/fullscreen",
+  "102": "Base UI: <Fullscreen.Container> cannot be used inside a <Fullscreen.Root> that has a `target` prop. Choose one or the other: render <Fullscreen.Container> for an inline fullscreen element, or pass `target` to fullscreen an external element. See https://base-ui.com/react/components/fullscreen"
 }

@@ -1,0 +1,265 @@
+# Fullscreen
+
+<Subtitle>Presents an element in fullscreen using the browser Fullscreen API.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React fullscreen component that presents an element with the browser Fullscreen API."
+/>
+
+import { DemoFullscreenHero } from './demos/hero';
+
+<DemoFullscreenHero />
+
+## Usage guidelines
+
+- **User gesture required:** Browsers only honor `requestFullscreen()` while the window has [transient activation](https://html.spec.whatwg.org/multipage/interaction.html#transient-activation) — granted by a recent user interaction (click, tap, keypress) and valid for roughly five seconds. The bundled `<Fullscreen.Trigger>` always satisfies this. Flipping `open` from any external handler triggered by a user gesture (including a deferred `setTimeout` that still runs within the activation window) also works. Requests fired without a recent gesture are rejected.
+- **Browser support:** Fullscreen is unavailable on iOS Safari for iPhone (only iPad iOS 16.4+ supports `requestFullscreen()` on arbitrary elements). When the API is unavailable for the container's owner document, `<Fullscreen.Trigger>` is automatically disabled (`data-disabled`, `aria-disabled="true"`). The `supported` state is also exposed on Root, Trigger, Container, and Close so you can render fallback UI.
+- **Inside iframes:** The hosting `<iframe>` must include the `allowfullscreen` attribute (or `allow="fullscreen"`) and any [Permissions Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Permissions_Policy) must permit the `fullscreen` feature for the document. Without these, requests are rejected with a `TypeError`.
+- **Mobile considerations:** Some mobile browsers ignore `<meta name="viewport">` settings and disable user pinch-zoom while a page is in fullscreen.
+- **Exit affordance:** Users can always exit fullscreen with Esc (or F11). The component listens to the browser's `fullscreenchange` event and reconciles state automatically — `onOpenChange` is fired with `reason: 'escape-key'` in that case.
+- **Esc inside popups:** When a `<Dialog>`, `<Popover>`, `<Menu>`, or any other popup is open inside fullscreen, pressing Esc dismisses the popup first instead of immediately exiting fullscreen. Base UI uses the [Keyboard Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/lock) so the keypress reaches JavaScript handlers; popups (which call `event.preventDefault()` on Esc) keep fullscreen alive, while a "bare" Esc still exits. Keyboard Lock is only implemented in Chromium today — Safari and Firefox keep their native behavior of always exiting fullscreen on Esc.
+- **Portals inside fullscreen:** `<Dialog.Portal>`, `<Popover.Portal>`, `<Menu.Portal>`, `<Tooltip.Portal>`, and every other Base UI portal default to `document.body`, which the browser hides while a child element is fullscreen. Base UI detects this and reroutes the portal into the active fullscreen element so popups, menus, and overlays stay visible. Portals with an explicit `container` prop are respected as-is.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Fullscreen } from '@base-ui/react/fullscreen';
+
+<Fullscreen.Root>
+  <Fullscreen.Trigger />
+  <Fullscreen.Container>
+    <Fullscreen.Close />
+  </Fullscreen.Container>
+</Fullscreen.Root>;
+```
+
+The `Container` is the element passed to the browser's `requestFullscreen()`. The `Trigger` toggles the fullscreen state, and the `Close` only ever exits fullscreen. Place the `Close` inside the `Container` so it remains visible while the page is in fullscreen.
+
+## Examples
+
+### Styling fullscreen state
+
+`<Fullscreen.Container>`, `<Fullscreen.Trigger>`, and `<Fullscreen.Close>` all expose `data-fullscreen` and `data-not-fullscreen` attributes so you can show or hide controls based on the current state without managing it manually.
+
+```css title="Hide trigger in fullscreen, show close only when fullscreen"
+.Trigger[data-fullscreen] {
+  display: none;
+}
+
+.Close[data-not-fullscreen] {
+  display: none;
+}
+```
+
+You can also target the container with the standard CSS [`:fullscreen` pseudo-class](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:fullscreen) and style its [`::backdrop`](https://developer.mozilla.org/en-US/docs/Web/CSS/::backdrop) pseudo-element:
+
+```css title="Native :fullscreen and ::backdrop"
+.Container:fullscreen {
+  padding: 2rem;
+}
+
+.Container::backdrop {
+  background: rgb(0 0 0 / 0.9);
+}
+```
+
+### Controlled state
+
+Use `open` and `onOpenChange` to control the state externally. The second argument to `onOpenChange` includes a `reason` that distinguishes between user interactions:
+
+```tsx title="Controlled fullscreen"
+const [open, setOpen] = React.useState(false);
+
+<Fullscreen.Root
+  open={open}
+  onOpenChange={(nextOpen, details) => {
+    setOpen(nextOpen);
+    // details.reason: 'trigger-press' | 'close-press' | 'escape-key' | 'none'
+  }}
+>
+  {/* ... */}
+</Fullscreen.Root>;
+```
+
+You can also drive the fullscreen state from a button outside `<Fullscreen.Root>`. Flipping `open` to `true` inside a click handler triggers `requestFullscreen()` synchronously in the same task as the click, satisfying the spec's user-activation requirement:
+
+```tsx title="External trigger"
+const [open, setOpen] = React.useState(false);
+
+<button onClick={() => setOpen(true)}>Open externally</button>
+<Fullscreen.Root open={open} onOpenChange={setOpen}>
+  <Fullscreen.Container>{/* ... */}</Fullscreen.Container>
+</Fullscreen.Root>
+```
+
+If `open` is set to `true` outside the browser's transient-activation window (no recent user gesture, or more than ~5 seconds after one), the browser rejects the request. Base UI catches the rejection, dispatches `onOpenChange(false, { reason: 'none' })` so the controlled state can roll back, and logs a warning in development.
+
+### Detached triggers
+
+A `<Fullscreen.Trigger>` can also live anywhere in the React tree — for example in a global toolbar, away from the element that goes fullscreen. Connect them by creating a handle with `Fullscreen.createHandle()` and passing it to both `<Fullscreen.Root>` and `<Fullscreen.Trigger>`:
+
+```jsx title="Detached trigger"
+const playerFullscreen = Fullscreen.createHandle();
+
+// @highlight
+// @highlight-text "handle={playerFullscreen}"
+<Fullscreen.Trigger handle={playerFullscreen}>Enter fullscreen</Fullscreen.Trigger> {/* @highlight-text "handle={playerFullscreen}" */}
+
+// @highlight
+// @highlight-text "handle={playerFullscreen}"
+<Fullscreen.Root handle={playerFullscreen}>
+  <Fullscreen.Container>{/* ... */}</Fullscreen.Container>
+</Fullscreen.Root>
+```
+
+import { DemoFullscreenDetachedTrigger } from './demos/detached-trigger';
+
+<DemoFullscreenDetachedTrigger />
+
+### Imperative open and close
+
+The handle returned by `Fullscreen.createHandle()` also exposes imperative methods. Calling `handle.open()` from any user-gesture handler (click, keypress, command-palette action, etc.) enters fullscreen the same way a trigger press would:
+
+```tsx title="Imperative control"
+const playerFullscreen = Fullscreen.createHandle();
+
+function onHotkey(event: KeyboardEvent) {
+  if (event.key === 'f') {
+    playerFullscreen.open();
+  }
+}
+
+// `close()` and `isOpen` have no gesture constraints.
+playerFullscreen.close();
+console.log(playerFullscreen.isOpen);
+```
+
+`handle.open()` carries the same user-activation requirement as `<Fullscreen.Trigger>`. If invoked outside the activation window, the browser rejects the request and Base UI dispatches `onOpenChange(false, { reason: 'none' })` to roll the state back.
+
+### Mount only when open
+
+Wrap the `<Fullscreen.Container>` in a `<Fullscreen.Portal>` to keep the fullscreen content out of the DOM until the user enters fullscreen. By default the portal renders into `document.body` and tears its children down again when the user exits.
+
+```jsx title="Mount only when open"
+<Fullscreen.Root>
+  <Fullscreen.Trigger>Open fullscreen</Fullscreen.Trigger>
+  <Fullscreen.Portal>
+    <Fullscreen.Container>{/* ... */}</Fullscreen.Container>
+  </Fullscreen.Portal>
+</Fullscreen.Root>
+```
+
+The user-activation chain is preserved: pressing the trigger flips `open`, the portal mounts the container synchronously, and `requestFullscreen()` runs in the same task. Pass `keepMounted` to keep the children in the DOM even when not in fullscreen — they are hidden via the `hidden` attribute (matching `<Dialog.Portal>`) so consumer styles such as `width: 100vw` don't leak into the page. Pass `container` to portal into a custom node.
+
+import { DemoFullscreenPortal } from './demos/portal';
+
+<DemoFullscreenPortal />
+
+### Detecting unsupported browsers
+
+The Fullscreen API is unavailable in some environments (notably iOS Safari for iPhone). `<Fullscreen.Trigger>` handles this for you out of the box — when the API is unsupported it sets `disabled`, `aria-disabled="true"`, and `data-disabled`, and silently no-ops on activation. Most apps can ship `<Fullscreen.Trigger>Enter fullscreen</Fullscreen.Trigger>` as-is.
+
+To render entirely different UI in the unsupported case, branch inside the trigger's `render` prop. Spread `props` on the supported branch (so the trigger's click handler, ref, and ARIA attributes wire up), and render a plain non-interactive node on the unsupported branch — do **not** spread `props` there, otherwise you'll attach button-like behavior to an element that can't actually enter fullscreen:
+
+```tsx title="Render alternate UI when unsupported"
+<Fullscreen.Trigger
+  render={(props, state) =>
+    state.supported ? (
+      <button {...props}>Enter fullscreen</button>
+    ) : (
+      <span>Fullscreen isn't available on this device</span>
+    )
+  }
+/>
+```
+
+### Hint to the browser about navigation UI
+
+Pass `navigationUI` to `<Fullscreen.Root>` to forward the [`FullscreenOptions.navigationUI`](https://fullscreen.spec.whatwg.org/#dictdef-fullscreenoptions) hint to `requestFullscreen()`. The browser is free to honor user preference over this hint.
+
+```tsx title="Prefer maximum screen real estate"
+<Fullscreen.Root navigationUI="hide">{/* ... */}</Fullscreen.Root>
+```
+
+### Fullscreen any element
+
+Sometimes the fullscreen target lives outside the React tree — most commonly the entire page (`document.documentElement`). Two complementary entry points cover this case:
+
+- Pass a `target` prop to `<Fullscreen.Root>` for a managed setup that still gives you triggers, closes, controlled state, and `data-fullscreen` reactivity.
+- Call `Fullscreen.request(element)` and `Fullscreen.exit()` directly from a user-gesture handler for fire-and-forget cases that don't need state management.
+
+`target` accepts a callback that returns the element (lazy and SSR-safe) or a `React.RefObject` pointing at the element. `<Fullscreen.Container>` cannot be used together with `target`.
+
+```tsx title="Fullscreen the page with a managed Root"
+<Fullscreen.Root target={() => document.documentElement}>
+  <Fullscreen.Trigger>Fullscreen the page</Fullscreen.Trigger>
+</Fullscreen.Root>
+```
+
+import { DemoFullscreenPage } from './demos/page-fullscreen';
+
+<DemoFullscreenPage />
+
+For one-off cases the imperative utilities are simplest:
+
+```tsx title="Imperative request and exit"
+import { Fullscreen } from '@base-ui/react/fullscreen';
+
+<button
+  type="button"
+  onClick={() => {
+    Fullscreen.request(document.documentElement).catch(() => {
+      // Browser rejected (e.g. no recent user gesture, or unavailable in this iframe).
+    });
+  }}
+>
+  Fullscreen the page
+</button>;
+
+<button type="button" onClick={() => Fullscreen.exit()}>
+  Exit fullscreen
+</button>;
+```
+
+Like `<Fullscreen.Trigger>` and `handle.open()`, `Fullscreen.request()` must run inside a user-gesture handler. The returned promise rejects if the browser refuses or the API isn't available on the element's owner document.
+
+## API reference
+
+import { TypesFullscreen } from './types';
+
+### Root
+
+<TypesFullscreen.Root />
+
+### Trigger
+
+<TypesFullscreen.Trigger />
+
+### Container
+
+<TypesFullscreen.Container />
+
+### Close
+
+<TypesFullscreen.Close />
+
+### Portal
+
+<TypesFullscreen.Portal />
+
+### Handle
+
+<TypesFullscreen.Handle />
+
+export const metadata = {
+  keywords: [
+    'React Fullscreen',
+    'Fullscreen Component',
+    'Fullscreen API',
+    'Toggle Fullscreen Button',
+    'Headless React Components',
+    'Base UI',
+  ],
+};
