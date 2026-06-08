@@ -157,7 +157,8 @@
           content: '';
           position: absolute;
           inset: 0 0 1px;
-          border-radius: inherit;
+          border-top-left-radius: calc(var(--radius-8) - 1px);
+          border-top-right-radius: calc(var(--radius-8) - 1px);
           background-color: var(--gray-c1);
           pointer-events: none;
         }
