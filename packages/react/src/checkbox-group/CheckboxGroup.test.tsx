@@ -391,6 +391,33 @@ describe('<CheckboxGroup />', () => {
       expect(screen.queryByTestId('error')).toBe(null);
     });
 
+    it('validationMode=onBlur keeps the error until every required checkbox is ticked', async () => {
+      const { user } = render(
+        <Field.Root name="protocols" validationMode="onBlur">
+          <CheckboxGroup defaultValue={[]}>
+            <Field.Item>
+              <Checkbox.Root value="http" data-testid="cb-http" required />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="https" data-testid="cb-https" required />
+            </Field.Item>
+          </CheckboxGroup>
+          <Field.Error match="valueMissing" data-testid="error">
+            required
+          </Field.Error>
+        </Field.Root>,
+      );
+
+      await user.click(screen.getByTestId('cb-https'));
+      expect(screen.queryByTestId('error')).toBe(null);
+
+      fireEvent.blur(screen.getByTestId('cb-https'));
+      expect(screen.getByTestId('error')).toHaveTextContent('required');
+
+      await user.click(screen.getByTestId('cb-http'));
+      expect(screen.queryByTestId('error')).toBe(null);
+    });
+
     it('does not leave a stale custom error when toggling checkboxes in a group', async () => {
       const validateSpy = vi.fn((value) => ((value as string[]).length < 2 ? 'pick two' : null));
       render(
@@ -412,7 +439,8 @@ describe('<CheckboxGroup />', () => {
       fireEvent.click(http);
       expect(http).toHaveAttribute('aria-invalid', 'true');
 
-      // Selecting both clears the custom error; no stale custom validity must linger on either input.
+      // Selecting both clears the field-level error; no stale custom validation result should keep
+      // the group invalid.
       fireEvent.click(https);
       expect(http).not.toHaveAttribute('aria-invalid');
       expect(https).not.toHaveAttribute('aria-invalid');
@@ -420,6 +448,45 @@ describe('<CheckboxGroup />', () => {
       // Unticking one brings the real error back (not a phantom from a prior commit).
       fireEvent.click(http);
       expect(https).toHaveAttribute('aria-invalid', 'true');
+    });
+
+    it('clears custom validity from disabled registered inputs when the group becomes valid', async () => {
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+        const [value, setValue] = React.useState<string[]>([]);
+        const validate = (nextValue: unknown) =>
+          (nextValue as string[]).length < 2 ? 'pick two' : null;
+
+        return (
+          <Field.Root name="protocols" validationMode="onChange" validate={validate}>
+            <CheckboxGroup value={value} onValueChange={setValue}>
+              <Field.Item>
+                <Checkbox.Root value="http" data-testid="cb-http" disabled={disabled} />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="https" data-testid="cb-https" />
+              </Field.Item>
+            </CheckboxGroup>
+            <button type="button" onClick={() => setDisabled(true)}>
+              disable
+            </button>
+          </Field.Root>
+        );
+      }
+
+      const { user } = render(<App />);
+
+      await user.click(screen.getByTestId('cb-http'));
+
+      const httpInput = document.querySelector<HTMLInputElement>(
+        'input[type="checkbox"][value="http"]',
+      );
+      expect(httpInput?.validity.customError).toBe(true);
+
+      await user.click(screen.getByText('disable'));
+      await user.click(screen.getByTestId('cb-https'));
+
+      expect(httpInput?.validity.customError).toBe(false);
     });
 
     it('prop: validationMode=onSubmit', async () => {

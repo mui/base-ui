@@ -39,9 +39,9 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
 
 /**
  * Picks the input whose native validity should represent a field that owns several inputs (such as a
- * checkbox group). Prefers the first currently-invalid input (e.g. an unchecked required checkbox) and
- * otherwise returns the first enabled input. Disabled inputs are skipped because they're barred from
- * constraint validation, mirroring native form submission.
+ * checkbox group). Prefers the first enabled currently-invalid input, where "first" follows Set
+ * insertion order (mount order), and otherwise returns the first enabled input. Disabled inputs are
+ * skipped because they don't participate in native constraint validation.
  */
 function findRepresentativeInput(inputs: Set<HTMLInputElement>): HTMLInputElement | null {
   let fallback: HTMLInputElement | null = null;
@@ -55,6 +55,19 @@ function findRepresentativeInput(inputs: Set<HTMLInputElement>): HTMLInputElemen
     fallback ??= input;
   }
   return fallback;
+}
+
+function clearCustomValidity(element: HTMLInputElement, inputs: Set<HTMLInputElement>) {
+  let didClearElement = false;
+
+  for (const input of inputs) {
+    input.setCustomValidity('');
+    didClearElement ||= input === element;
+  }
+
+  if (!didClearElement) {
+    element.setCustomValidity('');
+  }
 }
 
 export function useFieldValidation(
@@ -151,7 +164,7 @@ export function useFieldValidation(
           errors: [],
           initialValue: validityData.initialValue,
         };
-        element.setCustomValidity('');
+        clearCustomValidity(element, registeredInputs);
 
         // The required value is now present; ignore stale external invalid state for this pass.
         updateRegisteredFieldValidity(nextValidityData, false);
@@ -264,7 +277,7 @@ export function useFieldValidation(
       } else if (isValidatingOnChange) {
         // validate function returned no errors, if validating on change
         // we need to clear the custom validity state
-        element.setCustomValidity('');
+        clearCustomValidity(element, registeredInputs);
         nextState.customError = false;
 
         if (element.validationMessage) {
