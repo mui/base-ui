@@ -1,7 +1,7 @@
 export const cache = new Map<string, Intl.NumberFormat>();
 
 export function getFormatter(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
-  const optionsString = JSON.stringify({ locale, options });
+  const optionsString = JSON.stringify({ locale: stringifyLocale(locale), options });
   const cachedFormatter = cache.get(optionsString);
 
   if (cachedFormatter) {
@@ -12,6 +12,16 @@ export function getFormatter(locale?: Intl.LocalesArgument, options?: Intl.Numbe
   cache.set(optionsString, formatter);
 
   return formatter;
+}
+
+function stringifyLocale(locale?: Intl.LocalesArgument): string {
+  if (Array.isArray(locale)) {
+    return locale.map((value) => stringifyLocale(value)).join(',');
+  }
+  if (locale == null) {
+    return '';
+  }
+  return String(locale);
 }
 
 export function formatNumber(
