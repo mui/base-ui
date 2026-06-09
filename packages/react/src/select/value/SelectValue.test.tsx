@@ -359,7 +359,7 @@ describe('<Select.Value />', () => {
       expect(screen.getByTestId('value')).toHaveTextContent('Canada');
     });
 
-    it('uses item labels before itemToStringLabel for primitive selected values', async () => {
+    it('uses itemToStringLabel before item labels for primitive selected values', async () => {
       const items = [
         { value: 'US', label: 'United States' },
         { value: 'CA', label: 'Canada' },
@@ -384,7 +384,7 @@ describe('<Select.Value />', () => {
         </Select.Root>,
       );
 
-      expect(screen.getByTestId('value')).toHaveTextContent('Canada');
+      expect(screen.getByTestId('value')).toHaveTextContent('Custom label');
     });
 
     it('falls back to label/value properties when functions are not provided', async () => {

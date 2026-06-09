@@ -755,18 +755,18 @@ describe('<Combobox.Root />', () => {
           { value: 2, label: 'Banana' },
         ];
 
-        it('resolves primitive selected labels before falling back to itemToStringLabel', async () => {
+        it('uses itemToStringLabel before matching item labels for primitive selected values', async () => {
           await render(
             <Combobox.Root
               items={labeledItems}
               defaultValue={2}
-              itemToStringLabel={(item: any) => item.label}
+              itemToStringLabel={() => 'Custom label'}
             >
               <Combobox.Input data-testid="input" />
             </Combobox.Root>,
           );
 
-          expect(screen.getByTestId('input')).toHaveValue('Banana');
+          expect(screen.getByTestId('input')).toHaveValue('Custom label');
         });
 
         it('falls back to the raw value when a primitive value has no matching labeled item', async () => {
@@ -1017,13 +1017,18 @@ describe('<Combobox.Root />', () => {
           });
         });
 
-        it('uses inferred primitive values for virtualized item indexes before a selection', async () => {
+        it('keeps virtualized object item indexes based on the full item value', async () => {
           await render(
-            <Combobox.Root items={labeledItems} virtualized defaultOpen>
+            <Combobox.Root
+              items={labeledItems}
+              virtualized
+              defaultOpen
+              defaultValue={labeledItems[1]}
+            >
               <Combobox.Input />
               <Combobox.List>
                 {(item: (typeof labeledItems)[number]) => (
-                  <Combobox.Item key={item.value} value={item.value}>
+                  <Combobox.Item key={item.value} value={item}>
                     {item.label}
                   </Combobox.Item>
                 )}

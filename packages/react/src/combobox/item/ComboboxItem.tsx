@@ -17,8 +17,7 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { compareItemEquality } from '../../internals/itemEquality';
-import { findItemIndexByValue } from '../../internals/resolveValueLabel';
+import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
 
 /**
  * An individual item in the list.
@@ -64,7 +63,7 @@ export const ComboboxItem = React.memo(
     const index =
       indexProp ??
       (virtualized
-        ? findItemIndexByValue(flatFilteredItems, itemValue, isItemEqualToValue)
+        ? findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
         : listItem.index);
     const hasRegistered = listItem.index !== -1;
 
@@ -99,8 +98,7 @@ export const ComboboxItem = React.memo(
 
       // Register the rendered item value so the visible registry preserves its exact
       // shape (a primitive `value`, or the whole item for `value={item}`) for selection,
-      // highlight callbacks, autofill, and typeahead. With `items`, the root fills any
-      // unmounted (e.g. virtualized) slots with an inferred value.
+      // highlight callbacks, autofill, and typeahead.
       const visibleMap = store.state.valuesRef.current;
       visibleMap[index] = itemValue;
 

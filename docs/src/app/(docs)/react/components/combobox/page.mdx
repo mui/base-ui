@@ -75,7 +75,8 @@ import { Combobox } from '@base-ui/react/combobox';
 
 Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
 
-When the `items` array uses the full `{ value, label }` shape, `<Combobox.Item>` can use either the whole item or its primitive `value` field.
+When a non-virtualized `items` array uses the full `{ value, label }` shape, `<Combobox.Item>` can use either the whole item or its `value` field.
+Virtualized comboboxes do not support this primitive value inference.
 For other item shapes, the `items` array type should match the `value` prop type passed to `<Combobox.Item>`.
 
 ## Examples

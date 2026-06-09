@@ -804,17 +804,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       ? selectedValue[selectedValue.length - 1]
       : selectedValue;
 
-  // Derive the selected value's index in the (unfiltered) `items`. Matches the full
-  // item (object `value={item}`) or its inferred value (primitive `value` against a
-  // `{ value, label }` entry). Only the closed state is consumed (the syncing effect
-  // bails while open), so skip the scan while open to avoid rescanning large lists on
-  // every selection change during open interactions.
+  // Derive the selected value's index in the (unfiltered) `items`. Non-virtualized
+  // lists can match the full item (object `value={item}`) or its inferred value
+  // (primitive `value` against a `{ value, label }` entry). Only the closed state is
+  // consumed (the syncing effect bails while open), so skip the scan while open to
+  // avoid rescanning large lists on every selection change during open interactions.
   const itemsSelectedIndex = React.useMemo(() => {
     if (open || selectionMode === 'none' || !items) {
       return -1;
     }
+    if (virtualized) {
+      return findItemIndex(flatItems, navigationValue, isItemEqualToValue);
+    }
     return findItemIndexByValue(flatItems, navigationValue, isItemEqualToValue);
-  }, [open, selectionMode, items, flatItems, navigationValue, isItemEqualToValue]);
+  }, [open, selectionMode, items, virtualized, flatItems, navigationValue, isItemEqualToValue]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
@@ -845,9 +848,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useIsoLayoutEffect(() => {
     if (items) {
+      if (virtualized) {
+        valuesRef.current = flatFilteredItems;
+        listRef.current.length = flatFilteredItems.length;
+        return;
+      }
+
       // Mounted items register their own rendered value (preserving its exact shape).
-      // Fill any remaining slots (e.g. unmounted/virtualized items) in place with an
-      // inferred value so the registry stays complete without clobbering those writes.
+      // Fill any remaining slots in place with an inferred value so the registry stays
+      // complete without clobbering those writes.
       const visibleMap = valuesRef.current;
       visibleMap.length = flatFilteredItems.length;
       for (let index = 0; index < flatFilteredItems.length; index += 1) {
@@ -857,7 +866,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [items, flatFilteredItems]);
+  }, [items, virtualized, flatFilteredItems]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -909,11 +918,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
     const candidateItem = candidateItems[storeActiveIndex];
     // Surface the rendered item value so highlight callbacks report the same shape used
-    // for selection (a primitive, or the whole item for `value={item}`), falling back to
-    // the inferred value for any slot not registered by a mounted item.
-    const itemValue = hasItems
-      ? (valuesRef.current[storeActiveIndex] ?? inferItemValue(candidateItem))
-      : candidateItem;
+    // for selection. Non-virtualized lists can fall back to the inferred value for any
+    // slot not registered by a mounted item; virtualized lists keep the item shape.
+    let itemValue = candidateItem;
+    if (hasItems) {
+      itemValue = valuesRef.current[storeActiveIndex];
+      if (itemValue === undefined) {
+        itemValue = virtualized ? candidateItem : inferItemValue(candidateItem);
+      }
+    }
     const previouslyHighlightedItemValue = lastHighlightRef.current.value;
     const isSameItem =
       previouslyHighlightedItemValue !== NO_ACTIVE_VALUE &&
@@ -939,6 +952,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     inline,
     open,
     store,
+    virtualized,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -1351,10 +1365,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               if (matchingIndex !== -1) {
                 const candidate = candidates[matchingIndex];
                 const renderedValue = valuesRef.current[matchingIndex];
-                const matchingValue =
-                  listRef.current[matchingIndex] != null
-                    ? renderedValue
-                    : inferItemValue(candidate);
+                let matchingValue = renderedValue;
+                if (listRef.current[matchingIndex] == null) {
+                  matchingValue = virtualized ? candidate : inferItemValue(candidate);
+                }
 
                 if (matchingValue != null) {
                   setDirty(matchingValue !== validityData.initialValue);
@@ -1546,9 +1560,10 @@ interface ComboboxRootProps<ItemValue> {
   /**
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
-   * When items use the `{ value, label }` shape, a primitive `<Combobox.Item value>` resolves its
-   * label from the matching item, and `<Combobox.Value>` and the input render the label instead of
-   * the raw value.
+   * In non-virtualized lists, when items use the `{ value, label }` shape, a primitive
+   * `<Combobox.Item value>` resolves its text label from the matching item, and
+   * `<Combobox.Value>` and the input render the label instead of the raw value.
+   * Virtualized lists do not support this primitive value inference.
    */
   items?: readonly any[] | readonly Group<any>[] | undefined;
   /**

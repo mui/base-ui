@@ -141,7 +141,7 @@ export function resolveSelectedLabel(
     return stringifyAsLabel(value, itemToStringLabel);
   }
 
-  if (itemToStringLabel && value != null && typeof value === 'object') {
+  if (itemToStringLabel && value != null) {
     return itemToStringLabel(value);
   }
 
