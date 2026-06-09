@@ -17,7 +17,8 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { compareItemEquality } from '../../internals/itemEquality';
+import { findItemIndexByValue } from '../../internals/resolveValueLabel';
 
 /**
  * An individual item in the list.
@@ -63,7 +64,7 @@ export const ComboboxItem = React.memo(
     const index =
       indexProp ??
       (virtualized
-        ? findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
+        ? findItemIndexByValue(flatFilteredItems, itemValue, isItemEqualToValue)
         : listItem.index);
     const hasRegistered = listItem.index !== -1;
 
@@ -92,17 +93,21 @@ export const ComboboxItem = React.memo(
     }, [hasRegistered, virtualized, index, indexProp, store]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || hasItems) {
+      if (!hasRegistered) {
         return undefined;
       }
 
+      // Register the rendered item value so the visible registry preserves its exact
+      // shape (a primitive `value`, or the whole item for `value={item}`) for selection,
+      // highlight callbacks, autofill, and typeahead. With `items`, the root fills any
+      // unmounted (e.g. virtualized) slots with an inferred value.
       const visibleMap = store.state.valuesRef.current;
       visibleMap[index] = itemValue;
 
       // Stable registry that doesn't depend on filtering. Assume that no
       // filtering had occurred at this point; otherwise, an `items` prop is
       // required.
-      if (selectionMode !== 'none') {
+      if (!hasItems && selectionMode !== 'none') {
         store.state.allValuesRef.current.push(itemValue);
       }
 
