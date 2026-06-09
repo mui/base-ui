@@ -18,6 +18,7 @@
   "dependencies": {
     "@base-ui/react": "workspace:*",
     "@base-ui/utils": "workspace:*",
+    "@base-ui-components/react-before-detached": "npm:@base-ui-components/react@1.0.0-beta.4",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@mui/internal-docs-infra": "0.11.1-canary.4",

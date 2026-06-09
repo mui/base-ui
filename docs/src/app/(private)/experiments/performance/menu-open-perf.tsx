@@ -4,7 +4,7 @@ import { Menu } from '@base-ui/react/menu';
 import menuDemoStyles from 'docs/src/app/(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import styles from './perf.module.css';
+import styles from './performance.module.css';
 import { logResults, removeOutliers } from './utils/benchmark';
 import { waitSingleFrame } from './utils/wait';
 
@@ -63,11 +63,11 @@ const Controls = React.memo(function Controls(props: {
   });
 
   return (
-    <div className={styles.controls}>
+    <div className={styles.ToolbarActions}>
       <button
         type="button"
         onClick={() => setIsMenuOpen((prev) => !prev)}
-        className={styles.button}
+        className={styles.ToolbarButton}
         disabled={isRunning}
       >
         Toggle
@@ -75,7 +75,7 @@ const Controls = React.memo(function Controls(props: {
       <button
         type="button"
         onClick={() => runBenchmark(10, WARMUP_ITERATIONS)}
-        className={styles.button}
+        className={styles.ToolbarButton}
         disabled={isRunning}
       >
         Run 10
@@ -83,7 +83,7 @@ const Controls = React.memo(function Controls(props: {
       <button
         type="button"
         onClick={() => runBenchmark(20, WARMUP_ITERATIONS)}
-        className={styles.button}
+        className={styles.ToolbarButton}
         disabled={isRunning}
       >
         Run 20
@@ -91,15 +91,14 @@ const Controls = React.memo(function Controls(props: {
       <button
         type="button"
         onClick={() => runBenchmark(50, WARMUP_ITERATIONS)}
-        className={styles.button}
+        className={styles.ToolbarButton}
         disabled={isRunning}
       >
         Run 50
       </button>
-      <label style={{ marginLeft: 8 }}>
+      <label className={styles.ToolbarCheckbox}>
         <input
           type="checkbox"
-          style={{ marginRight: 4 }}
           checked={shouldRemoveOutliers}
           onChange={(ev) => setShouldRemoveOutliers(ev.target.checked)}
         />
@@ -113,11 +112,16 @@ export default function MenuOpenTestComponent() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
-    <div className={styles.preview}>
+    <div className={styles.Container}>
+      <h1>Menu open performance</h1>
+      <p>
+        Measures the time for a single Menu to open with {menuItemCount} items. Results are logged
+        to the console.
+      </p>
       <Controls setIsMenuOpen={setIsMenuOpen} />
 
       <Menu.Root open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <Menu.Trigger className={styles.button} id="menu-open-benchmark-trigger">
+        <Menu.Trigger className={styles.TriggerButton} id="menu-open-benchmark-trigger">
           Menu
         </Menu.Trigger>
         <Menu.Portal>
@@ -126,7 +130,7 @@ export default function MenuOpenTestComponent() {
             positionMethod="fixed"
             className={menuDemoStyles.Positioner}
           >
-            <Menu.Popup className={`${menuDemoStyles.Popup} ${styles.noAnimationPopup}`}>
+            <Menu.Popup className={`${menuDemoStyles.Popup} ${styles.NoAnimationPopup}`}>
               <Menu.Arrow className={menuDemoStyles.Arrow}>
                 <ArrowSvg />
               </Menu.Arrow>

@@ -1,0 +1,674 @@
+/* -------------------------------------------------------------
+ * Harness — used by utils/benchmark.tsx
+ * ------------------------------------------------------------- */
+
+.HarnessRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.Toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ToolbarActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ToolbarButton {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  padding: 0 0.625rem;
+  margin: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-900);
+  cursor: default;
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active:not(:disabled) {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.ToolbarCheckbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+
+  & input[type='checkbox'] {
+    margin: 0;
+  }
+}
+
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 22rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
+}
+
+.Input {
+  box-sizing: border-box;
+  padding-left: 0.875rem;
+  margin: 0;
+  border: 1px solid var(--color-gray-200);
+  width: 100%;
+  height: 2.5rem;
+  border-radius: 0.375rem;
+  font-family: inherit;
+  font-size: 1rem;
+  background-color: transparent;
+  color: var(--color-gray-900);
+
+  &:focus {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.Table {
+  margin: 0;
+  border-collapse: collapse;
+  border-spacing: 2px;
+  border: 1px solid var(--color-gray-300);
+
+  th,
+  td {
+    border: 1px solid var(--color-gray-300);
+    padding: 2px 8px;
+    font-size: 0.875rem;
+  }
+
+  th {
+    text-align: left;
+    font-weight: 500;
+    background-color: var(--color-gray-50);
+  }
+
+  td:not(:first-child) {
+    text-align: right;
+    font-family: monospace;
+  }
+
+  tr[data-active] td {
+    font-weight: 600;
+  }
+}
+
+.TableHeader {
+  border: 1px solid var(--color-gray-300);
+}
+
+.TableBody {
+  border: 1px solid var(--color-gray-300);
+}
+
+.VariantArea {
+  margin-top: 1rem;
+}
+
+.NoAnimationPopup {
+  transition: none !important;
+  animation: none !important;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    transition: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* -------------------------------------------------------------
+ * Trigger rows — used by triggers-perf.tsx
+ * (ported from the former perf/perf.module.css)
+ * ------------------------------------------------------------- */
+
+.Container {
+  max-width: 700px;
+}
+
+.Rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.Row {
+  padding: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.Actions {
+  display: flex;
+  gap: 8px;
+}
+
+.RowLabel {
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+}
+
+.TriggerButton {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.75rem;
+  padding: 0 0.375rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-100);
+  }
+
+  &[data-popup-open] {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+/* -------------------------------------------------------------
+ * Tooltip — used by tooltip-perf.tsx and the Tooltip rows of
+ * triggers-perf.tsx (where appropriate)
+ * ------------------------------------------------------------- */
+
+.TooltipPanel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.TooltipButton {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.25rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--color-gray-900);
+  user-select: none;
+
+  &[data-popup-open] {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    background-color: transparent;
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-200);
+  }
+}
+
+.TooltipPopup {
+  box-sizing: border-box;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  background-color: canvas;
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 150ms,
+    opacity 150ms;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  &[data-instant] {
+    transition: none;
+  }
+
+  @media (prefers-color-scheme: light) {
+    outline: 1px solid var(--color-gray-200);
+    box-shadow:
+      0 10px 15px -3px var(--color-gray-200),
+      0 4px 6px -4px var(--color-gray-200);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+    outline-offset: -1px;
+  }
+}
+
+.Arrow {
+  display: flex;
+
+  &[data-side='top'] {
+    bottom: -8px;
+    rotate: 180deg;
+  }
+
+  &[data-side='bottom'] {
+    top: -8px;
+    rotate: 0deg;
+  }
+
+  &[data-side='left'] {
+    right: -13px;
+    rotate: 90deg;
+  }
+
+  &[data-side='right'] {
+    left: -13px;
+    rotate: -90deg;
+  }
+}
+
+.ArrowFill {
+  fill: canvas;
+}
+
+.ArrowOuterStroke {
+  @media (prefers-color-scheme: light) {
+    fill: var(--color-gray-200);
+  }
+}
+
+.ArrowInnerStroke {
+  @media (prefers-color-scheme: dark) {
+    fill: var(--color-gray-300);
+  }
+}
+
+/* -------------------------------------------------------------
+ * Combobox — used by combobox-perf.tsx
+ * ------------------------------------------------------------- */
+
+.ComboboxLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 16rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
+  position: relative;
+}
+
+.ComboboxInput {
+  box-sizing: border-box;
+  padding-left: 0.875rem;
+  margin: 0;
+  border: 1px solid var(--color-gray-200);
+  width: 16rem;
+  height: 2.5rem;
+  border-radius: 0.375rem;
+  font-family: inherit;
+  font-size: 1rem;
+  background-color: canvas;
+  color: var(--color-gray-900);
+
+  &:focus {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.ComboboxActionButtons {
+  box-sizing: border-box;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: 0;
+  height: 2.5rem;
+  right: 0.5rem;
+  border-radius: 0.25rem;
+  border: none;
+  color: var(--color-gray-600);
+  padding: 0;
+}
+
+.ComboboxTrigger,
+.ComboboxClear {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 2.5rem;
+  color: var(--color-gray-600);
+  border: none;
+  padding: 0;
+  border-radius: 0.25rem;
+  background: none;
+
+  &:focus {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.ComboboxIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.ComboboxPositioner {
+  outline: 0;
+}
+
+.ComboboxPopup {
+  box-sizing: border-box;
+  padding-block: 0.5rem;
+  border-radius: 0.375rem;
+  background-color: canvas;
+  color: var(--color-gray-900);
+  width: var(--anchor-width);
+  max-height: min(var(--available-height), 23rem);
+  max-width: var(--available-width);
+  overflow-y: auto;
+  scroll-padding-block: 0.5rem;
+  overscroll-behavior: contain;
+  transition:
+    opacity 0.1s,
+    transform 0.1s;
+  transform-origin: var(--transform-origin);
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  @media (prefers-color-scheme: light) {
+    outline: 1px solid var(--color-gray-200);
+    box-shadow:
+      0 10px 15px -3px var(--color-gray-200),
+      0 4px 6px -4px var(--color-gray-200);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+    outline-offset: -1px;
+  }
+}
+
+.ComboboxItem {
+  box-sizing: border-box;
+  outline: 0;
+  cursor: default;
+  user-select: none;
+  padding-block: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 2rem;
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: 0.75rem 1fr;
+  font-size: 1rem;
+  line-height: 1rem;
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+    color: var(--color-gray-50);
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: var(--color-gray-900);
+  }
+}
+
+.ComboboxItemText {
+  grid-column-start: 2;
+}
+
+.ComboboxItemIndicator {
+  grid-column-start: 1;
+}
+
+.ComboboxItemIndicatorIcon {
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.ComboboxEmpty:not(:empty) {
+  box-sizing: border-box;
+  font-size: 0.925rem;
+  line-height: 1rem;
+  color: var(--color-gray-600);
+  padding: 0.5rem 1rem;
+}
+
+/* -------------------------------------------------------------
+ * Select — used by select-perf.tsx
+ * ------------------------------------------------------------- */
+
+.SelectTrigger {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  height: 2.5rem;
+  padding-left: 0.875rem;
+  padding-right: 0.75rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
+  cursor: default;
+  user-select: none;
+  min-width: 9rem;
+  background-color: transparent;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-100);
+  }
+
+  &[data-popup-open] {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.SelectIcon {
+  display: flex;
+}
+
+.SelectPopup {
+  box-sizing: border-box;
+  padding-block: 0.25rem;
+  border-radius: 0.375rem;
+  background-color: canvas;
+  color: var(--color-gray-900);
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 150ms,
+    opacity 150ms;
+  max-height: var(--available-height);
+  overflow-y: auto;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  &[data-side='none'] {
+    transition: none;
+    transform: none;
+    opacity: 1;
+  }
+
+  @media (prefers-color-scheme: light) {
+    outline: 1px solid var(--color-gray-200);
+    box-shadow:
+      0 10px 15px -3px var(--color-gray-200),
+      0 4px 6px -4px var(--color-gray-200);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+    outline-offset: -1px;
+  }
+}
+
+.SelectItem {
+  box-sizing: border-box;
+  outline: 0;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  padding-block: 0.5rem;
+  padding-left: 0.625rem;
+  padding-right: 1rem;
+  min-width: var(--anchor-width, 9rem);
+  white-space: nowrap;
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: 0.75rem 1fr;
+  cursor: default;
+  user-select: none;
+
+  [data-side='none'] & {
+    font-size: 1rem;
+    padding-right: 3rem;
+    min-width: calc(var(--anchor-width, 9rem) + 1rem);
+  }
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+    color: var(--color-gray-50);
+  }
+
+  &[data-highlighted]::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    border-radius: 0.25rem;
+    background-color: var(--color-gray-900);
+  }
+}
+
+.SelectItemIndicator {
+  grid-column-start: 1;
+}
+
+.SelectItemIndicatorIcon {
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.SelectItemText {
+  grid-column-start: 2;
+}
