@@ -247,14 +247,86 @@ describe('<ContextMenu.Root />', () => {
       await screen.findByTestId('context-popup');
       const item = screen.getByTestId('context-item');
 
-      fireEvent.pointerMove(document.body, { clientX: 24, clientY: 24 });
-      fireEvent.mouseUp(item, { button: 2, clientX: 24, clientY: 24 });
+      fireEvent.pointerMove(document.body, { clientX: 30, clientY: 30 });
+      fireEvent.mouseUp(item, { button: 2, clientX: 30, clientY: 30 });
 
       await waitFor(() => {
         expect(screen.queryByTestId('context-popup')).toBe(null);
       });
 
       expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('closes when right-clicking again within the move threshold', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      // While open, the modal backdrop covers the trigger, so the second right
+      // click lands on it. Right-clicking again within the 5x5px box toggles closed.
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.contextMenu(backdrop, { clientX: 11, clientY: 12, button: 2 });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('stays open when right-clicking again outside the move threshold', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      // Right-clicking the backdrop far from the opening point does not toggle the
+      // menu closed.
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.contextMenu(backdrop, { clientX: 80, clientY: 80, button: 2 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).not.toBe(null);
+      expect(onOpenChange.mock.calls.length).toBe(1);
     });
 
     it('does not open when disabled', async () => {
