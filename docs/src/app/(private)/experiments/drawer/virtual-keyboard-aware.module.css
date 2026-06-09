@@ -59,6 +59,40 @@
   line-height: 1.5rem;
 }
 
+.SplitFooterScroll {
+  padding-bottom: calc(1.5rem + var(--footer-reserved-height));
+  scroll-padding-bottom: var(--footer-reserved-height);
+}
+
+.ScrollablePopupViewport::after {
+  display: none;
+}
+
+/*
+ * Short, plain bottom sheet. The popup stays a flex column frame (`overflow:
+ * visible; touch-action: none` from the base demo) and the single
+ * `Drawer.Content` child is the scroll container, exactly like the other
+ * bottom-sheet demos. Sized with `width: 100%` against the fixed viewport
+ * instead of `100vw`, which on iOS is the layout-viewport width and overflows
+ * the visible area.
+ */
+.ScrollablePopup.ScrollablePopup {
+  --bleed: 0px;
+  width: 100%;
+  height: 24rem;
+  max-width: 28rem;
+  max-height: calc(100% - 2rem);
+  min-height: 0;
+  margin-bottom: 0;
+}
+
+.ScrollablePopupTitle {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 700;
+}
+
 @media (max-width: 36rem) {
   .Example {
     grid-template-columns: minmax(0, 1fr);

@@ -15,6 +15,7 @@ interface DrawerExample {
   trigger: string;
   drawerTitle: string;
   fields: DrawerField[];
+  layout?: 'scrollable-popup';
 }
 
 const deliveryFields: DrawerField[] = [
@@ -76,6 +77,14 @@ const examples: DrawerExample[] = [
       },
     ],
   },
+  {
+    title: 'Scrollable popup',
+    description: 'A short plain drawer with eight fields and a single scroll container.',
+    trigger: 'Open scrollable popup drawer',
+    drawerTitle: 'Delivery note',
+    layout: 'scrollable-popup',
+    fields: deliveryFields,
+  },
 ];
 
 export default function DrawerVirtualKeyboardAwareExperiment() {
@@ -105,6 +114,7 @@ export default function DrawerVirtualKeyboardAwareExperiment() {
 
 function KeyboardAwareDrawer(props: { example: DrawerExample }) {
   const { example } = props;
+  const isScrollablePopup = example.layout === 'scrollable-popup';
 
   return (
     <Drawer.Root>
@@ -112,56 +122,99 @@ function KeyboardAwareDrawer(props: { example: DrawerExample }) {
       <Drawer.VirtualKeyboardProvider>
         <Drawer.Portal>
           <Drawer.Backdrop className={demoStyles.Backdrop} />
-          <Drawer.Viewport className={demoStyles.Viewport}>
-            <Drawer.Popup className={demoStyles.Popup}>
-              <div className={demoStyles.Header}>
-                <div className={demoStyles.Handle} />
-                <div className={demoStyles.HeaderActions}>
-                  <Drawer.Close className={`${demoStyles.Button} ${demoStyles.HeaderButton}`}>
-                    Cancel
-                  </Drawer.Close>
-                  <Drawer.Title className={demoStyles.Title}>{example.drawerTitle}</Drawer.Title>
-                  <Drawer.Close className={`${demoStyles.Button} ${demoStyles.HeaderButton}`}>
-                    Save
-                  </Drawer.Close>
-                </div>
-              </div>
-
-              <Drawer.Content className={demoStyles.Scroll}>
-                <div className={demoStyles.Form}>
-                  {example.fields.map((field) => (
-                    <label className={demoStyles.Field} key={field.label}>
-                      <span className={demoStyles.FieldLabel}>{field.label}</span>
-                      {field.multiline ? (
-                        <textarea className={demoStyles.Textarea} placeholder={field.placeholder} />
-                      ) : (
-                        <input
-                          className={demoStyles.Input}
-                          placeholder={field.placeholder}
-                          type="text"
-                        />
-                      )}
-                    </label>
-                  ))}
-                </div>
-              </Drawer.Content>
-
-              <div className={demoStyles.FooterSlot}>
-                <div className={demoStyles.StickyFooter}>
-                  <label className={demoStyles.Composer}>
-                    <span className={demoStyles.FieldLabel}>Delivery note</span>
-                    <input
-                      className={demoStyles.ComposerInput}
-                      placeholder="Add a note for the driver"
-                      type="text"
-                    />
-                  </label>
-                </div>
-              </div>
-            </Drawer.Popup>
+          <Drawer.Viewport
+            className={
+              isScrollablePopup
+                ? `${demoStyles.Viewport} ${styles.ScrollablePopupViewport}`
+                : demoStyles.Viewport
+            }
+          >
+            {isScrollablePopup ? (
+              <ScrollablePopupExample example={example} />
+            ) : (
+              <SplitFooterExample example={example} />
+            )}
           </Drawer.Viewport>
         </Drawer.Portal>
       </Drawer.VirtualKeyboardProvider>
     </Drawer.Root>
+  );
+}
+
+function SplitFooterExample(props: { example: DrawerExample }) {
+  const { example } = props;
+
+  return (
+    <Drawer.Popup className={demoStyles.Popup}>
+      <div className={demoStyles.Header}>
+        <div className={demoStyles.Handle} />
+        <div className={demoStyles.HeaderActions}>
+          <Drawer.Close className={`${demoStyles.Button} ${demoStyles.HeaderButton}`}>
+            Cancel
+          </Drawer.Close>
+          <Drawer.Title className={demoStyles.Title}>{example.drawerTitle}</Drawer.Title>
+          <Drawer.Close className={`${demoStyles.Button} ${demoStyles.HeaderButton}`}>
+            Save
+          </Drawer.Close>
+        </div>
+      </div>
+
+      <Drawer.Content className={`${demoStyles.Scroll} ${styles.SplitFooterScroll}`}>
+        <div className={demoStyles.Form}>
+          {example.fields.map((field) => (
+            <DrawerFieldControl field={field} key={field.label} />
+          ))}
+        </div>
+      </Drawer.Content>
+
+      <div className={demoStyles.FooterSlot}>
+        <div className={demoStyles.StickyFooter}>
+          <label className={demoStyles.Composer}>
+            <span className={demoStyles.FieldLabel}>Delivery note</span>
+            <input
+              className={demoStyles.ComposerInput}
+              placeholder="Add a note for the driver"
+              type="text"
+            />
+          </label>
+        </div>
+      </div>
+    </Drawer.Popup>
+  );
+}
+
+function ScrollablePopupExample(props: { example: DrawerExample }) {
+  const { example } = props;
+
+  // A short, plain bottom sheet: no pinned header or footer, a single scroll
+  // container (`Drawer.Content`) holding the title and every field. This mirrors
+  // the scroll structure of the other bottom-sheet demos, so native touch
+  // scrolling and keyboard slack target the same element.
+  return (
+    <Drawer.Popup className={`${demoStyles.Popup} ${styles.ScrollablePopup}`}>
+      <Drawer.Content className={demoStyles.Scroll}>
+        <div className={demoStyles.Form}>
+          <Drawer.Title className={styles.ScrollablePopupTitle}>{example.drawerTitle}</Drawer.Title>
+          {example.fields.map((field) => (
+            <DrawerFieldControl field={field} key={field.label} />
+          ))}
+        </div>
+      </Drawer.Content>
+    </Drawer.Popup>
+  );
+}
+
+function DrawerFieldControl(props: { field: DrawerField }) {
+  const { field } = props;
+
+  return (
+    <label className={demoStyles.Field}>
+      <span className={demoStyles.FieldLabel}>{field.label}</span>
+      {field.multiline ? (
+        <textarea className={demoStyles.Textarea} placeholder={field.placeholder} />
+      ) : (
+        <input className={demoStyles.Input} placeholder={field.placeholder} type="text" />
+      )}
+    </label>
   );
 }
