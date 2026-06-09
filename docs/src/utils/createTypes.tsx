@@ -2,7 +2,6 @@ import {
   createTypesFactory,
   createMultipleTypesFactory,
 } from '@mui/internal-docs-infra/abstractCreateTypes';
-import enhanceCodeInline from '@mui/internal-docs-infra/pipeline/enhanceCodeInline';
 import { ReferenceTable } from '../components/ReferenceTable/ReferenceTable';
 import { mdxComponents } from '../mdx-components';
 import * as CodeBlock from '../components/CodeBlock';
@@ -22,8 +21,6 @@ const components: MDXComponents = {
   ),
 };
 
-const enhancers = [enhanceCodeInline];
-
 /**
  * Creates a type doc component that renders a reference table for the given component.
  * @param url Depends on `import.meta.url` to determine the source file location.
@@ -36,8 +33,6 @@ export const createTypes = createTypesFactory({
   TypePre: CodeBlock.PreInline,
   ShortTypeCode: TableCode,
   DefaultCode: TableCode,
-  enhancers,
-  enhancersInline: enhancers,
   typeRefComponent: 'TypeRef',
   typePropRefComponent: 'TypePropRef',
 });
@@ -55,8 +50,6 @@ export const createMultipleTypes = createMultipleTypesFactory({
   TypePre: CodeBlock.PreInline,
   ShortTypeCode: TableCode,
   DefaultCode: TableCode,
-  enhancers,
-  enhancersInline: enhancers,
   typeRefComponent: 'TypeRef',
   typePropRefComponent: 'TypePropRef',
 });
