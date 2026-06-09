@@ -241,6 +241,44 @@ describe('<ContextMenu.Root />', () => {
       expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
     });
 
+    it.skipIf(isJSDOM)(
+      'stays open when right-clicking the popup surface within the move threshold',
+      async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
+        const onOpenChange = vi.fn();
+
+        await render(
+          <ContextMenu.Root onOpenChange={onOpenChange}>
+            <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+            <ContextMenu.Portal>
+              <ContextMenu.Positioner>
+                <ContextMenu.Popup data-testid="context-popup">
+                  <ContextMenu.Item>Action</ContextMenu.Item>
+                </ContextMenu.Popup>
+              </ContextMenu.Positioner>
+            </ContextMenu.Portal>
+          </ContextMenu.Root>,
+        );
+
+        const trigger = screen.getByTestId('context-trigger');
+
+        fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100, button: 2 });
+        const popup = await screen.findByTestId('context-popup');
+
+        // The popup edge sits 2px right of the cursor. A right click landing on the
+        // popup surface is inside the threshold square, but the toggle area must not
+        // extend over the popup.
+        fireEvent.contextMenu(popup, { clientX: 105, clientY: 100, button: 2 });
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('context-popup')).not.toBe(null);
+        expect(onOpenChange.mock.calls.length).toBe(1);
+      },
+    );
+
     it('does not reopen when the dismissing right click is within the move threshold', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();

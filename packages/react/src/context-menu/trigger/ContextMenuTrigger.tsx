@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -48,6 +49,38 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const suppressReopenRef = React.useRef(false);
   const openedWithTouchRef = React.useRef(false);
   const longPressTimeout = useTimeout();
+
+  // Whether a repeat right click at this point should toggle the menu closed: within
+  // the threshold box around the opening point, but never over the popup itself,
+  // whose edge sits closer to the cursor than the threshold (2px by default, and on
+  // varying sides depending on the rendered position). Right-clicking the popup
+  // surface is not a toggle gesture. A 0.5px overlap is tolerated for borderline
+  // clicks at the very edge.
+  const isWithinToggleArea = useStableCallback((x: number, y: number) => {
+    const initialCursorPoint = initialCursorPointRef.current;
+    if (
+      !initialCursorPoint ||
+      Math.abs(x - initialCursorPoint.x) > CONTEXT_MENU_MOVE_THRESHOLD ||
+      Math.abs(y - initialCursorPoint.y) > CONTEXT_MENU_MOVE_THRESHOLD
+    ) {
+      return false;
+    }
+
+    const positioner = positionerRef.current;
+    if (positioner) {
+      const rect = positioner.getBoundingClientRect();
+      if (
+        x > rect.left + 0.5 &&
+        x < rect.right - 0.5 &&
+        y > rect.top + 0.5 &&
+        y < rect.bottom - 0.5
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 
   function handleLongPress(rawX: number, rawY: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
@@ -187,19 +220,14 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       if (event.button !== 2) {
         return;
       }
-      const initialCursorPoint = initialCursorPointRef.current;
-      if (
-        initialCursorPoint &&
-        Math.abs(event.clientX - initialCursorPoint.x) <= CONTEXT_MENU_MOVE_THRESHOLD &&
-        Math.abs(event.clientY - initialCursorPoint.y) <= CONTEXT_MENU_MOVE_THRESHOLD
-      ) {
+      if (isWithinToggleArea(event.clientX, event.clientY)) {
         suppressReopenRef.current = true;
       }
     }
 
     const doc = ownerDocument(triggerRef.current);
     return addEventListener(doc, 'pointerdown', handlePointerDown, { capture: true });
-  }, [open, initialCursorPointRef]);
+  }, [open, isWithinToggleArea]);
 
   React.useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
@@ -221,20 +249,17 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         event.preventDefault();
       }
 
-      // Right-clicking again within the box around the point the menu was opened at
-      // toggles it closed. Skipped when the menu was opened by a touch long press:
-      // the browser fires its own `contextmenu` event after the menu has already
-      // opened under the finger, which would immediately close it again.
-      if (onOpenMenu && !openedWithTouchRef.current) {
-        const initialCursorPoint = initialCursorPointRef.current;
-        if (
-          initialCursorPoint &&
-          Math.abs(event.clientX - initialCursorPoint.x) <= CONTEXT_MENU_MOVE_THRESHOLD &&
-          Math.abs(event.clientY - initialCursorPoint.y) <= CONTEXT_MENU_MOVE_THRESHOLD
-        ) {
-          event.preventDefault();
-          actionsRef.current?.setOpen(false, createChangeEventDetails(REASONS.triggerPress, event));
-        }
+      // Right-clicking again within the toggle area around the point the menu was
+      // opened at toggles it closed. Skipped when the menu was opened by a touch
+      // long press: the browser fires its own `contextmenu` event after the menu has
+      // already opened under the finger, which would immediately close it again.
+      if (
+        onOpenMenu &&
+        !openedWithTouchRef.current &&
+        isWithinToggleArea(event.clientX, event.clientY)
+      ) {
+        event.preventDefault();
+        actionsRef.current?.setOpen(false, createChangeEventDetails(REASONS.triggerPress, event));
       }
 
       // This listener runs after the trigger's own `contextmenu` handler, so any
@@ -245,14 +270,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
     const doc = ownerDocument(triggerRef.current);
     return addEventListener(doc, 'contextmenu', handleDocumentContextMenu);
-  }, [
-    actionsRef,
-    backdropRef,
-    disabled,
-    initialCursorPointRef,
-    internalBackdropRef,
-    positionerRef,
-  ]);
+  }, [actionsRef, backdropRef, disabled, internalBackdropRef, isWithinToggleArea, positionerRef]);
 
   const state: ContextMenuTriggerState = {
     open,
