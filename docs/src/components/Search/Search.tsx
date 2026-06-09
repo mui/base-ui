@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { isMac } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import './Search.css';
 
 const sitemapPromise = () => import('../../app/sitemap');
@@ -31,7 +31,7 @@ export function Search({
 
   const isCmd = React.useSyncExternalStore(
     () => () => {},
-    () => isMac,
+    () => platform.os.mac,
     () => true,
   );
   const triggerId = triggerProps?.id ?? generatedTriggerId;

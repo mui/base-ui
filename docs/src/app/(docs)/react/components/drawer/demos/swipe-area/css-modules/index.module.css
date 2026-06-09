@@ -219,11 +219,6 @@
     box-shadow: none;
   }
 
-  &[data-swiping] {
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
   &[data-starting-style],
   &[data-ending-style] {
     transform: translateX(calc(100% - var(--bleed) + var(--viewport-padding) + 2px));

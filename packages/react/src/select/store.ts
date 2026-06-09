@@ -86,7 +86,7 @@ export const selectors = {
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
 
-  isSelected: createSelector((state: State, index: number, itemValue: any) => {
+  isSelected: createSelector((state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const storeValue = state.value;
 
@@ -97,12 +97,9 @@ export const selectors = {
       );
     }
 
-    // `selectedIndex` is only updated after the items mount for the first time,
-    // the value check avoids a re-render for the initially selected item.
-    if (state.selectedIndex === index && state.selectedIndex !== null) {
-      return true;
-    }
-
+    // The value is the source of truth: a stale `selectedIndex` (e.g. the controlled
+    // value changes while the popup is open, where the index sync is deferred) must not
+    // keep a previously selected item marked as selected.
     return compareItemEquality(itemValue, storeValue, comparer);
   }),
   isSelectedByFocus: createSelector((state: State, index: number) => {
