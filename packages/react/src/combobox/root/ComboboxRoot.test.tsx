@@ -893,6 +893,130 @@ describe('<Combobox.Root />', () => {
           );
         });
 
+        it('ignores browser autofill matches for null item values', async () => {
+          const items = [
+            { value: null, label: 'None' },
+            { value: 'apple', label: 'Apple' },
+          ];
+          const onValueChange = vi.fn();
+
+          await render(
+            <Combobox.Root items={items} name="fruit" onValueChange={onValueChange}>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item) => (
+                        <Combobox.Item key={item.label} value={item.value}>
+                          {item.label}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>,
+          );
+
+          fireEvent.change(
+            screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'fruit')!,
+            { target: { value: 'None' } },
+          );
+          await flushMicrotasks();
+
+          expect(onValueChange).not.toHaveBeenCalled();
+        });
+
+        it('keeps rendered value shape when browser autofill matches a mixed labeled item', async () => {
+          const items = [
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ];
+          const onValueChange = vi.fn();
+
+          await render(
+            <Combobox.Root items={items} name="fruit" onValueChange={onValueChange}>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item) => (
+                        <Combobox.Item
+                          key={item.value}
+                          value={item.value === 'apple' ? item : item.value}
+                        >
+                          {item.label}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>,
+          );
+
+          fireEvent.change(
+            screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'fruit')!,
+            { target: { value: 'Apple' } },
+          );
+          await flushMicrotasks();
+
+          expect(onValueChange).toHaveBeenCalledWith(
+            items[0],
+            expect.objectContaining({ reason: 'none' }),
+          );
+        });
+
+        it('keeps rendered value shape during closed trigger typeahead with mixed item values', async () => {
+          const items = [
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ];
+          const onValueChange = vi.fn();
+
+          const { user } = await render(
+            <Combobox.Root items={items} onValueChange={onValueChange}>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item) => (
+                        <Combobox.Item
+                          key={item.value}
+                          value={item.value === 'apple' ? item : item.value}
+                        >
+                          {item.label}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>,
+          );
+
+          screen.getByTestId('trigger').focus();
+
+          await act(async () => {
+            await new Promise((resolve) => {
+              setTimeout(resolve, 0);
+            });
+          });
+
+          await user.keyboard('a');
+
+          await waitFor(() => {
+            expect(onValueChange).toHaveBeenCalledWith(
+              items[0],
+              expect.objectContaining({ reason: 'none' }),
+            );
+          });
+        });
+
         it('uses inferred primitive values for virtualized item indexes before a selection', async () => {
           await render(
             <Combobox.Root items={labeledItems} virtualized defaultOpen>

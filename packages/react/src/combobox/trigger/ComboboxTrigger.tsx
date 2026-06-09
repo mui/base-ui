@@ -118,10 +118,25 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     activeIndex,
     selectedIndex,
     onMatch(index) {
-      const nextSelectedValue = store.state.valuesRef.current[index];
-      if (nextSelectedValue !== undefined) {
-        store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
+      const selectMatchedValue = () => {
+        const nextSelectedValue = store.state.valuesRef.current[index];
+        if (nextSelectedValue !== undefined) {
+          store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
+        }
+      };
+
+      if (store.state.items) {
+        store.state.forceMount(true);
+        if (!store.state.virtualized) {
+          queueMicrotask(() => {
+            selectMatchedValue();
+            store.set('forceMounted', false);
+          });
+          return;
+        }
       }
+
+      selectMatchedValue();
     },
   });
 
@@ -176,6 +191,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           focusTimeout.start(0, store.state.forceMount);
         },
         onBlur(event) {
+          focusTimeout.clear();
           // If focus is moving into the popup, don't count it as a blur.
           if (contains(positionerElement, event.relatedTarget)) {
             return;

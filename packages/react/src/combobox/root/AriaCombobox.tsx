@@ -461,12 +461,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     nameProp,
   );
 
-  const forceMount = useStableCallback(() => {
+  const forceMount = useStableCallback((renderItems = false) => {
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
         stringifyAsLabel(item, itemToStringLabel),
       );
+      if (renderItems && !virtualized) {
+        store.set('forceMounted', true);
+      }
     } else {
       store.set('forceMounted', true);
     }
@@ -1353,14 +1356,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                     ? renderedValue
                     : inferItemValue(candidate);
 
-                setDirty(matchingValue !== validityData.initialValue);
-                setSelectedValue?.(matchingValue, details);
-                validation.change(matchingValue);
+                if (matchingValue != null) {
+                  setDirty(matchingValue !== validityData.initialValue);
+                  setSelectedValue?.(matchingValue, details);
+                  validation.change(matchingValue);
+                }
               }
             }
 
             if (items) {
-              handleChange();
+              forceMount(true);
+              if (virtualized) {
+                handleChange();
+              } else {
+                queueMicrotask(() => {
+                  handleChange();
+                  store.set('forceMounted', false);
+                });
+              }
             } else {
               forceMount();
               queueMicrotask(handleChange);

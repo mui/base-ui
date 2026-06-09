@@ -71,7 +71,7 @@ export type State = {
     type?: 'keyboard' | 'pointer' | 'none' | undefined;
   }) => void;
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
-  forceMount: () => void;
+  forceMount: (renderItems?: boolean) => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   requestSubmit: () => void;
 
