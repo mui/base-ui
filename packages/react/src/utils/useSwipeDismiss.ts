@@ -875,19 +875,17 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     handleMoveCore(event, currentPos, movement);
   });
 
-  // Drawer claims native touchmove events before React's delegated touch listener sees them.
-  // This keeps those moves on the existing swipe path without fabricating a React event.
-  const moveFromNativeTouch = useStableCallback(
-    (nativeEvent: TouchEvent, currentTarget: HTMLElement) => {
-      handleMove({
-        touches: nativeEvent.touches,
-        currentTarget,
-        nativeEvent,
-        defaultPrevented: nativeEvent.defaultPrevented,
-        timeStamp: nativeEvent.timeStamp,
-      });
-    },
-  );
+  // Feeds a native touchmove into the swipe pipeline. Used by consumers that claim the gesture
+  // in a capture-phase listener and stop it from reaching React's delegated touch handlers.
+  const moveNative = useStableCallback((nativeEvent: TouchEvent, currentTarget: HTMLElement) => {
+    handleMove({
+      touches: nativeEvent.touches,
+      currentTarget,
+      nativeEvent,
+      defaultPrevented: nativeEvent.defaultPrevented,
+      timeStamp: nativeEvent.timeStamp,
+    });
+  });
 
   const handleEnd = useStableCallback((event: SwipeDismissEndEvent) => {
     if (!enabled) {
@@ -1084,7 +1082,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     dragDismissed,
     getPointerProps,
     getTouchProps,
-    moveFromNativeTouch,
+    moveNative,
     getDragStyles,
     reset,
   };
@@ -1182,7 +1180,7 @@ export interface UseSwipeDismissReturnValue {
     onTouchEnd?: ((event: React.TouchEvent) => void) | undefined;
     onTouchCancel?: ((event: React.TouchEvent) => void) | undefined;
   };
-  moveFromNativeTouch: (nativeEvent: TouchEvent, currentTarget: HTMLElement) => void;
+  moveNative: (nativeEvent: TouchEvent, currentTarget: HTMLElement) => void;
   getDragStyles: () => React.CSSProperties;
   reset: () => void;
 }

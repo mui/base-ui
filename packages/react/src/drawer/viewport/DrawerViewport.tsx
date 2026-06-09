@@ -797,7 +797,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
   const swipePointerProps = swipe.getPointerProps();
   const swipeTouchProps = swipe.getTouchProps();
-  const { moveFromNativeTouch, reset: resetSwipe } = swipe;
+  const { moveNative: moveSwipeNative, reset: resetSwipe } = swipe;
 
   resetSwipeRef.current = resetSwipe;
 
@@ -857,8 +857,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (event.cancelable) {
           event.preventDefault();
         }
+        // Claim the gesture before React's delegated touch handlers see it; dispatching the
+        // move through React re-rasterizes the popup content on every frame.
         event.stopPropagation();
-        moveFromNativeTouch(event, resolvedRootElement);
+        moveSwipeNative(event, resolvedRootElement);
         updateTouchScrollPosition(touchState, touch);
         return;
       }
@@ -900,7 +902,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
       if (touchState.allowSwipe === true) {
         event.stopPropagation();
-        moveFromNativeTouch(event, resolvedRootElement);
+        moveSwipeNative(event, resolvedRootElement);
       }
 
       updateTouchScrollPosition(touchState, touch);
@@ -918,7 +920,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     isVerticalScrollAxis,
     scrollAxis,
     swipeDirection,
-    moveFromNativeTouch,
+    moveSwipeNative,
     viewportElement,
   ]);
 
