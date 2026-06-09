@@ -116,7 +116,7 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.mock.calls.length).toBe(1);
     expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
 
-    // Releasing within the 5x5px box around the opening point keeps the menu open,
+    // Releasing within the threshold box around the opening point keeps the menu open,
     // regardless of how long the button was held.
     fireEvent.mouseUp(document.body, { clientX: 11, clientY: 12 });
 
@@ -141,7 +141,7 @@ describe('<ContextMenu.Trigger />', () => {
     fireEvent.mouseDown(trigger, { clientX: 10, clientY: 10 });
     fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10 });
 
-    // Releasing outside the 5x5px box turns the gesture into a press-drag-release
+    // Releasing outside the threshold box turns the gesture into a press-drag-release
     // that dismisses the menu.
     fireEvent.mouseUp(document.body, { clientX: 50, clientY: 50 });
 
@@ -553,6 +553,44 @@ describe('<ContextMenu.Trigger />', () => {
       clock.tick(500);
       fireEvent.mouseDown(document.body);
       expect(screen.queryByRole('menu')).toBe(null);
+    });
+
+    it('stays open when the native contextmenu event fires after a long press', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const touchObj = new Touch({
+        identifier: 0,
+        target: trigger,
+        clientX: 100,
+        clientY: 100,
+      });
+
+      fireEvent.touchStart(trigger, {
+        touches: [touchObj],
+      });
+
+      clock.tick(500);
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
+
+      // After the long press opens the menu, the browser fires its own
+      // `contextmenu` event at the touch point, which now lies on the backdrop or
+      // popup. It must not toggle the menu closed.
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.contextMenu(backdrop, { clientX: 100, clientY: 100 });
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
     });
 
     it('does not open on long press when disabled', async () => {

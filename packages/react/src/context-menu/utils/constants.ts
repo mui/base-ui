@@ -5,4 +5,4 @@
  * is ignored and a second right click toggles the menu closed; moving farther turns
  * the gesture into a press-drag-release that can dismiss the menu or activate an item.
  */
-export const CONTEXT_MENU_MOVE_THRESHOLD = 5;
+export const CONTEXT_MENU_MOVE_THRESHOLD = 8;
