@@ -5,7 +5,7 @@ import { HTMLProps } from '../../internals/types';
 import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
-import { CONTEXT_MENU_MOVE_THRESHOLD } from '../../context-menu/utils/constants';
+import { CONTEXT_MENU_ITEM_PRESS_THRESHOLD } from '../../context-menu/utils/constants';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
 export interface UseMenuItemCommonPropsParameters {
@@ -91,8 +91,8 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
           if (
             isContextMenu &&
             initialCursorPoint &&
-            Math.abs(event.clientX - initialCursorPoint.x) <= CONTEXT_MENU_MOVE_THRESHOLD &&
-            Math.abs(event.clientY - initialCursorPoint.y) <= CONTEXT_MENU_MOVE_THRESHOLD
+            Math.abs(event.clientX - initialCursorPoint.x) <= CONTEXT_MENU_ITEM_PRESS_THRESHOLD &&
+            Math.abs(event.clientY - initialCursorPoint.y) <= CONTEXT_MENU_ITEM_PRESS_THRESHOLD
           ) {
             return;
           }
