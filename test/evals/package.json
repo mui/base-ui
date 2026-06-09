@@ -1,0 +1,24 @@
+{
+  "name": "@base-ui/monorepo-evals",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "vendor": "tsx scripts/pack.ts",
+    "report": "tsx scripts/report.ts",
+    "report:first-reads": "tsx scripts/first-reads.ts",
+    "sync-evals": "tsx scripts/sync-evals.ts",
+    "eval": "tsx scripts/run.ts",
+    "eval:all": "pnpm run vendor && tsx scripts/run.ts",
+    "eval:dry": "agent-eval cc-baseline --dry",
+    "playground": "agent-eval playground"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@vercel/agent-eval": "^0.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "verdaccio": "^6.7.2",
+    "vitest": "^2.1.0"
+  }
+}
