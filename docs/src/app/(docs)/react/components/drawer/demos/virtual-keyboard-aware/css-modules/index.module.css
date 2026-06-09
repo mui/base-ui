@@ -124,6 +124,13 @@
   &[data-closed]::after {
     opacity: 0;
   }
+
+  /* While swiping, the popup's own bleed covers the bottom edge, so hide the
+     fixed fill — otherwise it paints white over the backdrop once the popup is
+     dragged far enough down. */
+  &:has([data-swiping])::after {
+    opacity: 0;
+  }
 }
 
 .Popup {
