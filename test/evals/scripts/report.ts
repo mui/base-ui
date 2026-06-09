@@ -267,7 +267,9 @@ function reportMatrix(): void {
       const stale = isStale(r);
       const dim = (s: string): string => (stale ? colorize(s, ANSI.dim) : s);
       return {
-        headers: [dim(r.key.mechanism), dim(r.key.model), dim(ageText)],
+        // Prefixed with `cc-` so the row reads as the experiment name
+        // you'd paste into `pnpm eval`.
+        headers: [dim(`cc-${r.key.mechanism}`), dim(r.key.model), dim(ageText)],
         cells: columns.map((name) => {
           const a = r.collected.get(name);
           return dim(a ? formatter(a) : '–');

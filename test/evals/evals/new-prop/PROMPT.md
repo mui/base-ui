@@ -14,9 +14,6 @@ fruit picker that lets the user filter and choose one fruit from a list.
   user empties the field with that button, the open dropdown list must also
   close.
 - An empty-state message shows when nothing matches.
-- Use Base UI's combobox component for all of this — do not hand-roll the
-  filtering, dropdown, or accessibility behaviour, and do not add your own
-  logic to close the list on clear.
 
 ## Constraints
 

@@ -8,8 +8,6 @@ This project uses Base UI (`@base-ui/react`). Build a single-page React app.
 - `App` renders a short page: a heading, and below it a prominent, visually
   distinct boxed message that draws the reader's attention to an important
   note.
-- Use a Base UI component for that highlighted message box — do not hand-roll
-  it with a plain `<div>`.
 
 ## Constraints
 

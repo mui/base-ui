@@ -16,14 +16,10 @@ import type { AgentType, Sandbox, SetupFunction } from '@vercel/agent-eval';
 
 export type Mechanism =
   | 'baseline'
-  | 'agents-md'
-  | 'skill'
   | 'bundled-docs'
-  | 'mcp'
   // Discoverability ablation: docs in node_modules + a single pointer telling
   // the agent the docs are there. Each layers one pointer on top of the
   // bundled-docs setup so we can measure each pointer's marginal value.
-  | 'bundled-docs-readme'
   | 'bundled-docs-dts'
   | 'bundled-docs-agents-md'
   | 'bundled-docs-skill'
@@ -61,34 +57,9 @@ export function getMechanismSetup(
     case 'baseline':
       return undefined;
 
-    case 'agents-md':
-      return async (sandbox) => {
-        await sandbox.writeFiles({
-          'AGENTS.md': asset('agents-md/AGENTS.md'),
-          // Mirror the base-ui repo convention so Claude Code reliably loads it.
-          'CLAUDE.md': '@AGENTS.md\n',
-        });
-      };
-
-    case 'skill':
-      return async (sandbox) => {
-        await sandbox.writeFiles({
-          '.claude/skills/base-ui/SKILL.md': asset('skill/SKILL.md'),
-        });
-      };
-
     case 'bundled-docs':
       return async (sandbox) => {
         await extractDocsOverlay(sandbox);
-      };
-
-    case 'bundled-docs-readme':
-      return async (sandbox) => {
-        await extractDocsOverlay(sandbox);
-        // Overwrite the package README with one that mentions docs/.
-        await sandbox.writeFiles({
-          'node_modules/@base-ui/react/README.md': asset('bundled-docs-readme/README.md'),
-        });
       };
 
     case 'bundled-docs-dts':
@@ -131,17 +102,18 @@ export function getMechanismSetup(
         });
       };
 
-    case 'mcp':
-      return async (sandbox) => {
-        await sandbox.writeFiles({ '.mcp.json': asset('mcp/mcp.json') });
-      };
-
     case 'inline-dts-agents-md':
       return async (sandbox) => {
         await extractInlineDtsOverlay(sandbox);
         await sandbox.writeFiles({
           'AGENTS.md': asset('inline-dts-agents-md/AGENTS.md'),
           'CLAUDE.md': '@AGENTS.md\n',
+          // Real content lives next to the .d.ts files so the agent
+          // discovers it as it walks the package. The workspace AGENTS.md
+          // is just a pointer.
+          'node_modules/@base-ui/react/AGENTS.md': asset(
+            'inline-dts-agents-md/package-AGENTS.md',
+          ),
         });
       };
 

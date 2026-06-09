@@ -6,6 +6,8 @@
   "scripts": {
     "vendor": "tsx scripts/pack.ts",
     "report": "tsx scripts/report.ts",
+    "report:first-reads": "tsx scripts/first-reads.ts",
+    "sync-evals": "tsx scripts/sync-evals.ts",
     "eval": "tsx scripts/run.ts",
     "eval:all": "pnpm run vendor && tsx scripts/run.ts",
     "eval:dry": "agent-eval cc-baseline --dry",
