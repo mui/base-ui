@@ -103,7 +103,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingRootContext = store.context.floatingRootContext;
 
   const triggerElementRef = React.useRef<Element | null>(null);
 

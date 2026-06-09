@@ -6,6 +6,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { BaseUIChangeEventDetails } from '../../types';
 import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
 import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
+import type { FloatingRootContext } from '../types';
 
 export interface UseSyncedFloatingRootContextOptions<
   State extends PopupStoreState<unknown>,
@@ -17,7 +18,7 @@ export interface UseSyncedFloatingRootContextOptions<
    * Whether the Popup element is passed to Floating UI as the floating element instead of the default Positioner.
    */
   treatPopupAsFloatingElement?: boolean | undefined;
-  floatingRootContext?: FloatingRootStore | undefined;
+  floatingRootContext?: FloatingRootContext | undefined;
   floatingId: string | undefined;
   nested: boolean;
   onOpenChange(open: boolean, eventDetails: OpenChangeEventDetails): void;
@@ -33,7 +34,7 @@ export function useSyncedFloatingRootContext<
   OpenChangeEventDetails extends BaseUIChangeEventDetails<string>,
 >(
   options: UseSyncedFloatingRootContextOptions<State, ContextEventDetails, OpenChangeEventDetails>,
-): FloatingRootStore {
+): FloatingRootContext {
   const {
     popupStore,
     treatPopupAsFloatingElement = false,

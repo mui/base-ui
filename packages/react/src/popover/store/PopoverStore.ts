@@ -5,21 +5,24 @@ import * as ReactDOM from 'react-dom';
 import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useId } from '@base-ui/utils/useId';
 import { type PopoverRoot } from '../root/PopoverRoot';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
-  createPopupFloatingRootContext,
-  createInitialPopupStoreState,
+  createInitialPopupStoreStateBase,
+  PopupFloatingRootContext,
   PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreState,
+  PopupStoreStateBase,
   PopupTriggerMap,
   setPopupOpenState,
-  usePopupStore,
+  usePopupFloatingRootContext,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
+import { type FloatingRootContext, useFloatingParentNodeId } from '../../floating-ui-react';
 
-export type State<Payload> = PopupStoreState<Payload> & {
+export type State<Payload> = PopupStoreStateBase<Payload> & {
   disabled: boolean;
   instantType: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
   modal: boolean | 'trap-focus';
@@ -36,6 +39,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
+  floatingRootContext: FloatingRootContext;
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
@@ -46,7 +50,7 @@ type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
 
 function createInitialState<Payload>(): State<Payload> {
   return {
-    ...createInitialPopupStoreState(),
+    ...createInitialPopupStoreStateBase(),
     disabled: false,
     modal: false,
     focusManagerModal: false,
@@ -96,15 +100,12 @@ export class PopoverStore<Payload> extends ReactStore<
       initial.mounted = true;
     }
 
-    initial.floatingRootContext = createPopupFloatingRootContext(
-      triggerElements,
-      floatingId,
-      nested,
-    );
+    initial.floatingId = floatingId;
 
     super(
       initial,
       {
+        floatingRootContext: undefined as never,
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
@@ -117,6 +118,19 @@ export class PopoverStore<Payload> extends ReactStore<
       },
       selectors,
     );
+
+    this.context.floatingRootContext = new PopupFloatingRootContext({
+      popupStore: this as unknown as ReactStore<
+        State<unknown>,
+        PopupStoreContext<PopoverRoot.ChangeEventDetails>,
+        typeof popupStoreSelectors
+      >,
+      nested,
+      onOpenChange: this.setOpen as (
+        open: boolean,
+        eventDetails: BaseUIChangeEventDetails<string>,
+      ) => void,
+    }) as Context['floatingRootContext'];
   }
 
   setOpen = (
@@ -154,7 +168,7 @@ export class PopoverStore<Payload> extends ReactStore<
       return;
     }
 
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
+    this.context.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = {
@@ -193,10 +207,18 @@ export class PopoverStore<Payload> extends ReactStore<
     externalStore: PopoverStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
-    const { store, internalStore } = usePopupStore(
-      externalStore,
-      (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
-    );
+    const floatingId = useId();
+    const nested = useFloatingParentNodeId() != null;
+
+    const internalStoreRef = React.useRef<PopoverStore<Payload> | null>(null);
+    if (externalStore === undefined && internalStoreRef.current === null) {
+      internalStoreRef.current = new PopoverStore<Payload>(initialState, floatingId, nested);
+    }
+
+    const store = externalStore ?? internalStoreRef.current!;
+    const internalStore = internalStoreRef.current;
+
+    usePopupFloatingRootContext(store, { floatingId, nested });
 
     React.useEffect(() => internalStore?.disposeEffect(), [internalStore]);
     return store;

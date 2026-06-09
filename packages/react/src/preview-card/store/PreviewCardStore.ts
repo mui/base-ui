@@ -1,28 +1,34 @@
+'use client';
+/* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { useId } from '@base-ui/utils/useId';
 import {
-  createPopupFloatingRootContext,
-  createInitialPopupStoreState,
+  createInitialPopupStoreStateBase,
   InlineRectCoords,
+  PopupFloatingRootContext,
   PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreState,
+  PopupStoreStateBase,
   PopupTriggerMap,
   setPopupOpenState,
   updateInlineRectCoords,
-  usePopupStore,
+  usePopupFloatingRootContext,
 } from '../../utils/popups';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY } from '../utils/constants';
+import { type FloatingRootContext, useFloatingParentNodeId } from '../../floating-ui-react';
 
-export type State<Payload> = PopupStoreState<Payload> & {
+export type State<Payload> = PopupStoreStateBase<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
   hasViewport: boolean;
 };
 
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
+  floatingRootContext: FloatingRootContext;
   closeDelayRef: React.RefObject<number>;
   inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
 };
@@ -45,12 +51,12 @@ export class PreviewCardStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
-
-    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+    state.floatingId = floatingId;
 
     super(
       state,
       {
+        floatingRootContext: undefined as never,
         popupRef: React.createRef<HTMLElement | null>(),
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
@@ -60,6 +66,19 @@ export class PreviewCardStore<Payload> extends ReactStore<
       },
       selectors,
     );
+
+    this.context.floatingRootContext = new PopupFloatingRootContext({
+      popupStore: this as unknown as ReactStore<
+        State<unknown>,
+        PopupStoreContext<PreviewCardRoot.ChangeEventDetails>,
+        typeof popupStoreSelectors
+      >,
+      nested,
+      onOpenChange: this.setOpen as (
+        open: boolean,
+        eventDetails: BaseUIChangeEventDetails<string>,
+      ) => void,
+    }) as Context['floatingRootContext'];
   }
 
   public setOpen = (
@@ -100,7 +119,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
       );
     }
 
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
+    this.context.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
       const updatedState: Partial<State<Payload>> = { open: nextOpen };
@@ -131,12 +150,17 @@ export class PreviewCardStore<Payload> extends ReactStore<
     externalStore: PreviewCardStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
-    /* eslint-disable react-hooks/rules-of-hooks */
-    const store = usePopupStore(
-      externalStore,
-      (floatingId, nested) => new PreviewCardStore<Payload>(initialState, floatingId, nested),
-    ).store;
-    /* eslint-enable react-hooks/rules-of-hooks */
+    const floatingId = useId();
+    const nested = useFloatingParentNodeId() != null;
+
+    const internalStoreRef = React.useRef<PreviewCardStore<Payload> | null>(null);
+    if (externalStore === undefined && internalStoreRef.current === null) {
+      internalStoreRef.current = new PreviewCardStore<Payload>(initialState, floatingId, nested);
+    }
+
+    const store = externalStore ?? internalStoreRef.current!;
+
+    usePopupFloatingRootContext(store, { floatingId, nested });
 
     return store;
   }
@@ -144,7 +168,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
 
 function createInitialState<Payload>(): State<Payload> {
   return {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreStateBase<Payload>(),
     instantType: undefined,
     hasViewport: false,
   };

@@ -97,7 +97,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 }
 
 function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<Payload> }) {
-  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingRootContext = store.context.floatingRootContext;
 
   const dismiss = useDismiss(floatingRootContext);
   const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;

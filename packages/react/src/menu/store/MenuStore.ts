@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -7,14 +8,17 @@ import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
 import {
-  createInitialPopupStoreState,
+  createInitialPopupStoreStateBase,
+  PopupFloatingRootContext,
   PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreState,
+  PopupStoreStateBase,
   PopupTriggerMap,
 } from '../../utils/popups';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { FloatingRootContext } from '../../floating-ui-react';
 
-export type State<Payload> = PopupStoreState<Payload> & {
+export type State<Payload> = PopupStoreStateBase<Payload> & {
   disabled: boolean;
   modal: boolean;
   openMethod: InteractionType | null;
@@ -37,6 +41,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 };
 
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
+  floatingRootContext: FloatingRootContext;
   readonly positionerRef: React.RefObject<HTMLElement | null>;
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly typingRef: React.RefObject<boolean>;
@@ -115,6 +120,7 @@ export class MenuStore<Payload> extends ReactStore<
     super(
       { ...createInitialState(), ...initialState },
       {
+        floatingRootContext: undefined as never,
         positionerRef: React.createRef<HTMLElement | null>(),
         popupRef: React.createRef<HTMLElement | null>(),
         typingRef: { current: false },
@@ -128,6 +134,19 @@ export class MenuStore<Payload> extends ReactStore<
       },
       selectors,
     );
+
+    this.context.floatingRootContext = new PopupFloatingRootContext({
+      popupStore: this as unknown as ReactStore<
+        State<unknown>,
+        PopupStoreContext<MenuRoot.ChangeEventDetails>,
+        typeof popupStoreSelectors
+      >,
+      nested: false,
+      onOpenChange: this.setOpen as (
+        open: boolean,
+        eventDetails: BaseUIChangeEventDetails<string>,
+      ) => void,
+    }) as Context['floatingRootContext'];
 
     // Set up propagation of state from parent menu if applicable.
     this.unsubscribeParentListener = this.observe('parent', (parent) => {
@@ -169,9 +188,12 @@ export class MenuStore<Payload> extends ReactStore<
     });
   }
 
-  setOpen(open: boolean, eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>) {
-    this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
-  }
+  setOpen = (
+    open: boolean,
+    eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
+  ) => {
+    this.context.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
+  };
 
   public static useStore<Payload>(
     externalStore: MenuStore<Payload> | undefined,
@@ -190,7 +212,7 @@ export class MenuStore<Payload> extends ReactStore<
 
 function createInitialState<Payload>(): State<Payload> {
   return {
-    ...createInitialPopupStoreState(),
+    ...createInitialPopupStoreStateBase(),
     disabled: false,
     modal: true,
     openMethod: null,

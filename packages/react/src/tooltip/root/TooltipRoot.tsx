@@ -255,7 +255,7 @@ function TooltipInteractions<Payload>({
   disabled: boolean;
   trackCursorAxis: 'none' | 'x' | 'y' | 'both';
 }) {
-  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingRootContext = store.context.floatingRootContext;
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,

@@ -45,7 +45,7 @@ export const PreviewCardTrigger = fastComponentRef(function PreviewCardTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
-  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingRootContext = store.context.floatingRootContext;
   const inlineRectCoordsRef = store.context.inlineRectCoordsRef;
 
   const triggerElementRef = React.useRef<Element | null>(null);

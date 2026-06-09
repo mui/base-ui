@@ -54,7 +54,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const keepMounted = usePopoverPortalContext();
   const nodeId = useFloatingNodeId();
 
-  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingRootContext = store.context.floatingRootContext;
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const openReason = store.useState('openChangeReason');

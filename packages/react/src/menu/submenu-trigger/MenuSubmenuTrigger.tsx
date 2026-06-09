@@ -48,7 +48,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const open = store.useState('open');
-  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingRootContext = store.context.floatingRootContext;
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', thisTriggerId);
 

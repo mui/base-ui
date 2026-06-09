@@ -246,17 +246,17 @@ export function StoreInspectorPanel({
       }
     >
       <h3>State</h3>
-      <pre>{JSON.stringify(store.state, getStringifyReplacer(), 2)}</pre>
+      <pre>{stringifyValue(store.state)}</pre>
       {Object.keys((store as any).context ?? {}).length > 0 && (
         <React.Fragment>
           <h3>Context</h3>
-          <pre>{JSON.stringify((store as any).context, getStringifyReplacer(), 2)}</pre>
+          <pre>{stringifyValue((store as any).context)}</pre>
         </React.Fragment>
       )}
       {additionalData !== undefined && (
         <React.Fragment>
           <h3>Additional data</h3>
-          <pre>{JSON.stringify(additionalData, getStringifyReplacer(), 2)}</pre>
+          <pre>{stringifyValue(additionalData)}</pre>
         </React.Fragment>
       )}
     </Window>
@@ -265,10 +265,14 @@ export function StoreInspectorPanel({
   return open ? ReactDOM.createPortal(content, doc.body) : null;
 }
 
-function getStringifyReplacer() {
-  const ancestors: any[] = [];
+function stringifyValue(value: unknown) {
+  return JSON.stringify(value, getStringifyReplacer(), 2);
+}
 
-  return function replacer(this: unknown, _: string, value: unknown) {
+function getStringifyReplacer() {
+  const seen = new WeakSet<object>();
+
+  return function replacer(_: string, value: unknown) {
     if (isElement(value)) {
       return `Element(${value.tagName.toLowerCase()}${value.id ? `#${value.id}` : ''})`;
     }
@@ -276,6 +280,16 @@ function getStringifyReplacer() {
     if (value === undefined) {
       return '[undefined]';
     }
+
+    if (typeof value !== 'object' || value === null) {
+      return value;
+    }
+
+    if (seen.has(value)) {
+      return '[circular reference]';
+    }
+
+    seen.add(value);
 
     if (value instanceof Map) {
       return Array.from(value.entries());
@@ -285,20 +299,6 @@ function getStringifyReplacer() {
       return Array.from(value);
     }
 
-    if (typeof value !== 'object' || value === null) {
-      return value;
-    }
-    // `this` is the object that value is contained in,
-    // i.e., its direct parent.
-    while (ancestors.length > 0 && ancestors.at(-1) !== this) {
-      ancestors.pop();
-    }
-
-    if (ancestors.includes(value)) {
-      return '[circular reference]';
-    }
-
-    ancestors.push(value);
     return value;
   };
 }

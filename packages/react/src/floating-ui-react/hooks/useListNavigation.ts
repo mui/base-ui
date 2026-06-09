@@ -422,7 +422,14 @@ export function useListNavigation(
       ) {
         let runs = 0;
         const waitForListPopulated = () => {
-          if (listRef.current[0] == null) {
+          const initialIndex =
+            keyRef.current == null ||
+            isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
+            nested
+              ? getMinListIndex(listRef)
+              : getMaxListIndex(listRef);
+
+          if (listRef.current[0] == null || isIndexOutOfListBounds(listRef.current, initialIndex)) {
             // Avoid letting the browser paint if possible on the first try,
             // otherwise use rAF. Don't try more than twice, since something
             // is wrong otherwise.
@@ -435,12 +442,7 @@ export function useListNavigation(
             runs += 1;
           } else {
             // initially focus the first non-disabled item
-            indexRef.current =
-              keyRef.current == null ||
-              isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
-              nested
-                ? getMinListIndex(listRef)
-                : getMaxListIndex(listRef);
+            indexRef.current = initialIndex;
             keyRef.current = null;
             onNavigate();
           }

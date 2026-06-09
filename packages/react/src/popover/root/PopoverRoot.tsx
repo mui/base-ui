@@ -230,7 +230,7 @@ function PopoverInteractions({
   store: PopoverStore<any>;
   modal: boolean | 'trap-focus';
 }) {
-  const floatingRootContext = store.useState('floatingRootContext');
+  const floatingRootContext = store.context.floatingRootContext;
 
   const dismiss = useDismiss(floatingRootContext, {
     outsidePressEvent: {
