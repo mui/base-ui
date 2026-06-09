@@ -1,4 +1,5 @@
-@import 'docs/src/css/custom-media.css';
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
 
 @layer components {
   .SearchScrollbar {
@@ -25,144 +26,6 @@
       border-radius: var(--radius-4);
       background-color: var(--gray-p2);
     }
-  }
-
-  .SearchTrigger {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-8);
-    height: var(--space-32);
-    padding-inline: 0.875rem;
-    margin: 0;
-    border: none;
-    border-radius: 9999px;
-    background-color: hsl(0deg 0% 0% / 5%);
-    font: inherit;
-    font-size: var(--font-size-16);
-    font-weight: var(--font-weight-400);
-    line-height: 1.5;
-    color: var(--gray-t2);
-    user-select: none;
-    outline: none;
-
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--gray-c2);
-    }
-  }
-
-  .SearchTrigger::before {
-    content: '';
-    position: absolute;
-    inset: 1px;
-    border-radius: 9999px;
-    background-color: var(--color-popup);
-    z-index: 0;
-
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--gray-c1);
-    }
-  }
-
-  .SearchTrigger::after {
-    content: '';
-    position: absolute;
-    inset: 1px;
-    border-radius: 9999px;
-    box-shadow: 0 1px 2px hsl(0deg 0% 0% / 5%);
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .SearchTrigger > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  .SearchTrigger:hover {
-    background-color: hsl(0deg 0% 0% / 15%);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--gray-c3);
-    }
-  }
-
-  .SearchTrigger:hover::before {
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(21.5% 0.5% 264deg);
-    }
-  }
-
-  .SearchTrigger:hover .SearchTriggerKbd {
-    @media (prefers-color-scheme: dark) {
-      border-color: var(--gray-c3);
-    }
-  }
-
-  .SearchTrigger:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
-  }
-
-  .SearchTrigger[data-disabled] {
-    color: var(--gray-p1);
-    cursor: default;
-  }
-
-  .SearchTrigger[data-disabled]:hover {
-    background-color: hsl(0deg 0% 0% / 5%);
-  }
-
-  .SearchTriggerIcon {
-    width: 1rem;
-    height: 1rem;
-    color: var(--gray-p1);
-  }
-
-  .SearchTriggerKbd {
-    display: none;
-    height: 20px;
-    line-height: 1;
-    align-items: center;
-    gap: 0.25rem;
-    padding-inline: 0.375rem;
-    border-radius: 9999px;
-    border: 1px solid var(--gray-c3);
-    background-color: var(--gray-s2);
-    pointer-events: none;
-    color: var(--gray-t2);
-
-    @media (--lg) {
-      display: inline-flex;
-      margin-right: -0.5rem;
-    }
-  }
-
-  .SearchTriggerKbd kbd {
-    line-height: 1;
-  }
-
-  .SearchTriggerKbd kbd:first-child {
-    display: inline-flex;
-    margin-top: 1px;
-  }
-
-  .SearchTriggerCmd {
-    font-size: var(--font-size-18);
-  }
-
-  .SearchTriggerCtrl {
-    font-size: var(--font-size-13);
-  }
-
-  .SearchTriggerPlus {
-    font-size: var(--font-size-13);
-    color: var(--gray-t1);
-  }
-
-  .SearchTriggerK {
-    font-size: 0.8125rem;
   }
 
   .SearchBreadcrumbPart {
@@ -219,7 +82,7 @@
     font-size: var(--font-size-16);
     font-weight: var(--font-weight-400);
     color: var(--gray-t2);
-    outline: none;
+    outline: 0;
   }
 
   .SearchInput::placeholder {
@@ -240,6 +103,7 @@
     font-weight: var(--font-weight-400);
     line-height: 1;
     color: var(--gray-t1);
+    -webkit-user-select: none;
     user-select: none;
   }
 
@@ -256,6 +120,7 @@
     line-height: 1;
     color: var(--gray-t2);
     cursor: default;
+    -webkit-user-select: none;
     user-select: none;
     outline: none;
   }
@@ -273,7 +138,6 @@
     transition: opacity 150ms ease;
   }
 
-  .SearchBackdrop[data-ending-style],
   .SearchBackdrop[data-starting-style] {
     opacity: 0;
   }
@@ -331,7 +195,6 @@
   .SearchPopupContained {
     max-height: min(29.5rem, calc(100vh - 6rem));
     width: min(34rem, calc(100vw - 2rem));
-    overflow: hidden;
   }
 
   .SearchPopupDefault {
@@ -339,9 +202,7 @@
     width: min(40rem, calc(100vw - 2rem));
   }
 
-  .SearchPopupContained[data-ending-style],
   .SearchPopupContained[data-starting-style],
-  .SearchPopupDefault[data-ending-style],
   .SearchPopupDefault[data-starting-style] {
     transform: translateY(-1rem) scale(0.9);
     opacity: 0;
@@ -358,6 +219,7 @@
   .SearchHeadContained {
     flex-shrink: 0;
     border-bottom: 1px solid var(--gray-c1);
+    border-radius: 1rem 1rem 0 0;
     padding: 0.5rem 0.5rem 0.375rem;
   }
 
@@ -378,6 +240,11 @@
     min-height: 0;
     flex: 1;
     overflow: hidden;
+
+    &:has(.SearchScrollAreaViewport:focus-visible) {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: -1px;
+    }
   }
 
   .SearchScrollAreaViewport {
@@ -387,9 +254,11 @@
     overscroll-behavior: contain;
     scroll-padding-top: 2.25rem;
     scroll-padding-bottom: 0.5rem;
+    outline: none;
   }
 
-  .SearchList {
+  .SearchList,
+  .SearchListDefault {
     outline: 0;
     padding: 0.5rem;
   }
@@ -433,6 +302,11 @@
   .SearchRootScrollable {
     height: 100%;
     overscroll-behavior: contain;
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: -2px;
+    }
   }
 
   .SearchRootScrollable[data-ending-style] {
@@ -448,9 +322,7 @@
   }
 
   .SearchListDefault {
-    outline: 0;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    padding: 0.5rem;
   }
 }

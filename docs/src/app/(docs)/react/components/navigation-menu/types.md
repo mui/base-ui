@@ -139,6 +139,12 @@ An icon that indicates that the trigger button opens a menu.
 | style     | `React.CSSProperties \| ((state: NavigationMenu.Icon.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Icon.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Icon Data Attributes:**
+
+| Attribute       | Type | Description                                                      |
+| :-------------- | :--- | :--------------------------------------------------------------- |
+| data-popup-open | -    | Present when the navigation menu is open and the item is active. |
+
 ### Icon.Props
 
 Re-export of [Icon](#icon) props.
@@ -361,6 +367,7 @@ Renders a `<nav>` element.
 | :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
 | data-open           | -                                                                          | Present when the popup is open.                                       |
 | data-closed         | -                                                                          | Present when the popup is closed.                                     |
+| data-anchor-hidden  | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to the specified side.    |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-starting-style | -                                                                          | Present when the popup is animating in.                               |
@@ -477,13 +484,13 @@ Renders a `<div>` element.
 
 **Content Data Attributes:**
 
-| Attribute                 | Type | Description                                         |
-| :------------------------ | :--- | :-------------------------------------------------- |
-| data-open                 | -    | Present when the popup is open.                     |
-| data-closed               | -    | Present when the popup is closed.                   |
-| data-activation-direction | -    | Which direction another trigger was activated from. |
-| data-starting-style       | -    | Present when the content is animating in.           |
-| data-ending-style         | -    | Present when the content is animating out.          |
+| Attribute                 | Type                                  | Description                                         |
+| :------------------------ | :------------------------------------ | :-------------------------------------------------- |
+| data-open                 | -                                     | Present when the popup is open.                     |
+| data-closed               | -                                     | Present when the popup is closed.                   |
+| data-activation-direction | `'left' \| 'right' \| 'up' \| 'down'` | Which direction another trigger was activated from. |
+| data-starting-style       | -                                     | Present when the content is animating in.           |
+| data-ending-style         | -                                     | Present when the content is animating out.          |
 
 ### Content.Props
 

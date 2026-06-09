@@ -3,7 +3,8 @@ import * as React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { useClick, useFloating, useInteractions, useTypeahead } from '../index';
+import { useTestInteractions } from '#test-utils';
+import { useClick, useFloating, useTypeahead } from '../index';
 import type { UseTypeaheadProps } from './useTypeahead';
 
 beforeEach(() => {
@@ -39,7 +40,7 @@ const useImpl = ({
     enabled: addUseClick,
   });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([typeahead, click]);
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([typeahead, click]);
 
   return {
     activeIndex,
@@ -96,7 +97,7 @@ function ComboboxWithElementsRef(
     },
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([typeahead]);
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([typeahead]);
 
   return (
     <React.Fragment>

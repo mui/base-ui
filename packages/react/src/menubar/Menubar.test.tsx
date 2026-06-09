@@ -292,6 +292,27 @@ describe('<Menubar />', () => {
         });
       });
 
+      it('moves focus to the first and last triggers with Home and End', async () => {
+        const { user } = await render(<TestMenubar />);
+
+        const fileTrigger = screen.getByTestId('file-trigger');
+        const viewTrigger = screen.getByTestId('view-trigger');
+
+        await act(async () => {
+          fileTrigger.focus();
+        });
+
+        await user.keyboard('{End}');
+        await waitFor(() => {
+          expect(viewTrigger).toHaveFocus();
+        });
+
+        await user.keyboard('{Home}');
+        await waitFor(() => {
+          expect(fileTrigger).toHaveFocus();
+        });
+      });
+
       it('should open the menu with Space key', async () => {
         const { user } = await render(<TestMenubar />);
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -950,11 +971,84 @@ describe('<Menubar />', () => {
         expect(screen.queryByRole('menubar')).not.toBe(null);
       });
 
+      it('sets aria-orientation on the root element', async () => {
+        await render(<Menubar orientation="vertical" />);
+        expect(screen.getByRole('menubar')).toHaveAttribute('aria-orientation', 'vertical');
+      });
+
       it('sets role="menuitem" on menu triggers', async () => {
         await render(<TestMenubar />);
         const menuItems = screen.getAllByRole('menuitem');
         expect(menuItems).toHaveLength(3);
       });
+    });
+  });
+
+  describe('disabled state', () => {
+    it('keeps the menubar reachable when the first trigger is disabled', async () => {
+      const { user } = await render(
+        <Menubar style={{ display: 'flex' }}>
+          <Menu.Root>
+            <Menu.Trigger disabled data-testid="file-trigger">
+              File
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Open</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Root>
+            <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Copy</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      const fileTrigger = screen.getByTestId('file-trigger');
+      const editTrigger = screen.getByTestId('edit-trigger');
+
+      expect(fileTrigger).toHaveAttribute('disabled');
+      expect(fileTrigger).toHaveAttribute('tabindex', '-1');
+      expect(editTrigger).toHaveAttribute('tabindex', '0');
+
+      // The disabled first trigger must not swallow the only tab stop.
+      await user.tab();
+      expect(editTrigger).toHaveFocus();
+    });
+
+    it('disables menu items while the menubar is disabled', async () => {
+      const handleClick = vi.fn();
+      const { user } = await render(
+        <Menubar disabled>
+          <Menu.Root open>
+            <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item data-testid="file-item" onClick={handleClick}>
+                    Open
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      const item = screen.getByTestId('file-item');
+      expect(item).toHaveAttribute('aria-disabled', 'true');
+
+      await user.click(item);
+      expect(handleClick).not.toHaveBeenCalled();
     });
   });
 });

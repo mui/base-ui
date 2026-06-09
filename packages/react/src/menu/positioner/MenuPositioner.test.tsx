@@ -3,6 +3,7 @@ import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
+import { Menubar } from '@base-ui/react/menubar';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
@@ -385,6 +386,56 @@ describe('<Menu.Positioner />', () => {
   const anchorHeight = 36;
   const triggerStyle = { width: anchorWidth, height: anchorHeight };
   const popupStyle = { width: popupWidth, height: popupHeight };
+
+  describe.skipIf(isJSDOM)('Menubar parent', () => {
+    it('uses bottom as the default side when the menubar is horizontal', async () => {
+      let side = 'none';
+
+      await render(
+        <Menubar>
+          <Menu.Root open>
+            <Trigger style={triggerStyle}>File</Trigger>
+            <Menu.Portal>
+              <Menu.Positioner
+                sideOffset={(data) => {
+                  side = data.side;
+                  return 0;
+                }}
+              >
+                <Menu.Popup style={popupStyle}>Open</Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      expect(side).toBe('bottom');
+    });
+
+    it('uses inline-end as the default side when the menubar is vertical', async () => {
+      let side = 'none';
+
+      await render(
+        <Menubar orientation="vertical">
+          <Menu.Root open>
+            <Trigger style={triggerStyle}>File</Trigger>
+            <Menu.Portal>
+              <Menu.Positioner
+                sideOffset={(data) => {
+                  side = data.side;
+                  return 0;
+                }}
+              >
+                <Menu.Popup style={popupStyle}>Open</Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      expect(side).toBe('inline-end');
+    });
+  });
 
   describe.skipIf(isJSDOM)('prop: sideOffset', () => {
     it('offsets the side when a number is specified', async () => {

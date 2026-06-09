@@ -4,11 +4,13 @@ import { createSelector, ReactStore } from '@base-ui/utils/store';
 import {
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
+  InlineRectCoords,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setOpenTriggerState,
+  setPopupOpenState,
+  updateInlineRectCoords,
   usePopupStore,
 } from '../../utils/popups';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
@@ -22,6 +24,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
   closeDelayRef: React.RefObject<number>;
+  inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
 };
 
 const selectors = {
@@ -42,6 +45,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
+
     state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
     super(
@@ -52,6 +56,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
         onOpenChangeComplete: undefined,
         triggerElements,
         closeDelayRef: { current: CLOSE_DELAY },
+        inlineRectCoordsRef: { current: undefined },
       },
       selectors,
     );
@@ -78,6 +83,23 @@ export class PreviewCardStore<Payload> extends ReactStore<
       return;
     }
 
+    const event = eventDetails.event;
+    if (
+      nextOpen &&
+      isHover &&
+      eventDetails.trigger &&
+      'clientX' in event &&
+      'clientY' in event &&
+      this.context.inlineRectCoordsRef.current?.element !== eventDetails.trigger
+    ) {
+      updateInlineRectCoords(
+        this.context.inlineRectCoordsRef,
+        eventDetails.trigger,
+        event.clientX,
+        event.clientY,
+      );
+    }
+
     this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
@@ -91,7 +113,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
         updatedState.instantType = undefined;
       }
 
-      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
+      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
 
       this.update(updatedState);
     };

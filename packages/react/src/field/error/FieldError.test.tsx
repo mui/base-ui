@@ -145,6 +145,86 @@ describe('<Field.Error />', () => {
       expect(screen.getByTestId('default-error')).toHaveTextContent('Username is reserved');
     });
 
+    it('uses the Field.Control name fallback for Form errors', async () => {
+      await render(
+        <Form errors={{ email: 'Email is already taken' }}>
+          <Field.Root>
+            <Field.Control name="email" />
+            <Field.Error data-testid="default-error" />
+          </Field.Root>
+        </Form>,
+      );
+
+      const control = screen.getByRole('textbox');
+
+      expect(control).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Email is already taken');
+
+      fireEvent.change(control, { target: { value: 'next@example.com' } });
+
+      expect(control).not.toHaveAttribute('aria-invalid');
+      expect(screen.queryByTestId('default-error')).toBe(null);
+    });
+
+    it('ignores inherited Form error properties', async () => {
+      await render(
+        <Form errors={{}}>
+          <Field.Root name="constructor">
+            <Field.Control />
+            <Field.Error data-testid="default-error" />
+          </Field.Root>
+        </Form>,
+      );
+
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
+      expect(screen.queryByTestId('default-error')).toBe(null);
+    });
+
+    it('renders Form error arrays as a list', async () => {
+      await render(
+        <Form errors={{ username: ['Username is reserved', 'Username is too short'] }}>
+          <Field.Root name="username">
+            <Field.Control defaultValue="admin" />
+            <Field.Error data-testid="default-error" />
+          </Field.Root>
+        </Form>,
+      );
+
+      const list = screen.getByTestId('default-error').querySelector('ul');
+      expect(list).not.toBe(null);
+      expect(list?.querySelectorAll('li')).toHaveLength(2);
+      expect(screen.getByText('Username is reserved')).not.toBe(null);
+      expect(screen.getByText('Username is too short')).not.toBe(null);
+    });
+
+    it('renders single-item Form error arrays as text', async () => {
+      await render(
+        <Form errors={{ username: ['Username is reserved'] }}>
+          <Field.Root name="username">
+            <Field.Control defaultValue="admin" />
+            <Field.Error data-testid="default-error" />
+          </Field.Root>
+        </Form>,
+      );
+
+      expect(screen.getByTestId('default-error').querySelector('ul')).toBe(null);
+      expect(screen.getByTestId('default-error')).toHaveTextContent('Username is reserved');
+    });
+
+    it('ignores empty Form error arrays', async () => {
+      await render(
+        <Form errors={{ username: [] }}>
+          <Field.Root name="username">
+            <Field.Control defaultValue="admin" />
+            <Field.Error data-testid="default-error" />
+          </Field.Root>
+        </Form>,
+      );
+
+      expect(screen.queryByTestId('default-error')).toBe(null);
+      expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
+    });
+
     it('uses `match={false}` as the default slot for client validation errors', async () => {
       await render(
         <Form>
