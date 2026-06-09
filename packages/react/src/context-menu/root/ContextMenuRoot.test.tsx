@@ -228,17 +228,58 @@ describe('<ContextMenu.Root />', () => {
       const trigger = screen.getByTestId('context-trigger');
 
       fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
-      await screen.findByTestId('context-popup');
+      const popup = await screen.findByTestId('context-popup');
 
-      // While open, the modal backdrop covers the trigger, so the second right
-      // click lands on it. Right-clicking again within the 5x5px box toggles closed.
-      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
-      fireEvent.contextMenu(backdrop, { clientX: 11, clientY: 12, button: 2 });
+      // The popup opens under the cursor, so the second right click lands on it (or
+      // on the backdrop). Right-clicking again within the threshold toggles closed.
+      fireEvent.contextMenu(popup, { clientX: 11, clientY: 12, button: 2 });
 
       await waitFor(() => {
         expect(screen.queryByTestId('context-popup')).toBe(null);
       });
 
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
+    it('does not reopen when the dismissing right click is within the move threshold', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await screen.findByTestId('context-popup');
+
+      // A real right click is pointerdown -> contextmenu. The pointerdown on the
+      // backdrop dismisses the menu through outside-press, the backdrop unmounts,
+      // and the contextmenu event then lands on the trigger underneath. Within the
+      // threshold this must not reopen the menu.
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.pointerDown(backdrop, { button: 2, clientX: 11, clientY: 12 });
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      fireEvent.contextMenu(trigger, { clientX: 11, clientY: 12, button: 2 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).toBe(null);
       expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
     });
 
