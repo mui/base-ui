@@ -881,57 +881,127 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
   });
 
   it.skipIf(isJSDOM)('preserves native taps on an already-focused keyboard input', async () => {
-    await render(
-      <Drawer.Root open modal={false}>
-        <Drawer.VirtualKeyboardProvider>
-          <Drawer.Portal>
-            <Drawer.Viewport>
-              <Drawer.Popup>
-                <input data-testid="input" type="text" />
-              </Drawer.Popup>
-            </Drawer.Viewport>
-          </Drawer.Portal>
-        </Drawer.VirtualKeyboardProvider>
-      </Drawer.Root>,
-    );
-
-    const input = screen.getByTestId('input');
-
-    await act(async () => {
-      input.focus();
-    });
-
-    const focusSpy = vi.spyOn(input, 'focus');
-    const originalElementFromPoint = document.elementFromPoint;
-    document.elementFromPoint = () => input;
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(500);
 
     try {
-      fireEvent.touchStart(input, {
-        touches: [
-          createTouch(input, {
-            clientX: 0,
-            clientY: 0,
-          }),
-        ],
-      });
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <input data-testid="input" type="text" />
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
 
-      const touchEnd = createNativeTouchEnd(input, {
-        clientX: 0,
-        clientY: 0,
-      });
+      const input = screen.getByTestId('input');
 
       await act(async () => {
-        input.dispatchEvent(touchEnd);
-        await flushMicrotasks();
+        input.focus();
       });
 
-      expect(touchEnd.defaultPrevented).toBe(false);
-      expect(focusSpy).not.toHaveBeenCalled();
+      const focusSpy = vi.spyOn(input, 'focus');
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => input;
+
+      try {
+        fireEvent.touchStart(input, {
+          touches: [
+            createTouch(input, {
+              clientX: 0,
+              clientY: 0,
+            }),
+          ],
+        });
+
+        const touchEnd = createNativeTouchEnd(input, {
+          clientX: 0,
+          clientY: 0,
+        });
+
+        await act(async () => {
+          input.dispatchEvent(touchEnd);
+          await flushMicrotasks();
+        });
+
+        expect(touchEnd.defaultPrevented).toBe(false);
+        expect(focusSpy).not.toHaveBeenCalled();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+        focusSpy.mockRestore();
+      }
     } finally {
-      document.elementFromPoint = originalElementFromPoint;
-      focusSpy.mockRestore();
+      visualViewport.restore();
+      restoreInnerHeight();
     }
   });
+
+  it.skipIf(isJSDOM)(
+    'refocuses an already-focused keyboard input when the keyboard viewport is closed',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup>
+                    <input data-testid="input" type="text" />
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        await act(async () => {
+          input.focus();
+        });
+
+        const focusSpy = vi.spyOn(input, 'focus');
+        const blurSpy = vi.spyOn(input, 'blur');
+        const originalElementFromPoint = document.elementFromPoint;
+        document.elementFromPoint = () => input;
+
+        try {
+          fireEvent.touchStart(input, {
+            touches: [createTouch(input, { clientX: 0, clientY: 0 })],
+          });
+
+          const touchEnd = createNativeTouchEnd(input, {
+            clientX: 0,
+            clientY: 0,
+          });
+
+          await act(async () => {
+            input.dispatchEvent(touchEnd);
+            await flushMicrotasks();
+          });
+
+          expect(touchEnd.defaultPrevented).toBe(true);
+          expect(blurSpy).toHaveBeenCalledTimes(1);
+          expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+        } finally {
+          document.elementFromPoint = originalElementFromPoint;
+          blurSpy.mockRestore();
+          focusSpy.mockRestore();
+        }
+      } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
 
   it.skipIf(isJSDOM)(
     'does not treat a small visual viewport reduction as the software keyboard',

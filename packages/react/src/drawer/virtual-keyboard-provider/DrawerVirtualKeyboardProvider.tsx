@@ -354,7 +354,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     }
 
     if (keyboardFocusTarget) {
-      if (activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget) {
+      const win = ownerWindow(keyboardFocusTarget);
+      if (
+        activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget &&
+        isKeyboardVisualViewportOpen(win)
+      ) {
         resetTouchTrackingState();
         return;
       }
@@ -453,6 +457,7 @@ function resolveKeyboardInputTargetFromPoint(
 }
 
 function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
+  const wasFocused = activeElement(ownerDocument(target)) === target;
   const previousOpacity = target.style.opacity;
   const previousTransform = target.style.transform;
   const previousTransition = target.style.transition;
@@ -463,6 +468,9 @@ function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
   target.style.opacity = '0';
   target.style.transform = 'translateY(-2000px)';
   try {
+    if (wasFocused) {
+      target.blur();
+    }
     target.focus({ preventScroll: true });
   } finally {
     target.style.opacity = previousOpacity;
@@ -522,4 +530,8 @@ function getKeyboardVisualViewport(win: Window): KeyboardVisualViewport | null {
 
 function getDrawerKeyboardInset(win: Window, keyboardViewport: KeyboardVisualViewport): number {
   return Math.max(0, win.innerHeight - keyboardViewport.bottom);
+}
+
+function isKeyboardVisualViewportOpen(win: Window): boolean {
+  return !win.visualViewport || getKeyboardVisualViewport(win) != null;
 }

@@ -128,16 +128,15 @@
 
 .Popup {
   --bleed: 3rem;
-  --footer-reserved-height: calc(5.25rem + var(--bleed));
+  --footer-reserved-height: 5.25rem;
   box-sizing: border-box;
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: calc(100% - 1rem + var(--bleed));
-  max-height: calc(100% - 1rem + var(--bleed));
-  margin-bottom: calc(-1 * var(--bleed));
+  height: calc(100% - 1rem);
+  max-height: calc(100% - 1rem);
   border-top: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
   color: oklch(14.5% 0 0deg);
@@ -163,9 +162,19 @@
     user-select: none;
   }
 
+  &::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    height: var(--bleed);
+    background-color: inherit;
+    pointer-events: none;
+  }
+
   &[data-starting-style],
   &[data-ending-style] {
-    transform: translateY(calc(100% - var(--bleed) + 2px));
+    transform: translateY(calc(100% + 2px));
     box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 0%);
   }
 
@@ -340,7 +349,6 @@
 }
 
 .StickyFooter {
-  --footer-underlay-height: 0;
   position: absolute;
   right: 0;
   bottom: 0;
@@ -348,32 +356,20 @@
   z-index: 1;
   border-top: 1px solid oklch(14.5% 0 0deg);
   background-color: white;
-  padding: 0.625rem 1.5rem calc(0.625rem + env(safe-area-inset-bottom, 0px) + var(--bleed));
+  padding: 0.625rem 1.5rem calc(0.625rem + env(safe-area-inset-bottom, 0px));
   transition-duration: 260ms;
-  transition-property: bottom;
+  transition-property: bottom, padding-bottom;
   transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-  will-change: bottom;
+  will-change: bottom, padding-bottom;
 
   &:focus-within {
-    --footer-underlay-height: var(--drawer-keyboard-inset, 0);
     position: fixed;
     z-index: 3;
-    bottom: var(--drawer-keyboard-inset, 0);
+    bottom: 0;
+    padding-bottom: calc(
+      0.625rem + env(safe-area-inset-bottom, 0px) + var(--drawer-keyboard-inset, 0px)
+    );
     transform: translate3d(0, 0, 0);
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    right: 0;
-    left: 0;
-    height: var(--footer-underlay-height);
-    background-color: inherit;
-    pointer-events: none;
-    transition-duration: 260ms;
-    transition-property: height;
-    transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -383,10 +379,6 @@
 
   @media (prefers-reduced-motion: reduce) {
     transition-duration: 0ms;
-
-    &::after {
-      transition-duration: 0ms;
-    }
   }
 }
 

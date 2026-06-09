@@ -7,6 +7,8 @@ const fields = [
   ['Phone', '+1 (555) 123-4567'],
   ['Street address', '12 Computing Way'],
   ['Apartment', 'Unit 4B'],
+  ['City', 'San Francisco'],
+  ['Postal code', '94107'],
   ['Delivery window', 'After 6 PM'],
   ['Backup contact', 'Grace Hopper'],
 ];
