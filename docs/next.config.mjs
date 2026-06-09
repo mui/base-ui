@@ -48,7 +48,6 @@ const withMdx = nextMdx({
       localPlugin('src/components/CodeBlock/rehypeEagerCodeBlocks.mjs'),
       '@mui/internal-docs-infra/pipeline/transformHtmlCodeInline',
       '@mui/internal-docs-infra/pipeline/enhanceCodeInline',
-      localPlugin('src/components/Code/rehypeInlineCodeMeta.mjs'),
       localPlugin('src/components/QuickNav/rehypeSlug.mjs'),
       localPlugin('src/components/QuickNav/rehypeConcatHeadings.mjs'),
       '@stefanprobst/rehype-extract-toc',

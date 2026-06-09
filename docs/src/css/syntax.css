@@ -254,7 +254,7 @@
     --color-docs-infra-syntax-nullish: var(--color-blue);
   }
 
-  .MdCode[data-inline]:not([data-plain]) {
+  .MdCode[data-inline]:not(:has(> .di-ht)) {
     background-color: var(--color-line-highlight);
     border-radius: var(--radius-3);
     padding: 0.05em 0.2em;

@@ -8,7 +8,6 @@ import { mdxComponents } from '../mdx-components';
 import * as CodeBlock from '../components/CodeBlock';
 import { CodeBlockPreComputed } from '../components/CodeBlock/CodeBlockPreComputed';
 import { TableCode } from '../components/TableCode';
-import rehypeInlineCodeMeta from '../components/Code/rehypeInlineCodeMeta.mjs';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
@@ -23,7 +22,7 @@ const components: MDXComponents = {
   ),
 };
 
-const enhancers = [enhanceCodeInline, rehypeInlineCodeMeta];
+const enhancers = [enhanceCodeInline];
 
 /**
  * Creates a type doc component that renders a reference table for the given component.
