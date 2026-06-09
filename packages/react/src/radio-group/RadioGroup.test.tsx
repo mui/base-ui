@@ -84,6 +84,55 @@ describe('<RadioGroup />', () => {
       expect(handleChange).toHaveBeenCalledOnce();
       expect(handleChange).toHaveBeenLastCalledWith('a', expect.anything());
     });
+
+    it('does not change state when canceled via a root click', async () => {
+      const { user } = await render(
+        <Field.Root>
+          <RadioGroup onValueChange={(_, eventDetails) => eventDetails.cancel()}>
+            <Radio.Root value="a" data-testid="item" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('radiogroup');
+      const item = screen.getByTestId('item');
+      const input = document.querySelector<HTMLInputElement>('input[type="radio"]');
+
+      await user.click(item);
+
+      expect(item).toHaveAttribute('aria-checked', 'false');
+      expect(input?.checked).toBe(false);
+      expect(group).not.toHaveAttribute('data-touched');
+      expect(group).not.toHaveAttribute('data-dirty');
+      expect(group).not.toHaveAttribute('data-filled');
+    });
+
+    it('does not change state when canceled via a hidden input click', async () => {
+      const { user } = await render(
+        <Field.Root>
+          <RadioGroup onValueChange={(_, eventDetails) => eventDetails.cancel()}>
+            <Radio.Root value="a" data-testid="item" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('radiogroup');
+      const item = screen.getByTestId('item');
+      const input = document.querySelector<HTMLInputElement>('input[type="radio"]');
+
+      expect(input).not.toBe(null);
+      if (!input) {
+        return;
+      }
+
+      await user.click(input);
+
+      expect(item).toHaveAttribute('aria-checked', 'false');
+      expect(input.checked).toBe(false);
+      expect(group).not.toHaveAttribute('data-touched');
+      expect(group).not.toHaveAttribute('data-dirty');
+      expect(group).not.toHaveAttribute('data-filled');
+    });
   });
 
   describe('prop: disabled', () => {
