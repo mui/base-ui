@@ -18,6 +18,9 @@ import {
 
 const KEYBOARD_RESIZE_THRESHOLD = 60;
 const KEYBOARD_VISIBILITY_MARGIN = 16;
+// Extra breathing room (px) added below the focused field, on top of its measured
+// keyboard overlap, so the field can be scrolled clear of the keyboard instead of
+// ending up flush against it. Only applied when there is actual overlap.
 const KEYBOARD_SCROLL_SLACK = 48;
 const INPUT_TAP_MOVE_THRESHOLD = 10;
 const INPUT_TAP_HIT_SLOP = 16;
@@ -31,6 +34,9 @@ const KEYBOARD_INPUT_TYPES = new Set([
   'url',
 ]);
 
+// Snapshot of a scroll container's relevant styles taken before keyboard slack is
+// applied. The string fields are the exact inline values to restore on cleanup;
+// the parsed numbers are the computed baselines that slack is added on top of.
 interface ScrollAdjustment {
   readonly element: HTMLElement;
   readonly overflowAnchor: string;
@@ -41,8 +47,8 @@ interface ScrollAdjustment {
 }
 
 interface KeyboardVisualViewport {
-  top: number;
-  bottom: number;
+  readonly top: number;
+  readonly bottom: number;
 }
 
 /**
@@ -355,6 +361,8 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
     if (keyboardFocusTarget) {
       const win = ownerWindow(keyboardFocusTarget);
+      // Already focused with the keyboard up: let the native tap through so it can
+      // reposition the caret, rather than blurring and re-focusing the same input.
       if (
         activeElement(ownerDocument(keyboardFocusTarget)) === keyboardFocusTarget &&
         isKeyboardVisualViewportOpen(win)

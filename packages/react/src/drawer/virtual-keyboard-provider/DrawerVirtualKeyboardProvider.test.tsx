@@ -365,6 +365,63 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)(
+    'keeps the keyboard inset when focus moves directly to another keyboard input',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport data-testid="viewport">
+                  <Drawer.Popup>
+                    <div>
+                      <input data-testid="input-a" type="text" />
+                      <input data-testid="input-b" type="text" />
+                    </div>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const viewport = screen.getByTestId('viewport');
+        const inputA = screen.getByTestId('input-a');
+        const inputB = screen.getByTestId('input-b');
+
+        await act(async () => {
+          inputA.focus();
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+        });
+
+        // Focus moving straight to another keyboard input must re-align to the new
+        // target, not clear the inset — otherwise it flickers to 0px between fields.
+        // Dispatch the focusout in isolation (no following focusin) so a regression
+        // that cleared on every focusout would leave nothing to restore the inset.
+        await act(async () => {
+          inputA.dispatchEvent(
+            new FocusEvent('focusout', { bubbles: true, relatedTarget: inputB }),
+          );
+        });
+
+        await waitFor(() => {
+          expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+        });
+      } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
   it.skipIf(isJSDOM)('does not add keyboard scroll slack by default', async () => {
     const restoreInnerHeight = mockWindowInnerHeight(800);
     const visualViewport = mockVisualViewport(800);

@@ -144,7 +144,7 @@ By default, the drawer can skip snap points when swiping quickly. Specify the `s
 
 Wrap a bottom-sheet drawer in `<Drawer.VirtualKeyboardProvider>` when it contains form controls and you want the drawer to react to software keyboards.
 
-Keep the popup frame stable and place header and footer content outside a plain scrollable body. The provider scrolls the focused field into the visible viewport when the keyboard opens.
+Keep the popup frame stable and place header and footer content outside a plain scrollable body. When the keyboard opens, the provider centers the focused field within the visible viewport, scrolling the body when it can.
 
 If a footer contains its own input, reserve a footer slot below the scroll area and lift the pinned footer with `--drawer-keyboard-inset`.
 
