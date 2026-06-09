@@ -160,7 +160,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const props = React.useMemo<HTMLProps>(
     () => ({
-      'aria-orientation': orientation === 'both' ? undefined : orientation,
       ref: mergedRef,
       onFocus(event) {
         const element = rootRef.current;

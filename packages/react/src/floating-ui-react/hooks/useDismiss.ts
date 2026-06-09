@@ -13,8 +13,8 @@ import {
   isHTMLElement,
   isLastTraversableNode,
   isShadowRoot,
-  isWebKit,
 } from '@floating-ui/utils/dom';
+import { platform } from '@base-ui/utils/platform';
 import { useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -295,7 +295,7 @@ export function useDismiss(
       compositionTimeout.start(
         // 0ms or 1ms don't work in Safari. 5ms appears to consistently work.
         // Only apply to WebKit for the test to remain 0ms.
-        isWebKit() ? 5 : 0,
+        platform.engine.webkit ? 5 : 0,
         () => {
           isComposingRef.current = false;
         },
