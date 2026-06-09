@@ -257,6 +257,46 @@ describe('<ContextMenu.Root />', () => {
       expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
     });
 
+    it('activates an item on mouseup within the move threshold but away from the cursor point', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item data-testid="context-item">Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 100, clientY: 100, button: 2 });
+
+      await screen.findByTestId('context-popup');
+      const item = screen.getByTestId('context-item');
+
+      // Press-drag-release onto the edge of a nearby item: still within the move
+      // threshold of the opening point, but past the much tighter item press
+      // threshold, so the item activates.
+      fireEvent.pointerMove(item, { clientX: 104, clientY: 100 });
+      fireEvent.mouseUp(item, { button: 2, clientX: 104, clientY: 100 });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-popup')).toBe(null);
+      });
+
+      expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
+    });
+
     it('closes when right-clicking again within the move threshold', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();
