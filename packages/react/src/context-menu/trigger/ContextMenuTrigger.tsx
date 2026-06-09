@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -49,8 +49,15 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const openedWithTouchRef = React.useRef(false);
   const longPressTimeout = useTimeout();
 
-  function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
+  function handleLongPress(rawX: number, rawY: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
+
+    // The event coordinates are precise floats, but the system draws the cursor at
+    // the floored device pixel. Snap the anchor to that grid so the popup sits at an
+    // exact distance from the visible cursor instead of drifting by up to a pixel.
+    const dpr = ownerWindow(triggerRef.current).devicePixelRatio || 1;
+    const x = Math.floor(rawX * dpr) / dpr;
+    const y = Math.floor(rawY * dpr) / dpr;
 
     initialCursorPointRef.current = { x, y };
     openedWithTouchRef.current = isTouchEvent;

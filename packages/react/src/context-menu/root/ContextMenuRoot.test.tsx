@@ -396,6 +396,41 @@ describe('<ContextMenu.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('positioning', () => {
+    it('opens exactly 2px from the cursor, snapping fractional coordinates', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner data-testid="positioner">
+              <ContextMenu.Popup>
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      // Precise float coordinates, as reported for real pointer input. The system
+      // draws the cursor at the floored device pixel, so the anchor must snap there.
+      fireEvent.contextMenu(trigger, { clientX: 100.6, clientY: 100.4, button: 2 });
+
+      const positioner = await screen.findByTestId('positioner');
+      const rect = positioner.getBoundingClientRect();
+
+      const dpr = window.devicePixelRatio || 1;
+      const snappedX = Math.floor(100.6 * dpr) / dpr;
+      const snappedY = Math.floor(100.4 * dpr) / dpr;
+
+      // alignOffset 2: the popup edge sits exactly 2px from the drawn cursor.
+      expect(rect.left).toBe(snappedX + 2);
+      // sideOffset -5: the popup overlaps the cursor point by 5px vertically.
+      expect(rect.top).toBe(snappedY - 5);
+    });
+  });
+
   describe.skipIf(isJSDOM)('prop: collisionAvoidance', () => {
     const popupHeight = 100;
     const popupWidth = 150;
