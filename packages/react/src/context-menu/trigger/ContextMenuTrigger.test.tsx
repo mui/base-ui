@@ -78,7 +78,7 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
   });
 
-  it('does not cancel opening menu on mouseup after mousedown outside before 500ms', async () => {
+  it('does not cancel opening menu on mouseup within the move threshold', async () => {
     const onOpenChange = vi.fn();
 
     await render(
@@ -93,22 +93,20 @@ describe('<ContextMenu.Trigger />', () => {
     );
 
     const trigger = screen.getByTestId('trigger');
-    fireEvent.mouseDown(trigger);
-    fireEvent.contextMenu(trigger);
-
-    clock.tick(499);
+    fireEvent.mouseDown(trigger, { clientX: 10, clientY: 10 });
+    fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10 });
 
     expect(onOpenChange.mock.calls.length).toBe(1);
     expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
 
-    fireEvent.mouseUp(document.body);
-
-    clock.tick(1);
+    // Releasing within the 5x5px box around the opening point keeps the menu open,
+    // regardless of how long the button was held.
+    fireEvent.mouseUp(document.body, { clientX: 11, clientY: 12 });
 
     expect(onOpenChange.mock.calls.length).toBe(1);
   });
 
-  it('cancels opening menu on mouseup after mousedown outside after 500ms', async () => {
+  it('cancels opening menu on mouseup outside the move threshold', async () => {
     const onOpenChange = vi.fn();
 
     await render(
@@ -123,12 +121,12 @@ describe('<ContextMenu.Trigger />', () => {
     );
 
     const trigger = screen.getByTestId('trigger');
-    fireEvent.mouseDown(trigger);
-    fireEvent.contextMenu(trigger);
+    fireEvent.mouseDown(trigger, { clientX: 10, clientY: 10 });
+    fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10 });
 
-    clock.tick(501);
-
-    fireEvent.mouseUp(document.body);
+    // Releasing outside the 5x5px box turns the gesture into a press-drag-release
+    // that dismisses the menu.
+    fireEvent.mouseUp(document.body, { clientX: 50, clientY: 50 });
 
     expect(onOpenChange.mock.calls.length).toBe(2);
     expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
