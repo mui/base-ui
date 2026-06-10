@@ -132,7 +132,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   });
 
   const hoverEnabled = store.useState('hoverEnabled');
-  const allowMouseEnter = parentMenuStore.useState('allowMouseEnter');
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled: hoverEnabled && openOnHover && !disabled,
@@ -140,7 +139,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     mouseOnly: true,
     move: true,
     restMs: delay,
-    delay: allowMouseEnter ? { open: delay, close: closeDelay } : 0,
+    delay: { open: delay, close: closeDelay },
+    shouldOpen: delay > 0 ? () => parentMenuStore.select('allowMouseEnter') : undefined,
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isClosing: () => store.select('transitionStatus') === 'ending',
