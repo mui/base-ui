@@ -7,6 +7,7 @@ import styles from './index.module.css';
 
 export default function ExampleAutocompleteCommandPalette() {
   const [open, setOpen] = React.useState(false);
+  const shortcutsDescriptionId = React.useId();
 
   function handleItemClick() {
     setOpen(false);
@@ -28,11 +29,11 @@ export default function ExampleAutocompleteCommandPalette() {
             >
               <Autocomplete.Input
                 className={styles.Input}
+                aria-label="Search commands"
+                aria-describedby={shortcutsDescriptionId}
                 placeholder="Search for apps and commands…"
               />
-              <Dialog.Close className={styles.VisuallyHiddenClose}>
-                Close command palette
-              </Dialog.Close>
+              <Dialog.Close className={styles.VisuallyHidden}>Close command palette</Dialog.Close>
 
               <ScrollArea.Root className={styles.ListArea}>
                 <ScrollArea.Viewport className={styles.ListViewport}>
@@ -77,14 +78,12 @@ export default function ExampleAutocompleteCommandPalette() {
               </ScrollArea.Root>
 
               <div className={styles.Footer}>
+                <span id={shortcutsDescriptionId} className={styles.VisuallyHidden}>
+                  Use Enter to activate the highlighted item.
+                </span>
                 <div className={styles.FooterLeft}>
                   <span>Activate</span>
                   <kbd className={styles.Kbd}>Enter</kbd>
-                </div>
-                <div className={styles.FooterRight}>
-                  <span>Actions</span>
-                  <kbd className={styles.Kbd}>Cmd</kbd>
-                  <kbd className={styles.Kbd}>K</kbd>
                 </div>
               </div>
             </Autocomplete.Root>
