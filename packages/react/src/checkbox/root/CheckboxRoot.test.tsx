@@ -105,6 +105,24 @@ describe('<Checkbox.Root />', () => {
       expect(handleChange.mock.calls[0][0]).toBe(true);
     });
 
+    it('does not update its state when onCheckedChange cancels the event', async () => {
+      const handleChange = vi.fn((_, eventDetails: Checkbox.Root.ChangeEventDetails) => {
+        eventDetails.cancel();
+      });
+
+      await render(<Checkbox.Root onCheckedChange={handleChange} />);
+      const checkbox = screen.getByRole('checkbox');
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+
+      fireEvent.click(checkbox);
+
+      expect(handleChange.mock.calls.length).toBe(1);
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+      expect(input.checked).toBe(false);
+    });
+
     it('should report keyboard modifier event properties when calling onCheckedChange', async () => {
       const handleChange = vi.fn((checked, eventDetails) => eventDetails);
       const { user } = await render(<Checkbox.Root onCheckedChange={handleChange} />);
@@ -249,6 +267,51 @@ describe('<Checkbox.Root />', () => {
     it('should not be overridden by `checked` prop', async () => {
       await render(<Checkbox.Root indeterminate checked />);
       expect(screen.getAllByRole('checkbox')[0]).toHaveAttribute('aria-checked', 'mixed');
+    });
+
+    it('sets the native input state when indeterminate', async () => {
+      await render(<Checkbox.Root indeterminate />);
+
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+      expect(input.indeterminate).toBe(true);
+    });
+
+    it('sets indeterminate style hooks on the root and indicator', async () => {
+      await render(
+        <Checkbox.Root indeterminate>
+          <Checkbox.Indicator data-testid="indicator" />
+        </Checkbox.Root>,
+      );
+
+      expect(screen.getByRole('checkbox')).toHaveAttribute('data-indeterminate', '');
+      expect(screen.getByTestId('indicator')).toHaveAttribute('data-indeterminate', '');
+    });
+
+    it('sets grouped parent aria when manually indeterminate', async () => {
+      await render(
+        <CheckboxGroup value={[]} allValues={['one']}>
+          <Checkbox.Root parent indeterminate data-testid="parent" />
+          <Checkbox.Root value="one" />
+        </CheckboxGroup>,
+      );
+
+      expect(screen.getByTestId('parent')).toHaveAttribute('aria-checked', 'mixed');
+    });
+
+    it('sets grouped parent native input state when manually indeterminate', async () => {
+      await render(
+        <CheckboxGroup value={[]} allValues={['one']}>
+          <Checkbox.Root parent indeterminate data-testid="parent" />
+          <Checkbox.Root value="one" />
+        </CheckboxGroup>,
+      );
+
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+      expect(input.indeterminate).toBe(true);
     });
   });
 
@@ -908,6 +971,26 @@ describe('<Checkbox.Root />', () => {
       },
     );
 
+    it.skipIf(isJSDOM)('does not submit uncheckedValue when disabled', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-checkbox');
+      });
+
+      const { user } = await render(
+        <form onSubmit={submitSpy}>
+          <Checkbox.Root name="test-checkbox" uncheckedValue="off" disabled />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe(null);
+    });
+
     it.skipIf(isJSDOM)(
       'should submit custom uncheckedValue when checkbox is unchecked',
       async () => {
@@ -1182,6 +1265,21 @@ describe('<Checkbox.Root />', () => {
       expect(button).toHaveAttribute('aria-invalid', 'true');
     });
 
+    it('validates once when changed by the user', async () => {
+      const validate = vi.fn();
+
+      const { user } = await render(
+        <Field.Root validationMode="onChange" validate={validate}>
+          <Checkbox.Root />
+        </Field.Root>,
+      );
+
+      await user.click(screen.getByRole('checkbox'));
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(validate.mock.lastCall?.[0]).toBe(true);
+    });
+
     it('revalidates when a controlled value changes externally', async () => {
       const validateSpy = vi.fn((value: unknown) => ((value as boolean) ? 'error' : null));
 
@@ -1294,7 +1392,7 @@ describe('<Checkbox.Root />', () => {
     it('Field.Description', async () => {
       await render(
         <Field.Root>
-          <Checkbox.Root data-testid="button" />
+          <Checkbox.Root data-testid="button" aria-describedby="external-description" />
           <Field.Description data-testid="description" />
         </Field.Root>,
       );
@@ -1303,7 +1401,7 @@ describe('<Checkbox.Root />', () => {
 
       expect(internalInput).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });

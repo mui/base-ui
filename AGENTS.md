@@ -20,7 +20,8 @@ This repository contains the source code and documentation for Base UI: a headl
 
 ## Styling
 
-When using `user-select: none;` in CSS, also add `-webkit-user-select: none;` to support Safari. Tailwind's `select-none` class already includes this.
+- In CSS Modules demos (`docs/src/app/(docs)/**/demos/**/*.module.css`), use raw color values from the Tailwind `@theme` block in `docs/src/css/index.css`. For example, use `oklch(14.5% 0 0deg)` instead of `var(--color-neutral-950)`.
+- When using `user-select: none;` in CSS, also add `-webkit-user-select: none;` to support Safari. Tailwind's `select-none` class already includes this.
 
 ## Linting, typechecking, and formatting
 
@@ -36,6 +37,7 @@ When using `user-select: none;` in CSS, also add `-webkit-user-select: none;` to
 - Run tests in jsdom env with `pnpm test:jsdom {name} --no-watch` such as `pnpm test:jsdom NumberField --no-watch` or `pnpm test:jsdom parse --no-watch`.
 - Run tests in Chromium env with `pnpm test:chromium {name} --no-watch` such as `pnpm test:chromium NumberField --no-watch` or `pnpm test:chromium parse --no-watch`.
 - Do not call `await flushMicrotasks()` directly after `await render(...)` when there are no interactions or state changes between them; `render` is already awaited, so that immediate flush is unnecessary.
+- Do not group multiple `expect()` assertions in a single `waitFor()` callback. Use one assertion per `waitFor()` so retries are scoped to the specific condition that may change asynchronously.
 - If you made changes to the source code, ensure you verify your changes by running tests (see above), and writing new tests where applicable. If tests require the browser because, for example, they require layout measurements, restrict it to the Chromium env by using `it.skipIf(isJSDOM)` or `describe.skipIf(isJSDOM)` (search other tests for example usage if unsure).
 - Follow the established conventions in existing tests. Each file/component is tested with the filename `name.test.tsx`. For example, `PopoverRoot.test.tsx` is next to its source file `PopoverRoot.tsx`.
 - Tests use Vitest APIs only: `expect()`, `vi.fn()`, and `@testing-library/jest-dom` DOM matchers. Do not use Chai- or Sinon-style matcher chains or spies.
@@ -57,7 +59,7 @@ Every error message must:
 
 Format:
 
-- Prefix with `Base UI: `
+- Prefix with `Base UI:`
 - Use string concatenation for readability
 - Include a documentation link when applicable (`https://base-ui.com/...`)
 

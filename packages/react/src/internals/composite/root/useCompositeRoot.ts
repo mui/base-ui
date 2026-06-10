@@ -3,6 +3,7 @@ import * as React from 'react';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
@@ -33,8 +34,8 @@ import {
   type ModifierKey,
 } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
-import { CompositeMetadata } from '../list/CompositeList';
-import { HTMLProps } from '../../types';
+import type { CompositeMetadata } from '../list/CompositeList';
+import type { HTMLProps } from '../../types';
 import { getTarget } from '../../../floating-ui-react/utils';
 
 export interface UseCompositeRootParameters {
@@ -124,19 +125,59 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       return;
     }
     hasSetDefaultIndexRef.current = true;
-    const sortedElements = Array.from(map.keys());
-    const activeItem = (sortedElements.find((compositeElement) =>
-      compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-    ) ?? null) as HTMLElement | null;
+    const sortedElements = Array.from(map.keys()) as Array<HTMLElement | null>;
+    const activeItem =
+      sortedElements.find((compositeElement) =>
+        compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
+      ) ?? null;
     // Set the default highlighted index of an arbitrary composite item.
     const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
+    } else if (isListIndexDisabled(sortedElements, highlightedIndex, disabledIndices)) {
+      // The default highlighted item is disabled, so it should not hold the single
+      // roving tab stop: a natively disabled element is removed from the tab order,
+      // and an aria-disabled one should not be the entry point. Move the tab stop
+      // to the first enabled item. If every item is disabled, keep the current
+      // highlighted index.
+      const firstEnabledIndex = findNonDisabledListIndex(sortedElements, { disabledIndices });
+      if (!isIndexOutOfListBounds(sortedElements, firstEnabledIndex)) {
+        onHighlightedIndexChange(firstEnabledIndex);
+      }
     }
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
+
+  useIsoLayoutEffect(() => {
+    // `disabledIndices` can resolve a render after the initial map population
+    // (e.g. Toolbar derives it from item metadata through a state update), so the
+    // default tab stop at index 0 may now point at a disabled item, leaving the
+    // composite without a reachable tab stop. Re-validate and move it to the first
+    // enabled item. Gated on `disabledIndices` being provided so composites that
+    // rely on the DOM disabled fallback keep their existing behavior.
+    if (
+      disabledIndices == null ||
+      externalHighlightedIndex != null ||
+      !hasSetDefaultIndexRef.current
+    ) {
+      return;
+    }
+    const elements = elementsRef.current;
+    if (isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+      const firstEnabledIndex = findNonDisabledListIndex(elements, { disabledIndices });
+      if (!isIndexOutOfListBounds(elements, firstEnabledIndex)) {
+        onHighlightedIndexChange(firstEnabledIndex);
+      }
+    }
+  }, [
+    disabledIndices,
+    externalHighlightedIndex,
+    highlightedIndex,
+    elementsRef,
+    onHighlightedIndexChange,
+  ]);
 
   const wrappedOnLoop = useStableCallback(
     (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => {
@@ -149,7 +190,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const props = React.useMemo<HTMLProps>(
     () => ({
-      'aria-orientation': orientation === 'both' ? undefined : orientation,
       ref: mergedRef,
       onFocus(event) {
         const element = rootRef.current;

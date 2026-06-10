@@ -354,6 +354,57 @@ describe('<Popover.Positioner />', () => {
     expect(positioner.getBoundingClientRect()).toMatchObject(final);
   });
 
+  it.skipIf(isJSDOM)('observes a custom anchor for keepMounted auto-updates', async () => {
+    const originalResizeObserver = window.ResizeObserver;
+    const observedElements: Element[] = [];
+
+    class TestResizeObserver {
+      observe(element: Element) {
+        observedElements.push(element);
+      }
+
+      unobserve() {}
+
+      disconnect() {}
+    }
+
+    window.ResizeObserver = TestResizeObserver as typeof ResizeObserver;
+
+    function App() {
+      const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
+      return (
+        <Popover.Root open>
+          <Trigger data-testid="trigger" style={{ width: 100, height: 100 }}>
+            Trigger
+          </Trigger>
+          <div
+            ref={setAnchor}
+            data-testid="custom-anchor"
+            style={{ width: 50, height: 50, position: 'relative' }}
+          >
+            Anchor
+          </div>
+          <Popover.Portal keepMounted>
+            <Popover.Positioner data-testid="positioner" anchor={anchor}>
+              <Popover.Popup style={{ width: 100, height: 100 }}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    try {
+      await render(<App />);
+      const anchor = screen.getByTestId('custom-anchor');
+
+      await waitFor(() => {
+        expect(observedElements).toContain(anchor);
+      });
+    } finally {
+      window.ResizeObserver = originalResizeObserver;
+    }
+  });
+
   it.skipIf(isJSDOM)(
     'remains anchored to the trigger when closing from a tooltip trigger close',
     async () => {

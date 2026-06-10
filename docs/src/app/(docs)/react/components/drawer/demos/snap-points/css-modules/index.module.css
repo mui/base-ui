@@ -165,11 +165,6 @@
     pointer-events: none;
   }
 
-  &[data-swiping] {
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
   &[data-starting-style],
   &[data-ending-style] {
     transform: translateY(calc(100% + 2px));
@@ -233,14 +228,6 @@
   @media (prefers-color-scheme: dark) {
     color: oklch(70.8% 0 0deg);
   }
-}
-
-.Meta {
-  margin: 0 0 1.5rem;
-  font-size: 0.9375rem;
-  line-height: 1.5rem;
-  color: oklch(50% 55% 31deg);
-  text-align: center;
 }
 
 .Cards {

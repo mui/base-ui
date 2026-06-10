@@ -903,6 +903,28 @@ describe('<Combobox.Root />', () => {
         });
       });
 
+      it.skipIf(isJSDOM)('does not submit multiple values when disabled', async () => {
+        const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          return formData.getAll('languages');
+        });
+
+        const { user } = await render(
+          <form onSubmit={submitSpy}>
+            <Combobox.Root multiple disabled value={['a', 'b']} name="languages">
+              <Combobox.Input />
+            </Combobox.Root>
+            <button type="submit">Submit</button>
+          </form>,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+        expect(submitSpy.mock.calls.length).toBe(1);
+        expect(submitSpy.mock.results.at(-1)?.value).toEqual([]);
+      });
+
       it('should handle disabled state with chips', async () => {
         const { user } = await render(
           <Combobox.Root multiple disabled defaultValue={['a', 'b']}>
@@ -6418,7 +6440,7 @@ describe('<Combobox.Root />', () => {
       await render(
         <Field.Root>
           <Combobox.Root>
-            <Combobox.Input data-testid="input" />
+            <Combobox.Input data-testid="input" aria-describedby="external-description" />
             <Combobox.Portal>
               <Combobox.Positioner />
             </Combobox.Portal>
@@ -6429,7 +6451,7 @@ describe('<Combobox.Root />', () => {
 
       expect(screen.getByTestId('input')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${screen.getByTestId('description').id}`,
       );
     });
   });

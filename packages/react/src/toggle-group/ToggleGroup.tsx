@@ -7,6 +7,7 @@ import { useRenderElement } from '../internals/useRenderElement';
 import type { BaseUIComponentProps, HTMLProps, Orientation } from '../internals/types';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
+import { useToolbarGroupContext } from '../toolbar/group/ToolbarGroupContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
@@ -45,13 +46,15 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
   } = componentProps;
 
   const toolbarContext = useToolbarRootContext(true);
+  const toolbarGroupContext = useToolbarGroupContext(true);
 
   const isValueInitialized = React.useMemo(
     () => valueProp !== undefined || defaultValueProp !== undefined,
     [valueProp, defaultValueProp],
   );
 
-  const disabled = (toolbarContext?.disabled ?? false) || disabledProp;
+  const disabled =
+    (toolbarContext?.disabled ?? false) || (toolbarGroupContext?.disabled ?? false) || disabledProp;
 
   const [groupValue, setValueState] = useControlled({
     controlled: valueProp,

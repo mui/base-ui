@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
-import { ARROW_LEFT, ARROW_RIGHT, stopEvent } from '../../internals/composite/composite';
 import type { ToolbarRootState } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
@@ -27,13 +26,16 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     ...elementProps
   } = componentProps;
 
-  const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
-
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
   const groupContext = useToolbarGroupContext(true);
 
   const disabled = toolbarDisabled || (groupContext?.disabled ?? false) || disabledProp;
+
+  const itemMetadata = React.useMemo(
+    () => ({ disabled, focusableWhenDisabled }),
+    [disabled, focusableWhenDisabled],
+  );
 
   const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
     composite: true,
@@ -52,11 +54,6 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     onClick(event) {
       if (disabled) {
         event.preventDefault();
-      }
-    },
-    onKeyDown(event) {
-      if (event.key !== ARROW_LEFT && event.key !== ARROW_RIGHT && disabled) {
-        stopEvent(event);
       }
     },
     onPointerDown(event) {

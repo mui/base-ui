@@ -6,7 +6,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NOOP } from '../../internals/noop';
@@ -186,6 +186,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
+    composite: false,
   });
 
   const inputProps: React.ComponentPropsWithRef<'input'> = {
@@ -246,10 +247,12 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const refs = [forwardedRef, radioRef, buttonRef, handleControlRef];
   const props = [
     rootProps,
-    getDescriptionProps,
-    validation?.getValidationProps ?? EMPTY_OBJECT,
     elementProps,
     getButtonProps,
+    getDescriptionProps,
+    validation
+      ? (validationProps: HTMLProps) => validation.getValidationProps(disabled, validationProps)
+      : EMPTY_OBJECT,
   ];
 
   const element = useRenderElement('span', componentProps, {
@@ -300,6 +303,26 @@ export interface RadioRootState extends FieldRootState {
    * Whether the user must choose a value before submitting a form.
    */
   required: boolean;
+  /**
+   * Whether the radio button has been touched (when wrapped in Field.Root).
+   */
+  touched: boolean;
+  /**
+   * Whether the radio button's value has changed from its initial value (when wrapped in Field.Root).
+   */
+  dirty: boolean;
+  /**
+   * Whether the radio button is in a valid state (when wrapped in Field.Root).
+   */
+  valid: boolean | null;
+  /**
+   * Whether the radio button has a value (when wrapped in Field.Root).
+   */
+  filled: boolean;
+  /**
+   * Whether the radio button is focused (when wrapped in Field.Root).
+   */
+  focused: boolean;
 }
 
 export interface RadioRootProps<Value = any>

@@ -156,6 +156,68 @@ describe('<PreviewCard.Root />', () => {
         expect(handleChange.mock.calls[1][0]).toBe(true);
       });
 
+      it('does not close after hovering out of a popup opened externally', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setOpen(true)}>
+                Show
+              </button>
+              <TestPreviewCard rootProps={{ open, onOpenChange: setOpen }} />
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Show' }));
+
+        expect(screen.queryByText('Content')).not.toBe(null);
+
+        const positioner = screen.getByTestId('positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        clock.tick(CLOSE_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).not.toBe(null);
+      });
+
+      it('closes after hovering out of a popup opened by its trigger', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+
+          return <TestPreviewCard rootProps={{ open, onOpenChange: setOpen }} />;
+        }
+
+        await render(<App />);
+
+        const trigger = screen.getByRole('link', { name: 'Link' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).not.toBe(null);
+
+        const positioner = screen.getByTestId('positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        clock.tick(CLOSE_DELAY);
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).toBe(null);
+      });
+
       it('should not call onChange when the open state does not change', async () => {
         const handleChange = vi.fn();
 
@@ -253,6 +315,28 @@ describe('<PreviewCard.Root />', () => {
         clock.tick(CLOSE_DELAY);
 
         expect(screen.queryByText('Content')).toBe(null);
+      });
+
+      it('does not close after hovering out of a popup opened without trigger hover', async () => {
+        await render(
+          <TestPreviewCard
+            rootProps={{
+              defaultOpen: true,
+            }}
+          />,
+        );
+
+        expect(screen.getByText('Content')).not.toBe(null);
+
+        const positioner = screen.getByTestId('positioner');
+
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        clock.tick(CLOSE_DELAY);
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.toBe(null);
       });
     });
 
@@ -828,7 +912,7 @@ describe('<PreviewCard.Root />', () => {
                 <PreviewCard.Positioner>
                   <PreviewCard.Popup data-testid="parent-popup">
                     <div>Parent content</div>
-                    <PreviewCard.Root defaultOpen>
+                    <PreviewCard.Root>
                       <PreviewCard.Trigger href="#" data-testid="child-trigger">
                         Child
                       </PreviewCard.Trigger>
@@ -851,6 +935,14 @@ describe('<PreviewCard.Root />', () => {
 
         // Events must be triggered on positioner elements (parent of popup)
         const parentPopup = screen.getByTestId('parent-popup').parentElement!;
+        const childTrigger = screen.getByTestId('child-trigger');
+
+        fireEvent.mouseEnter(childTrigger);
+        fireEvent.mouseMove(childTrigger);
+
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
         let childPopup = screen.getByTestId('child-popup').parentElement!;
 
         // Step 3: Move mouse outside all previews
@@ -874,8 +966,6 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId('child-popup')).toBe(null);
 
         // Step 5: Hover child trigger again to re-open child
-        const childTrigger = screen.getByTestId('child-trigger');
-
         fireEvent.mouseEnter(childTrigger);
         fireEvent.mouseMove(childTrigger);
 

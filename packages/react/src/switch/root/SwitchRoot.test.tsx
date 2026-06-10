@@ -168,6 +168,48 @@ describe('<Switch.Root />', () => {
       expect(handleChange.mock.calls.length).toBe(1);
       expect(handleChange.mock.results[0]?.value.event.shiftKey).toBe(true);
     });
+
+    it('does not change state when canceled via a root click', async () => {
+      const { user } = await render(
+        <Field.Root>
+          <Switch.Root
+            data-testid="button"
+            onCheckedChange={(_, eventDetails) => eventDetails.cancel()}
+          />
+        </Field.Root>,
+      );
+
+      const switchElement = screen.getByTestId('button');
+      const input = screen.getByRole<HTMLInputElement>('checkbox', { hidden: true });
+
+      await user.click(switchElement);
+
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
+      expect(input.checked).toBe(false);
+      expect(switchElement).not.toHaveAttribute('data-dirty');
+      expect(switchElement).not.toHaveAttribute('data-filled');
+    });
+
+    it('does not change state when canceled via a hidden input click', async () => {
+      const { user } = await render(
+        <Field.Root>
+          <Switch.Root
+            data-testid="button"
+            onCheckedChange={(_, eventDetails) => eventDetails.cancel()}
+          />
+        </Field.Root>,
+      );
+
+      const switchElement = screen.getByTestId('button');
+      const input = screen.getByRole<HTMLInputElement>('checkbox', { hidden: true });
+
+      await user.click(input);
+
+      expect(switchElement).toHaveAttribute('aria-checked', 'false');
+      expect(input.checked).toBe(false);
+      expect(switchElement).not.toHaveAttribute('data-dirty');
+      expect(switchElement).not.toHaveAttribute('data-filled');
+    });
   });
 
   describe('prop: onClick', () => {
@@ -472,6 +514,26 @@ describe('<Switch.Root />', () => {
       expect(submitSpy.mock.results.at(-1)?.value).toBe('off');
     });
 
+    it.skipIf(isJSDOM)('does not submit uncheckedValue when disabled', async () => {
+      const submitSpy = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-switch');
+      });
+
+      const { user } = await render(
+        <form onSubmit={submitSpy}>
+          <Switch.Root name="test-switch" uncheckedValue="off" disabled />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(submitSpy.mock.calls.length).toBe(1);
+      expect(submitSpy.mock.results.at(-1)?.value).toBe(null);
+    });
+
     it.skipIf(isJSDOM)('matches native checkbox form submission behavior', async () => {
       const nativeSubmitSpy = vi.fn((event) => {
         event.preventDefault();
@@ -600,6 +662,43 @@ describe('<Switch.Root />', () => {
       expect(submitSpy.mock.calls.length).toBe(2);
       expect(submitSpy.mock.results.at(-1)?.value).toBe('on');
     });
+
+    it.skipIf(isJSDOM)(
+      'submits custom value and uncheckedValue across an off/on/off cycle',
+      async () => {
+        const submitSpy = vi.fn((event) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          return formData.get('test-switch');
+        });
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-switch">
+              <Switch.Root value="yes" uncheckedValue="no" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const switchElement = screen.getByRole('switch');
+        const submitButton = screen.getByRole('button')!;
+
+        await user.click(submitButton);
+        expect(submitSpy.mock.calls.length).toBe(1);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe('no');
+
+        await user.click(switchElement);
+        await user.click(submitButton);
+        expect(submitSpy.mock.calls.length).toBe(2);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe('yes');
+
+        await user.click(switchElement);
+        await user.click(submitButton);
+        expect(submitSpy.mock.calls.length).toBe(3);
+        expect(submitSpy.mock.results.at(-1)?.value).toBe('no');
+      },
+    );
 
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
@@ -811,6 +910,21 @@ describe('<Switch.Root />', () => {
       expect(button).toHaveAttribute('aria-invalid', 'true');
     });
 
+    it('validates once when changed by the user', async () => {
+      const validate = vi.fn();
+
+      const { user } = await render(
+        <Field.Root validationMode="onChange" validate={validate}>
+          <Switch.Root />
+        </Field.Root>,
+      );
+
+      await user.click(screen.getByRole('switch'));
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(validate.mock.lastCall?.[0]).toBe(true);
+    });
+
     it('revalidates when a controlled value changes externally', async () => {
       const validateSpy = vi.fn((value: unknown) => ((value as boolean) ? 'error' : null));
 
@@ -963,16 +1077,18 @@ describe('<Switch.Root />', () => {
     it('Field.Description', async () => {
       await render(
         <Field.Root>
-          <Switch.Root data-testid="button" />
+          <Switch.Root data-testid="button" aria-describedby="external-description" />
           <Field.Description data-testid="description" />
         </Field.Root>,
       );
 
       const internalInput = screen.queryByRole<HTMLInputElement>('checkbox', { hidden: true });
+      const description = screen.getByTestId('description');
 
-      expect(internalInput).toHaveAttribute(
+      expect(internalInput).toHaveAttribute('aria-describedby', description.id);
+      expect(screen.getByRole('switch')).toHaveAttribute(
         'aria-describedby',
-        screen.getByTestId('description').id,
+        `external-description ${description.id}`,
       );
     });
   });

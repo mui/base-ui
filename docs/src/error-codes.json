@@ -14,7 +14,7 @@
   "14": "Base UI: CheckboxRootContext is missing. Checkbox parts must be placed within <Checkbox.Root>.",
   "15": "Base UI: CollapsibleRootContext is missing. Collapsible parts must be placed within <Collapsible.Root>.",
   "16": "Base UI: CompositeRootContext is missing. Composite parts must be placed within <Composite.Root>.",
-  "17": "useComboboxChipContext must be used within a ComboboxChip",
+  "17": "Base UI: ComboboxChipContext is missing. ComboboxChip parts must be placed within <Combobox.Chip>.",
   "18": "Base UI: ComboboxGroupContext is missing. ComboboxGroup parts must be placed within <Combobox.Group>.",
   "19": "Base UI: ComboboxItemContext is missing. ComboboxItem parts must be placed within <Combobox.Item>.",
   "20": "Base UI: <Combobox.Portal> is missing.",

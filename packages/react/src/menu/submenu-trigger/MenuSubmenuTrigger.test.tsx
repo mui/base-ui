@@ -9,14 +9,19 @@ type TextDirection = 'ltr' | 'rtl';
 describe('<Menu.SubmenuTrigger />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Menu.Trigger />, () => ({
-    refInstanceof: window.HTMLButtonElement,
-    testComponentPropWith: 'button',
+  describeConformance(<Menu.SubmenuTrigger />, () => ({
+    refInstanceof: window.HTMLDivElement,
     button: true,
     render(node) {
       return render(
         <Menu.Root open>
-          <Menu.SubmenuRoot>{node}</Menu.SubmenuRoot>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot>{node}</Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
     },
@@ -100,6 +105,39 @@ describe('<Menu.SubmenuTrigger />', () => {
     });
   });
 
+  it('uses the label prop for text navigation', async () => {
+    const { user } = await render(
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item>Alpha</Menu.Item>
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger data-testid="submenu-trigger" label="Reports">
+                  More
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Monthly</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    fireEvent.focus(screen.getByText('Alpha'));
+    await user.keyboard('r');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
+    });
+  });
+
   describe('prop: disabled', () => {
     it('should render with disabled attributes when disabled prop is set', async () => {
       await render(
@@ -130,6 +168,40 @@ describe('<Menu.SubmenuTrigger />', () => {
 
       expect(submenuTrigger).toHaveAttribute('data-disabled');
       expect(submenuTrigger).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('does not open on hover when disabled', async () => {
+      const { user } = await render(
+        <Menu.Root open>
+          <Menu.Trigger>Open menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger disabled delay={0}>
+                    Open submenu
+                  </Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu-popup">
+                        <Menu.Item>2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Open submenu' });
+
+      await user.hover(submenuTrigger);
+
+      expect(screen.queryByTestId('submenu-popup')).toBe(null);
     });
 
     it('should warn when a disabled element is detected via render prop with JSX element', async () => {

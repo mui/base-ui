@@ -535,7 +535,8 @@ describe('<PreviewCard.Positioner />', () => {
       expect(positionerX).toBeLessThanOrEqual(secondLineRect.right + 10);
     });
 
-    it('re-anchors to a newly entered line while already open', async () => {
+    it('stays anchored to the opened line while already open', async () => {
+      let positionUpdateCount = 0;
       const { user } = await render(
         <div style={multilineWrapperStyle}>
           <PreviewCard.Root>
@@ -543,7 +544,14 @@ describe('<PreviewCard.Positioner />', () => {
               This is a long text that will wrap across multiple lines in the trigger element
             </PreviewCard.Trigger>
             <PreviewCard.Portal>
-              <PreviewCard.Positioner data-testid="positioner" side="bottom" sideOffset={5}>
+              <PreviewCard.Positioner
+                data-testid="positioner"
+                side="bottom"
+                sideOffset={() => {
+                  positionUpdateCount += 1;
+                  return 5;
+                }}
+              >
                 <PreviewCard.Popup style={{ width: 80, height: 40 }}>
                   Preview Content
                 </PreviewCard.Popup>
@@ -576,6 +584,7 @@ describe('<PreviewCard.Positioner />', () => {
       await waitFor(() => {
         expectWithin(positioner.getBoundingClientRect().y, firstLineRect.bottom + 5);
       });
+      const positionUpdateCountBeforeReentry = positionUpdateCount;
 
       await user.pointer([
         { target: document.body },
@@ -588,9 +597,12 @@ describe('<PreviewCard.Positioner />', () => {
         },
       ]);
 
+      window.dispatchEvent(new Event('resize'));
       await waitFor(() => {
-        expectWithin(positioner.getBoundingClientRect().y, secondLineRect.bottom + 5);
+        expect(positionUpdateCount).toBeGreaterThan(positionUpdateCountBeforeReentry);
       });
+
+      expectWithin(positioner.getBoundingClientRect().y, firstLineRect.bottom + 5);
     });
 
     it('re-anchors to a newly entered line while reopening during close transition', async () => {

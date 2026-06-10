@@ -1,8 +1,7 @@
 import { vi, expect } from 'vitest';
 import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { useTestInteractions } from '#test-utils';
+import { isJSDOM, useTestInteractions } from '#test-utils';
 import { useClick, useFloating, useHover } from '../index';
 import { REASONS } from '../../internals/reasons';
 import type { UseFloatingOptions } from '../types';
