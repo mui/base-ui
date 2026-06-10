@@ -5,28 +5,28 @@
 // bundles. Conditions in `imports` are honored by Vite/Rollup, webpack, esbuild and Node
 // alike — unlike the legacy `browser` field map, which Vite ignores.
 //
-// `#` subpath imports resolve against the *nearest* package.json scope, so the ESM tree
-// (build/esm, which carries its own `{"type":"module"}` package.json) needs its own copy.
-// Within both the CJS root and the ESM tree the scripts sit at the same relative path, so
-// the two scopes share one pattern (`*` expands to e.g. `tabs/indicator`).
+// The flat build emits ESM (`.mjs`) and CJS (`.js`) side by side in a single tree, so a
+// single root `package.json` scope covers everything; the `import`/`require` conditions
+// pick the matching extension. `*` expands to e.g. `tabs/indicator`.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const buildDir = path.resolve(import.meta.dirname, '../build');
+const buildPackageJsonPath = path.resolve(import.meta.dirname, '../build/package.json');
+const packageJson = JSON.parse(await fs.readFile(buildPackageJsonPath, 'utf8'));
 
-const prehydrationImports = {
+packageJson.imports = {
+  ...packageJson.imports,
   '#prehydration/*': {
-    browser: './*/prehydrationScript.stub.js',
-    default: './*/prehydrationScript.min.js',
+    browser: {
+      import: './*/prehydrationScript.stub.mjs',
+      require: './*/prehydrationScript.stub.js',
+    },
+    default: {
+      import: './*/prehydrationScript.min.mjs',
+      require: './*/prehydrationScript.min.js',
+    },
   },
 };
 
-await Promise.all(
-  ['package.json', 'esm/package.json'].map(async (scope) => {
-    const file = path.join(buildDir, scope);
-    const packageJson = JSON.parse(await fs.readFile(file, 'utf8'));
-    packageJson.imports = { ...packageJson.imports, ...prehydrationImports };
-    await fs.writeFile(file, `${JSON.stringify(packageJson, null, 2)}\n`);
-    console.log(`Injected #prehydration/* imports into build/${scope}`);
-  }),
-);
+await fs.writeFile(buildPackageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`);
+console.log('Injected #prehydration/* imports into build/package.json');
