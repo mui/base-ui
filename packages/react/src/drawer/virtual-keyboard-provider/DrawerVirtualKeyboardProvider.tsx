@@ -7,7 +7,12 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { clamp } from '../../internals/clamp';
-import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import {
+  activeElement,
+  contains,
+  getTarget,
+  isInteractiveElement,
+} from '../../floating-ui-react/utils';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
 import { DrawerViewportCssVars } from '../viewport/DrawerViewportCssVars';
@@ -24,10 +29,6 @@ const KEYBOARD_VISIBILITY_MARGIN = 16;
 const KEYBOARD_SCROLL_SLACK = 48;
 const INPUT_TAP_MOVE_THRESHOLD = 10;
 const INPUT_TAP_HIT_SLOP = 16;
-// Elements whose taps must never be stolen by the keyboard input hit-slop probe.
-// The popup itself has `tabindex="-1"`, hence the `:not` clause.
-const INTERACTIVE_TAP_TARGET_SELECTOR =
-  'button,a[href],input,select,textarea,label,summary,[role="button"],[role="link"],[contenteditable="true"],[tabindex]:not([tabindex="-1"])';
 const KEYBOARD_INPUT_TYPES = new Set([
   'email',
   'number',
@@ -512,7 +513,8 @@ function resolveKeyboardInputTargetFromPoint(
   // Probing nearby points compensates for iOS retargeting taps while the page reacts
   // to the keyboard, but it must not steal a tap that lands on another interactive
   // element — that would suppress its click and focus a neighboring field instead.
-  if (isHTMLElement(exactTarget) && exactTarget.closest(INTERACTIVE_TAP_TARGET_SELECTOR)) {
+  // `closest('label')` covers labels of non-keyboard controls (e.g. checkboxes).
+  if (isInteractiveElement(exactTarget) || exactTarget?.closest('label') != null) {
     return null;
   }
 
