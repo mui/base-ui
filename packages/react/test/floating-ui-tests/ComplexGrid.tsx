@@ -9,6 +9,9 @@ import {
   useListNavigation,
 } from '../../src/floating-ui-react';
 import styles from './ComplexGrid.module.css';
+import { gridNavigationWithColumns } from './gridNavigationWithColumns';
+
+const grid = gridNavigationWithColumns(7);
 
 interface Props {
   orientation?: 'horizontal' | 'both';
@@ -42,12 +45,12 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,
-      cols: 7,
       orientation,
       loopFocus,
       rtl,
       openOnArrowKeyDown: false,
       disabledIndices,
+      grid,
     }),
     useDismiss(context),
   ]);

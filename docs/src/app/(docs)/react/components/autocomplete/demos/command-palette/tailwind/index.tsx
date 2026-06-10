@@ -6,6 +6,7 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 
 export default function ExampleAutocompleteCommandPalette() {
   const [open, setOpen] = React.useState(false);
+  const shortcutsDescriptionId = React.useId();
 
   function handleItemClick() {
     setOpen(false);
@@ -32,6 +33,8 @@ export default function ExampleAutocompleteCommandPalette() {
             >
               <Autocomplete.Input
                 className="relative z-1 h-10 w-full border-0 bg-white px-3 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400"
+                aria-label="Search commands"
+                aria-describedby={shortcutsDescriptionId}
                 placeholder="Search for apps and commands…"
               />
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
@@ -81,19 +84,13 @@ export default function ExampleAutocompleteCommandPalette() {
               </ScrollArea.Root>
 
               <div className="flex items-center justify-between border-t border-neutral-950 bg-white px-3 py-2.5 text-xs text-neutral-600 dark:border-white dark:bg-neutral-950 dark:text-neutral-400">
+                <span id={shortcutsDescriptionId} className="sr-only">
+                  Use Enter to activate the highlighted item.
+                </span>
                 <div className="flex items-center gap-1">
                   <span>Activate</span>
                   <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-400 bg-neutral-100 px-1 font-mono text-[0.625rem] leading-none font-normal text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
                     Enter
-                  </kbd>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span>Actions</span>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-400 bg-neutral-100 px-1 font-mono text-[0.625rem] leading-none font-normal text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
-                    Cmd
-                  </kbd>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center border border-neutral-400 bg-neutral-100 px-1 font-mono text-[0.625rem] leading-none font-normal text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
-                    K
                   </kbd>
                 </div>
               </div>
