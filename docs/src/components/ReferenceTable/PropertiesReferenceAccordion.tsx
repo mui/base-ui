@@ -33,7 +33,7 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
         </Accordion.HeaderCell>
         <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map((name, index) => {
+      {Object.keys(data).map((name) => {
         const prop = data[name];
 
         // Use shortType if available, otherwise use the full type
@@ -66,7 +66,6 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
           >
             <Accordion.Trigger
               id={id}
-              index={index}
               aria-label={`Property: ${name}, type: ${shortTypeText}, modifiers: ${modifiersText}`}
               className="ReferenceTrigger"
             >
