@@ -1000,11 +1000,9 @@ describe('<Toolbar.Button />', () => {
 
         await user.keyboard('[ArrowRight]');
         await waitFor(() => {
-          expect(two).not.toHaveAttribute('tabindex', '0');
-        });
-        await waitFor(() => {
           expect(three).toHaveFocus();
         });
+        expect(two).not.toHaveAttribute('tabindex', '0');
       });
 
       it('supports multiple selection for direct ToggleGroup > Toggle children', async () => {
@@ -1095,13 +1093,40 @@ describe('<Toolbar.Button />', () => {
 
         await user.keyboard('[ArrowRight]');
         await waitFor(() => {
-          expect(one).not.toHaveAttribute('tabindex', '0');
-        });
-        await waitFor(() => {
-          expect(two).not.toHaveAttribute('tabindex', '0');
-        });
-        await waitFor(() => {
           expect(after).toHaveFocus();
+        });
+        expect(one).not.toHaveAttribute('tabindex', '0');
+        expect(two).not.toHaveAttribute('tabindex', '0');
+      });
+
+      it.skipIf(isJSDOM)('skips a direct Toggle that becomes disabled at runtime', async () => {
+        function App({ twoDisabled }: { twoDisabled?: boolean }) {
+          return (
+            <Toolbar.Root>
+              <ToggleGroup>
+                <Toggle value="one" data-testid="one" />
+                <Toggle value="two" data-testid="two" disabled={twoDisabled} />
+                <Toggle value="three" data-testid="three" />
+              </ToggleGroup>
+            </Toolbar.Root>
+          );
+        }
+
+        const { user, setProps } = await render(<App />);
+
+        const one = screen.getByTestId('one');
+        const three = screen.getByTestId('three');
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        await setProps({ twoDisabled: true });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(three).toHaveFocus();
         });
       });
     });
