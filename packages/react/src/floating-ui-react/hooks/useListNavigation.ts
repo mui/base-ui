@@ -211,8 +211,7 @@ export interface UseListNavigationProps {
   /**
    * Computes two-dimensional list navigation for grid-capable consumers.
    */
-  grid?: typeof GridNavigation | null | undefined;
-}
+  grid?: GridNavigation | null | undefined;
 
 /**
  * Adds arrow key-based navigation of a list of items, either using real DOM
