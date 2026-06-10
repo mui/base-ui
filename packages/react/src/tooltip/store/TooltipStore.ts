@@ -135,6 +135,7 @@ export class TooltipStore<Payload> extends ReactStore<
     const store = usePopupStore(
       externalStore,
       (floatingId, nested) => new TooltipStore<Payload>(initialState, floatingId, nested),
+      initialState,
     ).store;
     /* eslint-enable react-hooks/rules-of-hooks */
 

@@ -1123,4 +1123,69 @@ describe('<MenuRoot />', () => {
       expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
   });
+
+  // Regression test for https://github.com/mui/base-ui/issues/4951.
+  // A handle-owned store is not reset when the Root unmounts; the stale state is cleared when
+  // the next Root adopts the handle. The "page" (trigger + Root together) unmounts and remounts
+  // to emulate navigating away from and back to a route while the module-level handle persists.
+  describe('resetting handle-owned state when a new Root adopts the handle', () => {
+    it('does not resurface the open state on a subsequent Root mount', async () => {
+      const menu = Menu.createHandle();
+
+      function Page() {
+        return (
+          <React.Fragment>
+            <Menu.Trigger handle={menu} id="trigger">
+              Trigger
+            </Menu.Trigger>
+            <Menu.Root handle={menu}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="content">
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>
+        );
+      }
+
+      function App({ showPage }: { showPage: boolean }) {
+        return <div>{showPage ? <Page /> : <div>Other page</div>}</div>;
+      }
+
+      const { setProps } = await render(<App showPage />);
+
+      await act(async () => {
+        menu.open('trigger');
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+
+      // Navigate away while open.
+      await setProps({ showPage: false });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      // Navigate back: the menu stays closed.
+      await setProps({ showPage: true });
+      expect(screen.queryByRole('menu')).toBe(null);
+      expect(menu.isOpen).toBe(false);
+      expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+
+      // The handle still controls the menu after the remount.
+      await act(async () => {
+        menu.open('trigger');
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+    });
+  });
 });

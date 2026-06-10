@@ -12,6 +12,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  useAdoptedStoreReset,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -177,10 +178,13 @@ export class MenuStore<Payload> extends ReactStore<
     externalStore: MenuStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    /* eslint-disable react-hooks/rules-of-hooks */
     const internalStore = useRefWithInit(() => {
       return new MenuStore<Payload>(initialState);
     }).current;
+
+    useAdoptedStoreReset(externalStore, initialState);
+    /* eslint-enable react-hooks/rules-of-hooks */
 
     return externalStore ?? internalStore;
   }

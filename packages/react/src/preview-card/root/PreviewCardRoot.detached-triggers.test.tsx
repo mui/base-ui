@@ -1203,4 +1203,58 @@ describe('<PreviewCard.Root />', () => {
       expect(trigger2).not.toHaveAttribute('data-popup-open');
     });
   });
+
+  // Regression test for https://github.com/mui/base-ui/issues/4951.
+  // A handle-owned store is not reset when the Root unmounts; the stale state is cleared when
+  // the next Root adopts the handle.
+  describe('resetting handle-owned state when a new Root adopts the handle', () => {
+    it('does not resurface the open state on a subsequent Root mount', async () => {
+      const handle = PreviewCard.createHandle();
+
+      function Page() {
+        return (
+          <React.Fragment>
+            <PreviewCard.Trigger href="#" handle={handle} id="trigger">
+              Trigger
+            </PreviewCard.Trigger>
+            <PreviewCard.Root handle={handle}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="content">Content</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </React.Fragment>
+        );
+      }
+
+      function App({ showPage }: { showPage: boolean }) {
+        return <div>{showPage ? <Page /> : <div>Other page</div>}</div>;
+      }
+
+      const { setProps } = await render(<App showPage />);
+
+      await act(() => handle.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).not.toBe(null);
+      });
+
+      // Navigate away while open.
+      await setProps({ showPage: false });
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
+
+      // Navigate back: the preview card stays closed.
+      await setProps({ showPage: true });
+      expect(screen.queryByTestId('content')).toBe(null);
+      expect(handle.isOpen).toBe(false);
+
+      // The handle still controls the preview card after the remount.
+      await act(() => handle.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).not.toBe(null);
+      });
+    });
+  });
 });

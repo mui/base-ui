@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
@@ -788,4 +788,213 @@ describe('<Dialog.Root />', () => {
       });
     });
   });
+
+  // Regression test for https://github.com/mui/base-ui/issues/4951.
+  // A handle-owned store is not reset when the Root unmounts; the stale state is cleared when
+  // the next Root adopts the handle. The "page" (trigger + Root together) unmounts and remounts
+  // to emulate navigating away from and back to a route while the module-level handle persists.
+  describe('resetting handle-owned state when a new Root adopts the handle', () => {
+    it('does not resurface the open state on a subsequent Root mount (uncontrolled)', async () => {
+      const dialog = Dialog.createHandle();
+
+      function Page() {
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={dialog} id="trigger">
+              Trigger
+            </Dialog.Trigger>
+            <Dialog.Root handle={dialog}>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<DialogTestPage showPage Page={Page} />);
+
+      await act(() => dialog.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      // Navigate away while open.
+      await setProps({ showPage: false });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      // Navigate back: the dialog stays closed.
+      await setProps({ showPage: true });
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+
+      // The handle still controls the dialog after the remount.
+      await act(() => dialog.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+    });
+
+    it('does not leave a leftover popup on a subsequent Root mount (controlled)', async () => {
+      const dialog = Dialog.createHandle();
+      const onOpenChangeComplete = vi.fn();
+
+      function Page() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={dialog} id="trigger">
+              Trigger
+            </Dialog.Trigger>
+            <Dialog.Root
+              handle={dialog}
+              open={open}
+              onOpenChange={setOpen}
+              onOpenChangeComplete={onOpenChangeComplete}
+            >
+              <Dialog.Portal>
+                <Dialog.Backdrop />
+                <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<DialogTestPage showPage Page={Page} />);
+
+      await act(() => dialog.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      onOpenChangeComplete.mockClear();
+      await setProps({ showPage: false });
+      await setProps({ showPage: true });
+
+      expect(dialog.isOpen).toBe(false);
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(screen.queryByTestId('content')).toBe(null);
+      // The adopting Root starts closed: the stale open state must not produce a
+      // transient mount followed by a close cycle.
+      expect(onOpenChangeComplete).not.toHaveBeenCalled();
+    });
+
+    it('preserves defaultOpen across a Root unmount/mount', async () => {
+      const dialog = Dialog.createHandle();
+
+      function Page() {
+        return (
+          <Dialog.Root handle={dialog} defaultOpen>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { setProps } = await render(<DialogTestPage showPage Page={Page} />);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      await setProps({ showPage: false });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      // A fresh Root mount honors `defaultOpen` again, just like a dialog without a handle.
+      await setProps({ showPage: true });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+    });
+
+    it('notifies a still-mounted detached trigger when a new Root adopts the handle', async () => {
+      const dialog = Dialog.createHandle();
+
+      // Only the Root unmounts; the trigger stays mounted and subscribed to the handle store,
+      // so it must be re-rendered when the adopting Root resets the stale open state.
+      function App({ showRoot }: { showRoot: boolean }) {
+        return (
+          <div>
+            <Dialog.Trigger handle={dialog} id="trigger">
+              Trigger
+            </Dialog.Trigger>
+            {showRoot && (
+              <Dialog.Root handle={dialog}>
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { setProps } = await render(<App showRoot />);
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await act(() => dialog.open('trigger'));
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      // Unmounting the Root alone does not reset the store; the trigger still reflects it.
+      await setProps({ showRoot: false });
+      expect(dialog.isOpen).toBe(true);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      // The adopting Root resets the store and flushes the still-mounted trigger.
+      await setProps({ showRoot: true });
+      expect(dialog.isOpen).toBe(false);
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByRole('dialog')).toBe(null);
+    });
+
+    it('keeps a controlled dialog open across a remount when the parent holds open=true', async () => {
+      const dialog = Dialog.createHandle();
+
+      // The controlled `open` lives outside the remounting subtree, so the adopting Root
+      // must re-apply it after the reset.
+      function App({ showRoot }: { showRoot: boolean }) {
+        return (
+          <div>
+            {showRoot && (
+              <Dialog.Root handle={dialog} open onOpenChange={() => {}}>
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { setProps } = await render(<App showRoot />);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      await setProps({ showRoot: false });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      await setProps({ showRoot: true });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+    });
+  });
 });
+
+function DialogTestPage({ showPage, Page }: { showPage: boolean; Page: React.ComponentType }) {
+  return <div>{showPage ? <Page /> : <div>Other page</div>}</div>;
+}
