@@ -679,7 +679,6 @@ describe('<Popover.Root />', () => {
           expect(screen.queryByRole('dialog')).toBe(null);
         });
       });
-
     });
 
     describe('focus management', () => {
