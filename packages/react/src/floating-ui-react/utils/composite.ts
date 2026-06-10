@@ -5,7 +5,7 @@ import type { Dimensions } from '../types';
 import { stopEvent } from './event';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from './constants';
 
-type DisabledIndices = ReadonlyArray<number> | ((index: number) => boolean);
+export type DisabledIndices = ReadonlyArray<number> | ((index: number) => boolean);
 
 export function isDifferentGridRow(index: number, cols: number, prevRow: number) {
   return Math.floor(index / cols) !== prevRow;

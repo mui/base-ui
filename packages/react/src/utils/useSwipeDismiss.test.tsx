@@ -512,7 +512,7 @@ describe('useSwipeDismiss', () => {
     await flushMicrotasks();
 
     expect(element.style.transition).toBe('none');
-    expect(element.style.transform).toContain('translateY(40px)');
+    expect(element.style.transform).toMatch(/translate3d\(0px, ?40px, ?0(?:px)?\)/);
     expect(element.style.getPropertyValue('--y')).toBe('40px');
   });
 
