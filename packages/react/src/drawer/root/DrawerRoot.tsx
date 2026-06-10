@@ -4,7 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
-import { isAndroid } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useId } from '@base-ui/utils/useId';
 import {
   DrawerRootContext,
@@ -451,7 +451,7 @@ function DrawerProviderReporter() {
   React.useEffect(() => {
     // CloseWatcher enables the Android back gesture (Chromium-only).
     // Keep this Android-only for now to avoid interfering with Escape/nesting semantics on desktop due to `useDismiss`.
-    if (!open || !isTopmost || !isAndroid) {
+    if (!open || !isTopmost || !platform.os.android) {
       return undefined;
     }
 

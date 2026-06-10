@@ -797,7 +797,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
   const swipePointerProps = swipe.getPointerProps();
   const swipeTouchProps = swipe.getTouchProps();
-  const resetSwipe = swipe.reset;
+  const { moveNative: moveSwipeNative, reset: resetSwipe } = swipe;
 
   resetSwipeRef.current = resetSwipe;
 
@@ -857,6 +857,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (event.cancelable) {
           event.preventDefault();
         }
+        // Claim the gesture before React's delegated touch handlers see it; dispatching the
+        // move through React re-rasterizes the popup content on every frame.
+        event.stopPropagation();
+        moveSwipeNative(event, resolvedRootElement);
         updateTouchScrollPosition(touchState, touch);
         return;
       }
@@ -868,6 +872,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (event.cancelable) {
           event.preventDefault();
         }
+        event.stopPropagation();
         updateTouchScrollPosition(touchState, touch);
         return;
       }
@@ -895,6 +900,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         }
       }
 
+      if (touchState.allowSwipe === true) {
+        event.stopPropagation();
+        moveSwipeNative(event, resolvedRootElement);
+      }
+
       updateTouchScrollPosition(touchState, touch);
     }
 
@@ -910,6 +920,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     isVerticalScrollAxis,
     scrollAxis,
     swipeDirection,
+    moveSwipeNative,
     viewportElement,
   ]);
 
@@ -1111,29 +1122,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           };
 
           swipeTouchProps.onTouchStart?.(event);
-        },
-        onTouchMove(event) {
-          if (ignoreTouchSwipeRef.current) {
-            return;
-          }
-
-          if (isReactTouchEventOnRangeInput(event)) {
-            return;
-          }
-
-          const touchState = touchScrollStateRef.current;
-          if (touchState?.preserveNativeCrossAxisScroll) {
-            return;
-          }
-
-          if (
-            touchState?.allowSwipe === false ||
-            (touchState?.scrollTarget != null && !touchState.allowSwipe)
-          ) {
-            return;
-          }
-
-          swipeTouchProps.onTouchMove?.(event);
         },
         onTouchEnd(event) {
           resetTouchTrackingState();
