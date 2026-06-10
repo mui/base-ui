@@ -47,7 +47,11 @@ type PopupStoreWithOpen<
  *
  * Only the open-cycle fields of the base `PopupStoreState` are reset. Fields added by concrete
  * stores are not visible here — they must either be benign when stale or be cleaned up by their
- * own effects (as `openMethod` is by `usePopupRootSync`).
+ * own effects (as `openMethod` is by `usePopupRootSync` in Dialog and Popover, or by the Root's
+ * synced values in Menu).
+ *
+ * Adoption is detected only on the Root's first render: swapping the `handle` of a mounted Root
+ * to a different store is not supported and does not re-run the reset.
  */
 export function useAdoptedStoreReset<State extends PopupStoreState<unknown>>(
   externalStore: ReactStore<State, any, any> | undefined,
@@ -66,7 +70,10 @@ export function useAdoptedStoreReset<State extends PopupStoreState<unknown>>(
   // The replacement is idempotent and re-runs on every render until the adoption commits, so a
   // render that React discards (StrictMode's double render, an interrupted or suspended render)
   // neither loses the reset nor consumes it prematurely: the retry render re-applies it, and only
-  // the committed render flushes subscribers (e.g. detached triggers) after commit. An
+  // the committed render flushes subscribers (e.g. detached triggers) after commit. Until then,
+  // each re-run also clobbers render-phase writes to these fields made after this hook, so such
+  // writes must agree with `initialState` (as the Root's `useOnFirstRender` defaultOpen logic
+  // does). An
   // unmount-cleanup reset is not an option either: it would run in StrictMode's simulated
   // unmount and wipe state the Root applied during its first render and never re-applies.
   if (pendingAdoptionRef.current && externalStore !== undefined) {

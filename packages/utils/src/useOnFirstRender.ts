@@ -7,9 +7,11 @@ import * as React from 'react';
  * cycle, which only re-runs effects. StrictMode's double render shares the instance's refs,
  * so the function still runs only once.
  *
- * Because it runs during render, the function must not set React state of other components or
- * notify external subscribers, and callers must tolerate React discarding the render (the
- * function is not re-invoked for the retry render).
+ * Because it runs during render, the function must not set React state of other components.
+ * Callers must also tolerate React discarding the render: the function may run again on the
+ * retry (a discarded mount attempt rebuilds hook state, recreating the ref) or not at all
+ * (StrictMode's second render pass reuses the instance's refs), so its side effects must be
+ * idempotent.
  */
 export function useOnFirstRender(fn: Function) {
   const ref = React.useRef(true);
