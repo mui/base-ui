@@ -27,13 +27,13 @@ import { DemoPlayground } from './DemoPlayground';
 import './Demo.css';
 
 export type DemoProps = ContentProps<{
-  compact?: boolean;
+  defaultOpen?: boolean;
   className?: string;
   showExtraPlaygroundLink?: boolean;
 }>;
 
 export function Demo({
-  compact = false,
+  defaultOpen = false,
   showExtraPlaygroundLink = false,
   className,
   ...demoProps
@@ -82,6 +82,7 @@ export function Demo({
 
   const demo = useDemo(demoProps, {
     copy: { onCopied },
+    defaultOpen,
     export: exportOpts,
     exportCodeSandbox,
   });
@@ -172,7 +173,6 @@ export function Demo({
         onOpenChange={onOpenChange}
       >
         <div role="figure" aria-label="Component demo code">
-          {(compact ? demo.expanded : true) && (
             <div className="DemoToolbar">
               <DemoFileSelector
                 files={demo.files}
@@ -228,7 +228,6 @@ export function Demo({
                 )}
               </div>
             </div>
-          )}
 
           <DemoCodeBlock
             selectedFile={demo.selectedFile}
