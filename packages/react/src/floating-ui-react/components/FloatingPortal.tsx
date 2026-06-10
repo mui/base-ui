@@ -162,11 +162,22 @@ export function useFloatingPortalNode(
  * @internal
  */
 export const FloatingPortal = React.forwardRef(function FloatingPortal(
-  componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean | undefined },
+  componentProps: FloatingPortal.Props<any> & {
+    renderGuards?: boolean | undefined;
+    renderOwner?: boolean | undefined;
+  },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, container, renderGuards, ...elementProps } =
-    componentProps;
+  const {
+    render,
+    className,
+    style,
+    children,
+    container,
+    renderGuards,
+    renderOwner = true,
+    ...elementProps
+  } = componentProps;
 
   const { portalNode, portalSubtree } = useFloatingPortalNode({
     container,
@@ -263,7 +274,13 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
             }}
           />
         )}
-        {shouldRenderGuards && portalNode && (
+        {/*
+          The owner span only matters alongside the guards (it keeps VoiceOver's
+          virtual cursor in order between them), so it shares their gate.
+          `renderOwner` opts out of just the span when the relationship is already
+          conveyed elsewhere, e.g. a menu trigger's `aria-controls`.
+        */}
+        {renderOwner && shouldRenderGuards && portalNode && (
           <span aria-owns={portalNode.id} style={ownerVisuallyHidden} />
         )}
         {portalNode && ReactDOM.createPortal(children, portalNode)}

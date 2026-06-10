@@ -27,7 +27,13 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
 
   return (
     <MenuPortalContext.Provider value={keepMounted}>
-      <FloatingPortal ref={forwardedRef} {...portalProps} />
+      {/*
+        The menu trigger already conveys the popup relationship through
+        `aria-haspopup` + `aria-controls` + `aria-expanded`, so the owner span
+        is redundant. It also trips `aria-required-children` because a bare
+        `span` is not an allowed child of the `menu`/`menubar` role.
+      */}
+      <FloatingPortal ref={forwardedRef} {...portalProps} renderOwner={false} />
     </MenuPortalContext.Provider>
   );
 });

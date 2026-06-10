@@ -1,8 +1,8 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
-import { isJSDOM } from '#test-utils';
-import { FloatingPortal, useFloating } from '../index';
+import { isJSDOM, useTestInteractions } from '#test-utils';
+import { FloatingFocusManager, FloatingPortal, useClick, useFloating } from '../index';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import type { UseFloatingPortalNodeProps } from './FloatingPortal';
 
@@ -23,6 +23,28 @@ function App(props: AppProps) {
       <FloatingPortal {...props}>
         {open && <div ref={refs.setFloating} data-testid="floating" />}
       </FloatingPortal>
+    </React.Fragment>
+  );
+}
+
+function GuardedApp(props: { renderOwner?: boolean }) {
+  const [open, setOpen] = React.useState(false);
+  const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+  const click = useClick(context);
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
+
+  return (
+    <React.Fragment>
+      <button ref={refs.setReference} {...getReferenceProps()} data-testid="reference" />
+      {open && (
+        <FloatingPortal renderOwner={props.renderOwner}>
+          <FloatingFocusManager context={context} modal={false}>
+            <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
+              <button data-testid="inside" />
+            </div>
+          </FloatingFocusManager>
+        </FloatingPortal>
+      )}
     </React.Fragment>
   );
 }
@@ -149,5 +171,29 @@ describe.skipIf(!isJSDOM)('FloatingPortal', () => {
 
     const portal = document.querySelector('[data-testid="lite-portal"]');
     expect(portal).not.toBeNull();
+  });
+
+  test('renders the owner node by default', async () => {
+    render(<GuardedApp />);
+
+    fireEvent.click(screen.getByTestId('reference'));
+    await flushMicrotasks();
+
+    const portal = screen.getByTestId('floating').closest('[data-base-ui-portal]');
+    expect(portal?.id).toBeTruthy();
+    expect(document.querySelector(`span[aria-owns="${portal!.id}"]`)).not.toBeNull();
+  });
+
+  test('omits the owner node when renderOwner is false but keeps the focus guards', async () => {
+    render(<GuardedApp renderOwner={false} />);
+
+    fireEvent.click(screen.getByTestId('reference'));
+    await flushMicrotasks();
+
+    const portal = screen.getByTestId('floating').closest('[data-base-ui-portal]');
+    expect(portal?.id).toBeTruthy();
+    expect(document.querySelector(`span[aria-owns="${portal!.id}"]`)).toBeNull();
+    // The focus guards remain so tab order is still managed.
+    expect(document.querySelectorAll('[data-base-ui-focus-guard]').length).toBeGreaterThan(0);
   });
 });
