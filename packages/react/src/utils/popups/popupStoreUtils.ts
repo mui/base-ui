@@ -125,10 +125,13 @@ export function setPopupOpenState(
   state: Partial<PopupStoreState<unknown>>,
   open: boolean,
   trigger: Element | undefined,
+  preventUnmountOnClose = false,
 ) {
   if (open) {
     // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
     state.preventUnmountingOnClose = false;
+  } else if (preventUnmountOnClose) {
+    state.preventUnmountingOnClose = true;
   }
 
   const triggerId = trigger?.id ?? null;
@@ -139,6 +142,16 @@ export function setPopupOpenState(
     state.activeTriggerId = triggerId;
     state.activeTriggerElement = trigger ?? null;
   }
+}
+
+export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClose(): void }) {
+  let preventUnmountOnClose = false;
+
+  eventDetails.preventUnmountOnClose = () => {
+    preventUnmountOnClose = true;
+  };
+
+  return () => preventUnmountOnClose;
 }
 
 export function useInitialOpenSync<State extends PopupStoreState<unknown>>(

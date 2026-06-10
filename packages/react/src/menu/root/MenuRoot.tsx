@@ -33,6 +33,7 @@ import { mergeProps } from '../../merge-props';
 import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
+  attachPreventUnmountOnClose,
   FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
   setPopupOpenState,
@@ -237,9 +238,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         return;
       }
 
-      (eventDetails as MenuRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-        store.set('preventUnmountingOnClose', true);
-      };
+      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
+        eventDetails as MenuRoot.ChangeEventDetails,
+      );
 
       // Do not immediately reset the activeTriggerId to allow
       // exit animations to play and focus to be returned correctly.
@@ -290,7 +291,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       };
       openEventRef.current = eventDetails.event ?? null;
 
-      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
+      setPopupOpenState(
+        updatedState,
+        nextOpen,
+        eventDetails.trigger,
+        shouldPreventUnmountOnClose(),
+      );
 
       store.update(updatedState);
 
