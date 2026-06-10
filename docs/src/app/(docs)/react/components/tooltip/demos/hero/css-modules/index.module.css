@@ -57,6 +57,8 @@
   &:focus-visible {
     background-color: transparent;
     outline: 2px solid oklch(14.5% 0 0deg);
+    position: relative;
+    z-index: 1;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
