@@ -42,8 +42,6 @@ const KEYBOARD_INPUT_TYPES = new Set([
 // Snapshot of a scroll container's relevant styles taken before keyboard slack is
 // applied. The string fields are the exact inline values to restore on cleanup;
 // the parsed numbers are the computed baselines that slack is added on top of.
-// The `applied*` fields record the inline values we last wrote, so external
-// changes to those properties can be detected and re-snapshotted.
 interface ScrollAdjustment {
   readonly element: HTMLElement;
   readonly overflowAnchor: string;
@@ -51,8 +49,6 @@ interface ScrollAdjustment {
   readonly scrollPaddingBottom: string;
   readonly computedPaddingBottom: number;
   readonly computedScrollPaddingBottom: number;
-  appliedPaddingBottom: string;
-  appliedScrollPaddingBottom: string;
 }
 
 interface KeyboardVisualViewport {
@@ -92,14 +88,8 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     }
     try {
       adjustment.element.style.overflowAnchor = adjustment.overflowAnchor;
-      // Only restore a padding that still holds the value we applied; otherwise
-      // external code changed it in the meantime and the snapshot is stale.
-      if (adjustment.element.style.paddingBottom === adjustment.appliedPaddingBottom) {
-        adjustment.element.style.paddingBottom = adjustment.paddingBottom;
-      }
-      if (adjustment.element.style.scrollPaddingBottom === adjustment.appliedScrollPaddingBottom) {
-        adjustment.element.style.scrollPaddingBottom = adjustment.scrollPaddingBottom;
-      }
+      adjustment.element.style.paddingBottom = adjustment.paddingBottom;
+      adjustment.element.style.scrollPaddingBottom = adjustment.scrollPaddingBottom;
     } finally {
       keyboardScrollAdjustmentRef.current = null;
     }
@@ -110,17 +100,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     let adjustment = keyboardScrollAdjustmentRef.current;
 
     if (adjustment && !adjustment.element.isConnected) {
-      restoreKeyboardScrollAdjustment();
-      adjustment = null;
-    }
-
-    // External code changed a padding we manage while slack was applied; the
-    // snapshot is stale, so drop it and re-snapshot from the new baseline below.
-    if (
-      adjustment &&
-      (adjustment.element.style.paddingBottom !== adjustment.appliedPaddingBottom ||
-        adjustment.element.style.scrollPaddingBottom !== adjustment.appliedScrollPaddingBottom)
-    ) {
       restoreKeyboardScrollAdjustment();
       adjustment = null;
     }
@@ -144,19 +123,15 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         scrollPaddingBottom: element.style.scrollPaddingBottom,
         computedPaddingBottom: Number.parseFloat(styles.paddingBottom) || 0,
         computedScrollPaddingBottom: Number.parseFloat(styles.scrollPaddingBottom) || 0,
-        appliedPaddingBottom: element.style.paddingBottom,
-        appliedScrollPaddingBottom: element.style.scrollPaddingBottom,
       };
       keyboardScrollAdjustmentRef.current = adjustment;
     }
 
-    adjustment.appliedPaddingBottom = `${adjustment.computedPaddingBottom + roundedSlack}px`;
-    adjustment.appliedScrollPaddingBottom = `${
+    element.style.overflowAnchor = 'none';
+    element.style.paddingBottom = `${adjustment.computedPaddingBottom + roundedSlack}px`;
+    element.style.scrollPaddingBottom = `${
       adjustment.computedScrollPaddingBottom + KEYBOARD_VISIBILITY_MARGIN
     }px`;
-    element.style.overflowAnchor = 'none';
-    element.style.paddingBottom = adjustment.appliedPaddingBottom;
-    element.style.scrollPaddingBottom = adjustment.appliedScrollPaddingBottom;
   });
 
   const animateKeyboardScroll = useStableCallback((element: HTMLElement, scrollTop: number) => {
@@ -190,8 +165,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     const win = ownerWindow(rootElement);
     const visualViewport = win.visualViewport;
 
-    let lastAlignment: { target: HTMLElement; top: number; bottom: number } | null = null;
-
     const setDrawerKeyboardInset = (inset: number) => {
       rootElement.style.setProperty(
         DrawerViewportCssVars.keyboardInset,
@@ -205,7 +178,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
     const clearFocusedKeyboardTarget = () => {
       focusedKeyboardTargetRef.current = null;
-      lastAlignment = null;
       resetDrawerKeyboardInset();
       restoreKeyboardScrollAdjustment();
       keyboardFocusFrame.cancel();
@@ -214,7 +186,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     const alignFocusedKeyboardTarget = () => {
       const target = focusedKeyboardTargetRef.current;
       if (nestedDrawerOpen || !target || !contains(rootElement, target)) {
-        lastAlignment = null;
         resetDrawerKeyboardInset();
         restoreKeyboardScrollAdjustment();
         return;
@@ -222,7 +193,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
       const keyboardViewport = getKeyboardVisualViewport(win);
       if (!keyboardViewport) {
-        lastAlignment = null;
         resetDrawerKeyboardInset();
         restoreKeyboardScrollAdjustment();
         return;
@@ -237,24 +207,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
 
       if (!scrollTarget.isConnected || !contains(rootElement, scrollTarget)) {
-        lastAlignment = null;
         resetDrawerKeyboardInset();
         restoreKeyboardScrollAdjustment();
         return;
       }
-
-      // Re-centering on every visualViewport event would yank a manual scroll
-      // position back to center; only re-align when the focused target or the
-      // keyboard geometry actually changes.
-      if (
-        lastAlignment !== null &&
-        lastAlignment.target === target &&
-        lastAlignment.top === keyboardViewport.top &&
-        lastAlignment.bottom === keyboardViewport.bottom
-      ) {
-        return;
-      }
-      lastAlignment = { target, top: keyboardViewport.top, bottom: keyboardViewport.bottom };
 
       const scrollTargetRect = scrollTarget.getBoundingClientRect();
       const clippedBottom = Math.min(scrollTargetRect.bottom, keyboardViewport.bottom);
