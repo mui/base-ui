@@ -43,7 +43,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     ...elementProps
   } = componentProps;
 
-  const overflowEdgeThreshold = normalizeOverflowEdgeThreshold(overflowEdgeThresholdProp);
+  const { xStart, xEnd, yStart, yEnd } = normalizeOverflowEdgeThreshold(overflowEdgeThresholdProp);
 
   const rootId = useBaseUiId();
 
@@ -190,10 +190,20 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const handlePointerUp = useStableCallback((event: React.PointerEvent) => {
     thumbDraggingRef.current = false;
 
-    if (thumbYRef.current && currentOrientationRef.current === 'vertical') {
+    // `pointercancel` releases capture implicitly, so guard against releasing a
+    // capture we no longer hold (which would throw).
+    if (
+      thumbYRef.current &&
+      currentOrientationRef.current === 'vertical' &&
+      thumbYRef.current.hasPointerCapture(event.pointerId)
+    ) {
       thumbYRef.current.releasePointerCapture(event.pointerId);
     }
-    if (thumbXRef.current && currentOrientationRef.current === 'horizontal') {
+    if (
+      thumbXRef.current &&
+      currentOrientationRef.current === 'horizontal' &&
+      thumbXRef.current.hasPointerCapture(event.pointerId)
+    ) {
       thumbXRef.current.releasePointerCapture(event.pointerId);
     }
   });
@@ -279,7 +289,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       overflowEdges,
       setOverflowEdges,
       viewportState: state,
-      overflowEdgeThreshold,
+      overflowEdgeThreshold: { xStart, xEnd, yStart, yEnd },
     }),
     [
       handlePointerDown,
@@ -300,7 +310,10 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       hiddenState,
       overflowEdges,
       state,
-      overflowEdgeThreshold,
+      xStart,
+      xEnd,
+      yStart,
+      yEnd,
     ],
   );
 

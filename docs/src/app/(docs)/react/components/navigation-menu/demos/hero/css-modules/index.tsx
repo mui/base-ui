@@ -27,7 +27,7 @@ export default function ExampleNavigationMenu() {
           </NavigationMenu.Content>
         </NavigationMenu.Item>
 
-        <NavigationMenu.Item value="b">
+        <NavigationMenu.Item>
           <NavigationMenu.Trigger className={styles.Trigger}>
             Handbook
             <NavigationMenu.Icon className={styles.Icon}>
