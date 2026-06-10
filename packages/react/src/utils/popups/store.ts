@@ -11,9 +11,10 @@ import { HTMLProps } from '../../internals/types';
  * State common to all popup stores.
  *
  * When adding open-cycle state (state written while opening/closing the popup) here or in a
- * concrete store, make sure it is reset when a new Root adopts a handle-owned store: either add
- * it to the reset in `useAdoptedStoreReset` (possible only for fields of this base state), or
- * ensure a Root effect re-derives it.
+ * concrete store, make sure it is reset when a new Root adopts a handle-owned store: add it to
+ * the adoption reset (in `useAdoptedStoreReset` for these base fields, or through its
+ * `additionalResetState` argument for concrete-store fields), or ensure a Root effect
+ * re-derives it.
  */
 export type PopupStoreState<Payload> = {
   /**

@@ -183,7 +183,14 @@ export class MenuStore<Payload> extends ReactStore<
       return new MenuStore<Payload>(initialState);
     }).current;
 
-    useAdoptedStoreReset(externalStore, initialState);
+    // Menu-specific open-cycle state that is neither benign when stale nor re-derived by a Root
+    // effect: a stale `activeIndex` would be re-applied (highlighting and focusing the wrong
+    // item) on the first open after adoption, and `allowMouseEnter` is otherwise only cleared
+    // when a close transition completes, which never happens when a Root unmounts while open.
+    useAdoptedStoreReset(externalStore, initialState, {
+      activeIndex: null,
+      allowMouseEnter: false,
+    });
     /* eslint-enable react-hooks/rules-of-hooks */
 
     return externalStore ?? internalStore;

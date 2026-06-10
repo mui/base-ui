@@ -45,17 +45,28 @@ type PopupStoreWithOpen<
  * active-trigger fields are reset and re-derived from the still-mounted triggers.
  * See https://github.com/mui/base-ui/issues/4951
  *
- * Only the open-cycle fields of the base `PopupStoreState` are reset. Fields added by concrete
- * stores are not visible here — they must either be benign when stale or be cleaned up by their
- * own effects (as `openMethod` is by `usePopupRootSync` in Dialog and Popover, or by the Root's
- * synced values in Menu).
+ * Only the open-cycle fields of the base `PopupStoreState` are reset by default. Fields added by
+ * concrete stores are not visible here — pass them via `additionalResetState` (as Menu does for
+ * `activeIndex`), unless they are benign when stale or cleaned up by the Root's own effects (as
+ * `openMethod` is by `usePopupRootSync` in Dialog and Popover, or by the Root's synced values in
+ * Menu).
  *
  * Adoption is detected only on the Root's first render: swapping the `handle` of a mounted Root
  * to a different store is not supported and does not re-run the reset.
+ *
+ * @param externalStore The handle-owned store being adopted, or `undefined` when the Root uses an
+ * internal store (in which case the hook does nothing).
+ * @param initialState The adopting Root's initial state; the open-cycle fields are reset to the
+ * values it carries (`defaultOpen`, controlled props, default trigger) rather than a hardcoded
+ * closed state.
+ * @param additionalResetState Extra reset values for open-cycle fields that concrete stores add on
+ * top of the base `PopupStoreState`, applied after (and overriding) the base reset fields. The
+ * values must be render-stable: the reset re-runs on every render until the adoption commits.
  */
 export function useAdoptedStoreReset<State extends PopupStoreState<unknown>>(
   externalStore: ReactStore<State, any, any> | undefined,
   initialState: Partial<State> | undefined,
+  additionalResetState?: Partial<State>,
 ) {
   const pendingAdoptionRef = React.useRef(externalStore !== undefined);
 
@@ -88,6 +99,7 @@ export function useAdoptedStoreReset<State extends PopupStoreState<unknown>>(
       triggerIdProp: initialState?.triggerIdProp,
       payload: initialState?.payload,
       preventUnmountingOnClose: false,
+      ...additionalResetState,
     };
   }
 

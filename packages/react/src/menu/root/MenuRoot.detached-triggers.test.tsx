@@ -1187,5 +1187,68 @@ describe('<MenuRoot />', () => {
         expect(screen.queryByRole('menu')).not.toBe(null);
       });
     });
+
+    it('does not restore the previously highlighted item when reopened after a remount', async () => {
+      const menu = Menu.createHandle();
+
+      function Page() {
+        return (
+          <React.Fragment>
+            <Menu.Trigger handle={menu} id="trigger">
+              Trigger
+            </Menu.Trigger>
+            <Menu.Root handle={menu}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Item 1</Menu.Item>
+                    <Menu.Item>Item 2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>
+        );
+      }
+
+      function App({ showPage }: { showPage: boolean }) {
+        return <div>{showPage ? <Page /> : <div>Other page</div>}</div>;
+      }
+
+      const { setProps, user } = await render(<App showPage />);
+
+      // Open with the keyboard and move the highlight to the second item.
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{Enter}');
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Item 2' })).toHaveFocus();
+      });
+
+      // Navigate away while open.
+      await setProps({ showPage: false });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      // Navigate back and reopen: the highlight from the previous Root must not be restored.
+      await setProps({ showPage: true });
+      await act(async () => {
+        menu.open('trigger');
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+
+      const item2 = screen.getByRole('menuitem', { name: 'Item 2' });
+      expect(item2).not.toHaveAttribute('data-highlighted');
+      expect(item2).not.toHaveFocus();
+    });
   });
 });
