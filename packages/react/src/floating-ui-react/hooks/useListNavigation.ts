@@ -17,7 +17,7 @@ import {
   getMinListIndex,
   isIndexOutOfListBounds,
 } from '../utils/composite';
-import type { gridNavigation as GridNavigation } from './gridNavigation';
+import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
 import {
   activeElement,
@@ -211,7 +211,7 @@ export interface UseListNavigationProps {
   /**
    * Computes two-dimensional list navigation for grid-capable consumers.
    */
-  grid?: typeof GridNavigation | null | undefined;
+  grid?: typeof gridNavigation | null | undefined;
 }
 
 /**
@@ -243,9 +243,9 @@ export function useListNavigation(
     id,
     resetOnPointerLeave = true,
     externalTree,
-    grid: gridNavigation,
+    grid: navigateGrid,
   } = props;
-  const isGrid = gridNavigation != null;
+  const isGrid = navigateGrid != null;
 
   if (process.env.NODE_ENV !== 'production') {
     if (allowEscape) {
@@ -577,8 +577,8 @@ export function useListNavigation(
 
     // Grid navigation is injected by grid-capable consumers so non-grid
     // consumers (menu, select) tree-shake the grid helpers out.
-    if (gridNavigation != null) {
-      const index = gridNavigation(
+    if (navigateGrid != null) {
+      const index = navigateGrid(
         event,
         indexRef.current,
         listRef,
