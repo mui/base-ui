@@ -1,4 +1,39 @@
 @layer components {
+  /*
+   * IMPORTANT: keep in sync with any changes that could affect the height of the
+   * reference tables/accordions.
+   *
+   * Skip rendering prop accordions while they're offscreen. The API reference is dense
+   * paint content that makes every repaint-driven re-composite of the page ("Layerize")
+   * more expensive.
+   *
+   * The placeholder height is the accordion's content-box height (the root's own
+   * borders are added on top of it), derived from the structure so it's exact for
+   * closed accordions at any viewport width: each closed row is a 2.5rem trigger plus
+   * a 1px border (the last row has none, offset by the header's bottom border), and
+   * the header row is 2.25rem. `--rows` is set inline by ReferenceAccordion. The
+   * `auto` keyword makes the browser track the real size once rendered (e.g. with
+   * expanded items).
+   *
+   * The formula doesn't match rows with types that wrap into several lines,
+   * but it's close enough for the vast majority of cases.
+   */
+  .ReferenceAccordionRoot {
+    content-visibility: auto;
+    contain-intrinsic-size: auto calc(var(--rows) * (2.5rem + 1px) + 2.25rem + 1px);
+  }
+
+  /*
+   * Same as above for the attributes and CSS variables tables (the wide-viewport
+   * counterpart of their accordions): a 2.5rem header row and 2.5rem body rows with
+   * 1px separator borders, except after the last row. Cells never wrap (the table has
+   * `white-space: nowrap`), so the placeholder is exact at any viewport width.
+   */
+  .ReferenceTableRoot {
+    content-visibility: auto;
+    contain-intrinsic-size: auto calc((var(--rows) + 1) * (2.5rem + 1px) - 1px);
+  }
+
   .ReferenceHeaderRow {
     display: grid;
   }

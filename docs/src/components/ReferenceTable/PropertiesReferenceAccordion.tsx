@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
 import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
@@ -17,11 +18,23 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
   name: string;
 }
 
-export function PropertiesReferenceAccordion({ data, name: partName, ...props }: Props) {
+export function PropertiesReferenceAccordion({
+  data,
+  name: partName,
+  className,
+  style,
+  ...props
+}: Props) {
   const captionId = `${partName}-properties-caption`;
 
   return (
-    <Accordion.Root aria-describedby={captionId} {...props}>
+    <Accordion.Root
+      aria-describedby={captionId}
+      className={clsx('ReferenceAccordionRoot', className)}
+      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-size`
+      style={{ '--rows': Object.keys(data).length, ...style } as React.CSSProperties}
+      {...props}
+    >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Class properties table
       </span>

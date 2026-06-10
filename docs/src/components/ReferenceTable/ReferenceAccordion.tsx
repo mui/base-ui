@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
 import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
@@ -31,6 +32,8 @@ export function ReferenceAccordion({
   caption = 'Component props table',
   hideRequired = false,
   hideDefault = false,
+  className,
+  style,
   ...props
 }: Props) {
   const captionId = `${partName}-caption`;
@@ -39,6 +42,9 @@ export function ReferenceAccordion({
     <Accordion.Root
       aria-describedby={captionId}
       data-hide-default={hideDefault || undefined}
+      className={clsx('ReferenceAccordionRoot', className)}
+      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-size`
+      style={{ '--rows': Object.keys(data).length, ...style } as React.CSSProperties}
       {...props}
     >
       <span id={captionId} style={visuallyHidden} aria-hidden>
