@@ -4,7 +4,7 @@ import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { script as prehydrationScript } from '#prehydration/tabs/indicator';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
-import { useIsHydrating } from '../../utils/useIsHydrating';
+import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -12,7 +12,6 @@ import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
-import { useCSPContext } from '../../internals/csp-context/CSPContext';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,
@@ -38,14 +37,10 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
     ...elementProps
   } = componentProps;
 
-  const { nonce } = useCSPContext();
-
   const { getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
     useTabsRootContext();
 
   const { tabsListElement, registerIndicatorUpdateListener } = useTabsListContext();
-
-  const isHydrating = useIsHydrating();
 
   const rerender = useForcedRerendering();
 
@@ -143,14 +138,7 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
   return (
     <React.Fragment>
       {element}
-      {isHydrating && renderBeforeHydration && (
-        <script
-          nonce={nonce}
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: prehydrationScript }}
-          suppressHydrationWarning
-        />
-      )}
+      {renderBeforeHydration && <PrehydrationScript script={prehydrationScript} />}
     </React.Fragment>
   );
 });

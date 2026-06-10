@@ -27,7 +27,7 @@ import {
 } from '../../internals/composite/composite';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { useCSPContext } from '../../internals/csp-context/CSPContext';
+import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -115,7 +115,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     ...elementProps
   } = componentProps;
 
-  const { nonce } = useCSPContext();
   const id = useBaseUiId(idProp);
 
   const {
@@ -475,19 +474,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           <React.Fragment>
             {childrenProp}
             <input ref={mergedInputRef} {...inputProps} suppressHydrationWarning />
-            {inset &&
-              isHydrating &&
-              renderBeforeHydration &&
-              // this must be rendered with the last thumb to ensure all
-              // preceding thumbs are already rendered in the DOM
-              last && (
-                <script
-                  nonce={nonce}
-                  // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{ __html: prehydrationScript }}
-                  suppressHydrationWarning
-                />
-              )}
+            {/* Rendered with the last thumb to ensure all preceding thumbs are already in the DOM. */}
+            {inset && last && renderBeforeHydration && (
+              <PrehydrationScript script={prehydrationScript} />
+            )}
           </React.Fragment>
         ),
         id,
