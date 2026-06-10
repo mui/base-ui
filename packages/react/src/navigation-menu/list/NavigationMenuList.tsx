@@ -87,12 +87,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
         },
       };
 
-  const props = [
-    dismissProps?.floating || EMPTY_OBJECT,
-    defaultProps,
-    { 'aria-orientation': undefined },
-    elementProps,
-  ];
+  const props = [dismissProps?.floating || EMPTY_OBJECT, defaultProps, elementProps];
 
   // When nested, skip the CompositeRoot wrapper so that triggers can participate
   // in the parent Content's composite navigation context. The key propagation

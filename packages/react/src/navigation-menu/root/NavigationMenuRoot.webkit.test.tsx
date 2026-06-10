@@ -5,14 +5,16 @@ import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
-vi.mock('@base-ui/utils/detectBrowser', async () => {
-  const actual = await vi.importActual<typeof import('@base-ui/utils/detectBrowser')>(
-    '@base-ui/utils/detectBrowser',
-  );
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
 
   return {
     ...actual,
-    isWebKit: true,
+    platform: {
+      ...actual.platform,
+      engine: { ...actual.platform.engine, webkit: true },
+    },
   };
 });
 

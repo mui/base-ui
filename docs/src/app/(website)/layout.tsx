@@ -43,21 +43,13 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-5 bui-gce-8 bp2:bui-gcs-5 bp2:bui-gce-9 bp3:bui-gcs-5 bp3:bui-gce-7"
                 aria-label="social links"
               >
-                <Link className="Text sz-1" href="https://x.com/base_ui" rel="noopener noreferrer">
+                <Link className="Text sz-1" href="https://x.com/base_ui">
                   X
                 </Link>
-                <Link
-                  className="Text sz-1"
-                  href="https://github.com/mui/base-ui"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://github.com/mui/base-ui">
                   GitHub
                 </Link>
-                <Link
-                  className="Text sz-1"
-                  href="https://base-ui.com/r/discord"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://base-ui.com/r/discord">
                   Discord
                 </Link>
               </nav>
@@ -79,35 +71,19 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7"
                 aria-label="social links"
               >
-                <Link className="Text sz-1" href="https://x.com/base_ui" rel="noopener noreferrer">
+                <Link className="Text sz-1" href="https://x.com/base_ui">
                   X
                 </Link>
-                <Link
-                  className="Text sz-1"
-                  href="https://github.com/mui/base-ui"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://github.com/mui/base-ui">
                   GitHub
                 </Link>
-                <Link
-                  className="Text sz-1"
-                  href="https://base-ui.com/r/discord"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://base-ui.com/r/discord">
                   Discord
                 </Link>
-                <Link
-                  className="Text sz-1"
-                  href="https://www.npmjs.com/package/@base-ui/react"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://www.npmjs.com/package/@base-ui/react">
                   npm
                 </Link>
-                <Link
-                  className="Text sz-1"
-                  href="https://bsky.app/profile/base-ui.com"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://bsky.app/profile/base-ui.com">
                   Bluesky
                 </Link>
               </nav>

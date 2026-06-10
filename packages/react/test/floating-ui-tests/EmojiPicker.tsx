@@ -18,6 +18,9 @@ import {
 } from '../../src/floating-ui-react';
 import { Button } from './Button';
 import styles from './EmojiPicker.module.css';
+import { gridNavigationWithColumns } from './gridNavigationWithColumns';
+
+const grid = gridNavigationWithColumns(3);
 
 const emojis = [
   {
@@ -163,12 +166,12 @@ export function Main() {
       listRef,
       onNavigate: open ? setActiveIndex : undefined,
       activeIndex,
-      cols: 3,
       orientation: 'horizontal',
       loopFocus: true,
       focusItemOnOpen: false,
       virtual: true,
       allowEscape: true,
+      grid,
     }),
   ]);
 
