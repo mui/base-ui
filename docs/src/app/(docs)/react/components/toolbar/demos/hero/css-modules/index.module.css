@@ -16,6 +16,7 @@
 
 .Group {
   display: flex;
+  gap: 1px;
 }
 
 .Button {
@@ -105,7 +106,7 @@
 
   &:focus-visible {
     outline: 2px solid oklch(14.5% 0 0deg);
-    outline-offset: -2px;
+    outline-offset: 1px;
 
     @media (prefers-color-scheme: dark) {
       outline-color: white;
