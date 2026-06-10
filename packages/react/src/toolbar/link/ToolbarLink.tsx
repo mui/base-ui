@@ -7,6 +7,7 @@ import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 
 const TOOLBAR_LINK_METADATA = {
   // Links cannot be disabled, but they still occupy a focusable composite item slot.
+  disabled: false,
   focusableWhenDisabled: true,
 };
 

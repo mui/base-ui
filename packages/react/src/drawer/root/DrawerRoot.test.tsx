@@ -6,11 +6,16 @@ import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { useDrawerRootContext } from './DrawerRootContext';
 
-vi.mock('@base-ui/utils/detectBrowser', async () => {
-  const actual = await vi.importActual<typeof import('@base-ui/utils/detectBrowser')>(
-    '@base-ui/utils/detectBrowser',
-  );
-  return { ...actual, isAndroid: true };
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+  return {
+    ...actual,
+    platform: {
+      ...actual.platform,
+      os: { ...actual.platform.os, android: true },
+    },
+  };
 });
 
 function TestCase({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {

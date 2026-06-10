@@ -2,7 +2,7 @@
   "name": "@base-ui/monorepo-tests",
   "private": true,
   "scripts": {
-    "typescript": "tsc -p tsconfig.json"
+    "typescript": "tsgo -p tsconfig.json"
   },
   "devDependencies": {
     "@base-ui/react": "workspace:*",
