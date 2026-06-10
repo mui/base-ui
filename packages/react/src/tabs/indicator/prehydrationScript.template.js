@@ -77,30 +77,13 @@
 
   if (activeTab != null && tabsList != null) {
     const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
-    const { width: tabsListWidth, height: tabsListHeight } = getCssDimensions(tabsList);
-    const tabRect = activeTab.getBoundingClientRect();
-    const tabsListRect = tabsList.getBoundingClientRect();
-    const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
-    const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
-    const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
-    // Keep in sync with `TabsIndicator.tsx`.
+    // Unlike `TabsIndicator.tsx`, only the transform-immune layout offsets are used here.
+    // They can be off by ~1px of `offsetLeft`/`offsetTop` rounding, but the component
+    // recomputes the variables with sub-pixel precision as soon as React hydrates.
     const layoutOffset = getLayoutOffset(activeTab, tabsList);
     left = layoutOffset.left;
     top = layoutOffset.top;
-
-    if (hasNonZeroScale) {
-      const rectLeft =
-        (tabRect.left - tabsListRect.left) / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
-      const rectTop =
-        (tabRect.top - tabsListRect.top) / scaleY + tabsList.scrollTop - tabsList.clientTop;
-
-      // 2px covers the whole-pixel rounding of offsetLeft/offsetTop, compounded over the chain.
-      if (Math.abs(rectLeft - left) <= 2 && Math.abs(rectTop - top) <= 2) {
-        left = rectLeft;
-        top = rectTop;
-      }
-    }
 
     width = computedWidth;
     height = computedHeight;
