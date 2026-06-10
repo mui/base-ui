@@ -13,7 +13,11 @@ import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useS
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { HTMLProps } from '../../internals/types';
-import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   PopupStoreState,
   PopupStoreContext,
@@ -222,17 +226,29 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
 }) => React.ReactNode;
 
 /**
- * Ensures that when there's only one trigger element registered, it is set as the active trigger.
- * This keeps triggerCount reactive while open and allows controlled popups to work correctly without
- * an explicit triggerId, maintaining compatibility with contained triggers.
+ * Keeps trigger registration state synchronized while the popup is open.
+ *
+ * When a popup opens without an explicit trigger id and exactly one trigger is registered, that
+ * trigger is claimed as the active trigger. When the active trigger id is still registered but its
+ * element changed, the active element is refreshed. When the active trigger unregisters, the
+ * default path preserves existing ownership so non-closing popup families do not silently claim a
+ * different trigger while staying open.
+ *
+ * If `closeOnActiveTriggerUnmount` is enabled, unregistering the active trigger requests a close
+ * after a microtask so a same-tick replacement trigger with the same id can register first.
  *
  * This should be called on the Root part.
  *
  * @param store The Store instance managing the popup state.
+ * @param options Options for active trigger unmount behavior.
  */
 export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>(
-  store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
+  store: PopupStoreWithOpen<State, BaseUIChangeEventDetails<typeof REASONS.none>>,
+  options: {
+    closeOnActiveTriggerUnmount?: boolean | undefined;
+  } = {},
 ) {
+  const { closeOnActiveTriggerUnmount = false } = options;
   const open = store.useState('open');
   const reactiveTriggerCount = store.useState('triggerCount');
 
@@ -251,7 +267,19 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       stateUpdates.triggerCount = triggerCount;
     }
 
-    if (!store.select('activeTriggerId') && triggerCount === 1) {
+    const activeTriggerId = store.select('activeTriggerId');
+    let lostActiveTriggerId: string | null = null;
+
+    if (activeTriggerId) {
+      const activeTriggerElement = store.context.triggerElements.getById(activeTriggerId);
+      if (!activeTriggerElement) {
+        lostActiveTriggerId = activeTriggerId;
+      } else if (activeTriggerElement !== store.state.activeTriggerElement) {
+        stateUpdates.activeTriggerElement = activeTriggerElement;
+      }
+    }
+
+    if (!lostActiveTriggerId && !activeTriggerId && triggerCount === 1) {
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
@@ -260,10 +288,38 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       }
     }
 
-    if (stateUpdates.triggerCount !== undefined || stateUpdates.activeTriggerId !== undefined) {
+    if (
+      stateUpdates.triggerCount !== undefined ||
+      stateUpdates.activeTriggerId !== undefined ||
+      stateUpdates.activeTriggerElement !== undefined
+    ) {
       store.update(stateUpdates as Partial<State>);
     }
-  }, [open, store, reactiveTriggerCount]);
+
+    if (lostActiveTriggerId) {
+      if (closeOnActiveTriggerUnmount) {
+        // Defer so a same-tick replacement trigger with the same id can register first.
+        queueMicrotask(() => {
+          if (
+            store.select('open') &&
+            store.select('activeTriggerId') === lostActiveTriggerId &&
+            !store.context.triggerElements.getById(lostActiveTriggerId)
+          ) {
+            const eventDetails = createChangeEventDetails(REASONS.none);
+            store.setOpen(false, eventDetails);
+            // If closing is canceled, keep the previous active trigger ownership for the
+            // still-open popup instead of claiming another trigger implicitly.
+            if (!eventDetails.isCanceled) {
+              store.update({
+                activeTriggerId: null,
+                activeTriggerElement: null,
+              } as Partial<State>);
+            }
+          }
+        });
+      }
+    }
+  }, [open, store, reactiveTriggerCount, closeOnActiveTriggerUnmount]);
 }
 
 /**
