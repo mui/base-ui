@@ -10,7 +10,7 @@ describe('<Popover.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render, clock } = createRenderer();
+  const { render } = createRenderer();
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     type NumberPayload = { payload: number | undefined };
@@ -1021,8 +1021,8 @@ describe('<Popover.Root />', () => {
       // mount/unmount sequence. StrictMode's double-invoked effects re-run the hover
       // interaction setup and disturb that timing, so it runs without StrictMode,
       // matching a production render.
-      const { render: renderNonStrict } = createRenderer({ strict: false });
-      clock.withFakeTimers();
+      const { render: renderNonStrict, clock: nonStrictClock } = createRenderer({ strict: false });
+      nonStrictClock.withFakeTimers();
 
       it('does not resurface open state written by a hover timer that fired while no Root was mounted', async () => {
         const popover = Popover.createHandle();
@@ -1059,7 +1059,7 @@ describe('<Popover.Root />', () => {
         await setProps({ showRoot: false });
 
         // The timer fires with no Root mounted and writes `open: true` into the store.
-        clock.tick(100);
+        nonStrictClock.tick(100);
         await flushMicrotasks();
         expect(popover.isOpen).toBe(true);
         expect(screen.queryByRole('dialog')).toBe(null);

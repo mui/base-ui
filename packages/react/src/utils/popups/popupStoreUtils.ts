@@ -51,6 +51,12 @@ type PopupStoreWithOpen<
  * `openMethod` is by `usePopupRootSync` in Dialog and Popover, or by the Root's synced values in
  * Menu).
  *
+ * This also means `handle.open()` calls made before any Root mounts are discarded when the Root
+ * adopts the handle; pre-mount open requests are not replayed. During concurrent renders, the
+ * shared store is reset before commit, so if a render is later aborted while an old Root is still
+ * visibly mounted, or if two Roots using the same handle briefly overlap, the store may already
+ * reflect the adopting Root's initial state until React commits the final tree.
+ *
  * Adoption is detected only on the Root's first render: swapping the `handle` of a mounted Root
  * to a different store is not supported and does not re-run the reset.
  *
@@ -84,9 +90,9 @@ export function useAdoptedStoreReset<State extends PopupStoreState<unknown>>(
   // the committed render flushes subscribers (e.g. detached triggers) after commit. Until then,
   // each re-run also clobbers render-phase writes to these fields made after this hook, so such
   // writes must agree with `initialState` (as the Root's `useOnFirstRender` defaultOpen logic
-  // does). An
-  // unmount-cleanup reset is not an option either: it would run in StrictMode's simulated
-  // unmount and wipe state the Root applied during its first render and never re-applies.
+  // does). An unmount-cleanup reset is not an option either: it would run in StrictMode's
+  // simulated unmount and wipe state the Root applied during its first render and never
+  // re-applies.
   if (pendingAdoptionRef.current && externalStore !== undefined) {
     externalStore.state = {
       ...externalStore.state,
