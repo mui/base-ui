@@ -4,7 +4,6 @@ import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import { useIsHydrating } from '../../utils/useIsHydrating';
-import { hasDistortingTransform } from './hasDistortingTransform';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -20,6 +19,10 @@ const stateAttributesMapping = {
   activeTabPosition: () => null,
   activeTabSize: () => null,
 };
+
+// `offsetLeft`/`offsetTop` are rounded to whole pixels and the error can compound
+// across the offset parent chain.
+const MAX_LAYOUT_ROUNDING_ERROR = 2;
 
 /**
  * A visual indicator that can be styled to match the position of the currently active tab.
@@ -78,21 +81,33 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
       const hasNonZeroScale =
         Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
-      // A rotation, skew, flip, or 3D transform on the tab or any ancestor warps the
-      // bounding rects, so the rect-based fast path can't recover the tab's position.
-      const useOffsetPath = !hasNonZeroScale || hasDistortingTransform(activeTab);
+      // Layout offsets are immune to transforms, but lose sub-pixel precision.
+      const layoutOffset = getLayoutOffset(activeTab, tabsListElement);
+      left = layoutOffset.left;
+      top = layoutOffset.top;
 
-      if (useOffsetPath) {
-        // Layout offsets are immune to transforms, but lose sub-pixel precision.
-        const offset = getLayoutOffset(activeTab, tabsListElement);
-        left = offset.left;
-        top = offset.top;
-      } else {
-        const tabLeftDelta = tabRect.left - tabsListRect.left;
-        const tabTopDelta = tabRect.top - tabsListRect.top;
+      if (hasNonZeroScale) {
+        const rectLeft =
+          (tabRect.left - tabsListRect.left) / scaleX +
+          tabsListElement.scrollLeft -
+          tabsListElement.clientLeft;
+        const rectTop =
+          (tabRect.top - tabsListRect.top) / scaleY +
+          tabsListElement.scrollTop -
+          tabsListElement.clientTop;
 
-        left = tabLeftDelta / scaleX + tabsListElement.scrollLeft - tabsListElement.clientLeft;
-        top = tabTopDelta / scaleY + tabsListElement.scrollTop - tabsListElement.clientTop;
+        // The rect-based offset is sub-pixel-precise but is derived from projected viewport
+        // geometry: a rotation, skew, flip, perspective, or 3D transform on the tab or any
+        // ancestor warps it beyond what the scale division can undo. When it agrees with the
+        // layout offset (up to layout rounding), no distortion is in effect and the more
+        // precise value is safe to use.
+        if (
+          Math.abs(rectLeft - left) <= MAX_LAYOUT_ROUNDING_ERROR &&
+          Math.abs(rectTop - top) <= MAX_LAYOUT_ROUNDING_ERROR
+        ) {
+          left = rectLeft;
+          top = rectTop;
+        }
       }
 
       width = computedWidth;

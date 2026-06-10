@@ -341,6 +341,18 @@ describe('<Tabs.Indicator />', () => {
       expect(bubble).not.toHaveAttribute('hidden');
     });
 
+    it('overlays the active tab when an ancestor uses a flipping scale longhand', async () => {
+      await renderTransformedTabs({ scale: '-1 1' });
+
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      await waitFor(() => {
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
+      });
+      expect(bubble).not.toHaveAttribute('hidden');
+    });
+
     it('overlays the active tab when an ancestor has a 3D rotation (#4837)', async () => {
       await renderTransformedTabs({ transform: 'perspective(600px) rotateY(35deg)' });
 

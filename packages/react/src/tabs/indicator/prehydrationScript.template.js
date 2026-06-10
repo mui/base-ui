@@ -44,44 +44,6 @@
     };
   }
 
-  // Keep in sync with `hasDistortingTransform.ts`.
-  function hasDistortingTransform(element) {
-    let node = element;
-    while (node != null) {
-      const css = getComputedStyle(node);
-      const transform = css.transform;
-      if (transform && transform !== 'none') {
-        const matrix = new DOMMatrix(transform);
-        if (
-          !matrix.is2D ||
-          Math.abs(matrix.b) > 1e-6 ||
-          Math.abs(matrix.c) > 1e-6 ||
-          matrix.a < -1e-6 ||
-          matrix.d < -1e-6
-        ) {
-          return true;
-        }
-      }
-      if (hasDistortingTransformLonghand(css)) {
-        return true;
-      }
-      node = node.parentElement;
-    }
-    return false;
-  }
-
-  /**
-   * Checks transform longhands that aren't reflected in the computed `transform` matrix.
-   */
-  function hasDistortingTransformLonghand(css) {
-    const rotate = css.getPropertyValue('rotate').trim();
-
-    return (
-      (rotate !== '' && rotate !== 'none' && (parseFloat(rotate) !== 0 || rotate.includes(' '))) ||
-      parseFloat(css.getPropertyValue('perspective')) > 0
-    );
-  }
-
   function getLayoutOffset(element, ancestor) {
     const elementOffset = getCumulativeOffset(element);
     const ancestorOffset = getCumulativeOffset(ancestor);
@@ -121,18 +83,23 @@
     const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
     const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
     const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
-    const useOffsetPath = !hasNonZeroScale || hasDistortingTransform(activeTab);
 
-    if (useOffsetPath) {
-      const offset = getLayoutOffset(activeTab, tabsList);
-      left = offset.left;
-      top = offset.top;
-    } else {
-      const tabLeftDelta = tabRect.left - tabsListRect.left;
-      const tabTopDelta = tabRect.top - tabsListRect.top;
+    // Keep in sync with `TabsIndicator.tsx`.
+    const layoutOffset = getLayoutOffset(activeTab, tabsList);
+    left = layoutOffset.left;
+    top = layoutOffset.top;
 
-      left = tabLeftDelta / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
-      top = tabTopDelta / scaleY + tabsList.scrollTop - tabsList.clientTop;
+    if (hasNonZeroScale) {
+      const rectLeft =
+        (tabRect.left - tabsListRect.left) / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
+      const rectTop =
+        (tabRect.top - tabsListRect.top) / scaleY + tabsList.scrollTop - tabsList.clientTop;
+
+      // 2px covers the whole-pixel rounding of offsetLeft/offsetTop, compounded over the chain.
+      if (Math.abs(rectLeft - left) <= 2 && Math.abs(rectTop - top) <= 2) {
+        left = rectLeft;
+        top = rectTop;
+      }
     }
 
     width = computedWidth;
