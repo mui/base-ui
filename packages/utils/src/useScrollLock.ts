@@ -254,9 +254,9 @@ class ScrollLocker {
     }
 
     const doc = ownerDocument(referenceElement);
-    const win = ownerWindow(doc);
     const html = doc.documentElement;
     const body = doc.body;
+    const win = ownerWindow(html);
 
     let observer: MutationObserver;
 
@@ -278,8 +278,8 @@ class ScrollLocker {
       this.lock(referenceElement);
     });
 
-    observer.observe(html, { attributes: true });
-    observer.observe(body, { attributes: true });
+    observer.observe(html, { attributes: true, attributeFilter: ['style', 'class'] });
+    observer.observe(body, { attributes: true, attributeFilter: ['style', 'class'] });
 
     return disconnect;
   }

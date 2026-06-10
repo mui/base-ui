@@ -1320,9 +1320,8 @@ describe('<Dialog.Root />', () => {
 
       await render(<App />);
 
-      const doc = document;
-
       fireEvent.click(screen.getByRole('button', { name: 'Open dialog' }));
+      // Flush the scroll locker's deferred `lock` (scheduled on a 0ms timeout).
       await act(async () => {
         await wait(0);
       });
@@ -1330,13 +1329,14 @@ describe('<Dialog.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('dialog')).not.toBe(null);
       });
-      expect(isScrollLocked(doc)).toBe(true);
+      expect(isScrollLocked(document)).toBe(true);
 
+      // Let the external lock clear (at 50ms) so Base UI takes over its own lock.
       await act(async () => {
         await wait(75);
       });
       await waitFor(() => {
-        expect(isScrollLocked(doc)).toBe(true);
+        expect(isScrollLocked(document)).toBe(true);
       });
 
       fireEvent.click(screen.getByRole('button', { name: 'Close dialog' }));
@@ -1348,7 +1348,7 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByRole('dialog')).toBe(null);
       });
       await waitFor(() => {
-        expect(isScrollLocked(doc)).toBe(false);
+        expect(isScrollLocked(document)).toBe(false);
       });
     });
   });
