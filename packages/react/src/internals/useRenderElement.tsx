@@ -141,7 +141,9 @@ function evaluateRenderProp<T extends React.ElementType, S>(
       }
       return render(props, state);
     }
+
     const mergedProps = mergeProps(props, render.props);
+
     mergedProps.ref = props.ref;
 
     let newElement = render;
@@ -162,6 +164,8 @@ function evaluateRenderProp<T extends React.ElementType, S>(
     // so we can throw before with custom message.
     if (process.env.NODE_ENV !== 'production') {
       if (!React.isValidElement(newElement)) {
+        // TODO: fix mui/no-guarded-throw
+        // eslint-disable-next-line mui/no-guarded-throw
         throw new Error(
           [
             'Base UI: The `render` prop was provided an invalid React element as `React.isValidElement(render)` is `false`.',

@@ -59,15 +59,21 @@ export function useCheckboxGroupParent(
           return;
         }
 
+        let nextStatus: 'on' | 'off' | 'mixed' = 'mixed';
+        let nextValue = uncontrolledState;
+
         if (status === 'mixed') {
-          onValueChange(all, eventDetails);
-          setStatus('on');
+          nextStatus = 'on';
+          nextValue = all;
         } else if (status === 'on') {
-          onValueChange(none, eventDetails);
-          setStatus('off');
-        } else if (status === 'off') {
-          onValueChange(uncontrolledState, eventDetails);
-          setStatus('mixed');
+          nextStatus = 'off';
+          nextValue = none;
+        }
+
+        onValueChange(nextValue, eventDetails);
+
+        if (!eventDetails.isCanceled) {
+          setStatus(nextStatus);
         }
       },
     }),
@@ -84,9 +90,13 @@ export function useCheckboxGroupParent(
         } else {
           newValue.splice(newValue.indexOf(childValue), 1);
         }
-        uncontrolledStateRef.current = newValue;
+
         onValueChange(newValue, eventDetails);
-        setStatus('mixed');
+
+        if (!eventDetails.isCanceled) {
+          uncontrolledStateRef.current = newValue;
+          setStatus('mixed');
+        }
       },
     }),
     [onValueChange, value],

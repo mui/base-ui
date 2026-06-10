@@ -7,6 +7,7 @@ import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { HTMLProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -230,15 +231,13 @@ export function useCollapsiblePanel(
     // deferred ending phase applies closed styles. This keeps close transitions
     // starting from a measured pixel value, including interrupted opens.
     if (!open && mounted && (transitionStatus === 'idle' || transitionStatus === 'starting')) {
+      shouldPreventMountAnimationRef.current = false;
+      shouldPreventActivityResumeAnimationRef.current = false;
+
       if (animationType === 'none') {
         setDimensions(EMPTY_DIMENSIONS, false);
         setMounted(false);
         return undefined;
-      }
-
-      if (animationType === 'css-animation') {
-        shouldPreventMountAnimationRef.current = false;
-        shouldPreventActivityResumeAnimationRef.current = false;
       }
 
       setDimensions(getDimensions(panel));
@@ -363,9 +362,16 @@ export function useCollapsiblePanel(
       }
 
       function handleBeforeMatch(event: Event) {
+        const eventDetails = createChangeEventDetails(REASONS.none, event);
+
+        onOpenChange(true, eventDetails);
+
+        if (eventDetails.isCanceled) {
+          return;
+        }
+
         shouldSkipNextOpenRef.current = true;
         setOpen(true);
-        onOpenChange(true, createChangeEventDetails(REASONS.none, event));
       }
 
       return addEventListener(panel, 'beforematch', handleBeforeMatch);
@@ -403,7 +409,7 @@ function getAnimationType(
   element: HTMLElement,
   hasSuppressedMountAnimation: boolean = false,
 ): AnimationType {
-  const panelStyles = getComputedStyle(element);
+  const panelStyles = ownerWindow(element).getComputedStyle(element);
   const hasAnimation =
     (panelStyles.animationName
       .split(',')

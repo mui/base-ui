@@ -4,7 +4,7 @@ import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/i
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
+import { isJSDOM, useTestInteractions } from '#test-utils';
 import {
   FloatingFocusManager,
   FloatingNode,
@@ -15,7 +15,6 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
   useFocus,
-  useInteractions,
   useClick,
 } from '../index';
 import { REASONS } from '../../internals/reasons';
@@ -54,7 +53,7 @@ function App(
       }
     },
   });
-  const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context, props)]);
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([useDismiss(context, props)]);
 
   return (
     <React.Fragment>
@@ -74,6 +73,54 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       render(<App />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      await flushMicrotasks();
+    });
+
+    test('calls preventDefault on escape key dismiss', async () => {
+      render(<App />);
+      const event = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      });
+      await act(async () => {
+        document.body.dispatchEvent(event);
+      });
+      expect(event.defaultPrevented).toBe(true);
+      await flushMicrotasks();
+    });
+
+    test('does not call preventDefault on escape key if close is canceled', async () => {
+      function CancelApp() {
+        const [open, setOpen] = React.useState(true);
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange(openArg, data) {
+            data?.cancel();
+            setOpen(true);
+          },
+        });
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([useDismiss(context)]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
+          </React.Fragment>
+        );
+      }
+
+      render(<CancelApp />);
+      const event = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        bubbles: true,
+        cancelable: true,
+      });
+      await act(async () => {
+        document.body.dispatchEvent(event);
+      });
+      expect(event.defaultPrevented).toBe(false);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
       await flushMicrotasks();
     });
 
@@ -115,9 +162,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
-    test('dismisses with reference press', async () => {
+    test('dismisses with reference press', () => {
       render(<App referencePress={() => true} />);
-      await userEvent.click(screen.getByRole('button'));
+      fireEvent.pointerDown(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
@@ -144,7 +191,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         const dismiss = useDismiss(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
         return (
           <React.Fragment>
@@ -179,7 +226,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         });
 
         const dismiss = useDismiss(context);
-        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
         return (
           <React.Fragment>
@@ -219,7 +266,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         });
 
         const dismiss = useDismiss(context);
-        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
         return (
           <React.Fragment>
@@ -271,7 +318,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         const dismiss = useDismiss(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([dismiss]);
 
         const dialogJsx = (
           <div role="dialog" data-testid={id} {...getFloatingProps({ ref: refs.setFloating })}>
@@ -388,7 +435,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
           onOpenChange: setOpen,
         });
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context)]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([useDismiss(context)]);
 
         return (
           <React.Fragment>
@@ -436,7 +483,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         nodeId,
       });
 
-      const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context, props)]);
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([
+        useDismiss(context, props),
+      ]);
 
       return (
         <FloatingNode id={nodeId}>
@@ -591,8 +640,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             onOpenChange: setTooltipOpen,
           });
 
-          const popoverInteractions = useInteractions([useDismiss(popover.context)]);
-          const tooltipInteractions = useInteractions([
+          const popoverInteractions = useTestInteractions([useDismiss(popover.context)]);
+          const tooltipInteractions = useTestInteractions([
             useFocus(tooltip.context),
             useDismiss(tooltip.context),
           ]);
@@ -796,7 +845,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         nodeId,
       });
 
-      const { getReferenceProps, getFloatingProps } = useInteractions([useDismiss(context, props)]);
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([
+        useDismiss(context, props),
+      ]);
 
       return (
         <FloatingNode id={nodeId}>
@@ -972,7 +1023,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       function AppWithPreventedPressStart() {
         const [open, setOpen] = React.useState(true);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-        const { getReferenceProps, getFloatingProps } = useInteractions([
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
           useDismiss(context, { outsidePressEvent: 'intentional' }),
         ]);
 
@@ -1016,7 +1067,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       function AppWithPreventedPressStart() {
         const [open, setOpen] = React.useState(true);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-        const { getReferenceProps, getFloatingProps } = useInteractions([
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
           useDismiss(context, { outsidePressEvent: 'intentional' }),
         ]);
 
@@ -1057,7 +1108,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       function AppWithPreventedPressStart() {
         const [open, setOpen] = React.useState(true);
         const { refs, context } = useFloating({ open, onOpenChange: setOpen });
-        const { getReferenceProps, getFloatingProps } = useInteractions([
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
           useDismiss(context, { outsidePressEvent: 'intentional' }),
         ]);
 
@@ -1113,7 +1164,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       const click = useClick(context);
       const dismiss = useDismiss(context);
 
-      const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
       return (
         <React.Fragment>

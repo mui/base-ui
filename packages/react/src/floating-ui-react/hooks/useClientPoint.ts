@@ -126,6 +126,10 @@ export function useClientPoint(
   const [pointerType, setPointerType] = React.useState<string | undefined>();
   const [reactive, setReactive] = React.useState([]);
 
+  const resetReference = useStableCallback((reference: Element | null) => {
+    store.set('positionReference', reference);
+  });
+
   const setReference = useStableCallback(
     (newX: number | null, newY: number | null, referenceElement?: Element | null) => {
       if (initialRef.current) {
@@ -171,7 +175,12 @@ export function useClientPoint(
   const openCheck = isMouseLikePointerType(pointerType) ? floating : open;
 
   React.useEffect(() => {
-    if (!openCheck || !enabled) {
+    if (!enabled) {
+      resetReference(domReference);
+      return undefined;
+    }
+
+    if (!openCheck) {
       return undefined;
     }
 
@@ -195,11 +204,29 @@ export function useClientPoint(
     if (!dataRef.current.openEvent || isMouseBasedEvent(dataRef.current.openEvent)) {
       cleanupListenerRef.current = addEventListener(win, 'mousemove', handleMouseMove);
     } else {
-      store.set('positionReference', domReference);
+      resetReference(domReference);
     }
 
     return cleanupListener;
-  }, [openCheck, enabled, floating, dataRef, domReference, store, setReference, reactive]);
+  }, [
+    openCheck,
+    enabled,
+    floating,
+    dataRef,
+    domReference,
+    store,
+    setReference,
+    resetReference,
+    reactive,
+  ]);
+
+  // Clear virtual cursor references when the hook unmounts. Enabled flips are handled above.
+  React.useEffect(
+    () => () => {
+      store.set('positionReference', null);
+    },
+    [store],
+  );
 
   React.useEffect(() => {
     if (enabled && !floating) {

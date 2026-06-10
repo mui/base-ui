@@ -4,7 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
-import { isAndroid } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useId } from '@base-ui/utils/useId';
 import {
   DrawerRootContext,
@@ -14,13 +14,12 @@ import {
   type DrawerSnapPoint,
 } from './DrawerRootContext';
 import { Dialog } from '../../dialog';
-import { IsDrawerContext } from '../../dialog/root/DialogRoot';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { IsDrawerContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import type { DialogHandle } from '../../dialog/store/DialogHandle';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
@@ -49,10 +48,8 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
     snapPoints,
     snapPoint: snapPointProp,
     defaultSnapPoint,
-    onSnapPointChange: onSnapPointChangeProp,
+    onSnapPointChange,
   } = props;
-
-  const onSnapPointChange = useStableCallback(onSnapPointChangeProp);
 
   const parentDrawerRootContext = useDrawerRootContext(true);
 
@@ -454,7 +451,7 @@ function DrawerProviderReporter() {
   React.useEffect(() => {
     // CloseWatcher enables the Android back gesture (Chromium-only).
     // Keep this Android-only for now to avoid interfering with Escape/nesting semantics on desktop due to `useDismiss`.
-    if (!open || !isTopmost || !isAndroid) {
+    if (!open || !isTopmost || !platform.os.android) {
       return undefined;
     }
 

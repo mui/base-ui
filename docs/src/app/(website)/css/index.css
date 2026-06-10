@@ -1,4 +1,4 @@
-@import './theme.css';
+@layer all, base, theme, components, utilities;
 
 @import './components/Accordion.css';
 @import './components/Body.css';

@@ -44,7 +44,7 @@ export class MenuHandle<Payload> {
    * Indicates whether the menu is currently open.
    */
   get isOpen() {
-    return this.store.state.open;
+    return this.store.select('open');
   }
 }
 

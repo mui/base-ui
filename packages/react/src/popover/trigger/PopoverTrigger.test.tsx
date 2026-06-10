@@ -70,6 +70,28 @@ describe('<Popover.Trigger />', () => {
       await user.keyboard('[Tab]');
       expect(document.activeElement).not.toBe(trigger);
     });
+
+    it('does not open on hover when disabled', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger disabled openOnHover delay={0} render={<span />} nativeButton={false} />
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+      expect(trigger).toHaveAttribute('data-disabled');
+
+      await user.hover(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).toBe(null);
+      expect(trigger).not.toHaveAttribute('data-popup-open');
+    });
   });
 
   describe('style hooks', () => {

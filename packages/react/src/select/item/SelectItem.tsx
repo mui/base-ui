@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
@@ -21,6 +20,7 @@ import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { compareItemEquality, removeItem } from '../../internals/itemEquality';
+import { isVirtualClick } from '../../floating-ui-react/utils/event';
 
 /**
  * An individual option in the select popup.
@@ -53,7 +53,7 @@ export const SelectItem = React.memo(
 
     const {
       store,
-      getItemProps,
+      itemProps,
       setOpen,
       setValue,
       selectionRef,
@@ -61,10 +61,13 @@ export const SelectItem = React.memo(
       valuesRef,
       multiple,
       selectedItemTextRef,
+      disabled: selectDisabled,
+      readOnly,
     } = useSelectRootContext();
 
     const highlighted = useStore(store, selectors.isActive, listItem.index);
-    const selected = useStore(store, selectors.isSelected, listItem.index, itemValue);
+    const open = useStore(store, selectors.open);
+    const selected = useStore(store, selectors.isSelected, itemValue);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
@@ -72,7 +75,6 @@ export const SelectItem = React.memo(
     const hasRegistered = index !== -1;
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useValueAsRef(index);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -114,7 +116,7 @@ export const SelectItem = React.memo(
 
     const lastKeyRef = React.useRef<string | null>(null);
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
-    const didPointerDownRef = React.useRef(false);
+    const allowMouseSelectionRef = React.useRef(false);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
@@ -123,16 +125,19 @@ export const SelectItem = React.memo(
       composite: true,
     });
 
-    const rootProps = getItemProps({ active: highlighted, selected });
-    rootProps.id = undefined;
-
     const state: SelectItemState = {
       disabled,
       selected,
       highlighted,
     };
 
-    function commitSelection(event: MouseEvent) {
+    function commitSelection(event: MouseEvent | KeyboardEvent | PointerEvent) {
+      // A forced-open select (`open`/`defaultOpen`) can still receive item activations even
+      // when the root is disabled or read-only, so guard the commit here too.
+      if (selectDisabled || readOnly) {
+        return;
+      }
+
       const selectedValue = store.state.value;
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
@@ -146,16 +151,14 @@ export const SelectItem = React.memo(
       }
     }
 
+    function resetDragMovement() {
+      selectionRef.current.dragY = 0;
+    }
+
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      tabIndex: highlighted ? 0 : -1,
-      onTouchStart() {
-        selectionRef.current = {
-          allowSelectedMouseUp: false,
-          allowUnselectedMouseUp: false,
-        };
-      },
+      tabIndex: open && highlighted ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         lastKeyRef.current = event.key;
         store.set('activeIndex', index);
@@ -165,7 +168,22 @@ export const SelectItem = React.memo(
         }
       },
       onClick(event) {
-        didPointerDownRef.current = false;
+        const isMouseClick = event.type === 'click' && pointerTypeRef.current !== 'touch';
+        const clickPointerType = (event.nativeEvent as PointerEvent).pointerType;
+        const isVirtualMouseClick =
+          isMouseClick &&
+          isVirtualClick(event.nativeEvent) &&
+          // Generic no-pointer `detail === 0` clicks stay tied to highlight state. Virtual
+          // clicks that carry browser pointer data, including an empty string from assistive
+          // technology, can activate unhighlighted items.
+          (clickPointerType !== undefined || highlighted);
+        // With alignItemWithTrigger, opening can place an item under the cursor. Real mouse
+        // clicks must start on the item, while virtual clicks represent explicit keyboard or
+        // assistive technology activation.
+        const isInvalidMouseClick =
+          isMouseClick && !isVirtualMouseClick && !allowMouseSelectionRef.current;
+
+        allowMouseSelectionRef.current = false;
 
         // Prevent double commit on {Enter}
         if (event.type === 'keydown' && lastKeyRef.current === null) {
@@ -175,7 +193,7 @@ export const SelectItem = React.memo(
         if (
           disabled ||
           (event.type === 'keydown' && lastKeyRef.current === ' ' && typingRef.current) ||
-          (pointerTypeRef.current !== 'touch' && !highlighted)
+          isInvalidMouseClick
         ) {
           return;
         }
@@ -186,51 +204,61 @@ export const SelectItem = React.memo(
       onPointerEnter(event) {
         pointerTypeRef.current = event.pointerType;
       },
+      onPointerMove(event) {
+        if (event.pointerType === 'mouse' && event.buttons === 1) {
+          const selection = selectionRef.current;
+          selection.dragY += event.movementY;
+
+          if (selection.dragY ** 2 >= 64) {
+            selection.allowUnselectedMouseUp = true;
+          }
+        }
+      },
       onPointerDown(event) {
         pointerTypeRef.current = event.pointerType;
-        didPointerDownRef.current = true;
+        allowMouseSelectionRef.current = true;
+        resetDragMovement();
       },
       onMouseUp() {
-        if (disabled) {
+        resetDragMovement();
+
+        if (disabled || pointerTypeRef.current === 'touch') {
           return;
         }
 
-        // Regular click (pointerdown on this element) if didPointerDownRef is set, otherwise drag-to-select
-        if (didPointerDownRef.current) {
-          didPointerDownRef.current = false;
+        // Regular clicks are committed by the click event.
+        if (allowMouseSelectionRef.current) {
           return;
         }
 
         const disallowSelectedMouseUp = !selectionRef.current.allowSelectedMouseUp && selected;
         const disallowUnselectedMouseUp = !selectionRef.current.allowUnselectedMouseUp && !selected;
 
-        if (
-          disallowSelectedMouseUp ||
-          disallowUnselectedMouseUp ||
-          (pointerTypeRef.current !== 'touch' && !highlighted)
-        ) {
+        if (disallowSelectedMouseUp || disallowUnselectedMouseUp) {
           return;
         }
 
+        allowMouseSelectionRef.current = true;
         itemRef.current?.click();
+        allowMouseSelectionRef.current = false;
       },
     };
 
     const element = useRenderElement('div', componentProps, {
       ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
       state,
-      props: [rootProps, defaultProps, elementProps, getButtonProps],
+      props: [itemProps, defaultProps, elementProps, getButtonProps],
     });
 
     const contextValue: SelectItemContext = React.useMemo(
       () => ({
         selected,
-        indexRef,
+        index,
         textRef,
         selectedByFocus,
         hasRegistered,
       }),
-      [selected, indexRef, textRef, selectedByFocus, hasRegistered],
+      [selected, index, textRef, selectedByFocus, hasRegistered],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;

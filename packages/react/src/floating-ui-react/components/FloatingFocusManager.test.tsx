@@ -16,7 +16,7 @@ import {
 } from '@mui/internal-test-utils';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
+import { isJSDOM, useTestInteractions } from '#test-utils';
 import {
   FloatingFocusManager,
   FloatingNode,
@@ -28,8 +28,6 @@ import {
   useFloatingNodeId,
   useFloatingParentNodeId,
   useHover,
-  useInteractions,
-  useRole,
 } from '../index';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
 import { Main as Navigation } from '../../../test/floating-ui-tests/Navigation';
@@ -156,7 +154,7 @@ function Dialog({ render, open: passedOpen = false, children }: DialogProps) {
     nodeId,
   });
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
     useClick(context),
     useDismiss(context, { bubbles: false }),
   ]);
@@ -359,7 +357,7 @@ describe('FloatingFocusManager', () => {
 
           const click = useClick(context);
 
-          const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
           return (
             <>
@@ -413,7 +411,7 @@ describe('FloatingFocusManager', () => {
 
           const click = useClick(context);
 
-          const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
           return (
             <>
@@ -469,7 +467,7 @@ describe('FloatingFocusManager', () => {
             const click = useClick(context);
             const dismiss = useDismiss(context);
 
-            const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
+            const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
             return (
               <>
@@ -522,7 +520,7 @@ describe('FloatingFocusManager', () => {
           const click = useClick(context);
           const dismiss = useDismiss(context);
 
-          const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
           return (
             <>
@@ -560,7 +558,7 @@ describe('FloatingFocusManager', () => {
           const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
 
           const click = useClick(context);
-          const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
           return (
             <>
@@ -636,7 +634,7 @@ describe('FloatingFocusManager', () => {
         const click = useClick(context);
         const dismiss = useDismiss(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
         return (
           <>
@@ -883,7 +881,7 @@ describe('FloatingFocusManager', () => {
             nodeId,
           });
 
-          const { getReferenceProps, getFloatingProps } = useInteractions([
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([
             useClick(context),
             useDismiss(context, { bubbles: false }),
           ]);
@@ -1216,7 +1214,7 @@ describe('FloatingFocusManager', () => {
 
           const click = useClick(context);
 
-          const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
           return (
             <>
@@ -1250,7 +1248,7 @@ describe('FloatingFocusManager', () => {
           const click = useClick(context);
           const dismiss = useDismiss(context);
 
-          const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
           return (
             <>
@@ -1485,7 +1483,7 @@ describe('FloatingFocusManager', () => {
       });
 
       const click = useClick(context);
-      const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+      const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
       return (
         <>
@@ -1583,11 +1581,23 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const role = useRole(context);
+        const role = React.useMemo(
+          () => ({
+            reference: {
+              'aria-expanded': isOpen,
+              'aria-controls': isOpen ? 'floating' : undefined,
+            },
+            floating: {
+              id: 'floating',
+              role: 'listbox' as const,
+            },
+          }),
+          [isOpen],
+        );
         const dismiss = useDismiss(context);
         const click = useClick(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([role, dismiss, click]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([role, dismiss, click]);
 
         return (
           <div className="App">
@@ -1630,11 +1640,23 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const role = useRole(context);
+        const role = React.useMemo(
+          () => ({
+            reference: {
+              'aria-expanded': isOpen,
+              'aria-controls': isOpen ? 'floating' : undefined,
+            },
+            floating: {
+              id: 'floating',
+              role: 'listbox' as const,
+            },
+          }),
+          [isOpen],
+        );
         const dismiss = useDismiss(context);
         const click = useClick(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([role, dismiss, click]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([role, dismiss, click]);
 
         return (
           <>
@@ -1679,7 +1701,7 @@ describe('FloatingFocusManager', () => {
       }) {
         const { refs, context } = useFloating({ open, onOpenChange });
         const dismiss = useDismiss(context);
-        const { getFloatingProps } = useInteractions([dismiss]);
+        const { getFloatingProps } = useTestInteractions([dismiss]);
 
         return (
           <FloatingFocusManager context={context}>
@@ -1702,7 +1724,7 @@ describe('FloatingFocusManager', () => {
         const dismiss = useDismiss(context);
         const click = useClick(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
 
         return (
           <>
@@ -1750,9 +1772,22 @@ describe('FloatingFocusManager', () => {
           onOpenChange: setIsOpen,
         });
 
-        const role = useRole(context);
+        const role = React.useMemo(
+          () => ({
+            reference: {
+              'aria-haspopup': 'dialog' as const,
+              'aria-expanded': isOpen,
+              'aria-controls': isOpen ? 'floating' : undefined,
+            },
+            floating: {
+              id: 'floating',
+              role: 'dialog' as const,
+            },
+          }),
+          [isOpen],
+        );
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([role]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([role]);
 
         return (
           <>
@@ -1792,7 +1827,7 @@ describe('FloatingFocusManager', () => {
 
         const click = useClick(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
         return (
           <>
@@ -1833,7 +1868,7 @@ describe('FloatingFocusManager', () => {
         });
 
         const click = useClick(context);
-        const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
         return (
           <>
@@ -1891,7 +1926,7 @@ describe('FloatingFocusManager', () => {
 
         const hover = useHover(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([hover]);
 
         return (
           <>
@@ -1932,7 +1967,7 @@ describe('FloatingFocusManager', () => {
 
         const hover = useHover(context);
 
-        const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([hover]);
 
         return (
           <>
@@ -2002,7 +2037,7 @@ describe('FloatingFocusManager', () => {
         });
 
         const click = useClick(context);
-        const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
         return (
           <>
@@ -2084,7 +2119,7 @@ describe('FloatingFocusManager', () => {
         });
 
         const click = useClick(context);
-        const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
 
         return (
           <>
@@ -2111,6 +2146,7 @@ describe('FloatingFocusManager', () => {
       await userEvent.click(screen.getByTestId('reference'));
       await flushMicrotasks();
 
+      expect(screen.getByTestId('floating')).toHaveAttribute('tabindex', '-1');
       expect(screen.getByTestId('inner')).toHaveFocus();
       await userEvent.tab({ shift: true });
       expect(screen.getByTestId('reference')).toHaveFocus();

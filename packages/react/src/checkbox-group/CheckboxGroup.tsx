@@ -49,7 +49,6 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     validation,
     setFilled,
     setDirty,
-    shouldValidateOnChange,
     validityData,
   } = useFieldRootContext();
   const { labelId, getDescriptionProps } = useLabelableContext();
@@ -100,11 +99,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     }
   }, []);
 
-  useRegisterFieldControl(controlRef, {
-    enabled: !!fieldName,
-    id,
-    value,
-  });
+  useRegisterFieldControl(controlRef, id, value, undefined, !!fieldName && !disabled, fieldName);
 
   const resolvedValue = value ?? EMPTY_ARRAY;
 
@@ -120,11 +115,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     setFilled(resolvedValue.length > 0);
     setDirty(!areArraysEqual(resolvedValue, initialValue));
 
-    if (shouldValidateOnChange()) {
-      validation.commit(resolvedValue);
-    } else {
-      validation.commit(resolvedValue, true);
-    }
+    validation.change(resolvedValue);
   });
 
   const state: CheckboxGroupState = {
@@ -154,8 +145,8 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
         role: 'group',
         'aria-labelledby': labelId,
       },
-      getDescriptionProps,
       elementProps,
+      getDescriptionProps,
     ],
     stateAttributesMapping: fieldValidityMapping,
   });

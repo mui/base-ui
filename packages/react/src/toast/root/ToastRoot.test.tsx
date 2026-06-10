@@ -11,6 +11,67 @@ const toast: Toast.Root.ToastObject = {
   title: 'Toast title',
 };
 
+function simulateSwipe(
+  element: HTMLElement,
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number,
+  releaseTarget: HTMLElement | Document = element,
+  releaseType: 'pointerup' | 'pointercancel' = 'pointerup',
+) {
+  fireEvent.pointerDown(element, {
+    clientX: startX,
+    clientY: startY,
+    button: 0,
+    bubbles: true,
+    pointerId: 1,
+  });
+
+  // Fire an initial move event close to the start to trigger the isFirstPointerMoveRef logic correctly.
+  // This simulates the finger moving slightly before the main swipe movement is registered.
+  let deltaX = 0;
+  if (endX > startX) {
+    deltaX = 1;
+  } else if (endX < startX) {
+    deltaX = -1;
+  }
+
+  let deltaY = 0;
+  if (endY > startY) {
+    deltaY = 1;
+  } else if (endY < startY) {
+    deltaY = -1;
+  }
+
+  fireEvent.pointerMove(element, {
+    clientX: startX + deltaX,
+    clientY: startY + deltaY,
+    bubbles: true,
+    pointerId: 1,
+  });
+
+  // Fire the main move event to the end position.
+  fireEvent.pointerMove(element, {
+    clientX: endX,
+    clientY: endY,
+    bubbles: true,
+    pointerId: 1,
+  });
+  const releaseEvent = {
+    clientX: endX,
+    clientY: endY,
+    bubbles: true,
+    pointerId: 1,
+  };
+
+  if (releaseType === 'pointercancel') {
+    fireEvent.pointerCancel(releaseTarget, releaseEvent);
+  } else {
+    fireEvent.pointerUp(releaseTarget, releaseEvent);
+  }
+}
+
 describe('<Toast.Root />', () => {
   const { render } = createRenderer();
 
@@ -170,52 +231,6 @@ describe('<Toast.Root />', () => {
           <Toast.Description>{toastItem.description}</Toast.Description>
         </Toast.Root>
       ));
-    }
-
-    function simulateSwipe(
-      element: HTMLElement,
-      startX: number,
-      startY: number,
-      endX: number,
-      endY: number,
-    ) {
-      fireEvent.pointerDown(element, {
-        clientX: startX,
-        clientY: startY,
-        button: 0,
-        bubbles: true,
-        pointerId: 1,
-      });
-      // Fire an initial move event close to the start to trigger the isFirstPointerMoveRef logic correctly.
-      // This simulates the finger moving slightly before the main swipe movement is registered.
-      let deltaX = 0;
-      if (endX > startX) {
-        deltaX = 1;
-      } else if (endX < startX) {
-        deltaX = -1;
-      }
-
-      let deltaY = 0;
-      if (endY > startY) {
-        deltaY = 1;
-      } else if (endY < startY) {
-        deltaY = -1;
-      }
-
-      fireEvent.pointerMove(element, {
-        clientX: startX + deltaX,
-        clientY: startY + deltaY,
-        bubbles: true,
-        pointerId: 1,
-      });
-      // Fire the main move event to the end position.
-      fireEvent.pointerMove(element, {
-        clientX: endX,
-        clientY: endY,
-        bubbles: true,
-        pointerId: 1,
-      });
-      fireEvent.pointerUp(element, { clientX: endX, clientY: endY, bubbles: true, pointerId: 1 });
     }
 
     it('closes toast when swiping in the specified direction beyond threshold', async () => {
@@ -545,6 +560,46 @@ describe('<Toast.Root />', () => {
       expect(screen.queryByTestId('toast-root')).not.toBe(null);
     });
 
+    it('prevents native touchmove only during an active touch swipe', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <Toast.Root toast={toast} data-testid="toast-root" swipeDirection="up">
+              <Toast.Title>{toast.title}</Toast.Title>
+            </Toast.Root>
+          </Toast.Viewport>
+        </Toast.Provider>,
+      );
+
+      const toastElement = screen.getByTestId('toast-root');
+      Object.defineProperty(toastElement, 'setPointerCapture', {
+        value: () => {},
+        configurable: true,
+      });
+
+      const beforeSwipeEvent = new Event('touchmove', { bubbles: true, cancelable: true });
+      toastElement.dispatchEvent(beforeSwipeEvent);
+      expect(beforeSwipeEvent.defaultPrevented).toBe(false);
+
+      fireEvent.pointerDown(toastElement, {
+        clientX: 100,
+        clientY: 100,
+        button: 0,
+        pointerId: 1,
+        pointerType: 'touch',
+      });
+
+      const duringSwipeEvent = new Event('touchmove', { bubbles: true, cancelable: true });
+      toastElement.dispatchEvent(duringSwipeEvent);
+      expect(duringSwipeEvent.defaultPrevented).toBe(true);
+
+      fireEvent.pointerCancel(toastElement, { pointerId: 1, pointerType: 'touch' });
+
+      const afterSwipeEvent = new Event('touchmove', { bubbles: true, cancelable: true });
+      toastElement.dispatchEvent(afterSwipeEvent);
+      expect(afterSwipeEvent.defaultPrevented).toBe(false);
+    });
+
     it('does not start swiping from elements with the data-base-ui-swipe-ignore attribute', async () => {
       await render(
         <Toast.Provider>
@@ -617,6 +672,90 @@ describe('<Toast.Root />', () => {
       } finally {
         document.body.removeChild(anchor);
       }
+    });
+  });
+
+  describe('drag behavior regression', () => {
+    function DragList() {
+      return Toast.useToastManager().toasts.map((toastItem) => (
+        <Toast.Root key={toastItem.id} toast={toastItem} data-testid="toast-root">
+          <Toast.Content data-testid="toast-content">
+            <Toast.Title>{toastItem.title}</Toast.Title>
+            <Toast.Description>{toastItem.description}</Toast.Description>
+          </Toast.Content>
+        </Toast.Root>
+      ));
+    }
+
+    function DragButton() {
+      const { add } = Toast.useToastManager();
+      return (
+        <button
+          type="button"
+          onClick={() => {
+            add({ title: 'T', description: 'D' });
+          }}
+        >
+          add toast
+        </button>
+      );
+    }
+
+    it('resets drag state after releasing a far swipe even when the release lands on the document', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <DragList />
+          </Toast.Viewport>
+          <DragButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      // Default swipeDirection=['down','right']. Dragging left triggers the damped, opposite-
+      // direction path. Release on the document to cover browsers that don't deliver the final
+      // pointer event back to the toast root.
+      simulateSwipe(toastElement, 300, 100, -5000, 100, document);
+
+      expect(toastElement).not.toHaveAttribute('data-swiping');
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-y')).toBe('0px');
+      expect(toastElement.style.transition).toBe('');
+      expect(toastElement.style.transform).toBe('');
+
+      simulateSwipe(toastElement, 100, 100, 150, 100);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('toast-root')).toBe(null);
+      });
+    });
+
+    it('resets drag state after a document pointercancel', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <DragList />
+          </Toast.Viewport>
+          <DragButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+
+      simulateSwipe(toastElement, 300, 100, -5000, 100, document, 'pointercancel');
+
+      expect(toastElement).not.toHaveAttribute('data-swiping');
+      expect(toastElement).not.toHaveAttribute('data-swipe-direction');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-y')).toBe('0px');
+      expect(toastElement.style.transition).toBe('');
+      expect(toastElement.style.transform).toBe('');
     });
   });
 

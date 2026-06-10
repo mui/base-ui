@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { isMac, isSafari } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
@@ -20,7 +20,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { FloatingUIOpenChangeDetails } from '../../internals/types';
 
-const isMacSafari = isMac && isSafari;
+const isMacSafari = platform.os.mac && platform.engine.webkit;
 
 export interface UseFocusProps {
   /**

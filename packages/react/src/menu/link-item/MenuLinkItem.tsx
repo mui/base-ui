@@ -62,12 +62,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     return mergeProps<'a'>(commonProps, externalProps, getButtonProps);
   }
 
-  const state: MenuLinkItemState = React.useMemo(
-    () => ({
-      highlighted,
-    }),
-    [highlighted],
-  );
+  const state: MenuLinkItemState = { highlighted };
 
   return useRenderElement('a', componentProps, {
     state,

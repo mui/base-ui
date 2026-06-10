@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/utils",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "author": "MUI Team",
   "description": "A collection of React utility functions for Base UI.",
   "license": "MIT",
@@ -11,24 +11,24 @@
   },
   "exports": {
     "./store": "./src/store/index.ts",
+    "./platform": "./src/platform/index.ts",
     "./*": "./src/*.ts"
   },
   "imports": {
     "#formatErrorMessage": "./src/formatErrorMessage.ts"
   },
-  "type": "commonjs",
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
-    "build": "code-infra build --copy .npmignore",
+    "build": "code-infra build --copy .npmignore --tsgo",
     "test:package": "publint --pack pnpm run ./build && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
-    "typescript": "tsc -b tsconfig.json"
+    "typescript": "tsgo -b tsconfig.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",
     "@floating-ui/utils": "^0.2.11",
-    "reselect": "^5.1.1",
+    "reselect": "^5.2.0",
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
@@ -37,9 +37,9 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/use-sync-external-store": "1.5.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "typescript": "6.0.2"
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "typescript": "6.0.3"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",

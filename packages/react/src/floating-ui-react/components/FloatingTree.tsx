@@ -38,6 +38,7 @@ export function useFloatingNodeId(externalTree?: FloatingTreeStore): string | un
     if (!id) {
       return undefined;
     }
+
     const node = { id, parentId };
     tree?.addNode(node);
     return () => {
