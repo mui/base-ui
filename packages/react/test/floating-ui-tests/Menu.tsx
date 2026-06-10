@@ -29,6 +29,7 @@ import {
   useFocus,
 } from '../../src/floating-ui-react';
 import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
+import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
 import styles from './Menu.module.css';
 
 type MenuContextType = {
@@ -61,22 +62,6 @@ interface MenuProps {
   orientation?: 'vertical' | 'horizontal' | 'both';
   grid?: boolean;
   openOnFocus?: boolean;
-}
-
-const GRID_COLUMN_COUNT = 2;
-
-function renderGridRows(children: React.ReactNode, grid?: boolean) {
-  if (!grid) {
-    return children;
-  }
-
-  const items = React.Children.toArray(children);
-
-  return Array.from({ length: Math.ceil(items.length / GRID_COLUMN_COUNT) }, (_row, rowIndex) => (
-    <div key={rowIndex} role="row" style={{ display: 'contents' }}>
-      {items.slice(rowIndex * GRID_COLUMN_COUNT, rowIndex * GRID_COLUMN_COUNT + GRID_COLUMN_COUNT)}
-    </div>
-  ));
 }
 
 /** @internal */

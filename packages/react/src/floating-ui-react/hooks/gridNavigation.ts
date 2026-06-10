@@ -5,11 +5,15 @@ import {
   getGridCellIndices,
   getGridNavigatedIndex,
   isListIndexDisabled,
+  type DisabledIndices,
 } from '../utils/composite';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../utils/constants';
 
-export type DisabledIndices = ReadonlyArray<number> | ((index: number) => boolean);
-
+/**
+ * Positional arguments are deliberate: property names of an options object
+ * don't minify, and the signature is locked to the caller via `typeof` on the
+ * `grid` option of `useListNavigation`.
+ */
 export function gridNavigation(
   event: React.KeyboardEvent,
   prevIndex: number,
