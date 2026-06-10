@@ -1,7 +1,7 @@
 import { vi, expect } from 'vitest';
 import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
+import { isJSDOM } from '#test-utils';
 import { useFloating } from './useFloating';
 import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
 import { REASONS } from '../../internals/reasons';

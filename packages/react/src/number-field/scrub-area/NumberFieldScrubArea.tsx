@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerWindow, ownerDocument } from '@base-ui/utils/owner';
-import { isFirefox, isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -183,7 +183,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
           }
         }
 
-        if (isFirefox) {
+        if (platform.engine.gecko) {
           // Firefox needs a small delay here when soft-clicking as the pointer
           // lock will not release otherwise.
           exitPointerLockTimeout.start(20, handler);
@@ -300,7 +300,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       onScrubbingChange(true, event.nativeEvent);
 
       // WebKit causes significant layout shift with the native message, so we can't use it.
-      if (!isTouch && !isWebKit) {
+      if (!isTouch && !platform.engine.webkit) {
         try {
           // Avoid non-deterministic errors in testing environments. This error sometimes
           // appears:

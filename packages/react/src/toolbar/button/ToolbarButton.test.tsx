@@ -91,6 +91,45 @@ describe('<Toolbar.Button />', () => {
       expect(handlePointerDown).toHaveBeenCalledTimes(0);
       expect(handleKeyDown).toHaveBeenCalledTimes(0);
     });
+
+    it('uses the disabled attribute when focusableWhenDisabled is false', async () => {
+      await render(
+        <Toolbar.Root>
+          <Toolbar.Button disabled focusableWhenDisabled={false} />
+        </Toolbar.Root>,
+      );
+
+      const button = screen.getByRole('button');
+
+      expect(button).toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('data-disabled');
+      expect(button).not.toHaveAttribute('aria-disabled');
+    });
+
+    it.skipIf(isJSDOM)('allows hover handlers while blocking activation', async () => {
+      const handleClick = vi.fn();
+      const handleMouseMove = vi.fn();
+
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button disabled onClick={handleClick} onMouseMove={handleMouseMove} />
+        </Toolbar.Root>,
+      );
+
+      const button = screen.getByRole('button');
+
+      expect(button).not.toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+
+      await user.hover(button);
+
+      expect(handleMouseMove).toHaveBeenCalled();
+
+      await user.click(button);
+
+      expect(handleClick).toHaveBeenCalledTimes(0);
+    });
   });
 
   describe('rendering other Base UI components', () => {

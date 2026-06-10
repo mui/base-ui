@@ -6,7 +6,7 @@ import { visit } from 'unist-util-visit';
  * When placed immediately before a heading, this plugin marks that heading with
  * `data-exclude-toc` so `rehypeQuickNav` omits it from the TOC.
  *
- * @returns {function(*): void}
+ * @returns {(tree: any) => void}
  */
 export default function remarkQuickNavExcludeHeading() {
   return (tree) => {
