@@ -30,11 +30,6 @@ export enum DrawerPopupCssVars {
    */
   snapPointOffset = '--drawer-snap-point-offset',
   /**
-   * The software keyboard inset measured from the bottom edge of the layout viewport.
-   * @type {CSS length}
-   */
-  keyboardInset = '--drawer-keyboard-inset',
-  /**
    * A scalar (0.1-1) used to scale the swipe release transition duration in CSS.
    * @type {number}
    */

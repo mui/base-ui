@@ -10,7 +10,7 @@ import { clamp } from '../../internals/clamp';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { findScrollableTouchTarget } from '../../utils/scrollable';
 import { getElementAtPoint } from '../../utils/getElementAtPoint';
-import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
+import { DrawerViewportCssVars } from '../viewport/DrawerViewportCssVars';
 import {
   DrawerVirtualKeyboardContext,
   type DrawerVirtualKeyboardContext as DrawerVirtualKeyboardContextValue,
@@ -24,6 +24,10 @@ const KEYBOARD_VISIBILITY_MARGIN = 16;
 const KEYBOARD_SCROLL_SLACK = 48;
 const INPUT_TAP_MOVE_THRESHOLD = 10;
 const INPUT_TAP_HIT_SLOP = 16;
+// Elements whose taps must never be stolen by the keyboard input hit-slop probe.
+// The popup itself has `tabindex="-1"`, hence the `:not` clause.
+const INTERACTIVE_TAP_TARGET_SELECTOR =
+  'button,a[href],input,select,textarea,label,summary,[role="button"],[role="link"],[contenteditable="true"],[tabindex]:not([tabindex="-1"])';
 const KEYBOARD_INPUT_TYPES = new Set([
   'email',
   'number',
@@ -37,6 +41,8 @@ const KEYBOARD_INPUT_TYPES = new Set([
 // Snapshot of a scroll container's relevant styles taken before keyboard slack is
 // applied. The string fields are the exact inline values to restore on cleanup;
 // the parsed numbers are the computed baselines that slack is added on top of.
+// The `applied*` fields record the inline values we last wrote, so external
+// changes to those properties can be detected and re-snapshotted.
 interface ScrollAdjustment {
   readonly element: HTMLElement;
   readonly overflowAnchor: string;
@@ -44,6 +50,8 @@ interface ScrollAdjustment {
   readonly scrollPaddingBottom: string;
   readonly computedPaddingBottom: number;
   readonly computedScrollPaddingBottom: number;
+  appliedPaddingBottom: string;
+  appliedScrollPaddingBottom: string;
 }
 
 interface KeyboardVisualViewport {
@@ -83,8 +91,14 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     }
     try {
       adjustment.element.style.overflowAnchor = adjustment.overflowAnchor;
-      adjustment.element.style.paddingBottom = adjustment.paddingBottom;
-      adjustment.element.style.scrollPaddingBottom = adjustment.scrollPaddingBottom;
+      // Only restore a padding that still holds the value we applied; otherwise
+      // external code changed it in the meantime and the snapshot is stale.
+      if (adjustment.element.style.paddingBottom === adjustment.appliedPaddingBottom) {
+        adjustment.element.style.paddingBottom = adjustment.paddingBottom;
+      }
+      if (adjustment.element.style.scrollPaddingBottom === adjustment.appliedScrollPaddingBottom) {
+        adjustment.element.style.scrollPaddingBottom = adjustment.scrollPaddingBottom;
+      }
     } finally {
       keyboardScrollAdjustmentRef.current = null;
     }
@@ -95,6 +109,17 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     let adjustment = keyboardScrollAdjustmentRef.current;
 
     if (adjustment && !adjustment.element.isConnected) {
+      restoreKeyboardScrollAdjustment();
+      adjustment = null;
+    }
+
+    // External code changed a padding we manage while slack was applied; the
+    // snapshot is stale, so drop it and re-snapshot from the new baseline below.
+    if (
+      adjustment &&
+      (adjustment.element.style.paddingBottom !== adjustment.appliedPaddingBottom ||
+        adjustment.element.style.scrollPaddingBottom !== adjustment.appliedScrollPaddingBottom)
+    ) {
       restoreKeyboardScrollAdjustment();
       adjustment = null;
     }
@@ -118,15 +143,19 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         scrollPaddingBottom: element.style.scrollPaddingBottom,
         computedPaddingBottom: Number.parseFloat(styles.paddingBottom) || 0,
         computedScrollPaddingBottom: Number.parseFloat(styles.scrollPaddingBottom) || 0,
+        appliedPaddingBottom: element.style.paddingBottom,
+        appliedScrollPaddingBottom: element.style.scrollPaddingBottom,
       };
       keyboardScrollAdjustmentRef.current = adjustment;
     }
 
-    element.style.overflowAnchor = 'none';
-    element.style.paddingBottom = `${adjustment.computedPaddingBottom + roundedSlack}px`;
-    element.style.scrollPaddingBottom = `${
+    adjustment.appliedPaddingBottom = `${adjustment.computedPaddingBottom + roundedSlack}px`;
+    adjustment.appliedScrollPaddingBottom = `${
       adjustment.computedScrollPaddingBottom + KEYBOARD_VISIBILITY_MARGIN
     }px`;
+    element.style.overflowAnchor = 'none';
+    element.style.paddingBottom = adjustment.appliedPaddingBottom;
+    element.style.scrollPaddingBottom = adjustment.appliedScrollPaddingBottom;
   });
 
   const animateKeyboardScroll = useStableCallback((element: HTMLElement, scrollTop: number) => {
@@ -160,9 +189,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     const win = ownerWindow(rootElement);
     const visualViewport = win.visualViewport;
 
+    let lastAlignment: { target: HTMLElement; top: number; bottom: number } | null = null;
+
     const setDrawerKeyboardInset = (inset: number) => {
       rootElement.style.setProperty(
-        DrawerPopupCssVars.keyboardInset,
+        DrawerViewportCssVars.keyboardInset,
         `${Math.max(0, Math.ceil(inset))}px`,
       );
     };
@@ -173,6 +204,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
     const clearFocusedKeyboardTarget = () => {
       focusedKeyboardTargetRef.current = null;
+      lastAlignment = null;
       resetDrawerKeyboardInset();
       restoreKeyboardScrollAdjustment();
       keyboardFocusFrame.cancel();
@@ -181,6 +213,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     const alignFocusedKeyboardTarget = () => {
       const target = focusedKeyboardTargetRef.current;
       if (nestedDrawerOpen || !target || !contains(rootElement, target)) {
+        lastAlignment = null;
         resetDrawerKeyboardInset();
         restoreKeyboardScrollAdjustment();
         return;
@@ -188,6 +221,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
       const keyboardViewport = getKeyboardVisualViewport(win);
       if (!keyboardViewport) {
+        lastAlignment = null;
         resetDrawerKeyboardInset();
         restoreKeyboardScrollAdjustment();
         return;
@@ -202,10 +236,24 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       }
 
       if (!scrollTarget.isConnected || !contains(rootElement, scrollTarget)) {
+        lastAlignment = null;
         resetDrawerKeyboardInset();
         restoreKeyboardScrollAdjustment();
         return;
       }
+
+      // Re-centering on every visualViewport event would yank a manual scroll
+      // position back to center; only re-align when the focused target or the
+      // keyboard geometry actually changes.
+      if (
+        lastAlignment !== null &&
+        lastAlignment.target === target &&
+        lastAlignment.top === keyboardViewport.top &&
+        lastAlignment.bottom === keyboardViewport.bottom
+      ) {
+        return;
+      }
+      lastAlignment = { target, top: keyboardViewport.top, bottom: keyboardViewport.bottom };
 
       const scrollTargetRect = scrollTarget.getBoundingClientRect();
       const clippedBottom = Math.min(scrollTargetRect.bottom, keyboardViewport.bottom);
@@ -287,7 +335,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     return () => {
       cleanupListeners.forEach((cleanup) => cleanup());
       clearFocusedKeyboardTarget();
-      rootElement.style.removeProperty(DrawerPopupCssVars.keyboardInset);
+      rootElement.style.removeProperty(DrawerViewportCssVars.keyboardInset);
     };
   }, [
     animateKeyboardScroll,
@@ -361,6 +409,14 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
     if (keyboardFocusTarget) {
       const win = ownerWindow(keyboardFocusTarget);
+
+      // While pinch-zoomed, keyboard alignment is suspended; let native behavior
+      // handle focus and caret placement instead of blurring and re-focusing.
+      if (win.visualViewport && win.visualViewport.scale !== 1) {
+        resetTouchTrackingState();
+        return;
+      }
+
       // Already focused with the keyboard up: let the native tap through so it can
       // reposition the caret, rather than blurring and re-focusing the same input.
       if (
@@ -375,6 +431,9 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       // inside the touch gesture.
       event.preventDefault();
       focusKeyboardInputWithoutPageScroll(keyboardFocusTarget);
+      // Preventing the touchend default also suppresses the compatibility mouse
+      // events, including `click`; redispatch it so click handlers still run.
+      keyboardFocusTarget.click();
       resetTouchTrackingState();
       return;
     }
@@ -444,9 +503,20 @@ function resolveKeyboardInputTargetFromPoint(
   clientX: number,
   clientY: number,
 ): HTMLElement | null {
-  // iOS can retarget taps while the page is reacting to the keyboard; probe nearby points too.
+  const exactTarget = getElementAtPoint(doc, clientX, clientY);
+  const exactKeyboardTarget = resolveKeyboardInputTarget(exactTarget);
+  if (exactKeyboardTarget) {
+    return exactKeyboardTarget;
+  }
+
+  // Probing nearby points compensates for iOS retargeting taps while the page reacts
+  // to the keyboard, but it must not steal a tap that lands on another interactive
+  // element — that would suppress its click and focus a neighboring field instead.
+  if (isHTMLElement(exactTarget) && exactTarget.closest(INTERACTIVE_TAP_TARGET_SELECTOR)) {
+    return null;
+  }
+
   for (const [offsetX, offsetY] of [
-    [0, 0],
     [0, INPUT_TAP_HIT_SLOP],
     [0, -INPUT_TAP_HIT_SLOP],
     [INPUT_TAP_HIT_SLOP, 0],
