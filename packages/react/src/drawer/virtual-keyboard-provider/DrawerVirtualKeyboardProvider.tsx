@@ -315,7 +315,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     keyboardTouchStartRef.current = { x: touch.clientX, y: touch.clientY };
   });
 
-  const onTouchMove = useStableCallback((event: React.TouchEvent<Element>) => {
+  const onTouchMove = useStableCallback((event: TouchEvent) => {
     const touch = event.touches[0];
     const touchStart = keyboardTouchStartRef.current;
 

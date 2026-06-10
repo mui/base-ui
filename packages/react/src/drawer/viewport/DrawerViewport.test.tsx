@@ -973,13 +973,18 @@ describe('<Drawer.Viewport />', () => {
   });
 
   it('prevents touchmove at scroll top when swiping down on scrollable content', async () => {
+    const handleTouchMove = vi.fn();
+
     await render(
       <Drawer.Root open swipeDirection="down">
         <Drawer.Portal>
-          <Drawer.Backdrop data-testid="backdrop" />
           <Drawer.Viewport>
             <Drawer.Popup>
-              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+              <div
+                data-testid="scroll"
+                onTouchMove={handleTouchMove}
+                style={{ overflowY: 'auto', maxHeight: 40 }}
+              >
                 <div style={{ height: 120 }}>Scrollable content</div>
               </div>
             </Drawer.Popup>
@@ -989,39 +994,30 @@ describe('<Drawer.Viewport />', () => {
     );
 
     const scroll = screen.getByTestId('scroll');
-    const backdrop = screen.getByTestId('backdrop');
     Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
     Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
     scroll.scrollTop = 0;
 
-    const originalElementFromPoint = document.elementFromPoint;
-    document.elementFromPoint = () => scroll;
+    fireEvent.touchStart(scroll, {
+      touches: [
+        createTouch(scroll, {
+          clientX: 0,
+          clientY: 0,
+        }),
+      ],
+    });
 
-    try {
-      fireEvent.touchStart(scroll, {
-        touches: [
-          createTouch(scroll, {
-            clientX: 0,
-            clientY: 0,
-          }),
-        ],
-      });
+    const prevented = fireEvent.touchMove(scroll, {
+      touches: [
+        createTouch(scroll, {
+          clientX: 0,
+          clientY: 10,
+        }),
+      ],
+    });
 
-      const touchMove = createNativeTouchMove(scroll, {
-        clientX: 0,
-        clientY: 10,
-      });
-
-      await act(async () => {
-        scroll.dispatchEvent(touchMove);
-        await flushMicrotasks();
-      });
-
-      expect(touchMove.defaultPrevented).toBe(true);
-      expect(backdrop).toHaveAttribute('data-swiping');
-    } finally {
-      document.elementFromPoint = originalElementFromPoint;
-    }
+    expect(prevented).toBe(false);
+    expect(handleTouchMove).not.toHaveBeenCalled();
   });
 
   it('prevents touchmove at scroll bottom when swiping up on scrollable content', async () => {
@@ -1508,12 +1504,18 @@ describe('<Drawer.Viewport />', () => {
   });
 
   it('allows touchmove when scrolling down from scroll top', async () => {
+    const handleTouchMove = vi.fn();
+
     await render(
       <Drawer.Root open swipeDirection="down">
         <Drawer.Portal>
           <Drawer.Viewport>
             <Drawer.Popup>
-              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+              <div
+                data-testid="scroll"
+                onTouchMove={handleTouchMove}
+                style={{ overflowY: 'auto', maxHeight: 40 }}
+              >
                 <div style={{ height: 120 }}>Scrollable content</div>
               </div>
             </Drawer.Popup>
@@ -1546,6 +1548,7 @@ describe('<Drawer.Viewport />', () => {
     });
 
     expect(prevented).toBe(true);
+    expect(handleTouchMove).toHaveBeenCalledTimes(1);
   });
 
   it('does not start an opposite-direction swipe from scroll bottom for down drawers with snap points', async () => {

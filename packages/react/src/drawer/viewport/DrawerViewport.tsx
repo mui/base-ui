@@ -800,7 +800,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
   const swipePointerProps = swipe.getPointerProps();
   const swipeTouchProps = swipe.getTouchProps();
-  const resetSwipe = swipe.reset;
+  const { moveNative: moveSwipeNative, reset: resetSwipe } = swipe;
 
   resetSwipeRef.current = resetSwipe;
 
@@ -816,6 +816,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     const win = ownerWindow(doc);
 
     function handleNativeTouchMove(event: TouchEvent) {
+      // The virtual keyboard provider observes the move to tell a tap apart from a drag.
+      // It must run even when the swipe gesture below claims the event with
+      // `stopPropagation()`, which would otherwise prevent React's delegated handlers
+      // (and the provider) from ever seeing the move.
+      virtualKeyboard?.onTouchMove(event);
+
       if (ignoreTouchSwipeRef.current) {
         return;
       }
@@ -860,6 +866,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (event.cancelable) {
           event.preventDefault();
         }
+        // Claim the gesture before React's delegated touch handlers see it; dispatching the
+        // move through React re-rasterizes the popup content on every frame.
+        event.stopPropagation();
+        moveSwipeNative(event, resolvedRootElement);
         updateTouchScrollPosition(touchState, touch);
         return;
       }
@@ -871,6 +881,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (event.cancelable) {
           event.preventDefault();
         }
+        event.stopPropagation();
         updateTouchScrollPosition(touchState, touch);
         return;
       }
@@ -898,6 +909,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         }
       }
 
+      if (touchState.allowSwipe === true) {
+        event.stopPropagation();
+        moveSwipeNative(event, resolvedRootElement);
+      }
+
       updateTouchScrollPosition(touchState, touch);
     }
 
@@ -913,7 +929,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     isVerticalScrollAxis,
     scrollAxis,
     swipeDirection,
+    moveSwipeNative,
     viewportElement,
+    virtualKeyboard,
   ]);
 
   React.useEffect(() => {
@@ -1117,31 +1135,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           };
 
           swipeTouchProps.onTouchStart?.(event);
-        },
-        onTouchMove(event) {
-          virtualKeyboard?.onTouchMove(event);
-
-          if (ignoreTouchSwipeRef.current) {
-            return;
-          }
-
-          if (isReactTouchEventOnRangeInput(event)) {
-            return;
-          }
-
-          const touchState = touchScrollStateRef.current;
-          if (touchState?.preserveNativeCrossAxisScroll) {
-            return;
-          }
-
-          if (
-            touchState?.allowSwipe === false ||
-            (touchState?.scrollTarget != null && !touchState.allowSwipe)
-          ) {
-            return;
-          }
-
-          swipeTouchProps.onTouchMove?.(event);
         },
         onTouchEnd(event) {
           virtualKeyboard?.onTouchEnd(event);
