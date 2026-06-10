@@ -1,6 +1,7 @@
-import { afterEach, expect } from 'vitest';
+import { afterEach, expect, vi } from 'vitest';
+import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tabs.Panel />', () => {
@@ -10,6 +11,73 @@ describe('<Tabs.Panel />', () => {
     render: (node) => render(<Tabs.Root>{node}</Tabs.Root>),
     refInstanceof: window.HTMLDivElement,
   }));
+
+  describe('Suspense integration', () => {
+    it.skipIf(reactMajor < 19)(
+      'renders a panel that suspends when opened with the boundary outside the root',
+      async () => {
+        function createSuspensePromise() {
+          let resolvePromise: ((value: string) => void) | null = null;
+          const promise = new Promise<string>((resolve) => {
+            resolvePromise = resolve;
+          });
+
+          return {
+            promise,
+            resolve(value: string) {
+              if (!resolvePromise) {
+                throw new Error('Suspense promise resolver not initialized.');
+              }
+              resolvePromise(value);
+            },
+          };
+        }
+
+        const suspender = createSuspensePromise();
+
+        function SuspendingChild() {
+          return <div>{React.use(suspender.promise)}</div>;
+        }
+
+        const handleValueChange = vi.fn();
+
+        await render(
+          <React.Suspense fallback={<div>Loading…</div>}>
+            <Tabs.Root defaultValue="a" onValueChange={handleValueChange}>
+              <Tabs.List>
+                <Tabs.Tab value="a">Tab A</Tabs.Tab>
+                <Tabs.Tab value="b">Tab B</Tabs.Tab>
+              </Tabs.List>
+              <Tabs.Panel value="a">Panel A</Tabs.Panel>
+              <Tabs.Panel value="b">
+                <SuspendingChild />
+              </Tabs.Panel>
+            </Tabs.Root>
+          </React.Suspense>,
+        );
+
+        const tabB = screen.getByRole('tab', { name: 'Tab B' });
+
+        // `user.click` warns when this interaction suspends via `React.use`,
+        // so use the lower-level DOM click inside an awaited act scope.
+        await act(async () => {
+          tabB.click();
+        });
+
+        await screen.findByText('Loading…');
+
+        await act(async () => {
+          suspender.resolve('Panel B');
+          await Promise.resolve();
+        });
+
+        await screen.findByText('Panel B');
+        expect(handleValueChange.mock.calls).toHaveLength(1);
+        expect(handleValueChange.mock.calls[0][0]).toBe('b');
+        expect(handleValueChange.mock.calls[0][1].reason).toBe('none');
+      },
+    );
+  });
 
   describe.skipIf(isJSDOM)('animations', () => {
     afterEach(() => {

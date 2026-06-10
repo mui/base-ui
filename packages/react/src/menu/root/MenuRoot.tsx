@@ -265,19 +265,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         return;
       }
 
-      // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-      // option upon close when tabbing out due to `keepMounted=true`:
-      // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-      // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
-      // when tabbing outside.
-      if (!nextOpen && activeIndex !== null) {
-        const activeOption = store.context.itemDomElements.current[activeIndex];
-        // Wait for Floating UI's focus effect to have fired
-        queueMicrotask(() => {
-          activeOption?.setAttribute('tabindex', '-1');
-        });
-      }
-
       // Prevent the menu from closing on mobile devices that have a delayed click event.
       // In some cases the menu, when tapped, will fire the focus event first and then the click event.
       // Without this guard, the menu will close immediately after opening.

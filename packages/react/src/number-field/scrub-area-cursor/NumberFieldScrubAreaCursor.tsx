@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -31,7 +31,8 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
 
   const [domElement, setDomElement] = React.useState<Element | null>(null);
 
-  const shouldRender = isScrubbing && !isWebKit && !isTouchInput && !isPointerLockDenied;
+  const shouldRender =
+    isScrubbing && !platform.engine.webkit && !isTouchInput && !isPointerLockDenied;
 
   const element = useRenderElement('span', componentProps, {
     enabled: shouldRender,

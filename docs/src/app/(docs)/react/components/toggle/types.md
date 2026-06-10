@@ -25,9 +25,10 @@ Renders a `<button>` element.
 
 **Toggle Data Attributes:**
 
-| Attribute    | Type | Description                                |
-| :----------- | :--- | :----------------------------------------- |
-| data-pressed | -    | Present when the toggle button is pressed. |
+| Attribute     | Type | Description                                 |
+| :------------ | :--- | :------------------------------------------ |
+| data-pressed  | -    | Present when the toggle button is pressed.  |
+| data-disabled | -    | Present when the toggle button is disabled. |
 
 ### Toggle.Props
 

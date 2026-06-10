@@ -712,6 +712,41 @@ describe('<Popover.Root />', () => {
         );
       });
 
+      it('restores temporarily disabled focus before focusing a reopened keepMounted popover', async () => {
+        const { user } = await render(
+          <div>
+            <input />
+            <TestPopover
+              portalProps={{ keepMounted: true }}
+              popupProps={{ children: <button data-testid="inside">Inside</button> }}
+              afterTrigger={<input data-testid="after" />}
+            />
+          </div>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        await user.click(trigger);
+
+        const inside = await screen.findByTestId('inside');
+        await waitFor(() => {
+          expect(inside).toHaveFocus();
+        });
+
+        await user.tab();
+
+        expect(screen.getByTestId('after')).toHaveFocus();
+        await waitFor(() => {
+          expect(screen.getByTestId('popover-popup')).not.toHaveAttribute('data-open');
+        });
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(inside).toHaveFocus();
+        });
+      });
+
       it('does not move focus to the popover when opened with hover', async () => {
         const { user } = await render(
           <TestPopover

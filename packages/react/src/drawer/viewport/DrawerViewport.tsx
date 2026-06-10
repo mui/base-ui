@@ -10,7 +10,7 @@ import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
 import { mergeProps } from '../../merge-props';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
-import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
+import { getSnapPointSwipeMovement, useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { clamp } from '../../internals/clamp';
 import {
@@ -106,6 +106,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const resetSwipeRef = React.useRef<(() => void) | null>(null);
   const controlledDismissFrame = useAnimationFrame();
 
+  const swipingRef = React.useRef(false);
   const nestedSwipeActiveRef = React.useRef(false);
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
   const ignoreNextTouchStartFromPenRef = React.useRef(false);
@@ -390,6 +391,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       selection.removeAllRanges();
     },
     onSwipingChange(swiping) {
+      swipingRef.current = swiping;
       setBackdropSwipingAttribute(store.context.backdropRef.current, swiping);
 
       if (!swiping && !notifyParentSwipeProgressChange) {
@@ -428,9 +430,26 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     onProgress(progress, details) {
       updateNestedSwipeActive(details);
 
+      const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
+      if (
+        swipingRef.current &&
+        swipeDirection === 'down' &&
+        hasSnapPoints &&
+        details &&
+        Number.isFinite(details.deltaY)
+      ) {
+        const popupElement = store.context.popupRef.current;
+        if (popupElement) {
+          popupElement.style.removeProperty('transform');
+          popupElement.style.setProperty(
+            DrawerPopupCssVars.swipeMovementY,
+            `${getSnapPointSwipeMovement(activeSnapPointOffset ?? 0, details.deltaY)}px`,
+          );
+        }
+      }
+
       const currentDirection = details?.direction ?? swipe.swipeDirection;
       const isDismissSwipe = currentDirection === undefined || currentDirection === swipeDirection;
-      const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
       const isVerticalSwipe = swipeDirection === 'down' || swipeDirection === 'up';
       const shouldTrackProgress =
         (hasSnapPoints && isVerticalSwipe) ||
@@ -778,7 +797,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
   const swipePointerProps = swipe.getPointerProps();
   const swipeTouchProps = swipe.getTouchProps();
-  const resetSwipe = swipe.reset;
+  const { moveNative: moveSwipeNative, reset: resetSwipe } = swipe;
 
   resetSwipeRef.current = resetSwipe;
 
@@ -838,6 +857,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (event.cancelable) {
           event.preventDefault();
         }
+        // Claim the gesture before React's delegated touch handlers see it; dispatching the
+        // move through React re-rasterizes the popup content on every frame.
+        event.stopPropagation();
+        moveSwipeNative(event, resolvedRootElement);
         updateTouchScrollPosition(touchState, touch);
         return;
       }
@@ -849,6 +872,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (event.cancelable) {
           event.preventDefault();
         }
+        event.stopPropagation();
         updateTouchScrollPosition(touchState, touch);
         return;
       }
@@ -876,6 +900,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         }
       }
 
+      if (touchState.allowSwipe === true) {
+        event.stopPropagation();
+        moveSwipeNative(event, resolvedRootElement);
+      }
+
       updateTouchScrollPosition(touchState, touch);
     }
 
@@ -891,6 +920,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     isVerticalScrollAxis,
     scrollAxis,
     swipeDirection,
+    moveSwipeNative,
     viewportElement,
   ]);
 
@@ -1092,29 +1122,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           };
 
           swipeTouchProps.onTouchStart?.(event);
-        },
-        onTouchMove(event) {
-          if (ignoreTouchSwipeRef.current) {
-            return;
-          }
-
-          if (isReactTouchEventOnRangeInput(event)) {
-            return;
-          }
-
-          const touchState = touchScrollStateRef.current;
-          if (touchState?.preserveNativeCrossAxisScroll) {
-            return;
-          }
-
-          if (
-            touchState?.allowSwipe === false ||
-            (touchState?.scrollTarget != null && !touchState.allowSwipe)
-          ) {
-            return;
-          }
-
-          swipeTouchProps.onTouchMove?.(event);
         },
         onTouchEnd(event) {
           resetTouchTrackingState();
