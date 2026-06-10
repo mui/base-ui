@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { error } from '@base-ui/utils/error';
 import { SafeReact } from '@base-ui/utils/safeReact';
@@ -234,7 +235,26 @@ function activateElement(
     return;
   }
 
-  element.click();
+  if (isButtonElement(element) || isValidLinkElement(element)) {
+    // Native activation behavior (form submission, link navigation) only runs
+    // through `click()`.
+    element.click();
+    return;
+  }
+
+  // Dispatch a constructed click so it carries the keyboard event's modifier state,
+  // which `click()` always reports as unpressed.
+  element.dispatchEvent(
+    new (ownerWindow(element).PointerEvent)('click', {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+      shiftKey: event.shiftKey,
+      ctrlKey: event.ctrlKey,
+      altKey: event.altKey,
+      metaKey: event.metaKey,
+    }),
+  );
 }
 
 function isButtonElement(elem: Element | null): elem is HTMLButtonElement {

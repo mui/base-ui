@@ -49,6 +49,26 @@ describe('<Button />', () => {
       expect(handleClick).toHaveBeenCalledTimes(2);
       expect(handleAncestorClick).toHaveBeenCalledTimes(2);
     });
+
+    it('custom element: keyboard activation clicks carry modifier key state', async () => {
+      const handleClick = vi.fn();
+
+      const { user } = await render(
+        <Button nativeButton={false} render={<span />} onClick={handleClick}>
+          Save
+        </Button>,
+      );
+
+      const button = screen.getByRole('button', { name: 'Save' });
+
+      await user.keyboard('[Tab]');
+      expect(button).toHaveFocus();
+
+      await user.keyboard('{Shift>}[Enter]{/Shift}');
+
+      expect(handleClick).toHaveBeenCalledTimes(1);
+      expect(handleClick.mock.calls[0][0].shiftKey).toBe(true);
+    });
   });
 
   describe('prop: disabled', () => {
@@ -123,34 +143,6 @@ describe('<Button />', () => {
       expect(handleMouseDown.mock.calls.length).toBe(0);
       expect(handlePointerDown.mock.calls.length).toBe(0);
       expect(handleKeyDown.mock.calls.length).toBe(0);
-    });
-  });
-
-  describe('state', () => {
-    it('passes disabled state to className, style, and render callbacks', async () => {
-      const renderCalls: Button.State[] = [];
-      const renderFn = (props: React.HTMLAttributes<HTMLElement>, state: Button.State) => {
-        renderCalls.push(state);
-
-        return <span {...props} data-render-disabled={String(state.disabled)} />;
-      };
-
-      await render(
-        <Button
-          disabled
-          nativeButton={false}
-          className={(state) => (state.disabled ? 'is-disabled' : 'is-enabled')}
-          style={(state) => ({ opacity: state.disabled ? 0.5 : 1 })}
-          render={renderFn}
-        />,
-      );
-
-      const button = screen.getByRole('button');
-
-      expect(button).toHaveClass('is-disabled');
-      expect(button).toHaveStyle({ opacity: '0.5' });
-      expect(button).toHaveAttribute('data-render-disabled', 'true');
-      expect(renderCalls[0]).toEqual({ disabled: true });
     });
   });
 

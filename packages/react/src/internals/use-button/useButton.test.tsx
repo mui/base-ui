@@ -596,7 +596,7 @@ describe('useButton', () => {
     it('does not click non-composite buttons when keydown/keyup calls preventBaseUIHandler', async () => {
       const handleClick = vi.fn();
 
-      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+      function TestButton(props: React.HTMLAttributes<HTMLSpanElement>) {
         const { getButtonProps } = useButton({ native: false });
 
         return <span {...getButtonProps(props)} />;
