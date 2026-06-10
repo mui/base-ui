@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { script as prehydrationScript } from '#prehydration/slider/thumb';
 import { BaseUIComponentProps } from '../../internals/types';
 import { clamp } from '../../internals/clamp';
 import { formatNumber } from '../../utils/formatNumber';
@@ -38,7 +39,6 @@ import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
-import { script as prehydrationScript } from './prehydrationScript.min';
 
 const ALL_KEYS = new Set([...COMPOSITE_KEYS, PAGE_UP, PAGE_DOWN]);
 

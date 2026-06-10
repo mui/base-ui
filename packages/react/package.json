@@ -109,11 +109,15 @@
   },
   "imports": {
     "#test-utils": "./test/index.ts",
-    "#formatErrorMessage": "@base-ui/utils/formatErrorMessage"
+    "#formatErrorMessage": "@base-ui/utils/formatErrorMessage",
+    "#prehydration/*": {
+      "browser": "./src/*/prehydrationScript.stub.ts",
+      "default": "./src/*/prehydrationScript.min.ts"
+    }
   },
   "scripts": {
     "prebuild": "rimraf --glob build build-tests published-docs \"*.tsbuildinfo\" && node ./scripts/stagePublishedDocs.mjs",
-    "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore --copy \"published-docs/**:docs\" --tsgo",
+    "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore --copy \"published-docs/**:docs\" --tsgo && node ./scripts/injectPrehydrationImports.mjs",
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
