@@ -8,6 +8,10 @@ export { IndexGuessBehavior } from './list/useCompositeListItem';
 export { useCompositeRoot } from './root/useCompositeRoot';
 export type { UseCompositeRootParameters } from './root/useCompositeRoot';
 export { gridNavigation } from './root/gridNavigation';
-export type { CompositeGridConfig, CompositeGridItemSize } from './root/gridNavigation';
+export type {
+  CompositeGridConfig,
+  CompositeGridItemSize,
+  CompositeGridNavigator,
+} from './root/gridNavigation';
 export { scrollIntoViewIfNeeded } from './composite';
 export { findNonDisabledListIndex, isListIndexDisabled } from '../../floating-ui-react/utils';

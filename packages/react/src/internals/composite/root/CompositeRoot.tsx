@@ -7,7 +7,7 @@ import { CompositeRootContext } from './CompositeRootContext';
 import { useRenderElement } from '../../useRenderElement';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../types';
 import type { ModifierKey } from '../composite';
-import type { CompositeGridConfig } from './gridNavigation';
+import type { CompositeGridNavigator } from './gridNavigation';
 import { useDirection } from '../../direction-context/DirectionContext';
 import { StateAttributesMapping } from '../../getStateAttributesProps';
 
@@ -108,7 +108,7 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   refs?: React.Ref<HTMLElement | null>[] | undefined;
   tag?: keyof React.JSX.IntrinsicElements | undefined;
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
-  grid?: CompositeGridConfig | undefined;
+  grid?: CompositeGridNavigator | undefined;
   loopFocus?: boolean | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;

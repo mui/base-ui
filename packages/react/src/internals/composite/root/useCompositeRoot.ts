@@ -32,11 +32,11 @@ import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import type { CompositeMetadata } from '../list/CompositeList';
 import type { HTMLProps } from '../../types';
 import { getTarget } from '../../../floating-ui-react/utils';
-import type { CompositeGridConfig } from './gridNavigation';
+import type { CompositeGridNavigator } from './gridNavigation';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
-  grid?: CompositeGridConfig | undefined;
+  grid?: CompositeGridNavigator | undefined;
   loopFocus?: boolean | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
@@ -225,12 +225,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         let nextIndex = highlightedIndex;
         const minIndex = getMinListIndex(elementsRef, disabledIndices);
         const maxIndex = getMaxListIndex(elementsRef, disabledIndices);
-        const onLoop = grid?.onLoop;
 
         if (grid != null) {
-          const { navigation, ...gridConfig } = grid;
-          nextIndex = navigation({
-            ...gridConfig,
+          nextIndex = grid({
             disabledIndices,
             elementsRef,
             event,
@@ -277,14 +274,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         ) {
           if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
-            if (onLoop) {
-              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-            }
           } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
-            if (onLoop) {
-              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-            }
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef.current, {
               startingIndex: nextIndex,

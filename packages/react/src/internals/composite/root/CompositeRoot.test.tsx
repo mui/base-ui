@@ -361,7 +361,7 @@ describe('Composite', () => {
     it('uniform 1x1 items', async () => {
       function App() {
         return (
-          <CompositeRoot grid={{ cols: 3, navigation: gridNavigation }} enableHomeAndEndKeys>
+          <CompositeRoot grid={gridNavigation({ cols: 3 })} enableHomeAndEndKeys>
             <TestGridItems />
           </CompositeRoot>
         );
@@ -426,7 +426,7 @@ describe('Composite', () => {
     it('uses explicit cols for flat grids', async () => {
       function App() {
         return (
-          <CompositeRoot grid={{ cols: 3, navigation: gridNavigation }}>
+          <CompositeRoot grid={gridNavigation({ cols: 3 })}>
             <TestGridItems />
           </CompositeRoot>
         );
@@ -448,7 +448,7 @@ describe('Composite', () => {
 
       function App() {
         return (
-          <CompositeRoot grid={{ cols: 3, navigation: gridNavigation, onLoop }}>
+          <CompositeRoot grid={gridNavigation({ cols: 3, onLoop })}>
             <TestGridItems />
           </CompositeRoot>
         );
@@ -475,7 +475,7 @@ describe('Composite', () => {
     it('skips disabled indices', async () => {
       function App() {
         return (
-          <CompositeRoot grid={{ cols: 3, navigation: gridNavigation }} disabledIndices={[4]}>
+          <CompositeRoot grid={gridNavigation({ cols: 3 })} disabledIndices={[4]}>
             <TestGridItems />
           </CompositeRoot>
         );
@@ -498,7 +498,7 @@ describe('Composite', () => {
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot
-                grid={{ cols: 3, navigation: gridNavigation }}
+                grid={gridNavigation({ cols: 3 })}
                 orientation="horizontal"
                 enableHomeAndEndKeys
               >
@@ -550,7 +550,7 @@ describe('Composite', () => {
           <div dir="rtl">
             <DirectionProvider direction="rtl">
               <CompositeRoot
-                grid={{ cols: 3, navigation: gridNavigation }}
+                grid={gridNavigation({ cols: 3 })}
                 orientation="both"
                 enableHomeAndEndKeys
               >
