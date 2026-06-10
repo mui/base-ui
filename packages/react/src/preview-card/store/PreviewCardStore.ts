@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import {
+  attachPreventUnmountOnClose,
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
   InlineRectCoords,
@@ -73,9 +74,9 @@ export class PreviewCardStore<Payload> extends ReactStore<
     const isDismissClose =
       !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
 
-    (eventDetails as PreviewCardRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-      this.set('preventUnmountingOnClose', true);
-    };
+    const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
+      eventDetails as PreviewCardRoot.ChangeEventDetails,
+    );
 
     this.context.onOpenChange?.(nextOpen, eventDetails as PreviewCardRoot.ChangeEventDetails);
 
@@ -113,7 +114,12 @@ export class PreviewCardStore<Payload> extends ReactStore<
         updatedState.instantType = undefined;
       }
 
-      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
+      setPopupOpenState(
+        updatedState,
+        nextOpen,
+        eventDetails.trigger,
+        shouldPreventUnmountOnClose(),
+      );
 
       this.update(updatedState);
     };
