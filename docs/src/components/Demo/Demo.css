@@ -62,16 +62,17 @@
    * ("Layerize"), whose cost scales with the amount of rendered content near the
    * viewport. Skipping offscreen code sections cuts that cost without visual changes.
    *
-   * The placeholder height is exact for collapsed demos regardless of the playground
-   * contents: 2.25rem toolbar + 13.625rem collapsed preview + 2.25rem collapse button
-   * minus collapsed borders = 289px. This keeps the page's scroll height stable while
+   * The placeholder height is exact for collapsed demos regardless of the code block
+   * contents: 2.25rem toolbar + 6rem collapsed preview (4 visible focus lines of
+   * 1.25rem plus the pre's 1rem vertical padding) + 2.25rem collapse button minus
+   * collapsed borders = 167px. This keeps the page's scroll height stable while
    * scrolling through never-rendered demos. The `auto` keyword makes the browser use
    * the real ("last remembered") size once a section has been rendered, so expanded
    * code blocks are tracked correctly too.
    */
   .DemoCollapsibleRoot {
     content-visibility: auto;
-    contain-intrinsic-size: auto 18.0625rem; /* 289px */
+    contain-intrinsic-size: auto calc(2.25rem + (4 * 1.25rem) + 1rem + 2.25rem - 1px); /* 167px */
   }
 
   .DemoToolbar {
