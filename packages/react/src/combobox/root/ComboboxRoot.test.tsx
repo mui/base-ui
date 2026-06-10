@@ -1015,6 +1015,8 @@ describe('<Combobox.Root />', () => {
               expect.objectContaining({ reason: 'none' }),
             );
           });
+
+          expect(document.body.querySelector('[data-base-ui-portal]')).toBe(null);
         });
 
         it('keeps virtualized object item indexes based on the full item value', async () => {
@@ -1037,6 +1039,54 @@ describe('<Combobox.Root />', () => {
           );
 
           expect(screen.getByRole('option', { name: 'Banana' }).id).not.toContain('--1');
+        });
+
+        it('does not mutate the items array when virtualized rendered items unmount', async () => {
+          const items = [
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ];
+
+          function App() {
+            const [showItems, setShowItems] = React.useState(false);
+
+            return (
+              <React.Fragment>
+                <button type="button" data-testid="show" onClick={() => setShowItems(true)}>
+                  Show
+                </button>
+                <button type="button" data-testid="hide" onClick={() => setShowItems(false)}>
+                  Hide
+                </button>
+                <Combobox.Root items={items} virtualized defaultOpen>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    {(item: (typeof items)[number]) =>
+                      showItems ? (
+                        <Combobox.Item key={item.value} value={item}>
+                          {item.label}
+                        </Combobox.Item>
+                      ) : null
+                    }
+                  </Combobox.List>
+                </Combobox.Root>
+              </React.Fragment>
+            );
+          }
+
+          const { user } = await render(<App />);
+
+          await user.click(screen.getByTestId('show'));
+          expect(await screen.findByRole('option', { name: 'Apple' })).not.toBe(null);
+
+          await user.click(screen.getByTestId('hide'));
+
+          expect(0 in items).toBe(true);
+          expect(1 in items).toBe(true);
+          expect(items).toEqual([
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]);
         });
 
         it.skipIf(isJSDOM)(
@@ -1106,6 +1156,47 @@ describe('<Combobox.Root />', () => {
           );
 
           expect(screen.getByTestId('value')).toHaveTextContent('Canada');
+        });
+
+        it('does not call an inner object comparator with the outer labeled item', async () => {
+          const objectItems = [
+            { value: { code: 'us' }, label: 'United States' },
+            { value: { code: 'ca' }, label: 'Canada' },
+          ];
+
+          const { user } = await render(
+            <Combobox.Root
+              items={objectItems}
+              defaultValue={{ code: 'ca' }}
+              isItemEqualToValue={(a: { code: string }, b: { code: string }) =>
+                a.code.toLowerCase() === b.code.toLowerCase()
+              }
+            >
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item: (typeof objectItems)[number]) => (
+                        <Combobox.Item key={item.value.code} value={item.value}>
+                          {item.label}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>,
+          );
+
+          const input = screen.getByRole('combobox');
+          await user.click(screen.getByTestId('input'));
+
+          const canada = await screen.findByRole('option', { name: 'Canada' });
+          await waitFor(() => {
+            expect(canada).toHaveAttribute('data-highlighted');
+            expect(input).toHaveAttribute('aria-activedescendant', canada.id);
+          });
         });
 
         it('highlights selected object item values matched by isItemEqualToValue', async () => {

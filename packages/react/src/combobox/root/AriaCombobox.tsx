@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -1366,7 +1367,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 const candidate = candidates[matchingIndex];
                 const renderedValue = valuesRef.current[matchingIndex];
                 let matchingValue = renderedValue;
-                if (listRef.current[matchingIndex] == null) {
+                if (renderedValue === undefined && listRef.current[matchingIndex] == null) {
                   matchingValue = virtualized ? candidate : inferItemValue(candidate);
                 }
 
@@ -1379,14 +1380,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
 
             if (items) {
-              forceMount(true);
-              if (virtualized) {
-                handleChange();
-              } else {
-                queueMicrotask(() => {
-                  handleChange();
-                  store.set('forceMounted', false);
+              // Rendered item values can differ from the inferred `items` values, so
+              // render the hidden list synchronously to register them before matching.
+              // The portal node is inserted and removed within the same task, so it
+              // never paints.
+              if (!virtualized) {
+                ReactDOM.flushSync(() => {
+                  forceMount(true);
                 });
+              }
+
+              handleChange();
+
+              if (!virtualized) {
+                store.set('forceMounted', false);
               }
             } else {
               forceMount();

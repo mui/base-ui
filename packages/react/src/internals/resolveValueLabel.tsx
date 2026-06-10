@@ -115,19 +115,14 @@ export function findItemIndexByValue(
     );
   }
 
-  const valueIsObject = value != null && typeof value === 'object';
-
   return items.findIndex((item) => {
     if (item === undefined) {
       return false;
     }
-    // Match the inferred value (a primitive `value` against a `{ value, label }` entry)
-    // first, then the full item for other object values.
+    // Match the inferred value so a primitive `value` or inner object value can match
+    // a `{ value, label }` entry without handing the outer item to the comparator.
     const itemValue = inferItemValue(item);
-    return (
-      compareItemEquality(itemValue, value, isItemEqualToValue) ||
-      (valueIsObject && itemValue !== item && compareItemEquality(item, value, isItemEqualToValue))
-    );
+    return compareItemEquality(itemValue, value, isItemEqualToValue);
   });
 }
 

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
@@ -118,25 +119,24 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     activeIndex,
     selectedIndex,
     onMatch(index) {
-      const selectMatchedValue = () => {
-        const nextSelectedValue = store.state.valuesRef.current[index];
-        if (nextSelectedValue !== undefined) {
-          store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
-        }
-      };
-
-      if (store.state.items) {
-        store.state.forceMount(true);
-        if (!store.state.virtualized) {
-          queueMicrotask(() => {
-            selectMatchedValue();
-            store.set('forceMounted', false);
-          });
-          return;
-        }
+      // Rendered item values can differ from the inferred `items` values, so render the
+      // hidden list synchronously to register them before selecting the match. The
+      // portal node is inserted and removed within the same task, so it never paints.
+      const renderItems = store.state.items != null && !store.state.virtualized;
+      if (renderItems) {
+        ReactDOM.flushSync(() => {
+          store.state.forceMount(true);
+        });
       }
 
-      selectMatchedValue();
+      const nextSelectedValue = store.state.valuesRef.current[index];
+      if (nextSelectedValue !== undefined) {
+        store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
+      }
+
+      if (renderItems) {
+        store.set('forceMounted', false);
+      }
     },
   });
 
