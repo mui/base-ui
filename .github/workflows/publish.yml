@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: 'latest'
+      filter:
+        description: 'pnpm-style package filter, for example @base-ui/utils'
+        required: false
+        type: string
+        default: ''
 
 permissions: {}
 
@@ -44,17 +49,24 @@ jobs:
       - name: Publish packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ inputs.dry-run }}
+          GITHUB_RELEASE: ${{ inputs.github-release }}
+          DIST_TAG: ${{ inputs.dist-tag }}
+          FILTER: ${{ inputs.filter }}
         run: |
           # Build common flags
-          ARGS=""
-          if [ "${{ inputs.dry-run }}" = "true" ]; then
-            ARGS="$ARGS --dry-run"
+          ARGS=()
+          if [ "$DRY_RUN" = "true" ]; then
+            ARGS+=(--dry-run)
           fi
-          if [ "${{ inputs.github-release }}" = "true" ]; then
-            ARGS="$ARGS --github-release"
+          if [ "$GITHUB_RELEASE" = "true" ]; then
+            ARGS+=(--github-release)
           fi
-          if [ -n "${{ inputs.dist-tag }}" ]; then
-            ARGS="$ARGS --tag ${{ inputs.dist-tag }}"
+          if [ -n "$DIST_TAG" ]; then
+            ARGS+=(--tag "$DIST_TAG")
+          fi
+          if [ -n "$FILTER" ]; then
+            ARGS+=(--filter "$FILTER")
           fi
 
-          pnpm code-infra publish --ci $ARGS
+          pnpm code-infra publish --ci "${ARGS[@]}"

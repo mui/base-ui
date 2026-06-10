@@ -42,7 +42,7 @@ A typical release goes like this:
    > - **--dry-run** Used for debugging. Or directly run `pnpm release:publish:dry-run`.
    > - **--dist-tag** Use to publish legacy or canary versions.
 
-5. This command invokes the [Publish](https://github.com/mui/base-ui/actions/workflows/publish.yml) GitHub action. It'll log the url which can be opened to see the latest workflow run.
+5. This command invokes the [Publish](https://github.com/mui/base-ui/actions/workflows/publish.yml) GitHub action. It'll log the url which can be opened to see the latest workflow run. When running the action manually, use the **filter** input to publish a single package, for example `@base-ui/utils`.
 6. The next screen shows "@username requested your review to deploy to npm-publish", click "Review deployments" and authorize your workflow run. **Never approve workflow runs you didn't initiaite.**
 
 ### Publish the documentation
