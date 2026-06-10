@@ -6,6 +6,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useId } from '@base-ui/utils/useId';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
@@ -124,10 +125,13 @@ export function setPopupOpenState(
   state: Partial<PopupStoreState<unknown>>,
   open: boolean,
   trigger: Element | undefined,
+  preventUnmountOnClose = false,
 ) {
   if (open) {
     // Opening starts a new close cycle, so clear any previous request to keep the popup mounted.
     state.preventUnmountingOnClose = false;
+  } else if (preventUnmountOnClose) {
+    state.preventUnmountingOnClose = true;
   }
 
   const triggerId = trigger?.id ?? null;
@@ -138,6 +142,35 @@ export function setPopupOpenState(
     state.activeTriggerId = triggerId;
     state.activeTriggerElement = trigger ?? null;
   }
+}
+
+export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClose(): void }) {
+  let preventUnmountOnClose = false;
+
+  eventDetails.preventUnmountOnClose = () => {
+    preventUnmountOnClose = true;
+  };
+
+  return () => preventUnmountOnClose;
+}
+
+export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
+  store: ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors>,
+  openProp: boolean | undefined,
+  defaultOpen: boolean,
+  defaultTriggerId: string | null,
+) {
+  useOnFirstRender(() => {
+    if (openProp === undefined && store.state.open === false && defaultOpen) {
+      // Avoid notifying detached trigger subscribers while the Root is rendering.
+      store.state = {
+        ...store.state,
+        open: true,
+        activeTriggerId: defaultTriggerId,
+        preventUnmountingOnClose: false,
+      };
+    }
+  });
 }
 
 /**
@@ -305,7 +338,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 /**
  * Manages the mounted state of the popup.
  * Sets up the transition status listeners and handles unmounting when needed.
- * Updates the `mounted` and `transitionStatus` states in the store.
+ * Updates the `mounted`, `transitionStatus`, and `preventUnmountingOnClose` states in the store.
  *
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
@@ -320,11 +353,14 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
 ) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
+  // Opening starts a new close cycle. Clear during render so the close-completion hook below
+  // reads the synchronized value on the same pass.
+  const syncedPreventUnmountingOnClose = open ? false : preventUnmountingOnClose;
 
   store.useSyncedValues({
     mounted,
     transitionStatus,
-    preventUnmountingOnClose: open ? false : preventUnmountingOnClose,
+    preventUnmountingOnClose: syncedPreventUnmountingOnClose,
   } as Partial<State>);
 
   const forceUnmount = useStableCallback(() => {
@@ -340,7 +376,7 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   });
 
   useOpenChangeComplete({
-    enabled: mounted && !open && !preventUnmountingOnClose,
+    enabled: mounted && !open && !syncedPreventUnmountingOnClose,
     open,
     ref: store.context.popupRef,
     onComplete() {
