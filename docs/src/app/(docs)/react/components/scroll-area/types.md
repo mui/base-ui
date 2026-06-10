@@ -192,9 +192,10 @@ Renders a `<div>` element.
 
 **Thumb Data Attributes:**
 
-| Attribute        | Type                         | Description                                 |
-| :--------------- | :--------------------------- | :------------------------------------------ |
-| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the scrollbar. |
+| Attribute        | Type                         | Description                                           |
+| :--------------- | :--------------------------- | :---------------------------------------------------- |
+| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the scrollbar.           |
+| data-scrolling   | -                            | Present when the user scrolls inside the scroll area. |
 
 ### Thumb.Props
 
@@ -204,8 +205,10 @@ Re-export of [Thumb](#thumb) props.
 
 ```typescript
 type ScrollAreaThumbState = {
+  /** Whether the scroll area is being scrolled. */
+  scrolling: boolean;
   /** The component orientation. */
-  orientation?: 'horizontal' | 'vertical';
+  orientation: 'horizontal' | 'vertical';
 };
 ```
 
