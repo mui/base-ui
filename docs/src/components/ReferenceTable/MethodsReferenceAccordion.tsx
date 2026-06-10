@@ -1,4 +1,5 @@
 import * as React from 'react';
+import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedMethod } from '@mui/internal-docs-infra/useTypes';
 import { Link } from 'docs/src/components/Link';
@@ -16,12 +17,20 @@ export function MethodsReferenceAccordion({
   data,
   name: partName,
   methodLabel = 'Method',
+  className,
+  style,
   ...props
 }: Props) {
   const captionId = `${partName}-methods-caption`;
 
   return (
-    <Accordion.Root aria-describedby={captionId} {...props}>
+    <Accordion.Root
+      aria-describedby={captionId}
+      className={clsx('ReferenceAccordionRoot', className)}
+      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-size`
+      style={{ '--rows': Object.keys(data).length, ...style } as React.CSSProperties}
+      {...props}
+    >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Class methods table
       </span>
