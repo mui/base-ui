@@ -2,8 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { NOOP } from '../../internals/noop';
-
-export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
+import type { ImageLoadingStatus } from '../root/AvatarRoot';
 
 interface UseImageLoadingStatusOptions {
   referrerPolicy?: React.HTMLAttributeReferrerPolicy | undefined;

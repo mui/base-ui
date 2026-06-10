@@ -6,12 +6,12 @@ import { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
-import type { AvatarRootState } from '../root/AvatarRoot';
+import type { AvatarRootState, ImageLoadingStatus } from '../root/AvatarRoot';
 import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
-import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
+import { useImageLoadingStatus } from './useImageLoadingStatus';
 
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   ...avatarStateAttributesMapping,
