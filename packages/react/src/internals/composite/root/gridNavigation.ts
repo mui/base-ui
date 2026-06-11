@@ -6,7 +6,7 @@ import {
   getGridNavigatedIndex,
   isListIndexDisabled,
 } from '../../../floating-ui-react/utils/composite';
-import { ARROW_DOWN, ARROW_RIGHT } from '../composite';
+import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../composite';
 
 type CompositeGridElementsRef = React.RefObject<Array<HTMLElement | null>>;
 
@@ -117,7 +117,11 @@ export function gridNavigation(config: CompositeGridConfig): CompositeGridNaviga
           // Choose the corner closest to the movement direction so spanning items
           // do not immediately resolve back to themselves.
           // eslint-disable-next-line no-nested-ternary
-          event.key === ARROW_DOWN ? 'bl' : event.key === ARROW_RIGHT ? 'tr' : 'tl',
+          event.key === ARROW_DOWN
+            ? 'bl'
+            : event.key === (rtl ? ARROW_LEFT : ARROW_RIGHT)
+              ? 'tr'
+              : 'tl',
         ),
         rtl,
       },

@@ -602,6 +602,38 @@ describe('Composite', () => {
 
         expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
       });
+
+      it('uses the forward edge when navigating from a spanning item', async () => {
+        await render(
+          <div dir="rtl">
+            <DirectionProvider direction="rtl">
+              <CompositeRoot
+                grid={gridNavigation({
+                  cols: 3,
+                  itemSizes: [
+                    { width: 1, height: 1 },
+                    { width: 2, height: 1 },
+                    { width: 1, height: 1 },
+                  ],
+                })}
+                orientation="both"
+              >
+                <CompositeItem data-testid="1">1</CompositeItem>
+                <CompositeItem data-testid="2">2</CompositeItem>
+                <CompositeItem data-testid="3">3</CompositeItem>
+              </CompositeRoot>
+            </DirectionProvider>
+          </div>,
+        );
+
+        act(() => screen.getByTestId('2').focus());
+
+        fireEvent.keyDown(screen.getByTestId('2'), { key: 'ArrowLeft' });
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+        expect(screen.getByTestId('1')).toHaveFocus();
+      });
     });
   });
 
