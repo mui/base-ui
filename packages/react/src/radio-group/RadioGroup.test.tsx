@@ -25,6 +25,14 @@ describe('<RadioGroup />', () => {
     });
   });
 
+  describe('prop: id', () => {
+    it('is forwarded to the root element', async () => {
+      await render(<RadioGroup id="group-id" />);
+
+      expect(screen.getByRole('radiogroup')).toHaveAttribute('id', 'group-id');
+    });
+  });
+
   describe('prop: onValueChange', () => {
     it('should call onValueChange when an item is clicked', async () => {
       const handleChange = vi.fn();
@@ -83,6 +91,86 @@ describe('<RadioGroup />', () => {
 
       expect(handleChange).toHaveBeenCalledOnce();
       expect(handleChange).toHaveBeenLastCalledWith('a', expect.anything());
+    });
+
+    it('does not change state when canceled via a root click', async () => {
+      const { user } = await render(
+        <Field.Root>
+          <RadioGroup onValueChange={(_, eventDetails) => eventDetails.cancel()}>
+            <Radio.Root value="a" data-testid="item" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('radiogroup');
+      const item = screen.getByTestId('item');
+      const input = document.querySelector<HTMLInputElement>('input[type="radio"]');
+
+      await user.click(item);
+
+      expect(item).toHaveAttribute('aria-checked', 'false');
+      expect(input?.checked).toBe(false);
+      expect(group).not.toHaveAttribute('data-touched');
+      expect(group).not.toHaveAttribute('data-dirty');
+      expect(group).not.toHaveAttribute('data-filled');
+    });
+
+    it('does not change state when canceled via a hidden input click', async () => {
+      const { user } = await render(
+        <Field.Root>
+          <RadioGroup onValueChange={(_, eventDetails) => eventDetails.cancel()}>
+            <Radio.Root value="a" data-testid="item" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('radiogroup');
+      const item = screen.getByTestId('item');
+      const input = document.querySelector<HTMLInputElement>('input[type="radio"]');
+
+      expect(input).not.toBe(null);
+      if (!input) {
+        return;
+      }
+
+      await user.click(input);
+
+      expect(item).toHaveAttribute('aria-checked', 'false');
+      expect(input.checked).toBe(false);
+      expect(group).not.toHaveAttribute('data-touched');
+      expect(group).not.toHaveAttribute('data-dirty');
+      expect(group).not.toHaveAttribute('data-filled');
+    });
+
+    it('does not change state when canceled via arrow key navigation', async () => {
+      const { user } = await render(
+        <Field.Root>
+          <RadioGroup onValueChange={(_, eventDetails) => eventDetails.cancel()}>
+            <Radio.Root value="a" data-testid="a" />
+            <Radio.Root value="b" data-testid="b" />
+          </RadioGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('radiogroup');
+      const a = screen.getByTestId('a');
+      const b = screen.getByTestId('b');
+      const inputs = document.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+
+      act(() => {
+        a.focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(b).toHaveFocus();
+      expect(a).toHaveAttribute('aria-checked', 'false');
+      expect(b).toHaveAttribute('aria-checked', 'false');
+      expect(inputs[0]?.checked).toBe(false);
+      expect(inputs[1]?.checked).toBe(false);
+      expect(group).not.toHaveAttribute('data-touched');
+      expect(group).not.toHaveAttribute('data-dirty');
+      expect(group).not.toHaveAttribute('data-filled');
     });
   });
 
@@ -421,12 +509,15 @@ describe('<RadioGroup />', () => {
 
   it('should automatically select radio upon navigation', async () => {
     const { user } = await render(
-      <RadioGroup>
-        <Radio.Root value="a" data-testid="a" />
-        <Radio.Root value="b" data-testid="b" />
-      </RadioGroup>,
+      <Field.Root>
+        <RadioGroup>
+          <Radio.Root value="a" data-testid="a" />
+          <Radio.Root value="b" data-testid="b" />
+        </RadioGroup>
+      </Field.Root>,
     );
 
+    const group = screen.getByRole('radiogroup');
     const a = screen.getByTestId('a');
     const b = screen.getByTestId('b');
 
@@ -434,6 +525,7 @@ describe('<RadioGroup />', () => {
       a.focus();
     });
 
+    expect(group).not.toHaveAttribute('data-touched');
     expect(a).toHaveAttribute('aria-checked', 'false');
 
     await user.keyboard('{ArrowDown}');
@@ -442,6 +534,7 @@ describe('<RadioGroup />', () => {
 
     expect(b).toHaveFocus();
     expect(b).toHaveAttribute('aria-checked', 'true');
+    expect(group).toHaveAttribute('data-touched', '');
   });
 
   describe('should manage arrow key navigation', () => {
