@@ -2606,7 +2606,9 @@ describe('<Combobox.Root />', () => {
       const input = screen.getByTestId<HTMLInputElement>('input');
       await user.click(input);
       await waitFor(() => expect(screen.getByRole('grid')).not.toBe(null));
+
       await user.type(input, 'abc');
+
       expect(input.value).toBe('abc');
       expect(input.selectionStart).toBe(3);
 
@@ -2641,8 +2643,10 @@ describe('<Combobox.Root />', () => {
       const input = screen.getByTestId<HTMLInputElement>('input');
       await user.click(input);
       await waitFor(() => expect(screen.getByRole('grid')).not.toBe(null));
+
       await user.type(input, 'abc');
       input.setSelectionRange(1, 1);
+
       expect(input.selectionStart).toBe(1);
 
       await user.keyboard('{ArrowRight}');
@@ -2676,6 +2680,7 @@ describe('<Combobox.Root />', () => {
       const input = screen.getByTestId<HTMLInputElement>('input');
       await user.click(input);
       await waitFor(() => expect(screen.getByRole('grid')).not.toBe(null));
+
       await user.type(input, 'a');
       await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('1'));
 
