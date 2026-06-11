@@ -2872,6 +2872,112 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
     });
 
+    // https://github.com/mui/base-ui/issues/4947
+    it('moves the input caret on ArrowLeft when no item is highlighted in grid mode', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <Combobox.Root grid onItemHighlighted={onItemHighlighted} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Row>
+                    <Combobox.Item value="1">1</Combobox.Item>
+                    <Combobox.Item value="2">2</Combobox.Item>
+                  </Combobox.Row>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('grid')).not.toBe(null));
+
+      await user.type(input, 'abc');
+
+      expect(input.value).toBe('abc');
+      expect(input.selectionStart).toBe(3);
+
+      await user.keyboard('{ArrowLeft}');
+
+      expect(input.selectionStart).toBe(2);
+      expect(input.selectionEnd).toBe(2);
+      expect(onItemHighlighted).not.toHaveBeenCalled();
+    });
+
+    // https://github.com/mui/base-ui/issues/4947
+    it('moves the input caret on ArrowRight when no item is highlighted in grid mode', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <Combobox.Root grid onItemHighlighted={onItemHighlighted} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Row>
+                    <Combobox.Item value="1">1</Combobox.Item>
+                    <Combobox.Item value="2">2</Combobox.Item>
+                  </Combobox.Row>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('grid')).not.toBe(null));
+
+      await user.type(input, 'abc');
+      input.setSelectionRange(1, 1);
+
+      expect(input.selectionStart).toBe(1);
+
+      await user.keyboard('{ArrowRight}');
+
+      expect(input.selectionStart).toBe(2);
+      expect(input.selectionEnd).toBe(2);
+      expect(onItemHighlighted).not.toHaveBeenCalled();
+    });
+
+    // https://github.com/mui/base-ui/issues/4947
+    it('keeps grid navigation when autoHighlight surfaces an item before typing arrow keys', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <Combobox.Root grid autoHighlight onItemHighlighted={onItemHighlighted} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Row>
+                    <Combobox.Item value="1">1</Combobox.Item>
+                    <Combobox.Item value="2">2</Combobox.Item>
+                  </Combobox.Row>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('grid')).not.toBe(null));
+
+      await user.type(input, 'a');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('1'));
+
+      await user.keyboard('{ArrowRight}');
+      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
+    });
+
     it('mirrors horizontal grid navigation in RTL mode', async () => {
       const onItemHighlighted = vi.fn();
       const { user } = await render(

@@ -52,7 +52,7 @@ export default function ExampleTooltip() {
 }
 
 const triggerClass =
-  'flex size-8 items-center justify-center border-0 bg-transparent text-neutral-950 select-none data-popup-open:bg-neutral-100 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white hover:bg-neutral-100 active:bg-neutral-200 dark:text-white dark:data-popup-open:bg-neutral-800 dark:hover:bg-neutral-800 dark:active:bg-neutral-700';
+  'flex size-8 items-center justify-center border-0 bg-transparent text-neutral-950 select-none data-popup-open:bg-neutral-100 focus-visible:relative focus-visible:z-1 focus-visible:bg-transparent focus-visible:outline-2 focus-visible:outline-neutral-950 dark:focus-visible:outline-white hover:bg-neutral-100 active:bg-neutral-200 dark:text-white dark:data-popup-open:bg-neutral-800 dark:hover:bg-neutral-800 dark:active:bg-neutral-700';
 const popupClass =
   'relative flex flex-col border border-neutral-950 bg-white px-2 py-1 text-sm text-neutral-950 origin-[var(--transform-origin)] shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[transform,opacity] duration-100 ease-out data-ending-style:opacity-0 data-ending-style:[transform:scale(0.98)] data-instant:transition-none data-starting-style:opacity-0 data-starting-style:[transform:scale(0.98)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none';
 const arrowClass =

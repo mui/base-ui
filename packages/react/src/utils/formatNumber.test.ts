@@ -15,6 +15,15 @@ describe('NumberField format', () => {
       const formatter2 = getFormatter(undefined, getOptions());
       expect(formatter1).toBe(formatter2);
     });
+
+    it('caches different Intl.Locale objects separately', () => {
+      const formatter1 = getFormatter(new Intl.Locale('fr-FR'), getOptions());
+      const formatter2 = getFormatter(new Intl.Locale('en-US'), getOptions());
+
+      expect(formatter1).not.toBe(formatter2);
+      expect(formatter1.resolvedOptions().locale).toBe('fr-FR');
+      expect(formatter2.resolvedOptions().locale).toBe('en-US');
+    });
   });
 
   describe('formatNumber', () => {

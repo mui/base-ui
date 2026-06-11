@@ -10,7 +10,7 @@
     "moduleResolution": "bundler",
     "noEmit": false,
     "rootDir": "./src",
-    "outDir": "build/esm",
+    "outDir": "build",
     "types": ["@mui/internal-code-infra/build-env"],
     // Drop the `@base-ui/react` self-alias so tsgo emits relative `import()` types instead of
     // leaking internal, non-exported subpaths into `.d.ts`. Keep `@base-ui/utils/*` for resolution.

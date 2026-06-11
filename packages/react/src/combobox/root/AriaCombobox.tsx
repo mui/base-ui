@@ -42,7 +42,7 @@ import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from '.
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import type { HTMLProps } from '../../internals/types';
+import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
@@ -1109,8 +1109,28 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const inputProps = React.useMemo(
-    () => mergeProps(listNavigation.reference, dismiss.reference, click.reference, role.reference),
-    [listNavigation.reference, dismiss.reference, click.reference, role.reference],
+    () =>
+      mergeProps(
+        listNavigation.reference,
+        {
+          onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+            // In grid mode the navigation hook treats ArrowLeft/ArrowRight as horizontal
+            // grid movement. When the input has focus and no item is highlighted the user
+            // is still editing the query, so let the input keep its native caret behavior.
+            if (
+              grid &&
+              store.state.activeIndex == null &&
+              (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
+            ) {
+              event.preventBaseUIHandler();
+            }
+          },
+        },
+        dismiss.reference,
+        click.reference,
+        role.reference,
+      ),
+    [listNavigation.reference, dismiss.reference, click.reference, role.reference, grid, store],
   );
 
   const popupProps = React.useMemo(
