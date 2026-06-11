@@ -624,10 +624,16 @@ describe('<Combobox.Trigger />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).toBe(null);
       });
+      // Focus returns to the trigger asynchronously after close.
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
 
       await user.keyboard('b');
 
-      expect(trigger).toHaveTextContent('banana');
+      await waitFor(() => {
+        expect(trigger).toHaveTextContent('banana');
+      });
     });
   });
 
