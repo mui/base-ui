@@ -2062,6 +2062,140 @@ describe('<Popover.Root />', () => {
       });
     });
   });
+
+  describe('preventUnmountOnClose()', () => {
+    it('does not leak from a canceled close into a synchronous second close', async () => {
+      const popover = Popover.createHandle();
+
+      function App() {
+        const closeAttemptsRef = React.useRef(0);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => popover.close()}>
+              Close popover
+            </button>
+            <Popover.Root
+              handle={popover}
+              defaultOpen
+              defaultTriggerId="trigger"
+              onOpenChange={(open, details) => {
+                if (open) {
+                  return;
+                }
+
+                closeAttemptsRef.current += 1;
+
+                if (closeAttemptsRef.current === 1) {
+                  details.preventUnmountOnClose();
+                  details.cancel();
+                  popover.close();
+                }
+              }}
+            >
+              <Popover.Trigger handle={popover} id="trigger">
+                Toggle
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popup">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close popover' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    });
+
+    it('unmounts on a normal close after a prevented close and initially open remount', async () => {
+      const popover = Popover.createHandle();
+
+      function App() {
+        const [showRoot, setShowRoot] = React.useState(true);
+        const [remountOpen, setRemountOpen] = React.useState(false);
+        const preventNextUnmountRef = React.useRef(true);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setShowRoot(false)}>
+              Unmount root
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setRemountOpen(true);
+                setShowRoot(true);
+              }}
+            >
+              Remount open
+            </button>
+            {showRoot && (
+              <Popover.Root
+                handle={popover}
+                defaultOpen={remountOpen}
+                defaultTriggerId="trigger"
+                onOpenChange={(open, details) => {
+                  if (!open && preventNextUnmountRef.current) {
+                    preventNextUnmountRef.current = false;
+                    details.preventUnmountOnClose();
+                  }
+                }}
+              >
+                <Popover.Trigger handle={popover} id="trigger">
+                  Toggle
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup data-testid="popup">Content</Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).not.toHaveAttribute('data-popup-open');
+      });
+      expect(screen.queryByTestId('popup')).not.toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Unmount root' }));
+      expect(screen.queryByTestId('popup')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Remount open' }));
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Toggle' })).toHaveAttribute('data-popup-open');
+      });
+      expect(screen.queryByTestId('popup')).not.toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Toggle' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+    });
+  });
 });
 
 type TestPopoverProps = {
