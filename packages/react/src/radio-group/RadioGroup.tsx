@@ -145,7 +145,18 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     return undefined;
   });
 
-  useRegisterFieldControl(controlRef, id, checkedValue ?? null, undefined, !disabled, nameProp);
+  const getFormValue = useStableCallback(() => {
+    // Disabled radios are excluded from native form submission, so a disabled
+    // selection shouldn't be reported as the field's value either.
+    const input = groupInputRef.current;
+    if (!input || input.disabled || !input.checked) {
+      return null;
+    }
+
+    return checkedValue ?? null;
+  });
+
+  useRegisterFieldControl(controlRef, id, checkedValue ?? null, getFormValue, !disabled, nameProp);
 
   useValueChanged(checkedValue, () => {
     clearErrors(name);
@@ -204,6 +215,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   );
 
   const defaultProps: HTMLProps = {
+    id: idProp,
     role: 'radiogroup',
     'aria-required': required || undefined,
     'aria-disabled': disabled || undefined,
@@ -224,7 +236,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
     onKeyDownCapture(event) {
       if (event.key.startsWith('Arrow')) {
-        setFieldTouched(true);
         setTouched(true);
         setFocused(true);
       }

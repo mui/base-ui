@@ -2192,6 +2192,38 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    describe('submenu hover open', () => {
+      const { render: renderFakeTimers, clock } = createRenderer();
+
+      clock.withFakeTimers();
+
+      it('opens a submenu after a plain delay without waiting for the pointer to rest', async () => {
+        // The menu is opened programmatically, so `allowMouseEnter` starts
+        // `false`. Hovering the submenu trigger as the first item must still
+        // open it after a plain delay rather than collapsing to a rest-only
+        // path that requires the cursor to stop moving.
+        await renderFakeTimers(
+          <TestMenu rootProps={{ open: true }} submenuTriggerProps={{ delay: 100 }} />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseMove(submenuTrigger, { movementX: 10 });
+
+        // Keep the pointer moving past the open delay so it never comes to rest.
+        clock.tick(40);
+        fireEvent.mouseMove(submenuTrigger, { movementX: 10 });
+        clock.tick(40);
+        fireEvent.mouseMove(submenuTrigger, { movementX: 10 });
+        clock.tick(40);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('submenu')).not.toBe(null);
+      });
+    });
+
     describe.skipIf(isJSDOM)('mouse interaction', () => {
       afterEach(async () => {
         const { cleanup } = await import('vitest-browser-react');
@@ -2354,6 +2386,53 @@ describe('<Menu.Root />', () => {
         });
       });
     });
+  });
+
+  it('does not leave a tabbable item after tabbing out of a keepMounted menu before close', async () => {
+    const actionsRef = {
+      current: {
+        unmount: vi.fn(),
+        close: vi.fn(),
+      },
+    };
+
+    const { user } = await render(
+      <div>
+        <input />
+        <DetachedTriggerMenu
+          rootProps={{ modal: false, actionsRef }}
+          portalProps={{ keepMounted: true }}
+        />
+        <input data-testid="after" />
+      </div>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Toggle' });
+    await act(async () => {
+      trigger.focus();
+    });
+    await user.keyboard('[Enter]');
+
+    const menuItem = await screen.findByTestId('item-1');
+    await waitFor(() => {
+      expect(menuItem).toHaveFocus();
+    });
+    expect(menuItem).toHaveAttribute('tabindex', '0');
+
+    await user.tab();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('after')).toHaveFocus();
+    });
+
+    await act(async () => {
+      actionsRef.current.close();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('menu')).not.toHaveAttribute('data-open');
+    });
+    expect(menuItem).toHaveAttribute('tabindex', '-1');
   });
 
   describe('prop: highlightItemOnHover', () => {

@@ -100,6 +100,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     'aria-describedby': ariaDescribedByProp,
     'aria-label': ariaLabelProp,
     'aria-labelledby': ariaLabelledByProp,
+    'aria-valuetext': ariaValueTextProp,
     disabled: disabledProp = false,
     getAriaLabel: getAriaLabelProp,
     getAriaValueText: getAriaValueTextProp,
@@ -316,12 +317,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               thumbValue,
               index,
             )
-          : getDefaultAriaValueText(
+          : (ariaValueTextProp ??
+            getDefaultAriaValueText(
               sliderValues,
               index,
               formatOptionsRef.current ?? undefined,
               locale,
-            ),
+            )),
       disabled,
       form,
       id: inputId,
@@ -360,9 +362,14 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         }
       },
       onKeyDown(event: React.KeyboardEvent) {
+        if (event.defaultPrevented) {
+          return;
+        }
+
         if (!ALL_KEYS.has(event.key)) {
           return;
         }
+
         if (COMPOSITE_KEYS.has(event.key)) {
           event.stopPropagation();
         }
@@ -453,6 +460,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       value: thumbValue ?? '',
     },
     (props) => validation.getValidationProps(disabled, props),
+    { onKeyDown: onKeyDownProp },
   );
 
   const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp);
@@ -486,6 +494,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         onBlur: onBlurProp,
         onFocus: onFocusProp,
         onPointerDown(event) {
+          // Keep disabled thumbs from writing transient pointer state.
+          if (disabled) {
+            return;
+          }
+
           pressedThumbIndexRef.current = index;
 
           if (thumbRef.current != null) {
@@ -519,13 +532,18 @@ export interface SliderThumbState extends SliderRootState {}
 
 export interface SliderThumbProps extends Omit<
   BaseUIComponentProps<'div', SliderThumbState>,
-  'onBlur' | 'onFocus'
+  'onBlur' | 'onFocus' | 'onKeyDown'
 > {
   /**
    * Whether the thumb should ignore user interaction.
    * @default false
    */
   disabled?: boolean | undefined;
+  /**
+   * A string value forwarded to the [`aria-valuetext`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-valuetext) attribute of the `input`.
+   * Ignored when `getAriaValueText` is provided.
+   */
+  'aria-valuetext'?: React.AriaAttributes['aria-valuetext'] | undefined;
   /**
    * A function which returns a string value for the [`aria-label`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-label) attribute of the `input`.
    */
@@ -564,6 +582,10 @@ export interface SliderThumbProps extends Omit<
    * A focus handler forwarded to the `input`.
    */
   onFocus?: React.FocusEventHandler<HTMLInputElement> | undefined;
+  /**
+   * A keydown handler forwarded to the `input`.
+   */
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement> | undefined;
   /**
    * Optional tab index attribute forwarded to the `input`.
    */

@@ -2,7 +2,9 @@ import { expect, vi } from 'vitest';
 import { screen, act, fireEvent } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
+
+const isWebKit = platform.engine.webkit;
 
 // TODO (@Janpot): Contribute https://github.com/testing-library/user-event/issues/903 and
 // rely on `user.pointer()` instead.

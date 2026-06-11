@@ -82,7 +82,7 @@ export const Menubar = React.forwardRef(function Menubar(
             state={state}
             stateAttributesMapping={menubarStateAttributesMapping}
             refs={[forwardedRef, setContentElement, contentRef]}
-            props={[{ role: 'menubar', id }, elementProps]}
+            props={[{ role: 'menubar', id, 'aria-orientation': orientation }, elementProps]}
             orientation={orientation}
             loopFocus={loopFocus}
             enableHomeAndEndKeys

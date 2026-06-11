@@ -21,7 +21,7 @@ import { useDialogPortalContext } from '../../dialog/portal/DialogPortalContext'
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerRootContext';
-import { useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
+import { getSnapPointSwipeMovement, useDrawerSnapPoints } from '../root/useDrawerSnapPoints';
 import { useDrawerViewportContext } from '../viewport/DrawerViewportContext';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
@@ -339,18 +339,15 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     const movementValue = Number.parseFloat(
       String((dragStyles as Record<string, string>)[DrawerPopupCssVars.swipeMovementY] ?? 0),
     );
-    const nextOffset = Number.isFinite(movementValue) ? baseOffset + movementValue : baseOffset;
-    const shouldDamp = nextOffset < 0;
 
-    if (swiping && shouldDamp && Number.isFinite(movementValue)) {
-      const overshoot = Math.abs(nextOffset);
-      const dampedOffset = -Math.sqrt(overshoot);
-      const dampedMovement = dampedOffset - baseOffset;
-
+    if (swiping && Number.isFinite(movementValue)) {
       dragStyles = {
         ...dragStyles,
         transform: undefined,
-        [DrawerPopupCssVars.swipeMovementY]: `${dampedMovement}px`,
+        [DrawerPopupCssVars.swipeMovementY]: `${getSnapPointSwipeMovement(
+          baseOffset,
+          movementValue,
+        )}px`,
       } as React.CSSProperties;
     } else {
       dragStyles = {

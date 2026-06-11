@@ -202,5 +202,73 @@ describe('<Toolbar.Root />', () => {
       await user.keyboard('[ArrowLeft]');
       expectFocusedWhenDisabled(groupedButton1);
     });
+
+    it('moves the initial tab stop off a disabled, non-focusable first item', async () => {
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button disabled focusableWhenDisabled={false} />
+          <Toolbar.Button />
+          <Toolbar.Button />
+        </Toolbar.Root>,
+      );
+
+      const [button1, button2, button3] = screen.getAllByRole('button');
+      // a natively disabled first item cannot hold the single roving tab stop
+      expect(button1).toHaveAttribute('disabled');
+      expect(button1).not.toHaveAttribute('tabindex', '0');
+      expect(button2).toHaveAttribute('tabindex', '0');
+
+      await user.keyboard('[Tab]');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+      expect(button3).toHaveFocus();
+
+      // looping back skips the disabled first item
+      await user.keyboard('[ArrowRight]');
+      expect(button2).toHaveFocus();
+    });
+
+    it('keeps an enabled item with focusableWhenDisabled={false} navigable', async () => {
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button />
+          <Toolbar.Button focusableWhenDisabled={false} />
+          <Toolbar.Button />
+        </Toolbar.Root>,
+      );
+
+      const [button1, button2, button3] = screen.getAllByRole('button');
+      expect(button2).not.toHaveAttribute('disabled');
+
+      await user.keyboard('[Tab]');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+      expect(button3).toHaveFocus();
+    });
+
+    it('skips a disabled Toolbar.Input with focusableWhenDisabled={false}', async () => {
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button />
+          <Toolbar.Input defaultValue="" disabled focusableWhenDisabled={false} />
+          <Toolbar.Button />
+        </Toolbar.Root>,
+      );
+
+      const [button1, button2] = screen.getAllByRole('button');
+      const input = screen.getByRole('textbox');
+
+      await user.keyboard('[Tab]');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+      expect(input).not.toHaveFocus();
+      expect(button2).toHaveFocus();
+    });
   });
 });

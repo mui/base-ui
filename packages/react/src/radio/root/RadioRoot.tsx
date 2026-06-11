@@ -69,8 +69,6 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const registerInputRef = groupContext?.registerInputRef ?? NOOP;
 
   const {
-    setDirty,
-    validityData,
     setTouched: setFieldTouched,
     setFilled,
     state: fieldState,
@@ -215,14 +213,13 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
       const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
+      setCheckedValue(value, details);
+
       if (details.isCanceled) {
         return;
       }
 
       setFieldTouched(true);
-      setDirty(value !== validityData.initialValue);
-      setFilled(true);
-      setCheckedValue(value, details);
     },
     onFocus() {
       radioRef.current?.focus();
@@ -303,6 +300,26 @@ export interface RadioRootState extends FieldRootState {
    * Whether the user must choose a value before submitting a form.
    */
   required: boolean;
+  /**
+   * Whether the radio button has been touched (when wrapped in Field.Root).
+   */
+  touched: boolean;
+  /**
+   * Whether the radio button's value has changed from its initial value (when wrapped in Field.Root).
+   */
+  dirty: boolean;
+  /**
+   * Whether the radio button is in a valid state (when wrapped in Field.Root).
+   */
+  valid: boolean | null;
+  /**
+   * Whether the radio button has a value (when wrapped in Field.Root).
+   */
+  filled: boolean;
+  /**
+   * Whether the radio button is focused (when wrapped in Field.Root).
+   */
+  focused: boolean;
 }
 
 export interface RadioRootProps<Value = any>

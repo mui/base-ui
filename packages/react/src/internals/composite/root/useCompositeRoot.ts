@@ -3,6 +3,7 @@ import * as React from 'react';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
@@ -149,6 +150,35 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
 
+  useIsoLayoutEffect(() => {
+    // `disabledIndices` can resolve a render after the initial map population
+    // (e.g. Toolbar derives it from item metadata through a state update), so the
+    // default tab stop at index 0 may now point at a disabled item, leaving the
+    // composite without a reachable tab stop. Re-validate and move it to the first
+    // enabled item. Gated on `disabledIndices` being provided so composites that
+    // rely on the DOM disabled fallback keep their existing behavior.
+    if (
+      disabledIndices == null ||
+      externalHighlightedIndex != null ||
+      !hasSetDefaultIndexRef.current
+    ) {
+      return;
+    }
+    const elements = elementsRef.current;
+    if (isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+      const firstEnabledIndex = findNonDisabledListIndex(elements, { disabledIndices });
+      if (!isIndexOutOfListBounds(elements, firstEnabledIndex)) {
+        onHighlightedIndexChange(firstEnabledIndex);
+      }
+    }
+  }, [
+    disabledIndices,
+    externalHighlightedIndex,
+    highlightedIndex,
+    elementsRef,
+    onHighlightedIndexChange,
+  ]);
+
   const wrappedOnLoop = useStableCallback(
     (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => {
       if (!onLoop) {
@@ -160,7 +190,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const props = React.useMemo<HTMLProps>(
     () => ({
-      'aria-orientation': orientation === 'both' ? undefined : orientation,
       ref: mergedRef,
       onFocus(event) {
         const element = rootRef.current;

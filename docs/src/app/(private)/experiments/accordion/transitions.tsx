@@ -272,7 +272,6 @@ export default function CssTransitions() {
           <a
             href="https://github.com/mui/base-ui/issues/3099"
             style={{ color: 'var(--color-blue)', textDecoration: 'underline' }}
-            rel="noreferrer"
             target="_blank"
           >
             Issue #3099

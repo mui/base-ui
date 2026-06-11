@@ -54,7 +54,7 @@ export function ReferenceAccordion({
         )}
         <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map((name, index) => {
+      {Object.keys(data).map((name) => {
         const prop = data[name];
 
         // Use shortType if available (set by useTypes), otherwise use the full type
@@ -78,7 +78,6 @@ export function ReferenceAccordion({
           >
             <Accordion.Trigger
               id={id}
-              index={index}
               aria-label={`${nameLabel}: ${name},${!hideRequired && prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
               className="ReferenceTrigger"
             >
