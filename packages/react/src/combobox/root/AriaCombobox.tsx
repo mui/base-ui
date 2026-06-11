@@ -1099,7 +1099,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             // is still editing the query, so let the input keep its native caret behavior.
             if (
               grid &&
-              activeIndex == null &&
+              store.state.activeIndex == null &&
               (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
             ) {
               event.preventBaseUIHandler();
@@ -1110,14 +1110,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         click.reference,
         role.reference,
       ),
-    [
-      listNavigation.reference,
-      dismiss.reference,
-      click.reference,
-      role.reference,
-      grid,
-      activeIndex,
-    ],
+    [listNavigation.reference, dismiss.reference, click.reference, role.reference, grid, store],
   );
 
   const popupProps = React.useMemo(
