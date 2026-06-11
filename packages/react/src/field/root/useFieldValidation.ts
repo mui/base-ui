@@ -28,8 +28,7 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
     }
     if (key === 'valueMissing') {
       onlyValueMissing = state[key];
-    }
-    if (state[key]) {
+    } else if (state[key]) {
       onlyValueMissing = false;
     }
   }
