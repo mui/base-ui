@@ -9,6 +9,11 @@ import {
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../composite';
 
 type CompositeGridElementsRef = React.RefObject<Array<HTMLElement | null>>;
+type CompositeGridOnLoop = (
+  event: React.KeyboardEvent,
+  prevIndex: number,
+  nextIndex: number,
+) => number;
 
 export interface CompositeGridItemSize {
   width: number;
@@ -19,14 +24,6 @@ export interface CompositeGridConfig {
   cols: number;
   dense?: boolean | undefined;
   itemSizes?: CompositeGridItemSize[] | undefined;
-  onLoop?:
-    | ((
-        event: React.KeyboardEvent,
-        prevIndex: number,
-        nextIndex: number,
-        elementsRef: CompositeGridElementsRef,
-      ) => number)
-    | undefined;
 }
 
 export interface CompositeGridNavigationState {
@@ -37,6 +34,7 @@ export interface CompositeGridNavigationState {
   maxIndex: number;
   orientation: 'horizontal' | 'vertical' | 'both';
   loopFocus: boolean;
+  onLoop?: CompositeGridOnLoop | undefined;
   disabledIndices?: number[] | undefined;
   rtl: boolean;
 }
@@ -50,7 +48,7 @@ export type CompositeGridNavigator = (state: CompositeGridNavigationState) => nu
  * so bundlers tree-shake the grid helpers out.
  */
 export function gridNavigation(config: CompositeGridConfig): CompositeGridNavigator {
-  const { cols, dense = false, itemSizes, onLoop } = config;
+  const { cols, dense = false, itemSizes } = config;
 
   return (state) => {
     const {
@@ -61,6 +59,7 @@ export function gridNavigation(config: CompositeGridConfig): CompositeGridNaviga
       loopFocus,
       maxIndex,
       minIndex,
+      onLoop,
       orientation,
       rtl,
     } = state;
@@ -83,18 +82,13 @@ export function gridNavigation(config: CompositeGridConfig): CompositeGridNaviga
           : foundIndex,
       -1,
     );
-    const wrappedOnLoop = onLoop
-      ? (loopEvent: React.KeyboardEvent, prevIndex: number, nextIndex: number) =>
-          onLoop(loopEvent, prevIndex, nextIndex, elementsRef)
-      : undefined;
-
     const cellIndex = getGridNavigatedIndex(
       cellMap.map((itemIndex) => (itemIndex != null ? elementsRef.current[itemIndex] : null)),
       {
         event,
         orientation,
         loopFocus,
-        onLoop: wrappedOnLoop,
+        onLoop,
         cols,
         // Treat undefined gaps as disabled so navigation cannot land in them.
         disabledIndices: getGridCellIndices(

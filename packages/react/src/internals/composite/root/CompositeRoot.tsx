@@ -30,6 +30,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     orientation,
     grid,
     loopFocus,
+    onLoop,
     enableHomeAndEndKeys,
     onMapChange: onMapChangeProp,
     stopEventPropagation = true,
@@ -53,6 +54,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   } = useCompositeRoot({
     grid,
     loopFocus,
+    onLoop,
     orientation,
     highlightedIndex: highlightedIndexProp,
     onHighlightedIndexChange: onHighlightedIndexChangeProp,
@@ -110,6 +112,14 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
   grid?: CompositeGridNavigator | undefined;
   loopFocus?: boolean | undefined;
+  onLoop?:
+    | ((
+        event: React.KeyboardEvent,
+        prevIndex: number,
+        nextIndex: number,
+        elementsRef: React.RefObject<Array<HTMLElement | null>>,
+      ) => number)
+    | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
   enableHomeAndEndKeys?: boolean | undefined;

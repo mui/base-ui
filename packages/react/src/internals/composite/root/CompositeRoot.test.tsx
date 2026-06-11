@@ -5,7 +5,7 @@ import { isJSDOM } from '#test-utils';
 import { DirectionProvider } from '../../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
 import { CompositeRoot } from './CompositeRoot';
-import { gridNavigation, type CompositeGridConfig } from './gridNavigation';
+import { gridNavigation } from './gridNavigation';
 
 describe('Composite', () => {
   const { render } = createRenderer();
@@ -244,6 +244,42 @@ describe('Composite', () => {
       });
     });
 
+    it('calls onLoop and uses its return value', async () => {
+      const onLoop = vi.fn(
+        (
+          _event: React.KeyboardEvent,
+          _prevIndex: number,
+          _nextIndex: number,
+          _elementsRef: React.RefObject<Array<HTMLElement | null>>,
+        ) => 1,
+      );
+
+      function App() {
+        return (
+          <CompositeRoot onLoop={onLoop}>
+            <TestGridItems />
+          </CompositeRoot>
+        );
+      }
+
+      await render(<App />);
+
+      act(() => screen.getByTestId('9').focus());
+
+      fireEvent.keyDown(screen.getByTestId('9'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(onLoop).toHaveBeenCalledOnce();
+
+      const [event, prevIndex, nextIndex, elementsRef] = onLoop.mock.calls[0]!;
+      expect(event.key).toBe('ArrowDown');
+      expect(prevIndex).toBe(8);
+      expect(nextIndex).toBe(0);
+      expect(elementsRef.current[8]).toBe(screen.getByTestId('9'));
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveFocus();
+    });
+
     describe.skipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
         render(
@@ -443,12 +479,19 @@ describe('Composite', () => {
       expect(screen.getByTestId('6')).toHaveFocus();
     });
 
-    it('calls onLoop and uses its return value', async () => {
-      const onLoop = vi.fn<NonNullable<CompositeGridConfig['onLoop']>>(() => 4);
+    it('calls onLoop while navigating through grid cells', async () => {
+      const onLoop = vi.fn(
+        (
+          _event: React.KeyboardEvent,
+          _prevIndex: number,
+          _nextIndex: number,
+          _elementsRef: React.RefObject<Array<HTMLElement | null>>,
+        ) => 4,
+      );
 
       function App() {
         return (
-          <CompositeRoot grid={gridNavigation({ cols: 3, onLoop })}>
+          <CompositeRoot grid={gridNavigation({ cols: 3 })} onLoop={onLoop}>
             <TestGridItems />
           </CompositeRoot>
         );

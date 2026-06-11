@@ -38,6 +38,14 @@ export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
   grid?: CompositeGridNavigator | undefined;
   loopFocus?: boolean | undefined;
+  onLoop?:
+    | ((
+        event: React.KeyboardEvent,
+        prevIndex: number,
+        nextIndex: number,
+        elementsRef: React.RefObject<Array<HTMLElement | null>>,
+      ) => number)
+    | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
   direction: TextDirection;
@@ -74,6 +82,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     loopFocus = true,
     orientation = 'both',
     grid,
+    onLoop,
     direction,
     highlightedIndex: externalHighlightedIndex,
     onHighlightedIndexChange: externalSetHighlightedIndex,
@@ -161,6 +170,15 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     onHighlightedIndexChange,
   ]);
 
+  const wrappedOnLoop = useStableCallback(
+    (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => {
+      if (!onLoop) {
+        return nextIndex;
+      }
+      return onLoop(event, prevIndex, nextIndex, elementsRef);
+    },
+  );
+
   const props = React.useMemo<HTMLProps>(
     () => ({
       ref: mergedRef,
@@ -235,6 +253,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
             loopFocus,
             maxIndex,
             minIndex,
+            onLoop: wrappedOnLoop,
             orientation,
             rtl: isRtl,
           });
@@ -274,8 +293,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         ) {
           if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
+            if (onLoop) {
+              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
+            }
           } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
+            if (onLoop) {
+              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
+            }
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef.current, {
               startingIndex: nextIndex,
@@ -316,9 +341,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       loopFocus,
       mergedRef,
       modifierKeys,
+      onLoop,
       onHighlightedIndexChange,
       orientation,
       stopEventPropagation,
+      wrappedOnLoop,
     ],
   );
 
