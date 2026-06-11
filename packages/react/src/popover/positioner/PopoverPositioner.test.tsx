@@ -577,5 +577,32 @@ describe('<Popover.Positioner />', () => {
       // width from the popup's left edge with start alignment.
       expect(getTransformOrigin()).toBe(`${anchorWidth / 2}px 0px`);
     });
+
+    it('points to the anchor center when the popup is shifted to overlap the anchor', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, position: 'fixed', left: 50, bottom: 10 }}>
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" collisionAvoidance={{ side: 'shift' }}>
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Trigger');
+      const positioner = screen.getByTestId('positioner');
+      const anchorRect = trigger.getBoundingClientRect();
+      const positionerRect = positioner.getBoundingClientRect();
+
+      // The popup doesn't fit below the anchor, so it shifts up and overlaps it. The
+      // side-axis origin then points to the anchor's vertical center within the popup.
+      expect(positionerRect.top).toBeLessThan(anchorRect.bottom);
+      expect(getTransformOrigin()).toBe(
+        `${popupWidth / 2}px ${anchorRect.y + anchorHeight / 2 - positionerRect.y}px`,
+      );
+    });
   });
 });
