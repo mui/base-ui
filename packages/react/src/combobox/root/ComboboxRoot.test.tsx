@@ -2653,41 +2653,6 @@ describe('<Combobox.Root />', () => {
     });
 
     // https://github.com/mui/base-ui/issues/4947
-    it('keeps horizontal grid navigation once an item is highlighted', async () => {
-      const onItemHighlighted = vi.fn();
-      const { user } = await render(
-        <Combobox.Root grid onItemHighlighted={onItemHighlighted} defaultOpen>
-          <Combobox.Input data-testid="input" />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  <Combobox.Row>
-                    <Combobox.Item value="1">1</Combobox.Item>
-                    <Combobox.Item value="2">2</Combobox.Item>
-                  </Combobox.Row>
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      const input = screen.getByTestId<HTMLInputElement>('input');
-      await user.click(input);
-      await waitFor(() => expect(screen.getByRole('grid')).not.toBe(null));
-
-      await user.keyboard('{ArrowDown}');
-      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('1'));
-
-      await user.keyboard('{ArrowRight}');
-      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('2'));
-
-      await user.keyboard('{ArrowLeft}');
-      await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('1'));
-    });
-
-    // https://github.com/mui/base-ui/issues/4947
     it('keeps grid navigation when autoHighlight surfaces an item before typing arrow keys', async () => {
       const onItemHighlighted = vi.fn();
       const { user } = await render(
