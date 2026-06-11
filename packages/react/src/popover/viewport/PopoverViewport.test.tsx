@@ -400,5 +400,91 @@ describe('<Popover.Viewport />', () => {
         });
       }
     });
+
+    it('keeps the size morph transition running when the rendered side changes', async () => {
+      const { user } = await render(
+        <div>
+          <style>
+            {`
+              [data-testid="positioner"] {
+                width: var(--positioner-width);
+                height: var(--positioner-height);
+                transition: top 1s linear, bottom 1s linear, left 1s linear, right 1s linear;
+              }
+              [data-testid="popup"] {
+                width: var(--popup-width, auto);
+                height: var(--popup-height, auto);
+                transition: width 1s linear, height 1s linear;
+              }
+            `}
+          </style>
+          <Popover.Root>
+            {({ payload }) => (
+              <React.Fragment>
+                <Popover.Trigger
+                  payload="small"
+                  data-testid="trigger1"
+                  style={{ position: 'fixed', top: 10, left: 10, width: 100, height: 50 }}
+                >
+                  Trigger 1
+                </Popover.Trigger>
+                <Popover.Trigger
+                  payload="tall"
+                  data-testid="trigger2"
+                  style={{ position: 'fixed', bottom: 10, left: 10, width: 100, height: 50 }}
+                >
+                  Trigger 2
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner data-testid="positioner">
+                    <Popover.Popup data-testid="popup">
+                      <Popover.Viewport>
+                        {payload === 'tall' ? (
+                          <div style={{ width: 200, height: 200 }}>tall</div>
+                        ) : (
+                          <div style={{ width: 140, height: 60 }}>small</div>
+                        )}
+                      </Popover.Viewport>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </React.Fragment>
+            )}
+          </Popover.Root>
+        </div>,
+      );
+
+      // Trigger 1 has space below it (side `bottom`); trigger 2 sits at the bottom
+      // of the viewport, so the tall popup flips to side `top`.
+      await user.click(screen.getByTestId('trigger1'));
+
+      const positioner = screen.getByTestId('positioner');
+      const popup = screen.getByTestId('popup');
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'bottom');
+      });
+
+      const smallHeight = popup.getBoundingClientRect().height;
+      expect(smallHeight).toBeLessThan(100);
+
+      await user.click(screen.getByTestId('trigger2'));
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('data-side', 'top');
+      });
+
+      // The popup's height transitions from the small to the tall size instead of
+      // jumping straight to the target.
+      const transitioningHeight = popup.getBoundingClientRect().height;
+      expect(Math.abs(transitioningHeight - smallHeight)).toBeLessThan(40);
+
+      await waitFor(
+        () => {
+          expect(popup.getBoundingClientRect().height).toBeGreaterThan(150);
+        },
+        { timeout: 2000 },
+      );
+    });
   });
 });

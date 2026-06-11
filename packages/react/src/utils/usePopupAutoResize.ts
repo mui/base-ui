@@ -35,8 +35,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
   const liveDimensionsRef = React.useRef<Dimensions | null>(null);
   const isInitialRenderRef = React.useRef(true);
 
-  const restoreAnchoringStylesRef = React.useRef(NOOP);
-
   const onMeasureLayout = useStableCallback(onMeasureLayoutParam);
   const onMeasureLayoutComplete = useStableCallback(onMeasureLayoutCompleteParam);
 
@@ -61,10 +59,19 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       : EMPTY_OBJECT;
   }, [side, direction]);
 
+  // Apply the anchoring styles in a separate effect so that a rendered side change
+  // (e.g. a flip from `top` to `bottom`) doesn't restart the measurement effect below,
+  // which would cancel an in-flight size transition and snap to the new dimensions.
+  useIsoLayoutEffect(() => {
+    if (!mounted || !popupElement || !enabled() || typeof ResizeObserver !== 'function') {
+      return undefined;
+    }
+    return applyElementStyles(popupElement, anchoringStyles as Record<string, string>);
+  }, [mounted, popupElement, enabled, anchoringStyles]);
+
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
     if (!mounted || !enabled() || typeof ResizeObserver !== 'function') {
-      restoreAnchoringStylesRef.current = NOOP;
       isInitialRenderRef.current = true;
       committedDimensionsRef.current = null;
       liveDimensionsRef.current = null;
@@ -74,11 +81,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     if (!popupElement || !positionerElement) {
       return undefined;
     }
-
-    restoreAnchoringStylesRef.current = applyElementStyles(
-      popupElement,
-      anchoringStyles as Record<string, string>,
-    );
 
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
@@ -132,8 +134,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
       return () => {
         observer.disconnect();
-        restoreAnchoringStylesRef.current();
-        restoreAnchoringStylesRef.current = NOOP;
       };
     }
 
@@ -156,8 +156,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       return () => {
         observer.disconnect();
         animationFrame.cancel();
-        restoreAnchoringStylesRef.current();
-        restoreAnchoringStylesRef.current = NOOP;
       };
     }
 
@@ -182,8 +180,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       observer.disconnect();
       abortController.abort();
       animationFrame.cancel();
-      restoreAnchoringStylesRef.current();
-      restoreAnchoringStylesRef.current = NOOP;
     };
   }, [
     content,
@@ -195,7 +191,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     mounted,
     onMeasureLayout,
     onMeasureLayoutComplete,
-    anchoringStyles,
   ]);
 }
 
