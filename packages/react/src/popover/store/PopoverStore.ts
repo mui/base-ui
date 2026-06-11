@@ -6,6 +6,7 @@ import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type PopoverRoot } from '../root/PopoverRoot';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginMiddleware';
 import { REASONS } from '../../internals/reasons';
 import {
   attachPreventUnmountOnClose,
@@ -33,7 +34,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   descriptionElementId: string | undefined;
   openOnHover: boolean;
   closeDelay: number;
-  hasViewport: boolean;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
@@ -60,7 +61,7 @@ function createInitialState<Payload>(): State<Payload> {
     nested: false,
     openOnHover: false,
     closeDelay: 0,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
   };
 }
 
@@ -77,7 +78,7 @@ const selectors = {
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
   openOnHover: createSelector((state: State<unknown>) => state.openOnHover),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  adaptiveOrigin: createSelector((state: State<unknown>) => state.adaptiveOrigin),
 };
 
 export class PopoverStore<Payload> extends ReactStore<

@@ -15,12 +15,13 @@ import {
   usePopupStore,
 } from '../../utils/popups';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginMiddleware';
 import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY } from '../utils/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
-  hasViewport: boolean;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
@@ -31,7 +32,7 @@ export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
 const selectors = {
   ...popupStoreSelectors,
   instantType: createSelector((state: State<unknown>) => state.instantType),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  adaptiveOrigin: createSelector((state: State<unknown>) => state.adaptiveOrigin),
 };
 
 export class PreviewCardStore<Payload> extends ReactStore<
@@ -152,6 +153,6 @@ function createInitialState<Payload>(): State<Payload> {
   return {
     ...createInitialPopupStoreState<Payload>(),
     instantType: undefined,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
   };
 }
