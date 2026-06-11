@@ -25,6 +25,14 @@ describe('<RadioGroup />', () => {
     });
   });
 
+  describe('prop: id', () => {
+    it('is forwarded to the root element', async () => {
+      await render(<RadioGroup id="group-id" />);
+
+      expect(screen.getByRole('radiogroup')).toHaveAttribute('id', 'group-id');
+    });
+  });
+
   describe('prop: onValueChange', () => {
     it('should call onValueChange when an item is clicked', async () => {
       const handleChange = vi.fn();
