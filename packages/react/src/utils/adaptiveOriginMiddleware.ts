@@ -92,7 +92,7 @@ export const adaptiveOrigin: AdaptiveOriginMiddleware = {
         floatingStyle[sideX] = `${fromX}px`;
         floatingStyle[sideY] = `${fromY}px`;
         // Flush styles so the starting position is committed before the new styles apply.
-        floating.offsetWidth; // eslint-disable-line @typescript-eslint/no-unused-expressions
+        floating.getBoundingClientRect();
       }
     }
 
