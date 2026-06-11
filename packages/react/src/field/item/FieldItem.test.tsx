@@ -19,6 +19,26 @@ describe('<Field.Item />', () => {
   }));
 
   describe('prop: disabled', () => {
+    it('reflects disabled state on the item', async () => {
+      const renderItem = vi.fn();
+      function renderFieldItem(
+        props: React.HTMLAttributes<HTMLDivElement>,
+        state: Field.Item.State,
+      ) {
+        renderItem(state);
+        return <div {...props} />;
+      }
+
+      await render(
+        <Field.Root>
+          <Field.Item disabled data-testid="item" render={renderFieldItem} />
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('item')).toHaveAttribute('data-disabled');
+      expect(renderItem.mock.lastCall?.[0].disabled).toBe(true);
+    });
+
     it('disables a wrapped checkbox', async () => {
       const onValueChange = vi.fn();
       const { user } = await render(

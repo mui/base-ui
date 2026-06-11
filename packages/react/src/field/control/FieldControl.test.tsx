@@ -41,6 +41,37 @@ describe('<Field.Control />', () => {
     expect(afterFirstChange).toBeLessThanOrEqual(initialRenderCount + 1);
   });
 
+  it('validates once when changed by the user', async () => {
+    const validate = vi.fn();
+
+    await render(
+      <Field.Root validationMode="onChange" validate={validate}>
+        <Field.Control />
+      </Field.Root>,
+    );
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'a' } });
+
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(validate.mock.lastCall?.[0]).toBe('a');
+  });
+
+  it('shows a required error when a prefilled value is cleared', async () => {
+    await render(
+      <Field.Root validationMode="onChange">
+        <Field.Control data-testid="control" defaultValue="value" required />
+        <Field.Error match="valueMissing">Required</Field.Error>
+      </Field.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+
+    fireEvent.change(control, { target: { value: '' } });
+
+    expect(control).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByText('Required')).toBeInTheDocument();
+  });
+
   it.skipIf(isJSDOM)('should sync focused state when autoFocus is used with SSR', async () => {
     vi.spyOn(console, 'error')
       .mockName('console.error')

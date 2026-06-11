@@ -5,13 +5,14 @@ import { type TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
+  attachPreventUnmountOnClose,
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setOpenTriggerState,
+  setPopupOpenState,
   usePopupStore,
 } from '../../utils/popups';
 
@@ -56,6 +57,7 @@ export class TooltipStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
+
     state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
     super(
@@ -81,9 +83,9 @@ export class TooltipStore<Payload> extends ReactStore<
     const isDismissClose =
       !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
 
-    (eventDetails as TooltipRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-      this.set('preventUnmountingOnClose', true);
-    };
+    const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
+      eventDetails as TooltipRoot.ChangeEventDetails,
+    );
 
     this.context.onOpenChange?.(nextOpen, eventDetails as TooltipRoot.ChangeEventDetails);
 
@@ -104,7 +106,12 @@ export class TooltipStore<Payload> extends ReactStore<
         updatedState.instantType = undefined;
       }
 
-      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
+      setPopupOpenState(
+        updatedState,
+        nextOpen,
+        eventDetails.trigger,
+        shouldPreventUnmountOnClose(),
+      );
 
       this.update(updatedState);
     };

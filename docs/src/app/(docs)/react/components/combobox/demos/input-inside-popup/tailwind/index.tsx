@@ -4,48 +4,48 @@ import { Combobox } from '@base-ui/react/combobox';
 
 export default function ExamplePopoverCombobox() {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col items-start gap-1">
       <Combobox.Root items={countries}>
-        <Combobox.Label className="cursor-default text-sm leading-5 font-bold text-gray-900">
+        <Combobox.Label className="cursor-default text-sm leading-5 font-bold text-neutral-950 dark:text-white">
           Country
         </Combobox.Label>
-        <Combobox.Trigger className="flex bg-[canvas] h-10 min-w-[12rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default font-normal">
-          <Combobox.Value placeholder={<span className="opacity-60">Select country</span>} />
-          <Combobox.Icon className="flex">
-            <ChevronUpDownIcon />
+        <Combobox.Trigger className="flex h-8 min-w-40 cursor-default items-center justify-between gap-3 border border-neutral-950 bg-white pl-2 pr-1 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:bg-neutral-100 active:bg-neutral-200 data-popup-open:bg-neutral-100 data-placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:data-placeholder:text-neutral-400 dark:focus-visible:outline-white dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:active:bg-neutral-700 dark:data-popup-open:bg-neutral-800">
+          <Combobox.Value placeholder="Select country" />
+          <Combobox.Icon className="text-neutral-950 dark:text-white">
+            <CaretUpDownIcon />
           </Combobox.Icon>
         </Combobox.Trigger>
         <Combobox.Portal>
           <Combobox.Positioner align="start" sideOffset={4}>
             <Combobox.Popup
-              className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[var(--available-width)] max-h-[24rem] rounded-lg bg-[canvas] shadow-lg shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+              className="[--input-container-height:2rem] max-h-[24.5rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-[scale,opacity] duration-150 data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0  dark:bg-neutral-950 dark:text-white dark:shadow-none"
               aria-label="Select country"
             >
-              <div className="w-80 h-[var(--input-container-height)] text-center p-2">
-                <Combobox.Input
-                  placeholder="e.g. United Kingdom"
-                  className="h-10 w-full font-normal rounded-md border border-gray-200 pl-3.5 text-base font-normal text-gray-900 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
-                />
+              <Combobox.Input
+                placeholder="e.g. United Kingdom"
+                className="h-8 w-full min-w-80 border border-neutral-950 bg-white px-2 text-sm font-normal text-neutral-950 placeholder:text-neutral-500 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 any-pointer-coarse:text-base dark:bg-neutral-950 dark:text-white dark:placeholder:text-neutral-400 dark:border-white dark:focus:outline-white"
+              />
+              <div className="border-x border-b border-neutral-950 dark:border-white">
+                <Combobox.Empty>
+                  <div className="py-4 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
+                    No countries found.
+                  </div>
+                </Combobox.Empty>
+                <Combobox.List className="max-h-[min(calc(24.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto overscroll-contain py-1 scroll-py-1 empty:p-0">
+                  {(country: Country) => (
+                    <Combobox.Item
+                      key={country.code}
+                      value={country}
+                      className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[1rem_1fr] items-center gap-2 p-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
+                    >
+                      <Combobox.ItemIndicator className="col-start-1">
+                        <CheckIcon />
+                      </Combobox.ItemIndicator>
+                      <span className="col-start-2">{country.label}</span>
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
               </div>
-              <Combobox.Empty>
-                <div className="p-4 text-[0.925rem] leading-4 text-gray-600">
-                  No countries found.
-                </div>
-              </Combobox.Empty>
-              <Combobox.List className="overflow-y-auto scroll-py-2 py-2 overscroll-contain max-h-[min(calc(24rem-var(--input-container-height)),calc(var(--available-height)-var(--input-container-height)))] empty:p-0">
-                {(country: Country) => (
-                  <Combobox.Item
-                    key={country.code}
-                    value={country}
-                    className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-hidden select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
-                  >
-                    <Combobox.ItemIndicator className="col-start-1">
-                      <CheckIcon className="size-3" />
-                    </Combobox.ItemIndicator>
-                    <span className="col-start-2">{country.label}</span>
-                  </Combobox.Item>
-                )}
-              </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
         </Combobox.Portal>
@@ -54,27 +54,33 @@ export default function ExamplePopoverCombobox() {
   );
 }
 
-function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
+function CaretUpDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      width="8"
-      height="12"
-      viewBox="0 0 8 12"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
-      <path d="M0.5 4.5L4 1.5L7.5 4.5" />
-      <path d="M0.5 7.5L4 10.5L7.5 7.5" />
+      <path d="M11 10H5l3 3.5zm0-4H5l3-3.5z" />
     </svg>
   );
 }
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentColor" width="10" height="10" viewBox="0 0 10 10" {...props}>
-      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m2.5 8.5 4 4 7-9" />
     </svg>
   );
 }

@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import {
+  attachPreventUnmountOnClose,
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
   InlineRectCoords,
@@ -9,7 +10,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setOpenTriggerState,
+  setPopupOpenState,
   updateInlineRectCoords,
   usePopupStore,
 } from '../../utils/popups';
@@ -45,6 +46,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
   ) {
     const triggerElements = new PopupTriggerMap();
     const state = { ...createInitialState<Payload>(), ...initialState };
+
     state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
     super(
@@ -72,9 +74,9 @@ export class PreviewCardStore<Payload> extends ReactStore<
     const isDismissClose =
       !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
 
-    (eventDetails as PreviewCardRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-      this.set('preventUnmountingOnClose', true);
-    };
+    const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
+      eventDetails as PreviewCardRoot.ChangeEventDetails,
+    );
 
     this.context.onOpenChange?.(nextOpen, eventDetails as PreviewCardRoot.ChangeEventDetails);
 
@@ -112,7 +114,12 @@ export class PreviewCardStore<Payload> extends ReactStore<
         updatedState.instantType = undefined;
       }
 
-      setOpenTriggerState(updatedState, nextOpen, eventDetails.trigger);
+      setPopupOpenState(
+        updatedState,
+        nextOpen,
+        eventDetails.trigger,
+        shouldPreventUnmountOnClose(),
+      );
 
       this.update(updatedState);
     };

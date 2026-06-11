@@ -3,35 +3,25 @@ import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
 import { withDeploymentConfig } from '@mui/internal-docs-infra/withDocsInfra';
-import transformMarkdownMetadata from '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata';
-import transformMarkdownRelativePaths from '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths';
-import transformMarkdownCode from '@mui/internal-docs-infra/pipeline/transformMarkdownCode';
-import transformHtmlCodeBlock from '@mui/internal-docs-infra/pipeline/transformHtmlCodeBlock';
-import transformHtmlCodeInline from '@mui/internal-docs-infra/pipeline/transformHtmlCodeInline';
-import enhanceCodeInline from '@mui/internal-docs-infra/pipeline/enhanceCodeInline';
 import nextMdx from '@next/mdx';
-import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
-import remarkGfm from 'remark-gfm';
-import remarkTypography from 'remark-typography';
-import { remarkQuickNavExcludeHeading } from 'docs/src/components/QuickNav/remarkQuickNavExcludeHeading.mjs';
-import { rehypeQuickNav } from 'docs/src/components/QuickNav/rehypeQuickNav.mjs';
-import { rehypeConcatHeadings } from 'docs/src/components/QuickNav/rehypeConcatHeadings.mjs';
-import { rehypeKbd } from 'docs/src/components/Kbd/rehypeKbd.mjs';
-import { rehypeSlug } from 'docs/src/components/QuickNav/rehypeSlug.mjs';
-import { rehypeSubtitle } from 'docs/src/components/Subtitle/rehypeSubtitle.mjs';
-import { rehypeEagerCodeBlocks } from 'docs/src/components/CodeBlock/rehypeEagerCodeBlocks.mjs';
 import { ordering } from 'docs/src/utils/typeOrder.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
 const baseDir = path.dirname(url.fileURLToPath(import.meta.url));
 
+/**
+ * @param {string} relativePath
+ * @returns {string}
+ */
+const localPlugin = (relativePath) => path.join(baseDir, relativePath);
+
 const withMdx = nextMdx({
   options: {
     remarkPlugins: [
-      remarkGfm,
+      'remark-gfm',
       [
-        transformMarkdownMetadata,
+        '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
         {
           titleSuffix: ' · Base UI',
           extractToIndex: {
@@ -48,22 +38,22 @@ const withMdx = nextMdx({
           },
         },
       ],
-      remarkTypography,
-      remarkQuickNavExcludeHeading,
-      transformMarkdownRelativePaths,
-      transformMarkdownCode,
+      'remark-typography',
+      localPlugin('src/components/QuickNav/remarkQuickNavExcludeHeading.mjs'),
+      '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths',
+      '@mui/internal-docs-infra/pipeline/transformMarkdownCode',
     ],
     rehypePlugins: [
-      transformHtmlCodeBlock,
-      rehypeEagerCodeBlocks,
-      transformHtmlCodeInline,
-      enhanceCodeInline,
-      rehypeSlug,
-      rehypeConcatHeadings,
-      rehypeExtractToc,
-      rehypeQuickNav,
-      rehypeSubtitle,
-      rehypeKbd,
+      '@mui/internal-docs-infra/pipeline/transformHtmlCodeBlock',
+      localPlugin('src/components/CodeBlock/rehypeEagerCodeBlocks.mjs'),
+      '@mui/internal-docs-infra/pipeline/transformHtmlCodeInline',
+      '@mui/internal-docs-infra/pipeline/enhanceCodeInline',
+      localPlugin('src/components/QuickNav/rehypeSlug.mjs'),
+      localPlugin('src/components/QuickNav/rehypeConcatHeadings.mjs'),
+      '@stefanprobst/rehype-extract-toc',
+      localPlugin('src/components/QuickNav/rehypeQuickNav.mjs'),
+      localPlugin('src/components/Subtitle/rehypeSubtitle.mjs'),
+      localPlugin('src/components/Kbd/rehypeKbd.mjs'),
     ],
   },
 });
@@ -164,6 +154,7 @@ const nextConfig = {
   devIndicators: false,
   experimental: {
     globalNotFound: true,
+    turbopackFileSystemCacheForBuild: true,
   },
 };
 

@@ -4,7 +4,6 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
@@ -34,9 +33,12 @@ import { mergeProps } from '../../merge-props';
 import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
+  attachPreventUnmountOnClose,
   FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
+  setPopupOpenState,
   useImplicitActiveTrigger,
+  useInitialOpenSync,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
@@ -110,15 +112,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     parent: parentFromContext,
   });
 
-  // Support initially open state when uncontrolled
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
-      store.update({
-        open: true,
-        activeTriggerId: defaultTriggerIdProp,
-      });
-    }
-  });
+  useInitialOpenSync(store, openProp, defaultOpen, defaultTriggerIdProp);
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -163,6 +157,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   store.useSyncedValues({
     disabled: disabledProp,
+    highlightItemOnHover,
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
@@ -243,9 +238,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         return;
       }
 
-      (eventDetails as MenuRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-        store.set('preventUnmountingOnClose', true);
-      };
+      const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
+        eventDetails as MenuRoot.ChangeEventDetails,
+      );
 
       // Do not immediately reset the activeTriggerId to allow
       // exit animations to play and focus to be returned correctly.
@@ -269,19 +264,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         !allowTouchToCloseRef.current
       ) {
         return;
-      }
-
-      // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
-      // option upon close when tabbing out due to `keepMounted=true`:
-      // https://github.com/floating-ui/floating-ui/pull/3004/files#diff-962a7439cdeb09ea98d4b622a45d517bce07ad8c3f866e089bda05f4b0bbd875R194-R199
-      // This otherwise causes options to retain `tabindex=0` incorrectly when the popup is closed
-      // when tabbing outside.
-      if (!nextOpen && activeIndex !== null) {
-        const activeOption = store.context.itemDomElements.current[activeIndex];
-        // Wait for Floating UI's focus effect to have fired
-        queueMicrotask(() => {
-          activeOption?.setAttribute('tabindex', '-1');
-        });
       }
 
       // Prevent the menu from closing on mobile devices that have a delayed click event.
@@ -309,13 +291,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       };
       openEventRef.current = eventDetails.event ?? null;
 
-      // If a popup is closing, the `trigger` may be null.
-      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-      const newTriggerId = eventDetails.trigger?.id ?? null;
-      if (newTriggerId || nextOpen) {
-        updatedState.activeTriggerId = newTriggerId;
-        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-      }
+      setPopupOpenState(
+        updatedState,
+        nextOpen,
+        eventDetails.trigger,
+        shouldPreventUnmountOnClose(),
+      );
 
       store.update(updatedState);
 
@@ -433,6 +414,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   );
 
   const typeahead = useTypeahead(floatingRootContext, {
+    enabled: !disabled,
     listRef: store.context.itemLabels,
     elementsRef: store.context.itemDomElements,
     activeIndex,
@@ -473,8 +455,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const inactiveTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(listNavigation.trigger, dismiss.trigger, interactionTypeProps);
+
     mergedProps['aria-haspopup'] = 'menu';
     mergedProps['aria-expanded'] = false;
+
     return mergedProps;
   }, [listNavigation.trigger, dismiss.trigger, interactionTypeProps]);
 

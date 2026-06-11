@@ -27,9 +27,10 @@ export const FieldItem = React.forwardRef(function FieldItem(
     ...elementProps
   } = componentProps;
 
-  const { state, disabled: rootDisabled } = useFieldRootContext(false);
+  const { state: fieldState, disabled: rootDisabled } = useFieldRootContext(false);
 
   const disabled = rootDisabled || disabledProp;
+  const state: FieldItemState = { ...fieldState, disabled };
 
   const checkboxGroupContext = useCheckboxGroupContext();
   const hasParentCheckbox = checkboxGroupContext?.allValues !== undefined;

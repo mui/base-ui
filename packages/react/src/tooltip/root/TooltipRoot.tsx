@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss } from '../../floating-ui-react';
@@ -12,6 +11,7 @@ import {
 import {
   FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
+  useInitialOpenSync,
   useOpenStateTransitions,
   usePopupInteractionProps,
   type PayloadChildRenderFunction,
@@ -52,15 +52,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     triggerIdProp,
   });
 
-  // Support initially open state when uncontrolled
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
-      store.update({
-        open: true,
-        activeTriggerId: defaultTriggerIdProp,
-      });
-    }
-  });
+  useInitialOpenSync(store, openProp, defaultOpen, defaultTriggerIdProp);
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -82,7 +74,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   store.useSyncedValue('disabled', disabled);
 
-  useImplicitActiveTrigger(store);
+  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');

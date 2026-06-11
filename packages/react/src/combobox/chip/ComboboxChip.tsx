@@ -12,6 +12,7 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 /**
  * An individual chip that represents a value in a multiselectable input.
@@ -27,6 +28,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 
   const store = useComboboxRootContext();
   const { setHighlightedChipIndex, chipsRef } = useComboboxChipsContext()!;
+  const direction = useDirection();
 
   const disabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
@@ -36,15 +38,18 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     let nextIndex: number | undefined = index;
+    const isRtl = direction === 'rtl';
+    const previousChipKey = isRtl ? 'ArrowRight' : 'ArrowLeft';
+    const nextChipKey = isRtl ? 'ArrowLeft' : 'ArrowRight';
 
-    if (event.key === 'ArrowLeft') {
+    if (event.key === previousChipKey) {
       event.preventDefault();
       if (index > 0) {
         nextIndex = index - 1;
       } else {
         nextIndex = undefined;
       }
-    } else if (event.key === 'ArrowRight') {
+    } else if (event.key === nextChipKey) {
       event.preventDefault();
       if (index < chipsRef.current.length - 1) {
         nextIndex = index + 1;

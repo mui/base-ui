@@ -72,13 +72,14 @@ export interface TooltipViewportState {
   instant: 'delay' | 'dismiss' | 'focus' | undefined;
 }
 
-export namespace TooltipViewport {
-  export interface Props extends BaseUIComponentProps<'div', TooltipViewportState> {
-    /**
-     * The content to render inside the transition container.
-     */
-    children?: React.ReactNode;
-  }
+export interface TooltipViewportProps extends BaseUIComponentProps<'div', TooltipViewportState> {
+  /**
+   * The content to render inside the transition container.
+   */
+  children?: React.ReactNode;
+}
 
+export namespace TooltipViewport {
+  export type Props = TooltipViewportProps;
   export type State = TooltipViewportState;
 }

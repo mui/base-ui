@@ -8,7 +8,7 @@ import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
@@ -105,10 +105,7 @@ function getFirstTabbableElement(container: Element | null) {
   return tabbable(container)[0] || container;
 }
 
-function handleTabIndex(
-  floatingFocusElement: HTMLElement,
-  orderRef: React.RefObject<Array<'reference' | 'floating' | 'content'>>,
-) {
+function handleTabIndex(floatingFocusElement: HTMLElement) {
   if (
     floatingFocusElement.hasAttribute('tabindex') &&
     !floatingFocusElement.hasAttribute('data-tabindex')
@@ -116,10 +113,7 @@ function handleTabIndex(
     return;
   }
 
-  if (
-    !orderRef.current.includes('floating') &&
-    !floatingFocusElement.getAttribute('role')?.includes('dialog')
-  ) {
+  if (!floatingFocusElement.getAttribute('role')?.includes('dialog')) {
     return;
   }
 
@@ -133,7 +127,7 @@ function handleTabIndex(
   });
   const tabIndex = floatingFocusElement.getAttribute('tabindex');
 
-  if (orderRef.current.includes('floating') || tabbableContent.length === 0) {
+  if (tabbableContent.length === 0) {
     if (tabIndex !== '0') {
       floatingFocusElement.setAttribute('tabindex', '0');
     }
@@ -286,10 +280,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // start.
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
 
-  const orderRef = React.useRef<Array<'reference' | 'floating' | 'content'>>(['content']);
   const initialFocusRef = useValueAsRef(initialFocus);
   const returnFocusRef = useValueAsRef(returnFocus);
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
+  const openRef = useValueAsRef(open);
 
   const tree = useFloatingTree(externalTree);
   const portalContext = usePortalContext();
@@ -473,7 +467,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         );
 
         if (currentTarget === domReference && floatingFocusElement) {
-          handleTabIndex(floatingFocusElement, orderRef);
+          handleTabIndex(floatingFocusElement);
         }
 
         // Restore focus to the previous tabbable element index to prevent
@@ -581,7 +575,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getTabbableContent,
     isUntrappedTypeableCombobox,
     getNodeId,
-    orderRef,
     dataRef,
     blurTimeout,
     pointerDownTimeout,
@@ -696,8 +689,29 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
       elToFocus = elToFocus || getDefaultFocusElement();
 
+      const hadFocusInside = contains(floatingFocusElement, activeElement(doc));
+
       enqueueFocus(elToFocus, {
         preventScroll: elToFocus === floatingFocusElement,
+        shouldFocus() {
+          // This focus is queued on the next animation frame. If the floating element has closed
+          // before it runs — e.g. tabbing out of a kept-mounted popup — don't pull focus back
+          // onto the initial element after it has legitimately moved elsewhere.
+          if (!openRef.current) {
+            return false;
+          }
+
+          if (hadFocusInside) {
+            return true;
+          }
+
+          const currentActiveElement = activeElement(doc);
+          const focusMovedInside =
+            currentActiveElement !== elToFocus &&
+            contains(floatingFocusElement, currentActiveElement);
+
+          return !focusMovedInside;
+        },
       });
     });
   }, [
@@ -707,6 +721,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getTabbableContent,
     initialFocusRef,
     openInteractionTypeRef,
+    openRef,
   ]);
 
   // Track return focus targets and restore focus on unmount/close.
@@ -716,9 +731,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     const doc = ownerDocument(floatingFocusElement);
-    const previouslyFocusedElement = activeElement(doc);
+    const elementFocusedBeforeOpen = activeElement(doc);
+    // Only nullish interaction types represent programmatic opens. The empty
+    // string default is intentionally not treated as programmatic.
+    const preferPreviousFocus = openInteractionTypeRef.current == null;
 
-    addPreviouslyFocusedElement(previouslyFocusedElement);
+    addPreviouslyFocusedElement(elementFocusedBeforeOpen);
 
     // Dismissing via outside press should always ignore `returnFocus` to
     // prevent unwanted scrolling.
@@ -779,17 +797,25 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         resolvedReturnFocusValue = true;
       }
 
-      if (typeof resolvedReturnFocusValue === 'boolean') {
-        if (domReference?.isConnected) {
-          return domReference;
-        }
+      const referenceReturnElement = domReference?.isConnected ? domReference : null;
+      const previousReturnElement =
+        elementFocusedBeforeOpen?.isConnected && getNodeName(elementFocusedBeforeOpen) !== 'body'
+          ? elementFocusedBeforeOpen
+          : null;
 
-        return getPreviouslyFocusedElement() || null;
+      let defaultReturnElement = preferPreviousFocus
+        ? previousReturnElement || referenceReturnElement
+        : referenceReturnElement || previousReturnElement;
+
+      if (!defaultReturnElement) {
+        defaultReturnElement = getPreviouslyFocusedElement() || null;
       }
 
-      const fallback = domReference?.isConnected ? domReference : getPreviouslyFocusedElement();
+      if (typeof resolvedReturnFocusValue === 'boolean') {
+        return defaultReturnElement;
+      }
 
-      return resolveRef(resolvedReturnFocusValue) || fallback || null;
+      return resolveRef(resolvedReturnFocusValue) || defaultReturnElement || null;
     }
 
     return () => {
@@ -836,6 +862,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floating,
     floatingFocusElement,
     returnFocusRef,
+    openInteractionTypeRef,
     events,
     tree,
     domReference,
@@ -847,7 +874,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // when the popup unmounts from the DOM.
   // By blurring it before the popup unmounts, we can prevent this behavior.
   useIsoLayoutEffect(() => {
-    if (!isWebKit || open || !floating) {
+    if (!platform.engine.webkit || open || !floating) {
       return;
     }
 
@@ -886,11 +913,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     if (disabled || !floatingFocusElement) {
       return undefined;
     }
-    handleTabIndex(floatingFocusElement, orderRef);
+    handleTabIndex(floatingFocusElement);
     return () => {
       queueMicrotask(clearDisconnectedPreviouslyFocusedElements);
     };
-  }, [disabled, floatingFocusElement, orderRef]);
+  }, [disabled, floatingFocusElement]);
 
   const shouldRenderGuards =
     !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);

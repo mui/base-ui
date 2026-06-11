@@ -4,8 +4,7 @@ import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/i
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { useTestInteractions } from '#test-utils';
+import { isJSDOM, useTestInteractions } from '#test-utils';
 import {
   FloatingFocusManager,
   FloatingNode,
@@ -163,9 +162,9 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
-    test('dismisses with reference press', async () => {
+    test('dismisses with reference press', () => {
       render(<App referencePress={() => true} />);
-      await userEvent.click(screen.getByRole('button'));
+      fireEvent.pointerDown(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 

@@ -134,7 +134,7 @@ describe('inlineRect', () => {
     expect(coordsRef.current).toEqual({ x: 1, y: 1, lineIndex: 0, element: trigger });
   });
 
-  it('updates stored coords on mouse enter while open', () => {
+  it('does not update stored coords on mouse enter while open', () => {
     const trigger = createTrigger([
       { left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 },
       { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
@@ -145,7 +145,7 @@ describe('inlineRect', () => {
 
     getInlineRectTriggerProps(coordsRef, true).onMouseEnter?.(createMouseEvent(trigger, 5, 25));
 
-    expect(coordsRef.current).toEqual({ x: 5, y: 25, lineIndex: 1, element: trigger });
+    expect(coordsRef.current).toEqual({ x: 1, y: 1, lineIndex: 0, element: trigger });
   });
 
   it('updates stored coords from a native mouse event while open', () => {
