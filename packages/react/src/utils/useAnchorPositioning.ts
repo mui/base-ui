@@ -375,11 +375,17 @@ export function useAnchorPositioning(
             ? sideOffset(getOffsetData(state, sideParam, isRtl))
             : sideOffset;
 
+        const crossAxisShift =
+          renderedAxis === 'y' ? middlewareData.shift?.x || 0 : middlewareData.shift?.y || 0;
+        const isCrossAxisShifted = Math.abs(crossAxisShift) > 1;
+
         // On the cross axis, the origin points to the arrow when present. Without an arrow,
         // it points to the anchor's center for `center` alignment (tracked by a zero-size
-        // virtual arrow), or to the popup's aligned edge for `start`/`end` alignment.
+        // virtual arrow), or to the popup's aligned edge for unshifted `start`/`end` alignment.
+        // Shifted aligned placements fall through to the virtual arrow center because the popup
+        // edge no longer lines up with the anchor edge.
         let crossOrigin: string;
-        if (!arrowEl && renderedAlign) {
+        if (!arrowEl && renderedAlign && !isCrossAxisShifted) {
           const isFloatingRtl =
             renderedAxis === 'y' && Boolean(await state.platform.isRTL?.(elements.floating));
           const startOrigin = isFloatingRtl ? '100%' : '0%';

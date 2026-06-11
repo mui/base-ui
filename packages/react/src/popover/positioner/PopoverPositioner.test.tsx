@@ -595,6 +595,38 @@ describe('<Popover.Positioner />', () => {
       expect(getTransformOrigin()).toBe('0% -7px');
     });
 
+    it('points to the anchor center when start alignment is shifted on the cross axis', async () => {
+      const shiftedPopupWidth = 240;
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, position: 'fixed', top: 50, right: 10 }}>
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner
+              data-testid="positioner"
+              align="start"
+              collisionAvoidance={{ align: 'shift' }}
+            >
+              <Popover.Popup style={{ ...popupStyle, width: shiftedPopupWidth }}>
+                Popup
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Trigger');
+      const positioner = screen.getByTestId('positioner');
+      const anchorRect = trigger.getBoundingClientRect();
+      const positionerRect = positioner.getBoundingClientRect();
+
+      expect(positionerRect.left).toBeLessThan(anchorRect.left);
+      expect(getTransformOrigin()).toBe(
+        `${anchorRect.x + anchorWidth / 2 - positionerRect.x}px 0px`,
+      );
+    });
+
     it('points to the arrow when present regardless of alignment', async () => {
       const arrowSize = 10;
       await render(
