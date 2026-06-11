@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { type TooltipRoot } from '../root/TooltipRoot';
-import type { Middleware } from '../../floating-ui-react';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginMiddleware';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -26,7 +26,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openChangeReason: TooltipRoot.ChangeEventReason | null;
   closeOnClick: boolean;
   closeDelay: number;
-  adaptiveOrigin: Middleware | undefined;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {

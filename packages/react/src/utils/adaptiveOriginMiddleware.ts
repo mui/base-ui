@@ -3,6 +3,10 @@ import { getSide } from '@floating-ui/utils';
 import { Middleware } from '../floating-ui-react';
 import { DEFAULT_SIDES } from './useAnchorPositioning';
 
+// A nameable interface so store fields holding the middleware can be emitted in
+// declarations without expanding Floating UI's structural `Middleware` type.
+export interface AdaptiveOriginMiddleware extends Middleware {}
+
 // Tracks the inset properties last used to position each floating element so that a
 // swap (e.g. `bottom` -> `top`) can be detected when the rendered side changes.
 const prevSidesMap = new WeakMap<
@@ -10,7 +14,7 @@ const prevSidesMap = new WeakMap<
   { sideX: 'left' | 'right'; sideY: 'top' | 'bottom' }
 >();
 
-export const adaptiveOrigin: Middleware = {
+export const adaptiveOrigin: AdaptiveOriginMiddleware = {
   name: 'adaptiveOrigin',
   async fn(state) {
     const {

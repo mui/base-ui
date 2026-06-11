@@ -6,7 +6,7 @@ import { ReactStore, createSelector } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type PopoverRoot } from '../root/PopoverRoot';
-import type { Middleware } from '../../floating-ui-react';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginMiddleware';
 import { REASONS } from '../../internals/reasons';
 import {
   attachPreventUnmountOnClose,
@@ -34,7 +34,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   descriptionElementId: string | undefined;
   openOnHover: boolean;
   closeDelay: number;
-  adaptiveOrigin: Middleware | undefined;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
