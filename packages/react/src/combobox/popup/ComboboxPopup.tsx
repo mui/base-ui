@@ -59,7 +59,8 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const popupId = elementProps.id ?? (inputInsidePopup ? getComboboxPopupId(rootId) : undefined);
 
   useIsoLayoutEffect(() => {
-    store.set('popupId', popupId);
+    // Prefer the rendered DOM id, which a `render` prop element or function may override.
+    store.set('popupId', store.state.popupRef.current?.id || popupId);
     return () => {
       store.set('popupId', undefined);
     };

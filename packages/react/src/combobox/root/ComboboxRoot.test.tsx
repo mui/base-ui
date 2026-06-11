@@ -1459,6 +1459,30 @@ describe('<Combobox.Root />', () => {
       expect(popup.id).toBe('custom-popup-id');
       expect(trigger).toHaveAttribute('aria-controls', 'custom-popup-id');
     });
+
+    it('points aria-controls at a popup id supplied through the render prop', async () => {
+      await render(
+        <Combobox.Root defaultOpen>
+          <Combobox.Trigger>trigger</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup render={<div id="custom-render-id" />}>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen
+        .getAllByRole('combobox')
+        .find((element) => element.tagName === 'BUTTON')!;
+      const popup = screen.getByRole('dialog');
+
+      expect(popup.id).toBe('custom-render-id');
+      expect(trigger).toHaveAttribute('aria-controls', 'custom-render-id');
+    });
   });
 
   it('should handle browser autofill', async () => {
