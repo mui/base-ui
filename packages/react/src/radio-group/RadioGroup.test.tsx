@@ -501,12 +501,15 @@ describe('<RadioGroup />', () => {
 
   it('should automatically select radio upon navigation', async () => {
     const { user } = await render(
-      <RadioGroup>
-        <Radio.Root value="a" data-testid="a" />
-        <Radio.Root value="b" data-testid="b" />
-      </RadioGroup>,
+      <Field.Root>
+        <RadioGroup>
+          <Radio.Root value="a" data-testid="a" />
+          <Radio.Root value="b" data-testid="b" />
+        </RadioGroup>
+      </Field.Root>,
     );
 
+    const group = screen.getByRole('radiogroup');
     const a = screen.getByTestId('a');
     const b = screen.getByTestId('b');
 
@@ -514,6 +517,7 @@ describe('<RadioGroup />', () => {
       a.focus();
     });
 
+    expect(group).not.toHaveAttribute('data-touched');
     expect(a).toHaveAttribute('aria-checked', 'false');
 
     await user.keyboard('{ArrowDown}');
@@ -522,6 +526,7 @@ describe('<RadioGroup />', () => {
 
     expect(b).toHaveFocus();
     expect(b).toHaveAttribute('aria-checked', 'true');
+    expect(group).toHaveAttribute('data-touched', '');
   });
 
   describe('should manage arrow key navigation', () => {
