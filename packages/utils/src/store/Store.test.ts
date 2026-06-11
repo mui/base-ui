@@ -2,7 +2,10 @@ import { expect, vi } from 'vitest';
 import { lruMemoize } from 'reselect';
 import { Store } from './Store';
 import { createSelector } from './createSelector';
-import { createSelectorMemoized, createSelectorMemoizedWithOptions } from './createSelectorMemoized';
+import {
+  createSelectorMemoized,
+  createSelectorMemoizedWithOptions,
+} from './createSelectorMemoized';
 
 describe('Store', () => {
   describe('Store.create', () => {
