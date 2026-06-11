@@ -78,15 +78,21 @@
   if (activeTab != null && tabsList != null) {
     const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
 
-    // Unlike `TabsIndicator.tsx`, only the transform-immune layout offsets are used here.
-    // They can be off by ~1px of `offsetLeft`/`offsetTop` rounding, but the component
-    // recomputes the variables with sub-pixel precision as soon as React hydrates.
-    const layoutOffset = getLayoutOffset(activeTab, tabsList);
-    left = layoutOffset.left;
-    top = layoutOffset.top;
-
     width = computedWidth;
     height = computedHeight;
+
+    // Unlike `TabsIndicator.tsx`, only the transform-immune layout offsets are used here.
+    // They are off by ~1px of `offsetLeft`/`offsetTop` rounding, but the component
+    // recomputes the variables with sub-pixel precision as soon as React hydrates.
+    //
+    // Clamp to the content box: a rounded-up offset could otherwise overshoot the tab
+    // list's scrollable extent and trigger a transient scrollbar before hydration. The
+    // clamp is a no-op when the active tab doesn't define the edge (e.g. trailing list
+    // padding), and it also keeps `--active-tab-right`/`--active-tab-bottom` >= 0.
+    const layoutOffset = getLayoutOffset(activeTab, tabsList);
+    left = Math.min(layoutOffset.left, tabsList.scrollWidth - width);
+    top = Math.min(layoutOffset.top, tabsList.scrollHeight - height);
+
     right = tabsList.scrollWidth - left - width;
     bottom = tabsList.scrollHeight - top - height;
   }
