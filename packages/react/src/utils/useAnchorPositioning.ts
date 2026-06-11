@@ -723,7 +723,6 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   floatingRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
@@ -754,5 +753,3 @@ export interface UseAnchorPositioningReturnValue {
   isPositioned: boolean;
   update: () => void;
 }
-
-export interface UseAnchorPositioningState {}
