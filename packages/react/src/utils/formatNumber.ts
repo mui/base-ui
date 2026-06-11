@@ -1,7 +1,9 @@
+import { stringifyLocale } from './stringifyLocale';
+
 export const cache = new Map<string, Intl.NumberFormat>();
 
 export function getFormatter(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
-  const optionsString = JSON.stringify({ locale, options });
+  const optionsString = JSON.stringify({ locale: stringifyLocale(locale), options });
   const cachedFormatter = cache.get(optionsString);
 
   if (cachedFormatter) {
