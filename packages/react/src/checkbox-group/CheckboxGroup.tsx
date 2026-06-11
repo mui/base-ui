@@ -142,6 +142,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     ref: forwardedRef,
     props: [
       {
+        id: idProp,
         role: 'group',
         'aria-labelledby': labelId,
       },
