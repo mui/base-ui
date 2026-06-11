@@ -18,15 +18,20 @@ export enum SelectTriggerDataAttributes {
    */
   readonly = 'data-readonly',
   /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null}
+   */
+  popupSide = 'data-popup-side',
+  /**
    * Present when the select is required.
    */
   required = 'data-required',
   /**
-   * Present when the select is in valid state (when wrapped in Field.Root).
+   * Present when the select is in a valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**
-   * Present when the select is in invalid state (when wrapped in Field.Root).
+   * Present when the select is in an invalid state (when wrapped in Field.Root).
    */
   invalid = 'data-invalid',
   /**

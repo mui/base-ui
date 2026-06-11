@@ -3,17 +3,19 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { type FieldRootState } from '../root/FieldRoot';
-import { useFieldRootContext } from '../root/FieldRootContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { fieldValidityMapping } from '../utils/constants';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useField } from '../useField';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { activeElement } from '../../floating-ui-react/utils';
 
 /**
@@ -56,6 +58,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     validationMode,
     validation,
   } = useFieldRootContext();
+  const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -95,15 +98,9 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const isControlled = valueProp !== undefined;
   const value = isControlled ? valueUnwrapped : undefined;
+  const getValueFromInput = useStableCallback(() => validation.inputRef.current?.value);
 
-  useField({
-    id,
-    name,
-    commit: validation.commit,
-    value,
-    getValue: () => validation.inputRef.current?.value,
-    controlRef: validation.inputRef,
-  });
+  useRegisterFieldControl(validation.inputRef, id, value, getValueFromInput, !disabled, nameProp);
 
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
@@ -120,8 +117,15 @@ export const FieldControl = React.forwardRef(function FieldControl(
         onChange(event) {
           const inputValue = event.currentTarget.value;
           onValueChange?.(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
+          // `validation.change` reads `markedDirtyRef`, so update dirty before validating.
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
+
+          // Workaround for https://github.com/facebook/react/issues/9023
+          if (!event.nativeEvent.defaultPrevented) {
+            clearErrors(name);
+            validation.change(inputValue);
+          }
         },
         onFocus() {
           setFocused(true);
@@ -141,8 +145,8 @@ export const FieldControl = React.forwardRef(function FieldControl(
           }
         },
       },
-      validation.getInputValidationProps(),
       elementProps,
+      (props) => validation.getValidationProps(disabled, props),
     ],
     stateAttributesMapping: fieldValidityMapping,
   });

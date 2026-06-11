@@ -6,3 +6,4 @@ Allow: /
 Disallow: /experiments/
 Disallow: /hydration-repro/
 Disallow: /playground/
+Disallow: /docs-theme/

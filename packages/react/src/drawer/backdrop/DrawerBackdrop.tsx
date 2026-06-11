@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
-import { type BaseUIComponentProps } from '../../utils/types';
-import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { type TransitionStatus } from '../../internals/useTransitionStatus';
+import { type BaseUIComponentProps } from '../../internals/types';
+import { type StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerBackdropCssVars } from './DrawerBackdropCssVars';
 
@@ -26,6 +26,7 @@ export const DrawerBackdrop = React.forwardRef(function DrawerBackdrop(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, forceRender = false, ...elementProps } = componentProps;
+
   const { store } = useDialogRootContext();
 
   const open = store.useState('open');

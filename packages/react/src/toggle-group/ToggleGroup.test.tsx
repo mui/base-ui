@@ -4,6 +4,7 @@ import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toggle } from '@base-ui/react/toggle';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { type Orientation } from '../internals/types';
 
 describe('<ToggleGroup />', () => {
   const { render } = createRenderer();
@@ -207,6 +208,18 @@ describe('<ToggleGroup />', () => {
       const group = screen.queryByRole('group');
       expect(group).toHaveAttribute('data-orientation', 'vertical');
     });
+
+    it('does not render aria-orientation on role="group"', async () => {
+      await render(
+        <ToggleGroup orientation="horizontal">
+          <Toggle value="one" />
+          <Toggle value="two" />
+        </ToggleGroup>,
+      );
+
+      const group = screen.queryByRole('group');
+      expect(group).not.toHaveAttribute('aria-orientation');
+    });
   });
 
   describe('prop: multiple', () => {
@@ -277,59 +290,69 @@ describe('<ToggleGroup />', () => {
 
   describe.skipIf(isJSDOM)('keyboard interactions', () => {
     [
-      ['ltr', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'],
-      ['rtl', 'ArrowLeft', 'ArrowDown', 'ArrowRight', 'ArrowUp'],
+      ['ltr', 'horizontal', 'ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'],
+      ['ltr', 'vertical', 'ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'],
+      ['rtl', 'horizontal', 'ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'],
+      ['rtl', 'vertical', 'ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
     ].forEach((entry) => {
-      const [direction, horizontalNextKey, verticalNextKey, horizontalPrevKey, verticalPrevKey] =
-        entry;
+      const [direction, orientation, nextKey, prevKey, ignoredNextKey, ignoredPrevKey] = entry;
 
-      it(direction, async () => {
-        const { user } = await render(
-          <DirectionProvider direction={direction as TextDirection}>
-            <ToggleGroup>
-              <Toggle value="one" />
-              <Toggle value="two" />
-              <Toggle value="three" />
-            </ToggleGroup>
-          </DirectionProvider>,
-        );
+      describe(direction, () => {
+        it(`orientation: ${orientation}`, async () => {
+          const { user } = await render(
+            <DirectionProvider direction={direction as TextDirection}>
+              <ToggleGroup orientation={orientation as Orientation}>
+                <Toggle value="one" />
+                <Toggle value="two" />
+                <Toggle value="three" />
+              </ToggleGroup>
+            </DirectionProvider>,
+          );
 
-        const [button1, button2, button3] = screen.getAllByRole('button');
+          const [button1, button2, button3] = screen.getAllByRole('button');
 
-        await user.keyboard('[Tab]');
+          await user.keyboard('[Tab]');
 
-        expect(button1).toHaveAttribute('tabindex', '0');
-        expect(button1).toHaveFocus();
+          expect(button1).toHaveAttribute('tabindex', '0');
+          expect(button1).toHaveFocus();
 
-        await user.keyboard(`[${horizontalNextKey}]`);
+          await user.keyboard(`[${nextKey}]`);
 
-        expect(button2).toHaveAttribute('tabindex', '0');
-        expect(button2).toHaveFocus();
+          expect(button2).toHaveAttribute('tabindex', '0');
+          expect(button2).toHaveFocus();
 
-        await user.keyboard(`[${horizontalNextKey}]`);
+          await user.keyboard(`[${nextKey}]`);
 
-        expect(button3).toHaveAttribute('tabindex', '0');
-        expect(button3).toHaveFocus();
+          expect(button3).toHaveAttribute('tabindex', '0');
+          expect(button3).toHaveFocus();
 
-        await user.keyboard(`[${verticalNextKey}]`);
+          // loop to the beginning
+          await user.keyboard(`[${nextKey}]`);
 
-        expect(button1).toHaveAttribute('tabindex', '0');
-        expect(button1).toHaveFocus();
+          expect(button1).toHaveAttribute('tabindex', '0');
+          expect(button1).toHaveFocus();
 
-        await user.keyboard(`[${verticalNextKey}]`);
+          await user.keyboard(`[${prevKey}]`);
 
-        expect(button2).toHaveAttribute('tabindex', '0');
-        expect(button2).toHaveFocus();
+          expect(button3).toHaveAttribute('tabindex', '0');
+          expect(button3).toHaveFocus();
 
-        await user.keyboard(`[${horizontalPrevKey}]`);
+          await user.keyboard(`[${prevKey}]`);
 
-        expect(button1).toHaveAttribute('tabindex', '0');
-        expect(button1).toHaveFocus();
+          expect(button2).toHaveAttribute('tabindex', '0');
+          expect(button2).toHaveFocus();
 
-        await user.keyboard(`[${verticalPrevKey}]`);
+          // keys from the other axis should not move focus
+          await user.keyboard(`[${ignoredNextKey}]`);
 
-        expect(button3).toHaveAttribute('tabindex', '0');
-        expect(button3).toHaveFocus();
+          expect(button2).toHaveAttribute('tabindex', '0');
+          expect(button2).toHaveFocus();
+
+          await user.keyboard(`[${ignoredPrevKey}]`);
+
+          expect(button2).toHaveAttribute('tabindex', '0');
+          expect(button2).toHaveFocus();
+        });
       });
     });
 
@@ -442,8 +465,28 @@ describe('<ToggleGroup />', () => {
       expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
     });
 
+    it('does not change the value when the event is canceled', async () => {
+      const onValueChange = vi.fn((_value, eventDetails) => {
+        eventDetails.cancel();
+      });
+
+      const { user } = await render(
+        <ToggleGroup onValueChange={onValueChange}>
+          <Toggle value="one" />
+          <Toggle value="two" />
+        </ToggleGroup>,
+      );
+
+      const [button1] = screen.getAllByRole('button');
+
+      await user.pointer({ keys: '[MouseLeft]', target: button1 });
+
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(button1).toHaveAttribute('aria-pressed', 'false');
+    });
+
     ['Enter', 'Space'].forEach((key) => {
-      it(`fires when when the ${key} is pressed`, async ({ skip }) => {
+      it(`fires when the ${key} is pressed`, async ({ skip }) => {
         if (isJSDOM) {
           skip();
         }

@@ -1,10 +1,10 @@
 import { Store, createSelector } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { TransitionStatus } from '../utils/useTransitionStatus';
-import type { HTMLProps } from '../utils/types';
+import type { TransitionStatus } from '../internals/useTransitionStatus';
+import type { HTMLProps } from '../internals/types';
 import type { Side } from '../utils/useAnchorPositioning';
-import { compareItemEquality } from '../utils/itemEquality';
-import { hasNullItemLabel } from '../utils/resolveValueLabel';
+import { compareItemEquality } from '../internals/itemEquality';
+import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
@@ -32,6 +32,7 @@ export type State = {
   popupProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
+  itemProps: HTMLProps;
 
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
@@ -43,6 +44,7 @@ export type State = {
   openMethod: InteractionType | null;
 
   inputInsidePopup: boolean;
+  inputOwnsFormValue: boolean;
 
   selectionMode: 'single' | 'multiple' | 'none';
 
@@ -71,9 +73,6 @@ export type State = {
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
-  getItemProps: (
-    props?: HTMLProps & { active?: boolean | undefined; selected?: boolean | undefined },
-  ) => Record<string, unknown>;
   requestSubmit: () => void;
 
   name: string | undefined;
@@ -148,7 +147,7 @@ export const selectors = {
   popupProps: createSelector((state: State) => state.popupProps),
   inputProps: createSelector((state: State) => state.inputProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
-  getItemProps: createSelector((state: State) => state.getItemProps),
+  itemProps: createSelector((state: State) => state.itemProps),
 
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
@@ -160,6 +159,7 @@ export const selectors = {
   openMethod: createSelector((state: State) => state.openMethod),
 
   inputInsidePopup: createSelector((state: State) => state.inputInsidePopup),
+  inputOwnsFormValue: createSelector((state: State) => state.inputOwnsFormValue),
 
   selectionMode: createSelector((state: State) => state.selectionMode),
 

@@ -1,10 +1,6 @@
 @import 'docs/src/css/custom-media.css';
 
 @layer base {
-  html {
-    color-scheme: light dark;
-  }
-
   /* Scope body styles to only apply when docs layout is present */
   body:has(.RootLayout) {
     position: relative; /* iOS 26 `position: absolute` backdrops */
@@ -13,10 +9,6 @@
     /* It's also the iOS footer overscroll background */
     background-color: var(--color-background);
     color: var(--color-foreground);
-  }
-
-  .RootLayout ::selection {
-    background-color: var(--color-selection);
   }
 }
 

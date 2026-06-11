@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import type { SliderRootState } from '../root/SliderRoot';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';

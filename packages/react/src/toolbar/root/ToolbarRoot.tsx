@@ -1,8 +1,12 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, Orientation as BaseOrientation, HTMLProps } from '../../utils/types';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import {
+  BaseUIComponentProps,
+  Orientation as BaseOrientation,
+  HTMLProps,
+} from '../../internals/types';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import { ToolbarRootContext } from './ToolbarRootContext';
 
 /**
@@ -32,7 +36,13 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   const disabledIndices = React.useMemo(() => {
     const output: number[] = [];
     for (const itemMetadata of itemMap.values()) {
-      if (itemMetadata?.index && !itemMetadata.focusableWhenDisabled) {
+      // Only items that are disabled and not focusable when disabled
+      // are removed from roving focus.
+      if (
+        itemMetadata?.index != null &&
+        itemMetadata.disabled &&
+        !itemMetadata.focusableWhenDisabled
+      ) {
         output.push(itemMetadata.index);
       }
     }
@@ -74,6 +84,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 });
 
 export interface ToolbarRootItemMetadata {
+  disabled: boolean;
   focusableWhenDisabled: boolean;
 }
 

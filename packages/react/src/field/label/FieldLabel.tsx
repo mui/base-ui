@@ -3,12 +3,13 @@ import * as React from 'react';
 import { error } from '@base-ui/utils/error';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import type { FieldRootState } from '../root/FieldRoot';
-import { useFieldRootContext } from '../root/FieldRootContext';
-import { fieldValidityMapping } from '../utils/constants';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useLabel } from '../../labelable-provider/useLabel';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useLabel } from '../../internals/labelable-provider/useLabel';
+import { useFieldItemContext } from '../item/FieldItemContext';
 
 /**
  * An accessible label that is automatically associated with the field control.
@@ -30,7 +31,13 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   } = componentProps;
 
   const fieldRootContext = useFieldRootContext(false);
+  const fieldItemContext = useFieldItemContext();
   const { labelId } = useLabelableContext();
+
+  const state: FieldLabelState = {
+    ...fieldRootContext.state,
+    disabled: fieldRootContext.disabled || fieldItemContext.disabled,
+  };
 
   const labelRef = React.useRef<HTMLElement | null>(null);
   const labelProps = useLabel({
@@ -70,7 +77,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const element = useRenderElement('label', componentProps, {
     ref: [forwardedRef, labelRef],
-    state: fieldRootContext.state,
+    state,
     props: [labelProps, elementProps],
     stateAttributesMapping: fieldValidityMapping,
   });

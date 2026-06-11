@@ -31,7 +31,7 @@ export default function ExampleAsyncSingleCombobox() {
         <React.Fragment>
           <span
             aria-hidden
-            className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
+            className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent"
           />
           Searching…
         </React.Fragment>
@@ -59,6 +59,9 @@ export default function ExampleAsyncSingleCombobox() {
     }
     return 'Try a different search term.';
   }
+
+  const status = getStatus();
+  const emptyMessage = getEmptyMessage();
 
   return (
     <Combobox.Root
@@ -108,26 +111,26 @@ export default function ExampleAsyncSingleCombobox() {
         });
       }}
     >
-      <div className="relative flex flex-col gap-1 text-sm font-bold leading-5 text-gray-900">
+      <div className="relative flex flex-col gap-1 text-sm leading-5 font-bold text-neutral-950 dark:text-white">
         <label htmlFor={id}>Assign reviewer</label>
-        <Combobox.InputGroup className="relative box-content h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 md:w-[20rem] [&>input]:pr-[calc(0.5rem+1.5rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
+        <Combobox.InputGroup className="relative h-8 w-64 border border-neutral-950 bg-white dark:bg-neutral-950 focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-neutral-950 dark:focus-within:outline-white dark:border-white md:w-80 [&>input]:pr-[calc(0.5rem+2rem)] has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+2rem*2)]">
           <Combobox.Input
             id={id}
             placeholder="e.g. Michael"
-            className="box-border h-full w-full border-0 bg-transparent pl-3.5 text-base font-normal text-gray-900 outline-none"
+            className="h-full w-full border-0 bg-white pl-2 dark:bg-neutral-950 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 dark:text-white"
           />
-          <div className="absolute bottom-0 right-2 flex h-10 items-center justify-center text-gray-600">
+          <div className="absolute right-0 bottom-0 flex h-full items-center justify-center text-neutral-500 dark:text-neutral-400">
             <Combobox.Clear
-              className="combobox-clear flex h-10 w-6 items-center justify-center rounded border-0 bg-transparent p-0"
+              className="combobox-clear flex h-full w-6 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 dark:text-white"
               aria-label="Clear selection"
             >
-              <ClearIcon className="size-4" />
+              <XIcon />
             </Combobox.Clear>
             <Combobox.Trigger
-              className="flex h-10 w-6 items-center justify-center rounded border-0 bg-transparent p-0"
+              className="flex h-full w-6 items-center justify-center border-0 bg-transparent p-0 text-neutral-950 dark:text-white"
               aria-label="Open popup"
             >
-              <ChevronDownIcon className="size-4" />
+              <CaretDownIcon />
             </Combobox.Trigger>
           </div>
         </Combobox.InputGroup>
@@ -136,36 +139,46 @@ export default function ExampleAsyncSingleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
           <Combobox.Popup
-            className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-[0_10px_15px_-3px_var(--color-gray-200),0_4px_6px_-4px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:transition-none data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-gray-300"
+            className="w-[var(--anchor-width)] max-w-[var(--available-width)] origin-[var(--transform-origin)] border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] transition-[scale,opacity] data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:transition-none dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
             aria-busy={isPending || undefined}
           >
-            <Combobox.Status className="flex items-center gap-2 py-1 pl-4 pr-5 text-sm text-gray-600 empty:hidden">
-              {getStatus()}
-            </Combobox.Status>
-            <Combobox.Empty className="px-4 py-2 text-[0.875rem] leading-4 text-gray-600 empty:hidden">
-              {getEmptyMessage()}
-            </Combobox.Empty>
-            <Combobox.List>
-              {(user: DirectoryUser) => (
-                <Combobox.Item
-                  key={user.id}
-                  value={user}
-                  className="grid cursor-default select-none grid-cols-[0.75rem_1fr] items-start gap-2 py-2 pl-4 pr-5 text-base leading-[1.2rem] outline-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-900 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded [@media(hover:hover)]:[&[data-highlighted]]:before:bg-gray-100 [@media(hover:hover)]:[&[data-highlighted]]:before:content-['']"
-                >
-                  <Combobox.ItemIndicator className="col-start-1 mt-1">
-                    <CheckIcon className="size-3" />
-                  </Combobox.ItemIndicator>
-                  <div className="col-start-2 flex flex-col gap-1">
-                    <div className="text-[0.95rem] font-bold">{user.name}</div>
-                    <div className="flex flex-wrap gap-3 text-[0.8125rem] text-gray-600">
-                      <span className="opacity-80">@{user.username}</span>
-                      <span>{user.title}</span>
-                    </div>
-                    <div className="text-xs opacity-80">{user.email}</div>
+            <div className="max-h-[min(var(--available-height),22.5rem)] overflow-y-auto overscroll-contain py-1 scroll-pt-1 scroll-pb-1">
+              <Combobox.Status>
+                {status ? (
+                  <div className="flex items-center gap-2 py-1 pr-5 pl-2 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+                    {status}
                   </div>
-                </Combobox.Item>
-              )}
-            </Combobox.List>
+                ) : null}
+              </Combobox.Status>
+              <Combobox.Empty>
+                {emptyMessage ? (
+                  <div className="py-2 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
+                    {emptyMessage}
+                  </div>
+                ) : null}
+              </Combobox.Empty>
+              <Combobox.List>
+                {(user: DirectoryUser) => (
+                  <Combobox.Item
+                    key={user.id}
+                    value={user}
+                    className="grid cursor-default grid-cols-[1rem_1fr] items-start gap-2 px-2 py-2 text-sm leading-[1.2rem] outline-none select-none [@media(hover:hover)]:data-highlighted:relative [@media(hover:hover)]:data-highlighted:z-0 [@media(hover:hover)]:data-highlighted:text-neutral-950 [@media(hover:hover)]:data-highlighted:before:absolute [@media(hover:hover)]:data-highlighted:before:inset-0 [@media(hover:hover)]:data-highlighted:before:z-[-1] [@media(hover:hover)]:data-highlighted:before:bg-neutral-100 dark:[@media(hover:hover)]:data-highlighted:text-white dark:[@media(hover:hover)]:data-highlighted:before:bg-neutral-800"
+                  >
+                    <Combobox.ItemIndicator className="col-start-1 mt-1">
+                      <CheckIcon />
+                    </Combobox.ItemIndicator>
+                    <span className="col-start-2 flex flex-col gap-1">
+                      <span className="text-sm leading-5 font-bold">{user.name}</span>
+                      <span className="text-xs">{user.email}</span>
+                      <span className="flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                        <span>@{user.username}</span>
+                        <span>{user.title}</span>
+                      </span>
+                    </span>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </div>
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>
@@ -175,43 +188,49 @@ export default function ExampleAsyncSingleCombobox() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
-      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m2.5 8.5 4 4 7-9" />
     </svg>
   );
 }
 
-function ClearIcon(props: React.ComponentProps<'svg'>) {
+function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
+      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
-      <path d="M18 6L6 18" />
-      <path d="M6 6l12 12" />
+      <path d="m4.5 4.5 7 7m-7 0 7-7" />
     </svg>
   );
 }
 
-function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
+function CaretDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
-      <path d="M6 9l6 6 6-6" />
+      <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }

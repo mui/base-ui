@@ -16,7 +16,7 @@ import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import { MoreVertIcon } from 'docs/src/icons/MoreVertIcon';
 import { exportCodeSandbox, exportOpts } from 'docs/src/utils/demoExportOptions';
 import { getGitHubDemoUrl } from 'docs/src/utils/getGitHubDemoUrl';
-import { isSafari, isEdge } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
@@ -161,7 +161,7 @@ export function Demo({
 
   const [fallbackToCodeSandbox, setFallbackToCodeSandbox] = React.useState(false);
   React.useEffect(() => {
-    if (isSafari || isEdge) {
+    if (platform.engine.webkit) {
       setFallbackToCodeSandbox(true);
     }
   }, []);
@@ -202,22 +202,18 @@ export function Demo({
               />
 
               <div className="DemoToolbarActions">
-                <DemoVariantSelector
-                  className="contents"
-                  onVariantChange={demo.expand}
-                  variants={demo.variants}
-                  selectedVariant={demo.selectedVariant}
-                  selectVariant={demo.selectVariant as any}
-                  availableTransforms={demo.availableTransforms}
-                  selectedTransform={demo.selectedTransform}
-                  selectTransform={demo.selectTransform}
-                />
+                {demo.variants.length > 1 && (
+                  <DemoVariantSelector
+                    onVariantChange={demo.expand}
+                    variants={demo.variants}
+                    selectedVariant={demo.selectedVariant}
+                    selectVariant={demo.selectVariant as any}
+                  />
+                )}
                 {externalPlaygroundLink}
                 <GhostButton aria-label="Copy code" onClick={demo.copy}>
                   Copy
-                  <span className="DemoCopyIconWrap">
-                    {copyTimeout ? <CheckIcon /> : <CopyIcon />}
-                  </span>
+                  {copyTimeout ? <CheckIcon /> : <CopyIcon />}
                 </GhostButton>
 
                 {githubUrl && (
@@ -230,24 +226,18 @@ export function Demo({
                       }
                     />
                     <Menu.Popup align="end" alignOffset={-5}>
-                      <Menu.LinkItem
-                        href={githubUrl}
-                        target="_blank"
-                        rel="noopener"
-                        onClick={onViewSource}
-                      >
-                        <GitHubIcon aria-hidden="true" height={14} width={14} />
+                      <Menu.LinkItem href={githubUrl} target="_blank" onClick={onViewSource}>
+                        <GitHubIcon aria-hidden="true" />
                         View source on GitHub
+                        <ExternalLinkIcon aria-hidden="true" />
                       </Menu.LinkItem>
 
                       <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
-                        <span className="DemoCopyIconWrap">
-                          {sourceLinkCopied ? (
-                            <CheckIcon aria-hidden="true" />
-                          ) : (
-                            <CopyIcon aria-hidden="true" />
-                          )}
-                        </span>
+                        {sourceLinkCopied ? (
+                          <CheckIcon aria-hidden="true" />
+                        ) : (
+                          <CopyIcon aria-hidden="true" />
+                        )}
                         Copy link to source
                         <span className="sr-only" aria-live="polite">
                           {sourceLinkCopied && 'Link copied!'}

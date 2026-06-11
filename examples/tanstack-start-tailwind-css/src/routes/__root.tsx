@@ -27,11 +27,13 @@ export const Route = createRootRoute({
   }),
 
   shellComponent: RootDocument,
+  notFoundComponent: () => <p>Page not found</p>,
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

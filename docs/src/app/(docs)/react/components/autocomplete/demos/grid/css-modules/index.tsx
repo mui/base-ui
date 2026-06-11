@@ -61,45 +61,47 @@ export default function ExampleEmojiPicker() {
           <Autocomplete.Portal>
             <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="end">
               <Autocomplete.Popup className={styles.Popup} aria-label="Select emoji">
-                <div className={styles.InputContainer}>
-                  <Autocomplete.Input placeholder="Search emojis…" className={styles.Input} />
+                <Autocomplete.Input placeholder="Search emojis…" className={styles.Input} />
+                <div className={styles.Viewport}>
+                  <Autocomplete.Empty>
+                    <div className={styles.Empty}>No emojis found</div>
+                  </Autocomplete.Empty>
+                  <Autocomplete.List
+                    className={styles.List}
+                    style={{ '--cols': COLUMNS } as React.CSSProperties}
+                  >
+                    {(group: EmojiGroup) => (
+                      <Autocomplete.Group
+                        key={group.value}
+                        items={group.items}
+                        className={styles.Group}
+                      >
+                        <Autocomplete.GroupLabel className={styles.GroupLabel}>
+                          {group.label}
+                        </Autocomplete.GroupLabel>
+                        <div className={styles.Grid} role="presentation">
+                          {chunkArray(group.items, COLUMNS).map((row, rowIdx) => (
+                            <Autocomplete.Row key={rowIdx} className={styles.Row}>
+                              {row.map((rowItem) => (
+                                <Autocomplete.Item
+                                  key={rowItem.emoji}
+                                  value={rowItem}
+                                  className={styles.Item}
+                                  onClick={() => {
+                                    handleInsertEmoji(rowItem.emoji);
+                                    setPickerOpen(false);
+                                  }}
+                                >
+                                  <span className={styles.Emoji}>{rowItem.emoji}</span>
+                                </Autocomplete.Item>
+                              ))}
+                            </Autocomplete.Row>
+                          ))}
+                        </div>
+                      </Autocomplete.Group>
+                    )}
+                  </Autocomplete.List>
                 </div>
-                <Autocomplete.Empty className={styles.Empty}>No emojis found</Autocomplete.Empty>
-                <Autocomplete.List
-                  className={styles.List}
-                  style={{ '--cols': COLUMNS } as React.CSSProperties}
-                >
-                  {(group: EmojiGroup) => (
-                    <Autocomplete.Group
-                      key={group.value}
-                      items={group.items}
-                      className={styles.Group}
-                    >
-                      <Autocomplete.GroupLabel className={styles.GroupLabel}>
-                        {group.label}
-                      </Autocomplete.GroupLabel>
-                      <div className={styles.Grid} role="presentation">
-                        {chunkArray(group.items, COLUMNS).map((row, rowIdx) => (
-                          <Autocomplete.Row key={rowIdx} className={styles.Row}>
-                            {row.map((rowItem) => (
-                              <Autocomplete.Item
-                                key={rowItem.emoji}
-                                value={rowItem}
-                                className={styles.Item}
-                                onClick={() => {
-                                  handleInsertEmoji(rowItem.emoji);
-                                  setPickerOpen(false);
-                                }}
-                              >
-                                <span className={styles.Emoji}>{rowItem.emoji}</span>
-                              </Autocomplete.Item>
-                            ))}
-                          </Autocomplete.Row>
-                        ))}
-                      </div>
-                    </Autocomplete.Group>
-                  )}
-                </Autocomplete.List>
               </Autocomplete.Popup>
             </Autocomplete.Positioner>
           </Autocomplete.Portal>

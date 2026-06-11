@@ -1,8 +1,8 @@
 import * as React from 'react';
-import type { ComponentRenderFn } from '../utils/types';
-import { HTMLProps } from '../utils/types';
-import { useRenderElement } from '../utils/useRenderElement';
-import { StateAttributesMapping } from '../utils/getStateAttributesProps';
+import type { ComponentRenderFn } from '../internals/types';
+import { HTMLProps } from '../internals/types';
+import { useRenderElement } from '../internals/useRenderElement';
+import { StateAttributesMapping } from '../internals/getStateAttributesProps';
 
 /**
  * Renders a Base UI element.

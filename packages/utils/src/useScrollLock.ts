@@ -1,6 +1,7 @@
 'use client';
 import { isOverflowElement } from '@floating-ui/utils/dom';
-import { isIOS, isWebKit } from './detectBrowser';
+import { addEventListener } from './addEventListener';
+import { platform } from './platform';
 import { ownerDocument, ownerWindow } from './owner';
 import { useIsoLayoutEffect } from './useIsoLayoutEffect';
 import { Timeout } from './useTimeout';
@@ -88,7 +89,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
   const resizeFrame = AnimationFrame.create();
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
-  if (isWebKit && (win.visualViewport?.scale ?? 1) !== 1) {
+  if (platform.engine.webkit && (win.visualViewport?.scale ?? 1) !== 1) {
     return () => {};
   }
 
@@ -199,17 +200,16 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
   }
 
   lockScroll();
-  win.addEventListener('resize', handleResize);
+  const unsubscribeResize = addEventListener(win, 'resize', handleResize);
 
   return () => {
     resizeFrame.cancel();
     cleanup();
-    // Sometimes this cleanup can be run after test teardown
-    // because it is called in a `setTimeout(fn, 0)`,
-    // in which case `removeEventListener` wouldn't be available,
-    // so we check for it to avoid test failures.
+    // Sometimes this cleanup can run after test teardown because it is called
+    // in a `setTimeout(fn, 0)`. Guard the returned cleanup to avoid calling
+    // `removeEventListener` when it is no longer available in tests.
     if (typeof win.removeEventListener === 'function') {
-      win.removeEventListener('resize', handleResize);
+      unsubscribeResize();
     }
   };
 }
@@ -257,7 +257,7 @@ class ScrollLocker {
       return;
     }
 
-    const hasOverlayScrollbars = isIOS || !hasInsetScrollbars(referenceElement);
+    const hasOverlayScrollbars = platform.os.ios || !hasInsetScrollbars(referenceElement);
 
     // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
     // side effects and bugs that arise on iOS, it must be researched extensively before

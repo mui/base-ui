@@ -42,10 +42,12 @@ Label the group with `aria-labelledby` and a sibling label element:
 
 An enclosing `<label>` is the simplest labeling pattern for each radio:
 
-```tsx title="Using an enclosing label to label a radio button" {1,4}
+```tsx title="Using an enclosing label to label a radio button"
+// @highlight
 <label>
   <Radio.Root value="ssd" />
   SSD
+  {/* @highlight */}
 </label>
 ```
 
@@ -53,11 +55,12 @@ An enclosing `<label>` is the simplest labeling pattern for each radio:
 
 By default, `<Radio.Root>` renders a `<span>` element to support enclosing labels. Prefer rendering each radio as a native button when using sibling labels (`htmlFor`/`id`).
 
-```tsx title="Sibling label pattern with a native button" "nativeButton" "render"
+```tsx title="Sibling label pattern with a native button"
 <div id="storage-type">Storage type</div>
 <RadioGroup defaultValue="ssd" aria-labelledby="storage-type">
   <div>
     <label htmlFor="storage-type-ssd">SSD</label>
+    {/* @highlight-text "nativeButton" "render={<button />}" */}
     <Radio.Root value="ssd" id="storage-type-ssd" nativeButton render={<button />}>
       <Radio.Indicator />
     </Radio.Root>
@@ -67,18 +70,20 @@ By default, `<Radio.Root>` renders a `<span>` element to support enclosing label
 
 Native buttons with wrapping labels are supported by using the `render` callback to avoid invalid HTML, so the hidden input is placed outside the label:
 
-```tsx title="Render callback" {6-11}
+```tsx title="Render callback"
 <div id="storage-type">Storage type</div>
 <RadioGroup defaultValue="ssd" aria-labelledby="storage-type">
   <Radio.Root
     value="ssd"
     nativeButton
+    // @highlight-start
     render={(buttonProps) => (
       <label>
         <button {...buttonProps} />
         SSD
       </label>
     )}
+    {/* @highlight-end */}
   />
 </RadioGroup>
 ```
@@ -87,8 +92,9 @@ Native buttons with wrapping labels are supported by using the `render` callback
 
 Use [Field](/react/components/field) and [Fieldset](/react/components/fieldset) for group labeling and form integration:
 
-```tsx title="Using Radio Group in a form" {2}
+```tsx title="Using Radio Group in a form"
 <Form>
+  {/* @highlight */}
   <Field.Root name="storageType">
     <Fieldset.Root render={<RadioGroup />}>
       <Fieldset.Legend>Storage type</Fieldset.Legend>

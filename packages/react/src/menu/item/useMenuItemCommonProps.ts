@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { isMac } from '@base-ui/utils/detectBrowser';
-import { HTMLProps } from '../../utils/types';
+import { platform } from '@base-ui/utils/platform';
+import { HTMLProps } from '../../internals/types';
 import { MenuStore } from '../store/MenuStore';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
@@ -52,6 +52,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const { closeOnClick, highlighted, id, nodeId, store, typingRef, itemRef, itemMetadata } = params;
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
+  const open = store.useState('open');
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
 
@@ -59,7 +60,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     () => ({
       id,
       role: 'menuitem' as const,
-      tabIndex: highlighted ? 0 : -1,
+      tabIndex: open && highlighted ? 0 : -1,
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
@@ -97,7 +98,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
 
           // On non-macOS platforms, this mouseup belongs to the right-click gesture
           // that opened the context menu, so it must not activate an item.
-          if (isContextMenu && !isMac && event.button === 2) {
+          if (isContextMenu && !platform.os.mac && event.button === 2) {
             return;
           }
         }
@@ -121,6 +122,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       id,
       menuEvents,
       nodeId,
+      open,
       store,
       typingRef,
       itemRef,

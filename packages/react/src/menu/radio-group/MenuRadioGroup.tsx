@@ -3,8 +3,9 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { MenuGroupContext } from '../group/MenuGroupContext';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**
@@ -26,8 +27,11 @@ export const MenuRadioGroup = React.memo(
       onValueChange: onValueChangeProp,
       disabled = false,
       style,
+      'aria-labelledby': ariaLabelledByProp,
       ...elementProps
     } = componentProps;
+
+    const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
 
     const [value, setValueUnwrapped] = useControlled({
       controlled: valueProp,
@@ -35,11 +39,9 @@ export const MenuRadioGroup = React.memo(
       name: 'MenuRadioGroup',
     });
 
-    const onValueChange = useStableCallback(onValueChangeProp);
-
     const setValue = useStableCallback(
       (newValue: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => {
-        onValueChange?.(newValue, eventDetails);
+        onValueChangeProp?.(newValue, eventDetails);
 
         if (eventDetails.isCanceled) {
           return;
@@ -56,6 +58,7 @@ export const MenuRadioGroup = React.memo(
       ref: forwardedRef,
       props: {
         role: 'group',
+        'aria-labelledby': ariaLabelledByProp ?? labelId,
         'aria-disabled': disabled || undefined,
         ...elementProps,
       },
@@ -71,7 +74,9 @@ export const MenuRadioGroup = React.memo(
     );
 
     return (
-      <MenuRadioGroupContext.Provider value={context}>{element}</MenuRadioGroupContext.Provider>
+      <MenuGroupContext.Provider value={setLabelId}>
+        <MenuRadioGroupContext.Provider value={context}>{element}</MenuRadioGroupContext.Provider>
+      </MenuGroupContext.Provider>
     );
   }),
 );

@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { resolveMultipleLabels, resolveSelectedLabel } from '../../utils/resolveValueLabel';
+import { resolveMultipleLabels, resolveSelectedLabel } from '../../internals/resolveValueLabel';
 import { selectors } from '../store';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 
 const stateAttributesMapping: StateAttributesMapping<SelectValueState> = {
   value: () => null,

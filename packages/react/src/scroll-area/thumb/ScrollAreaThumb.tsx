@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useScrollAreaScrollbarContext } from '../scrollbar/ScrollAreaScrollbarContext';
 import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * The draggable part of the scrollbar that indicates the current scroll position.
@@ -26,12 +26,27 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
     handlePointerUp,
     setScrollingX,
     setScrollingY,
+    scrollingX,
+    scrollingY,
     hasMeasuredScrollbar,
   } = useScrollAreaRootContext();
 
   const { orientation } = useScrollAreaScrollbarContext();
 
-  const state: ScrollAreaThumbState = { orientation };
+  const state: ScrollAreaThumbState = {
+    scrolling: orientation === 'horizontal' ? scrollingX : scrollingY,
+    orientation,
+  };
+
+  function endDrag(event: React.PointerEvent) {
+    if (orientation === 'vertical') {
+      setScrollingY(false);
+    }
+    if (orientation === 'horizontal') {
+      setScrollingX(false);
+    }
+    handlePointerUp(event);
+  }
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef],
@@ -40,15 +55,8 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
       {
         onPointerDown: handlePointerDown,
         onPointerMove: handlePointerMove,
-        onPointerUp(event) {
-          if (orientation === 'vertical') {
-            setScrollingY(false);
-          }
-          if (orientation === 'horizontal') {
-            setScrollingX(false);
-          }
-          handlePointerUp(event);
-        },
+        onPointerUp: endDrag,
+        onPointerCancel: endDrag,
         style: {
           visibility: hasMeasuredScrollbar ? undefined : 'hidden',
           ...(orientation === 'vertical' && {
@@ -68,9 +76,13 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 
 export interface ScrollAreaThumbState {
   /**
+   * Whether the scroll area is being scrolled.
+   */
+  scrolling: boolean;
+  /**
    * The component orientation.
    */
-  orientation?: 'horizontal' | 'vertical' | undefined;
+  orientation: 'horizontal' | 'vertical';
 }
 
 export interface ScrollAreaThumbProps extends BaseUIComponentProps<'div', ScrollAreaThumbState> {}

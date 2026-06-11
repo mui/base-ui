@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
@@ -13,39 +12,32 @@ import {
   useFloatingTree,
   useFocus,
   useHoverReferenceInteraction,
-  useInteractions,
   useFloatingNodeId,
   useFloatingParentNodeId,
 } from '../../floating-ui-react';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import {
-  contains,
-  type FocusableElement,
-  getNextTabbable,
-  getTabbableAfterElement,
-  getTabbableBeforeElement,
-  isOutsideEvent,
-} from '../../floating-ui-react/utils';
+import { contains } from '../../floating-ui-react/utils';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { useButton } from '../../use-button/useButton';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useButton } from '../../internals/use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
-import { CompositeItem } from '../../composite/item/CompositeItem';
-import { useCompositeRootContext } from '../../composite/root/CompositeRootContext';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
+import { useCompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { useTriggerDataForwarding } from '../../utils/popups';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { REASONS } from '../../utils/reasons';
+import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { REASONS } from '../../internals/reasons';
 import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
 import { MenuHandle } from '../store/MenuHandle';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
 import { MenuParent } from '../root/MenuRoot';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { mergeProps } from '../../merge-props';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -62,6 +54,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const {
     render,
     className,
+    style,
     disabled: disabledProp = false,
     nativeButton = true,
     id: idProp,
@@ -70,7 +63,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     closeDelay = 0,
     handle,
     payload,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -86,6 +78,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const popupId = store.useState('triggerPopupId', thisTriggerId);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -193,6 +186,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     triggerElementRef,
     externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
+    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   // Whether to ignore clicks to open the menu.
@@ -218,22 +212,29 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     mouseDownAction: 'open',
   });
 
-  const localInteractionProps = useInteractions([click, focus]);
+  const localInteractionProps = React.useMemo(
+    () => mergeProps(focus.reference, click.reference),
+    [focus.reference, click.reference],
+  );
+
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+
+  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
+    useTriggerFocusGuards(store, triggerElementRef);
 
   const state: MenuTriggerState = {
     disabled,
     open: isOpenedByThisTrigger,
   };
 
-  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
-
   const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
-    localInteractionProps.getReferenceProps(),
+    localInteractionProps,
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
     {
       'aria-haspopup': 'menu' as const,
+      'aria-controls': popupId,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
         if (store.select('open')) {
@@ -254,58 +255,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     elementProps,
     getButtonProps,
   ];
-
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
-
-  const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
-    ReactDOM.flushSync(() => {
-      store.setOpen(
-        false,
-        createChangeEventDetails(
-          REASONS.focusOut,
-          event.nativeEvent,
-          event.currentTarget as HTMLElement,
-        ),
-      );
-    });
-
-    const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
-      preFocusGuardRef.current,
-    );
-    previousTabbable?.focus();
-  });
-
-  const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
-    const currentPositionerElement = store.select('positionerElement');
-    if (currentPositionerElement && isOutsideEvent(event, currentPositionerElement)) {
-      store.context.beforeContentFocusGuardRef.current?.focus();
-    } else {
-      ReactDOM.flushSync(() => {
-        store.setOpen(
-          false,
-          createChangeEventDetails(
-            REASONS.focusOut,
-            event.nativeEvent,
-            event.currentTarget as HTMLElement,
-          ),
-        );
-      });
-
-      let nextTabbable = getTabbableAfterElement(
-        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
-      );
-
-      while (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) {
-        const prevTabbable = nextTabbable;
-        nextTabbable = getNextTabbable(nextTabbable);
-        if (nextTabbable === prevTabbable) {
-          break;
-        }
-      }
-
-      nextTabbable?.focus();
-    }
-  });
 
   const element = useRenderElement('button', componentProps, {
     enabled: !isInMenubar,

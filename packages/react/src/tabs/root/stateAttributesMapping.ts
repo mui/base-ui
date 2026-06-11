@@ -1,5 +1,5 @@
 import type { TabsRootState } from './TabsRoot';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { TabsRootDataAttributes } from './TabsRootDataAttributes';
 
 export const tabsStateAttributesMapping: StateAttributesMapping<TabsRootState> = {

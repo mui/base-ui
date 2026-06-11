@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A custom element to display instead of the native cursor while using the scrub area.
@@ -31,7 +31,8 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
 
   const [domElement, setDomElement] = React.useState<Element | null>(null);
 
-  const shouldRender = isScrubbing && !isWebKit && !isTouchInput && !isPointerLockDenied;
+  const shouldRender =
+    isScrubbing && !platform.engine.webkit && !isTouchInput && !isPointerLockDenied;
 
   const element = useRenderElement('span', componentProps, {
     enabled: shouldRender,

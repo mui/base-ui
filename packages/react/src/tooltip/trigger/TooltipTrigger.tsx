@@ -1,12 +1,15 @@
 'use client';
 import * as React from 'react';
+import { isElement } from '@floating-ui/utils/dom';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useTriggerDataForwarding } from '../../utils/popups';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import {
@@ -15,9 +18,55 @@ import {
   useFocus,
   useHoverReferenceInteraction,
 } from '../../floating-ui-react';
+import { contains } from '../../floating-ui-react/utils/element';
+import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { TooltipTriggerDataAttributes } from './TooltipTriggerDataAttributes';
+import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
 
 import { OPEN_DELAY } from '../utils/constants';
+
+const TOOLTIP_TRIGGER_IDENTIFIER = 'data-base-ui-tooltip-trigger';
+
+function getTargetElement(event: Event): Element | null {
+  if ('composedPath' in event) {
+    const path = event.composedPath();
+    for (let i = 0; i < path.length; i += 1) {
+      const element = path[i];
+      if (isElement(element)) {
+        return element;
+      }
+    }
+  }
+
+  const target = event.target;
+  if (isElement(target)) {
+    return target;
+  }
+
+  return null;
+}
+
+function closestEnabledTooltipTrigger(element: Element | null): Element | null {
+  let current = element;
+  while (current) {
+    if (current.hasAttribute(TOOLTIP_TRIGGER_IDENTIFIER)) {
+      return current;
+    }
+
+    const parentElement = current.parentElement;
+    if (parentElement) {
+      current = parentElement;
+      continue;
+    }
+
+    const root = current.getRootNode();
+    current = 'host' in root && isElement(root.host) ? root.host : null;
+  }
+
+  return null;
+}
 
 /**
  * An element to attach the tooltip to.
@@ -30,8 +79,9 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const {
-    className,
     render,
+    className,
+    style,
     handle,
     payload,
     disabled: disabledProp,
@@ -39,7 +89,6 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     closeOnClick = true,
     closeDelay,
     id: idProp,
-    style,
     ...elementProps
   } = componentProps;
 
@@ -76,35 +125,68 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const { delayRef, isInstantPhase, hasProvider } = useDelayGroup(floatingRootContext, {
     open: isOpenedByThisTrigger,
   });
+  const hoverInteraction = useHoverInteractionSharedState(floatingRootContext);
 
   store.useSyncedValue('isInstantPhase', isInstantPhase);
 
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp ?? rootDisabled;
+  const disabledRef = useValueAsRef(disabled);
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
+
+  const isNestedTriggerHoveredRef = React.useRef(false);
+  const nestedTriggerOpenTimeout = useTimeout();
+  // Local copy so it can be cleared on mouseLeave without resetting the hover hook's own pointerType.
+  const pointerTypeRef = React.useRef<string | undefined>(undefined);
+
+  function getOpenDelay() {
+    const providerDelay = providerContext?.delay;
+    const groupOpenValue = typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
+
+    let computedOpenDelay = delayWithDefault;
+    if (hasProvider) {
+      if (groupOpenValue !== 0) {
+        computedOpenDelay = delay ?? providerDelay ?? delayWithDefault;
+      } else {
+        computedOpenDelay = 0;
+      }
+    }
+
+    return computedOpenDelay;
+  }
+
+  function isEnabledNestedTriggerTarget(target: Element | null) {
+    const triggerEl = triggerElementRef.current;
+    if (!triggerEl || !target) {
+      return false;
+    }
+
+    const nearestTrigger = closestEnabledTooltipTrigger(target);
+    return (
+      nearestTrigger !== null && nearestTrigger !== triggerEl && contains(triggerEl, nearestTrigger)
+    );
+  }
+
+  function detectNestedTriggerHover(target: Element | null) {
+    const nestedTriggerHovered = isEnabledNestedTriggerTarget(target);
+
+    isNestedTriggerHoveredRef.current = nestedTriggerHovered;
+    if (nestedTriggerHovered) {
+      hoverInteraction.openChangeTimeout.clear();
+      hoverInteraction.restTimeout.clear();
+      hoverInteraction.restTimeoutPending = false;
+      nestedTriggerOpenTimeout.clear();
+    }
+    return nestedTriggerHovered;
+  }
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled: !disabled,
     mouseOnly: true,
     move: false,
     handleClose: !disableHoverablePopup && trackCursorAxis !== 'both' ? safePolygon() : null,
-    restMs() {
-      const providerDelay = providerContext?.delay;
-      const groupOpenValue =
-        typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
-
-      let computedRestMs = delayWithDefault;
-      if (hasProvider) {
-        if (groupOpenValue !== 0) {
-          computedRestMs = delay ?? providerDelay ?? delayWithDefault;
-        } else {
-          computedRestMs = 0;
-        }
-      }
-
-      return computedRestMs;
-    },
+    restMs: getOpenDelay,
     delay() {
       const closeValue = typeof delayRef.current === 'object' ? delayRef.current.close : undefined;
 
@@ -119,13 +201,66 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
+    isClosing: () => store.select('transitionStatus') === 'ending',
+    shouldOpen() {
+      return !isNestedTriggerHoveredRef.current;
+    },
   });
 
   const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
 
-  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
+  const handleNestedTriggerHover = (event: MouseEvent) => {
+    const wasNestedTriggerHovered = isNestedTriggerHoveredRef.current;
+    const target = getTargetElement(event);
+    const nestedTriggerHovered = detectNestedTriggerHover(target);
+    const triggerEl = triggerElementRef.current as HTMLElement | null;
+    const targetInsideTrigger = triggerEl && target && contains(triggerEl, target);
+
+    // Only close hover-opened parents. Focus/click-like opens remain owned by
+    // their original interaction and should not be clobbered by nested hover.
+    if (
+      nestedTriggerHovered &&
+      store.select('open') &&
+      store.select('lastOpenChangeReason') === REASONS.triggerHover
+    ) {
+      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+      return;
+    }
+
+    if (
+      wasNestedTriggerHovered &&
+      !nestedTriggerHovered &&
+      targetInsideTrigger &&
+      !disabledRef.current &&
+      !store.select('open') &&
+      triggerEl &&
+      // Match the hover hook's non-strict mouse fallback for mouse-only event sequences.
+      isMouseLikePointerType(pointerTypeRef.current)
+    ) {
+      const open = () => {
+        if (!isNestedTriggerHoveredRef.current && !disabledRef.current && !store.select('open')) {
+          store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerEl));
+        }
+      };
+
+      const openDelay = getOpenDelay();
+
+      // With `move: false`, the hover hook only listens to mouseenter/mouseleave
+      // on the parent trigger. Leaving a nested child for the parent area fires
+      // no event the hook can react to, so reopen locally.
+      if (openDelay === 0) {
+        nestedTriggerOpenTimeout.clear();
+        open();
+      } else {
+        nestedTriggerOpenTimeout.start(openDelay, open);
+      }
+    }
+  };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const shouldApplyRootTriggerProps = isMountedByThisTrigger || trackCursorAxis !== 'none';
+
+  const state: TooltipTriggerState = { open: isOpenedByThisTrigger };
 
   const element = useRenderElement('button', componentProps, {
     state,
@@ -133,13 +268,39 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     props: [
       hoverProps,
       focusProps,
-      rootTriggerProps,
+      shouldApplyRootTriggerProps ? rootTriggerProps : undefined,
       {
-        onPointerDown() {
+        onMouseOver(event: React.MouseEvent) {
+          handleNestedTriggerHover(event.nativeEvent);
+        },
+        onFocus(event: React.FocusEvent) {
+          if (isEnabledNestedTriggerTarget(getTargetElement(event.nativeEvent))) {
+            (event as BaseUIEvent<React.FocusEvent<Element>>).preventBaseUIHandler();
+          }
+        },
+        onMouseLeave() {
+          isNestedTriggerHoveredRef.current = false;
+          nestedTriggerOpenTimeout.clear();
+          pointerTypeRef.current = undefined;
+        },
+        onPointerEnter(event: React.PointerEvent) {
+          pointerTypeRef.current = event.pointerType;
+        },
+        onPointerDown(event: React.PointerEvent) {
+          pointerTypeRef.current = event.pointerType;
           store.set('closeOnClick', closeOnClick);
+          if (closeOnClick && !store.select('open')) {
+            store.cancelPendingOpen(event.nativeEvent);
+          }
+        },
+        onClick(event) {
+          if (closeOnClick && !store.select('open')) {
+            store.cancelPendingOpen(event.nativeEvent);
+          }
         },
         id: thisTriggerId,
         [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
+        [TOOLTIP_TRIGGER_IDENTIFIER]: disabled ? undefined : '',
       } as React.HTMLAttributes<Element>,
       elementProps,
     ],

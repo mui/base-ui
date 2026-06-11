@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
+import { SafeReact } from '@base-ui/utils/safeReact';
+import { warn } from '@base-ui/utils/warn';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { fieldValidityMapping } from '../../field/utils/constants';
-import { useField } from '../../field/useField';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { DEFAULT_STEP } from '../utils/constants';
 import {
   ARABIC_DETECT_RE,
@@ -23,14 +25,15 @@ import {
 } from '../utils/parse';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
+} from '../../internals/createBaseUIEventDetails';
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
-import { useValueChanged } from '../../utils/useValueChanged';
-import { REASONS } from '../../utils/reasons';
+import { useValueChanged } from '../../internals/useValueChanged';
+import { REASONS } from '../../internals/reasons';
+import { hasNumberFormatRoundingOptions, removeFloatingPointErrors } from '../utils/validate';
 
 const stateAttributesMapping = {
   ...fieldValidityMapping,
@@ -72,6 +75,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     max,
     min,
     name,
+    nameProp,
     readOnly,
     required,
     setValue,
@@ -94,34 +98,17 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
 
-  useField({
-    id,
-    commit: validation.commit,
-    value,
-    controlRef: inputRef,
-    name,
-    getValue: () => value ?? null,
-  });
+  useRegisterFieldControl(inputRef, id, value, undefined, !disabled, nameProp);
 
-  useValueChanged(value, (previousValue) => {
-    const validateOnChange = shouldValidateOnChange();
-
+  useValueChanged(value, () => {
     clearErrors(name);
 
-    if (validateOnChange) {
-      validation.commit(value);
-    }
-
-    if (previousValue === value || validateOnChange) {
-      return;
-    }
-
-    if (blockRevalidationRef.current) {
+    if (blockRevalidationRef.current && !shouldValidateOnChange()) {
       blockRevalidationRef.current = false;
       return;
     }
 
-    validation.commit(value, true);
+    validation.change(value);
   });
 
   const inputProps: React.ComponentProps<'input'> = {
@@ -136,7 +123,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     autoCorrect: 'off',
     spellCheck: 'false',
     'aria-roledescription': 'Number field',
-    'aria-invalid': invalid || undefined,
+    'aria-invalid': !disabled && invalid ? true : undefined,
     'aria-labelledby': labelId,
     // If the server's locale does not match the client's locale, the formatting may not match,
     // causing a hydration mismatch.
@@ -188,37 +175,42 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      // If an explicit precision is requested, round the committed numeric value.
-      const hasExplicitPrecision =
-        formatOptions?.maximumFractionDigits != null ||
-        formatOptions?.minimumFractionDigits != null;
+      // Avoid applying Intl's default precision unless the format opts into rounding.
+      const hasRoundingOptions = hasNumberFormatRoundingOptions(formatOptions);
 
-      const maxFrac = formatOptions?.maximumFractionDigits;
-      const committed =
-        hasExplicitPrecision && typeof maxFrac === 'number'
-          ? Number(parsedValue.toFixed(maxFrac))
-          : parsedValue;
+      const committed = hasRoundingOptions
+        ? removeFloatingPointErrors(parsedValue, formatOptions)
+        : parsedValue;
 
       const nextEventDetails = createGenericEventDetails(REASONS.inputBlur, event.nativeEvent);
       const shouldUpdateValue = value !== committed;
       const shouldCommit = hadManualInput || shouldUpdateValue || hadPendingProgrammaticChange;
 
-      if (validationMode === 'onBlur') {
-        validation.commit(committed);
-      }
+      // Use the stored value after `setValue` clamps it.
+      let committedValue = committed;
       if (shouldUpdateValue) {
+        const changeDetails = createChangeEventDetails(REASONS.inputBlur, event.nativeEvent);
         blockRevalidationRef.current = true;
-        setValue(committed, createChangeEventDetails(REASONS.inputBlur, event.nativeEvent));
+        setValue(committed, changeDetails);
+        if (changeDetails.isCanceled) {
+          blockRevalidationRef.current = false;
+          return;
+        }
+        committedValue = lastChangedValueRef.current ?? committed;
+      }
+      if (validationMode === 'onBlur') {
+        validation.commit(committedValue);
       }
       if (shouldCommit) {
-        onValueCommitted(committed, nextEventDetails);
+        onValueCommitted(committedValue, nextEventDetails);
       }
 
       // Normalize only the displayed text
-      const canonicalText = formatNumber(committed, locale, formatOptions);
-      const maxPrecisionText = formatNumberMaxPrecision(parsedValue, locale, formatOptions);
+      const canonicalText = formatNumber(committedValue, locale, formatOptions);
       const shouldPreserveFullPrecision =
-        !hasExplicitPrecision && parsedValue === value && inputValue === maxPrecisionText;
+        !hasRoundingOptions &&
+        parsedValue === value &&
+        inputValue === formatNumberMaxPrecision(parsedValue, locale, formatOptions);
 
       if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
         setInputValue(canonicalText);
@@ -341,15 +333,18 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const isAsciiDigit = event.key >= '0' && event.key <= '9';
       const isArabicNumeral = ARABIC_DETECT_RE.test(event.key);
       const isHanNumeral = HAN_DETECT_RE.test(event.key);
+      const isPersianNumeral = PERSIAN_DETECT_RE.test(event.key);
       const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
+      // Alt+ArrowUp/ArrowDown selects smallStep, so don't treat it as a bypass modifier.
+      const isStepKey = event.key === 'ArrowUp' || event.key === 'ArrowDown';
 
       if (
         // Allow composition events (e.g., pinyin)
         // event.nativeEvent.isComposing does not work in Safari:
         // https://bugs.webkit.org/show_bug.cgi?id=165004
         event.which === 229 ||
-        event.altKey ||
+        (event.altKey && !isStepKey) ||
         event.ctrlKey ||
         event.metaKey ||
         isAllowedNonNumericKey ||
@@ -357,6 +352,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         isArabicNumeral ||
         isFullwidthNumeral ||
         isHanNumeral ||
+        isPersianNumeral ||
         isNavigateKey
       ) {
         return;
@@ -401,11 +397,25 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
+      let pastedData = '';
+
+      try {
+        pastedData = event.clipboardData?.getData('text/plain') ?? '';
+      } catch {
+        if (process.env.NODE_ENV !== 'production') {
+          const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+          warn(
+            '<NumberField.Input> could not read clipboard text during paste handling.',
+            ownerStackMessage,
+          );
+        }
+
+        return;
+      }
+
       // Prevent `onChange` from being called.
       event.preventDefault();
 
-      const clipboardData = event.clipboardData || window.Clipboard;
-      const pastedData = clipboardData.getData('text/plain');
       const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
 
       if (parsedValue !== null) {
@@ -419,7 +429,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
     state,
-    props: [inputProps, validation.getValidationProps(), elementProps],
+    props: [inputProps, elementProps, (props) => validation.getValidationProps(disabled, props)],
     stateAttributesMapping,
   });
 

@@ -1,9 +1,13 @@
+// Keep CSS imports first to ensure CSS layer order is correct
+import 'docs/src/css/index.css';
+import './css/index.css';
+
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
 import { Logo } from 'docs/src/components/Logo';
-import './css/index.css';
+import { Search } from './components/Search';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
@@ -39,32 +43,18 @@ export default function Layout({ children }: React.PropsWithChildren) {
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-5 bui-gce-8 bp2:bui-gcs-5 bp2:bui-gce-9 bp3:bui-gcs-5 bp3:bui-gce-7"
                 aria-label="social links"
               >
-                <Link
-                  className="Text size-1"
-                  href="https://x.com/base_ui"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://x.com/base_ui">
                   X
                 </Link>
-                <Link
-                  className="Text size-1"
-                  href="https://github.com/mui/base-ui"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://github.com/mui/base-ui">
                   GitHub
                 </Link>
-                <Link
-                  className="Text size-1"
-                  href="https://discord.com/invite/g6C3hUtuxz"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://base-ui.com/r/discord">
                   Discord
                 </Link>
               </nav>
-              <div className="bui-d-n bp3:bui-d-b bui-gcs-7 bui-gce-9">
-                <Link className="Text size-1 Link" href="/react/components/accordion">
-                  Components
-                </Link>
+              <div className="bui-d-n bp3:bui-d-f bui-fd-c bui-g-2 bui-ai-s bui-gcs-7 bui-gce-9">
+                <Search />
               </div>
             </header>
             <main id="main" className="bui-d-c">
@@ -75,47 +65,27 @@ export default function Layout({ children }: React.PropsWithChildren) {
             </div>
             <footer className="bui-d-c">
               <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
-                <span className="Text size-1">© Base UI</span>
+                <span className="Text sz-1">© Base UI</span>
               </div>
               <nav
                 className="bui-d-f bui-fd-c bui-g-2 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7"
                 aria-label="social links"
               >
-                <Link
-                  className="Text size-1"
-                  href="https://x.com/base_ui"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://x.com/base_ui">
                   X
                 </Link>
-                <Link
-                  className="Text size-1"
-                  href="https://github.com/mui/base-ui"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://github.com/mui/base-ui">
                   GitHub
                 </Link>
-                <Link
-                  className="Text size-1"
-                  href="https://discord.com/invite/g6C3hUtuxz"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://base-ui.com/r/discord">
                   Discord
                 </Link>
-                <Link
-                  className="Text size-1"
-                  href="https://www.npmjs.com/package/@base-ui/react"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://www.npmjs.com/package/@base-ui/react">
                   npm
                 </Link>
-                <a
-                  className="Text size-1 Link"
-                  href="https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc"
-                  rel="noopener noreferrer"
-                >
+                <Link className="Text sz-1" href="https://bsky.app/profile/base-ui.com">
                   Bluesky
-                </a>
+                </Link>
               </nav>
             </footer>
           </div>
@@ -151,6 +121,7 @@ export const metadata: Metadata = {
     canonical: './',
   },
   icons: {
+    // Based on https://evilmartians.com/chronicles/how-to-favicon-in-2021-six-files-that-fit-most-needs
     icon: [
       {
         rel: 'icon',

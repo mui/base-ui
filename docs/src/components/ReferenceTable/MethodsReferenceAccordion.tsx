@@ -30,7 +30,7 @@ export function MethodsReferenceAccordion({
         <Accordion.HeaderCell className="ReferenceHeaderTypeCell">Returns</Accordion.HeaderCell>
         <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map((name, index) => {
+      {Object.keys(data).map((name) => {
         const method = data[name];
 
         // anchor hash for each method
@@ -45,12 +45,11 @@ export function MethodsReferenceAccordion({
           >
             <Accordion.Trigger
               id={id}
-              index={index}
               aria-label={`Method: ${name}, returns: ${method.returnValue ? 'value' : 'void'}`}
               className="MethodsTrigger"
             >
               <Accordion.Scrollable className="ReferenceNameCell">
-                <code className="Code language-ts TableCode" data-table-code="">
+                <code className="Code language-ts TableCode">
                   <span className="pl-en">{name}</span>
                   {'('}
                   {method.parameters.map((param, i) => (
@@ -73,9 +72,8 @@ export function MethodsReferenceAccordion({
                   height="10"
                   viewBox="0 0 10 10"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </span>
             </Accordion.Trigger>

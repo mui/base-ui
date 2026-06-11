@@ -59,6 +59,9 @@ export default function ExampleAsyncSingleCombobox() {
     return 'Try a different search term.';
   }
 
+  const status = getStatus();
+  const emptyMessage = getEmptyMessage();
+
   return (
     <Combobox.Root
       items={items}
@@ -113,10 +116,10 @@ export default function ExampleAsyncSingleCombobox() {
           <Combobox.Input id={id} placeholder="e.g. Michael" className={styles.Input} />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
-              <ClearIcon className={styles.ClearIcon} />
+              <XIcon />
             </Combobox.Clear>
             <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-              <ChevronDownIcon className={styles.TriggerIcon} />
+              <CaretDownIcon />
             </Combobox.Trigger>
           </div>
         </Combobox.InputGroup>
@@ -125,25 +128,31 @@ export default function ExampleAsyncSingleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            <Combobox.Status className={styles.Status}>{getStatus()}</Combobox.Status>
-            <Combobox.Empty className={styles.Empty}>{getEmptyMessage()}</Combobox.Empty>
-            <Combobox.List>
-              {(user: DirectoryUser) => (
-                <Combobox.Item key={user.id} className={styles.Item} value={user}>
-                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>
-                    <div className={styles.ItemTitle}>{user.name}</div>
-                    <div className={styles.ItemSubtitle}>
-                      <span className={styles.ItemUsername}>@{user.username}</span>
-                      <span>{user.title}</span>
-                    </div>
-                    <div className={styles.ItemEmail}>{user.email}</div>
-                  </div>
-                </Combobox.Item>
-              )}
-            </Combobox.List>
+            <div className={styles.Viewport}>
+              <Combobox.Status>
+                {status ? <div className={styles.Status}>{status}</div> : null}
+              </Combobox.Status>
+              <Combobox.Empty>
+                {emptyMessage ? <div className={styles.Empty}>{emptyMessage}</div> : null}
+              </Combobox.Empty>
+              <Combobox.List>
+                {(user: DirectoryUser) => (
+                  <Combobox.Item key={user.id} className={styles.Item} value={user}>
+                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon />
+                    </Combobox.ItemIndicator>
+                    <span className={styles.ItemText}>
+                      <span className={styles.ItemTitle}>{user.name}</span>
+                      <span className={styles.ItemEmail}>{user.email}</span>
+                      <span className={styles.ItemSubtitle}>
+                        <span>@{user.username}</span>
+                        <span>{user.title}</span>
+                      </span>
+                    </span>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </div>
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>
@@ -153,43 +162,49 @@ export default function ExampleAsyncSingleCombobox() {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
-      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m2.5 8.5 4 4 7-9" />
     </svg>
   );
 }
 
-function ClearIcon(props: React.ComponentProps<'svg'>) {
+function XIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
+      strokeLinecap="square"
       strokeLinejoin="round"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
-      <path d="M18 6L6 18" />
-      <path d="M6 6l12 12" />
+      <path d="m4.5 4.5 7 7m-7 0 7-7" />
     </svg>
   );
 }
 
-function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
+function CaretDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
       {...props}
+      style={{ display: 'block', ...props.style }}
     >
-      <path d="M6 9l6 6 6-6" />
+      <path d="M12 6H4l4 4.5z" />
     </svg>
   );
 }

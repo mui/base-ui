@@ -1,13 +1,13 @@
 'use client';
 import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui/utils/useId';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { ReferenceType } from '../types';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { PopupTriggerMap } from '../../utils/popups';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import { FloatingRootStore, type FloatingRootState } from '../components/FloatingRootStore';
-import { PopupTriggerMap } from '../../utils/popups';
+import type { ReferenceType } from '../types';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean | undefined;
@@ -41,13 +41,14 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
     () =>
       new FloatingRootStore({
         open,
+        transitionStatus: undefined,
         onOpenChange,
         referenceElement: elements.reference ?? null,
         floatingElement: elements.floating ?? null,
         triggerElements: new PopupTriggerMap(),
         floatingId,
+        syncOnly: false,
         nested,
-        noEmit: false,
       }),
   ).current;
 
@@ -72,7 +73,6 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
-  store.context.noEmit = false;
 
   return store;
 }

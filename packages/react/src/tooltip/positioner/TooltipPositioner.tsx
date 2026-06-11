@@ -8,13 +8,11 @@ import {
   type Align,
   type UseAnchorPositioningSharedParameters,
 } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { popupStateMapping } from '../../utils/popupStateMapping';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useTooltipPortalContext } from '../portal/TooltipPortalContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { usePositioner } from '../../utils/usePositioner';
 
 /**
  * Positions the tooltip against the trigger.
@@ -76,23 +74,6 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
-    const hiddenStyles: React.CSSProperties = {};
-
-    if (!open || trackCursorAxis === 'both' || disableHoverablePopup) {
-      hiddenStyles.pointerEvents = 'none';
-    }
-
-    return {
-      role: 'presentation',
-      hidden: !mounted,
-      style: {
-        ...positioning.positionerStyles,
-        ...hiddenStyles,
-      },
-    };
-  }, [open, trackCursorAxis, disableHoverablePopup, mounted, positioning.positionerStyles]);
-
   const state: TooltipPositionerState = React.useMemo(
     () => ({
       open,
@@ -111,25 +92,17 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ],
   );
 
-  const contextValue: TooltipPositionerContext = React.useMemo(
-    () => ({
-      ...state,
-      arrowRef: positioning.arrowRef,
-      arrowStyles: positioning.arrowStyles,
-      arrowUncentered: positioning.arrowUncentered,
-    }),
-    [state, positioning.arrowRef, positioning.arrowStyles, positioning.arrowUncentered],
-  );
-
-  const element = useRenderElement('div', componentProps, {
-    state,
-    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
-    ref: [forwardedRef, store.useStateSetter('positionerElement')],
-    stateAttributesMapping: popupStateMapping,
+  const element = usePositioner(componentProps, state, {
+    styles: positioning.positionerStyles,
+    transitionStatus,
+    props: elementProps,
+    refs: [forwardedRef, store.useStateSetter('positionerElement')],
+    hidden: !mounted,
+    inert: !open || trackCursorAxis === 'both' || disableHoverablePopup,
   });
 
   return (
-    <TooltipPositionerContext.Provider value={contextValue}>
+    <TooltipPositionerContext.Provider value={positioning}>
       {element}
     </TooltipPositionerContext.Provider>
   );

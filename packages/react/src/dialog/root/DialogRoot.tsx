@@ -1,14 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDialogRoot } from './useDialogRoot';
-import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { DialogStore } from '../store/DialogStore';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { DialogHandle } from '../store/DialogHandle';
 import { type PayloadChildRenderFunction } from '../../utils/popups';
+import { IsDrawerContext } from './DialogRootContext';
+import { useRenderDialogRoot } from './useRenderDialogRoot';
 
 /**
  * Groups all parts of the dialog.
@@ -17,72 +14,8 @@ import { type PayloadChildRenderFunction } from '../../utils/popups';
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
 export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
-  const {
-    children,
-    open: openProp,
-    defaultOpen = false,
-    onOpenChange,
-    onOpenChangeComplete,
-    disablePointerDismissal = false,
-    modal = true,
-    actionsRef,
-    handle,
-    triggerId: triggerIdProp,
-    defaultTriggerId: defaultTriggerIdProp = null,
-  } = props;
-
-  const parentDialogRootContext = useDialogRootContext(true);
-  const nested = Boolean(parentDialogRootContext);
-
-  const store = useRefWithInit(() => {
-    return (
-      handle?.store ??
-      new DialogStore<Payload>({
-        open: defaultOpen,
-        openProp,
-        activeTriggerId: defaultTriggerIdProp,
-        triggerIdProp,
-        modal,
-        disablePointerDismissal,
-        nested,
-      })
-    );
-  }).current;
-
-  // Support initially open state when uncontrolled
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
-      store.update({
-        open: true,
-        activeTriggerId: defaultTriggerIdProp,
-      });
-    }
-  });
-
-  store.useControlledProp('openProp', openProp);
-  store.useControlledProp('triggerIdProp', triggerIdProp);
-
-  store.useSyncedValues({ disablePointerDismissal, nested, modal });
-  store.useContextCallback('onOpenChange', onOpenChange);
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
-
-  const payload = store.useState('payload') as Payload | undefined;
-
-  useDialogRoot({
-    store,
-    actionsRef,
-    parentContext: parentDialogRootContext?.store.context,
-    onOpenChange,
-    triggerIdProp,
-  });
-
-  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
-
-  return (
-    <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-      {typeof children === 'function' ? children({ payload }) : children}
-    </DialogRootContext.Provider>
-  );
+  const mode = React.useContext(IsDrawerContext) ? 'drawer' : 'dialog';
+  return useRenderDialogRoot(props, mode);
 }
 
 export interface DialogRootState {}
@@ -145,7 +78,7 @@ export interface DialogRootProps<Payload = unknown> {
   /**
    * ID of the trigger that the dialog is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled dialog.
-   * There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).
+   * There's no need to specify this prop when the dialog is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: string | null | undefined;
   /**

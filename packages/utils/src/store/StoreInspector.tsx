@@ -2,7 +2,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
+import { mergeCleanups } from '../mergeCleanups';
 import { ownerDocument, ownerWindow } from '../owner';
+import { addEventListener } from '../addEventListener';
 import { Store } from './Store';
 import { useForcedRerendering } from '../useForcedRerendering';
 import { useStableCallback } from '../useStableCallback';
@@ -74,8 +76,8 @@ const STYLES = `
   display: flex;
   align-items: center;
   cursor: move;
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
   touch-action: none;
   padding: 4px 8px 8px 8px;
   gap: 8px;
@@ -474,14 +476,11 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
       endDrag(event);
       endResize(event);
     };
-    win.addEventListener('pointermove', move);
-    win.addEventListener('pointerup', up);
-    win.addEventListener('pointercancel', up);
-    return () => {
-      win.removeEventListener('pointermove', move);
-      win.removeEventListener('pointerup', up);
-      win.removeEventListener('pointercancel', up);
-    };
+    return mergeCleanups(
+      addEventListener(win, 'pointermove', move),
+      addEventListener(win, 'pointerup', up),
+      addEventListener(win, 'pointercancel', up),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -540,7 +539,6 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
 function CloseIcon() {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -560,7 +558,6 @@ function CloseIcon() {
 function FileJson() {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -581,7 +578,6 @@ function FileJson() {
 function SquareTerminal() {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"

@@ -23,7 +23,7 @@ Renders a `<div>` element.
 | locale           | `Intl.LocalesArgument`                                                                         | -       | The locale of the input element.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | snapOnStep       | `boolean`                                                                                      | `false` | Whether the value should snap to the nearest step when incrementing or decrementing.                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | step             | `number \| 'any'`                                                                              | `1`     | Amount to increment and decrement with the buttons and arrow keys, or to scrub with pointer movement in the scrub area.&#xA;To always enable step validation on form submission, specify the `min` prop explicitly in conjunction with this prop.&#xA;Specify `step="any"` to always disable step validation.                                                                                                                                                                                                                                 |
-| smallStep        | `number`                                                                                       | `0.1`   | The small step value of the input element when incrementing while the meta key is held. Snaps&#xA;to multiples of this value.                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| smallStep        | `number`                                                                                       | `0.1`   | The small step value of the input element when incrementing while the alt key is held. Snaps&#xA;to multiples of this value.                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | largeStep        | `number`                                                                                       | `10`    | The large step value of the input element when incrementing while the shift key is held. Snaps&#xA;to multiples of this value.                                                                                                                                                                                                                                                                                                                                                                                                                |
 | min              | `number`                                                                                       | -       | The minimum value of the input element.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | max              | `number`                                                                                       | -       | The maximum value of the input element.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -40,18 +40,18 @@ Renders a `<div>` element.
 
 **Root Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type | Description                                                                        |
+| :------------- | :--- | :--------------------------------------------------------------------------------- |
+| data-disabled  | -    | Present when the number field is disabled.                                         |
+| data-readonly  | -    | Present when the number field is readonly.                                         |
+| data-required  | -    | Present when the number field is required.                                         |
+| data-valid     | -    | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).              |
+| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).             |
+| data-scrubbing | -    | Present while scrubbing.                                                           |
 
 ### Root.Props
 
@@ -175,18 +175,18 @@ Renders an `<input>` element.
 
 **Input Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type | Description                                                                        |
+| :------------- | :--- | :--------------------------------------------------------------------------------- |
+| data-disabled  | -    | Present when the number field is disabled.                                         |
+| data-readonly  | -    | Present when the number field is readonly.                                         |
+| data-required  | -    | Present when the number field is required.                                         |
+| data-valid     | -    | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).              |
+| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).             |
+| data-scrubbing | -    | Present while scrubbing.                                                           |
 
 ### Input.Props
 
@@ -236,18 +236,18 @@ Renders a `<div>` element.
 
 **Group Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type | Description                                                                        |
+| :------------- | :--- | :--------------------------------------------------------------------------------- |
+| data-disabled  | -    | Present when the number field is disabled.                                         |
+| data-readonly  | -    | Present when the number field is readonly.                                         |
+| data-required  | -    | Present when the number field is required.                                         |
+| data-valid     | -    | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).              |
+| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).             |
+| data-scrubbing | -    | Present while scrubbing.                                                           |
 
 ### Group.Props
 
@@ -300,18 +300,18 @@ Renders a `<span>` element.
 
 **ScrubArea Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type | Description                                                                        |
+| :------------- | :--- | :--------------------------------------------------------------------------------- |
+| data-disabled  | -    | Present when the number field is disabled.                                         |
+| data-readonly  | -    | Present when the number field is readonly.                                         |
+| data-required  | -    | Present when the number field is required.                                         |
+| data-valid     | -    | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).              |
+| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).             |
+| data-scrubbing | -    | Present while scrubbing.                                                           |
 
 ### ScrubArea.Props
 
@@ -364,18 +364,18 @@ in Safari to avoid a layout shift that this notification causes there.
 
 **ScrubAreaCursor Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type | Description                                                                        |
+| :------------- | :--- | :--------------------------------------------------------------------------------- |
+| data-disabled  | -    | Present when the number field is disabled.                                         |
+| data-readonly  | -    | Present when the number field is readonly.                                         |
+| data-required  | -    | Present when the number field is required.                                         |
+| data-valid     | -    | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).              |
+| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).             |
+| data-scrubbing | -    | Present while scrubbing.                                                           |
 
 ### ScrubAreaCursor.Props
 
@@ -426,18 +426,18 @@ Renders an `<button>` element.
 
 **Decrement Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type | Description                                                                        |
+| :------------- | :--- | :--------------------------------------------------------------------------------- |
+| data-disabled  | -    | Present when the number field is disabled.                                         |
+| data-readonly  | -    | Present when the number field is readonly.                                         |
+| data-required  | -    | Present when the number field is required.                                         |
+| data-valid     | -    | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).              |
+| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).             |
+| data-scrubbing | -    | Present while scrubbing.                                                           |
 
 ### Decrement.Props
 
@@ -488,18 +488,18 @@ Renders an `<button>` element.
 
 **Increment Data Attributes:**
 
-| Attribute      | Type | Description                                                                     |
-| :------------- | :--- | :------------------------------------------------------------------------------ |
-| data-disabled  | -    | Present when the number field is disabled.                                      |
-| data-readonly  | -    | Present when the number field is readonly.                                      |
-| data-required  | -    | Present when the number field is required.                                      |
-| data-valid     | -    | Present when the number field is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the number field is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).           |
-| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).          |
-| data-scrubbing | -    | Present while scrubbing.                                                        |
+| Attribute      | Type | Description                                                                        |
+| :------------- | :--- | :--------------------------------------------------------------------------------- |
+| data-disabled  | -    | Present when the number field is disabled.                                         |
+| data-readonly  | -    | Present when the number field is readonly.                                         |
+| data-required  | -    | Present when the number field is required.                                         |
+| data-valid     | -    | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the number field has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the number field is filled (when wrapped in Field.Root).              |
+| data-focused   | -    | Present when the number field is focused (when wrapped in Field.Root).             |
+| data-scrubbing | -    | Present while scrubbing.                                                           |
 
 ### Increment.Props
 

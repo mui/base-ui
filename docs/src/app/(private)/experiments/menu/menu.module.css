@@ -12,10 +12,11 @@
   border-radius: 0.375rem;
   background-color: var(--color-gray-50);
   font-family: inherit;
-  font-size: var(--text-base);
+  font-size: 1rem;
   font-weight: 500;
-  line-height: var(--text-base--line-height);
+  line-height: 1.5rem;
   color: var(--color-gray-900);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (hover: hover) {
@@ -136,12 +137,13 @@
 .SubmenuTrigger {
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1rem;
   padding-right: 2rem;
   display: flex;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   line-height: 1rem;
 
   &[data-highlighted] {
@@ -210,11 +212,12 @@
 .RadioItem {
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 0.625rem;
   padding-right: 2rem;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   line-height: 1rem;
   display: grid;
   gap: 0.5rem;
@@ -265,11 +268,12 @@
 
 .GroupLabel {
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
   padding-left: 1.875rem;
   padding-right: 2rem;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   line-height: 1rem;
   color: var(--color-gray-600);
 }
@@ -291,7 +295,6 @@
   font-size: 2rem;
   line-height: 2.5rem;
   font-weight: 500;
-  letter-spacing: var(--text-2xl--letter-spacing);
 }
 
 .ExperimentDescription {
@@ -305,10 +308,9 @@
 
 .SectionTitle {
   margin: 0 0 1rem;
-  font-size: var(--text-xl);
-  line-height: var(--text-xl--line-height);
+  font-size: 1.25rem;
+  line-height: 1.75rem;
   font-weight: 600;
-  letter-spacing: var(--text-xl--letter-spacing);
 }
 
 .SectionDescription {
@@ -340,7 +342,7 @@
 .DialogTitle {
   margin: 0 0 1rem;
   font-size: 1.25rem;
-  line-height: var(--text-lg--line-height);
+  line-height: 1.75rem;
   font-weight: 600;
 }
 
@@ -390,12 +392,12 @@
   }
 
   .DialogConfirm:hover {
-    background: var(--color-blue-700);
+    background: oklch(48.8% 0.243 264.376deg);
   }
 }
 
 .DialogConfirm {
-  background: var(--color-blue-600);
+  background: oklch(54.6% 0.245 262.881deg);
 }
 
 .LinkItem {

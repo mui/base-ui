@@ -29,7 +29,7 @@ export enum PopoverPopupDataAttributes {
   align = 'data-align',
   /**
    * Present if animations should be instant.
-   * @type {'click' | 'dismiss'}
+   * @type {'click' | 'dismiss' | 'focus' | 'trigger-change'}
    */
   instant = 'data-instant',
 }

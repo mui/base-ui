@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { selectors } from '../store';
@@ -17,7 +17,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   componentProps: SelectIcon.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, style, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = useSelectRootContext();
   const open = useStore(store, selectors.open);

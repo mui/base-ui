@@ -3,17 +3,18 @@ import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { type BaseUIComponentProps } from '../../utils/types';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
-import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { type BaseUIComponentProps } from '../../internals/types';
+import { type TransitionStatus } from '../../internals/useTransitionStatus';
+import { type StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { DialogPopupCssVars } from './DialogPopupCssVars';
 import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { COMPOSITE_KEYS } from '../../composite/composite';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { COMPOSITE_KEYS } from '../../internals/composite/composite';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 
 const stateAttributesMapping: StateAttributesMapping<DialogPopupState> = {
   ...baseMapping,
@@ -33,7 +34,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   componentProps: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, finalFocus, initialFocus, render, style, ...elementProps } = componentProps;
+  const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
 
   const { store } = useDialogRootContext();
 
@@ -50,6 +51,9 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   const titleElementId = store.useState('titleElementId');
   const transitionStatus = store.useState('transitionStatus');
   const role = store.useState('role');
+  const floatingId = floatingRootContext.useState('floatingId');
+
+  const popupId = elementProps.id ?? floatingId;
 
   useDialogPortalContext();
 
@@ -77,6 +81,8 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
+  const setPopupElement = store.useStateSetter('popupElement');
+
   const state: DialogPopupState = {
     open,
     nested,
@@ -89,10 +95,11 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     props: [
       rootPopupProps,
       {
+        id: popupId,
         'aria-labelledby': titleElementId ?? undefined,
         'aria-describedby': descriptionElementId ?? undefined,
         role,
-        tabIndex: -1,
+        ...FOCUSABLE_POPUP_PROPS,
         hidden: !mounted,
         onKeyDown(event: React.KeyboardEvent) {
           if (COMPOSITE_KEYS.has(event.key)) {
@@ -105,7 +112,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       },
       elementProps,
     ],
-    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement],
     stateAttributesMapping,
   });
 

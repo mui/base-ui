@@ -33,6 +33,7 @@ const LONG_LIST = [
   { href: '/react/components/meter', label: 'Meter' },
   { href: '/react/components/navigation-menu', label: 'Navigation Menu' },
   { href: '/react/components/number-field', label: 'Number Field' },
+  { href: '/react/components/otp-field', label: 'OTP Field' },
   { href: '/react/components/popover', label: 'Popover' },
   { href: '/react/components/preview-card', label: 'Preview Card' },
   { href: '/react/components/progress', label: 'Progress' },
@@ -66,15 +67,7 @@ export default function ExampleDrawerMobileNav() {
                       <div aria-hidden className={styles.HeaderSpacer} />
                       <div className={styles.Handle} />
                       <Drawer.Close aria-label="Close menu" className={styles.CloseButton}>
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                          <path
-                            d="M0.75 0.75L6 6M11.25 11.25L6 6M6 6L0.75 11.25M6 6L11.25 0.75"
-                            stroke="currentcolor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                        <XIcon />
                       </Drawer.Close>
                     </div>
 
@@ -117,5 +110,23 @@ export default function ExampleDrawerMobileNav() {
         </Drawer.Viewport>
       </Drawer.Portal>
     </Drawer.Root>
+  );
+}
+
+function XIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m2.5 2.5 11 11m-11 0 11-11" />
+    </svg>
   );
 }

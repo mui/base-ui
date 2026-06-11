@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/b989d008bd34fbf9fb9d3395da2f6a32536f574d/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/f2b7a9f6b2db57a03f2e16a5bb351f02a55c3e17/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -53,7 +53,7 @@ commands:
           command: pnpm -F "./packages/*" add react-compiler-runtime
       - run:
           name: Build with compiler
-          command: pnpm -F "./packages/*" build --enableReactCompiler
+          command: pnpm release:build --enableReactCompiler
           environment:
             MUI_REACT_COMPILER_MODE: 'infer'
 
@@ -83,7 +83,9 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps
-      - code-infra/run-linters
+      - code-infra/eslint
+      - code-infra/stylelint
+      - code-infra/valelint
   test_static:
     <<: *default-job
     steps:
@@ -102,7 +104,7 @@ jobs:
             git add -A && git diff --exit-code --staged
   test_types:
     <<: *default-job
-    resource_class: 'medium+'
+    resource_class: medium+
     steps:
       - checkout
       - code-infra/install-deps:
@@ -123,7 +125,7 @@ jobs:
             - packages/react/build
   test_types_next:
     <<: *default-job
-    resource_class: 'medium+'
+    resource_class: medium+
     steps:
       - checkout
       - code-infra/install-deps:
@@ -151,7 +153,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.2-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps:
@@ -163,10 +165,10 @@ jobs:
           path: test-results
   test_regressions:
     <<: *default-job
-    resource_class: 'medium+'
+    resource_class: medium+
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.2-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -182,7 +184,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.2-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -194,7 +196,7 @@ jobs:
 
   test_package:
     <<: *default-job
-    resource_class: 'medium+'
+    resource_class: medium+
     steps:
       - checkout
       - code-infra/install-deps
@@ -235,7 +237,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.2-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -247,6 +249,23 @@ jobs:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
       - store_test_results:
           path: test-results
+
+  test_benchmark:
+    <<: *default-job
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.59.1-noble
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - run:
+          name: Build packages
+          command: pnpm release:build
+      - run:
+          name: Run benchmarks
+          environment:
+            BENCHMARK_UPLOAD: 'true'
+          command: pnpm test:benchmark
 
 workflows:
   pipeline:
@@ -280,6 +299,9 @@ workflows:
       - docs_validate:
           <<: *default-context
           name: 'Validating Docs'
+      - test_benchmark:
+          <<: *default-context
+          name: 'Benchmark tests'
       - test_unit_compiler:
           <<: *default-context
           name: 'JSDOM tests (React Compiler)'

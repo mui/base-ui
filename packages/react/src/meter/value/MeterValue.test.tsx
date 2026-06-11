@@ -22,7 +22,7 @@ describe('<Meter.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent((0.3).toLocaleString(undefined, { style: 'percent' }));
+      expect(value.textContent).toBe((0.3).toLocaleString(undefined, { style: 'percent' }));
     });
 
     it('renders a formatted value when a format is provided', async () => {
@@ -41,7 +41,7 @@ describe('<Meter.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent(formatValue(30));
+      expect(value.textContent).toBe(formatValue(30));
     });
 
     it('accepts a render function', async () => {
@@ -60,6 +60,28 @@ describe('<Meter.Value />', () => {
       );
       expect(renderSpy.mock.lastCall?.[0]).toEqual(formatValue(30));
       expect(renderSpy.mock.lastCall?.[1]).toEqual(30);
+    });
+
+    it('passes updated arguments to the render function when value changes', async () => {
+      const renderSpy = vi.fn();
+
+      const { setProps } = await render(
+        <Meter.Root value={30}>
+          <Meter.Value>{renderSpy}</Meter.Value>
+        </Meter.Root>,
+      );
+
+      expect(renderSpy.mock.lastCall?.[0]).toEqual(
+        (0.3).toLocaleString(undefined, { style: 'percent' }),
+      );
+      expect(renderSpy.mock.lastCall?.[1]).toEqual(30);
+
+      await setProps({ value: 60 });
+
+      expect(renderSpy.mock.lastCall?.[0]).toEqual(
+        (0.6).toLocaleString(undefined, { style: 'percent' }),
+      );
+      expect(renderSpy.mock.lastCall?.[1]).toEqual(60);
     });
   });
 });

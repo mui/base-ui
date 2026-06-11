@@ -9,7 +9,6 @@ interface MarkOthersOptions {
   ariaHidden?: boolean | undefined;
   inert?: boolean | undefined;
   mark?: boolean | undefined;
-  markerIgnoreElements?: Element[] | undefined;
 }
 
 const counters = {
@@ -30,9 +29,6 @@ let lockCount = 0;
 function getUncontrolledElementsSet(controlAttribute: ControlAttribute) {
   return uncontrolledElementsSets[controlAttribute];
 }
-
-export const supportsInert = (): boolean =>
-  typeof HTMLElement !== 'undefined' && 'inert' in HTMLElement.prototype;
 
 function unwrapHost(node: Node | null): Element | null {
   if (!node) {
@@ -108,21 +104,20 @@ function applyAttributeToOthers(
   body: HTMLElement,
   ariaHidden: boolean,
   inert: boolean,
-  { mark = true, markerIgnoreElements = [] }: MarkOthersOptions,
+  { mark = true }: MarkOthersOptions,
 ): Undo {
-  // eslint-disable-next-line no-nested-ternary
-  const controlAttribute = inert ? 'inert' : ariaHidden ? 'aria-hidden' : null;
+  let controlAttribute: ControlAttribute | null = null;
+  if (inert) {
+    controlAttribute = 'inert';
+  } else if (ariaHidden) {
+    controlAttribute = 'aria-hidden';
+  }
+
   let counterMap: WeakMap<Element, number> | null = null;
   let uncontrolledElementsSet: WeakSet<Element> | null = null;
   const avoidElements = correctElements(body, uncorrectedAvoidElements);
-  const markerIgnoreTargets = mark ? correctElements(body, markerIgnoreElements) : [];
-  const markerIgnoreSet = new Set<Node>(markerIgnoreTargets);
   const markerTargets = mark
-    ? collectOutsideElements(
-        body,
-        buildKeepSet(avoidElements),
-        new Set<Node>(avoidElements),
-      ).filter((target) => !markerIgnoreSet.has(target))
+    ? collectOutsideElements(body, buildKeepSet(avoidElements), new Set<Node>(avoidElements))
     : [];
   const hiddenElements: Element[] = [];
   const markedElements: Element[] = [];
@@ -218,10 +213,7 @@ function applyAttributeToOthers(
 }
 
 export function markOthers(avoidElements: Element[], options: MarkOthersOptions = {}): Undo {
-  const { ariaHidden = false, inert = false, mark = true, markerIgnoreElements = [] } = options;
+  const { ariaHidden = false, inert = false, mark = true } = options;
   const body = ownerDocument(avoidElements[0]).body;
-  return applyAttributeToOthers(avoidElements, body, ariaHidden, inert, {
-    mark,
-    markerIgnoreElements,
-  });
+  return applyAttributeToOthers(avoidElements, body, ariaHidden, inert, { mark });
 }

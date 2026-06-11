@@ -8,7 +8,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { ReactStore } from '@base-ui/utils/store';
-import { useAnimationsFinished } from './useAnimationsFinished';
+import { useAnimationsFinished } from '../internals/useAnimationsFinished';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from './useAnchorPositioning';

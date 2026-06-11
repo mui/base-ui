@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import { DialogClose } from '../../dialog/close/DialogClose';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 
 /**
  * A button that closes the drawer.

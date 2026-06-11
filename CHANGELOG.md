@@ -1,10 +1,275 @@
 # Versions
 
+## v1.5.0
+
+_May 19, 2026_
+
+### General changes
+
+- Improve mount performance with interaction splitting, including closed popup mount performance by up to 50% and unmounting performance by up to 85% (#4661) by @atomiks
+- Use local document for virtual arrow (#4662) by @lyzno1
+- Fix macOS Safari and Firefox minimizing fullscreen when closing popups with <kbd>Esc</kbd> (#4695) by @arturbien
+- Drop unnecessary memoization (#4693) by @flaviendelangle
+- Do not use `Math.random()` in `useStableCallback()` (#4732) by @michaldudak
+- Fix return focus when reference disconnects (#4655) by @atomiks
+- Don't steal initial focus if focus already moved inside a popup (#4775) by @stefee
+
+### Alert Dialog
+
+- Fix handle defaults (#4834) by @atomiks
+
+### Autocomplete
+
+- Fix native `FormData` for popup inputs (#4725) by @lunaxislu
+
+### Checkbox
+
+- Submit the associated form when pressing <kbd>Enter</kbd> (#4713) by @michaldudak
+
+### Combobox
+
+- Expose clear visibility state (#4664) by @atomiks
+- Fix popup input form submit (#4687) by @atomiks
+- Preserve `closeQuery` when closing multiple input-inside-popup combobox (#4715) by @mj12albert
+- Fix RTL component behavior (#4840) by @atomiks
+- Ignore hidden-input changes while readonly or disabled (#4810) by @lunaxislu
+
+### Dialog
+
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+
+### Drawer
+
+- Forward `style` prop in `<Drawer.Viewport>` (#4841) by @atomiks
+
+### Field
+
+- Avoid `flushSync` during validation (#4685) by @atomiks
+
+### Form
+
+- Avoid `flushSync` during validation (#4685) by @atomiks
+
+### Menu
+
+- Fix submenu pointer-events scope for `keepMounted` portals (#4723) by @twillhorn
+- Support `<Menu.GroupLabel>` in `<Menu.RadioGroup>` (#4826) by @nami8824
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+
+### Navigation Menu
+
+- Fix RTL component behavior (#4840) by @atomiks
+- Fix `keepMounted` content sizing (#4817) by @atomiks
+
+### Number Field
+
+- Allow Persian digits in keyboard input (#4719) by @lunaxislu
+- Sync pasted input during step interactions (#4824) by @lunaxislu
+
+### OTP Field
+
+- **Breaking change:** Rename `sanitizeValue()` to `normalizeValue()` and allow composing with validation (#4717) by @atomiks
+- Avoid `flushSync` during validation (#4685) by @atomiks
+- Support <kbd>Ctrl</kbd> and <kbd>Cmd</kbd> shortcuts (#4606) by @atomiks
+- Fire `onValueComplete()` for full paste (#4690) by @atomiks
+- Fix vertical arrow slot navigation (#4844) by @atomiks
+- Ignore hidden input changes while readonly or disabled (#4806) by @lunaxislu
+- Prevent locked hidden autofill validation (#4827) by @lunaxislu
+- Fix RTL arrow navigation (#4847) by @atomiks
+
+### Popover
+
+- Fix RTL component behavior (#4840) by @atomiks
+- Preserve active trigger on close press (#4741) by @mj12albert
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+
+### Preview Card
+
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+- Integrate inline positioning (#2074) by @atomiks
+
+### Scroll Area
+
+- Fix RTL component behavior (#4840) by @atomiks
+
+### Select
+
+- Clear stale item text ref (#4683) by @atomiks
+- Add `data-popup-side` to trigger (#4671) by @mj12albert
+- Allow mouse selection without highlight (#4699) by @atomiks
+- Ignore hidden-input changes while readonly or disabled (#4810) by @lunaxislu
+- Fix nested Select requiring extra outside clicks to dismiss parent (#4820) by @mattrothenberg
+
+### Tabs
+
+- Fire `onValueChange()` for automatic tab selection (#4704) by @michaldudak
+
+### Toast
+
+- Re-use `getElementTransform()` and remove local implementation (#4749) by @sai6855
+- Fix stuck drag state on release (#4742) by @aeterno-caspian
+- Remove memoized selector (#4751) by @atomiks
+
+### Tooltip
+
+- Consider the controlled `open` prop for open state detection (#4712) by @michaldudak
+- Fix flickering when nesting tooltip inside another tooltip's trigger (#4501) by @michaldudak
+
+All contributors of this release in alphabetical order: @aeterno-caspian, @arturbien, @atomiks, @flaviendelangle, @Janpot, @lunaxislu, @lyzno1, @mattrothenberg, @michaldudak, @mj12albert, @nami8824, @sai6855, @stefee, @twillhorn
+
+## v1.4.1
+
+_Apr 20, 2026_
+
+### General changes
+
+- Clear highlight on pointer leave when item is clipped by scroll container (#4604) by @atomiks
+- Fix `display: contents` tabbability (#4642) by @atomiks
+- Fix multi-argument event handler forwarding in `mergeProps` (#4598) by @atomiks
+- Mark `date-fns` peer dependencies as optional (#4639) by @LukasTy
+
+### Navigation Menu
+
+- Fix stale popup size on rapid trigger hover (#4646) by @atomiks
+
+All contributors of this release in alphabetical order: @atomiks, @LukasTy
+
+## v1.4.0
+
+_Apr 13, 2026_
+
+### General changes
+
+- Improve `render` prop warning accuracy (#4324, #4363) by @atomiks
+- Fix `preventBaseUIHandler` runtime wrapping (#4330) by @atomiks
+- Fix Uncaught TypeError: Converting circular structure to JSON (#4452) by @Profesor08
+- Expose `form` prop on hidden inputs (#4352) by @atomiks
+- Add `suppressHydrationWarning` to hidden inputs (#4482) by @devxoul
+- Fix outside-press dismissal in a shared shadow root (#4333) by @atomiks
+- Fix `Positioner` not repositioning to a different trigger when reopened with `keepMounted` (#4407) by @mdm317
+- Lock scroll of full-width anchored `modal` popups with touch input (#3100) by @atomiks
+
+### Alert Dialog
+
+- Fix detached trigger HMR with recreated handles (#4472) by @atomiks
+
+### Autocomplete
+
+- Fix initial live region announcements (#4286) by @atomiks
+
+### Avatar
+
+- Fix flash when image is cached (#4469) by @mj12albert
+
+### Checkbox
+
+- Fix uncontrolled default initialization (#4535) by @atomiks
+- Prevent input state changes in `readOnly` mode (#4551) by @tsbehlman
+
+### Collapsible
+
+- Fix open state when `keepMounted` has no transitions (#4555) by @mj12albert
+
+### Combobox
+
+- Fix clicks in `Chips`/`InputGroup` areas not focusing the input or opening the popup (#4296) by @CiscoFran10
+- Fix iOS viewport settling (#4351) by @atomiks
+- Fix initial live region announcements (#4286) by @atomiks
+- Prevent scroll lock when a controlled value triggers a re-render (#4507) by @ryanrhee
+- Fix browser autofill with object values when autofill uses the label (#4560) by @mattrothenberg
+- Prevent item taps from blurring the input (#4578) by @atomiks
+- Respect rendered chips for keyboard navigation (#4572) by @atomiks
+
+### Dialog
+
+- Fix detached trigger HMR with recreated handles (#4472) by @atomiks
+
+### Drawer
+
+- Fix touch scroll in portaled popups (#4382) by @atomiks
+- Fix nested swipe cancel state (#4410) by @atomiks
+- Fix interrupted swipe dismiss cleanup (#4467) by @lunaxislu
+- Warn when a popup is missing `Viewport` (#4495) by @atomiks
+- Prevent dialogs from affecting nested drawer stack (#4493) by @atomiks
+
+### Field
+
+- Fix form error matching in `<Field.Error>` (#4494) by @atomiks
+
+### Menu
+
+- Fix `SubmenuTrigger` not respecting disabled state from `render` (#3858) by @CiscoFran10
+- Preserve dialog focus on pointer leave (#4581) by @atomiks
+
+### Navigation Menu
+
+- Remove invalid `aria-orientation` attribute (#4355) by @atomiks
+- Add generic `Value` typing (#4328) by @atomiks
+- Fix initial trigger switch size snap (#4327) by @atomiks
+- Fix top-level trigger pointer events blocking (#4362) by @atomiks
+- Fix reverse <kbd>Shift</kbd>+<kbd>Tab</kbd> submenu re-entry (#4464) by @atomiks
+- Fix nested inline submenu hover handoff (#4413) by @atomiks
+- Fix transition width when reopening (#4587) by @mdm317
+
+### Number Field
+
+- Fix format rounding error on blur (#4557) by @atomiks
+
+### OTP Field
+
+- Add preview `OTPField` component for one-time password and verification code entry (#4365) by @atomiks
+
+### Popover
+
+- Remove stray focus guards around trigger when `modal` (#4350) by @atomiks
+- Sync hover open event state (#4526) by @atomiks
+
+### Preview Card
+
+- Fix hover reopen race conditions across close transitions (#4446) by @arturbien
+
+### Select
+
+- Fix browser autofill with object values when autofill uses the label (#4560) by @mattrothenberg
+- Preserve touch exit animations (#4325) by @atomiks
+- Fix touch reopen highlight (#4356) by @atomiks
+- Fix scroll arrows stopping short of the edges (#4447) by @atomiks
+- Fix RTL-aligned popup positioning with `alignItemWithTrigger` (#4531) by @atomiks
+
+### Slider
+
+- Fix edge thumb alignment after reveal (#4354) by @atomiks
+- Remove extra TalkBack focus targets (#4242) by @atomiks
+- Fix keyboard floating-point rounding (#4548) by @atomiks
+- Skip client-only prehydration scripts (#4530) by @atomiks
+
+### Switch
+
+- Prevent input state changes in `readOnly` mode (#4551) by @tsbehlman
+
+### Tabs
+
+- Fix `activationDirection` not updating on programmatic value changes (#4347) by @LukasTy
+- Fix activation direction on first render (#4532) by @atomiks
+- Skip client-only prehydration scripts (#4530) by @atomiks
+
+### Toast
+
+- Keep viewport expanded while touch swiping (#4411) by @atomiks
+- Add upsert support to `add` method (#4440) by @atomiks
+- Fix timers not resuming after window regains focus (#4438) by @kyrregjerstad
+
+### Toggle Group
+
+- Fix incorrect keyboard nav on cross axis (#4488) by @mj12albert
+
+All contributors of this release in alphabetical order: @arturbien, @atomiks, @CiscoFran10, @devxoul, @flaviendelangle, @kyrregjerstad, @LukasTy, @lunaxislu, @mattrothenberg, @mdm317, @michaldudak, @mj12albert, @Profesor08, @ryanrhee, @sai6855, @tsbehlman
+
 ## v1.3.0
 
 _Mar 12, 2026_
 
-### General Changes
+### General changes
 
 - Warn when a component function is rendered directly (#4077) by @atomiks
 - Reset `openMethod` after close transition (#4128) by @atomiks
@@ -145,7 +410,7 @@ _Mar 12, 2026_
 
 - Add `closeOnClick` prop (#4140) by @atomiks
 
-All contributors of this release in alphabetical order : @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
+All contributors of this release in alphabetical order: @aarongarciah, @atomiks, @cgatian, @chuganzy, @CiscoFran10, @dmitri-gb, @flaviendelangle, @jijiseong, @michaldudak, @mj12albert, @obeattie, @vcode-sh
 
 ## v1.2.0
 
@@ -318,7 +583,7 @@ _Feb 12, 2026_
 - Fix broken scale transition with detached triggers (#3810) by @michaldudak
 - Fix disabled prop on Triggers (#4049) by @michaldudak
 
-All contributors of this release in alphabetical order : @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
+All contributors of this release in alphabetical order: @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
 
 ## v1.1.0
 
@@ -1081,6 +1346,7 @@ _Sep 3, 2025_
   Custom event callbacks provide BaseUIEventDetails object as their second parameter.
   This object contains the source event, reason and methods to customize the behavior (where applicable).
   For example, `onOpenChange(open, event, reason)` becomes `onOpenChange(open, eventDetails)`, where `eventDetails` contains `event` and `reason` properties.
+
   ```diff
   -onOpenChange: (open, event, reason) => {
   +onOpenChange: (open, eventDetails) => {
@@ -1090,6 +1356,7 @@ _Sep 3, 2025_
      }
    }
   ```
+
   (#2382) by @atomiks
 
 ### Alert Dialog
@@ -1951,7 +2218,7 @@ _Mar 20, 2025_
 - Mention Progress.Value in API reference (#1429) @aarongarciah
 - Update release instructions (#1417) @michaldudak
 
-### Core
+### Internal
 
 - [code-infra] Polish VS Code DX (#1238) @oliviertassinari
 - [code-infra] Fix build:types not copying on some setups (#1482) @Janpot

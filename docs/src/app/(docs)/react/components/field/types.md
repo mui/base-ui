@@ -81,6 +81,18 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Field.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Field.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Item Data Attributes:**
+
+| Attribute     | Type | Description                                    |
+| :------------ | :--- | :--------------------------------------------- |
+| data-disabled | -    | Present when the field is disabled.            |
+| data-valid    | -    | Present when the field is in a valid state.    |
+| data-invalid  | -    | Present when the field is in an invalid state. |
+| data-dirty    | -    | Present when the field's value has changed.    |
+| data-touched  | -    | Present when the field has been touched.       |
+| data-filled   | -    | Present when the field is filled.              |
+| data-focused  | -    | Present when the field control is focused.     |
+
 ### Item.Props
 
 Re-export of [Item](#item) props.
@@ -119,15 +131,15 @@ Renders a `<p>` element.
 
 **Description Data Attributes:**
 
-| Attribute     | Type | Description                                 |
-| :------------ | :--- | :------------------------------------------ |
-| data-disabled | -    | Present when the field is disabled.         |
-| data-valid    | -    | Present when the field is in valid state.   |
-| data-invalid  | -    | Present when the field is in invalid state. |
-| data-dirty    | -    | Present when the field's value has changed. |
-| data-touched  | -    | Present when the field has been touched.    |
-| data-filled   | -    | Present when the field is filled.           |
-| data-focused  | -    | Present when the field control is focused.  |
+| Attribute     | Type | Description                                    |
+| :------------ | :--- | :--------------------------------------------- |
+| data-disabled | -    | Present when the field is disabled.            |
+| data-valid    | -    | Present when the field is in a valid state.    |
+| data-invalid  | -    | Present when the field is in an invalid state. |
+| data-dirty    | -    | Present when the field's value has changed.    |
+| data-touched  | -    | Present when the field has been touched.       |
+| data-filled   | -    | Present when the field is filled.              |
+| data-focused  | -    | Present when the field control is focused.     |
 
 ### Description.Props
 
@@ -173,15 +185,15 @@ or [Select](https://base-ui.com/react/components/select), among others, will wor
 
 **Control Data Attributes:**
 
-| Attribute     | Type | Description                                 |
-| :------------ | :--- | :------------------------------------------ |
-| data-disabled | -    | Present when the field is disabled.         |
-| data-valid    | -    | Present when the field is in valid state.   |
-| data-invalid  | -    | Present when the field is in invalid state. |
-| data-dirty    | -    | Present when the field's value has changed. |
-| data-touched  | -    | Present when the field has been touched.    |
-| data-filled   | -    | Present when the field is filled.           |
-| data-focused  | -    | Present when the field control is focused.  |
+| Attribute     | Type | Description                                    |
+| :------------ | :--- | :--------------------------------------------- |
+| data-disabled | -    | Present when the field is disabled.            |
+| data-valid    | -    | Present when the field is in a valid state.    |
+| data-invalid  | -    | Present when the field is in an invalid state. |
+| data-dirty    | -    | Present when the field's value has changed.    |
+| data-touched  | -    | Present when the field has been touched.       |
+| data-filled   | -    | Present when the field is filled.              |
+| data-focused  | -    | Present when the field control is focused.     |
 
 ### Control.Props
 
@@ -249,15 +261,15 @@ Renders a `<label>` element.
 
 **Label Data Attributes:**
 
-| Attribute     | Type | Description                                 |
-| :------------ | :--- | :------------------------------------------ |
-| data-disabled | -    | Present when the field is disabled.         |
-| data-valid    | -    | Present when the field is in valid state.   |
-| data-invalid  | -    | Present when the field is in invalid state. |
-| data-dirty    | -    | Present when the field's value has changed. |
-| data-touched  | -    | Present when the field has been touched.    |
-| data-filled   | -    | Present when the field is filled.           |
-| data-focused  | -    | Present when the field control is focused.  |
+| Attribute     | Type | Description                                    |
+| :------------ | :--- | :--------------------------------------------- |
+| data-disabled | -    | Present when the field is disabled.            |
+| data-valid    | -    | Present when the field is in a valid state.    |
+| data-invalid  | -    | Present when the field is in an invalid state. |
+| data-dirty    | -    | Present when the field's value has changed.    |
+| data-touched  | -    | Present when the field has been touched.       |
+| data-filled   | -    | Present when the field is filled.              |
+| data-focused  | -    | Present when the field control is focused.     |
 
 ### Label.Props
 
@@ -301,8 +313,8 @@ Renders a `<div>` element.
 | Attribute           | Type | Description                                      |
 | :------------------ | :--- | :----------------------------------------------- |
 | data-disabled       | -    | Present when the field is disabled.              |
-| data-valid          | -    | Present when the field is in valid state.        |
-| data-invalid        | -    | Present when the field is in invalid state.      |
+| data-valid          | -    | Present when the field is in a valid state.      |
+| data-invalid        | -    | Present when the field is in an invalid state.   |
 | data-dirty          | -    | Present when the field's value has changed.      |
 | data-touched        | -    | Present when the field has been touched.         |
 | data-filled         | -    | Present when the field is filled.                |

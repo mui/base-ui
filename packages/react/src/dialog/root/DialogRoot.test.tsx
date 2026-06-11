@@ -7,7 +7,9 @@ import { Menu } from '@base-ui/react/menu';
 import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { REASONS } from '../../utils/reasons';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { REASONS } from '../../internals/reasons';
+import { useDialogRootContext } from './DialogRootContext';
 
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
@@ -30,11 +32,73 @@ describe('<Dialog.Root />', () => {
     expectedPopupRole: 'dialog',
   });
 
+  it('keeps trigger ownership when another trigger mounts while open', async () => {
+    function Test() {
+      const [showSecondTrigger, setShowSecondTrigger] = React.useState(false);
+
+      return (
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger id="trigger-1">Trigger 1</Dialog.Trigger>
+          {showSecondTrigger && <Dialog.Trigger id="trigger-2">Trigger 2</Dialog.Trigger>}
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <button onClick={() => setShowSecondTrigger(true)}>Mount trigger 2</button>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
+      );
+    }
+
+    const { user } = await render(<Test />);
+    const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+
+    await user.click(trigger1);
+
+    const popup = await screen.findByRole('dialog');
+    const trigger1Controls = trigger1.getAttribute('aria-controls');
+
+    expect(trigger1Controls).toBe(popup.getAttribute('id'));
+
+    await user.click(screen.getByRole('button', { name: 'Mount trigger 2' }));
+
+    const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+    expect(trigger1).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger1.getAttribute('aria-controls')).toBe(trigger1Controls);
+    expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger2).not.toHaveAttribute('aria-controls');
+  });
+
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerDialog },
     { name: 'detached triggers', Component: DetachedTriggerDialog },
     { name: 'multiple detached triggers', Component: MultipleDetachedTriggersDialog },
   ])('when using $name', ({ Component: TestDialog }) => {
+    it('rewires dismiss interactions after closing and reopening', async () => {
+      const { user } = await render(<TestDialog rootProps={{ modal: false }} />);
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      fireEvent.click(document.body);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+    });
+
     it('ARIA attributes', async () => {
       await render(
         <TestDialog
@@ -199,6 +263,64 @@ describe('<Dialog.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      it('emits a single internal openchange when closing on Escape', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const { user } = await render(
+          <TestDialog
+            rootProps={{ defaultOpen: true }}
+            popupProps={{
+              children: (
+                <React.Fragment>
+                  <DialogOpenChangeSpy onOpenChange={handleInternalOpenChange} />
+                  <p>Dialog content</p>
+                  <Dialog.Close>Close</Dialog.Close>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        await user.keyboard('[Escape]');
+        await flushMicrotasks();
+
+        expect(handleInternalOpenChange.mock.calls.length).toBe(1);
+        expect(handleInternalOpenChange.mock.calls[0][0]).toMatchObject({
+          open: false,
+          reason: REASONS.escapeKey,
+        });
+      });
+
+      it('does not emit internal openchange when an Escape close is canceled', async () => {
+        const handleInternalOpenChange = vi.fn();
+        const { user } = await render(
+          <TestDialog
+            rootProps={{
+              defaultOpen: true,
+              onOpenChange: (nextOpen, eventDetails) => {
+                if (!nextOpen) {
+                  eventDetails.cancel();
+                }
+              },
+            }}
+            popupProps={{
+              children: (
+                <React.Fragment>
+                  <DialogOpenChangeSpy onOpenChange={handleInternalOpenChange} />
+                  <p>Dialog content</p>
+                  <Dialog.Close>Close</Dialog.Close>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        await user.keyboard('[Escape]');
+        await flushMicrotasks();
+
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+        expect(handleInternalOpenChange.mock.calls.length).toBe(0);
       });
     });
 
@@ -1218,6 +1340,65 @@ describe('<Dialog.Root />', () => {
   });
 
   it.skipIf(isJSDOM)(
+    'returns focus to the menu trigger when a detached dialog trigger unmounts',
+    async () => {
+      function MenuDialog() {
+        const dialogHandle = useRefWithInit(() => Dialog.createHandle()).current;
+
+        return (
+          <React.Fragment>
+            <Menu.Root>
+              <Menu.Trigger>Open menu</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item render={<Dialog.Trigger handle={dialogHandle} />} nativeButton>
+                      Open dialog
+                    </Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+
+            <Dialog.Root handle={dialogHandle}>
+              <Dialog.Portal>
+                <Dialog.Popup>Dialog content</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<MenuDialog />);
+
+      const menuTrigger = screen.getByRole('button', { name: 'Open menu' });
+      await user.click(menuTrigger);
+
+      const menu = await screen.findByRole('menu');
+      await waitFor(() => {
+        expect(menu).toHaveFocus();
+      });
+
+      const dialogTrigger = await screen.findByRole('menuitem', { name: 'Open dialog' });
+      await user.click(dialogTrigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(menuTrigger).toHaveFocus();
+      });
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'keeps focus trapped when dialog content contains a non-scrollable scroll area',
     async () => {
       const { user } = await render(
@@ -1265,6 +1446,27 @@ describe('<Dialog.Root />', () => {
     },
   );
 });
+
+function DialogOpenChangeSpy(props: {
+  onOpenChange: (details: { open: boolean; reason: string | null | undefined }) => void;
+}) {
+  const { onOpenChange } = props;
+  const { store } = useDialogRootContext();
+  const floatingRootContext = store.useState('floatingRootContext');
+
+  React.useEffect(() => {
+    function handleOpenChange(details: { open: boolean; reason: string | null | undefined }) {
+      onOpenChange(details);
+    }
+
+    floatingRootContext.context.events.on('openchange', handleOpenChange);
+    return () => {
+      floatingRootContext.context.events.off('openchange', handleOpenChange);
+    };
+  }, [floatingRootContext, onOpenChange]);
+
+  return null;
+}
 
 type TestDialogProps = {
   rootProps?: Omit<Dialog.Root.Props, 'children'>;
@@ -1332,7 +1534,7 @@ function DetachedTriggerDialog(props: Omit<TestDialogProps, 'omitTrigger'>) {
   const { triggerProps, triggerWrapper = (trigger) => trigger } = props;
 
   const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
-  const dialogHandle = Dialog.createHandle();
+  const dialogHandle = useRefWithInit(() => Dialog.createHandle()).current;
 
   return (
     <React.Fragment>
@@ -1354,7 +1556,7 @@ function MultipleDetachedTriggersDialog(props: Omit<TestDialogProps, 'omitTrigge
   const { triggerProps, triggerWrapper = (trigger) => trigger } = props;
 
   const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
-  const dialogHandle = Dialog.createHandle();
+  const dialogHandle = useRefWithInit(() => Dialog.createHandle()).current;
 
   return (
     <React.Fragment>

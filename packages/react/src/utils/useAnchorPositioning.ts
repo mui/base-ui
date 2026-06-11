@@ -25,7 +25,7 @@ import {
   type Middleware,
   type FloatingTreeStore,
 } from '../floating-ui-react';
-import { useDirection } from '../direction-provider/DirectionContext';
+import { useDirection } from '../internals/direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
@@ -134,6 +134,7 @@ export function useAnchorPositioning(
     sticky = false,
     arrowPadding = 5,
     disableAnchorTracking = false,
+    inline: inlineMiddleware,
     // Private parameters
     keepMounted = false,
     floatingRootContext,
@@ -228,7 +229,13 @@ export function useAnchorPositioning(
   const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
   const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
 
-  const middleware: UseFloatingOptions['middleware'] = [
+  const middleware: UseFloatingOptions['middleware'] = [];
+
+  if (inlineMiddleware) {
+    middleware.push(inlineMiddleware);
+  }
+
+  middleware.push(
     offset(
       (state) => {
         const data = getOffsetData(state, sideParam, isRtl);
@@ -250,7 +257,7 @@ export function useAnchorPositioning(
       },
       [sideOffsetDep, alignOffsetDep, isRtl, sideParam],
     ),
-  ];
+  );
 
   const shiftDisabled = collisionAvoidanceAlign === 'none' && collisionAvoidanceSide !== 'shift';
   const crossAxisShiftEnabled =
@@ -328,6 +335,7 @@ export function useAnchorPositioning(
         if (!mountedRef.current) {
           return;
         }
+
         const floatingStyle = floating.style;
         floatingStyle.setProperty('--available-width', `${availableWidth}px`);
         floatingStyle.setProperty('--available-height', `${availableHeight}px`);
@@ -343,10 +351,10 @@ export function useAnchorPositioning(
       },
     }),
     arrow(
-      () => ({
+      (state) => ({
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
-        element: arrowRef.current || ownerDocument(arrowRef.current).createElement('div'),
+        element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
         padding: arrowPadding,
         offsetParent: 'floating',
       }),
@@ -496,8 +504,8 @@ export function useAnchorPositioning(
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {
-    if (keepMounted && mounted && elements.domReference && elements.floating) {
-      return autoUpdate(elements.domReference, elements.floating, update, autoUpdateOptions);
+    if (keepMounted && mounted && elements.reference && elements.floating) {
+      return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
     }
     return undefined;
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
@@ -507,11 +515,9 @@ export function useAnchorPositioning(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
-  /**
-   * Locks the flip (makes it "sticky") so it doesn't prefer a given placement
-   * and flips back lazily, not eagerly. Ideal for filtered lists that change
-   * the size of the popup dynamically to avoid unwanted flipping when typing.
-   */
+  // Locks the flip (makes it "sticky") so it doesn't prefer a given placement
+  // and flips back lazily, not eagerly. Ideal for filtered lists that change
+  // the size of the popup dynamically to avoid unwanted flipping when typing.
   useIsoLayoutEffect(() => {
     if (lazyFlip && mounted && isPositioned) {
       setMountSide(renderedSide);
@@ -717,7 +723,6 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   floatingRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
@@ -727,6 +732,11 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
   shiftCrossAxis?: boolean | undefined;
   lazyFlip?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
+  /**
+   * Optional middleware that can replace the measured reference rect before offsets and collision
+   * middleware run. Used by Preview Card to position against a specific inline line box.
+   */
+  inline?: Middleware | undefined;
 }
 
 export interface UseAnchorPositioningReturnValue {
@@ -743,5 +753,3 @@ export interface UseAnchorPositioningReturnValue {
   isPositioned: boolean;
   update: () => void;
 }
-
-export interface UseAnchorPositioningState {}

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
-import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
+import type { BaseUIEvent, WithBaseUIEvent } from '../internals/types';
 
 type ElementType = React.ElementType;
 type PropsOf<T extends React.ElementType> = WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
@@ -228,23 +228,25 @@ function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Func
     return wrapEventHandler(theirHandler);
   }
 
-  return (event: unknown) => {
+  return (...args: unknown[]) => {
+    const event = args[0];
+
     if (isSyntheticEvent(event)) {
       const baseUIEvent = event as BaseUIEvent<typeof event>;
 
       makeEventPreventable(baseUIEvent);
 
-      const result = theirHandler(baseUIEvent);
+      const result = theirHandler(...args);
 
       if (!baseUIEvent.baseUIHandlerPrevented) {
-        ourHandler?.(baseUIEvent);
+        ourHandler?.(...args);
       }
 
       return result;
     }
 
-    const result = theirHandler(event);
-    ourHandler?.(event);
+    const result = theirHandler(...args);
+    ourHandler?.(...args);
     return result;
   };
 }
@@ -254,12 +256,14 @@ function wrapEventHandler(handler: Function | undefined) {
     return handler;
   }
 
-  return (event: unknown) => {
+  return (...args: unknown[]) => {
+    const event = args[0];
+
     if (isSyntheticEvent(event)) {
       makeEventPreventable(event as BaseUIEvent<typeof event>);
     }
 
-    return handler(event);
+    return handler(...args);
   };
 }
 

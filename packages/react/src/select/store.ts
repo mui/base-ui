@@ -1,9 +1,10 @@
 import { Store, createSelector } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { TransitionStatus } from '../utils/useTransitionStatus';
-import type { HTMLProps } from '../utils/types';
-import { compareItemEquality } from '../utils/itemEquality';
-import { type Group, hasNullItemLabel, stringifyAsValue } from '../utils/resolveValueLabel';
+import type { TransitionStatus } from '../internals/useTransitionStatus';
+import type { HTMLProps } from '../internals/types';
+import type { Side } from '../utils/useAnchorPositioning';
+import { compareItemEquality } from '../internals/itemEquality';
+import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 
 export type State = {
   id: string | undefined;
@@ -36,6 +37,7 @@ export type State = {
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
+  popupSide: Side | null;
 
   scrollUpArrowVisible: boolean;
   scrollDownArrowVisible: boolean;
@@ -84,7 +86,7 @@ export const selectors = {
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
 
-  isSelected: createSelector((state: State, index: number, itemValue: any) => {
+  isSelected: createSelector((state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const storeValue = state.value;
 
@@ -95,12 +97,9 @@ export const selectors = {
       );
     }
 
-    // `selectedIndex` is only updated after the items mount for the first time,
-    // the value check avoids a re-render for the initially selected item.
-    if (state.selectedIndex === index && state.selectedIndex !== null) {
-      return true;
-    }
-
+    // The value is the source of truth: a stale `selectedIndex` (e.g. the controlled
+    // value changes while the popup is open, where the index sync is deferred) must not
+    // keep a previously selected item marked as selected.
     return compareItemEquality(itemValue, storeValue, comparer);
   }),
   isSelectedByFocus: createSelector((state: State, index: number) => {
@@ -112,6 +111,7 @@ export const selectors = {
   triggerElement: createSelector((state: State) => state.triggerElement),
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
+  popupSide: createSelector((state: State) => state.popupSide),
 
   scrollUpArrowVisible: createSelector((state: State) => state.scrollUpArrowVisible),
   scrollDownArrowVisible: createSelector((state: State) => state.scrollDownArrowVisible),

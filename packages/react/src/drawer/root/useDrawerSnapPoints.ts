@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerRootContext } from './DrawerRootContext';
 import type { DrawerSnapPoint } from './DrawerRootContext';
@@ -12,6 +12,19 @@ export interface ResolvedDrawerSnapPoint {
   value: DrawerSnapPoint;
   height: number;
   offset: number;
+}
+
+/**
+ * Resolves the vertical swipe movement for a snap point, applying square-root damping once the drag
+ * overshoots the fully-open edge (`nextOffset < 0`) so the popup resists travelling past it.
+ */
+export function getSnapPointSwipeMovement(baseOffset: number, movementValue: number): number {
+  const nextOffset = baseOffset + movementValue;
+  if (nextOffset >= 0) {
+    return movementValue;
+  }
+
+  return -Math.sqrt(-nextOffset) - baseOffset;
 }
 
 function resolveSnapPointValue(

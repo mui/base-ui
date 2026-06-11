@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { RadioRootState } from '../root/RadioRoot';
 import { useRadioRootContext } from '../root/RadioRootContext';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
 
 /**
  * Indicates whether the radio button is selected.
@@ -66,11 +67,7 @@ export interface RadioIndicatorProps extends BaseUIComponentProps<'span', RadioI
   keepMounted?: boolean | undefined;
 }
 
-export interface RadioIndicatorState {
-  /**
-   * Whether the radio button is currently selected.
-   */
-  checked: boolean;
+export interface RadioIndicatorState extends RadioRootState {
   /**
    * The transition status of the component.
    */

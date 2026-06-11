@@ -3,14 +3,29 @@ import * as React from 'react';
 import { fireEvent, screen, flushMicrotasks, act, within, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { Dialog } from '@base-ui/react/dialog';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { OPEN_DELAY } from '../utils/constants';
 
-function TestNavigationMenu(props: NavigationMenu.Root.Props) {
+type FalsyNavigationMenuValue = 0 | '' | false;
+
+const falsyNavigationMenuValueCases = [
+  ['0', 0],
+  ['empty string', ''],
+  ['false', false],
+] as const satisfies ReadonlyArray<[string, FalsyNavigationMenuValue]>;
+
+function TestNavigationMenu(
+  props: NavigationMenu.Root.Props & {
+    keepMountedPortal?: boolean;
+  },
+) {
+  const { keepMountedPortal = false, ...rootProps } = props;
+
   return (
-    <NavigationMenu.Root {...props}>
+    <NavigationMenu.Root {...rootProps}>
       <NavigationMenu.List>
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
@@ -28,9 +43,9 @@ function TestNavigationMenu(props: NavigationMenu.Root.Props) {
         </NavigationMenu.Item>
       </NavigationMenu.List>
 
-      <NavigationMenu.Portal>
+      <NavigationMenu.Portal keepMounted={keepMountedPortal}>
         <NavigationMenu.Positioner data-testid="top-level-positioner">
-          <NavigationMenu.Popup>
+          <NavigationMenu.Popup data-testid="popup-root">
             <NavigationMenu.Viewport />
           </NavigationMenu.Popup>
         </NavigationMenu.Positioner>
@@ -65,6 +80,121 @@ function TestNavigationMenuWithTopLevelLink(props: NavigationMenu.Root.Props = {
       <NavigationMenu.Portal>
         <NavigationMenu.Positioner data-testid="top-level-positioner">
           <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
+function TestNavigationMenuWithDisabledTrigger(props: NavigationMenu.Root.Props = {}) {
+  return (
+    <NavigationMenu.Root {...props}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1" disabled>
+            Item 1
+          </NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-1">
+            <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
+const scopedPopupAnimationStyles = `
+  .test-navigation-menu-popup {
+    transition-property: opacity, transform, width, height;
+    transition-duration: 350ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .test-navigation-menu-popup[data-starting-style],
+  .test-navigation-menu-popup[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  .test-navigation-menu-popup[data-ending-style] {
+    transition-property: opacity, transform;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+
+  .test-navigation-menu-content {
+    transition:
+      opacity 175ms ease,
+      transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .test-navigation-menu-content[data-starting-style],
+  .test-navigation-menu-content[data-ending-style] {
+    opacity: 0;
+  }
+
+  .test-navigation-menu-content[data-starting-style][data-activation-direction='left'] {
+    transform: translateX(-2rem);
+  }
+
+  .test-navigation-menu-content[data-starting-style][data-activation-direction='right'] {
+    transform: translateX(2rem);
+  }
+
+  .test-navigation-menu-content[data-ending-style] {
+    transition-duration: 175ms;
+    transition-timing-function: ease;
+  }
+
+  .test-navigation-menu-content[data-ending-style][data-activation-direction='left'] {
+    transform: translateX(2rem);
+  }
+
+  .test-navigation-menu-content[data-ending-style][data-activation-direction='right'] {
+    transform: translateX(-2rem);
+  }
+`;
+
+function TestNavigationMenuWithTopLevelLinkScopedPopupAnimation() {
+  return (
+    <NavigationMenu.Root>
+      {/* eslint-disable-next-line react/no-danger */}
+      <style dangerouslySetInnerHTML={{ __html: scopedPopupAnimationStyles }} />
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-product">Product</NavigationMenu.Trigger>
+          <NavigationMenu.Content className="test-navigation-menu-content">
+            <div style={{ width: 675, height: 220 }}>Product panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item>
+          <NavigationMenu.Link href="#top-level-link" data-testid="top-level-link">
+            Top level link
+          </NavigationMenu.Link>
+        </NavigationMenu.Item>
+
+        <NavigationMenu.Item value="item-2">
+          <NavigationMenu.Trigger data-testid="trigger-learn">Learn</NavigationMenu.Trigger>
+          <NavigationMenu.Content className="test-navigation-menu-content">
+            <div style={{ width: 500, height: 180 }}>Learn panel</div>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal keepMounted>
+        <NavigationMenu.Positioner data-testid="positioner">
+          <NavigationMenu.Popup className="test-navigation-menu-popup" data-testid="popup-root">
             <NavigationMenu.Viewport />
           </NavigationMenu.Popup>
         </NavigationMenu.Positioner>
@@ -162,8 +292,20 @@ function TestNavigationMenuOrientationAttributes() {
   );
 }
 
-function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | null } = {}) {
-  const { nestedDefaultValue = 'nested-item-1' } = props;
+function TestInlineNestedNavigationMenu(
+  props: {
+    nestedDefaultValue?: string | number | boolean | null;
+    nestedItem1Value?: string | number | boolean;
+    keepMountedContent?: boolean;
+    nestedLinkCloseOnClick?: boolean;
+  } = {},
+) {
+  const {
+    nestedDefaultValue = 'nested-item-1',
+    nestedItem1Value = 'nested-item-1',
+    keepMountedContent = false,
+    nestedLinkCloseOnClick = false,
+  } = props;
   const nestedRootProps =
     nestedDefaultValue == null ? undefined : { defaultValue: nestedDefaultValue };
 
@@ -173,23 +315,34 @@ function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | n
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
 
-          <NavigationMenu.Content data-testid="popup-1">
+          <NavigationMenu.Content data-testid="popup-1" keepMounted={keepMountedContent}>
             <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
             <NavigationMenu.Root {...nestedRootProps}>
               <NavigationMenu.List data-testid="inline-nested-list">
-                <NavigationMenu.Item value="nested-item-1">
+                <NavigationMenu.Item value={nestedItem1Value}>
                   <NavigationMenu.Trigger data-testid="nested-trigger-1">
                     Nested Item 1
                   </NavigationMenu.Trigger>
-                  <NavigationMenu.Content data-testid="nested-popup-1">
-                    <NavigationMenu.Link href="#nested-link-1">Nested Link 1</NavigationMenu.Link>
+                  <NavigationMenu.Content
+                    data-testid="nested-popup-1"
+                    keepMounted={keepMountedContent}
+                  >
+                    <NavigationMenu.Link
+                      href="#nested-link-1"
+                      closeOnClick={nestedLinkCloseOnClick}
+                    >
+                      Nested Link 1
+                    </NavigationMenu.Link>
                   </NavigationMenu.Content>
                 </NavigationMenu.Item>
                 <NavigationMenu.Item value="nested-item-2">
                   <NavigationMenu.Trigger data-testid="nested-trigger-2">
                     Nested Item 2
                   </NavigationMenu.Trigger>
-                  <NavigationMenu.Content data-testid="nested-popup-2">
+                  <NavigationMenu.Content
+                    data-testid="nested-popup-2"
+                    keepMounted={keepMountedContent}
+                  >
                     <NavigationMenu.Link href="#nested-link-2">Nested Link 2</NavigationMenu.Link>
                   </NavigationMenu.Content>
                 </NavigationMenu.Item>
@@ -202,7 +355,7 @@ function TestInlineNestedNavigationMenu(props: { nestedDefaultValue?: string | n
 
         <NavigationMenu.Item value="item-2">
           <NavigationMenu.Trigger data-testid="trigger-2">Item 2</NavigationMenu.Trigger>
-          <NavigationMenu.Content data-testid="popup-2">
+          <NavigationMenu.Content data-testid="popup-2" keepMounted={keepMountedContent}>
             <NavigationMenu.Link href="#link-3">Link 3</NavigationMenu.Link>
           </NavigationMenu.Content>
         </NavigationMenu.Item>
@@ -485,62 +638,11 @@ function TestNavigationMenuWithScopedPopupExitAnimation(
   } = {},
 ) {
   const { onOpenChangeComplete } = props;
-  const style = `
-    .test-navigation-menu-popup {
-      transition-property: opacity, transform, width, height;
-      transition-duration: 350ms;
-      transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .test-navigation-menu-popup[data-starting-style],
-    .test-navigation-menu-popup[data-ending-style] {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-
-    .test-navigation-menu-popup[data-ending-style] {
-      transition-property: opacity, transform;
-      transition-duration: 150ms;
-      transition-timing-function: ease;
-    }
-
-    .test-navigation-menu-content {
-      transition:
-        opacity 175ms ease,
-        transform 350ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .test-navigation-menu-content[data-starting-style],
-    .test-navigation-menu-content[data-ending-style] {
-      opacity: 0;
-    }
-
-    .test-navigation-menu-content[data-starting-style][data-activation-direction='left'] {
-      transform: translateX(-2rem);
-    }
-
-    .test-navigation-menu-content[data-starting-style][data-activation-direction='right'] {
-      transform: translateX(2rem);
-    }
-
-    .test-navigation-menu-content[data-ending-style] {
-      transition-duration: 175ms;
-      transition-timing-function: ease;
-    }
-
-    .test-navigation-menu-content[data-ending-style][data-activation-direction='left'] {
-      transform: translateX(2rem);
-    }
-
-    .test-navigation-menu-content[data-ending-style][data-activation-direction='right'] {
-      transform: translateX(-2rem);
-    }
-  `;
 
   return (
     <NavigationMenu.Root onOpenChangeComplete={onOpenChangeComplete}>
       {/* eslint-disable-next-line react/no-danger */}
-      <style dangerouslySetInnerHTML={{ __html: style }} />
+      <style dangerouslySetInnerHTML={{ __html: scopedPopupAnimationStyles }} />
       <NavigationMenu.List>
         <NavigationMenu.Item value="item-1">
           <NavigationMenu.Trigger data-testid="trigger-product">Product</NavigationMenu.Trigger>
@@ -646,6 +748,18 @@ function mockResizeObserver() {
   return () => {
     globalThis.ResizeObserver = originalResizeObserver;
   };
+}
+
+function primeOpenPopupSize(
+  popupRoot: HTMLElement,
+  positioner: HTMLElement,
+  width: number,
+  height: number,
+) {
+  popupRoot.style.setProperty('--popup-width', 'auto');
+  popupRoot.style.setProperty('--popup-height', 'auto');
+  positioner.style.setProperty('--positioner-width', `${width}px`);
+  positioner.style.setProperty('--positioner-height', `${height}px`);
 }
 
 function TestDeeplyNestedNavigationMenu() {
@@ -1408,6 +1522,47 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
+
+    it('disables popup and arrow transitions while a kept portal opens', async () => {
+      await render(
+        <NavigationMenu.Root>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value="item-1">
+              <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal keepMounted>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup data-testid="popup-root">
+                <NavigationMenu.Arrow data-testid="arrow" />
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>,
+      );
+
+      fireEvent.click(screen.getByTestId('trigger-1'));
+
+      expect(screen.getByTestId('popup-root')).toHaveStyle({
+        transition: 'none',
+      });
+      expect(screen.getByTestId('arrow')).toHaveStyle({
+        transition: 'none',
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup-root')).not.toHaveStyle({
+          transition: 'none',
+        });
+      });
+      expect(screen.getByTestId('arrow')).not.toHaveStyle({
+        transition: 'none',
+      });
+    });
   });
 
   describe('prop: onValueChange', () => {
@@ -1427,6 +1582,68 @@ describe('<NavigationMenu.Root />', () => {
       expect(onValueChange.mock.calls.length).toBe(2);
       expect(onValueChange.mock.lastCall?.[0]).toBe('item-2');
     });
+
+    it('does not emit a duplicate onValueChange when switching items via keyboard', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(<TestNavigationMenu onValueChange={onValueChange} />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+
+      await user.click(trigger1);
+      await flushMicrotasks();
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.lastCall?.[0]).toBe('item-1');
+
+      await act(async () => {
+        trigger1.focus();
+      });
+      await user.keyboard('{ArrowRight}');
+      await flushMicrotasks();
+      expect(trigger2).toHaveFocus();
+      expect(onValueChange.mock.calls.filter((call) => call[0] === 'item-2')).toHaveLength(0);
+
+      await user.keyboard('{ArrowDown}');
+      await flushMicrotasks();
+
+      expect(onValueChange.mock.calls.filter((call) => call[0] === 'item-2')).toHaveLength(1);
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it.each(falsyNavigationMenuValueCases)(
+      'treats a falsy item value (%s) as a valid open value',
+      async (_label, itemValue) => {
+        const onValueChange = vi.fn();
+        await render(
+          <NavigationMenu.Root<FalsyNavigationMenuValue> onValueChange={onValueChange}>
+            <NavigationMenu.List>
+              <NavigationMenu.Item value={itemValue}>
+                <NavigationMenu.Trigger data-testid="trigger-0">Zero</NavigationMenu.Trigger>
+                <NavigationMenu.Content data-testid="popup-0">
+                  <NavigationMenu.Link href="#link-0">Zero link</NavigationMenu.Link>
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+            <NavigationMenu.Portal>
+              <NavigationMenu.Positioner>
+                <NavigationMenu.Popup>
+                  <NavigationMenu.Viewport />
+                </NavigationMenu.Popup>
+              </NavigationMenu.Positioner>
+            </NavigationMenu.Portal>
+          </NavigationMenu.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger-0');
+
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+
+        expect(onValueChange.mock.calls.length).toBe(1);
+        expect(onValueChange.mock.lastCall?.[0]).toBe(itemValue);
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.queryByTestId('popup-0')).not.toBe(null);
+      },
+    );
 
     it('should be controlled by value prop', async () => {
       const { setProps } = await render(<TestNavigationMenu value="item-1" />);
@@ -1449,6 +1666,133 @@ describe('<NavigationMenu.Root />', () => {
       trigger1 = screen.getByTestId('trigger-1');
       expect(trigger1).toHaveAttribute('aria-expanded', 'false');
       expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    async function assertPopupSizeIsPreservedWhenControlledValueClosesExternally(
+      keepMountedPortal = false,
+    ) {
+      const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      const originalOffsetWidth = Object.getOwnPropertyDescriptor(
+        HTMLElement.prototype,
+        'offsetWidth',
+      );
+      const originalOffsetHeight = Object.getOwnPropertyDescriptor(
+        HTMLElement.prototype,
+        'offsetHeight',
+      );
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      try {
+        function isPopupOpen() {
+          return screen.queryByTestId('popup-1')?.hasAttribute('data-open') ?? false;
+        }
+
+        Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+          configurable: true,
+          get() {
+            if (this.getAttribute('data-testid') === 'popup-root') {
+              return isPopupOpen() ? 675 : 0;
+            }
+
+            return originalOffsetWidth?.get?.call(this) ?? 0;
+          },
+        });
+        Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+          configurable: true,
+          get() {
+            if (this.getAttribute('data-testid') === 'popup-root') {
+              return isPopupOpen() ? 220 : 0;
+            }
+
+            return originalOffsetHeight?.get?.call(this) ?? 0;
+          },
+        });
+
+        function ControlledNavigationMenu(props: { value: string | null }) {
+          return <TestNavigationMenu value={props.value} keepMountedPortal={keepMountedPortal} />;
+        }
+
+        const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+        const positioner = screen.getByTestId('top-level-positioner');
+        const popupRoot = screen.getByTestId('popup-root');
+        const animations = mockAnimations(popupRoot);
+
+        animations.start();
+        await rerender(<ControlledNavigationMenu value={null} />);
+        await flushMicrotasks();
+
+        expect(popupRoot).toHaveAttribute('data-ending-style');
+        expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('675px');
+        expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('220px');
+        expect(positioner.style.getPropertyValue('--positioner-width')).toBe('675px');
+        expect(positioner.style.getPropertyValue('--positioner-height')).toBe('220px');
+
+        await act(async () => {
+          animations.finish();
+          await flushMicrotasks();
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+        if (originalOffsetWidth) {
+          Object.defineProperty(HTMLElement.prototype, 'offsetWidth', originalOffsetWidth);
+        } else {
+          Reflect.deleteProperty(HTMLElement.prototype, 'offsetWidth');
+        }
+        if (originalOffsetHeight) {
+          Object.defineProperty(HTMLElement.prototype, 'offsetHeight', originalOffsetHeight);
+        } else {
+          Reflect.deleteProperty(HTMLElement.prototype, 'offsetHeight');
+        }
+      }
+    }
+
+    it('preserves popup size when controlled value closes externally', async () => {
+      await assertPopupSizeIsPreservedWhenControlledValueClosesExternally();
+    });
+
+    it('preserves popup size when controlled value closes externally with keepMounted portal', async () => {
+      await assertPopupSizeIsPreservedWhenControlledValueClosesExternally(true);
+    });
+
+    it('clears activation direction when controlled value closes externally after switching triggers', async () => {
+      const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      try {
+        function ControlledNavigationMenu(props: { value: string | null }) {
+          return <TestNavigationMenu value={props.value} />;
+        }
+
+        const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+        const trigger1 = screen.getByTestId('trigger-1');
+        const trigger2 = screen.getByTestId('trigger-2');
+
+        mockBoundingClientRect(trigger1, { x: 0, y: 0, width: 80, height: 32 });
+        mockBoundingClientRect(trigger2, { x: 120, y: 0, width: 80, height: 32 });
+
+        fireEvent.click(trigger2);
+        await rerender(<ControlledNavigationMenu value="item-2" />);
+
+        expect(screen.getByTestId('popup-2')).toHaveAttribute('data-activation-direction', 'right');
+
+        const exitingContent = screen.getByTestId('popup-2');
+        const animations = mockAnimations(exitingContent);
+
+        animations.start();
+        await rerender(<ControlledNavigationMenu value={null} />);
+
+        expect(exitingContent).toHaveAttribute('data-ending-style');
+        expect(exitingContent).not.toHaveAttribute('data-activation-direction');
+
+        await act(async () => {
+          animations.finish();
+          await flushMicrotasks();
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+      }
     });
   });
 
@@ -1499,6 +1843,176 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.queryByTestId('popup-1')).toBe(null);
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
+  });
+
+  describe('prop: disabled', () => {
+    it('does not open on hover when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not open on click when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not open on touch when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.pointerUp(trigger, { pointerType: 'touch' });
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not open via keyboard when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />,
+      );
+      const trigger = screen.getByTestId('trigger-1');
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('prop: actionsRef', () => {
+    it('exposes an unmount action and defers unmounting until it is called', async () => {
+      const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+
+      function ControlledNavigationMenu(props: { value: string | null }) {
+        return <TestNavigationMenu value={props.value} actionsRef={actionsRef} />;
+      }
+
+      const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+      expect(actionsRef.current).not.toBe(null);
+      expect(actionsRef.current?.unmount).toBeTypeOf('function');
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+
+      // Closing keeps the popup mounted because `actionsRef` disables the automatic unmount.
+      await rerender(<ControlledNavigationMenu value={null} />);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-root')).toBe(null);
+    });
+
+    it('unmounts immediately when called while the popup is closing', async () => {
+      const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      try {
+        const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+
+        function ControlledNavigationMenu(props: { value: string | null }) {
+          return <TestNavigationMenu value={props.value} actionsRef={actionsRef} />;
+        }
+
+        const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+        const popupRoot = screen.getByTestId('popup-root');
+        const animations = mockAnimations(popupRoot);
+        const closingAnimation = animations.start();
+
+        await rerender(<ControlledNavigationMenu value={null} />);
+        await flushMicrotasks();
+
+        expect(popupRoot).toHaveAttribute('data-ending-style');
+
+        await act(async () => {
+          actionsRef.current?.unmount();
+        });
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('popup-root')).toBe(null);
+
+        await act(async () => {
+          animations.finish(closingAnimation);
+          await flushMicrotasks();
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+      }
+    });
+  });
+
+  describe('prop: side', () => {
+    it.each([
+      ['left in LTR', 'ltr', 'left'],
+      ['inline-start in LTR', 'ltr', 'inline-start'],
+      ['inline-end in RTL', 'rtl', 'inline-end'],
+    ] as const)(
+      'pins the popup to the right edge when side is %s so it grows leftward',
+      async (_label, direction, side) => {
+        await render(
+          <DirectionProvider direction={direction as TextDirection}>
+            <NavigationMenu.Root>
+              <NavigationMenu.List>
+                <NavigationMenu.Item value="item-1">
+                  <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+                  <NavigationMenu.Content>
+                    <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+                  </NavigationMenu.Content>
+                </NavigationMenu.Item>
+              </NavigationMenu.List>
+              <NavigationMenu.Portal>
+                <NavigationMenu.Positioner side={side}>
+                  <NavigationMenu.Popup data-testid="popup-root">
+                    <NavigationMenu.Viewport />
+                  </NavigationMenu.Popup>
+                </NavigationMenu.Positioner>
+              </NavigationMenu.Portal>
+            </NavigationMenu.Root>
+          </DirectionProvider>,
+        );
+
+        const trigger = screen.getByTestId('trigger-1');
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+
+        const popup = screen.getByTestId('popup-root');
+        expect(popup).toHaveAttribute('data-side', side);
+        expect(popup).toHaveStyle({ position: 'absolute', top: '0px', right: '0px' });
+      },
+    );
   });
 
   describe('tabbing', () => {
@@ -2210,6 +2724,95 @@ describe('<NavigationMenu.Root />', () => {
         expect(screen.queryByTestId('nested-popup-1')).toBe(null);
       });
 
+      it('adds popup-open data attributes to the active icon', async () => {
+        await render(
+          <NavigationMenu.Root defaultValue="item-1">
+            <NavigationMenu.List>
+              <NavigationMenu.Item value="item-1">
+                <NavigationMenu.Trigger>
+                  Item 1
+                  <NavigationMenu.Icon data-testid="icon-1" />
+                </NavigationMenu.Trigger>
+                <NavigationMenu.Content>
+                  <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+              <NavigationMenu.Item value="item-2">
+                <NavigationMenu.Trigger>
+                  Item 2
+                  <NavigationMenu.Icon data-testid="icon-2" />
+                </NavigationMenu.Trigger>
+                <NavigationMenu.Content>
+                  <NavigationMenu.Link href="#link-2">Link 2</NavigationMenu.Link>
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+
+            <NavigationMenu.Portal>
+              <NavigationMenu.Positioner>
+                <NavigationMenu.Popup>
+                  <NavigationMenu.Viewport />
+                </NavigationMenu.Popup>
+              </NavigationMenu.Positioner>
+            </NavigationMenu.Portal>
+          </NavigationMenu.Root>,
+        );
+
+        expect(screen.getByTestId('icon-1')).toHaveAttribute('data-popup-open');
+        expect(screen.getByTestId('icon-2')).not.toHaveAttribute('data-popup-open');
+      });
+
+      it.each(falsyNavigationMenuValueCases)(
+        'treats a falsy value (%s) as open for inline nested trigger interactions',
+        async (_label, itemValue) => {
+          await render(
+            <TestInlineNestedNavigationMenu
+              nestedDefaultValue={itemValue}
+              nestedItem1Value={itemValue}
+            />,
+          );
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+          await flushMicrotasks();
+
+          const popup1 = screen.getByTestId('popup-1');
+          const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+          expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+          expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
+
+          fireEvent.click(nestedTrigger1);
+          await flushMicrotasks();
+
+          expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+          expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
+        },
+      );
+
+      it('propagates a nested close with a falsy open value to the parent root', async () => {
+        await render(
+          <TestInlineNestedNavigationMenu
+            nestedDefaultValue={false}
+            nestedItem1Value={false}
+            nestedLinkCloseOnClick
+          />,
+        );
+        const trigger1 = screen.getByTestId('trigger-1');
+
+        fireEvent.click(trigger1);
+        await flushMicrotasks();
+
+        const popup1 = screen.getByTestId('popup-1');
+        const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+
+        fireEvent.click(screen.getByText('Nested Link 1'));
+        await flushMicrotasks();
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByTestId('popup-1')).toBe(null);
+      });
+
       it('allows arrow key navigation to submenu triggers', async () => {
         const { user } = await render(<TestInlineNestedNavigationMenu />);
         const trigger1 = screen.getByTestId('trigger-1');
@@ -2314,7 +2917,7 @@ describe('<NavigationMenu.Root />', () => {
           const positioner = screen.getByTestId('positioner');
           const animations = mockAnimations(popupRoot);
 
-          let popupWidth = 250;
+          const popupWidth = 250;
           let popupHeight = 120;
 
           Object.defineProperty(popupRoot, 'offsetWidth', {
@@ -2326,7 +2929,6 @@ describe('<NavigationMenu.Root />', () => {
             get: () => popupHeight,
           });
 
-          popupWidth = 250;
           popupHeight = 220;
           animations.start();
           fireEvent.click(screen.getByTestId('insert-content'));
@@ -2340,7 +2942,7 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           await act(async () => {
-            animations.finish();
+            await animations.finish();
             await flushMicrotasks();
           });
 
@@ -2371,21 +2973,13 @@ describe('<NavigationMenu.Root />', () => {
           const popupRoot = screen.getByTestId('popup-root');
           const positioner = screen.getByTestId('positioner');
 
-          const popupWidthValues = [250, 250];
           const popupHeightValues = [120, 220];
-          let popupWidth = 250;
+          const popupWidth = 250;
           let popupHeight = 220;
 
           Object.defineProperty(popupRoot, 'offsetWidth', {
             configurable: true,
-            get: () => {
-              const nextWidth = popupWidthValues.shift();
-              if (nextWidth != null) {
-                popupWidth = nextWidth;
-              }
-
-              return popupWidth;
-            },
+            get: () => popupWidth,
           });
           Object.defineProperty(popupRoot, 'offsetHeight', {
             configurable: true,
@@ -2410,6 +3004,179 @@ describe('<NavigationMenu.Root />', () => {
           });
         } finally {
           globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+        }
+      });
+
+      it('does not animate popup sizing when kept nested default content first moves into the portal', async () => {
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        let setPopupPropertySpy: ReturnType<typeof vi.spyOn> | undefined;
+
+        try {
+          await render(<TestInlineNestedNavigationMenu keepMountedContent />);
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+
+          setPopupPropertySpy = vi.spyOn(popupRoot.style, 'setProperty');
+
+          const popupHeightValues = [120, 220];
+          const popupWidth = 250;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => {
+              const nextHeight = popupHeightValues.shift();
+              if (nextHeight != null) {
+                popupHeight = nextHeight;
+              }
+
+              return popupHeight;
+            },
+          });
+
+          await flushMicrotasks();
+
+          expect(screen.getByTestId('nested-popup-1')).not.toHaveAttribute('hidden');
+          await waitFor(() => {
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('220px');
+          });
+
+          const popupSetPropertyCalls = setPopupPropertySpy.mock.calls as Array<
+            [property: string, value: string, priority?: string]
+          >;
+          const fixedPopupHeightCalls = popupSetPropertyCalls
+            .filter((call) => call[0] === '--popup-height')
+            .map((call) => call[1])
+            .filter((value) => value !== 'auto' && value !== '0px');
+
+          expect(fixedPopupHeightCalls.length).toBeGreaterThan(0);
+          expect(fixedPopupHeightCalls.every((value) => value === '220px')).toBe(true);
+        } finally {
+          setPopupPropertySpy?.mockRestore();
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+        }
+      });
+
+      it('updates popup sizing when switching kept inline nested content', async () => {
+        const restoreResizeObserver = mockResizeObserver();
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        try {
+          await render(<TestInlineNestedNavigationMenu keepMountedContent />);
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+          await flushMicrotasks();
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+          const animations = mockAnimations(popupRoot);
+
+          const popupWidth = 250;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => popupHeight,
+          });
+
+          primeOpenPopupSize(popupRoot, positioner, 250, 220);
+
+          popupHeight = 300;
+          animations.start();
+          fireEvent.click(screen.getByTestId('nested-trigger-2'));
+          await flushMicrotasks();
+
+          expect(screen.getByTestId('nested-popup-2')).not.toHaveAttribute('hidden');
+          await waitFor(() => {
+            expect(screen.getByTestId('nested-popup-1')).toHaveAttribute('hidden');
+          });
+          await waitFor(() => {
+            expect(
+              parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
+            ).toBe(300);
+          });
+
+          await act(async () => {
+            await animations.finish();
+            await flushMicrotasks();
+          });
+
+          await waitFor(() => {
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+            expect(popupRoot.style.getPropertyValue('--popup-height')).toBe('auto');
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('300px');
+          });
+        } finally {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+          restoreResizeObserver();
+        }
+      });
+
+      it('updates popup sizing when a kept nested content hidden attribute changes', async () => {
+        const restoreResizeObserver = mockResizeObserver();
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        try {
+          await render(<TestInlineNestedNavigationMenu keepMountedContent />);
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+          await flushMicrotasks();
+
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+
+          const popupWidth = 250;
+          let popupHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => popupWidth,
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => popupHeight,
+          });
+
+          primeOpenPopupSize(popupRoot, positioner, 250, 220);
+
+          popupHeight = 300;
+
+          await act(async () => {
+            // Contract-level check for the MutationObserver path; the sibling
+            // switch test above covers the React-driven `hidden` toggle.
+            screen.getByTestId('nested-popup-1').setAttribute('hidden', '');
+            await flushMicrotasks();
+          });
+
+          await waitFor(() => {
+            expect(positioner.style.getPropertyValue('--positioner-width')).toBe('250px');
+            expect(positioner.style.getPropertyValue('--positioner-height')).toBe('300px');
+          });
+        } finally {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+          restoreResizeObserver();
         }
       });
 
@@ -2514,7 +3281,15 @@ describe('<NavigationMenu.Root />', () => {
           popupHeight = 180;
 
           fireEvent(window, new Event('resize'));
+          expect(positioner).toHaveAttribute('data-instant');
+
+          clock.tick(0);
           await flushMicrotasks();
+          expect(positioner).toHaveAttribute('data-instant');
+
+          clock.tick(100);
+          await flushMicrotasks();
+          expect(positioner).not.toHaveAttribute('data-instant');
 
           await waitFor(() => {
             expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
@@ -2664,35 +3439,186 @@ describe('<NavigationMenu.Root />', () => {
         }
       });
 
+      it('seeds the popup width from the exiting panel when reopening after hovering a top-level link', async () => {
+        const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        let popupWidthSpy: ReturnType<typeof vi.spyOn> | undefined;
+
+        try {
+          function waitForAnimationFrame() {
+            return new Promise<void>((resolve) => {
+              requestAnimationFrame(() => {
+                resolve();
+              });
+            });
+          }
+
+          await render(<TestNavigationMenuWithTopLevelLinkScopedPopupAnimation />);
+
+          const triggerProduct = screen.getByTestId('trigger-product');
+          const triggerLearn = screen.getByTestId('trigger-learn');
+          const topLevelLink = screen.getByTestId('top-level-link');
+          const popupRoot = screen.getByTestId('popup-root');
+          const positioner = screen.getByTestId('positioner');
+          const animations = mockAnimations(popupRoot);
+
+          let nextPanelWidth = 675;
+          let nextPanelHeight = 220;
+
+          Object.defineProperty(popupRoot, 'offsetWidth', {
+            configurable: true,
+            get: () => {
+              const fixedWidth = popupRoot.style.getPropertyValue('--popup-width');
+              return fixedWidth && fixedWidth !== 'auto'
+                ? parseInt(fixedWidth, 10)
+                : nextPanelWidth;
+            },
+          });
+          Object.defineProperty(popupRoot, 'offsetHeight', {
+            configurable: true,
+            get: () => {
+              const fixedHeight = popupRoot.style.getPropertyValue('--popup-height');
+              return fixedHeight && fixedHeight !== 'auto'
+                ? parseInt(fixedHeight, 10)
+                : nextPanelHeight;
+            },
+          });
+
+          const openAnimation = animations.start();
+          fireEvent.mouseEnter(triggerProduct);
+          fireEvent.mouseMove(triggerProduct);
+          clock.tick(OPEN_DELAY);
+          await flushMicrotasks();
+
+          await act(async () => {
+            await animations.finish(openAnimation);
+            await flushMicrotasks();
+          });
+
+          await waitFor(() => {
+            expect(triggerProduct).toHaveAttribute('aria-expanded', 'true');
+            expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
+          });
+
+          const productContent = screen
+            .getByText('Product panel')
+            .closest('.test-navigation-menu-content') as HTMLElement;
+          const productContentAnimations = mockAnimations(productContent);
+          const productContentCloseAnimation = productContentAnimations.start();
+
+          const closeAnimation = animations.start();
+          fireEvent.mouseLeave(triggerProduct, { relatedTarget: topLevelLink });
+          fireEvent.mouseEnter(topLevelLink);
+          fireEvent.mouseMove(topLevelLink);
+          clock.tick(OPEN_DELAY);
+          await flushMicrotasks();
+
+          await waitFor(() => {
+            expect(triggerProduct).toHaveAttribute('aria-expanded', 'false');
+          });
+
+          nextPanelWidth = 500;
+          nextPanelHeight = 180;
+          popupWidthSpy = vi.spyOn(popupRoot.style, 'setProperty');
+
+          const reopenAnimation = animations.start();
+          fireEvent.mouseEnter(triggerLearn);
+          fireEvent.mouseMove(triggerLearn);
+          clock.tick(OPEN_DELAY);
+          await flushMicrotasks();
+
+          await act(async () => {
+            await waitForAnimationFrame();
+            await flushMicrotasks();
+          });
+
+          const popupWidthCalls = (
+            popupWidthSpy.mock.calls as Array<[property: string, value: string, priority?: string]>
+          )
+            .filter((call) => call[0] === '--popup-width')
+            .map((call) => call[1]);
+          const exitingWidthIndex = popupWidthCalls.indexOf('675px');
+          const reopeningWidthIndex = popupWidthCalls.lastIndexOf('500px');
+
+          expect(triggerLearn).toHaveAttribute('aria-expanded', 'true');
+          expect(positioner.style.getPropertyValue('--positioner-width')).toBe('500px');
+          expect(exitingWidthIndex).toBeGreaterThan(-1);
+          expect(reopeningWidthIndex).toBeGreaterThan(exitingWidthIndex);
+
+          await act(async () => {
+            await productContentAnimations.finish(productContentCloseAnimation);
+            await animations.finish(closeAnimation);
+            await animations.finish(reopenAnimation);
+            await flushMicrotasks();
+          });
+        } finally {
+          popupWidthSpy?.mockRestore();
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+        }
+      });
+
       it.skipIf(isJSDOM)('closes on the short exit path after switching content', async () => {
         const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
         try {
+          function waitForAnimationFrame() {
+            return new Promise<void>((resolve) => {
+              requestAnimationFrame(() => {
+                resolve();
+              });
+            });
+          }
+
           const onOpenChangeComplete = vi.fn();
-          const { user } = await render(
+          await render(
             <TestNavigationMenuWithScopedPopupExitAnimation
               onOpenChangeComplete={onOpenChangeComplete}
             />,
           );
 
-          await user.click(screen.getByTestId('trigger-product'));
+          const triggerProduct = screen.getByTestId('trigger-product');
+          const triggerLearn = screen.getByTestId('trigger-learn');
+
+          fireEvent.click(triggerProduct);
           await flushMicrotasks();
 
-          await user.click(screen.getByTestId('trigger-learn'));
+          const productContent = screen
+            .getByText('Product panel')
+            .closest('.test-navigation-menu-content') as HTMLElement;
+          const productContentAnimations = mockAnimations(productContent);
+          const productContentCloseAnimation = productContentAnimations.start();
+
+          fireEvent.click(triggerLearn);
           await flushMicrotasks();
 
-          const popupRoot = screen.getByTestId('popup-root');
+          let popupRoot: HTMLElement | null = null;
 
           await waitFor(() => {
-            const hasRunningAnimations = popupRoot
+            popupRoot = screen.getByTestId('popup-root');
+            expect(triggerProduct).toHaveAttribute('aria-expanded', 'false');
+            expect(triggerLearn).toHaveAttribute('aria-expanded', 'true');
+          });
+
+          await act(async () => {
+            await waitForAnimationFrame();
+            await flushMicrotasks();
+            await productContentAnimations.finish(productContentCloseAnimation);
+            await flushMicrotasks();
+          });
+
+          await waitFor(() => {
+            const hasRunningAnimations = popupRoot!
               .getAnimations()
               .some((animation) => animation.playState !== 'finished');
             expect(hasRunningAnimations).toBe(false);
           });
 
+          await act(async () => triggerLearn.focus());
+
           const closeStart = performance.now();
-          fireEvent.keyDown(screen.getByTestId('trigger-learn'), { key: 'Escape' });
+          fireEvent.keyDown(triggerLearn, { key: 'Escape' });
           await flushMicrotasks();
 
           await waitFor(() => {
@@ -2706,7 +3632,7 @@ describe('<NavigationMenu.Root />', () => {
         }
       });
 
-      it('does not collapse popup size to zero on close if a measurement temporarily returns 0', async () => {
+      it('does not collapse auto-sized popup to zero on close if measurement temporarily returns 0', async () => {
         await render(<TestInlineNestedNavigationMenuWithDynamicContent />);
         const trigger1 = screen.getByTestId('trigger-1');
 
@@ -2716,18 +3642,15 @@ describe('<NavigationMenu.Root />', () => {
         const popupRoot = screen.getByTestId('popup-root');
         const positioner = screen.getByTestId('positioner');
 
-        popupRoot.style.setProperty('--popup-width', '250px');
-        popupRoot.style.setProperty('--popup-height', '120px');
-        positioner.style.setProperty('--positioner-width', '250px');
-        positioner.style.setProperty('--positioner-height', '120px');
+        primeOpenPopupSize(popupRoot, positioner, 250, 120);
 
         Object.defineProperty(popupRoot, 'offsetWidth', {
           configurable: true,
-          get: () => 0,
+          get: () => (screen.queryByTestId('popup-1')?.hasAttribute('data-open') ? 250 : 0),
         });
         Object.defineProperty(popupRoot, 'offsetHeight', {
           configurable: true,
-          get: () => 0,
+          get: () => (screen.queryByTestId('popup-1')?.hasAttribute('data-open') ? 120 : 0),
         });
         Object.defineProperty(positioner, 'offsetWidth', {
           configurable: true,
@@ -2819,5 +3742,28 @@ describe('<NavigationMenu.Root />', () => {
         expect(screen.getByTestId('nested-link-composition')).toHaveFocus();
       });
     });
+  });
+});
+
+describe('initial open', () => {
+  // A dedicated renderer without `shouldAdvanceTime` so the one-frame instant reset
+  // (scheduled via a zero-delay timeout) can be observed deterministically rather
+  // than racing the assertion.
+  const { render, clock } = createRenderer();
+
+  clock.withFakeTimers();
+
+  it('suppresses the positioner transition for the first frame while initially open', async () => {
+    await render(<TestNavigationMenu defaultValue="item-1" />);
+
+    // While initially open, the positioner starts with its transition suppressed so a
+    // default value does not animate in from the unpositioned portal state.
+    const positioner = screen.getByTestId('top-level-positioner');
+    expect(positioner).toHaveAttribute('data-instant');
+
+    // The suppression is released on the next tick.
+    clock.tick(0);
+    await flushMicrotasks();
+    expect(positioner).not.toHaveAttribute('data-instant');
   });
 });

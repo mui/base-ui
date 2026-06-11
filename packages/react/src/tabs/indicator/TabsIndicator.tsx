@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
-import { useOnMount } from '@base-ui/utils/useOnMount';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { useIsHydrating } from '../../utils/useIsHydrating';
+import type { BaseUIComponentProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -12,7 +12,7 @@ import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
-import { useCSPContext } from '../../csp-provider/CSPContext';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,
@@ -26,7 +26,7 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Tabs](https://base-ui.com/react/components/tabs)
  */
-export const TabsIndicator = React.forwardRef(function TabIndicator(
+export const TabsIndicator = React.forwardRef(function TabsIndicator(
   componentProps: TabsIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
@@ -45,9 +45,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const { tabsListElement, registerIndicatorUpdateListener } = useTabsListContext();
 
-  const [isMounted, setIsMounted] = React.useState(false);
-
-  useOnMount(() => setIsMounted(true));
+  const isHydrating = useIsHydrating();
 
   const rerender = useForcedRerendering();
 
@@ -66,9 +64,10 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   if (value != null && tabsListElement != null) {
     const activeTab = getTabElementBySelectedValue(value);
-    isTabSelected = true;
 
     if (activeTab != null) {
+      isTabSelected = true;
+
       const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
       const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabsListElement);
       const tabRect = activeTab.getBoundingClientRect();
@@ -96,44 +95,20 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     }
   }
 
-  const activeTabPosition = React.useMemo(
-    () =>
-      isTabSelected
-        ? {
-            left,
-            right,
-            top,
-            bottom,
-          }
-        : null,
-    [left, right, top, bottom, isTabSelected],
-  );
+  const activeTabPosition = isTabSelected ? { left, right, top, bottom } : null;
 
-  const activeTabSize = React.useMemo(
-    () =>
-      isTabSelected
-        ? {
-            width,
-            height,
-          }
-        : null,
-    [width, height, isTabSelected],
-  );
+  const activeTabSize = isTabSelected ? { width, height } : null;
 
-  const style = React.useMemo(() => {
-    if (!isTabSelected) {
-      return undefined;
-    }
-
-    return {
-      [TabsIndicatorCssVars.activeTabLeft]: `${left}px`,
-      [TabsIndicatorCssVars.activeTabRight]: `${right}px`,
-      [TabsIndicatorCssVars.activeTabTop]: `${top}px`,
-      [TabsIndicatorCssVars.activeTabBottom]: `${bottom}px`,
-      [TabsIndicatorCssVars.activeTabWidth]: `${width}px`,
-      [TabsIndicatorCssVars.activeTabHeight]: `${height}px`,
-    } as React.CSSProperties;
-  }, [left, right, top, bottom, width, height, isTabSelected]);
+  const style: React.CSSProperties | undefined = isTabSelected
+    ? ({
+        [TabsIndicatorCssVars.activeTabLeft]: `${left}px`,
+        [TabsIndicatorCssVars.activeTabRight]: `${right}px`,
+        [TabsIndicatorCssVars.activeTabTop]: `${top}px`,
+        [TabsIndicatorCssVars.activeTabBottom]: `${bottom}px`,
+        [TabsIndicatorCssVars.activeTabWidth]: `${width}px`,
+        [TabsIndicatorCssVars.activeTabHeight]: `${height}px`,
+      } as React.CSSProperties)
+    : undefined;
 
   const displayIndicator = isTabSelected && width > 0 && height > 0;
 
@@ -168,7 +143,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   return (
     <React.Fragment>
       {element}
-      {!isMounted && renderBeforeHydration && (
+      {isHydrating && renderBeforeHydration && (
         <script
           nonce={nonce}
           // eslint-disable-next-line react/no-danger

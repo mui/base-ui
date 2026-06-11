@@ -1,11 +1,11 @@
 @layer components {
   .TableRoot {
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
-    color: var(--color-gray);
-    border: 1px solid var(--color-gray-200);
+    font-size: var(--font-size-14);
+    line-height: 1.25rem;
+    color: var(--gray-t1);
+    border: 1px solid var(--gray-c2);
     border-collapse: separate;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-6);
     white-space: nowrap;
     overflow: hidden;
   }
@@ -27,18 +27,18 @@
 
   .TableColumnHeader {
     text-align: initial;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
     color: var(--color-foreground);
-    background-color: var(--color-gray-50);
-    border-bottom: 1px solid var(--color-gray-200);
+    background-color: var(--gray-s2);
+    border-bottom: 1px solid var(--gray-c2);
   }
 
   .TableCell {
     text-align: initial;
-    font-weight: 400;
+    font-weight: var(--font-weight-400);
 
     :not(:last-child) > & {
-      border-bottom: 1px solid var(--color-gray-200);
+      border-bottom: 1px solid var(--gray-c2);
     }
 
     &[data-scrollable] {
