@@ -591,6 +591,44 @@ describe('<Combobox.Trigger />', () => {
       expect(trigger).toHaveTextContent('apple');
       expect(screen.queryByRole('listbox')).toBe(null);
     });
+
+    it('selects item when typing after the popup has been opened and closed (items prop)', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value data-testid="value" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      // Opening mounts the list (rendered labels overwrite the derived ones) and closing
+      // unmounts it, clearing the registered labels. Typeahead must still work afterwards.
+      await user.click(trigger);
+      await screen.findByRole('listbox');
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      await user.keyboard('b');
+
+      expect(trigger).toHaveTextContent('banana');
+    });
   });
 
   describe('data state attributes', () => {

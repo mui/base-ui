@@ -1302,7 +1302,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
 
             const nextValue = event.currentTarget.value;
+            const nextValueLower = nextValue.toLowerCase();
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+
+            const findSerializedMatchIndex = () =>
+              valuesRef.current.findIndex(
+                (candidate) =>
+                  stringifyAsValue(candidate, itemToStringValue).toLowerCase() === nextValueLower ||
+                  stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
+              );
 
             function handleChange() {
               // Browser autofill only writes a single scalar value.
@@ -1317,12 +1325,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
               // Preserve the original serialized matching, then fall back to rendered text,
               // which browsers can autofill for primitive values like `value="US">United States`.
-              const nextValueLower = nextValue.toLowerCase();
-              let matchingIndex = valuesRef.current.findIndex(
-                (candidate) =>
-                  stringifyAsValue(candidate, itemToStringValue).toLowerCase() === nextValueLower ||
-                  stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
-              );
+              let matchingIndex = findSerializedMatchIndex();
 
               if (matchingIndex === -1) {
                 matchingIndex = valuesRef.current.findIndex((_, index) => {
@@ -1346,10 +1349,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             // sticky `forceMounted` mount (which never resets) for those modes.
             if (single) {
               forceMount();
-              if (items) {
-                // `forceMount` only refreshes the derived labels for the `items` prop; also mount
-                // the list so rendered labels (which can differ from the serialized values) are
-                // registered for autofill matching.
+              if (items && findSerializedMatchIndex() === -1) {
+                // `forceMount` only refreshes the derived labels for the `items` prop. When
+                // serialized matching misses, also mount the list so rendered labels (which can
+                // differ from the serialized values) are registered for autofill matching.
                 store.set('forceMounted', true);
               }
             }

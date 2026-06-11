@@ -1904,6 +1904,44 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('does not force-mount the list when autofill matches a serialized value with the items prop', async () => {
+    const { user } = await render(
+      <Combobox.Root name="country" items={['US', 'CA']}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(code: string) => (
+                  <Combobox.Item key={code} value={code}>
+                    {code}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    const hiddenInput = screen
+      .getAllByDisplayValue('')
+      .find((el) => el.getAttribute('name') === 'country') as HTMLInputElement;
+
+    fireEvent.change(hiddenInput, { target: { value: 'CA' } });
+    await flushMicrotasks();
+
+    // The serialized value matched directly, so the popup must not be force-mounted.
+    expect(document.querySelector('[role="listbox"]')).toBe(null);
+
+    await user.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'CA' })).toHaveAttribute('aria-selected', 'true');
+    });
+  });
+
   it('marks the field dirty and validates after successful autofill', async () => {
     const validateSpy = vi.fn((value: unknown) => {
       return value === 'CA' ? null : 'error';
