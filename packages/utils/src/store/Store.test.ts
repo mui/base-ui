@@ -37,24 +37,19 @@ describe('createSelector', () => {
     expect(selector({ value: 5 })).toBe(5);
   });
 
-  it('supports six selectors plus a combiner', () => {
-    type S = { a: number; b: number; c: number; d: number; e: number; f: number };
-    const state: S = { a: 1, b: 2, c: 3, d: 4, e: 5, f: 6 };
+  it('supports the minimum of one input selector plus a combiner', () => {
+    type S = { a: number };
+    const state: S = { a: 1 };
 
     const selector = createSelector(
       (s: S) => s.a,
-      (s: S) => s.b,
-      (s: S) => s.c,
-      (s: S) => s.d,
-      (s: S) => s.e,
-      (s: S) => s.f,
-      (a, b, c, d, e, f) => a + b + c + d + e + f,
+      (a) => a + 1,
     );
 
-    expect(selector(state)).toBe(21);
+    expect(selector(state)).toBe(2);
   });
 
-  it('supports seven selectors plus a combiner', () => {
+  it('supports the maximum of seven input selectors plus a combiner', () => {
     type S = { a: number; b: number; c: number; d: number; e: number; f: number; g: number };
     const state: S = { a: 1, b: 2, c: 3, d: 4, e: 5, f: 6, g: 7 };
 
@@ -85,7 +80,7 @@ describe('createSelector', () => {
     expect(selector(state, 3, 7)).toEqual({ scaled: 30, shifted: 17, multiplier: 3, offset: 7 });
   });
 
-  it('throws when given more selectors than are supported', () => {
+  it('throws when given one more than the maximum (eight input selectors plus a combiner)', () => {
     const fn = (s: any) => s;
 
     expect(() =>
