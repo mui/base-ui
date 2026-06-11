@@ -81,7 +81,7 @@ export const mdxComponents: MDXComponents = {
     // rendering one here would produce a duplicate.
     return null;
   },
-  Subtitle: (props) => <Subtitle className="MdSubtitle" {...props} />,
+  Subtitle: (props) => <Subtitle {...props} />,
 };
 
 export function useMDXComponents(): MDXComponents {
