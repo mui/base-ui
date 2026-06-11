@@ -248,42 +248,6 @@ class ScrollLocker {
     }
   };
 
-  private observePageScrollUnlock(referenceElement: Element | null) {
-    if (typeof MutationObserver !== 'function') {
-      return NOOP;
-    }
-
-    const doc = ownerDocument(referenceElement);
-    const html = doc.documentElement;
-    const body = doc.body;
-    const win = ownerWindow(html);
-
-    let observer: MutationObserver;
-
-    function disconnect() {
-      observer.disconnect();
-    }
-
-    observer = new MutationObserver(() => {
-      if (
-        this.lockCount === 0 ||
-        this.restore !== disconnect ||
-        isPageScrollLocked(win, html, body)
-      ) {
-        return;
-      }
-
-      disconnect();
-      this.restore = null;
-      this.lock(referenceElement);
-    });
-
-    observer.observe(html, { attributes: true, attributeFilter: ['style', 'class'] });
-    observer.observe(body, { attributes: true, attributeFilter: ['style', 'class'] });
-
-    return disconnect;
-  }
-
   private lock(referenceElement: Element | null) {
     if (this.lockCount === 0 || this.restore !== null) {
       return;
@@ -310,6 +274,45 @@ class ScrollLocker {
     this.restore = hasOverlayScrollbars
       ? preventScrollOverlayScrollbars(referenceElement)
       : preventScrollInsetScrollbars(referenceElement);
+  }
+
+  private observePageScrollUnlock(referenceElement: Element | null) {
+    if (typeof MutationObserver !== 'function') {
+      return NOOP;
+    }
+
+    const doc = ownerDocument(referenceElement);
+    const html = doc.documentElement;
+    const body = doc.body;
+    const win = ownerWindow(html);
+
+    const observerOptions: MutationObserverInit = {
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+    };
+
+    const observer = new MutationObserver(() => {
+      if (
+        this.lockCount === 0 ||
+        this.restore !== disconnect ||
+        isPageScrollLocked(win, html, body)
+      ) {
+        return;
+      }
+
+      disconnect();
+      this.restore = null;
+      this.lock(referenceElement);
+    });
+
+    function disconnect() {
+      observer.disconnect();
+    }
+
+    observer.observe(html, observerOptions);
+    observer.observe(body, observerOptions);
+
+    return disconnect;
   }
 }
 
