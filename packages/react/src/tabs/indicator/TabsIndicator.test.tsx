@@ -365,6 +365,71 @@ describe('<Tabs.Indicator />', () => {
       expect(bubble).not.toHaveAttribute('hidden');
     });
 
+    it('follows the active tab when it has its own transform translation', async () => {
+      await render(
+        <React.Fragment>
+          <style>{STYLED_INDICATOR_CSS}</style>
+          <Tabs.Root value={3}>
+            <Tabs.List style={{ display: 'flex', position: 'relative' }}>
+              <Tabs.Tab value={1} style={{ width: '80px', height: '32px' }}>
+                One
+              </Tabs.Tab>
+              <Tabs.Tab value={2} style={{ width: '80px', height: '32px' }}>
+                Two
+              </Tabs.Tab>
+              <Tabs.Tab
+                value={3}
+                style={{
+                  width: '80px',
+                  height: '32px',
+                  transform: 'translateX(12px) translateY(4px)',
+                }}
+              >
+                Three
+              </Tabs.Tab>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        </React.Fragment>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      await waitFor(() => {
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
+      });
+    });
+
+    it('follows the active tab when it uses the translate longhand', async () => {
+      await render(
+        <React.Fragment>
+          <style>{STYLED_INDICATOR_CSS}</style>
+          <Tabs.Root value={3}>
+            <Tabs.List style={{ display: 'flex', position: 'relative' }}>
+              <Tabs.Tab value={1} style={{ width: '80px', height: '32px' }}>
+                One
+              </Tabs.Tab>
+              <Tabs.Tab value={2} style={{ width: '80px', height: '32px' }}>
+                Two
+              </Tabs.Tab>
+              <Tabs.Tab value={3} style={{ width: '80px', height: '32px', translate: '12px 4px' }}>
+                Three
+              </Tabs.Tab>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        </React.Fragment>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      await waitFor(() => {
+        assertBubbleOverlapsActiveTab(bubble, activeTab);
+      });
+    });
+
     it('updates position when a different tab resizes', async () => {
       await render(
         <Tabs.Root value={2}>

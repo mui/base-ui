@@ -101,9 +101,15 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
         // ancestor warps it beyond what the scale division can undo. When it agrees with the
         // layout offset (up to layout rounding), no distortion is in effect and the more
         // precise value is safe to use.
+        //
+        // The active tab's own translation moves the rect but not the layout offset, so
+        // strip it from the comparison. This lets the indicator follow tab-local animations
+        // (e.g. `transform: translateX(12px)` on the selected tab) — the indicator is a
+        // sibling of the tab and does not inherit its transform.
+        const tabTranslation = getActiveTabTranslation(activeTab);
         if (
-          Math.abs(rectLeft - left) <= MAX_LAYOUT_ROUNDING_ERROR &&
-          Math.abs(rectTop - top) <= MAX_LAYOUT_ROUNDING_ERROR
+          Math.abs(rectLeft - tabTranslation.x - left) <= MAX_LAYOUT_ROUNDING_ERROR &&
+          Math.abs(rectTop - tabTranslation.y - top) <= MAX_LAYOUT_ROUNDING_ERROR
         ) {
           left = rectLeft;
           top = rectTop;
@@ -235,4 +241,34 @@ function getCumulativeOffset(element: HTMLElement) {
   }
 
   return { left, top };
+}
+
+// Returns the active tab's own 2D translation, in CSS pixels, as the sum of the
+// `translate` longhand and the translation component of the `transform` property.
+// Only pixel values are handled; non-pixel `translate` units would require resolving
+// against the tab's size and aren't supported here.
+function getActiveTabTranslation(element: HTMLElement) {
+  const cs = getComputedStyle(element);
+  let x = 0;
+  let y = 0;
+
+  if (cs.translate && cs.translate !== 'none') {
+    const parts = cs.translate.split(/\s+/);
+    const tx = parseFloat(parts[0]);
+    const ty = parseFloat(parts[1]);
+    if (Number.isFinite(tx)) {
+      x += tx;
+    }
+    if (Number.isFinite(ty)) {
+      y += ty;
+    }
+  }
+
+  if (cs.transform && cs.transform !== 'none') {
+    const matrix = new DOMMatrix(cs.transform);
+    x += matrix.e;
+    y += matrix.f;
+  }
+
+  return { x, y };
 }
