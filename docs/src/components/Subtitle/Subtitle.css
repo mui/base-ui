@@ -8,7 +8,7 @@
     text-wrap: pretty;
     color: var(--gray-t1);
     margin-bottom: 1.5rem;
-    gap: var(--space-12);
+    gap: var(--space-16);
   }
 
   .MdH1 + .Subtitle {
@@ -19,7 +19,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: var(--space-16);
+    column-gap: var(--space-24);
     row-gap: 0;
     max-width: 100%;
   }
