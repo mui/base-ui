@@ -512,6 +512,25 @@ describe('<Popover.Positioner />', () => {
       expect(getTransformOrigin()).toBe('0% 0px');
     });
 
+    it('points to the popup logical start edge for start alignment in RTL', async () => {
+      await render(
+        <div dir="rtl">
+          <DirectionProvider direction="rtl">
+            <Popover.Root open>
+              <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+              <Popover.Portal>
+                <Popover.Positioner data-testid="positioner" align="start" dir="rtl">
+                  <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </DirectionProvider>
+        </div>,
+      );
+
+      expect(getTransformOrigin()).toBe('100% 0px');
+    });
+
     it('points to the popup end edge for end alignment', async () => {
       await render(
         <Popover.Root open>
@@ -525,6 +544,25 @@ describe('<Popover.Positioner />', () => {
       );
 
       expect(getTransformOrigin()).toBe('100% 0px');
+    });
+
+    it('points to the popup logical end edge for end alignment in RTL', async () => {
+      await render(
+        <div dir="rtl">
+          <DirectionProvider direction="rtl">
+            <Popover.Root open>
+              <Trigger style={{ ...triggerStyle, margin: 50 }}>Trigger</Trigger>
+              <Popover.Portal>
+                <Popover.Positioner data-testid="positioner" align="end" dir="rtl">
+                  <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </DirectionProvider>
+        </div>,
+      );
+
+      expect(getTransformOrigin()).toBe('0% 0px');
     });
 
     it('places the side coordinate first for horizontal sides', async () => {

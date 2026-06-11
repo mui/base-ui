@@ -362,7 +362,7 @@ export function useAnchorPositioning(
     ),
     {
       name: 'transformOrigin',
-      fn(state) {
+      async fn(state) {
         const { elements, middlewareData, placement: renderedPlacement, rects, y } = state;
 
         const renderedSide = getSide(renderedPlacement);
@@ -380,7 +380,11 @@ export function useAnchorPositioning(
         // virtual arrow), or to the popup's aligned edge for `start`/`end` alignment.
         let crossOrigin: string;
         if (!arrowEl && renderedAlign) {
-          crossOrigin = renderedAlign === 'start' ? '0%' : '100%';
+          const isFloatingRtl =
+            renderedAxis === 'y' && Boolean(await state.platform.isRTL?.(elements.floating));
+          const startOrigin = isFloatingRtl ? '100%' : '0%';
+          const endOrigin = isFloatingRtl ? '0%' : '100%';
+          crossOrigin = renderedAlign === 'start' ? startOrigin : endOrigin;
         } else if (renderedAxis === 'y') {
           crossOrigin = `${(middlewareData.arrow?.x || 0) + (arrowEl?.clientWidth || 0) / 2}px`;
         } else {
