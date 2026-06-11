@@ -172,6 +172,7 @@
     }
   }
 
+  /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
   .AccordionScrollable:has(pre) .AccordionScrollableInner {
     min-height: unset;
     padding: 0;

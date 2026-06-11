@@ -2,7 +2,7 @@
 
 @layer base {
   /* Scope body styles to only apply when docs layout is present */
-  body:has(.RootLayout) {
+  body {
     position: relative; /* iOS 26 `position: absolute` backdrops */
     min-width: 320px;
     line-height: 1.5;

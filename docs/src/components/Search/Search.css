@@ -241,6 +241,7 @@
     flex: 1;
     overflow: hidden;
 
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(.SearchScrollAreaViewport:focus-visible) {
       outline: 2px solid var(--gray-t2);
       outline-offset: -1px;

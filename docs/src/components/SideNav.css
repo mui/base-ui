@@ -42,6 +42,7 @@
     /* Scroll containers are focusable */
     outline: 0;
 
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     .SideNavRoot:has(&:focus-visible)::before {
       content: '';
       inset: 0;
