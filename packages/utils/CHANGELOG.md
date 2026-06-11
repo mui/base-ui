@@ -1,5 +1,14 @@
 # Versions
 
+## 0.3.0
+
+_Jun 11, 2026_
+
+- **Breaking change:** Replace `@base-ui/utils/detectBrowser` with the new `@base-ui/utils/platform` namespace (#4920) by @romgrk
+- Fix `useStore` returning stale values when the store or selector arguments change (#4866) by @chuganzy
+- Update `reselect` to 5.2.0 (#4910) by @IzumiSy
+- Build the package with a flat output structure (#4959) by @brijeshb42
+
 ## 0.2.9
 
 _May 19, 2026_
