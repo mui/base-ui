@@ -365,36 +365,46 @@ export function useAnchorPositioning(
       fn(state) {
         const { elements, middlewareData, placement: renderedPlacement, rects, y } = state;
 
-        const currentRenderedSide = getSide(renderedPlacement);
-        const currentRenderedAxis = getSideAxis(currentRenderedSide);
+        const renderedSide = getSide(renderedPlacement);
+        const renderedAlign = getAlignment(renderedPlacement);
+        const renderedAxis = getSideAxis(renderedSide);
         const arrowEl = arrowRef.current;
-        const arrowX = middlewareData.arrow?.x || 0;
-        const arrowY = middlewareData.arrow?.y || 0;
-        const arrowWidth = arrowEl?.clientWidth || 0;
-        const arrowHeight = arrowEl?.clientHeight || 0;
-        const transformX = arrowX + arrowWidth / 2;
-        const transformY = arrowY + arrowHeight / 2;
-        const shiftY = Math.abs(middlewareData.shift?.y || 0);
-        const halfAnchorHeight = rects.reference.height / 2;
+
         const sideOffsetValue =
           typeof sideOffset === 'function'
             ? sideOffset(getOffsetData(state, sideParam, isRtl))
             : sideOffset;
-        const isOverlappingAnchor = shiftY > sideOffsetValue;
 
-        const adjacentTransformOrigin = {
-          top: `${transformX}px calc(100% + ${sideOffsetValue}px)`,
-          bottom: `${transformX}px ${-sideOffsetValue}px`,
-          left: `calc(100% + ${sideOffsetValue}px) ${transformY}px`,
-          right: `${-sideOffsetValue}px ${transformY}px`,
-        }[currentRenderedSide];
-        const overlapTransformOrigin = `${transformX}px ${rects.reference.y + halfAnchorHeight - y}px`;
+        // On the cross axis, the origin points to the arrow when present. Without an arrow,
+        // it points to the anchor's center for `center` alignment (tracked by a zero-size
+        // virtual arrow), or to the popup's aligned edge for `start`/`end` alignment.
+        let crossOrigin: string;
+        if (!arrowEl && renderedAlign) {
+          crossOrigin = renderedAlign === 'start' ? '0%' : '100%';
+        } else if (renderedAxis === 'y') {
+          crossOrigin = `${(middlewareData.arrow?.x || 0) + (arrowEl?.clientWidth || 0) / 2}px`;
+        } else {
+          crossOrigin = `${(middlewareData.arrow?.y || 0) + (arrowEl?.clientHeight || 0) / 2}px`;
+        }
+
+        // On the side axis, the origin sits on the anchor-facing edge, pushed out by the
+        // side offset. When the popup is shifted to overlap the anchor (e.g. context menus),
+        // it points to the anchor's center instead.
+        const shiftY = Math.abs(middlewareData.shift?.y || 0);
+        const overlapsAnchor =
+          crossAxisShiftEnabled && renderedAxis === 'y' && shiftY > sideOffsetValue;
+        let sideOrigin: string;
+        if (overlapsAnchor) {
+          sideOrigin = `${rects.reference.y + rects.reference.height / 2 - y}px`;
+        } else if (renderedSide === 'top' || renderedSide === 'left') {
+          sideOrigin = `calc(100% + ${sideOffsetValue}px)`;
+        } else {
+          sideOrigin = `${-sideOffsetValue}px`;
+        }
 
         elements.floating.style.setProperty(
           '--transform-origin',
-          crossAxisShiftEnabled && currentRenderedAxis === 'y' && isOverlappingAnchor
-            ? overlapTransformOrigin
-            : adjacentTransformOrigin,
+          renderedAxis === 'y' ? `${crossOrigin} ${sideOrigin}` : `${sideOrigin} ${crossOrigin}`,
         );
 
         return {};
