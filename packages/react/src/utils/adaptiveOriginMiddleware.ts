@@ -1,11 +1,14 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { getSide } from '@floating-ui/utils';
 import { Middleware } from '../floating-ui-react';
+import { DEFAULT_SIDES } from './useAnchorPositioning';
 
-export const DEFAULT_SIDES = {
-  sideX: 'left',
-  sideY: 'top',
-};
+// Tracks the inset properties last used to position each floating element so that a
+// swap (e.g. `bottom` -> `top`) can be detected when the rendered side changes.
+const prevSidesMap = new WeakMap<
+  HTMLElement,
+  { sideX: 'left' | 'right'; sideY: 'top' | 'bottom' }
+>();
 
 export const adaptiveOrigin: Middleware = {
   name: 'adaptiveOrigin',
@@ -25,6 +28,7 @@ export const adaptiveOrigin: Middleware = {
     const hasTransition = styles.transitionDuration !== '0s' && styles.transitionDuration !== '';
 
     if (!hasTransition) {
+      prevSidesMap.set(floating, DEFAULT_SIDES);
       return {
         x: rawX,
         y: rawY,
@@ -65,6 +69,29 @@ export const adaptiveOrigin: Middleware = {
 
     const sideX = currentSide === 'left' ? 'right' : DEFAULT_SIDES.sideX;
     const sideY = currentSide === 'top' ? 'bottom' : DEFAULT_SIDES.sideY;
+
+    const prevSides = prevSidesMap.get(floating);
+    prevSidesMap.set(floating, { sideX, sideY });
+
+    if (prevSides && (prevSides.sideX !== sideX || prevSides.sideY !== sideY)) {
+      // The inset properties used for positioning are about to swap (e.g. `bottom` -> `top`).
+      // CSS transitions can't interpolate from `auto`, so the move would jump. Before the new
+      // styles land, re-express the current visual position (resolved from the computed styles,
+      // including mid-transition values) in the new properties so the transition has a numeric
+      // starting point to animate from.
+      const fromX = parseFloat(styles[sideX]);
+      const fromY = parseFloat(styles[sideY]);
+      if (Number.isFinite(fromX) && Number.isFinite(fromY)) {
+        const floatingStyle = floating.style;
+        floatingStyle[prevSides.sideX] = '';
+        floatingStyle[prevSides.sideY] = '';
+        floatingStyle[sideX] = `${fromX}px`;
+        floatingStyle[sideY] = `${fromY}px`;
+        // Flush styles so the starting position is committed before the new styles apply.
+        floating.offsetWidth; // eslint-disable-line @typescript-eslint/no-unused-expressions
+      }
+    }
+
     return {
       x,
       y,

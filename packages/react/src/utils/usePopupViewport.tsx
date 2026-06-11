@@ -9,6 +9,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { ReactStore } from '@base-ui/utils/store';
 import { useAnimationsFinished } from '../internals/useAnimationsFinished';
+import { adaptiveOrigin } from './adaptiveOriginMiddleware';
 import { usePopupAutoResize } from './usePopupAutoResize';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from './useAnchorPositioning';
@@ -109,9 +110,9 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
 
   useIsoLayoutEffect(() => {
-    store.set('hasViewport', true);
+    store.set('adaptiveOrigin', adaptiveOrigin);
     return () => {
-      store.set('hasViewport', false);
+      store.set('adaptiveOrigin', undefined);
     };
   }, [store]);
 

@@ -475,4 +475,56 @@ describe('<Popover.Positioner />', () => {
       expect(Math.abs(closingRect.y - initialRect.y)).toBeLessThanOrEqual(1);
     },
   );
+
+  it.skipIf(isJSDOM)(
+    'keeps the position transition running when the rendered side changes with adaptive origin',
+    async () => {
+      function App({ side }: { side: Popover.Positioner.Props['side'] }) {
+        return (
+          <Popover.Root open>
+            <Trigger style={{ position: 'fixed', top: 100, left: 100, ...triggerStyle }}>
+              Trigger
+            </Trigger>
+            <Popover.Portal>
+              <Popover.Positioner
+                data-testid="positioner"
+                side={side}
+                style={{
+                  transition:
+                    'top 10s linear, bottom 10s linear, left 10s linear, right 10s linear',
+                }}
+              >
+                <Popover.Popup style={popupStyle}>
+                  <Popover.Viewport>Popup</Popover.Viewport>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { setPropsAsync } = await render(<App side="top" />);
+      const positioner = screen.getByTestId('positioner');
+
+      // With a transition and a viewport present, `adaptiveOrigin` positions the
+      // `top` side using the `bottom` inset property.
+      await waitFor(() => {
+        expect(positioner.style.bottom).not.toBe('');
+      });
+
+      const initialTop = positioner.getBoundingClientRect().top;
+
+      await setPropsAsync({ side: 'bottom' });
+
+      // The positioning property swaps from `bottom` to `top`.
+      await waitFor(() => {
+        expect(positioner.style.top).not.toBe('');
+      });
+
+      // The transition starts from the previous visual position instead of
+      // jumping straight to the target position.
+      const transitioningTop = positioner.getBoundingClientRect().top;
+      expect(Math.abs(transitioningTop - initialTop)).toBeLessThan(10);
+    },
+  );
 });

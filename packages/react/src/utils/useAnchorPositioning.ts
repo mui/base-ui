@@ -28,7 +28,11 @@ import {
 import { useDirection } from '../internals/direction-context/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
-import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
+
+export const DEFAULT_SIDES = {
+  sideX: 'left',
+  sideY: 'top',
+} as const;
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
