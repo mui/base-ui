@@ -52,26 +52,21 @@
    * IMPORTANT: keep in sync with any changes that could affect the height of the
    * demo's code section.
    *
-   * Skip rendering the demo's code section (toolbar + collapsed code preview + collapse
-   * button) while it's offscreen. Syntax-highlighted code is the densest paint content
-   * on a docs page, and any repaint inside a demo — e.g. moving the pointer across
-   * combobox items — forces Chrome to re-composite the document's paint artifact
-   * ("Layerize"), whose cost scales with the amount of rendered content near the
-   * viewport. Skipping offscreen code sections cuts that cost without visual changes.
+   * Skip rendering the code section (toolbar + collapsed preview) while offscreen.
+   * Syntax-highlighted code is dense paint content that makes every repaint-driven
+   * re-composite of the page ("Layerize") more expensive.
    *
-   * The placeholder height is exact for collapsed demos regardless of the code block
-   * contents: 2.25rem toolbar + collapsed preview max-height (5.7 lines of 1.25rem
-   * plus 0.5rem padding) = 158px. This keeps the page's scroll height stable while
-   * scrolling through never-rendered demos. The `auto` keyword makes the browser
-   * use the real ("last remembered") size once a section has been rendered,
-   * so expanded code blocks are tracked correctly too.
+   * The placeholder height is exact for collapsed demos regardless of code length.
+   *
+   * The `auto` keyword makes the browser track the real size once rendered
+   * (e.g. with expanded items).
    */
   .DemoCollapsibleRoot {
     --demo-collapsed-visible-lines: 5.7;
     --demo-code-line-height: 1.25rem;
 
     content-visibility: auto;
-    contain-intrinsic-size: auto
+    contain-intrinsic-height: auto
       calc(2.25rem + var(--demo-collapsed-visible-lines) * 1.25rem + 0.5rem); /* 158px */
   }
 
