@@ -162,9 +162,9 @@
     --color-popup: white;
     --color-gridline: var(--gray-c3);
     --color-selection: hsl(0deg 0% 92%);
-    --color-line-highlight: oklch(80% 28% 264deg / 20%);
-    --color-line-highlight-strong: oklch(80% 28% 264deg / 35%);
-    --color-line-highlight-strong-mark: oklch(80% 28% 264deg / 50%);
+    --color-line-highlight: hsl(205deg 100% 96%);
+    --color-line-highlight-strong: hsl(205deg 100% 90%);
+    --color-line-highlight-strong-mark: hsl(205deg 100% 80%);
 
     /* Syntax highlighting */
     --color-gray: var(--gray-t1);
@@ -284,9 +284,9 @@
       --color-popup: var(--gray-s1);
       --color-gridline: var(--gray-c1);
       --color-selection: hsl(0deg 0% 18%);
-      --color-line-highlight: oklch(50% 50% 264deg / 20%);
-      --color-line-highlight-strong: oklch(50% 50% 264deg / 35%);
-      --color-line-highlight-strong-mark: oklch(50% 50% 264deg / 50%);
+      --color-line-highlight: hsl(205deg 45% 12%);
+      --color-line-highlight-strong: hsl(205deg 55% 16%);
+      --color-line-highlight-strong-mark: hsl(205deg 65% 20%);
 
       /* Syntax highlighting */
       --color-green: oklch(75% 25% 150deg);
