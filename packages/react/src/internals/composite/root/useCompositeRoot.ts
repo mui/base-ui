@@ -19,42 +19,36 @@ import {
   MODIFIER_KEYS,
   VERTICAL_KEYS,
   VERTICAL_KEYS_WITH_EXTRA_KEYS,
-  createGridCellMap,
   findNonDisabledListIndex,
-  getGridCellIndexOfCorner,
-  getGridCellIndices,
-  getGridNavigatedIndex,
   getMaxListIndex,
   getMinListIndex,
   isListIndexDisabled,
   isIndexOutOfListBounds,
   isNativeInput,
   scrollIntoViewIfNeeded,
-  type Dimensions,
   type ModifierKey,
 } from '../composite';
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import type { CompositeMetadata } from '../list/CompositeList';
 import type { HTMLProps } from '../../types';
 import { getTarget } from '../../../floating-ui-react/utils';
+import type { CompositeGridNavigator } from './gridNavigation';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both' | undefined;
-  cols?: number | undefined;
+  grid?: CompositeGridNavigator | undefined;
   loopFocus?: boolean | undefined;
   onLoop?:
     | ((
         event: React.KeyboardEvent,
         prevIndex: number,
         nextIndex: number,
-        elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+        elementsRef: React.RefObject<Array<HTMLElement | null>>,
       ) => number)
     | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
-  dense?: boolean | undefined;
   direction: TextDirection;
-  itemSizes?: Array<Dimensions> | undefined;
   rootRef?: React.Ref<Element> | undefined;
   /**
    * When `true`, pressing the Home key moves focus to the first item,
@@ -85,12 +79,10 @@ const EMPTY_ARRAY: never[] = [];
 
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
-    itemSizes,
-    cols = 1,
     loopFocus = true,
-    onLoop,
-    dense = false,
     orientation = 'both',
+    grid,
+    onLoop,
     direction,
     highlightedIndex: externalHighlightedIndex,
     onHighlightedIndexChange: externalSetHighlightedIndex,
@@ -102,13 +94,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   } = params;
 
   const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
-
-  const isGrid = cols > 1;
+  const isGrid = grid != null;
 
   const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useMergedRefs(rootRef, externalRef);
 
-  const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
+  const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
@@ -184,7 +175,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       if (!onLoop) {
         return nextIndex;
       }
-      return onLoop?.(event, prevIndex, nextIndex, elementsRef);
+      return onLoop(event, prevIndex, nextIndex, elementsRef);
     },
   );
 
@@ -244,67 +235,19 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     const minIndex = getMinListIndex(elementsRef, disabledIndices);
     const maxIndex = getMaxListIndex(elementsRef, disabledIndices);
 
-    if (isGrid) {
-      const sizes =
-        itemSizes ||
-        Array.from({ length: elementsRef.current.length }, () => ({
-          width: 1,
-          height: 1,
-        }));
-      // To calculate movements on the grid, we use hypothetical cell indices
-      // as if every item was 1x1, then convert back to real indices.
-      const cellMap = createGridCellMap(sizes, cols, dense);
-      const minGridIndex = cellMap.findIndex(
-        (index) =>
-          index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices),
-      );
-      // last enabled index
-      const maxGridIndex = cellMap.reduce(
-        (foundIndex: number, index, cellIndex) =>
-          index != null && !isListIndexDisabled(elementsRef.current, index, disabledIndices)
-            ? cellIndex
-            : foundIndex,
-        -1,
-      );
-
-      nextIndex = cellMap[
-        getGridNavigatedIndex(
-          cellMap.map((itemIndex) => (itemIndex != null ? elementsRef.current[itemIndex] : null)),
-          {
-            event,
-            orientation,
-            loopFocus,
-            onLoop: wrappedOnLoop,
-            cols,
-            // treat undefined (empty grid spaces) as disabled indices so we
-            // don't end up in them
-            disabledIndices: getGridCellIndices(
-              [
-                ...(disabledIndices ||
-                  elementsRef.current.map((_, index) =>
-                    isListIndexDisabled(elementsRef.current, index) ? index : undefined,
-                  )),
-                undefined,
-              ],
-              cellMap,
-            ),
-            minIndex: minGridIndex,
-            maxIndex: maxGridIndex,
-            prevIndex: getGridCellIndexOfCorner(
-              highlightedIndex > maxIndex ? minIndex : highlightedIndex,
-              sizes,
-              cellMap,
-              cols,
-              // use a corner matching the edge closest to the direction we're
-              // moving in so we don't end up in the same item. Prefer
-              // top/left over bottom/right.
-              // eslint-disable-next-line no-nested-ternary
-              event.key === ARROW_DOWN ? 'bl' : event.key === ARROW_RIGHT ? 'tr' : 'tl',
-            ),
-            rtl: isRtl,
-          },
-        )
-      ] as number; // navigated cell will never be nullish
+    if (grid != null) {
+      nextIndex = grid({
+        disabledIndices,
+        elementsRef,
+        event,
+        highlightedIndex,
+        loopFocus,
+        maxIndex,
+        minIndex,
+        onLoop: wrappedOnLoop,
+        orientation,
+        rtl: isRtl,
+      });
     }
 
     const forwardKeys = {
