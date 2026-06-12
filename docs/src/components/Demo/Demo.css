@@ -61,7 +61,7 @@
     align-items: end;
     gap: 1.5rem;
     height: 2.25rem;
-    padding: 0 0 0 0.5rem;
+    padding: 0 0 0 calc(0.25rem - 1px);
     -webkit-user-select: none;
     user-select: none;
 
