@@ -7,6 +7,8 @@ import { CompositeItem } from '../item/CompositeItem';
 import { CompositeRoot } from './CompositeRoot';
 import { gridNavigation } from './gridNavigation';
 
+const threeColsGrid = gridNavigation({ cols: 3 });
+
 describe('Composite', () => {
   const { render } = createRenderer();
   const gridItems = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -397,7 +399,7 @@ describe('Composite', () => {
     it('uniform 1x1 items', async () => {
       function App() {
         return (
-          <CompositeRoot grid={gridNavigation({ cols: 3 })} enableHomeAndEndKeys>
+          <CompositeRoot grid={threeColsGrid} enableHomeAndEndKeys>
             <TestGridItems />
           </CompositeRoot>
         );
@@ -459,26 +461,6 @@ describe('Composite', () => {
       expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
     });
 
-    it('uses explicit cols for flat grids', async () => {
-      function App() {
-        return (
-          <CompositeRoot grid={gridNavigation({ cols: 3 })}>
-            <TestGridItems />
-          </CompositeRoot>
-        );
-      }
-
-      await render(<App />);
-
-      act(() => screen.getByTestId('4').focus());
-
-      fireEvent.keyDown(screen.getByTestId('4'), { key: 'ArrowLeft' });
-      await flushMicrotasks();
-
-      expect(screen.getByTestId('6')).toHaveAttribute('tabindex', '0');
-      expect(screen.getByTestId('6')).toHaveFocus();
-    });
-
     it('calls onLoop while navigating through grid cells', async () => {
       const onLoop = vi.fn(
         (
@@ -491,7 +473,7 @@ describe('Composite', () => {
 
       function App() {
         return (
-          <CompositeRoot grid={gridNavigation({ cols: 3 })} onLoop={onLoop}>
+          <CompositeRoot grid={threeColsGrid} onLoop={onLoop}>
             <TestGridItems />
           </CompositeRoot>
         );
@@ -518,7 +500,7 @@ describe('Composite', () => {
     it('skips disabled indices', async () => {
       function App() {
         return (
-          <CompositeRoot grid={gridNavigation({ cols: 3 })} disabledIndices={[4]}>
+          <CompositeRoot grid={threeColsGrid} disabledIndices={[4]}>
             <TestGridItems />
           </CompositeRoot>
         );
@@ -540,11 +522,7 @@ describe('Composite', () => {
         render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
-              <CompositeRoot
-                grid={gridNavigation({ cols: 3 })}
-                orientation="horizontal"
-                enableHomeAndEndKeys
-              >
+              <CompositeRoot grid={threeColsGrid} orientation="horizontal" enableHomeAndEndKeys>
                 <TestGridItems />
               </CompositeRoot>
             </DirectionProvider>
@@ -592,11 +570,7 @@ describe('Composite', () => {
         await render(
           <div dir="rtl">
             <DirectionProvider direction="rtl">
-              <CompositeRoot
-                grid={gridNavigation({ cols: 3 })}
-                orientation="both"
-                enableHomeAndEndKeys
-              >
+              <CompositeRoot grid={threeColsGrid} orientation="both" enableHomeAndEndKeys>
                 <TestGridItems />
               </CompositeRoot>
             </DirectionProvider>

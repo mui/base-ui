@@ -11,6 +11,7 @@ export { gridNavigation } from './root/gridNavigation';
 export type {
   CompositeGridConfig,
   CompositeGridItemSize,
+  CompositeGridNavigationState,
   CompositeGridNavigator,
 } from './root/gridNavigation';
 export { scrollIntoViewIfNeeded } from './composite';

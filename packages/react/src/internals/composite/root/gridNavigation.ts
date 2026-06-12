@@ -46,6 +46,10 @@ export type CompositeGridNavigator = (state: CompositeGridNavigationState) => nu
  * via the `grid` prop. Importing and calling this is the opt-in for grid
  * navigation: composites that don't pass `grid` never reference the algorithm,
  * so bundlers tree-shake the grid helpers out.
+ *
+ * Call it at module scope (or memoize it) rather than inline in render: the
+ * returned navigator's identity participates in `useCompositeRoot`'s memoization,
+ * so a fresh navigator on every render invalidates it.
  */
 export function gridNavigation(config: CompositeGridConfig): CompositeGridNavigator {
   const { cols, dense = false, itemSizes } = config;
