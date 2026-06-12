@@ -17,8 +17,6 @@ export function MethodsReferenceAccordion({
   data,
   name: partName,
   methodLabel = 'Method',
-  className,
-  style,
   ...props
 }: Props) {
   const captionId = `${partName}-methods-caption`;
@@ -26,10 +24,10 @@ export function MethodsReferenceAccordion({
   return (
     <Accordion.Root
       aria-describedby={captionId}
-      className={clsx('ReferenceAccordionRoot', className)}
-      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-size`
-      style={{ '--rows': Object.keys(data).length, ...style } as React.CSSProperties}
       {...props}
+      className={clsx('ReferenceAccordionRoot', props.className)}
+      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-size`
+      style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
     >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Class methods table
