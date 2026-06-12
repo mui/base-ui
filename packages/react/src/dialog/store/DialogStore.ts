@@ -31,8 +31,10 @@ type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
-  readonly onNestedDialogOpen?: ((dialogCount: number, drawerCount: number) => void) | undefined;
-  readonly onNestedDialogClose?: (() => void) | undefined;
+  readonly onNestedDialogOpen?:
+    | ((nestedId: string, dialogCount: number, drawerCount: number) => void)
+    | undefined;
+  readonly onNestedDialogClose?: ((nestedId: string) => void) | undefined;
 };
 
 const selectors = {
@@ -87,10 +89,16 @@ export class DialogStore<Payload> extends ReactStore<
       this.set('preventUnmountingOnClose', true);
     };
 
-    if (!nextOpen && eventDetails.trigger == null && this.state.activeTriggerId != null) {
+    // Use the `triggerIdProp`-aware selector so fully controlled mode (`open` + `triggerId`
+    // props) reports the trigger on close, matching the uncontrolled flow.
+    const activeTriggerId = this.select('activeTriggerId');
+    if (!nextOpen && eventDetails.trigger == null && activeTriggerId != null) {
       // When closing the dialog, pass the old trigger to the onOpenChange event
       // so it's not reset too early (potentially causing focus issues in controlled scenarios).
-      eventDetails.trigger = this.state.activeTriggerElement ?? undefined;
+      eventDetails.trigger =
+        this.state.activeTriggerElement ??
+        (this.context.triggerElements.getById(activeTriggerId) as Element | undefined) ??
+        undefined;
     }
 
     this.context.onOpenChange?.(nextOpen, eventDetails as DialogRoot.ChangeEventDetails);
