@@ -817,6 +817,48 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('last')).toHaveFocus();
       });
 
+      test('clicking a nested click trigger does not suppress the next focus-out close', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          const { refs, context } = useFloating({
+            open,
+            onOpenChange: setOpen,
+          });
+
+          return (
+            <>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setOpen(true)}
+              />
+              {open && (
+                <FloatingFocusManager context={context} modal={false}>
+                  <div role="dialog" ref={refs.setFloating} data-testid="floating">
+                    <button data-base-ui-click-trigger="" data-testid="nested-trigger" />
+                  </div>
+                </FloatingFocusManager>
+              )}
+              <button data-testid="last" />
+            </>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        await userEvent.click(screen.getByTestId('nested-trigger'));
+        await act(() => new Promise((resolve) => setTimeout(resolve)));
+
+        await userEvent.tab();
+        await act(() => new Promise((resolve) => setTimeout(resolve)));
+
+        expect(screen.queryByTestId('floating')).not.toBeInTheDocument();
+        expect(screen.getByTestId('last')).toHaveFocus();
+      });
+
       test('false - comboboxes do not hide all other nodes', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);
@@ -2050,6 +2092,44 @@ describe('FloatingFocusManager', () => {
       await flushMicrotasks();
 
       expect(screen.getByTestId('floating')).toHaveAttribute('tabindex', '0');
+    });
+
+    test('floating element with managed tabIndex is downgraded once content becomes tabbable', async () => {
+      function App({ hasTabbableContent = false }: { hasTabbableContent?: boolean }) {
+        const { refs, context } = useFloating({
+          open: true,
+          onOpenChange() {},
+        });
+
+        return (
+          <>
+            <button data-testid="reference" ref={refs.setReference} />
+            <FloatingFocusManager context={context} initialFocus={false} modal={false}>
+              <div ref={refs.setFloating} data-testid="floating" role="dialog">
+                {hasTabbableContent && <button data-testid="inside" />}
+              </div>
+            </FloatingFocusManager>
+          </>
+        );
+      }
+
+      const { rerender } = render(<App />);
+      await flushMicrotasks();
+
+      const reference = screen.getByTestId('reference');
+      reference.focus();
+
+      expect(screen.getByTestId('floating')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('floating')).toHaveAttribute('data-tabindex', '0');
+
+      rerender(<App hasTabbableContent />);
+      await flushMicrotasks();
+
+      fireEvent.focusOut(reference, { relatedTarget: screen.getByTestId('inside') });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('floating')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('floating')).toHaveAttribute('data-tabindex', '-1');
     });
 
     test('floating element with listbox role ignores tabIndex setting', async () => {
