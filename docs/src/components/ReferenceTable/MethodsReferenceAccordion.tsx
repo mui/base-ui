@@ -26,7 +26,7 @@ export function MethodsReferenceAccordion({
       aria-describedby={captionId}
       {...props}
       className={clsx('ReferenceAccordionRoot', props.className)}
-      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-size`
+      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-height`
       style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
     >
       <span id={captionId} style={visuallyHidden} aria-hidden>
