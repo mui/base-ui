@@ -445,13 +445,23 @@ function resolveKeyboardInputTarget(target: EventTarget | null): HTMLElement | n
   }
 
   if (isKeyboardInputElement(target)) {
-    return target;
+    return target.isContentEditable ? getContentEditableHost(target) : target;
   }
 
   const label = target.closest('label') as HTMLLabelElement | null;
   const control = label?.control ?? null;
 
   return isHTMLElement(control) && isKeyboardInputElement(control) ? control : null;
+}
+
+// Inherited-editable descendants (no `contenteditable` attribute of their own) are not
+// focusable, so focusing them is a no-op; resolve taps on them to the editing host.
+function getContentEditableHost(element: HTMLElement): HTMLElement {
+  let host = element;
+  while (host.parentElement?.isContentEditable) {
+    host = host.parentElement;
+  }
+  return host;
 }
 
 function resolveKeyboardInputTargetFromPoint(
@@ -515,8 +525,11 @@ function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
 }
 
 function findKeyboardScrollTarget(target: HTMLElement, root: HTMLElement): HTMLElement | null {
+  // Start at the parent: scrolling the focused field's own content (an overflowing
+  // textarea is scrollable itself) can never move its box out from under the keyboard.
   return (
-    findScrollableTouchTarget(target, root, 'vertical') ?? findPotentialScrollAncestor(target, root)
+    findScrollableTouchTarget(target.parentElement, root, 'vertical') ??
+    findPotentialScrollAncestor(target, root)
   );
 }
 

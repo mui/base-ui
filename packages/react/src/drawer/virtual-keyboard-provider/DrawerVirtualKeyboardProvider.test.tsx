@@ -315,6 +315,91 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
   );
 
   it.skipIf(isJSDOM)(
+    'adds keyboard scroll slack to the scroll container, not an overflowing textarea',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup>
+                    <div
+                      data-testid="scroll"
+                      style={{
+                        height: 420,
+                        overflowY: 'auto',
+                        paddingBottom: 20,
+                      }}
+                    >
+                      <div style={{ height: 300 }} />
+                      <textarea data-testid="textarea" defaultValue={'line\n'.repeat(40)} />
+                    </div>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const scroll = screen.getByTestId('scroll');
+        const textarea = screen.getByTestId('textarea');
+
+        Object.defineProperties(scroll, {
+          clientHeight: { configurable: true, value: 420 },
+          scrollHeight: { configurable: true, value: 800 },
+        });
+        // The textarea's own content overflows, making it scrollable itself. Scrolling
+        // it cannot move its box above the keyboard, so slack must go to the ancestor.
+        Object.defineProperties(textarea, {
+          clientHeight: { configurable: true, value: 88 },
+          scrollHeight: { configurable: true, value: 600 },
+        });
+        scroll.getBoundingClientRect = () =>
+          ({
+            top: 300,
+            bottom: 720,
+            height: 420,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: 300,
+            toJSON: () => {},
+          }) as DOMRect;
+        textarea.getBoundingClientRect = () =>
+          ({
+            top: 650,
+            bottom: 690,
+            height: 40,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: 650,
+            toJSON: () => {},
+          }) as DOMRect;
+
+        await act(async () => {
+          textarea.focus();
+          visualViewport.resize(500);
+        });
+
+        await waitFor(() => {
+          expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
+        });
+        expect(textarea.style.paddingBottom).toBe('');
+      } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'sets the keyboard inset CSS variable for a focused input without a scroll target',
     async () => {
       const restoreInnerHeight = mockWindowInnerHeight(800);
@@ -1246,6 +1331,52 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       focusSpy.mockRestore();
     }
   });
+
+  it.skipIf(isJSDOM)(
+    'focuses the editing host when tapping a nested element inside a contentEditable',
+    async () => {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <div data-testid="editor" contentEditable suppressContentEditableWarning>
+                    <span data-testid="inner">Edit me</span>
+                  </div>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
+
+      const editor = screen.getByTestId('editor');
+      const inner = screen.getByTestId('inner');
+      const originalElementFromPoint = document.elementFromPoint;
+      // Taps on rich-text content land on inherited-editable descendants, which are
+      // not focusable themselves; the editing host must receive focus instead.
+      document.elementFromPoint = () => inner;
+
+      try {
+        fireEvent.touchStart(inner, {
+          touches: [createTouch(inner, { clientX: 0, clientY: 0 })],
+        });
+
+        const touchEnd = createNativeTouchEnd(inner, { clientX: 0, clientY: 0 });
+
+        await act(async () => {
+          inner.dispatchEvent(touchEnd);
+          await flushMicrotasks();
+        });
+
+        expect(touchEnd.defaultPrevented).toBe(true);
+        expect(editor).toHaveFocus();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+    },
+  );
 
   it.skipIf(isJSDOM)(
     'probes nearby points to resolve a keyboard input retargeted on touchend',
