@@ -215,7 +215,6 @@
         z-index: 1;
         pointer-events: none;
         height: 100%;
-        max-height: 6rem;
         bottom: 0;
         left: 0;
         right: 0;
@@ -223,8 +222,8 @@
         border-bottom-right-radius: calc(var(--demo-radius) - 1px);
         background: linear-gradient(
           to bottom,
-          transparent 20%,
-          color-mix(in srgb, var(--gray-s1), transparent 20%) 100%
+          transparent 0%,
+          color-mix(in srgb, var(--gray-s1), transparent 5%) 100%
         );
       }
     }
