@@ -792,6 +792,31 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('last')).toHaveFocus();
       });
 
+      test('closeOnFocusOut: false keeps a non-modal element open when focus leaves', async () => {
+        render(<App modal={false} closeOnFocusOut={false} />);
+
+        fireEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating')).toBeInTheDocument();
+
+        await userEvent.tab();
+        expect(screen.getByTestId('two')).toHaveFocus();
+
+        await userEvent.tab();
+        expect(screen.getByTestId('three')).toHaveFocus();
+
+        // Move focus out of the floating element entirely.
+        await userEvent.tab();
+
+        // Wait for the (potential) setTimeout that wraps onOpenChange(false).
+        await act(() => new Promise((resolve) => setTimeout(resolve)));
+
+        // With `closeOnFocusOut={false}`, focus leaving the floating element does not close it.
+        expect(screen.getByTestId('floating')).toBeInTheDocument();
+        expect(screen.getByTestId('last')).toHaveFocus();
+      });
+
       test('false - comboboxes do not hide all other nodes', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);
