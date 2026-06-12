@@ -28,14 +28,12 @@ import { DemoPlayground } from './DemoPlayground';
 import './Demo.css';
 
 export type DemoProps = ContentProps<{
-  defaultOpen?: boolean;
   compact?: boolean;
   className?: string;
   showExtraPlaygroundLink?: boolean;
 }>;
 
 export function Demo({
-  defaultOpen = false,
   compact = false,
   showExtraPlaygroundLink = false,
   className,
@@ -86,7 +84,6 @@ export function Demo({
 
   const demo = useDemo(demoProps, {
     copy: { onCopied },
-    defaultOpen,
     export: exportOpts,
     exportCodeSandbox,
   });
