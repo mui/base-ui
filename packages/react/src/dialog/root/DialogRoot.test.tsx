@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor, flushMicrotasks } from '@mui/internal-test-utils';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
@@ -1443,6 +1444,78 @@ describe('<Dialog.Root />', () => {
 
       expect(outsideBefore).not.toHaveFocus();
       expect(outsideAfter).not.toHaveFocus();
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'returns focus into the dialog when a close confirmation opened by an outside press closes',
+    async () => {
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        const [confirmationOpen, setConfirmationOpen] = React.useState(false);
+        const [value, setValue] = React.useState('');
+
+        return (
+          <Dialog.Root
+            open={open}
+            onOpenChange={(nextOpen, eventDetails) => {
+              if (!nextOpen && value) {
+                eventDetails.cancel();
+                setConfirmationOpen(true);
+                return;
+              }
+              setOpen(nextOpen);
+            }}
+          >
+            <Dialog.Trigger data-testid="trigger">Tweet</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Backdrop data-testid="backdrop" />
+              <Dialog.Popup>
+                <textarea
+                  data-testid="textarea"
+                  value={value}
+                  onChange={(event) => setValue(event.target.value)}
+                />
+              </Dialog.Popup>
+            </Dialog.Portal>
+            <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup>
+                  <AlertDialog.Close data-testid="go-back">Go back</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByTestId('trigger'));
+      await screen.findByRole('dialog');
+
+      const textarea = screen.getByTestId('textarea');
+      await user.click(textarea);
+      await user.keyboard('x');
+      expect(textarea).toHaveFocus();
+
+      // Pressing the backdrop moves focus to the body before the close is
+      // canceled and the confirmation dialog opens.
+      await user.click(screen.getByTestId('backdrop'));
+
+      const goBack = await screen.findByTestId('go-back');
+      await waitFor(() => {
+        expect(goBack).toHaveFocus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('go-back')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(textarea).toHaveFocus();
+      });
     },
   );
 });
