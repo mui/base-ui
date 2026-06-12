@@ -1358,6 +1358,69 @@ describe('FloatingFocusManager', () => {
 
         expect(screen.getByTestId('reference')).toHaveFocus();
       });
+
+      test('clears outside pointer state between keep-mounted open sessions', async () => {
+        let readInsideReactTree = () => false;
+
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          readInsideReactTree = () => context.dataRef.current.insideReactTree;
+
+          const click = useClick(context);
+          const dismiss = useDismiss(context);
+
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+          return (
+            <>
+              <span data-testid="open-state">{String(isOpen)}</span>
+              <button data-testid="before" />
+              <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+              <FloatingPortal>
+                <FloatingFocusManager context={context} disabled={!isOpen} modal={false}>
+                  <div ref={refs.setFloating} data-testid="floating" {...getFloatingProps()}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              </FloatingPortal>
+              <button data-testid="after" />
+            </>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(screen.getByTestId('child')).toHaveFocus();
+        });
+
+        fireEvent.pointerDown(screen.getByTestId('after'));
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('open-state')).toHaveTextContent('false');
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        await waitFor(() => {
+          expect(screen.getByTestId('child')).toHaveFocus();
+        });
+
+        fireEvent.focusOut(screen.getByTestId('child'), {
+          relatedTarget: screen.getByTestId('after'),
+        });
+
+        expect(readInsideReactTree()).toBe(true);
+      });
     });
 
     describe('non-modal + FloatingPortal', () => {
