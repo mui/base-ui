@@ -32,6 +32,14 @@ export interface UseTypeaheadProps {
    */
   elementsRef?: React.RefObject<Array<HTMLElement | null>> | undefined;
   /**
+   * Predicate invoked with a `listRef` index to determine whether that item is disabled.
+   * Disabled items are skipped while matching, so a single keypress advances to the next
+   * selectable item (matching native `<select>` and arrow-key navigation). This is independent
+   * of `elementsRef`/visibility, so consumers whose items stay mounted-but-hidden while closed
+   * can still skip disabled items.
+   */
+  isIndexDisabled?: ((index: number) => boolean) | undefined;
+  /**
    * Callback invoked with the current typing activity as the user types.
    */
   onTyping?: ((isTyping: boolean) => void) | undefined;
@@ -67,6 +75,7 @@ export function useTypeahead(
     elementsRef,
     activeIndex,
     onMatch: onMatchProp,
+    isIndexDisabled,
     onTyping,
     enabled = true,
     resetMs = 750,
@@ -99,7 +108,11 @@ export function useTypeahead(
       for (let offset = 0; offset < list.length; offset += 1) {
         const index = (normalizedStartIndex + offset) % list.length;
         const text = list[index];
-        if (!text?.toLocaleLowerCase().startsWith(lowerString) || !isVisible(index)) {
+        if (
+          !text?.toLocaleLowerCase().startsWith(lowerString) ||
+          !isVisible(index) ||
+          isIndexDisabled?.(index)
+        ) {
           continue;
         }
         return index;

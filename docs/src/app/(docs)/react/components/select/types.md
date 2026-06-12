@@ -303,7 +303,7 @@ type SelectPortalState = {};
 
 ### Backdrop
 
-An overlay displayed beneath the menu popup.
+An overlay displayed beneath the select popup.
 Renders a `<div>` element.
 
 **Backdrop Props:**

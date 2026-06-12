@@ -59,7 +59,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     valueRef,
     firstItemTextRef,
     selectedItemTextRef,
-    keyboardActiveRef,
     multiple,
     handleScrollArrowVisibility,
     scrollHandlerRef,
@@ -72,8 +71,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     alignItemWithTriggerActive,
     isPositioned,
     setControlledAlignItemWithTrigger,
-    scrollDownArrowRef,
-    scrollUpArrowRef,
   } = useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
   const floatingRootContext = useSelectFloatingContext();
@@ -122,10 +119,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       scale,
     );
     const doc = ownerDocument(positionerElement);
-    const positionerStyles = getComputedStyle(positionerElement);
+    const win = ownerWindow(positionerElement);
+    const positionerStyles = win.getComputedStyle(positionerElement);
     const marginTop = parseFloat(positionerStyles.marginTop);
     const marginBottom = parseFloat(positionerStyles.marginBottom);
-    const maxPopupHeight = getMaxPopupHeight(getComputedStyle(popupRef.current));
+    const maxPopupHeight = getMaxPopupHeight(win.getComputedStyle(popupRef.current));
     const maxAvailableHeight = Math.min(
       doc.documentElement.clientHeight - marginTop - marginBottom,
       maxPopupHeight,
@@ -299,11 +297,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       const valueElement = valueRef.current;
 
-      const positionerStyles = getComputedStyle(positionerElement);
-      const popupStyles = getComputedStyle(popupElement);
+      const win = ownerWindow(positionerElement);
+      const positionerStyles = win.getComputedStyle(positionerElement);
+      const popupStyles = win.getComputedStyle(popupElement);
 
       const doc = ownerDocument(triggerElement);
-      const win = ownerWindow(positionerElement);
       const scale = getScale(triggerElement);
       const triggerRect = normalizeRect(triggerElement.getBoundingClientRect(), scale);
 
@@ -313,6 +311,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       const scrollHeight = scroller.scrollHeight;
 
       const borderBottom = parseFloat(popupStyles.borderBottomWidth);
+      // The `|| N` fallbacks cover an unset/`auto` value (parses to `NaN`). Note a literal `0`
+      // also resolves to the fallback, so the align algorithm always reserves some spacing.
       const marginTop = parseFloat(positionerStyles.marginTop) || 10;
       const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
       const minHeight = parseFloat(positionerStyles.minHeight) || 100;
@@ -357,7 +357,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         maxRight - positionerRect.width,
       )}px`;
       positionerElement.style.height = `${height}px`;
-      positionerElement.style.maxHeight = 'auto';
+      // `none` (not the invalid `auto`) so the explicit height governs in align mode and isn't
+      // clamped by a `max-height` from user CSS.
+      positionerElement.style.maxHeight = 'none';
       positionerElement.style.marginTop = `${marginTop}px`;
       positionerElement.style.marginBottom = `${marginBottom}px`;
       popupElement.style.height = '100%';
@@ -443,8 +445,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     alignItemWithTriggerActive,
     setControlledAlignItemWithTrigger,
     scrollArrowFrame,
-    scrollDownArrowRef,
-    scrollUpArrowRef,
     listElement,
     listRef,
     highlightItemOnHover,
@@ -478,13 +478,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           id: `${id}-list`,
         }),
     onKeyDown(event) {
-      keyboardActiveRef.current = true;
       if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
         event.stopPropagation();
       }
-    },
-    onMouseMove() {
-      keyboardActiveRef.current = false;
     },
     onScroll(event) {
       if (listElement) {
