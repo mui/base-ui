@@ -32,8 +32,6 @@ export function ReferenceAccordion({
   caption = 'Component props table',
   hideRequired = false,
   hideDefault = false,
-  className,
-  style,
   ...props
 }: Props) {
   const captionId = `${partName}-caption`;
@@ -42,10 +40,10 @@ export function ReferenceAccordion({
     <Accordion.Root
       aria-describedby={captionId}
       data-hide-default={hideDefault || undefined}
-      className={clsx('ReferenceAccordionRoot', className)}
-      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-size`
-      style={{ '--rows': Object.keys(data).length, ...style } as React.CSSProperties}
       {...props}
+      className={clsx('ReferenceAccordionRoot', props.className)}
+      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-size`
+      style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
     >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         {caption}

@@ -18,22 +18,16 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
   name: string;
 }
 
-export function PropertiesReferenceAccordion({
-  data,
-  name: partName,
-  className,
-  style,
-  ...props
-}: Props) {
+export function PropertiesReferenceAccordion({ data, name: partName, ...props }: Props) {
   const captionId = `${partName}-properties-caption`;
 
   return (
     <Accordion.Root
       aria-describedby={captionId}
-      className={clsx('ReferenceAccordionRoot', className)}
-      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-size`
-      style={{ '--rows': Object.keys(data).length, ...style } as React.CSSProperties}
       {...props}
+      className={clsx('ReferenceAccordionRoot', props.className)}
+      // Lets CSS compute the exact closed height of the accordion for `contain-intrinsic-size`
+      style={{ '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties}
     >
       <span id={captionId} style={visuallyHidden} aria-hidden>
         Class properties table
