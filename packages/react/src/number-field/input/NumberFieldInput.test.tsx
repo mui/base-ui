@@ -987,8 +987,9 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('1.239');
   });
 
-  it('should normalize default floating point precision on blur', async () => {
+  it('should preserve default floating point precision on blur', async () => {
     const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
 
     function Controlled() {
       const [value, setValue] = React.useState<number | null>(null);
@@ -999,6 +1000,7 @@ describe('<NumberField.Input />', () => {
             onValueChange(val);
             setValue(val);
           }}
+          onValueCommitted={onValueCommitted}
         >
           <NumberField.Input />
         </NumberField.Root>
@@ -1015,20 +1017,15 @@ describe('<NumberField.Input />', () => {
     await user.keyboard('1.23456');
     expect(input).toHaveValue('1.23456');
 
-    // The stored value should be the full precision value
-    const valueBeforeBlur = onValueChange.mock.lastCall?.[0];
-    // The value gets processed through removeFloatingPointErrors during validation
-    // which applies some default precision constraints
-    expect(valueBeforeBlur).toBe(1.235);
-
-    const callCountBeforeBlur = onValueChange.mock.calls.length;
+    // Without explicit rounding options the stored value keeps full precision rather than
+    // being truncated to the Intl default of 3 fraction digits.
+    expect(onValueChange.mock.lastCall?.[0]).toBe(1.23456);
 
     fireEvent.blur(input);
 
-    // Without explicit precision formatting, default floating point cleanup is applied.
-    // The current implementation preserves the cleaned value until it differs from canonical.
-    expect(input).toHaveValue((1.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
-    expect(onValueChange.mock.calls.length).toBe(callCountBeforeBlur + 1);
+    // The committed value and displayed text both retain full precision on blur.
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(1.23456);
+    expect(input).toHaveValue('1.23456');
   });
 
   it('commits parsed value on blur and normalizes display for fr-FR', async () => {

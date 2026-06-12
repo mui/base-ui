@@ -72,7 +72,7 @@ describe('<NumberField.Decrement />', () => {
     expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
 
     await user.click(increase);
-    expect(input).toHaveValue((0.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
+    expect(input).toHaveValue((0.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
   });
 
   it('only calls onValueChange once per decrement', async () => {

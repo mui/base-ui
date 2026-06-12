@@ -3,8 +3,6 @@ import { getFormatter } from '../../utils/formatNumber';
 import { parseNumber } from './parse';
 
 const STEP_EPSILON_FACTOR = 1e-10;
-// Matches Intl.NumberFormat's decimal maximumFractionDigits default.
-const DEFAULT_DIGITS = 3;
 
 // The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
 // Delete this once tsconfig.base.json includes es2023.
@@ -34,7 +32,10 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   }
 
   if (!hasNumberFormatRoundingOptions(format)) {
-    return Number(value.toFixed(DEFAULT_DIGITS));
+    // Clean binary floating-point noise (e.g. `0.1 + 0.2`) without discarding legitimate
+    // precision. Integers in the safe range are already exact, so returning them verbatim
+    // preserves values like `Number.MAX_SAFE_INTEGER` that `toPrecision(15)` would corrupt.
+    return Number.isInteger(value) ? value : parseFloat(value.toPrecision(15));
   }
 
   const formatter = getFormatter('en-US', {

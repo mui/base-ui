@@ -21,6 +21,20 @@ describe('NumberField validate', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1)).toBe(0.3);
     });
 
+    it('cleans negative floating point noise without a format', () => {
+      expect(removeFloatingPointErrors(-0.1 - 0.2)).toBe(-0.3);
+    });
+
+    it('preserves precision finer than 3 fraction digits without a format', () => {
+      expect(removeFloatingPointErrors(0.0005)).toBe(0.0005);
+      expect(removeFloatingPointErrors(1.23456)).toBe(1.23456);
+    });
+
+    it('preserves safe integers exactly without a format', () => {
+      expect(removeFloatingPointErrors(Number.MAX_SAFE_INTEGER)).toBe(Number.MAX_SAFE_INTEGER);
+      expect(removeFloatingPointErrors(Number.MIN_SAFE_INTEGER)).toBe(Number.MIN_SAFE_INTEGER);
+    });
+
     it('returns 0.3 for 0.2 + 0.1 with maximumFractionDigits', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1, { maximumFractionDigits: 1 })).toBe(0.3);
     });

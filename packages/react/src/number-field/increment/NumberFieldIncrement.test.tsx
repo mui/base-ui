@@ -72,7 +72,41 @@ describe('<NumberField.Increment />', () => {
     expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
 
     await user.click(increase);
-    expect(input).toHaveValue((2.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
+    expect(input).toHaveValue((2.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+  });
+
+  it('advances by a step finer than 3 fraction digits', async () => {
+    const onValueChange = vi.fn();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(0);
+      return (
+        <NumberField.Root
+          value={value}
+          step={0.0001}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+        >
+          <NumberField.Input />
+          <NumberField.Increment />
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+    const increase = screen.getByLabelText('Increase');
+
+    // A step smaller than the old 3-digit default used to round back to 0, making this a no-op.
+    await user.click(increase);
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.0001);
+    expect(input).toHaveValue('0.0001');
+
+    await user.click(increase);
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.0002);
+    expect(input).toHaveValue('0.0002');
   });
 
   it('only calls onValueChange once per increment', async () => {
