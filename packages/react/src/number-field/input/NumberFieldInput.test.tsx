@@ -1028,6 +1028,45 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('1.23456');
   });
 
+  it('should preserve values typed with more than 15 significant digits', async () => {
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(null);
+      return (
+        <NumberField.Root
+          value={value}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+          onValueCommitted={onValueCommitted}
+        >
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      input.focus();
+    });
+
+    // 16 significant digits: round-trips exactly through a double, so every typed digit
+    // must survive. Parsed input carries no arithmetic noise that would need cleaning.
+    await user.keyboard('1.234567890123456');
+    expect(input).toHaveValue('1.234567890123456');
+    expect(onValueChange.mock.lastCall?.[0]).toBe(1.234567890123456);
+
+    fireEvent.blur(input);
+
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(1.234567890123456);
+    expect(input).toHaveValue('1.234567890123456');
+  });
+
   it('commits parsed value on blur and normalizes display for fr-FR', async () => {
     const onValueChange = vi.fn();
 

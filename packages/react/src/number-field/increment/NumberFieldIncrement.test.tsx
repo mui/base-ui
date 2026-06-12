@@ -109,6 +109,22 @@ describe('<NumberField.Increment />', () => {
     expect(input).toHaveValue('0.0002');
   });
 
+  it('cleans binary floating point noise introduced by stepping', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <NumberField.Root defaultValue={0.7} step={0.1} onValueChange={onValueChange}>
+        <NumberField.Input />
+        <NumberField.Increment />
+      </NumberField.Root>,
+    );
+
+    fireEvent.click(screen.getByLabelText('Increase'));
+
+    // 0.7 + 0.1 === 0.7999999999999999 in binary floating point.
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.8);
+  });
+
   it('only calls onValueChange once per increment', async () => {
     const handleValueChange = vi.fn();
     const { user } = await render(

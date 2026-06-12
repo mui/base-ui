@@ -116,6 +116,14 @@ export function toValidatedNumber(
     nextValue = clamp(nextValue, minWithDefault, maxWithDefault);
   }
 
+  // Parsed input (typing, paste, blur) involves no arithmetic, so it carries no binary
+  // noise to clean — return it verbatim to keep every typed digit, including values with
+  // more than 15 significant digits. Stepping and snapping arithmetic can introduce noise
+  // (e.g. 0.7 + 0.1), which `removeFloatingPointErrors` cleans.
+  if (step == null && !hasNumberFormatRoundingOptions(format)) {
+    return nextValue;
+  }
+
   const roundedValue = removeFloatingPointErrors(nextValue, format);
   return shouldClamp ? clamp(roundedValue, minWithDefault, maxWithDefault) : roundedValue;
 }
