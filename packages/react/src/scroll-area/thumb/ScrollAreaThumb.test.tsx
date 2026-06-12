@@ -3,6 +3,7 @@ import { createRenderer } from '#test-utils';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance } from '../../../test/describeConformance';
+import { SCROLL_TIMEOUT } from '../constants';
 
 describe('<ScrollArea.Thumb />', () => {
   const { render } = createRenderer();
@@ -156,5 +157,71 @@ describe('<ScrollArea.Thumb />', () => {
     expect(() => fireEvent.pointerCancel(thumb, { pointerId: 1 })).not.toThrow();
 
     await waitFor(() => expect(scrollbar).not.toHaveAttribute('data-scrolling'));
+  });
+
+  describe('data-scrolling attribute', () => {
+    const { render: renderWithClock, clock } = createRenderer();
+
+    clock.withFakeTimers();
+
+    it('adds [data-scrolling] attribute when viewport is scrolled in the correct direction', async () => {
+      await renderWithClock(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" keepMounted>
+            <ScrollArea.Thumb data-testid="vertical" />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar orientation="horizontal" keepMounted>
+            <ScrollArea.Thumb data-testid="horizontal" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const verticalThumb = screen.getByTestId('vertical');
+      const horizontalThumb = screen.getByTestId('horizontal');
+      const viewport = screen.getByTestId('viewport');
+
+      expect(verticalThumb).not.toHaveAttribute('data-scrolling');
+      expect(horizontalThumb).not.toHaveAttribute('data-scrolling');
+
+      fireEvent.pointerEnter(viewport);
+      fireEvent.scroll(viewport, {
+        target: {
+          scrollTop: 1,
+        },
+      });
+
+      expect(verticalThumb).toHaveAttribute('data-scrolling', '');
+      expect(horizontalThumb).not.toHaveAttribute('data-scrolling');
+
+      await clock.tickAsync(SCROLL_TIMEOUT - 1);
+
+      expect(verticalThumb).toHaveAttribute('data-scrolling', '');
+      expect(horizontalThumb).not.toHaveAttribute('data-scrolling');
+
+      fireEvent.pointerEnter(viewport);
+      fireEvent.scroll(viewport, {
+        target: {
+          scrollLeft: 1,
+        },
+      });
+
+      await clock.tickAsync(1);
+
+      expect(verticalThumb).not.toHaveAttribute('data-scrolling');
+      expect(horizontalThumb).toHaveAttribute('data-scrolling');
+
+      await clock.tickAsync(SCROLL_TIMEOUT - 2);
+
+      expect(verticalThumb).not.toHaveAttribute('data-scrolling');
+      expect(horizontalThumb).toHaveAttribute('data-scrolling');
+
+      await clock.tickAsync(1);
+
+      expect(verticalThumb).not.toHaveAttribute('data-scrolling');
+      expect(horizontalThumb).not.toHaveAttribute('data-scrolling');
+    });
   });
 });

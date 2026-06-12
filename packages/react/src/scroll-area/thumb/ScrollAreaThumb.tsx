@@ -26,12 +26,17 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
     handlePointerUp,
     setScrollingX,
     setScrollingY,
+    scrollingX,
+    scrollingY,
     hasMeasuredScrollbar,
   } = useScrollAreaRootContext();
 
   const { orientation } = useScrollAreaScrollbarContext();
 
-  const state: ScrollAreaThumbState = { orientation };
+  const state: ScrollAreaThumbState = {
+    scrolling: orientation === 'horizontal' ? scrollingX : scrollingY,
+    orientation,
+  };
 
   function endDrag(event: React.PointerEvent) {
     if (orientation === 'vertical') {
@@ -71,9 +76,13 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 
 export interface ScrollAreaThumbState {
   /**
+   * Whether the scroll area is being scrolled.
+   */
+  scrolling: boolean;
+  /**
    * The component orientation.
    */
-  orientation?: 'horizontal' | 'vertical' | undefined;
+  orientation: 'horizontal' | 'vertical';
 }
 
 export interface ScrollAreaThumbProps extends BaseUIComponentProps<'div', ScrollAreaThumbState> {}

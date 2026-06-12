@@ -9,9 +9,17 @@ import { getElementAtPoint } from './getElementAtPoint';
 
 export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 
+interface SwipeDismissNativeTouchMove {
+  readonly touches: TouchList;
+  readonly currentTarget: HTMLElement;
+  readonly nativeEvent: TouchEvent;
+  readonly defaultPrevented: boolean;
+  readonly timeStamp: number;
+}
+
 type SwipeDismissNativeEvent = PointerEvent | TouchEvent;
 type SwipeDismissStartEvent = React.PointerEvent | React.TouchEvent;
-type SwipeDismissMoveEvent = React.PointerEvent | React.TouchEvent;
+type SwipeDismissMoveEvent = React.PointerEvent | React.TouchEvent | SwipeDismissNativeTouchMove;
 type SwipeDismissEndEvent = React.PointerEvent | React.TouchEvent;
 type SwipeProgressDetailsInternal = {
   deltaX: number;
@@ -73,7 +81,7 @@ function getValidTimeStamp(timeStamp: number): number | null {
 }
 
 function getDragTransform(dragOffset: { x: number; y: number }, scale: number): string {
-  return `translateX(${dragOffset.x}px) translateY(${dragOffset.y}px) scale(${scale})`;
+  return `translate3d(${dragOffset.x}px,${dragOffset.y}px,0) scale(${scale})`;
 }
 
 function hasPrimaryMouseButton(buttons: number): boolean {
@@ -867,6 +875,18 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     handleMoveCore(event, currentPos, movement);
   });
 
+  // Feeds a native touchmove into the swipe pipeline. Used by consumers that claim the gesture
+  // in a capture-phase listener and stop it from reaching React's delegated touch handlers.
+  const moveNative = useStableCallback((nativeEvent: TouchEvent, currentTarget: HTMLElement) => {
+    handleMove({
+      touches: nativeEvent.touches,
+      currentTarget,
+      nativeEvent,
+      defaultPrevented: nativeEvent.defaultPrevented,
+      timeStamp: nativeEvent.timeStamp,
+    });
+  });
+
   const handleEnd = useStableCallback((event: SwipeDismissEndEvent) => {
     if (!enabled) {
       return;
@@ -1062,6 +1082,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     dragDismissed,
     getPointerProps,
     getTouchProps,
+    moveNative,
     getDragStyles,
     reset,
   };
@@ -1159,6 +1180,7 @@ export interface UseSwipeDismissReturnValue {
     onTouchEnd?: ((event: React.TouchEvent) => void) | undefined;
     onTouchCancel?: ((event: React.TouchEvent) => void) | undefined;
   };
+  moveNative: (nativeEvent: TouchEvent, currentTarget: HTMLElement) => void;
   getDragStyles: () => React.CSSProperties;
   reset: () => void;
 }

@@ -8,6 +8,7 @@ import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type PopoverRoot } from '../root/PopoverRoot';
 import { REASONS } from '../../internals/reasons';
 import {
+  attachPreventUnmountOnClose,
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -130,9 +131,9 @@ export class PopoverStore<Payload> extends ReactStore<
     const isDismissClose =
       !nextOpen && (eventDetails.reason === REASONS.escapeKey || eventDetails.reason == null);
 
-    (eventDetails as PopoverRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-      this.set('preventUnmountingOnClose', true);
-    };
+    const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
+      eventDetails as PopoverRoot.ChangeEventDetails,
+    );
 
     const activeTriggerId = this.select('activeTriggerId');
 
@@ -162,7 +163,12 @@ export class PopoverStore<Payload> extends ReactStore<
         openChangeReason: eventDetails.reason,
       };
 
-      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
+      setPopupOpenState(
+        updatedState,
+        nextOpen,
+        eventDetails.trigger,
+        shouldPreventUnmountOnClose(),
+      );
 
       this.update(updatedState);
     };

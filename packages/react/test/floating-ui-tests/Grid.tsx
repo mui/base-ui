@@ -9,6 +9,9 @@ import {
   useListNavigation,
 } from '../../src/floating-ui-react';
 import styles from './Grid.module.css';
+import { gridNavigationWithColumns } from './gridNavigationWithColumns';
+
+const grid = gridNavigationWithColumns(5);
 
 interface Props {
   orientation?: 'horizontal' | 'both';
@@ -36,11 +39,11 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,
-      cols: 5,
       orientation,
       loopFocus,
       openOnArrowKeyDown: false,
       disabledIndices,
+      grid,
     }),
     useDismiss(context),
   ]);

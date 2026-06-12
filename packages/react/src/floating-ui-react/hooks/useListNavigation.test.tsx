@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM, useTestInteractions } from '#test-utils';
 import { useClick, useDismiss, useFloating, useListNavigation } from '../index';
+import { gridNavigation } from './gridNavigation';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
 import { Main as Grid } from '../../../test/floating-ui-tests/Grid';
@@ -119,9 +120,9 @@ function VirtualizedGridRows({
       onNavigate: setActiveIndex,
       virtual: true,
       loopFocus,
-      cols: 2,
       orientation: 'horizontal',
       disabledIndices,
+      grid: gridNavigation,
     }),
   ]);
 
