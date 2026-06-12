@@ -15,7 +15,7 @@ export function CssVariablesReferenceTable({
   name: partName,
   ...props
 }: CssVariablesReferenceTableProps) {
-  // Lets CSS compute the exact closed height for `contain-intrinsic-size`
+  // Lets CSS compute the exact closed height for `contain-intrinsic-height`
   const rowsStyle = { '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties;
 
   return (
