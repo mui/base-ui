@@ -109,7 +109,7 @@ This demo stacks nested drawers using a constant peek so the frontmost drawer st
 
 import { DemoDrawerNested } from './demos/nested';
 
-<DemoDrawerNested compact />
+<DemoDrawerNested />
 
 ### Snap points
 
@@ -170,13 +170,25 @@ import { DemoDrawerSwipeArea } from './demos/swipe-area';
 
 <DemoDrawerSwipeArea />
 
+### Close confirmation
+
+This example shows a nested confirmation dialog that opens if the text entered in the drawer is going to be discarded.
+
+To implement this, both the drawer and the confirmation dialog should be controlled. The confirmation dialog may be opened when the `onOpenChange` callback of the drawer receives a request to close while there is text in the textarea. This way, the confirmation is automatically shown when the user clicks the backdrop, presses the Esc key, clicks a close button, or dismisses the drawer with a swipe gesture.
+
+Use `eventDetails.cancel()` in `onOpenChange` to prevent the drawer from closing while the confirmation prompt is shown.
+
+import { DemoDrawerCloseConfirmation } from './demos/close-confirmation';
+
+<DemoDrawerCloseConfirmation />
+
 ### Action sheet with separate destructive action
 
 This demo builds an action sheet with a grouped list of actions plus a separate destructive action button.
 
 import { DemoDrawerUncontained } from './demos/uncontained';
 
-<DemoDrawerUncontained compact />
+<DemoDrawerUncontained />
 
 ### Detached triggers
 

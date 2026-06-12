@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { InteractionType, useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
-import { isIOS } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useValueChanged } from '../internals/useValueChanged';
 
 export function useOpenMethodTriggerProps(
@@ -19,7 +19,7 @@ export function useOpenMethodTriggerProps(
             // On iOS Safari, the hitslop around touch targets means tapping outside an element's
             // bounds does not fire `pointerdown` but does fire `mousedown`. The `interactionType`
             // will be "" in that case.
-            (isIOS ? 'touch' : ''),
+            (platform.os.ios ? 'touch' : ''),
         );
       }
     },

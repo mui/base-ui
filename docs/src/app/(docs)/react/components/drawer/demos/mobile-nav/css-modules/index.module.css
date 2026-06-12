@@ -147,11 +147,6 @@
   will-change: transform;
   transform: translateY(var(--drawer-swipe-movement-y));
 
-  &[data-swiping] {
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }

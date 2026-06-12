@@ -3,6 +3,7 @@ import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../../internals/field-constants/constants';
@@ -27,13 +28,45 @@ function isOnlyValueMissing(state: Record<keyof ValidityState, boolean> | undefi
     }
     if (key === 'valueMissing') {
       onlyValueMissing = state[key];
-    }
-    if (state[key]) {
+    } else if (state[key]) {
       onlyValueMissing = false;
     }
   }
 
   return onlyValueMissing;
+}
+
+/**
+ * Picks the input whose native validity should represent a field that owns several inputs (such as a
+ * checkbox group). Prefers the first enabled currently-invalid input, where "first" follows Set
+ * insertion order (mount order), and otherwise returns the first enabled input. Disabled inputs are
+ * skipped because they don't participate in native constraint validation.
+ */
+function findRepresentativeInput(inputs: Set<HTMLInputElement>): HTMLInputElement | null {
+  let fallback: HTMLInputElement | null = null;
+  for (const input of inputs) {
+    if (input.disabled) {
+      continue;
+    }
+    if (!input.validity.valid) {
+      return input;
+    }
+    fallback ??= input;
+  }
+  return fallback;
+}
+
+function clearCustomValidity(element: HTMLInputElement, inputs: Set<HTMLInputElement>) {
+  let didClearElement = false;
+
+  for (const input of inputs) {
+    input.setCustomValidity('');
+    didClearElement ||= input === element;
+  }
+
+  if (!didClearElement) {
+    element.setCustomValidity('');
+  }
 }
 
 export function useFieldValidation(
@@ -57,10 +90,29 @@ export function useFieldValidation(
 
   const timeout = useTimeout();
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const registeredInputs = useRefWithInit(() => new Set<HTMLInputElement>()).current;
   const validationCommitIdRef = React.useRef(0);
 
+  // Checkbox groups register several inputs against a single field. Track them so a `required`
+  // checkbox can't be satisfied by another input in the group, matching native per-checkbox behavior.
+  const registerInput = React.useCallback(
+    (element: HTMLInputElement | null) => {
+      if (!element) {
+        return undefined;
+      }
+      registeredInputs.add(element);
+      return () => {
+        registeredInputs.delete(element);
+      };
+    },
+    [registeredInputs],
+  );
+
   const commit = useStableCallback(async (value: unknown, revalidate = false) => {
-    const element = inputRef.current;
+    // A field can own several inputs (a checkbox group), but only the last-mounted one wins the shared
+    // `inputRef`. Validate against the registry instead so every input counts; `inputRef` is the
+    // fallback only when no registered input applies (none registered, or all of them disabled).
+    const element = findRepresentativeInput(registeredInputs) ?? inputRef.current;
     if (!element) {
       return;
     }
@@ -111,7 +163,7 @@ export function useFieldValidation(
           errors: [],
           initialValue: validityData.initialValue,
         };
-        element.setCustomValidity('');
+        clearCustomValidity(element, registeredInputs);
 
         // The required value is now present; ignore stale external invalid state for this pass.
         updateRegisteredFieldValidity(nextValidityData, false);
@@ -224,7 +276,7 @@ export function useFieldValidation(
       } else if (isValidatingOnChange) {
         // validate function returned no errors, if validating on change
         // we need to clear the custom validity state
-        element.setCustomValidity('');
+        clearCustomValidity(element, registeredInputs);
         nextState.customError = false;
 
         if (element.validationMessage) {
@@ -279,10 +331,11 @@ export function useFieldValidation(
     () => ({
       getValidationProps,
       inputRef,
+      registerInput,
       commit,
       change,
     }),
-    [getValidationProps, commit, change],
+    [getValidationProps, registerInput, commit, change],
   );
 }
 
@@ -304,6 +357,7 @@ export interface UseFieldValidationParameters {
 export interface UseFieldValidationReturnValue {
   getValidationProps: (disabled: boolean, props?: HTMLProps) => HTMLProps;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  registerInput: React.RefCallback<HTMLInputElement>;
   commit: (value: unknown) => Promise<void>;
   change: (value: unknown) => void;
 }

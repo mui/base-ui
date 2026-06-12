@@ -3,10 +3,19 @@ import * as React from 'react';
 import { fireEvent, screen, flushMicrotasks, act, within, waitFor } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { Dialog } from '@base-ui/react/dialog';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { OPEN_DELAY } from '../utils/constants';
+
+type FalsyNavigationMenuValue = 0 | '' | false;
+
+const falsyNavigationMenuValueCases = [
+  ['0', 0],
+  ['empty string', ''],
+  ['false', false],
+] as const satisfies ReadonlyArray<[string, FalsyNavigationMenuValue]>;
 
 function TestNavigationMenu(
   props: NavigationMenu.Root.Props & {
@@ -70,6 +79,31 @@ function TestNavigationMenuWithTopLevelLink(props: NavigationMenu.Root.Props = {
 
       <NavigationMenu.Portal>
         <NavigationMenu.Positioner data-testid="top-level-positioner">
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
+function TestNavigationMenuWithDisabledTrigger(props: NavigationMenu.Root.Props = {}) {
+  return (
+    <NavigationMenu.Root {...props}>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1" disabled>
+            Item 1
+          </NavigationMenu.Trigger>
+          <NavigationMenu.Content data-testid="popup-1">
+            <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
           <NavigationMenu.Popup>
             <NavigationMenu.Viewport />
           </NavigationMenu.Popup>
@@ -260,11 +294,18 @@ function TestNavigationMenuOrientationAttributes() {
 
 function TestInlineNestedNavigationMenu(
   props: {
-    nestedDefaultValue?: string | null;
+    nestedDefaultValue?: string | number | boolean | null;
+    nestedItem1Value?: string | number | boolean;
     keepMountedContent?: boolean;
+    nestedLinkCloseOnClick?: boolean;
   } = {},
 ) {
-  const { nestedDefaultValue = 'nested-item-1', keepMountedContent = false } = props;
+  const {
+    nestedDefaultValue = 'nested-item-1',
+    nestedItem1Value = 'nested-item-1',
+    keepMountedContent = false,
+    nestedLinkCloseOnClick = false,
+  } = props;
   const nestedRootProps =
     nestedDefaultValue == null ? undefined : { defaultValue: nestedDefaultValue };
 
@@ -278,7 +319,7 @@ function TestInlineNestedNavigationMenu(
             <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
             <NavigationMenu.Root {...nestedRootProps}>
               <NavigationMenu.List data-testid="inline-nested-list">
-                <NavigationMenu.Item value="nested-item-1">
+                <NavigationMenu.Item value={nestedItem1Value}>
                   <NavigationMenu.Trigger data-testid="nested-trigger-1">
                     Nested Item 1
                   </NavigationMenu.Trigger>
@@ -286,7 +327,12 @@ function TestInlineNestedNavigationMenu(
                     data-testid="nested-popup-1"
                     keepMounted={keepMountedContent}
                   >
-                    <NavigationMenu.Link href="#nested-link-1">Nested Link 1</NavigationMenu.Link>
+                    <NavigationMenu.Link
+                      href="#nested-link-1"
+                      closeOnClick={nestedLinkCloseOnClick}
+                    >
+                      Nested Link 1
+                    </NavigationMenu.Link>
                   </NavigationMenu.Content>
                 </NavigationMenu.Item>
                 <NavigationMenu.Item value="nested-item-2">
@@ -1476,6 +1522,47 @@ describe('<NavigationMenu.Root />', () => {
       await flushMicrotasks();
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
+
+    it('disables popup and arrow transitions while a kept portal opens', async () => {
+      await render(
+        <NavigationMenu.Root>
+          <NavigationMenu.List>
+            <NavigationMenu.Item value="item-1">
+              <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal keepMounted>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup data-testid="popup-root">
+                <NavigationMenu.Arrow data-testid="arrow" />
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>,
+      );
+
+      fireEvent.click(screen.getByTestId('trigger-1'));
+
+      expect(screen.getByTestId('popup-root')).toHaveStyle({
+        transition: 'none',
+      });
+      expect(screen.getByTestId('arrow')).toHaveStyle({
+        transition: 'none',
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup-root')).not.toHaveStyle({
+          transition: 'none',
+        });
+      });
+      expect(screen.getByTestId('arrow')).not.toHaveStyle({
+        transition: 'none',
+      });
+    });
   });
 
   describe('prop: onValueChange', () => {
@@ -1495,6 +1582,68 @@ describe('<NavigationMenu.Root />', () => {
       expect(onValueChange.mock.calls.length).toBe(2);
       expect(onValueChange.mock.lastCall?.[0]).toBe('item-2');
     });
+
+    it('does not emit a duplicate onValueChange when switching items via keyboard', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(<TestNavigationMenu onValueChange={onValueChange} />);
+      const trigger1 = screen.getByTestId('trigger-1');
+      const trigger2 = screen.getByTestId('trigger-2');
+
+      await user.click(trigger1);
+      await flushMicrotasks();
+      expect(onValueChange.mock.calls.length).toBe(1);
+      expect(onValueChange.mock.lastCall?.[0]).toBe('item-1');
+
+      await act(async () => {
+        trigger1.focus();
+      });
+      await user.keyboard('{ArrowRight}');
+      await flushMicrotasks();
+      expect(trigger2).toHaveFocus();
+      expect(onValueChange.mock.calls.filter((call) => call[0] === 'item-2')).toHaveLength(0);
+
+      await user.keyboard('{ArrowDown}');
+      await flushMicrotasks();
+
+      expect(onValueChange.mock.calls.filter((call) => call[0] === 'item-2')).toHaveLength(1);
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it.each(falsyNavigationMenuValueCases)(
+      'treats a falsy item value (%s) as a valid open value',
+      async (_label, itemValue) => {
+        const onValueChange = vi.fn();
+        await render(
+          <NavigationMenu.Root<FalsyNavigationMenuValue> onValueChange={onValueChange}>
+            <NavigationMenu.List>
+              <NavigationMenu.Item value={itemValue}>
+                <NavigationMenu.Trigger data-testid="trigger-0">Zero</NavigationMenu.Trigger>
+                <NavigationMenu.Content data-testid="popup-0">
+                  <NavigationMenu.Link href="#link-0">Zero link</NavigationMenu.Link>
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+            <NavigationMenu.Portal>
+              <NavigationMenu.Positioner>
+                <NavigationMenu.Popup>
+                  <NavigationMenu.Viewport />
+                </NavigationMenu.Popup>
+              </NavigationMenu.Positioner>
+            </NavigationMenu.Portal>
+          </NavigationMenu.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger-0');
+
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+
+        expect(onValueChange.mock.calls.length).toBe(1);
+        expect(onValueChange.mock.lastCall?.[0]).toBe(itemValue);
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.queryByTestId('popup-0')).not.toBe(null);
+      },
+    );
 
     it('should be controlled by value prop', async () => {
       const { setProps } = await render(<TestNavigationMenu value="item-1" />);
@@ -1694,6 +1843,176 @@ describe('<NavigationMenu.Root />', () => {
       expect(screen.queryByTestId('popup-1')).toBe(null);
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
+  });
+
+  describe('prop: disabled', () => {
+    it('does not open on hover when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not open on click when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not open on touch when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(<TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />);
+      const trigger = screen.getByTestId('trigger-1');
+
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.pointerUp(trigger, { pointerType: 'touch' });
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not open via keyboard when the trigger is disabled', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <TestNavigationMenuWithDisabledTrigger onValueChange={onValueChange} />,
+      );
+      const trigger = screen.getByTestId('trigger-1');
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('{ArrowDown}');
+      await flushMicrotasks();
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      expect(screen.queryByTestId('popup-1')).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('prop: actionsRef', () => {
+    it('exposes an unmount action and defers unmounting until it is called', async () => {
+      const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+
+      function ControlledNavigationMenu(props: { value: string | null }) {
+        return <TestNavigationMenu value={props.value} actionsRef={actionsRef} />;
+      }
+
+      const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+      expect(actionsRef.current).not.toBe(null);
+      expect(actionsRef.current?.unmount).toBeTypeOf('function');
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+
+      // Closing keeps the popup mounted because `actionsRef` disables the automatic unmount.
+      await rerender(<ControlledNavigationMenu value={null} />);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('popup-root')).not.toBe(null);
+
+      await act(async () => {
+        actionsRef.current?.unmount();
+      });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-root')).toBe(null);
+    });
+
+    it('unmounts immediately when called while the popup is closing', async () => {
+      const previousAnimationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      try {
+        const actionsRef = React.createRef<NavigationMenu.Root.Actions>();
+
+        function ControlledNavigationMenu(props: { value: string | null }) {
+          return <TestNavigationMenu value={props.value} actionsRef={actionsRef} />;
+        }
+
+        const { rerender } = await render(<ControlledNavigationMenu value="item-1" />);
+
+        const popupRoot = screen.getByTestId('popup-root');
+        const animations = mockAnimations(popupRoot);
+        const closingAnimation = animations.start();
+
+        await rerender(<ControlledNavigationMenu value={null} />);
+        await flushMicrotasks();
+
+        expect(popupRoot).toHaveAttribute('data-ending-style');
+
+        await act(async () => {
+          actionsRef.current?.unmount();
+        });
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('popup-root')).toBe(null);
+
+        await act(async () => {
+          animations.finish(closingAnimation);
+          await flushMicrotasks();
+        });
+      } finally {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = previousAnimationsDisabled;
+      }
+    });
+  });
+
+  describe('prop: side', () => {
+    it.each([
+      ['left in LTR', 'ltr', 'left'],
+      ['inline-start in LTR', 'ltr', 'inline-start'],
+      ['inline-end in RTL', 'rtl', 'inline-end'],
+    ] as const)(
+      'pins the popup to the right edge when side is %s so it grows leftward',
+      async (_label, direction, side) => {
+        await render(
+          <DirectionProvider direction={direction as TextDirection}>
+            <NavigationMenu.Root>
+              <NavigationMenu.List>
+                <NavigationMenu.Item value="item-1">
+                  <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+                  <NavigationMenu.Content>
+                    <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+                  </NavigationMenu.Content>
+                </NavigationMenu.Item>
+              </NavigationMenu.List>
+              <NavigationMenu.Portal>
+                <NavigationMenu.Positioner side={side}>
+                  <NavigationMenu.Popup data-testid="popup-root">
+                    <NavigationMenu.Viewport />
+                  </NavigationMenu.Popup>
+                </NavigationMenu.Positioner>
+              </NavigationMenu.Portal>
+            </NavigationMenu.Root>
+          </DirectionProvider>,
+        );
+
+        const trigger = screen.getByTestId('trigger-1');
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+
+        const popup = screen.getByTestId('popup-root');
+        expect(popup).toHaveAttribute('data-side', side);
+        expect(popup).toHaveStyle({ position: 'absolute', top: '0px', right: '0px' });
+      },
+    );
   });
 
   describe('tabbing', () => {
@@ -2405,6 +2724,95 @@ describe('<NavigationMenu.Root />', () => {
         expect(screen.queryByTestId('nested-popup-1')).toBe(null);
       });
 
+      it('adds popup-open data attributes to the active icon', async () => {
+        await render(
+          <NavigationMenu.Root defaultValue="item-1">
+            <NavigationMenu.List>
+              <NavigationMenu.Item value="item-1">
+                <NavigationMenu.Trigger>
+                  Item 1
+                  <NavigationMenu.Icon data-testid="icon-1" />
+                </NavigationMenu.Trigger>
+                <NavigationMenu.Content>
+                  <NavigationMenu.Link href="#link-1">Link 1</NavigationMenu.Link>
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+              <NavigationMenu.Item value="item-2">
+                <NavigationMenu.Trigger>
+                  Item 2
+                  <NavigationMenu.Icon data-testid="icon-2" />
+                </NavigationMenu.Trigger>
+                <NavigationMenu.Content>
+                  <NavigationMenu.Link href="#link-2">Link 2</NavigationMenu.Link>
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+
+            <NavigationMenu.Portal>
+              <NavigationMenu.Positioner>
+                <NavigationMenu.Popup>
+                  <NavigationMenu.Viewport />
+                </NavigationMenu.Popup>
+              </NavigationMenu.Positioner>
+            </NavigationMenu.Portal>
+          </NavigationMenu.Root>,
+        );
+
+        expect(screen.getByTestId('icon-1')).toHaveAttribute('data-popup-open');
+        expect(screen.getByTestId('icon-2')).not.toHaveAttribute('data-popup-open');
+      });
+
+      it.each(falsyNavigationMenuValueCases)(
+        'treats a falsy value (%s) as open for inline nested trigger interactions',
+        async (_label, itemValue) => {
+          await render(
+            <TestInlineNestedNavigationMenu
+              nestedDefaultValue={itemValue}
+              nestedItem1Value={itemValue}
+            />,
+          );
+          const trigger1 = screen.getByTestId('trigger-1');
+
+          fireEvent.click(trigger1);
+          await flushMicrotasks();
+
+          const popup1 = screen.getByTestId('popup-1');
+          const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+          expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+          expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
+
+          fireEvent.click(nestedTrigger1);
+          await flushMicrotasks();
+
+          expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+          expect(screen.queryByTestId('nested-popup-1')).not.toBe(null);
+        },
+      );
+
+      it('propagates a nested close with a falsy open value to the parent root', async () => {
+        await render(
+          <TestInlineNestedNavigationMenu
+            nestedDefaultValue={false}
+            nestedItem1Value={false}
+            nestedLinkCloseOnClick
+          />,
+        );
+        const trigger1 = screen.getByTestId('trigger-1');
+
+        fireEvent.click(trigger1);
+        await flushMicrotasks();
+
+        const popup1 = screen.getByTestId('popup-1');
+        const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+        expect(nestedTrigger1).toHaveAttribute('aria-expanded', 'true');
+
+        fireEvent.click(screen.getByText('Nested Link 1'));
+        await flushMicrotasks();
+
+        expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByTestId('popup-1')).toBe(null);
+      });
+
       it('allows arrow key navigation to submenu triggers', async () => {
         const { user } = await render(<TestInlineNestedNavigationMenu />);
         const trigger1 = screen.getByTestId('trigger-1');
@@ -2873,7 +3281,15 @@ describe('<NavigationMenu.Root />', () => {
           popupHeight = 180;
 
           fireEvent(window, new Event('resize'));
+          expect(positioner).toHaveAttribute('data-instant');
+
+          clock.tick(0);
           await flushMicrotasks();
+          expect(positioner).toHaveAttribute('data-instant');
+
+          clock.tick(100);
+          await flushMicrotasks();
+          expect(positioner).not.toHaveAttribute('data-instant');
 
           await waitFor(() => {
             expect(popupRoot.style.getPropertyValue('--popup-width')).toBe('auto');
@@ -3326,5 +3742,28 @@ describe('<NavigationMenu.Root />', () => {
         expect(screen.getByTestId('nested-link-composition')).toHaveFocus();
       });
     });
+  });
+});
+
+describe('initial open', () => {
+  // A dedicated renderer without `shouldAdvanceTime` so the one-frame instant reset
+  // (scheduled via a zero-delay timeout) can be observed deterministically rather
+  // than racing the assertion.
+  const { render, clock } = createRenderer();
+
+  clock.withFakeTimers();
+
+  it('suppresses the positioner transition for the first frame while initially open', async () => {
+    await render(<TestNavigationMenu defaultValue="item-1" />);
+
+    // While initially open, the positioner starts with its transition suppressed so a
+    // default value does not animate in from the unpositioned portal state.
+    const positioner = screen.getByTestId('top-level-positioner');
+    expect(positioner).toHaveAttribute('data-instant');
+
+    // The suppression is released on the next tick.
+    clock.tick(0);
+    await flushMicrotasks();
+    expect(positioner).not.toHaveAttribute('data-instant');
   });
 });

@@ -2,8 +2,8 @@
   .CodeBlockRoot {
     align-self: stretch;
     background-color: var(--color-content);
-    border: 1px solid var(--gray-c2);
-    border-radius: var(--radius-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-12);
 
     & code .frame {
       padding-left: 0.75rem;
@@ -35,13 +35,12 @@
     padding-inline-end: 0.25rem;
     height: 2.25rem;
     gap: 1rem;
-    border-top-left-radius: inherit;
-    border-top-right-radius: inherit;
-    border-bottom: 1px solid var(--gray-c2);
+    border-top-left-radius: calc(var(--radius-12) - 1px);
+    border-top-right-radius: calc(var(--radius-12) - 1px);
+    border-bottom: 1px solid var(--color-border);
 
     /* Scroll */
     overflow: auto hidden;
-    overscroll-behavior-x: contain;
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
@@ -66,17 +65,21 @@
 
   .CodeBlockCopyIcon {
     display: flex;
-    width: 14px;
-    height: 14px;
+    width: 1rem;
+    height: 1rem;
     align-items: center;
     justify-content: center;
   }
 
   .CodeBlockViewport {
     outline: 0;
-    border-bottom-right-radius: var(--radius-6);
-    border-bottom-left-radius: var(--radius-6);
-    overscroll-behavior-x: contain;
+    border-bottom-right-radius: calc(var(--radius-12) - 1px);
+    border-bottom-left-radius: calc(var(--radius-12) - 1px);
+
+    &[data-has-overflow-x] {
+      /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
+      overscroll-behavior-x: contain;
+    }
 
     &:focus-visible {
       outline: 2px solid var(--gray-t2);
@@ -126,7 +129,7 @@
   .CodeBlockPre,
   .CodeBlockRoot .CodeBlockPreInline {
     padding: 0.5rem 0;
-    border-radius: var(--radius-6);
+    border-radius: calc(var(--radius-12) - 1px);
   }
 
   .CodeBlockPreContainer {
