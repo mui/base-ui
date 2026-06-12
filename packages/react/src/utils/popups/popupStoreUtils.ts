@@ -136,6 +136,12 @@ export function setPopupOpenState(
 
   const triggerId = trigger?.id ?? null;
 
+  if (open) {
+    // Track whether this open was initiated without a trigger (e.g. `openWithPayload`), so a
+    // later-mounting trigger doesn't claim ownership and overwrite programmatically set state.
+    state.openedWithoutTrigger = trigger == null;
+  }
+
   // If a popup is closing, the `trigger` may be undefined.
   // We want to keep the previous value so that exit animations are played and focus is returned correctly.
   if (triggerId || open) {
@@ -209,10 +215,11 @@ export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>
       return;
     }
 
-    if (activeTriggerId == null && open) {
+    if (activeTriggerId == null && open && !store.state.openedWithoutTrigger) {
       // If a popup is already open, a detached trigger can mount before any active trigger
       // has been established. Claim the first registered trigger so trigger-owned focus
-      // management and ARIA relationships work.
+      // management and ARIA relationships work. Popups opened imperatively without a trigger
+      // (`openedWithoutTrigger`) are excluded so a late trigger can't overwrite their payload.
       store.update({
         activeTriggerId: triggerId,
         activeTriggerElement: element,
@@ -270,6 +277,12 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       if (store.state.triggerCount !== 0) {
         store.set('triggerCount', 0);
       }
+      // Reset the triggerless-open flag once closed so a later open through a path that
+      // doesn't run `setPopupOpenState` (e.g. controlled `open`/`defaultOpen`) isn't
+      // suppressed by a stale value.
+      if (store.state.openedWithoutTrigger) {
+        store.set('openedWithoutTrigger', false);
+      }
       return;
     }
 
@@ -292,7 +305,12 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       }
     }
 
-    if (!lostActiveTriggerId && !activeTriggerId && triggerCount === 1) {
+    if (
+      !lostActiveTriggerId &&
+      !activeTriggerId &&
+      triggerCount === 1 &&
+      !store.state.openedWithoutTrigger
+    ) {
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;

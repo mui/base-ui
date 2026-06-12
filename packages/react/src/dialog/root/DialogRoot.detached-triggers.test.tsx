@@ -787,5 +787,78 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByRole('dialog')).toBe(null);
       });
     });
+
+    it('does not overwrite a programmatic payload when a trigger mounts while open', async () => {
+      const dialog = Dialog.createHandle<number>();
+
+      function App({ showTrigger }: { showTrigger: boolean }) {
+        return (
+          <div>
+            {showTrigger && (
+              <Dialog.Trigger handle={dialog} id="late-trigger" payload={42}>
+                Late trigger
+              </Dialog.Trigger>
+            )}
+            <Dialog.Root handle={dialog}>
+              {({ payload }: { payload: number | undefined }) => (
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="content">{payload}</Dialog.Popup>
+                </Dialog.Portal>
+              )}
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { setProps } = await render(<App showTrigger={false} />);
+
+      await act(() => dialog.openWithPayload(8));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+      expect(screen.getByTestId('content').textContent).toBe('8');
+
+      // Mounting a trigger after the dialog was opened programmatically must not overwrite
+      // the payload set via `openWithPayload`.
+      await setProps({ showTrigger: true });
+
+      expect(screen.getByTestId('content').textContent).toBe('8');
+    });
+
+    it('does not associate a late single trigger with a programmatically-opened dialog', async () => {
+      const dialog = Dialog.createHandle<number>();
+
+      function App({ showTrigger }: { showTrigger: boolean }) {
+        return (
+          <div>
+            {showTrigger && (
+              <Dialog.Trigger data-testid="late-trigger" handle={dialog} id="late-trigger">
+                Late trigger
+              </Dialog.Trigger>
+            )}
+            <Dialog.Root handle={dialog} modal={false}>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { setProps } = await render(<App showTrigger={false} />);
+
+      await act(() => dialog.openWithPayload(1));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      await setProps({ showTrigger: true });
+
+      const trigger = screen.getByTestId('late-trigger');
+      // The dialog was opened without a trigger, so a late single trigger must not claim an
+      // ARIA relationship (aria-controls / aria-expanded) to a popup it didn't open.
+      expect(trigger).not.toHaveAttribute('aria-controls');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
   });
 });
