@@ -282,7 +282,7 @@
       /* Functional colors */
       --color-content: black;
       --color-background: black;
-      --color-border: var(--whiteA-4);
+      --color-border: var(--whiteA-5);
       --color-popup: var(--gray-s1);
       --color-gridline: var(--gray-c1);
       --color-selection: hsl(0deg 0% 18%);
