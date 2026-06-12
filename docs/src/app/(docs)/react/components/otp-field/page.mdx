@@ -7,8 +7,6 @@
   content="A high-quality, unstyled React OTP field component for one-time password and verification code entry."
 />
 
-> **Note:** OTP Field is currently in preview. Its API may change before it becomes stable.
-
 import { DemoOTPFieldHero } from './demos/hero';
 
 <DemoOTPFieldHero />
@@ -22,7 +20,7 @@ import { DemoOTPFieldHero } from './demos/hero';
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
+import { OTPField } from '@base-ui/react/otp-field';
 
 <OTPField.Root>
   <OTPField.Input />
@@ -126,6 +124,23 @@ Use `mask` when the code should be obscured while it is being typed.
 import { DemoOTPFieldPassword } from './demos/password';
 
 <DemoOTPFieldPassword compact />
+
+### Autofill and password managers
+
+The browser's native one-time-code suggestions and password manager autofill both target the first
+slot, which holds a `maxLength` matching the OTP `length` so a complete code can be filled and
+distributed across the remaining slots.
+
+Some password managers position their inline autofill popup relative to the focused input and skip
+narrow inputs. For example, 1Password's inline popup does not appear for inputs narrower than `80px`
+(filling from the browser extension still works). If you need the inline popup, give the first slot
+enough width, or render a wider visually-styled first slot:
+
+```css title="Give the first slot enough width for the inline popup"
+.Input:first-child {
+  min-width: 80px;
+}
+```
 
 ## API reference
 
