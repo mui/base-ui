@@ -146,7 +146,7 @@ Wrap a bottom-sheet drawer in `<Drawer.VirtualKeyboardProvider>` when it contain
 
 Keep the popup frame stable and place header and footer content outside a plain scrollable body. When the keyboard opens, the provider centers the focused field within the visible viewport, scrolling the body when it can.
 
-If a footer contains its own input, reserve a footer slot below the scroll area and lift the pinned footer with `--drawer-keyboard-inset`.
+If a footer contains its own input, reserve a footer slot below the scroll area and lift the pinned footer with `--drawer-keyboard-inset`. In the demo, the footer switches to `position: fixed` while it contains focus: the popup's `transform` makes the popup the containing block for fixed descendants, so the footer stays pinned to the popup's bottom edge no matter how the reserved slot resizes, and adding the keyboard inset to its bottom padding lifts the input above the keyboard without leaving a gap behind it.
 
 ```tsx title="Virtual keyboard aware drawer"
 <Drawer.Root>

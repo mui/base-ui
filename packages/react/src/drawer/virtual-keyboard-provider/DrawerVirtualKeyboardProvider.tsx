@@ -86,13 +86,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     if (!adjustment) {
       return;
     }
-    try {
-      adjustment.element.style.overflowAnchor = adjustment.overflowAnchor;
-      adjustment.element.style.paddingBottom = adjustment.paddingBottom;
-      adjustment.element.style.scrollPaddingBottom = adjustment.scrollPaddingBottom;
-    } finally {
-      keyboardScrollAdjustmentRef.current = null;
-    }
+    adjustment.element.style.overflowAnchor = adjustment.overflowAnchor;
+    adjustment.element.style.paddingBottom = adjustment.paddingBottom;
+    adjustment.element.style.scrollPaddingBottom = adjustment.scrollPaddingBottom;
+    keyboardScrollAdjustmentRef.current = null;
   });
 
   const setKeyboardScrollSlack = useStableCallback((element: HTMLElement, slack: number) => {
@@ -390,6 +387,8 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       focusKeyboardInputWithoutPageScroll(keyboardFocusTarget);
       // Preventing the touchend default also suppresses the compatibility mouse
       // events, including `click`; redispatch it so click handlers still run.
+      // Caveat: unlike a native tap, this click is untrusted with zeroed
+      // coordinates (`isTrusted: false`, `clientX/Y: 0`, `detail: 0`).
       keyboardFocusTarget.click();
       resetTouchTrackingState();
       return;
