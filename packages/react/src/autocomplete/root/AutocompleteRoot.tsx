@@ -234,8 +234,8 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the autocomplete once its closing animation has finished.
-   * Useful when the animation is controlled by an external JavaScript animation library.
+   * - `unmount`: Manually unmounts the autocomplete.
+   * Call this after any externally controlled closing animation finishes.
    */
   actionsRef?: React.RefObject<AutocompleteRootActions | null> | undefined;
   /**

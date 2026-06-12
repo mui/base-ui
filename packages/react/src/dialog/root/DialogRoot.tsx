@@ -59,8 +59,8 @@ export interface DialogRootProps<Payload = unknown> {
   disablePointerDismissal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the dialog once its closing animation has finished.
-   * Useful when the animation is controlled by an external JavaScript animation library.
+   * - `unmount`: Manually unmounts the dialog.
+   * Call this after any externally controlled closing animation finishes.
    * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<DialogRoot.Actions | null> | undefined;

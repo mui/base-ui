@@ -107,8 +107,8 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   defaultValue?: ComboboxValueType<Value, Multiple> | null | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the combobox once its closing animation has finished.
-   * Useful when the animation is controlled by an external JavaScript animation library.
+   * - `unmount`: Manually unmounts the combobox.
+   * Call this after any externally controlled closing animation finishes.
    */
   actionsRef?: React.RefObject<ComboboxRoot.Actions | null> | undefined;
   /**

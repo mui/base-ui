@@ -289,8 +289,8 @@ export interface DrawerRootProps<Payload = unknown> {
   disablePointerDismissal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the drawer once its closing animation has finished.
-   * Useful when the animation is controlled by an external JavaScript animation library.
+   * - `unmount`: Manually unmounts the drawer.
+   * Call this after any externally controlled closing animation finishes.
    * - `close`: Closes the drawer imperatively when called.
    */
   actionsRef?: React.RefObject<DrawerRoot.Actions | null> | undefined;

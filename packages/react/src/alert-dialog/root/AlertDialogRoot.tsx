@@ -29,8 +29,8 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
     | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: Manually unmounts the alert dialog once its closing animation has finished.
-   * Useful when the animation is controlled by an external JavaScript animation library.
+   * - `unmount`: Manually unmounts the alert dialog.
+   * Call this after any externally controlled closing animation finishes.
    * - `close`: Closes the alert dialog imperatively when called.
    */
   actionsRef?: React.RefObject<AlertDialogRoot.Actions | null> | undefined;
