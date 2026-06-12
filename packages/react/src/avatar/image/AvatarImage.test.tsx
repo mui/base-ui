@@ -73,6 +73,13 @@ describe('<Avatar.Image />', () => {
 
   let restoreImage: () => void;
 
+  function installImageMock(options?: Parameters<typeof mockImageLoading>[0]) {
+    restoreImage();
+    const imageMock = mockImageLoading(options);
+    restoreImage = imageMock.restore;
+    return imageMock;
+  }
+
   beforeEach(() => {
     restoreImage = mockImageLoading({ completeOnSet: true }).restore;
   });
@@ -122,9 +129,7 @@ describe('<Avatar.Image />', () => {
   });
 
   it.skipIf(!isJSDOM)('passes responsive image props to the loading probe', async () => {
-    restoreImage();
-    const imageMock = mockImageLoading();
-    restoreImage = imageMock.restore;
+    const imageMock = installImageMock();
 
     await render(
       <Avatar.Root>
@@ -139,9 +144,7 @@ describe('<Avatar.Image />', () => {
 
   describe.skipIf(!isJSDOM)('prop: onLoadingStatusChange', () => {
     it('fires when the image loads', async () => {
-      restoreImage();
-      const imageMock = mockImageLoading();
-      restoreImage = imageMock.restore;
+      const imageMock = installImageMock();
       const onLoadingStatusChange = vi.fn();
 
       await render(
@@ -155,7 +158,7 @@ describe('<Avatar.Image />', () => {
       });
 
       await act(async () => {
-        imageMock.images[imageMock.images.length - 1].onload?.();
+        imageMock.images.at(-1)?.onload?.();
       });
 
       await waitFor(() => {
@@ -167,9 +170,7 @@ describe('<Avatar.Image />', () => {
     });
 
     it('fires when the image errors', async () => {
-      restoreImage();
-      const imageMock = mockImageLoading();
-      restoreImage = imageMock.restore;
+      const imageMock = installImageMock();
       const onLoadingStatusChange = vi.fn();
 
       await render(
@@ -183,7 +184,7 @@ describe('<Avatar.Image />', () => {
       });
 
       await act(async () => {
-        imageMock.images[imageMock.images.length - 1].onerror?.();
+        imageMock.images.at(-1)?.onerror?.();
       });
 
       await waitFor(() => {
@@ -195,8 +196,7 @@ describe('<Avatar.Image />', () => {
     });
 
     it('fires for cached image errors without emitting idle', async () => {
-      restoreImage();
-      restoreImage = mockImageLoading({ completeOnSet: true, naturalWidth: 0 }).restore;
+      installImageMock({ completeOnSet: true, naturalWidth: 0 });
       const onLoadingStatusChange = vi.fn();
 
       await render(

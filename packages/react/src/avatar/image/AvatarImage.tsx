@@ -35,15 +35,8 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     style,
     ...elementProps
   } = componentProps;
-  const { crossOrigin, referrerPolicy, sizes, src, srcSet } = elementProps;
-
   const { setImageLoadingStatus } = useAvatarRootContext();
-  const imageLoadingStatus = useImageLoadingStatus(src, {
-    referrerPolicy,
-    crossOrigin,
-    sizes,
-    srcSet,
-  });
+  const imageLoadingStatus = useImageLoadingStatus(elementProps.src, elementProps);
 
   const isVisible = imageLoadingStatus === 'loaded';
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(isVisible);

@@ -41,10 +41,10 @@ export function useImageLoadingStatus(
       image.referrerPolicy = referrerPolicy;
     }
     image.crossOrigin = crossOrigin ?? null;
-    if (sizes !== undefined) {
+    if (sizes) {
       image.sizes = sizes;
     }
-    if (srcSet !== undefined) {
+    if (srcSet) {
       image.srcset = srcSet;
     }
     if (src) {

@@ -71,16 +71,16 @@ describe('<Avatar.Fallback />', () => {
     const { user } = await render(<Test />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('image')).not.toBe(null);
       expect(screen.queryByTestId('fallback')).toBe(null);
     });
+    expect(screen.getByTestId('image')).not.toBe(null);
 
     await user.click(screen.getByText('Hide image'));
 
     await waitFor(() => {
-      expect(screen.queryByTestId('image')).toBe(null);
       expect(screen.getByTestId('fallback')).not.toBe(null);
     });
+    expect(screen.queryByTestId('image')).toBe(null);
   });
 
   describe.skipIf(!isJSDOM)('prop: delay', () => {
