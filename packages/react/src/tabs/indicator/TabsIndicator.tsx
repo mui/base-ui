@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
+import { getElementTransform } from '../../utils/getElementTransform';
 import { useIsHydrating } from '../../utils/useIsHydrating';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
@@ -248,27 +250,24 @@ function getCumulativeOffset(element: HTMLElement) {
 // Only pixel values are handled; non-pixel `translate` units would require resolving
 // against the tab's size and aren't supported here.
 function getActiveTabTranslation(element: HTMLElement) {
-  const cs = getComputedStyle(element);
-  let x = 0;
-  let y = 0;
+  const { x, y } = getElementTransform(element);
+  let translateX = x;
+  let translateY = y;
 
-  if (cs.translate && cs.translate !== 'none') {
-    const parts = cs.translate.split(/\s+/);
+  // The `translate` longhand is a separate property and is not reflected in the
+  // computed `transform` matrix that `getElementTransform` reads.
+  const { translate } = ownerWindow(element).getComputedStyle(element);
+  if (translate && translate !== 'none') {
+    const parts = translate.split(/\s+/);
     const tx = parseFloat(parts[0]);
     const ty = parseFloat(parts[1]);
     if (Number.isFinite(tx)) {
-      x += tx;
+      translateX += tx;
     }
     if (Number.isFinite(ty)) {
-      y += ty;
+      translateY += ty;
     }
   }
 
-  if (cs.transform && cs.transform !== 'none') {
-    const matrix = new DOMMatrix(cs.transform);
-    x += matrix.e;
-    y += matrix.f;
-  }
-
-  return { x, y };
+  return { x: translateX, y: translateY };
 }
