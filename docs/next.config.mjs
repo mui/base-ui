@@ -106,7 +106,7 @@ const nextConfig = {
         loaders: [
           {
             loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
-            options: { emphasisOptions: { focusFramesMaxSize: 4 } },
+            options: { emphasisOptions: { focusFramesMaxSize: 6 } },
           },
         ],
       },
@@ -138,7 +138,7 @@ const nextConfig = {
         defaultLoaders.babel,
         {
           loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
-          options: { emphasisOptions: { focusFramesMaxSize: 4 } },
+          options: { emphasisOptions: { focusFramesMaxSize: 6 } },
         },
       ],
     });

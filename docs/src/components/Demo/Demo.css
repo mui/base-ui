@@ -230,6 +230,9 @@
   }
 
   .DemoCodeBlockViewport {
+    --demo-code-block-line-height: 1.25rem; /* 20px */
+    line-height: var(--demo-code-block-line-height);
+
     &[data-has-overflow-x] {
       /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
       overscroll-behavior-x: contain;
@@ -240,7 +243,7 @@
 
     &[data-closed] {
       overflow: hidden;
-      max-height: calc(8.75lh + 0.5rem); /* Show almost 9 code lines plus top padding */
+      max-height: calc(5.7lh + 0.5rem); /* Display almost 6 code lines plus top padding */
     }
     &[data-closed] code .frame:not([data-frame-type]),
     &[data-closed] code .frame[data-frame-type='highlighted-unfocused'],
@@ -252,7 +255,7 @@
   .DemoSourceBrowser {
     position: relative;
     font-size: 0.8125rem; /* 13px */
-    line-height: 1.25rem; /* 20px */
+    line-height: var(--demo-code-block-line-height); /* 20px */
     cursor: text;
     display: flex;
 
