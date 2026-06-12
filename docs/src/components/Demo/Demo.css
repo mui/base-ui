@@ -3,7 +3,7 @@
 @layer components {
   .DemoRoot {
     --demo-radius: var(--radius-12);
-    border: 1px solid var(--gray-c2);
+    border: 1px solid var(--color-border);
     border-radius: var(--demo-radius);
     margin-bottom: var(--space-24);
   }
@@ -166,7 +166,7 @@
     }
 
     &[data-active] {
-      border-color: var(--gray-c2);
+      border-color: var(--color-border);
       background-color: var(--gray-s1);
 
       &::after {
@@ -202,7 +202,7 @@
     flex-direction: column;
     position: relative;
     outline: 0;
-    border-top: 1px solid var(--gray-c2);
+    border-top: 1px solid var(--color-border);
     border-bottom-left-radius: var(--demo-radius);
     border-bottom-right-radius: var(--demo-radius);
     margin-top: -1px;
