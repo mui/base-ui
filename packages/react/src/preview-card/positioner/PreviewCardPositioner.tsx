@@ -80,6 +80,8 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   });
   const updatePosition = positioning.update;
 
+  // Re-run positioning once open so the card re-anchors to the latest hovered
+  // inline line box (its position can change between hovers of the same trigger).
   useIsoLayoutEffect(() => {
     if (open && mounted) {
       updatePosition();

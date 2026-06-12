@@ -80,12 +80,9 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
-  // Animations should be instant in two cases:
-  // 1) Opening during the provider's instant phase (adjacent tooltip opens instantly)
-  // 2) Closing because another tooltip opened (reason === 'none')
-  // Otherwise, allow the animation to play. In particular, do not disable animations
-  // during the 'ending' phase unless it's due to a sibling opening.
-  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  const previousInstantTypeRef = React.useRef<'delay' | 'dismiss' | 'focus' | null | undefined>(
+    null,
+  );
 
   useIsoLayoutEffect(() => {
     if (openState && disabled) {
@@ -93,6 +90,11 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     }
   }, [openState, disabled, store]);
 
+  // Animations should be instant in two cases:
+  // 1) Opening during the provider's instant phase (adjacent tooltip opens instantly)
+  // 2) Closing because another tooltip opened (reason === 'none')
+  // Otherwise, allow the animation to play. In particular, do not disable animations
+  // during the 'ending' phase unless it's due to a sibling opening.
   useIsoLayoutEffect(() => {
     if (
       (transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
@@ -112,10 +114,8 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   }, [transitionStatus, isInstantPhase, lastOpenChangeReason, instantType, store]);
 
   useIsoLayoutEffect(() => {
-    if (open) {
-      if (activeTriggerId == null) {
-        store.set('payload', undefined);
-      }
+    if (open && activeTriggerId == null) {
+      store.set('payload', undefined);
     }
   }, [store, activeTriggerId, open]);
 
