@@ -143,9 +143,8 @@ export interface PopoverRootProps<Payload = unknown> {
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the popover will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the popover manually.
-   * Useful when the popover's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the popover once its closing animation has finished.
+   * Useful when the animation is controlled by an external JavaScript animation library.
    * - `close`: Closes the popover imperatively when called.
    */
   actionsRef?: React.RefObject<PopoverRoot.Actions | null> | undefined;

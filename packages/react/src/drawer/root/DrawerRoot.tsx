@@ -282,15 +282,15 @@ export interface DrawerRootProps<Payload = unknown> {
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
-   * Determines whether the drawer should close on outside clicks.
+   * Whether to prevent the drawer from closing on outside presses.
+   * For non-modal drawers, this also prevents the drawer from closing when focus moves outside of it.
    * @default false
    */
   disablePointerDismissal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the drawer will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the drawer manually.
-   * Useful when the drawer's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the drawer once its closing animation has finished.
+   * Useful when the animation is controlled by an external JavaScript animation library.
    * - `close`: Closes the drawer imperatively when called.
    */
   actionsRef?: React.RefObject<DrawerRoot.Actions | null> | undefined;

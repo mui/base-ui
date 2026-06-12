@@ -714,9 +714,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   modal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the select will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the select manually.
-   * Useful when the select's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the select once its closing animation has finished.
+   * Useful when the animation is controlled by an external JavaScript animation library.
    */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;
   /**

@@ -1463,9 +1463,8 @@ interface ComboboxRootProps<ItemValue> {
   defaultInputValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the combobox will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the combobox manually.
-   * Useful when the combobox's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the combobox once its closing animation has finished.
+   * Useful when the animation is controlled by an external JavaScript animation library.
    */
   actionsRef?: React.RefObject<AriaCombobox.Actions | null> | undefined;
   /**
