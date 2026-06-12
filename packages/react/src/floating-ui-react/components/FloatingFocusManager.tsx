@@ -391,11 +391,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       addEventListener(doc, 'pointerup', clearPointerDownOutside, true),
       addEventListener(doc, 'pointercancel', clearPointerDownOutside, true),
       addEventListener(doc, 'keydown', onKeyDown, true),
-      () => {
-        // Avoid a stale `true` leaking into the next open (e.g. keep-mounted popups)
-        // if the popup dismissed between pointerdown and pointerup.
-        pointerDownOutsideRef.current = false;
-      },
+      // Avoid a stale `true` leaking into the next open (e.g. keep-mounted popups)
+      // if the popup dismissed between pointerdown and pointerup.
+      clearPointerDownOutside,
     );
   }, [
     disabled,
