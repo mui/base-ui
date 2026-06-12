@@ -6,12 +6,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
-import type {
-  BaseUIComponentProps,
-  HTMLProps,
-  NonNativeButtonProps,
-  WithBaseUIEvent,
-} from '../../internals/types';
+import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NOOP } from '../../internals/noop';
@@ -142,7 +137,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     hiddenInputId,
   );
 
-  const rootProps: WithBaseUIEvent<React.ComponentPropsWithRef<'span'>> = {
+  const rootProps: React.ComponentPropsWithRef<'span'> = {
     role: 'radio',
     'aria-checked': checked,
     'aria-required': required || undefined,
@@ -152,8 +147,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     id: nativeButton ? inputId : id,
     onKeyDown(event) {
       if (event.key === 'Enter') {
-        // Radio only activates with Space. Stop useButton from turning Enter into a click.
-        event.preventBaseUIHandler();
+        // Radio only activates with Space. Preventing the keydown's default
+        // stops useButton from turning Enter into a click.
         event.preventDefault();
       }
     },

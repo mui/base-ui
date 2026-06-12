@@ -154,6 +154,11 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               return;
             }
 
+            // Match native buttons: preventing the keydown's default cancels activation.
+            if (event.defaultPrevented) {
+              return;
+            }
+
             event.preventDefault();
 
             if (isEnterKey) {
@@ -235,15 +240,9 @@ function activateElement(
     return;
   }
 
-  if (isButtonElement(element) || isValidLinkElement(element)) {
-    // Native activation behavior (form submission, link navigation) only runs
-    // through `click()`.
-    element.click();
-    return;
-  }
-
-  // Dispatch a constructed click so it carries the keyboard event's modifier state,
-  // which `click()` always reports as unpressed.
+  // Equivalent to `click()` — an untrusted click still runs native activation behavior
+  // (form submission, link navigation) — but carries the keyboard event's modifier
+  // state, which `click()` always reports as unpressed.
   element.dispatchEvent(
     new (ownerWindow(element).PointerEvent)('click', {
       bubbles: true,

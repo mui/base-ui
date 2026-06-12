@@ -631,6 +631,33 @@ describe('useButton', () => {
       expect(handleClick).toHaveBeenCalledTimes(0);
     });
 
+    it('key: Enter does not click non-native buttons when keydown calls preventDefault', async () => {
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.HTMLAttributes<HTMLSpanElement>) {
+        const { getButtonProps } = useButton({ native: false });
+
+        return <span {...getButtonProps(props)} />;
+      }
+
+      const { user } = await render(
+        <TestButton
+          tabIndex={0}
+          onKeyDown={(event) => event.preventDefault()}
+          onClick={handleClick}
+        />,
+      );
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      // Match native buttons: preventing the keydown's default cancels Enter activation.
+      await user.keyboard('[Enter]');
+      expect(handleClick).toHaveBeenCalledTimes(0);
+    });
+
     it('key: Space fires keydown then click when in composite root context', async () => {
       const handleKeyDown = vi.fn();
       const handleKeyUp = vi.fn();
