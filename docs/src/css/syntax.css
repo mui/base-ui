@@ -244,9 +244,6 @@
 
   /* Inline code and highlighted characters - collapse most colors to blue */
   .MdCode[data-inline] {
-    display: inline-block;
-    padding: 0.05em 0.2em;
-
     --color-prettylights-syntax-comment: var(--color-blue);
     --color-prettylights-syntax-constant: var(--color-blue);
     --color-prettylights-syntax-entity: var(--color-blue);
@@ -258,15 +255,9 @@
   }
 
   .MdCode[data-inline]:not(:has(> .di-ht)) {
+    display: inline-block;
     background-color: var(--color-line-highlight);
-  }
-
-  .MdCode[data-inline]:has(> .di-ht) {
-    background-color: hsl(156deg 55% 95%);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: hsl(156deg 35% 12%);
-    }
+    padding: 0.05em 0.2em;
   }
 
   /* Frame highlighting */
