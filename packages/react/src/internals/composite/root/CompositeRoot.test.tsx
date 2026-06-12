@@ -282,6 +282,32 @@ describe('Composite', () => {
       expect(screen.getByTestId('2')).toHaveFocus();
     });
 
+    it('does not loop or call onLoop when loopFocus is disabled', async () => {
+      const onLoop = vi.fn(
+        (
+          _event: React.KeyboardEvent,
+          _prevIndex: number,
+          nextIndex: number,
+          _elementsRef: React.RefObject<Array<HTMLElement | null>>,
+        ) => nextIndex,
+      );
+
+      await render(
+        <CompositeRoot loopFocus={false} onLoop={onLoop}>
+          <TestGridItems />
+        </CompositeRoot>,
+      );
+
+      act(() => screen.getByTestId('9').focus());
+
+      fireEvent.keyDown(screen.getByTestId('9'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(onLoop).not.toHaveBeenCalled();
+      expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('9')).toHaveFocus();
+    });
+
     describe.skipIf(isJSDOM)('rtl', () => {
       it('horizontal orientation', async () => {
         render(
@@ -497,6 +523,111 @@ describe('Composite', () => {
       expect(screen.getByTestId('5')).toHaveFocus();
     });
 
+    it('calls onLoop when looping vertically between rows', async () => {
+      const onLoop = vi.fn(
+        (
+          _event: React.KeyboardEvent,
+          _prevIndex: number,
+          nextIndex: number,
+          _elementsRef: React.RefObject<Array<HTMLElement | null>>,
+        ) => nextIndex,
+      );
+
+      await render(
+        <CompositeRoot grid={threeColsGrid} onLoop={onLoop}>
+          <TestGridItems />
+        </CompositeRoot>,
+      );
+
+      act(() => screen.getByTestId('9').focus());
+
+      fireEvent.keyDown(screen.getByTestId('9'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(onLoop).toHaveBeenCalledTimes(1);
+
+      const [downEvent, downPrevIndex, downNextIndex] = onLoop.mock.calls[0]!;
+      expect(downEvent.key).toBe('ArrowDown');
+      expect(downPrevIndex).toBe(8);
+      expect(downNextIndex).toBe(2);
+      expect(screen.getByTestId('3')).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByTestId('3'), { key: 'ArrowUp' });
+      await flushMicrotasks();
+
+      expect(onLoop).toHaveBeenCalledTimes(2);
+
+      const [upEvent, upPrevIndex, upNextIndex] = onLoop.mock.calls[1]!;
+      expect(upEvent.key).toBe('ArrowUp');
+      expect(upPrevIndex).toBe(2);
+      expect(upNextIndex).toBe(8);
+      expect(screen.getByTestId('9')).toHaveFocus();
+    });
+
+    it('stays on the current item when onLoop returns prevIndex', async () => {
+      const onLoop = vi.fn(
+        (
+          _event: React.KeyboardEvent,
+          prevIndex: number,
+          _nextIndex: number,
+          _elementsRef: React.RefObject<Array<HTMLElement | null>>,
+        ) => prevIndex,
+      );
+
+      await render(
+        <CompositeRoot grid={threeColsGrid} orientation="horizontal" onLoop={onLoop}>
+          <TestGridItems />
+        </CompositeRoot>,
+      );
+
+      act(() => screen.getByTestId('9').focus());
+
+      fireEvent.keyDown(screen.getByTestId('9'), { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(onLoop).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('9')).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByTestId('9'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(onLoop).toHaveBeenCalledTimes(2);
+      expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('9')).toHaveFocus();
+    });
+
+    it('does not loop or call onLoop when loopFocus is disabled', async () => {
+      const onLoop = vi.fn(
+        (
+          _event: React.KeyboardEvent,
+          _prevIndex: number,
+          nextIndex: number,
+          _elementsRef: React.RefObject<Array<HTMLElement | null>>,
+        ) => nextIndex,
+      );
+
+      await render(
+        <CompositeRoot grid={threeColsGrid} loopFocus={false} onLoop={onLoop}>
+          <TestGridItems />
+        </CompositeRoot>,
+      );
+
+      act(() => screen.getByTestId('9').focus());
+
+      fireEvent.keyDown(screen.getByTestId('9'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('9')).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByTestId('9'), { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(onLoop).not.toHaveBeenCalled();
+      expect(screen.getByTestId('9')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('9')).toHaveFocus();
+    });
+
     it('skips disabled indices', async () => {
       function App() {
         return (
@@ -515,6 +646,43 @@ describe('Composite', () => {
 
       expect(screen.getByTestId('8')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('8')).toHaveFocus();
+    });
+
+    it('packs items into earlier gaps when dense', async () => {
+      await render(
+        <CompositeRoot
+          grid={gridNavigation({
+            cols: 2,
+            dense: true,
+            itemSizes: [
+              { width: 1, height: 1 },
+              { width: 2, height: 1 },
+              { width: 1, height: 1 },
+            ],
+          })}
+        >
+          <CompositeItem data-testid="1">1</CompositeItem>
+          <CompositeItem data-testid="2">2</CompositeItem>
+          <CompositeItem data-testid="3">3</CompositeItem>
+        </CompositeRoot>,
+      );
+
+      // Item 2 is too wide for the first row, so dense packing backfills
+      // item 3 into the gap next to item 1. Without `dense`, that cell stays
+      // empty and item 3 is placed below item 2.
+      act(() => screen.getByTestId('1').focus());
+
+      fireEvent.keyDown(screen.getByTestId('1'), { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('3')).toHaveFocus();
+
+      fireEvent.keyDown(screen.getByTestId('3'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveFocus();
     });
 
     describe.skipIf(isJSDOM)('rtl', () => {
