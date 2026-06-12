@@ -6,6 +6,7 @@ import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
+import { warn } from '@base-ui/utils/warn';
 import {
   FloatingTree,
   useDismiss,
@@ -147,8 +148,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   if (process.env.NODE_ENV !== 'production') {
     if (parent.type !== undefined && modalProp !== undefined) {
-      console.warn(
-        'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
+      // `warn` dedupes, so this won't spam on every render. `parent.type !== undefined` also
+      // covers menubar and context menus, not just submenus.
+      warn(
+        'The `modal` prop is not supported on submenus, menubar menus, or context menus. It will be ignored.',
       );
     }
   }
@@ -238,6 +241,22 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         return;
       }
 
+      const nativeEvent = eventDetails.event as Event;
+
+      // Prevent the menu from closing on mobile devices that have a delayed click event.
+      // In some cases the menu, when tapped, will fire the focus event first and then the click
+      // event. Without this guard, the menu will close immediately after opening.
+      // This must bail before notifying `onOpenChange` and dispatching the open change, otherwise
+      // controlled consumers (and floating-ui's own state) would close the menu regardless.
+      if (
+        nextOpen === false &&
+        nativeEvent?.type === 'click' &&
+        (nativeEvent as PointerEvent).pointerType === 'touch' &&
+        !allowTouchToCloseRef.current
+      ) {
+        return;
+      }
+
       const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(
         eventDetails as MenuRoot.ChangeEventDetails,
       );
@@ -256,19 +275,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
       store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
-      const nativeEvent = eventDetails.event as Event;
-      if (
-        nextOpen === false &&
-        nativeEvent?.type === 'click' &&
-        (nativeEvent as PointerEvent).pointerType === 'touch' &&
-        !allowTouchToCloseRef.current
-      ) {
-        return;
-      }
-
-      // Prevent the menu from closing on mobile devices that have a delayed click event.
-      // In some cases the menu, when tapped, will fire the focus event first and then the click event.
-      // Without this guard, the menu will close immediately after opening.
+      // Reset the touch-to-close guard so a delayed click after a focus-driven open is ignored
+      // (see the early return above).
       if (nextOpen && reason === REASONS.triggerFocus) {
         allowTouchToCloseRef.current = false;
         allowTouchToCloseTimeout.start(300, () => {
@@ -394,7 +402,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     enabled: !disabled,
     listRef: store.context.itemDomElements,
     activeIndex,
-    nested: parent.type !== undefined,
+    // A root context menu has no parent menu to return to, so it must not be treated as nested:
+    // otherwise the cross-orientation close key (e.g. ArrowLeft) would close it, which native
+    // context menus never do. Its submenus are regular menus with `parent.type === 'menu'`.
+    nested: parent.type !== undefined && parent.type !== 'context-menu',
     loopFocus,
     orientation,
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
@@ -665,11 +676,6 @@ export type MenuParent =
   | {
       type: 'context-menu';
       context: ContextMenuRootContext;
-    }
-  | {
-      type: 'nested-context-menu';
-      context: ContextMenuRootContext;
-      menuContext: MenuRootContext;
     }
   | {
       type: undefined;

@@ -298,11 +298,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     <MenuPositionerContext.Provider value={positioner}>
       {shouldRenderBackdrop && (
         <InternalBackdrop
-          ref={
-            parent.type === 'context-menu' || parent.type === 'nested-context-menu'
-              ? parent.context.internalBackdropRef
-              : null
-          }
+          ref={parent.type === 'context-menu' ? parent.context.internalBackdropRef : null}
           inert={inertValue(!open)}
           cutout={backdropCutout}
         />

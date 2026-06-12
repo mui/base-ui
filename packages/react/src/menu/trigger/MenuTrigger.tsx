@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -138,8 +139,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
     if (
       contains(triggerRef.current, mouseUpTarget) ||
-      contains(store.select('positionerElement'), mouseUpTarget) ||
-      mouseUpTarget === triggerRef.current
+      contains(store.select('positionerElement'), mouseUpTarget)
     ) {
       return;
     }
@@ -165,8 +165,12 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   React.useEffect(() => {
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
       const doc = ownerDocument(triggerRef.current);
-      doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
+      // A hover-open can close again (hover out) without ever seeing a mouseup, leaving the
+      // `{ once: true }` listener armed to fire on an unrelated later interaction. Returning the
+      // cleanup removes it.
+      return addEventListener(doc, 'mouseup', handleDocumentMouseUp, { once: true });
     }
+    return undefined;
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
@@ -189,7 +193,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
-  // Whether to ignore clicks to open the menu.
+  // Whether to keep the menu open when the trigger is clicked shortly after a hover-open
+  // (i.e. ignore the click that would otherwise close it).
   // `lastOpenChangeReason` doesn't need to be reactive here, as we need to run this
   // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
@@ -369,7 +374,7 @@ function useStickIfOpen(open: boolean, openReason: string | null) {
   const stickIfOpenTimeout = useTimeout();
   const [stickIfOpen, setStickIfOpen] = React.useState(false);
   useIsoLayoutEffect(() => {
-    if (open && openReason === 'trigger-hover') {
+    if (open && openReason === REASONS.triggerHover) {
       // Only allow "patient" clicks to close the menu if it's open.
       // If they clicked within 500ms of the menu opening, keep it open.
       setStickIfOpen(true);
