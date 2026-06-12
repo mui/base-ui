@@ -79,12 +79,7 @@ export function useRenderDialogRoot<Payload>(
   const mounted = store.useState('mounted');
   const payload = store.useState('payload') as Payload | undefined;
 
-  const dialogRoot = useDialogRoot({
-    store,
-    actionsRef,
-    parentContext: parentDialogRootContext?.store.context,
-    isDrawer,
-  });
+  useDialogRoot({ store, actionsRef });
 
   const shouldRenderInteractions = open || mounted;
 
@@ -93,7 +88,13 @@ export function useRenderDialogRoot<Payload>(
   return (
     <IsDrawerContext.Provider value={false}>
       <DialogRootContext.Provider value={contextValue as DialogRootContext}>
-        {shouldRenderInteractions && <DialogInteractions store={store} dialogRoot={dialogRoot} />}
+        {shouldRenderInteractions && (
+          <DialogInteractions
+            store={store}
+            parentContext={parentDialogRootContext?.store.context}
+            isDrawer={isDrawer}
+          />
+        )}
         {typeof children === 'function' ? children({ payload }) : children}
       </DialogRootContext.Provider>
     </IsDrawerContext.Provider>

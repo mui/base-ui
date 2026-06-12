@@ -14,7 +14,7 @@ import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
 
 const stateAttributesMapping: StateAttributesMapping<DialogPopupState> = {
   ...baseMapping,
@@ -67,17 +67,8 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     },
   });
 
-  // Default initial focus logic:
-  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
-  // (this is required for Android specifically as iOS handles this automatically).
-  function defaultInitialFocus(interactionType: InteractionType) {
-    if (interactionType === 'touch') {
-      return store.context.popupRef.current;
-    }
-    return true;
-  }
-
-  const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
+  const resolvedInitialFocus =
+    initialFocus === undefined ? createDefaultInitialFocus(store.context.popupRef) : initialFocus;
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
