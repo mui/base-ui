@@ -17,7 +17,7 @@ onlyBuiltDependencies:
 
 engineStrict: true
 updateNotifier: false
-blockExoticSubdeps: true
+blockExoticSubdeps: false
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
