@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
@@ -152,6 +153,77 @@ export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClos
   };
 
   return () => preventUnmountOnClose;
+}
+
+/**
+ * Runs the shared open-change sequence for a popup store: notifies `onOpenChange`,
+ * honors cancellation, dispatches the floating root change, maps the reason to an
+ * `instantType`, and commits the state update (synchronously for hover so
+ * `getAnimations()` observes it). Stores supply their own differences via
+ * `extraState` (e.g. the last change reason) and `onBeforeDispatch` (e.g. updating
+ * inline-rect coordinates).
+ */
+export function applyPopupOpenChange<
+  State extends PopupStoreState<unknown> & {
+    instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
+  },
+  EventDetails extends BaseUIChangeEventDetails<string>,
+>(
+  store: {
+    readonly context: Pick<PopupStoreContext<EventDetails>, 'onOpenChange'>;
+    readonly state: Pick<PopupStoreState<unknown>, 'floatingRootContext'>;
+    update(state: Partial<State>): void;
+  },
+  nextOpen: boolean,
+  eventDetails: EventDetails & { preventUnmountOnClose(): void },
+  options: {
+    onBeforeDispatch?: (() => void) | undefined;
+    extraState?: Partial<State> | undefined;
+  } = {},
+): void {
+  const reason = eventDetails.reason;
+  const isHover = reason === REASONS.triggerHover;
+  const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
+  const isDismissClose =
+    !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
+
+  const shouldPreventUnmountOnClose = attachPreventUnmountOnClose(eventDetails);
+
+  store.context.onOpenChange?.(nextOpen, eventDetails);
+
+  if (eventDetails.isCanceled) {
+    return;
+  }
+
+  options.onBeforeDispatch?.();
+
+  store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
+
+  const changeState = () => {
+    // Spread `extraState` first so `open` always reflects `nextOpen`, keeping it in
+    // sync with the value already passed to `dispatchOpenChange`/`setPopupOpenState`.
+    const updatedState: Partial<PopupStoreState<unknown>> & {
+      instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
+    } = { ...options.extraState, open: nextOpen };
+
+    if (isFocusOpen) {
+      updatedState.instantType = 'focus';
+    } else if (isDismissClose) {
+      updatedState.instantType = 'dismiss';
+    } else if (isHover) {
+      updatedState.instantType = undefined;
+    }
+
+    setPopupOpenState(updatedState, nextOpen, eventDetails.trigger, shouldPreventUnmountOnClose());
+    store.update(updatedState as Partial<State>);
+  };
+
+  if (isHover) {
+    // Flush synchronously for hover so `node.getAnimations()` sees the new state.
+    ReactDOM.flushSync(changeState);
+  } else {
+    changeState();
+  }
 }
 
 export function useInitialOpenSync<State extends PopupStoreState<unknown>>(
