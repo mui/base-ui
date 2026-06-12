@@ -51,28 +51,6 @@
     align-items: center;
   }
 
-  /*
-   * IMPORTANT: keep in sync with any changes that could affect the height of the
-   * demo's code section.
-   *
-   * Skip rendering the code section (toolbar + collapsed preview) while offscreen.
-   * Syntax-highlighted code is dense paint content that makes every repaint-driven
-   * re-composite of the page ("Layerize") more expensive.
-   *
-   * The placeholder height is exact for collapsed demos regardless of code length.
-   *
-   * The `auto` keyword makes the browser track the real size once rendered
-   * (e.g. with expanded items).
-   */
-  .DemoCollapsibleRoot {
-    --demo-collapsed-visible-lines: 5.7;
-    --demo-code-line-height: 1.25rem;
-
-    content-visibility: auto;
-    contain-intrinsic-height: auto
-      calc(2.25rem + var(--demo-collapsed-visible-lines) * 1.25rem + 0.5rem); /* 158px */
-  }
-
   .DemoToolbar {
     box-sizing: border-box;
     position: relative;
@@ -325,7 +303,8 @@
   }
 
   .DemoCodeBlockViewport {
-    line-height: var(--demo-code-line-height);
+    --demo-code-block-line-height: 1.25rem; /* 20px */
+    line-height: var(--demo-code-block-line-height);
 
     &[data-has-overflow-x] {
       /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
@@ -337,8 +316,7 @@
 
     &[data-closed] {
       overflow: hidden;
-      /* Partially display the last line */
-      max-height: calc(var(--demo-collapsed-visible-lines) * 1lh + 0.5rem);
+      max-height: calc(5.7lh + 0.5rem); /* Display almost 6 code lines plus top padding */
     }
     &[data-closed] code .frame:not([data-frame-type]),
     &[data-closed] code .frame[data-frame-type='highlighted-unfocused'],
@@ -350,7 +328,7 @@
   .DemoSourceBrowser {
     position: relative;
     font-size: 0.8125rem; /* 13px */
-    line-height: var(--demo-code-line-height);
+    line-height: var(--demo-code-block-line-height); /* 20px */
     cursor: text;
     display: flex;
 
