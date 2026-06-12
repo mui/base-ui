@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
@@ -131,6 +132,10 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const trackCursorAxis = store.useState('trackCursorAxis');
   const disableHoverablePopup = store.useState('disableHoverablePopup');
 
+  // `safePolygon()` captures a per-instance timer, so it must not be shared across
+  // triggers; keep one stable instance per trigger rather than allocating per render.
+  const handleCloseSafePolygon = useRefWithInit(safePolygon).current;
+
   const isNestedTriggerHoveredRef = React.useRef(false);
   const nestedTriggerOpenTimeout = useTimeout();
   // Local copy so it can be cleared on mouseLeave without resetting the hover hook's own pointerType.
@@ -172,7 +177,8 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     enabled: !disabled,
     mouseOnly: true,
     move: false,
-    handleClose: !disableHoverablePopup && trackCursorAxis !== 'both' ? safePolygon() : null,
+    handleClose:
+      !disableHoverablePopup && trackCursorAxis !== 'both' ? handleCloseSafePolygon : null,
     restMs: getOpenDelay,
     delay() {
       if (closeDelay == null && hasProvider) {
