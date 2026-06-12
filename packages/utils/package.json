@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/utils",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "author": "MUI Team",
   "description": "A collection of React utility functions for Base UI.",
   "license": "MIT",
@@ -12,15 +12,17 @@
   "exports": {
     "./store": "./src/store/index.ts",
     "./platform": "./src/platform/index.ts",
-    "./*": "./src/*.ts"
+    "./*": "./src/*.ts",
+    "./*.test": null,
+    "./*.spec": null
   },
   "imports": {
     "#formatErrorMessage": "./src/formatErrorMessage.ts"
   },
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
-    "build": "code-infra build --copy .npmignore --tsgo",
-    "test:package": "publint --pack pnpm run ./build && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
+    "build": "code-infra build --flat --copy .npmignore --tsgo",
+    "test:package": "publint --pack pnpm run ./build && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
     "typescript": "tsgo -b tsconfig.json"

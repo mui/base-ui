@@ -942,6 +942,129 @@ describe('<Select.Root />', () => {
     expect(screen.getByTestId('error')).toHaveTextContent('server error');
   });
 
+  it('removes [data-dirty] in multiple mode after returning to the initial value', async () => {
+    const { user } = await render(
+      <Field.Root>
+        <Select.Root multiple defaultOpen defaultValue={['a']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      </Field.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    const optionB = await screen.findByRole('option', { name: 'b' });
+
+    expect(trigger).not.toHaveAttribute('data-dirty');
+
+    await user.click(optionB);
+
+    await waitFor(() => {
+      expect(trigger).toHaveAttribute('data-dirty', '');
+    });
+
+    await user.click(optionB);
+
+    await waitFor(() => {
+      expect(trigger).not.toHaveAttribute('data-dirty');
+    });
+  });
+
+  it('compares object values with isItemEqualToValue when clearing [data-dirty] in multiple mode', async () => {
+    const items = [
+      { value: 'a', label: 'a' },
+      { value: 'b', label: 'b' },
+    ];
+
+    const { user } = await render(
+      <Field.Root>
+        <Select.Root
+          multiple
+          defaultOpen
+          // A distinct object reference from `items[0]`, but equal to it via `isItemEqualToValue`.
+          defaultValue={[{ value: 'a', label: 'a' }]}
+          isItemEqualToValue={(a, b) => a.value === b.value}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value={items[0]}>a</Select.Item>
+                <Select.Item value={items[1]}>b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      </Field.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    const optionA = await screen.findByRole('option', { name: 'a' });
+
+    expect(trigger).not.toHaveAttribute('data-dirty');
+
+    // Deselect the initial item, then reselect it. The reselected value is `items[0]`,
+    // a different object reference than the initial `defaultValue` object, so a reference
+    // comparison would incorrectly report dirty.
+    await user.click(optionA);
+
+    await waitFor(() => {
+      expect(trigger).toHaveAttribute('data-dirty', '');
+    });
+
+    await user.click(optionA);
+
+    await waitFor(() => {
+      expect(trigger).not.toHaveAttribute('data-dirty');
+    });
+  });
+
+  it('keeps [data-dirty] in multiple mode when the same values return in a different order', async () => {
+    const { user } = await render(
+      <Field.Root>
+        <Select.Root multiple defaultOpen defaultValue={['a', 'b']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      </Field.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    const optionA = await screen.findByRole('option', { name: 'a' });
+
+    expect(trigger).not.toHaveAttribute('data-dirty');
+
+    // Deselect `a` (value becomes `['b']`), then reselect it (value becomes `['b', 'a']`).
+    // The set of values matches the initial `['a', 'b']`, but the order differs, so the
+    // field stays dirty: the comparison is order-sensitive.
+    await user.click(optionA);
+    await user.click(optionA);
+
+    await waitFor(() => {
+      expect(trigger).toHaveAttribute('data-dirty', '');
+    });
+  });
+
   it.each([
     { lockState: 'readOnly', label: 'inside Field', withField: true },
     { lockState: 'disabled', label: 'inside Field', withField: true },

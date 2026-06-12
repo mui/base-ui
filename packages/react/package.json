@@ -113,8 +113,8 @@
   },
   "scripts": {
     "prebuild": "rimraf --glob build build-tests published-docs \"*.tsbuildinfo\" && node ./scripts/stagePublishedDocs.mjs",
-    "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore --copy \"published-docs/**:docs\" --tsgo",
-    "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
+    "build": "code-infra build --flat --ignore \"**/*.template.js\" --copy .npmignore --copy \"published-docs/**:docs\" --tsgo",
+    "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
     "typescript": "tsgo -b tsconfig.json"
@@ -139,7 +139,7 @@
     "luxon": "3.7.2",
     "react": "19.2.5",
     "react-dom": "19.2.5",
-    "react-router": "7.14.2",
+    "react-router": "7.15.0",
     "typescript": "6.0.3",
     "vitest-browser-react": "2.2.0"
   },
