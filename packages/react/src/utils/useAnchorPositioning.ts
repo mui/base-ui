@@ -46,13 +46,12 @@ function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: bool
 
 function getOffsetData(state: MiddlewareState, sideParam: Side, isRtl: boolean) {
   const { rects, placement } = state;
-  const data = {
+  return {
     side: getLogicalSide(sideParam, getSide(placement), isRtl),
     align: getAlignment(placement) || 'center',
     anchor: { width: rects.reference.width, height: rects.reference.height },
     positioner: { width: rects.floating.width, height: rects.floating.height },
   } as const;
-  return data;
 }
 
 export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
@@ -181,37 +180,30 @@ export function useAnchorPositioning(
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
 
-  let collisionPadding = collisionPaddingParam as {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  };
-
-  // Create a bias to the preferred side.
-  // On iOS, when the mobile software keyboard opens, the input is exactly centered
-  // in the viewport, but this can cause it to flip to the top undesirably.
+  // Add 1px of extra collision padding on the preferred side so that an exact
+  // tie between the two sides doesn't flip. On iOS this matters when the software
+  // keyboard opens and the input ends up exactly centered in the viewport, which
+  // would otherwise flip a `side="bottom"` popup to the top.
   const bias = 1;
   const biasTop = sideParam === 'bottom' ? bias : 0;
   const biasBottom = sideParam === 'top' ? bias : 0;
   const biasLeft = sideParam === 'right' ? bias : 0;
   const biasRight = sideParam === 'left' ? bias : 0;
 
-  if (typeof collisionPadding === 'number') {
-    collisionPadding = {
-      top: collisionPadding + biasTop,
-      right: collisionPadding + biasRight,
-      bottom: collisionPadding + biasBottom,
-      left: collisionPadding + biasLeft,
-    };
-  } else if (collisionPadding) {
-    collisionPadding = {
-      top: (collisionPadding.top || 0) + biasTop,
-      right: (collisionPadding.right || 0) + biasRight,
-      bottom: (collisionPadding.bottom || 0) + biasBottom,
-      left: (collisionPadding.left || 0) + biasLeft,
-    };
-  }
+  const collisionPadding =
+    typeof collisionPaddingParam === 'number'
+      ? {
+          top: collisionPaddingParam + biasTop,
+          right: collisionPaddingParam + biasRight,
+          bottom: collisionPaddingParam + biasBottom,
+          left: collisionPaddingParam + biasLeft,
+        }
+      : {
+          top: (collisionPaddingParam?.top || 0) + biasTop,
+          right: (collisionPaddingParam?.right || 0) + biasRight,
+          bottom: (collisionPaddingParam?.bottom || 0) + biasBottom,
+          left: (collisionPaddingParam?.left || 0) + biasLeft,
+        };
 
   const commonCollisionProps = {
     boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
@@ -223,7 +215,10 @@ export function useAnchorPositioning(
   // presence.
   const arrowRef = React.useRef<Element | null>(null);
 
-  // Keep these reactive if they're not functions
+  // Offsets are read through refs inside the middleware so function-form offsets
+  // always see the latest closure. For plain-number offsets the value is also
+  // fed into the middleware dependency arrays below, so changing the number
+  // re-runs positioning; function-form offsets use a constant dep instead.
   const sideOffsetRef = useValueAsRef(sideOffset);
   const alignOffsetRef = useValueAsRef(alignOffset);
   const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
@@ -376,10 +371,13 @@ export function useAnchorPositioning(
         const transformY = arrowY + arrowHeight / 2;
         const shiftY = Math.abs(middlewareData.shift?.y || 0);
         const halfAnchorHeight = rects.reference.height / 2;
+        // Read through the ref like the `offset` middleware does: Floating UI
+        // dedupes middleware by `fn.toString()`, so a function-form `sideOffset`
+        // whose closure changed would otherwise be read stale here.
         const sideOffsetValue =
-          typeof sideOffset === 'function'
-            ? sideOffset(getOffsetData(state, sideParam, isRtl))
-            : sideOffset;
+          typeof sideOffsetRef.current === 'function'
+            ? sideOffsetRef.current(getOffsetData(state, sideParam, isRtl))
+            : sideOffsetRef.current;
         const isOverlappingAnchor = shiftY > sideOffsetValue;
 
         const adjacentTransformOrigin = {
@@ -476,11 +474,10 @@ export function useAnchorPositioning(
     const resolvedAnchor = typeof anchorValue === 'function' ? anchorValue() : anchorValue;
     const unwrappedElement =
       (isRef(resolvedAnchor) ? resolvedAnchor.current : resolvedAnchor) || null;
-    const finalAnchor = unwrappedElement || null;
 
-    if (finalAnchor !== registeredPositionReferenceRef.current) {
-      refs.setPositionReference(finalAnchor);
-      registeredPositionReferenceRef.current = finalAnchor;
+    if (unwrappedElement !== registeredPositionReferenceRef.current) {
+      refs.setPositionReference(unwrappedElement);
+      registeredPositionReferenceRef.current = unwrappedElement;
     }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 

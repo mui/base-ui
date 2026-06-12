@@ -3,7 +3,11 @@ import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-t
 import * as React from 'react';
 import { isJSDOM } from '#test-utils';
 import { useFloating } from './useFloating';
-import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
+import {
+  useHoverReferenceInteraction,
+  type UseHoverReferenceInteractionProps,
+} from './useHoverReferenceInteraction';
+import { useHoverFloatingInteraction } from './useHoverFloatingInteraction';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
@@ -346,5 +350,303 @@ describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
     expect(onOpenChange).toHaveBeenCalledTimes(2);
     expect(onOpenChange.mock.calls[1][0]).toBe(true);
     expect(screen.queryByRole('tooltip')).not.toBe(null);
+  });
+
+  // Behavior previously only exercised through `useHover`, now covered against the
+  // production hook directly.
+  describe('hover open/close behavior', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    function HoverApp({
+      showReference = true,
+      ...props
+    }: UseHoverReferenceInteractionProps & { showReference?: boolean }) {
+      const [open, setOpen] = React.useState(false);
+      const triggerElementRef = React.useRef<Element | null>(null);
+      const { refs, context } = useFloating({
+        open,
+        onOpenChange(nextOpen) {
+          setOpen(nextOpen);
+        },
+      });
+      const hoverProps = useHoverReferenceInteraction(context, { triggerElementRef, ...props });
+
+      return (
+        <React.Fragment>
+          {showReference && (
+            <button
+              ref={(node) => {
+                refs.setReference(node);
+                triggerElementRef.current = node;
+              }}
+              {...hoverProps}
+            />
+          )}
+          {open && <div role="tooltip" ref={refs.setFloating} />}
+        </React.Fragment>
+      );
+    }
+
+    it('opens on mouseenter and closes on mouseleave', () => {
+      render(<HoverApp />);
+      const button = screen.getByRole('button');
+
+      fireEvent.mouseEnter(button);
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+
+      fireEvent.mouseLeave(button);
+      expect(screen.queryByRole('tooltip')).toBe(null);
+    });
+
+    it('waits for a symmetric numeric delay before opening', async () => {
+      render(<HoverApp delay={1000} />);
+
+      fireEvent.mouseEnter(screen.getByRole('button'));
+
+      await act(async () => {
+        vi.advanceTimersByTime(999);
+      });
+      expect(screen.queryByRole('tooltip')).toBe(null);
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+    });
+
+    it('waits for the open delay from a delay object', async () => {
+      render(<HoverApp delay={{ open: 500 }} />);
+
+      fireEvent.mouseEnter(screen.getByRole('button'));
+
+      await act(async () => {
+        vi.advanceTimersByTime(499);
+      });
+      expect(screen.queryByRole('tooltip')).toBe(null);
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+    });
+
+    it('waits for the close delay from a delay object', async () => {
+      render(<HoverApp delay={{ close: 500 }} />);
+      const button = screen.getByRole('button');
+
+      fireEvent.mouseEnter(button);
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+
+      fireEvent.mouseLeave(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(499);
+      });
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByRole('tooltip')).toBe(null);
+    });
+
+    it('cancels the pending open when leaving before the open delay elapses', async () => {
+      render(<HoverApp delay={{ open: 500 }} />);
+      const button = screen.getByRole('button');
+
+      fireEvent.mouseEnter(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(499);
+      });
+
+      fireEvent.mouseLeave(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByRole('tooltip')).toBe(null);
+    });
+
+    it('opens only once the cursor rests (restMs)', async () => {
+      render(<HoverApp restMs={100} />);
+      const button = screen.getByRole('button');
+
+      const originalDispatchEvent = button.dispatchEvent;
+      const spy = vi.spyOn(button, 'dispatchEvent').mockImplementation((event) => {
+        Object.defineProperty(event, 'movementX', { value: 10, configurable: true });
+        Object.defineProperty(event, 'movementY', { value: 10, configurable: true });
+        return originalDispatchEvent.call(button, event);
+      });
+
+      fireEvent.mouseMove(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(99);
+      });
+
+      fireEvent.mouseMove(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByRole('tooltip')).toBe(null);
+
+      fireEvent.mouseMove(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(100);
+      });
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+
+      spy.mockRestore();
+    });
+
+    it('does not reset the rest timer for insignificant movement', async () => {
+      render(<HoverApp restMs={100} />);
+      const button = screen.getByRole('button');
+
+      const originalDispatchEvent = button.dispatchEvent;
+      const spy = vi.spyOn(button, 'dispatchEvent').mockImplementation((event) => {
+        Object.defineProperty(event, 'movementX', { value: 1, configurable: true });
+        Object.defineProperty(event, 'movementY', { value: 0, configurable: true });
+        return originalDispatchEvent.call(button, event);
+      });
+
+      fireEvent.mouseMove(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(99);
+      });
+
+      fireEvent.mouseMove(button);
+
+      await act(async () => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+
+      spy.mockRestore();
+    });
+
+    // Regression test: a delayed hover open must not re-fire `onOpenChange(true)`
+    // (clobbering `instantType`) if something else opened the popup while the
+    // hover delay was still pending.
+    it('does not re-fire open if the popup was opened during the hover delay', async () => {
+      const onOpenChange = vi.fn();
+      let openViaFocus: (() => void) | null = null;
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        const triggerElementRef = React.useRef<Element | null>(null);
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange(nextOpen, details) {
+            onOpenChange(nextOpen, details);
+            setOpen(nextOpen);
+          },
+        });
+
+        openViaFocus = () => {
+          context.rootStore.setOpen(
+            true,
+            createChangeEventDetails(REASONS.triggerFocus, new FocusEvent('focusin')),
+          );
+        };
+
+        const hoverProps = useHoverReferenceInteraction(context, {
+          delay: { open: 500 },
+          move: false,
+          triggerElementRef,
+        });
+
+        return (
+          <React.Fragment>
+            <button
+              ref={(node) => {
+                refs.setReference(node);
+                triggerElementRef.current = node;
+              }}
+              {...hoverProps}
+            />
+            {open && <div role="tooltip" ref={refs.setFloating} />}
+          </React.Fragment>
+        );
+      }
+
+      render(<App />);
+
+      fireEvent.mouseEnter(screen.getByRole('button'));
+
+      await act(async () => {
+        openViaFocus?.();
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(500);
+      });
+
+      const openCalls = onOpenChange.mock.calls.filter(([nextOpen]) => nextOpen === true);
+      expect(openCalls).toHaveLength(1);
+      expect(openCalls[0][1].reason).toBe(REASONS.triggerFocus);
+    });
+
+    // Regression test: the hover state (and its timers) is shared across every
+    // trigger and the popup. Unmounting one consumer (e.g. the popup during an
+    // exit transition) must not cancel another consumer's pending open.
+    it('keeps a pending open when another hover consumer unmounts', async () => {
+      function ExtraConsumer({ context }: { context: ReturnType<typeof useFloating>['context'] }) {
+        useHoverFloatingInteraction(context, {});
+        return null;
+      }
+
+      function App({ showExtra }: { showExtra: boolean }) {
+        const [open, setOpen] = React.useState(false);
+        const triggerElementRef = React.useRef<Element | null>(null);
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange(nextOpen) {
+            setOpen(nextOpen);
+          },
+        });
+        const hoverProps = useHoverReferenceInteraction(context, {
+          delay: { open: 500 },
+          move: false,
+          triggerElementRef,
+        });
+
+        return (
+          <React.Fragment>
+            <button
+              ref={(node) => {
+                refs.setReference(node);
+                triggerElementRef.current = node;
+              }}
+              {...hoverProps}
+            />
+            {showExtra && <ExtraConsumer context={context} />}
+            {open && <div role="tooltip" ref={refs.setFloating} />}
+          </React.Fragment>
+        );
+      }
+
+      const { rerender } = render(<App showExtra />);
+
+      // Start the delayed open, then unmount the other consumer mid-delay.
+      fireEvent.mouseEnter(screen.getByRole('button'));
+      rerender(<App showExtra={false} />);
+
+      await act(async () => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(screen.queryByRole('tooltip')).not.toBe(null);
+    });
   });
 });
