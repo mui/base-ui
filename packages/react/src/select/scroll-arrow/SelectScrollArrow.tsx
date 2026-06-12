@@ -10,6 +10,7 @@ import { Side } from '../../utils/useAnchorPositioning';
 import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import {
   getMaxScrollOffset,
   normalizeScrollOffset,
@@ -51,7 +52,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const scrollArrowRef = isUp ? scrollUpArrowRef : scrollDownArrowRef;
 
-  const { transitionStatus, setMounted } = useTransitionStatus(visible);
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
   useIsoLayoutEffect(() => {
     scrollArrowsMountedCountRef.current += 1;
@@ -151,9 +152,10 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     ref: [forwardedRef, scrollArrowRef],
     state,
     props: [defaultProps, elementProps],
+    stateAttributesMapping: transitionStatusMapping,
   });
 
-  const shouldRender = visible || keepMounted;
+  const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
     return null;
   }

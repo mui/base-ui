@@ -2,7 +2,7 @@
   "name": "@base-ui/monorepo-tests",
   "private": true,
   "scripts": {
-    "typescript": "tsc -p tsconfig.json"
+    "typescript": "tsgo -p tsconfig.json"
   },
   "devDependencies": {
     "@base-ui/react": "workspace:*",
@@ -17,7 +17,7 @@
     "is-wsl": "3.1.1",
     "react": "19.2.5",
     "react-dom": "19.2.5",
-    "react-router": "7.14.2",
+    "react-router": "7.15.0",
     "util": "0.12.5",
     "webpack": "5.106.2",
     "yargs": "18.0.0"

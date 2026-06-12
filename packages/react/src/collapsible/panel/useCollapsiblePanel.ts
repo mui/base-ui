@@ -231,15 +231,13 @@ export function useCollapsiblePanel(
     // deferred ending phase applies closed styles. This keeps close transitions
     // starting from a measured pixel value, including interrupted opens.
     if (!open && mounted && (transitionStatus === 'idle' || transitionStatus === 'starting')) {
+      shouldPreventMountAnimationRef.current = false;
+      shouldPreventActivityResumeAnimationRef.current = false;
+
       if (animationType === 'none') {
         setDimensions(EMPTY_DIMENSIONS, false);
         setMounted(false);
         return undefined;
-      }
-
-      if (animationType === 'css-animation') {
-        shouldPreventMountAnimationRef.current = false;
-        shouldPreventActivityResumeAnimationRef.current = false;
       }
 
       setDimensions(getDimensions(panel));
@@ -364,9 +362,16 @@ export function useCollapsiblePanel(
       }
 
       function handleBeforeMatch(event: Event) {
+        const eventDetails = createChangeEventDetails(REASONS.none, event);
+
+        onOpenChange(true, eventDetails);
+
+        if (eventDetails.isCanceled) {
+          return;
+        }
+
         shouldSkipNextOpenRef.current = true;
         setOpen(true);
-        onOpenChange(true, createChangeEventDetails(REASONS.none, event));
       }
 
       return addEventListener(panel, 'beforematch', handleBeforeMatch);

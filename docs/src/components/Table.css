@@ -56,6 +56,12 @@
         background-image: linear-gradient(to right, transparent, var(--color-content));
         animation: table-cell-overscroll-overlay 500ms;
       }
+
+      /* Only applied when the container is scrollable as this creates a layer. */
+      & .TableCellInner {
+        /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
+        overscroll-behavior-x: contain;
+      }
     }
   }
 
@@ -74,7 +80,6 @@
 
     /* Make individual cells scrollable */
     overflow-x: auto;
-    overscroll-behavior-x: contain;
     scrollbar-width: none;
 
     &::-webkit-scrollbar {

@@ -504,8 +504,8 @@ export function useAnchorPositioning(
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
   React.useEffect(() => {
-    if (keepMounted && mounted && elements.domReference && elements.floating) {
-      return autoUpdate(elements.domReference, elements.floating, update, autoUpdateOptions);
+    if (keepMounted && mounted && elements.reference && elements.floating) {
+      return autoUpdate(elements.reference, elements.floating, update, autoUpdateOptions);
     }
     return undefined;
   }, [keepMounted, mounted, elements, update, autoUpdateOptions]);
@@ -723,7 +723,6 @@ export interface UseAnchorPositioningSharedParameters {
 
 export interface UseAnchorPositioningParameters extends UseAnchorPositioningSharedParameters {
   keepMounted?: boolean | undefined;
-  trackCursorAxis?: 'none' | 'x' | 'y' | 'both' | undefined;
   floatingRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
@@ -754,5 +753,3 @@ export interface UseAnchorPositioningReturnValue {
   isPositioned: boolean;
   update: () => void;
 }
-
-export interface UseAnchorPositioningState {}

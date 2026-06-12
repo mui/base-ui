@@ -55,15 +55,15 @@ type RadioRootState = {
   readOnly: boolean;
   /** Whether the user must choose a value before submitting a form. */
   required: boolean;
-  /** Whether the field has been touched. */
+  /** Whether the radio button has been touched (when wrapped in Field.Root). */
   touched: boolean;
-  /** Whether the field value has changed from its initial value. */
+  /** Whether the radio button's value has changed from its initial value (when wrapped in Field.Root). */
   dirty: boolean;
-  /** Whether the field is valid. */
+  /** Whether the radio button is in a valid state (when wrapped in Field.Root). */
   valid: boolean | null;
-  /** Whether the field has a value. */
+  /** Whether the radio button has a value (when wrapped in Field.Root). */
   filled: boolean;
-  /** Whether the field is focused. */
+  /** Whether the radio button is focused (when wrapped in Field.Root). */
   focused: boolean;
 };
 ```
@@ -108,10 +108,26 @@ Re-export of [Indicator](#indicator) props.
 
 ```typescript
 type RadioIndicatorState = {
-  /** Whether the radio button is currently selected. */
-  checked: boolean;
   /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** Whether the radio button is currently selected. */
+  checked: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the user should be unable to select the radio button. */
+  readOnly: boolean;
+  /** Whether the user must choose a value before submitting a form. */
+  required: boolean;
+  /** Whether the radio button has been touched (when wrapped in Field.Root). */
+  touched: boolean;
+  /** Whether the radio button's value has changed from its initial value (when wrapped in Field.Root). */
+  dirty: boolean;
+  /** Whether the radio button is in a valid state (when wrapped in Field.Root). */
+  valid: boolean | null;
+  /** Whether the radio button has a value (when wrapped in Field.Root). */
+  filled: boolean;
+  /** Whether the radio button is focused (when wrapped in Field.Root). */
+  focused: boolean;
 };
 ```
 

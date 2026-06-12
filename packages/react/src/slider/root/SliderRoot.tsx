@@ -114,7 +114,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setTouched,
     setDirty,
     validityData,
-    shouldValidateOnChange,
     validation,
   } = useFieldRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
@@ -145,7 +144,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const pressedThumbIndexRef = React.useRef(-1);
   // The values when the current drag interaction started.
   const pressedValuesRef = React.useRef<readonly number[] | null>(null);
-  const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>('none');
 
   const formatOptionsRef = useValueAsRef(format);
@@ -172,16 +170,12 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   });
 
-  useRegisterFieldControl(controlRef, id, valueUnwrapped);
+  useRegisterFieldControl(validation.inputRef, id, valueUnwrapped, undefined, !disabled, nameProp);
 
   useValueChanged(valueUnwrapped, () => {
     clearErrors(name);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(valueUnwrapped);
-    } else {
-      validation.commit(valueUnwrapped, true);
-    }
+    validation.change(valueUnwrapped);
 
     const initialValue = validityData.initialValue as Value | undefined;
     let isDirty: boolean;
@@ -211,14 +205,12 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const setValue = useStableCallback(
     (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => {
       if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
-        return;
+        return false;
       }
 
       const changeDetails =
         details ??
         createChangeEventDetails(REASONS.none, undefined, undefined, { activeThumbIndex: -1 });
-
-      lastChangeReasonRef.current = changeDetails.reason;
 
       // Redefine target to allow name and value to be read.
       // This allows seamless integration with the most popular form libraries.
@@ -235,15 +227,17 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       changeDetails.event = clonedEvent;
 
-      lastChangedValueRef.current = newValue;
-
       onValueChange(newValue, changeDetails);
 
       if (changeDetails.isCanceled) {
-        return;
+        return false;
       }
 
+      lastChangeReasonRef.current = changeDetails.reason;
+
       setValueUnwrapped(newValue as Value);
+
+      return true;
     },
   );
 
@@ -253,7 +247,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
         const reason = getSliderChangeEventReason(event);
-        setValue(
+        const applied = setValue(
           newValue,
           createChangeEventDetails(reason, event.nativeEvent, undefined, {
             activeThumbIndex: index,
@@ -261,8 +255,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         );
         setTouched(true);
 
-        const nextValue = lastChangedValueRef.current ?? newValue;
-        onValueCommitted(nextValue, createGenericEventDetails(reason, event.nativeEvent));
+        if (applied) {
+          onValueCommitted(newValue, createGenericEventDetails(reason, event.nativeEvent));
+        }
       }
     },
   );
@@ -329,7 +324,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       rootLabelId: defaultLabelId,
       largeStep,
       lastUsedThumbIndex,
-      lastChangedValueRef,
       lastChangeReasonRef,
       form,
       locale,
@@ -370,7 +364,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       indicatorPosition,
       largeStep,
       lastUsedThumbIndex,
-      lastChangedValueRef,
       lastChangeReasonRef,
       form,
       locale,
@@ -409,8 +402,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         id,
         role: 'group',
       },
-      validation.getValidationProps,
       elementProps,
+      (props) => validation.getValidationProps(disabled, props),
     ],
     stateAttributesMapping: sliderStateAttributesMapping,
   });
@@ -580,8 +573,9 @@ export interface SliderRootProps<
       ) => void)
     | undefined;
   /**
-   * Callback function that is fired when the `pointerup` is triggered.
-   * **Warning**: This is a generic event not a change event.
+   * Callback function that is fired when a value change is committed.
+   * Does not fire if the value did not change, or if the change was canceled.
+   * **Warning**: This is a generic event, not a change event.
    *
    * The `eventDetails.reason` indicates what triggered the commit:
    *

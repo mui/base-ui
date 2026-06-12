@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
@@ -35,7 +35,7 @@ function removeCSSVariableInheritance() {
     scrollAreaOverflowVarsRegistered ||
     // When `inherits: false`, specifying `inherit` on child elements doesn't work
     // in Safari. To let CSS features work correctly, this optimization must be skipped.
-    isWebKit
+    platform.engine.webkit
   ) {
     return;
   }
@@ -297,9 +297,18 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   }, [viewportRef]);
 
   useIsoLayoutEffect(() => {
-    // Wait for scrollbar and thumb refs after hidden-state toggles, and refresh math on direction flips.
+    // Wait for scrollbar and thumb refs after hidden-state toggles, refresh math on direction
+    // flips, and re-evaluate overflow edges when the threshold changes.
     queueMicrotask(computeThumbPosition);
-  }, [computeThumbPosition, hiddenState, direction]);
+  }, [
+    computeThumbPosition,
+    hiddenState,
+    direction,
+    overflowEdgeThreshold.xStart,
+    overflowEdgeThreshold.xEnd,
+    overflowEdgeThreshold.yStart,
+    overflowEdgeThreshold.yEnd,
+  ]);
 
   useIsoLayoutEffect(() => {
     // `onMouseEnter` doesn't fire upon load, so we need to check if the viewport is already
@@ -309,7 +318,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     }
   }, [viewportRef, setHovering]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     const viewport = viewportRef.current;
     if (typeof ResizeObserver === 'undefined' || !viewport) {
       return undefined;

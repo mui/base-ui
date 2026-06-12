@@ -1,41 +1,13 @@
 'use client';
 import * as React from 'react';
-import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
-import {
-  ARROW_DOWN,
-  ARROW_UP,
-  ARROW_RIGHT,
-  ARROW_LEFT,
-  COMPOSITE_KEYS,
-  stopEvent,
-} from '../../internals/composite/composite';
-import { useAccordionRootContext } from '../root/AccordionRootContext';
 import type { AccordionItemState } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-
-function getActiveTriggers(accordionItemRefs: { current: (HTMLElement | null)[] }): HTMLElement[] {
-  const { current: accordionItemElements } = accordionItemRefs;
-
-  const output: HTMLElement[] = [];
-
-  for (let i = 0; i < accordionItemElements.length; i += 1) {
-    const section = accordionItemElements[i];
-    if (!isElementDisabled(section)) {
-      const trigger = section?.querySelector<HTMLElement>('[type="button"], [role="button"]');
-      if (trigger && !isElementDisabled(trigger)) {
-        output.push(trigger);
-      }
-    }
-  }
-
-  return output;
-}
 
 /**
  * A button that opens and closes the corresponding panel.
@@ -60,19 +32,13 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
   const { panelId, open, handleTrigger, disabled: contextDisabled } = useCollapsibleRootContext();
 
-  const disabled = disabledProp ?? contextDisabled;
+  const disabled = disabledProp || contextDisabled;
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
-    composite: true,
   });
-
-  const { accordionItemRefs, direction, loopFocus, orientation } = useAccordionRootContext();
-
-  const isRtl = direction === 'rtl';
-  const isHorizontal = orientation === 'horizontal';
 
   const { state, setTriggerId, triggerId: id } = useAccordionItemContext();
 
@@ -89,83 +55,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     'aria-controls': open ? panelId : undefined,
     'aria-expanded': open,
     id,
-    tabIndex: 0,
     onClick: handleTrigger,
-    onKeyDown(event: React.KeyboardEvent) {
-      if (!COMPOSITE_KEYS.has(event.key)) {
-        return;
-      }
-
-      stopEvent(event);
-
-      const triggers = getActiveTriggers(accordionItemRefs);
-
-      const numOfEnabledTriggers = triggers.length;
-      const lastIndex = numOfEnabledTriggers - 1;
-
-      let nextIndex = -1;
-
-      const thisIndex = triggers.indexOf(event.currentTarget as HTMLButtonElement);
-
-      function toNext() {
-        if (loopFocus) {
-          nextIndex = thisIndex + 1 > lastIndex ? 0 : thisIndex + 1;
-        } else {
-          nextIndex = Math.min(thisIndex + 1, lastIndex);
-        }
-      }
-
-      function toPrev() {
-        if (loopFocus) {
-          nextIndex = thisIndex === 0 ? lastIndex : thisIndex - 1;
-        } else {
-          nextIndex = thisIndex - 1;
-        }
-      }
-
-      switch (event.key) {
-        case ARROW_DOWN:
-          if (!isHorizontal) {
-            toNext();
-          }
-          break;
-        case ARROW_UP:
-          if (!isHorizontal) {
-            toPrev();
-          }
-          break;
-        case ARROW_RIGHT:
-          if (isHorizontal) {
-            if (isRtl) {
-              toPrev();
-            } else {
-              toNext();
-            }
-          }
-          break;
-        case ARROW_LEFT:
-          if (isHorizontal) {
-            if (isRtl) {
-              toNext();
-            } else {
-              toPrev();
-            }
-          }
-          break;
-        case 'Home':
-          nextIndex = 0;
-          break;
-        case 'End':
-          nextIndex = lastIndex;
-          break;
-        default:
-          break;
-      }
-
-      if (nextIndex > -1) {
-        triggers[nextIndex].focus();
-      }
-    },
   };
 
   const element = useRenderElement('button', componentProps, {
