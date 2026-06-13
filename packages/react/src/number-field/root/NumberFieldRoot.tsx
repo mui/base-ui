@@ -473,10 +473,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
             const parsedValue = Number.isNaN(nextValue) ? null : nextValue;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
-            setDirty(parsedValue !== validityData.initialValue);
+            // `setValue` updates the dirty flag from the stored (clamped) value, so validate with
+            // that same value rather than the raw autofilled one.
             setValue(parsedValue, details);
             clearErrors(name);
-            validation.change(parsedValue);
+            validation.change(lastChangedValueRef.current ?? parsedValue);
           },
         })}
         ref={hiddenInputRef}

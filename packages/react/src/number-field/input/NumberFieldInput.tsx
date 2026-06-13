@@ -228,6 +228,12 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           return;
         }
         committedValue = lastChangedValueRef.current ?? committed;
+        // If validation normalized the typed value back to the current value, `useValueChanged`
+        // won't fire and so won't reset the flag. Reset it here to avoid swallowing the
+        // revalidation of the next external value change.
+        if (committedValue === value) {
+          blockRevalidationRef.current = false;
+        }
       }
       if (validationMode === 'onBlur') {
         validation.commit(committedValue);
