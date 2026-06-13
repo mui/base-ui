@@ -254,6 +254,22 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     ],
   );
 
+  // Release pointer lock if the scrub area unmounts mid-scrub, otherwise the document stays
+  // pointer-locked until the user presses Escape.
+  React.useEffect(
+    () => () => {
+      if (isScrubbingRef.current) {
+        isScrubbingRef.current = false;
+        try {
+          ownerDocument(scrubAreaRef.current).exitPointerLock();
+        } catch {
+          // Ignore errors.
+        }
+      }
+    },
+    [],
+  );
+
   // Prevent scrolling using touch input when scrubbing.
   React.useEffect(
     function registerScrubberTouchPreventListener() {
