@@ -184,9 +184,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       }
     }
 
-    // Allow plus sign in all cases; minus sign only when negatives are valid
+    // Allow plus sign in all cases; minus sign when negatives are valid, or when out-of-range
+    // entry is allowed so native underflow validation can be triggered from the keyboard.
     PLUS_SIGNS_WITH_ASCII.forEach((key) => keys.add(key));
-    if (minWithDefault < 0) {
+    if (minWithDefault < 0 || allowOutOfRange) {
       MINUS_SIGNS_WITH_ASCII.forEach((key) => keys.add(key));
     }
 

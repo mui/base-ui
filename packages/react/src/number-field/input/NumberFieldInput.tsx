@@ -376,6 +376,17 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
+      const willSetHome = event.key === 'Home' && min != null;
+      const willSetEnd = event.key === 'End' && max != null;
+
+      // Multi-character keys (PageUp, Insert, F-keys, Home/End without a min/max, etc.) neither
+      // insert text nor map to a field action here, so let the browser handle them natively
+      // instead of swallowing them with `stopEvent`. Single-character keys that reach this point
+      // are invalid input and are still blocked below.
+      if (event.key.length > 1 && !isStepKey && !willSetHome && !willSetEnd) {
+        return;
+      }
+
       // Step from the authoritative numeric value unless the input has unsaved manual edits.
       // When the text is already synced, parsing the rounded display would collapse precision,
       // so pass no `currentValue` and let `incrementValue` fall back to the numeric state

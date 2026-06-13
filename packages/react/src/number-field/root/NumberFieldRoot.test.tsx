@@ -942,6 +942,20 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: allowOutOfRange', () => {
+    it('allows typing a negative value via keyboard when min is 0', async () => {
+      await render(<NumberField min={0} allowOutOfRange />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+      input.focus();
+
+      // The minus key must not be blocked, so native underflow validation is reachable.
+      const preventDefaultSpy = vi.fn();
+      fireEvent.keyDown(input, { key: '-', preventDefault: preventDefaultSpy });
+      expect(preventDefaultSpy).toHaveBeenCalledTimes(0);
+
+      fireEvent.change(input, { target: { value: '-1' } });
+      expect(input).toHaveValue('-1');
+    });
+
     it('allows range overflow validation when true', async () => {
       await render(
         <form data-testid="form">
@@ -2285,6 +2299,30 @@ describe('<NumberField />', () => {
 
     const navigateKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'];
     navigateKeys.forEach((key) => {
+      const preventDefaultSpy = vi.fn();
+      fireEvent.keyDown(input, { key, preventDefault: preventDefaultSpy });
+      expect(preventDefaultSpy).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  it('does not prevent native caret movement for Home/End without min/max', async () => {
+    await render(<NumberField defaultValue={5} />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    input.focus();
+
+    ['Home', 'End'].forEach((key) => {
+      const preventDefaultSpy = vi.fn();
+      fireEvent.keyDown(input, { key, preventDefault: preventDefaultSpy });
+      expect(preventDefaultSpy).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  it('does not swallow non-printing keys it does not handle', async () => {
+    await render(<NumberField defaultValue={5} />);
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    input.focus();
+
+    ['PageUp', 'PageDown', 'Insert', 'F5'].forEach((key) => {
       const preventDefaultSpy = vi.fn();
       fireEvent.keyDown(input, { key, preventDefault: preventDefaultSpy });
       expect(preventDefaultSpy).toHaveBeenCalledTimes(0);
