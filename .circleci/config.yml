@@ -25,7 +25,7 @@ default-job: &default-job
       default: << pipeline.parameters.react-version >>
   resource_class: medium
   environment:
-    # expose it globally otherwise we have to thread it from each job to the install command
+    &default-environment # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
@@ -88,6 +88,9 @@ jobs:
       - code-infra/valelint
   test_static:
     <<: *default-job
+    environment:
+      <<: *default-environment
+      NODE_OPTIONS: --max-old-space-size=3584
     steps:
       - checkout
       - code-infra/install-deps
@@ -220,6 +223,9 @@ jobs:
   test_unit_compiler:
     <<: *default-job
     resource_class: large
+    environment:
+      <<: *default-environment
+      NODE_OPTIONS: --max-old-space-size=3584
     steps:
       - checkout
       - code-infra/install-deps
