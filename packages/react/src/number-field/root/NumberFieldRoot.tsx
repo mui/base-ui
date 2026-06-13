@@ -248,7 +248,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
-          return shouldFireChange;
+          // The change was attempted but vetoed, so report it as not applied. Callers (e.g. the
+          // keyboard handler) rely on this to avoid committing a value that was never stored.
+          return false;
         }
 
         setValueUnwrapped(validatedValue);

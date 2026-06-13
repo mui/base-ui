@@ -322,6 +322,32 @@ describe('<NumberField.Increment />', () => {
       fireEvent.pointerUp(button);
     });
 
+    it('commits on release after a hold reaches the boundary', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField.Root defaultValue={9} max={10} onValueCommitted={onValueCommitted}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(button);
+      clock.tick(START_AUTO_CHANGE_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('10');
+      expect(onValueCommitted).not.toHaveBeenCalled();
+
+      fireEvent.pointerUp(button);
+
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(10);
+    });
+
     it('does not increment twice with pointerdown and click', async () => {
       await render(
         <NumberField.Root defaultValue={0}>

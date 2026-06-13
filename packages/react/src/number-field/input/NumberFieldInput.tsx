@@ -161,11 +161,20 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       allowInputSyncRef.current = true;
 
       if (inputValue.trim() === '') {
-        setValue(null, createChangeEventDetails(REASONS.inputClear, event.nativeEvent));
+        const clearDetails = createChangeEventDetails(REASONS.inputClear, event.nativeEvent);
+        setValue(null, clearDetails);
+        // Respect a canceled clear, mirroring the non-empty blur path below.
+        if (clearDetails.isCanceled) {
+          return;
+        }
         if (validationMode === 'onBlur') {
           validation.commit(null);
         }
-        onValueCommitted(null, createGenericEventDetails(REASONS.inputClear, event.nativeEvent));
+        // Don't report a commit when blurring an already-empty field that the user never
+        // interacted with: nothing was cleared and no programmatic change is pending.
+        if (hadManualInput || hadPendingProgrammaticChange || value !== null) {
+          onValueCommitted(null, createGenericEventDetails(REASONS.inputClear, event.nativeEvent));
+        }
         return;
       }
 
@@ -382,6 +391,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const commitDetails = createGenericEventDetails(REASONS.keyboard, nativeEvent);
 
+      let changed = false;
       if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
         allowInputSyncRef.current = true;
 
@@ -392,25 +402,21 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           lastChangedValueRef.current = valueRef.current;
         }
 
-        const prev = valueRef.current;
-        incrementValue(amount, {
+        changed = incrementValue(amount, {
           direction: event.key === 'ArrowUp' ? 1 : -1,
           currentValue,
           event: nativeEvent,
           reason: REASONS.keyboard,
         });
-
-        const committed = lastChangedValueRef.current ?? valueRef.current;
-        if (committed !== prev) {
-          onValueCommitted(committed, commitDetails);
-        }
       } else if (event.key === 'Home' && min != null) {
         allowInputSyncRef.current = true;
-        setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
+        changed = setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
       } else if (event.key === 'End' && max != null) {
         allowInputSyncRef.current = true;
-        setValue(max, createChangeEventDetails(REASONS.keyboard, nativeEvent));
+        changed = setValue(max, createChangeEventDetails(REASONS.keyboard, nativeEvent));
+      }
+
+      if (changed) {
         onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       }
     },

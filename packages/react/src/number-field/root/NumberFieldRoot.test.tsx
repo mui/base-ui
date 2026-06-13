@@ -719,6 +719,85 @@ describe('<NumberField />', () => {
       fireEvent.click(dec);
       expect(onValueCommitted.mock.lastCall?.[1].reason).toBe(REASONS.decrementPress);
     });
+
+    it('does not fire when blurring an untouched empty field', async () => {
+      const onValueCommitted = vi.fn();
+      await render(<NumberField onValueCommitted={onValueCommitted} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+    });
+
+    it('does not fire on keyboard steps that do not change the value', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField defaultValue={5} min={0} max={5} onValueCommitted={onValueCommitted} />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+      fireEvent.keyDown(input, { key: 'End' });
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(4);
+    });
+
+    it('fires once per press-release even after mouseleave/mouseenter during a hold', async () => {
+      const onValueCommitted = vi.fn();
+      await render(<NumberField defaultValue={0} onValueCommitted={onValueCommitted} />);
+      const inc = screen.getByLabelText('Increase');
+
+      fireEvent.pointerDown(inc, { button: 0 });
+      fireEvent.mouseLeave(inc);
+      fireEvent.mouseEnter(inc, { buttons: 1 });
+      fireEvent.pointerUp(inc, { button: 0 });
+
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+    });
+
+    it('does not commit a canceled keyboard change', async () => {
+      const onValueChange = vi.fn((_value, details) => details.cancel());
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={0}
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      expect(input).toHaveValue('0');
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+    });
+
+    it('does not commit a canceled clear on blur', async () => {
+      const onValueChange = vi.fn((_value, details) => details.cancel());
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      expect(onValueCommitted.mock.calls.length).toBe(0);
+    });
   });
 
   describe('prop: disabled', () => {
