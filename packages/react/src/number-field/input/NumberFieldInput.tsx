@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -97,8 +98,19 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
+  const pendingCaretRef = React.useRef<number | null>(null);
 
   useRegisterFieldControl(inputRef, id, value, undefined, !disabled, nameProp);
+
+  // After a paste splices text into the controlled value, the browser would otherwise drop the
+  // caret at the end of the new value. Restore it just after the inserted text.
+  useIsoLayoutEffect(() => {
+    if (pendingCaretRef.current != null) {
+      const caret = pendingCaretRef.current;
+      pendingCaretRef.current = null;
+      inputRef.current?.setSelectionRange(caret, caret);
+    }
+  });
 
   useValueChanged(value, () => {
     clearErrors(name);
@@ -455,12 +467,21 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Prevent `onChange` from being called.
       event.preventDefault();
 
-      const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
+      // Insert the pasted text at the caret/selection instead of replacing the entire value,
+      // matching native input behavior (e.g. pasting "5" into "123|" yields "1235").
+      const input = event.currentTarget;
+      const selectionStart = input.selectionStart ?? inputValue.length;
+      const selectionEnd = input.selectionEnd ?? inputValue.length;
+      const nextText =
+        inputValue.slice(0, selectionStart) + pastedData + inputValue.slice(selectionEnd);
+
+      const parsedValue = parseNumber(nextText, locale, formatOptionsRef.current);
 
       if (parsedValue !== null) {
         allowInputSyncRef.current = false;
+        pendingCaretRef.current = selectionStart + pastedData.length;
         setValue(parsedValue, createChangeEventDetails(REASONS.inputPaste, event.nativeEvent));
-        setInputValue(pastedData);
+        setInputValue(nextText);
       }
     },
   };

@@ -125,8 +125,11 @@ describe('<NumberField.ScrubArea />', () => {
     );
 
     const scrubArea = screen.getByTestId('scrub-area');
-    const input = screen.getByRole('textbox');
+    const input = screen.getByRole('textbox') as HTMLInputElement;
 
+    // Select the existing value so the paste replaces it rather than inserting at the caret.
+    await act(async () => input.focus());
+    input.select();
     pasteText(input, '20');
 
     expect(input).toHaveValue('20');

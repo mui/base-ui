@@ -1235,6 +1235,8 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox') as HTMLInputElement;
       await act(async () => input.focus());
 
+      // Select the existing value so the paste replaces it rather than inserting at the caret.
+      input.select();
       pasteText(input, '20');
 
       expect(input).toHaveValue('20');
@@ -2288,6 +2290,45 @@ describe('<NumberField />', () => {
       expect(input).toHaveValue('');
       fireEvent.blur(input);
       expect(input).toHaveValue('');
+    });
+  });
+
+  describe('pasting at the caret', () => {
+    it('inserts pasted text at the caret instead of replacing the whole value', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={123} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.setSelectionRange(3, 3);
+      pasteText(input, '5');
+
+      expect(input).toHaveValue('1235');
+      expect(onValueChange.mock.lastCall?.[0]).toBe(1235);
+    });
+
+    it('replaces the selected range when pasting over a selection', async () => {
+      await render(<NumberField defaultValue={123} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.setSelectionRange(1, 2);
+      pasteText(input, '9');
+
+      expect(input).toHaveValue('193');
+    });
+
+    it('keeps the caret just after the pasted text', async () => {
+      await render(<NumberField defaultValue={123} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.setSelectionRange(1, 2);
+      pasteText(input, '9');
+
+      expect(input).toHaveValue('193');
+      expect(input.selectionStart).toBe(2);
+      expect(input.selectionEnd).toBe(2);
     });
   });
 
