@@ -35,6 +35,7 @@ import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
 import {
   createChangeEventDetails,
+  createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
   type ReasonToEvent,
@@ -359,16 +360,33 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
         const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
-        incrementValue(amount, {
+        // Each wheel turn is a discrete, final change, so commit it immediately like keyboard
+        // steps (gated on an actual change so boundary no-ops don't commit).
+        const changed = incrementValue(amount, {
           direction: event.deltaY > 0 ? -1 : 1,
           event,
           reason: 'wheel',
         });
+        if (changed) {
+          onValueCommitted(
+            lastChangedValueRef.current ?? valueRef.current,
+            createGenericEventDetails(REASONS.wheel, event),
+          );
+        }
       }
 
       return addEventListener(element, 'wheel', handleWheel);
     },
-    [allowWheelScrub, incrementValue, disabled, readOnly, getStepAmount],
+    [
+      allowWheelScrub,
+      incrementValue,
+      disabled,
+      readOnly,
+      getStepAmount,
+      onValueCommitted,
+      lastChangedValueRef,
+      valueRef,
+    ],
   );
 
   const state: NumberFieldRootState = React.useMemo(
@@ -614,7 +632,8 @@ export interface NumberFieldRootProps extends Omit<
    * - The input is blurred after typing a value.
    * - The pointer is released after scrubbing or pressing the increment/decrement buttons.
    *
-   * It runs simultaneously with `onValueChange` when interacting with the keyboard.
+   * It runs simultaneously with `onValueChange` when interacting with the keyboard or the
+   * mouse wheel.
    *
    * **Warning**: This is a generic event not a change event.
    */

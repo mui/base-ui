@@ -1197,7 +1197,43 @@ describe('<NumberField />', () => {
       expect(input).toHaveValue('5');
     });
 
-    it('calls onValueChange on wheel and commits on blur', async () => {
+    it('does not scrub on wheel while pinch-zooming (ctrlKey)', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} allowWheelScrub onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: 1, ctrlKey: true });
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not scrub on wheel when the input is not focused', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} allowWheelScrub onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.wheel(input, { deltaY: 1 });
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('uses largeStep when shift is held during wheel', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={0}
+          largeStep={10}
+          allowWheelScrub
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: -1, shiftKey: true });
+      expect(onValueChange.mock.lastCall?.[0]).toBe(10);
+    });
+
+    it('calls onValueChange and onValueCommitted on wheel', async () => {
       const onValueChange = vi.fn();
       const onValueCommitted = vi.fn();
       await render(
@@ -1214,17 +1250,19 @@ describe('<NumberField />', () => {
       fireEvent.wheel(input, { deltaY: 1 });
       expect(onValueChange.mock.calls.length).toBe(1);
       expect(onValueChange.mock.lastCall?.[0]).toBe(4);
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(4);
+      expect(onValueCommitted.mock.lastCall?.[1].reason).toBe(REASONS.wheel);
 
       fireEvent.wheel(input, { deltaY: -1 });
       expect(onValueChange.mock.calls.length).toBe(2);
       expect(onValueChange.mock.lastCall?.[0]).toBe(5);
+      expect(onValueCommitted.mock.calls.length).toBe(2);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(5);
 
-      // Wheel does not commit; blur commits current value
-      expect(onValueCommitted.mock.calls.length).toBe(0);
-
+      // Blur doesn't commit again; the wheel changes were already committed.
       fireEvent.blur(input);
-      expect(onValueCommitted.mock.calls.length).toBe(1);
-      expect(onValueCommitted.mock.calls[0][0]).toBe(5);
+      expect(onValueCommitted.mock.calls.length).toBe(2);
     });
 
     it('syncs the visible input value when using the mouse wheel after pasting', async () => {
