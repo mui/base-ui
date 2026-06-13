@@ -10,6 +10,7 @@ import {
 } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Menu } from '@base-ui/react/menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
@@ -1564,6 +1565,7 @@ describe('<Menu.Root />', () => {
           current: {
             unmount: vi.fn(),
             close: vi.fn(),
+            highlightItem: vi.fn(),
           },
         };
 
@@ -1605,6 +1607,179 @@ describe('<Menu.Root />', () => {
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).toBe(null);
+        });
+      });
+
+      describe('highlightItem', () => {
+        function createApp(target: Menu.Root.HighlightItem) {
+          const actionsRef: React.RefObject<Menu.Root.Actions | null> = { current: null };
+
+          return function App() {
+            const [open, setOpen] = React.useState(false);
+            return (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(true);
+                    actionsRef.current?.highlightItem(target);
+                  }}
+                >
+                  external
+                </button>
+                <TestMenu rootProps={{ open, onOpenChange: setOpen, actionsRef }} />
+              </div>
+            );
+          };
+        }
+
+        it('focuses the first item when called with `first` while opening programmatically', async () => {
+          const App = createApp('first');
+          const { user } = await render(<App />);
+
+          await user.click(screen.getByRole('button', { name: 'external' }));
+
+          const firstItem = await screen.findByTestId('item-1');
+          await waitFor(() => {
+            expect(firstItem).toHaveFocus();
+          });
+          expect(firstItem).toHaveAttribute('tabindex', '0');
+        });
+
+        it('focuses and scrolls the last item when called with `last` while opening programmatically', async () => {
+          const scrollIntoView = vi.fn();
+          const originalScrollIntoView = HTMLElement.prototype.scrollIntoView;
+          HTMLElement.prototype.scrollIntoView = scrollIntoView;
+
+          const App = createApp('last');
+          const { user } = await render(<App />);
+
+          try {
+            await user.click(screen.getByRole('button', { name: 'external' }));
+
+            const lastItem = await screen.findByTestId('item-5');
+            await waitFor(() => {
+              expect(lastItem).toHaveFocus();
+            });
+            expect(lastItem).toHaveAttribute('tabindex', '0');
+            await waitFor(() => {
+              expect(scrollIntoView).toHaveBeenCalled();
+            });
+          } finally {
+            HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+          }
+        });
+
+        it('focuses the popup when called with `none`', async () => {
+          const App = createApp('none');
+          const { user } = await render(<App />);
+
+          await user.click(screen.getByRole('button', { name: 'external' }));
+
+          const popup = await screen.findByRole('menu');
+          await waitFor(() => {
+            expect(popup).toHaveFocus();
+          });
+          screen.getAllByRole('menuitem').forEach((item) => {
+            expect(item).toHaveAttribute('tabindex', '-1');
+          });
+        });
+
+        it('moves focus to the popup when called with `none` while open', async () => {
+          const actionsRef: React.RefObject<Menu.Root.Actions | null> = { current: null };
+
+          function App() {
+            const [open, setOpen] = React.useState(false);
+            return (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(true);
+                    actionsRef.current?.highlightItem('first');
+                  }}
+                >
+                  external
+                </button>
+                <TestMenu rootProps={{ open, onOpenChange: setOpen, actionsRef }} />
+              </div>
+            );
+          }
+
+          const { user } = await render(<App />);
+
+          await user.click(screen.getByRole('button', { name: 'external' }));
+
+          const firstItem = await screen.findByTestId('item-1');
+          await waitFor(() => {
+            expect(firstItem).toHaveFocus();
+          });
+
+          await act(async () => {
+            actionsRef.current?.highlightItem('none');
+          });
+
+          const popup = screen.getByRole('menu');
+          await waitFor(() => {
+            expect(popup).toHaveFocus();
+          });
+          screen.getAllByRole('menuitem').forEach((item) => {
+            expect(item).toHaveAttribute('tabindex', '-1');
+          });
+        });
+
+        it('waits for composed items that register after a layout effect', async () => {
+          const actionsRef: React.RefObject<Menu.Root.Actions | null> = { current: null };
+
+          function DelayedItem(props: { children: React.ReactNode; testId: string }) {
+            const [mounted, setMounted] = React.useState(false);
+            useIsoLayoutEffect(() => {
+              setMounted(true);
+            }, []);
+
+            if (!mounted) {
+              return null;
+            }
+
+            return <Menu.Item data-testid={props.testId}>{props.children}</Menu.Item>;
+          }
+
+          function App() {
+            const [open, setOpen] = React.useState(false);
+            return (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(true);
+                    actionsRef.current?.highlightItem('first');
+                  }}
+                >
+                  external
+                </button>
+                <TestMenu
+                  rootProps={{ open, onOpenChange: setOpen, actionsRef }}
+                  popupProps={{
+                    children: (
+                      <React.Fragment>
+                        <DelayedItem testId="delayed-1">One</DelayedItem>
+                        <DelayedItem testId="delayed-2">Two</DelayedItem>
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              </div>
+            );
+          }
+
+          const { user } = await render(<App />);
+
+          await user.click(screen.getByRole('button', { name: 'external' }));
+
+          const firstItem = await screen.findByTestId('delayed-1');
+          await waitFor(() => {
+            expect(firstItem).toHaveFocus();
+          });
         });
       });
     });
