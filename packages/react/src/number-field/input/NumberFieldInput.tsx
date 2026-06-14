@@ -141,7 +141,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     // causing a hydration mismatch.
     suppressHydrationWarning: true,
     onFocus(event) {
-      if (event.defaultPrevented || readOnly || disabled) {
+      // Read-only inputs are still focusable, so keep focus/touched state in sync; only the
+      // value-changing handlers below stay gated on `readOnly`.
+      if (event.defaultPrevented || disabled) {
         return;
       }
 
@@ -160,12 +162,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       target.setSelectionRange(length, length);
     },
     onBlur(event) {
-      if (event.defaultPrevented || readOnly || disabled) {
+      if (event.defaultPrevented || disabled) {
         return;
       }
 
       setTouched(true);
       setFocused(false);
+
+      if (readOnly) {
+        return;
+      }
 
       const hadManualInput = !allowInputSyncRef.current;
       const hadPendingProgrammaticChange = hasPendingCommitRef.current;

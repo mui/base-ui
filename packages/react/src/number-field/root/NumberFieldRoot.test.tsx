@@ -814,6 +814,23 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       expect(input).toHaveAttribute('readonly');
     });
+
+    it('keeps focus state in sync on a readOnly field', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root readOnly>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+      const input = screen.getByTestId('input');
+
+      fireEvent.focus(input);
+      expect(input).toHaveAttribute('data-focused', '');
+
+      fireEvent.blur(input);
+      expect(input).not.toHaveAttribute('data-focused');
+    });
   });
 
   describe('prop: required', () => {
@@ -831,6 +848,14 @@ describe('<NumberField />', () => {
         selector: 'input[aria-hidden][type=number]',
       });
       expect(hiddenInput).toHaveAttribute('name', 'test');
+    });
+
+    it('marks the hidden input readOnly when the field is readOnly', async () => {
+      await render(<NumberField name="test" readOnly />);
+      const hiddenInput = screen.getByText('', {
+        selector: 'input[aria-hidden][type=number]',
+      });
+      expect(hiddenInput).toHaveAttribute('readonly');
     });
   });
 
@@ -1177,6 +1202,24 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: allowWheelScrub', () => {
+    it('does not scrub on wheel when disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField defaultValue={5} allowWheelScrub disabled onValueChange={onValueChange} />,
+      );
+      fireEvent.wheel(screen.getByRole('textbox'), { deltaY: 1 });
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not scrub on wheel when readOnly', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField defaultValue={5} allowWheelScrub readOnly onValueChange={onValueChange} />,
+      );
+      fireEvent.wheel(screen.getByRole('textbox'), { deltaY: 1 });
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
     it('should allow the user to scrub the input value with the mouse wheel', async () => {
       await render(<NumberField defaultValue={5} allowWheelScrub />);
       const input = screen.getByRole('textbox');
@@ -2332,6 +2375,30 @@ describe('<NumberField />', () => {
   });
 
   describe('pasting at the caret', () => {
+    it('ignores a paste that does not parse to a number', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.select();
+      pasteText(input, 'abc');
+
+      expect(input).toHaveValue('1');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not paste into a readOnly field', async () => {
+      await render(<NumberField defaultValue={1} readOnly />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      await act(async () => input.focus());
+      input.select();
+      pasteText(input, '9');
+
+      expect(input).toHaveValue('1');
+    });
+
     it('inserts pasted text at the caret instead of replacing the whole value', async () => {
       const onValueChange = vi.fn();
       await render(<NumberField defaultValue={123} onValueChange={onValueChange} />);

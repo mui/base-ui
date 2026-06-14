@@ -52,6 +52,18 @@ describe('<NumberField.Increment />', () => {
     expect(screen.getByRole('textbox')).toHaveValue('1');
   });
 
+  it('seeds an empty fully-negative range in range on first increment', async () => {
+    await render(
+      <NumberField.Root min={-10} max={-5}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+    fireEvent.click(screen.getByRole('button'));
+    // First step on an empty field seeds the in-range value nearest 0 (the max here), not 0.
+    expect(screen.getByRole('textbox')).toHaveValue('-5');
+  });
+
   it('first increment after external controlled update', async () => {
     function Controlled() {
       const [value, setValue] = React.useState<number | null>(null);
@@ -659,6 +671,19 @@ describe('<NumberField.Increment />', () => {
   });
 
   describe('disabled state', () => {
+    it('exposes aria-controls and aria-readonly on the stepper', async () => {
+      await render(
+        <NumberField.Root readOnly>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button');
+      expect(button).toHaveAttribute('aria-controls', input.id);
+      expect(button).toHaveAttribute('aria-readonly', 'true');
+    });
+
     it('should not increment when root is disabled', async () => {
       const handleValueChange = vi.fn();
       await render(

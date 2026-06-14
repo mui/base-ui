@@ -30,6 +30,7 @@ import {
 } from '../utils/parse';
 import { formatNumber } from '../../utils/formatNumber';
 import { DEFAULT_STEP } from '../utils/constants';
+import { clamp } from '../../internals/clamp';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
@@ -280,11 +281,20 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const incrementValue = useStableCallback(
     (amount: number, { direction, currentValue, event, reason }: IncrementValueParameters) => {
       const prevValue = currentValue == null ? valueRef.current : currentValue;
-      const nextValue =
-        typeof prevValue === 'number' ? prevValue + amount * direction : Math.max(0, min ?? 0);
       const nativeEvent = event as ReasonToEvent<IncrementValueParameters['reason']> | undefined;
+
+      if (typeof prevValue !== 'number') {
+        // Seed an empty field with the in-range value nearest 0 (e.g. `max` for a fully
+        // negative range). No `direction`: the seed isn't a step, so it must not be
+        // directionally snapped.
+        return setValue(
+          clamp(0, minWithDefault, maxWithDefault),
+          createChangeEventDetails(reason, nativeEvent),
+        );
+      }
+
       return setValue(
-        nextValue,
+        prevValue + amount * direction,
         createChangeEventDetails(reason, nativeEvent, undefined, {
           direction,
         }),
@@ -509,6 +519,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         // See https://github.com/facebook/react/issues/12334.
         step={stepProp}
         disabled={disabled}
+        readOnly={readOnly}
         required={required}
         aria-hidden
         tabIndex={-1}
