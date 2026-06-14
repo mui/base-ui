@@ -82,6 +82,6 @@
     height: 1px;
     margin-block: 0.25rem;
     margin-inline: 0.25rem;
-    background-color: var(--gray-c2);
+    background-color: var(--color-border);
   }
 }
