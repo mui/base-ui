@@ -141,8 +141,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     // causing a hydration mismatch.
     suppressHydrationWarning: true,
     onFocus(event) {
-      // Read-only inputs are still focusable, so keep focus/touched state in sync; only the
-      // value-changing handlers below stay gated on `readOnly`.
+      // Read-only inputs are still focusable; only the value-changing handlers stay gated on it.
       if (event.defaultPrevented || disabled) {
         return;
       }
@@ -234,9 +233,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           return;
         }
         committedValue = lastChangedValueRef.current ?? committed;
-        // If validation normalized the typed value back to the current value, `useValueChanged`
-        // won't fire and so won't reset the flag. Reset it here to avoid swallowing the
-        // revalidation of the next external value change.
+        // If validation normalized back to the current value, `useValueChanged` won't fire to
+        // reset the flag, so reset it here or the next external change won't revalidate.
         if (committedValue === value) {
           blockRevalidationRef.current = false;
         }
@@ -403,10 +401,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const willSetHome = event.key === 'Home' && min != null;
       const willSetEnd = event.key === 'End' && max != null;
 
-      // Multi-character keys (PageUp, Insert, F-keys, Home/End without a min/max, etc.) neither
-      // insert text nor map to a field action here, so let the browser handle them natively
-      // instead of swallowing them with `stopEvent`. Single-character keys that reach this point
-      // are invalid input and are still blocked below.
+      // Let the browser handle multi-character keys we don't act on (PageUp, Insert, F-keys,
+      // Home/End without min/max); invalid single characters are still blocked below.
       if (event.key.length > 1 && !isStepKey && !willSetHome && !willSetEnd) {
         return;
       }

@@ -254,12 +254,13 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     ],
   );
 
-  // Release pointer lock if the scrub area unmounts mid-scrub, otherwise the document stays
-  // pointer-locked until the user presses Escape.
+  // If the scrub area unmounts mid-scrub, release pointer lock and clear the root's scrubbing
+  // state so it doesn't stay locked or stuck. (No commit: there's no pointer release here.)
   React.useEffect(
     () => () => {
       if (isScrubbingRef.current) {
         isScrubbingRef.current = false;
+        setRootScrubbing(false);
         try {
           ownerDocument(scrubAreaRef.current).exitPointerLock();
         } catch {
@@ -267,7 +268,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
         }
       }
     },
-    [],
+    [setRootScrubbing],
   );
 
   // Prevent scrolling using touch input when scrubbing.

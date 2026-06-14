@@ -112,6 +112,40 @@ describe('<NumberField.ScrubArea />', () => {
     expect(input).toHaveValue('-7');
   });
 
+  it('clears the root scrubbing state when the scrub area unmounts mid-scrub', async () => {
+    function App(props: { scrubAreaMounted: boolean }) {
+      return (
+        <NumberField.Root defaultValue={0} data-testid="root">
+          <NumberField.Input />
+          {props.scrubAreaMounted && (
+            <NumberField.ScrubArea data-testid="scrub-area">
+              <NumberField.ScrubAreaCursor />
+            </NumberField.ScrubArea>
+          )}
+        </NumberField.Root>
+      );
+    }
+
+    const { setProps } = await render(<App scrubAreaMounted />);
+
+    const scrubArea = screen.getByTestId('scrub-area');
+    const root = screen.getByTestId('root');
+
+    await act(async () => {
+      scrubArea.dispatchEvent(createPointerDownEvent(scrubArea));
+      scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -10 }));
+    });
+
+    expect(root).toHaveAttribute('data-scrubbing');
+
+    // Unmount the scrub area before pointerup; the root must not stay stuck in the scrubbing state.
+    await act(async () => {
+      setProps({ scrubAreaMounted: false });
+    });
+
+    expect(root).not.toHaveAttribute('data-scrubbing');
+  });
+
   it('syncs the visible input value when scrubbing after pasting', async () => {
     const onValueChange = vi.fn();
 

@@ -643,6 +643,20 @@ describe('<NumberField.Increment />', () => {
       expect(screen.getByRole('textbox')).toHaveValue('0');
     });
 
+    it('seeds an empty field in range without directional snapping', async () => {
+      await render(
+        <NumberField.Root min={-10} max={-5} step={2} snapOnStep>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+      // The first step seeds the in-range value nearest 0 (the max here). It isn't a step from a
+      // previous value, so it must not be directionally snapped (which would land on -6).
+      expect(screen.getByRole('textbox')).toHaveValue('-5');
+    });
+
     it('should increment with respect to the min value', async () => {
       await render(
         <NumberField.Root defaultValue={1} min={1} step={2} snapOnStep>

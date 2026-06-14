@@ -251,8 +251,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
-          // The change was attempted but vetoed, so report it as not applied. Callers (e.g. the
-          // keyboard handler) rely on this to avoid committing a value that was never stored.
+          // Report a vetoed change as not applied, so callers don't commit a value never stored.
           return false;
         }
 
@@ -284,9 +283,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       const nativeEvent = event as ReasonToEvent<IncrementValueParameters['reason']> | undefined;
 
       if (typeof prevValue !== 'number') {
-        // Seed an empty field with the in-range value nearest 0 (e.g. `max` for a fully
-        // negative range). No `direction`: the seed isn't a step, so it must not be
-        // directionally snapped.
+        // Seed an empty field with the in-range value nearest 0 (e.g. `max` for a negative range).
+        // No `direction`: the seed isn't a step, so it must not be directionally snapped.
         return setValue(
           clamp(0, minWithDefault, maxWithDefault),
           createChangeEventDetails(reason, nativeEvent),
