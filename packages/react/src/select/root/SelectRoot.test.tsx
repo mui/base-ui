@@ -331,6 +331,46 @@ describe('<Select.Root />', () => {
       expect(hiddenInputs[0]).toHaveValue('US');
       expect(hiddenInputs[1]).toHaveValue('CA');
     });
+
+    it('does not invoke itemToStringValue with the value array in multiple mode', async () => {
+      const items = [
+        { country: 'United States', code: 'US' },
+        { country: 'Canada', code: 'CA' },
+      ];
+
+      // A user `itemToStringValue` written for a single item throws if invoked with the whole
+      // array. The shared hidden input is nameless in multiple mode, so it must not serialize
+      // the array (per-value inputs carry the data). Rendering succeeding is the regression guard.
+      const { container } = await render(
+        <Select.Root
+          name="countries"
+          multiple
+          defaultValue={[items[0], items[1]]}
+          itemToStringValue={(item) => item.code.toUpperCase()}
+        >
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {items.map((it) => (
+                  <Select.Item key={it.code} value={it}>
+                    {it.country}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a type=hidden input
+      const hiddenInputs = container.querySelectorAll('input[name="countries"]');
+      expect(hiddenInputs).toHaveLength(2);
+      expect(hiddenInputs[0]).toHaveValue('US');
+      expect(hiddenInputs[1]).toHaveValue('CA');
+    });
   });
 
   describe('prop: itemToStringLabel', () => {
@@ -4433,6 +4473,72 @@ describe('<Select.Root />', () => {
         });
       },
     );
+
+    it('skips disabled items and commits the next match via typeahead on a closed trigger', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <Select.Root value={value} onValueChange={setValue}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apricot" disabled>
+                    apricot
+                  </Select.Item>
+                  <Select.Item value="avocado">avocado</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+
+      // "apricot" and "avocado" both start with "a", but "apricot" is disabled. A single "a"
+      // keypress must skip the disabled "apricot" and land on "avocado" — like native `<select>`
+      // and arrow-key navigation — not stop on (or bail at) the disabled match.
+      await act(async () => trigger.focus());
+      await user.keyboard('a');
+      expect(valueEl.textContent).toBe('avocado');
+    });
+
+    it('commits nothing when the only typeahead match is disabled (closed trigger)', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <Select.Root value={value} onValueChange={setValue}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="cherry">cherry</Select.Item>
+                  <Select.Item value="banana" disabled>
+                    banana
+                  </Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+
+      // "banana" is the only "b" item and it's disabled, so there is no selectable match.
+      await act(async () => trigger.focus());
+      await user.keyboard('b');
+      expect(valueEl.textContent).toBe('');
+    });
 
     it('starts from the first match after value reset (closed)', async () => {
       function App() {
