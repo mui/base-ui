@@ -1,4 +1,5 @@
 import { stringifyAsLabel } from './resolveValueLabel';
+import { stringifyLocale } from '../utils/stringifyLocale';
 
 const filterCache = new Map<string, Filter>();
 
@@ -61,16 +62,6 @@ export function getFilter(options: GetFilterParameters = {}): Filter {
 
   filterCache.set(cacheKey, filter);
   return filter;
-}
-
-function stringifyLocale(locale?: Intl.LocalesArgument): string {
-  if (Array.isArray(locale)) {
-    return locale.map((value) => stringifyLocale(value)).join(',');
-  }
-  if (locale == null) {
-    return '';
-  }
-  return String(locale);
 }
 
 export interface GetFilterParameters extends Intl.CollatorOptions {

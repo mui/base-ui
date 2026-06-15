@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { Collapsible } from '@base-ui/react/collapsible';
 import * as Menu from 'docs/src/components/Menu';
 import { usePathname } from 'next/navigation';
@@ -28,20 +27,11 @@ import { DemoPlayground } from './DemoPlayground';
 import './Demo.css';
 
 export type DemoProps = ContentProps<{
-  defaultOpen?: boolean;
   compact?: boolean;
   className?: string;
-  showExtraPlaygroundLink?: boolean;
 }>;
 
-export function Demo({
-  defaultOpen = false,
-  compact = false,
-  showExtraPlaygroundLink = false,
-  className,
-  ...demoProps
-}: DemoProps) {
-  const collapsibleTriggerRef = React.useRef<HTMLButtonElement>(null);
+export function Demo({ compact = false, className, ...demoProps }: DemoProps) {
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
   const sourceLinkCopyResetTimeout = useTimeout();
@@ -86,7 +76,6 @@ export function Demo({
 
   const demo = useDemo(demoProps, {
     copy: { onCopied },
-    defaultOpen,
     export: exportOpts,
     exportCodeSandbox,
   });
@@ -127,25 +116,6 @@ export function Demo({
       label: demoId,
       params: { [action]: demoId, slug: demoSlug || '' },
     });
-
-    if (!nextOpen && collapsibleTriggerRef.current != null) {
-      const triggerEl = collapsibleTriggerRef.current;
-      const rectTopBeforeClose = triggerEl.getBoundingClientRect().top;
-
-      ReactDOM.flushSync(() => demo.setExpanded(nextOpen));
-
-      const rectTopAfterClose = triggerEl.getBoundingClientRect().top;
-      const delta = rectTopAfterClose - rectTopBeforeClose;
-      // don't scroll if the trigger is still in the viewport after closing
-      if (rectTopAfterClose < 0) {
-        window.scrollBy({
-          top: delta,
-          behavior: 'instant',
-        });
-      }
-      return;
-    }
-
     demo.setExpanded(nextOpen);
   });
 
@@ -184,13 +154,13 @@ export function Demo({
         <span key={slug} id={slug} className="bui-scroll-mt-4" />
       ))}
       <div onPointerDown={onPlaygroundInteraction} onKeyDownCapture={onPlaygroundInteraction}>
-        <DemoPlayground component={demo.component} variant={demo.selectedVariant}>
-          {showExtraPlaygroundLink && (
-            <span className="DemoPlaygroundExternalLink">{externalPlaygroundLink}</span>
-          )}
-        </DemoPlayground>
+        <DemoPlayground component={demo.component} variant={demo.selectedVariant} />
       </div>
-      <Collapsible.Root open={demo.expanded} onOpenChange={onOpenChange}>
+      <Collapsible.Root
+        className="DemoCollapsibleRoot"
+        open={demo.expanded}
+        onOpenChange={onOpenChange}
+      >
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
             <div className="DemoToolbar">
@@ -211,11 +181,6 @@ export function Demo({
                   />
                 )}
                 {externalPlaygroundLink}
-                <GhostButton aria-label="Copy code" onClick={demo.copy}>
-                  Copy
-                  {copyTimeout ? <CheckIcon /> : <CopyIcon />}
-                </GhostButton>
-
                 {githubUrl && (
                   <Menu.Root>
                     <Menu.Trigger
@@ -226,7 +191,12 @@ export function Demo({
                       }
                     />
                     <Menu.Popup align="end" alignOffset={-5}>
-                      <Menu.LinkItem href={githubUrl} target="_blank" onClick={onViewSource}>
+                      <Menu.LinkItem
+                        href={githubUrl}
+                        target="_blank"
+                        rel="noopener"
+                        onClick={onViewSource}
+                      >
                         <GitHubIcon aria-hidden="true" />
                         View source on GitHub
                         <ExternalLinkIcon aria-hidden="true" />
@@ -252,11 +222,18 @@ export function Demo({
 
           <DemoCodeBlock
             selectedFile={demo.selectedFile}
-            selectedFileName={demo.selectedFileName}
             selectedFileLines={demo.selectedFileLines}
             collapsibleOpen={demo.expanded}
-            collapsibleTriggerRef={collapsibleTriggerRef}
-            compact={compact}
+            copyButton={
+              <GhostButton
+                layout="icon"
+                aria-label="Copy code"
+                onClick={demo.copy}
+                className="DemoCodeBlockCopyButton"
+              >
+                {copyTimeout ? <CheckIcon /> : <CopyIcon />}
+              </GhostButton>
+            }
           />
         </div>
       </Collapsible.Root>

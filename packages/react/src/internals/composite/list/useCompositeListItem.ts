@@ -99,11 +99,5 @@ export function useCompositeListItem<Metadata>(
     });
   }, [externalIndex, subscribeMapChange, setIndex]);
 
-  return React.useMemo(
-    () => ({
-      ref,
-      index,
-    }),
-    [index, ref],
-  );
+  return { ref, index };
 }

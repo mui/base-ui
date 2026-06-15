@@ -1174,6 +1174,20 @@ describe('<Checkbox.Root />', () => {
       expect(button).not.toHaveAttribute('data-focused');
     });
 
+    it('does not set [data-focused] when disabled', async () => {
+      await render(
+        <Field.Root>
+          <Checkbox.Root disabled data-testid="button" />
+        </Field.Root>,
+      );
+
+      const button = screen.getByTestId('button');
+
+      fireEvent.focus(button);
+
+      expect(button).not.toHaveAttribute('data-focused');
+    });
+
     it('[data-invalid]', async () => {
       await render(
         <Field.Root invalid>

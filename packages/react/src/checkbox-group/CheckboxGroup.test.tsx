@@ -16,6 +16,14 @@ describe('<CheckboxGroup />', () => {
     render,
   }));
 
+  describe('prop: id', () => {
+    it('is forwarded to the root element', () => {
+      render(<CheckboxGroup id="group-id" />);
+
+      expect(screen.getByRole('group')).toHaveAttribute('id', 'group-id');
+    });
+  });
+
   describe('prop: value', () => {
     it('should control the value', () => {
       function App() {
