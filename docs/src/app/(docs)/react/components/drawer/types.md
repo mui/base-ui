@@ -451,9 +451,9 @@ Renders a `<div>` element.
 
 **Viewport CSS Variables:**
 
-| Variable                  | Type  | Description                                                                                                                |
-| :------------------------ | :---- | :------------------------------------------------------------------------------------------------------------------------- |
-| `--drawer-keyboard-inset` | `CSS` | The software keyboard inset measured from the bottom edge of the layout viewport, set by `Drawer.VirtualKeyboardProvider`. |
+| Variable                  | Type  | Description                                                                                                                                                     |
+| :------------------------ | :---- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--drawer-keyboard-inset` | `CSS` | The software keyboard inset, measured from the bottom edge of the layout viewport. Present only when the drawer is wrapped in `Drawer.VirtualKeyboardProvider`. |
 
 ### Viewport.Props
 

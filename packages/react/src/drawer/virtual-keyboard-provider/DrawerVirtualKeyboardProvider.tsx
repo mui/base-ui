@@ -70,9 +70,11 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   const mounted = store.useState('mounted');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
   const viewportElement = store.useState('viewportElement');
-  const popupElementState = store.useState('popupElement');
 
-  const rootElement = viewportElement ?? popupElementState;
+  // The provider requires a `<Drawer.Viewport>` to act as the measurement and containment
+  // root and to host the keyboard inset variable; `<Drawer.Popup>` already warns when the
+  // viewport is missing, so there is no need to fall back to the popup element here.
+  const rootElement = viewportElement;
   const nestedDrawerOpen = nestedOpenDialogCount > 0;
 
   const pendingKeyboardFocusMovedRef = React.useRef(false);
@@ -133,7 +135,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
   const animateKeyboardScroll = useStableCallback((element: HTMLElement, scrollTop: number) => {
     const win = ownerWindow(element);
-    const behavior: ScrollBehavior = win.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    const behavior: ScrollBehavior = win.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
       ? 'auto'
       : 'smooth';
 
@@ -182,6 +184,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
     const alignFocusedKeyboardTarget = () => {
       const target = focusedKeyboardTargetRef.current;
+      // If the focused field is removed from the DOM without firing `focusout` (e.g. it is
+      // conditionally rendered away), any applied scroll slack is restored here on the next
+      // focus/viewport event or when the drawer closes. This self-corrects rather than
+      // tracking each field's lifecycle.
       if (nestedDrawerOpen || !target || !contains(rootElement, target)) {
         resetDrawerKeyboardInset();
         restoreKeyboardScrollAdjustment();
@@ -238,8 +244,15 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       keyboardFocusFrame.request(alignFocusedKeyboardTarget);
     };
 
-    const captureFocusedKeyboardTarget = (target: EventTarget | null) => {
-      if (nestedDrawerOpen || !isKeyboardInputTarget(target) || !contains(rootElement, target)) {
+    const captureFocusedKeyboardTarget = (eventTarget: EventTarget | null) => {
+      if (nestedDrawerOpen) {
+        return false;
+      }
+
+      // Resolve through the same path as taps so contentEditable hosts (and labelled
+      // controls) are normalized identically for the focus and touch paths.
+      const target = resolveKeyboardInputTarget(eventTarget);
+      if (!target || !contains(rootElement, target)) {
         return false;
       }
 
@@ -435,10 +448,6 @@ function isKeyboardInputElement(element: HTMLElement): boolean {
   return element instanceof win.HTMLInputElement && KEYBOARD_INPUT_TYPES.has(element.type);
 }
 
-function isKeyboardInputTarget(target: EventTarget | null): target is HTMLElement {
-  return isHTMLElement(target) && isKeyboardInputElement(target);
-}
-
 function resolveKeyboardInputTarget(target: EventTarget | null): HTMLElement | null {
   if (!isHTMLElement(target)) {
     return null;
@@ -527,33 +536,12 @@ function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
 function findKeyboardScrollTarget(target: HTMLElement, root: HTMLElement): HTMLElement | null {
   // Start at the parent: scrolling the focused field's own content (an overflowing
   // textarea is scrollable itself) can never move its box out from under the keyboard.
+  // Prefer an already-scrollable ancestor, then fall back to one that only becomes
+  // scrollable once keyboard slack is added (overflow intent without current overflow).
   return (
     findScrollableTouchTarget(target.parentElement, root, 'vertical') ??
-    findPotentialScrollAncestor(target, root)
+    findScrollableTouchTarget(target.parentElement, root, 'vertical', true)
   );
-}
-
-function findPotentialScrollAncestor(target: HTMLElement, root: HTMLElement): HTMLElement | null {
-  let element: HTMLElement | null = target.parentElement;
-  while (element) {
-    if (isPotentialKeyboardScrollContainer(element)) {
-      return element;
-    }
-
-    if (element === root) {
-      break;
-    }
-
-    element = element.parentElement;
-  }
-
-  return null;
-}
-
-function isPotentialKeyboardScrollContainer(element: HTMLElement): boolean {
-  // Keyboard slack can make a same-height container scrollable, so overflow intent is enough here.
-  const styles = getComputedStyle(element);
-  return (styles.overflowY === 'auto' || styles.overflowY === 'scroll') && element.clientHeight > 0;
 }
 
 function getKeyboardVisualViewport(win: Window): KeyboardVisualViewport | null {
