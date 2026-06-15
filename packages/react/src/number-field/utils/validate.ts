@@ -130,6 +130,9 @@ export function toValidatedNumber(
     nextValue = snapToStep(nextValue, base, step, small ? 'nearest' : 'directional');
   }
 
+  // Clamp before rounding so a value just outside a fractional boundary (e.g. `0.4` with
+  // `min: 0.6`) is pulled in range first, then clamp again after rounding in case rounding
+  // nudges it back out. Both passes are needed for non-integer bounds.
   if (shouldClamp) {
     nextValue = clamp(nextValue, minWithDefault, maxWithDefault);
   }
