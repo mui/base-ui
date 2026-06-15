@@ -23,7 +23,6 @@ const withMdx = nextMdx({
       [
         '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata',
         {
-          titleSuffix: ' · Base UI',
           extractToIndex: {
             include: ['src/app/react'],
             exclude: [
