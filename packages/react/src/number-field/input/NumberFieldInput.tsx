@@ -400,10 +400,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           event: nativeEvent,
           reason: REASONS.keyboard,
         });
-      } else if (event.key === 'Home' && min != null) {
+      } else if (willSetHome) {
         allowInputSyncRef.current = true;
         changed = setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
-      } else if (event.key === 'End' && max != null) {
+      } else if (willSetEnd) {
         allowInputSyncRef.current = true;
         changed = setValue(max, createChangeEventDetails(REASONS.keyboard, nativeEvent));
       }
