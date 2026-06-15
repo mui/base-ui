@@ -98,7 +98,7 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('-1');
   });
 
-  it('should increment to min on keydown Home', async () => {
+  it('should set the value to min on keydown Home', async () => {
     await render(
       <NumberField.Root min={-10} max={10}>
         <NumberField.Input />
@@ -110,7 +110,7 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('-10');
   });
 
-  it('should decrement to max on keydown End', async () => {
+  it('should set the value to max on keydown End', async () => {
     await render(
       <NumberField.Root min={-10} max={10}>
         <NumberField.Input />

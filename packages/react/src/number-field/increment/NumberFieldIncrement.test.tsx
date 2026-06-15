@@ -322,6 +322,54 @@ describe('<NumberField.Increment />', () => {
       fireEvent.pointerUp(button);
     });
 
+    it('does not commit a stale value when the first hold tick is canceled after dirty input', async () => {
+      const onValueCommitted = vi.fn();
+      let cancelNextChange = false;
+
+      function Controlled() {
+        const [value, setValue] = React.useState<number | null>(0);
+        return (
+          <NumberField.Root
+            value={value}
+            onValueChange={(nextValue, details) => {
+              if (cancelNextChange) {
+                details.cancel();
+                cancelNextChange = false;
+                return;
+              }
+              setValue(nextValue);
+            }}
+            onValueCommitted={onValueCommitted}
+          >
+            <NumberField.Input />
+            <NumberField.Increment />
+            <button onClick={() => setValue(10)}>external</button>
+          </NumberField.Root>
+        );
+      }
+
+      await render(<Controlled />);
+      const button = screen.getByLabelText('Increase');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(button);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(1);
+
+      fireEvent.click(screen.getByText('external'));
+      expect(input).toHaveValue('10');
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '-' } });
+      expect(input).toHaveValue('-');
+
+      cancelNextChange = true;
+      fireEvent.pointerDown(button);
+      fireEvent.pointerUp(button);
+
+      expect(onValueCommitted.mock.calls.length).toBe(2);
+      expect(onValueCommitted.mock.lastCall?.[0]).toBe(10);
+    });
+
     it('does not increment twice with pointerdown and click', async () => {
       await render(
         <NumberField.Root defaultValue={0}>
@@ -567,6 +615,28 @@ describe('<NumberField.Increment />', () => {
   });
 
   describe('prop: snapOnStep', () => {
+    it('does not emit a snapped intermediate when committing dirty text before a step', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField.Root defaultValue={0} step={2} snapOnStep onValueChange={onValueChange}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button');
+      await act(async () => input.focus());
+
+      fireEvent.change(input, { target: { value: '7' } });
+      onValueChange.mockClear();
+      fireEvent.click(button);
+
+      // The dirty "7" must not be directionally snapped to 6 before the increment runs.
+      const values = onValueChange.mock.calls.map((call) => call[0]);
+      expect(values).not.toContain(6);
+      expect(input).toHaveValue('8');
+    });
+
     it('should increment by exact step without rounding when snapOnStep is false', async () => {
       await render(
         <NumberField.Root defaultValue={2.7} step={2} snapOnStep={false}>
