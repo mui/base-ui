@@ -987,6 +987,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       setBackdropSwipingAttribute(backdropElement, false);
       // `data-swiping` is set on whichever backdrop is current when a swipe starts, which can
       // differ from the captured element if the backdrop mounted late or changed identity.
+      // Reading the live ref here is intentional so the current backdrop is cleared too.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       const currentBackdrop = backdropRef.current;
       if (currentBackdrop !== backdropElement) {
         setBackdropSwipingAttribute(currentBackdrop, false);
