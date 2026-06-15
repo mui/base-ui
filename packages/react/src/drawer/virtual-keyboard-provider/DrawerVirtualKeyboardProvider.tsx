@@ -56,6 +56,11 @@ interface KeyboardVisualViewport {
   readonly bottom: number;
 }
 
+interface KeyboardTouchTarget {
+  readonly focusTarget: HTMLElement;
+  readonly clickTarget: HTMLElement;
+}
+
 /**
  * Provides keyboard-aware focus and scroll handling for bottom-sheet drawers with form fields.
  *
@@ -261,7 +266,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     };
 
     const handleFocusIn = (event: FocusEvent) => {
-      if (captureFocusedKeyboardTarget(event.target)) {
+      if (captureFocusedKeyboardTarget(getTarget(event))) {
         scheduleKeyboardFocusAlignment();
       }
     };
@@ -364,17 +369,22 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     const touch = event.changedTouches[0] ?? event.touches[0];
     const doc = ownerDocument(event.currentTarget);
     const nativeEventTarget = getTarget(event.nativeEvent);
-    const keyboardFocusTarget =
+    const keyboardTarget =
       touch &&
-      (resolveKeyboardInputTargetFromPoint(doc, touch.clientX, touch.clientY) ??
-        resolveKeyboardInputTarget(nativeEventTarget));
+      (resolveKeyboardTouchTargetFromPoint(doc, touch.clientX, touch.clientY) ??
+        resolveKeyboardTouchTarget(nativeEventTarget));
 
-    if (keyboardFocusTarget && !contains(rootElement, keyboardFocusTarget)) {
+    if (
+      keyboardTarget &&
+      (!contains(rootElement, keyboardTarget.focusTarget) ||
+        !contains(rootElement, keyboardTarget.clickTarget))
+    ) {
       resetTouchTrackingState();
       return;
     }
 
-    if (keyboardFocusTarget) {
+    if (keyboardTarget) {
+      const { clickTarget: keyboardClickTarget, focusTarget: keyboardFocusTarget } = keyboardTarget;
       const win = ownerWindow(keyboardFocusTarget);
 
       // While pinch-zoomed, keyboard alignment is suspended; let native behavior
@@ -399,10 +409,9 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
       event.preventDefault();
       focusKeyboardInputWithoutPageScroll(keyboardFocusTarget);
       // Preventing the touchend default also suppresses the compatibility mouse
-      // events, including `click`; redispatch it so click handlers still run.
-      // Caveat: unlike a native tap, this click is untrusted with zeroed
-      // coordinates (`isTrusted: false`, `clientX/Y: 0`, `detail: 0`).
-      keyboardFocusTarget.click();
+      // events, including `click`; redispatch an untrusted replacement on the
+      // original tap target so click handlers still run with the tap coordinates.
+      dispatchKeyboardClick(keyboardClickTarget, touch);
       resetTouchTrackingState();
       return;
     }
@@ -463,6 +472,18 @@ function resolveKeyboardInputTarget(target: EventTarget | null): HTMLElement | n
   return isHTMLElement(control) && isKeyboardInputElement(control) ? control : null;
 }
 
+function resolveKeyboardTouchTarget(target: EventTarget | null): KeyboardTouchTarget | null {
+  const focusTarget = resolveKeyboardInputTarget(target);
+  if (!focusTarget) {
+    return null;
+  }
+
+  return {
+    focusTarget,
+    clickTarget: isHTMLElement(target) ? target : focusTarget,
+  };
+}
+
 // Inherited-editable descendants (no `contenteditable` attribute of their own) are not
 // focusable, so focusing them is a no-op; resolve taps on them to the editing host.
 function getContentEditableHost(element: HTMLElement): HTMLElement {
@@ -473,15 +494,18 @@ function getContentEditableHost(element: HTMLElement): HTMLElement {
   return host;
 }
 
-function resolveKeyboardInputTargetFromPoint(
+function resolveKeyboardTouchTargetFromPoint(
   doc: Document,
   clientX: number,
   clientY: number,
-): HTMLElement | null {
+): KeyboardTouchTarget | null {
   const exactTarget = getElementAtPoint(doc, clientX, clientY);
   const exactKeyboardTarget = resolveKeyboardInputTarget(exactTarget);
   if (exactKeyboardTarget) {
-    return exactKeyboardTarget;
+    return {
+      focusTarget: exactKeyboardTarget,
+      clickTarget: isHTMLElement(exactTarget) ? exactTarget : exactKeyboardTarget,
+    };
   }
 
   // Probing nearby points compensates for iOS retargeting taps while the page reacts
@@ -503,11 +527,30 @@ function resolveKeyboardInputTargetFromPoint(
     );
 
     if (keyboardTarget) {
-      return keyboardTarget;
+      return {
+        focusTarget: keyboardTarget,
+        clickTarget: keyboardTarget,
+      };
     }
   }
 
   return null;
+}
+
+function dispatchKeyboardClick(target: HTMLElement, touch: Pick<Touch, 'clientX' | 'clientY'>) {
+  const win = ownerWindow(target);
+  const ClickEvent = win.PointerEvent ?? win.MouseEvent;
+
+  target.dispatchEvent(
+    new ClickEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+      detail: 1,
+      view: win,
+    }),
+  );
 }
 
 function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {

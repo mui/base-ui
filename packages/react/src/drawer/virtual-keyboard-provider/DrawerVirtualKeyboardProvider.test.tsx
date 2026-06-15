@@ -471,6 +471,46 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     },
   );
 
+  it.skipIf(isJSDOM)('captures focusin targets through a shadow root', async () => {
+    const restoreInnerHeight = mockWindowInnerHeight(800);
+    const visualViewport = mockVisualViewport(800);
+
+    try {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport data-testid="viewport">
+                <Drawer.Popup>
+                  <div data-testid="host" />
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const host = screen.getByTestId('host');
+      const shadowRoot = host.attachShadow({ mode: 'open' });
+      const input = document.createElement('input');
+      input.type = 'text';
+      shadowRoot.append(input);
+
+      await act(async () => {
+        input.focus();
+        visualViewport.resize(500);
+      });
+
+      await waitFor(() => {
+        expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+      });
+    } finally {
+      visualViewport.restore();
+      restoreInnerHeight();
+    }
+  });
+
   it.skipIf(isJSDOM)(
     'keeps the keyboard inset when focus moves directly to another keyboard input',
     async () => {
@@ -749,8 +789,10 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
       const backdrop = screen.getByTestId('backdrop');
       const input = screen.getByTestId('input');
       const focusSpy = vi.spyOn(input, 'focus');
-      const clickSpy = vi.fn();
-      input.addEventListener('click', clickSpy);
+      const clickEvents: MouseEvent[] = [];
+      input.addEventListener('click', (clickEvent) => {
+        clickEvents.push(clickEvent);
+      });
       const originalElementFromPoint = document.elementFromPoint;
       document.elementFromPoint = () => input;
 
@@ -758,8 +800,8 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         fireEvent.touchStart(input, {
           touches: [
             createTouch(input, {
-              clientX: 0,
-              clientY: 0,
+              clientX: 12,
+              clientY: 34,
             }),
           ],
         });
@@ -769,8 +811,8 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         });
 
         const touchEnd = createNativeTouchEnd(input, {
-          clientX: 0,
-          clientY: 0,
+          clientX: 12,
+          clientY: 34,
         });
 
         await act(async () => {
@@ -782,7 +824,10 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
         // Preventing the touchend default suppresses the native compatibility
         // click, so the provider redispatches it.
-        expect(clickSpy).toHaveBeenCalledTimes(1);
+        expect(clickEvents).toHaveLength(1);
+        expect(clickEvents[0].clientX).toBe(12);
+        expect(clickEvents[0].clientY).toBe(34);
+        expect(clickEvents[0].detail).toBe(1);
         expect(input.style.opacity).toBe('0.5');
         expect(input.style.transform).toBe('scale(1)');
         expect(input.style.transition).toBe('opacity 1s');
@@ -1302,15 +1347,19 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     const label = screen.getByTestId('label');
     const input = screen.getByTestId('input');
     const focusSpy = vi.spyOn(input, 'focus');
+    const labelClickEvents: MouseEvent[] = [];
+    label.addEventListener('click', (clickEvent) => {
+      labelClickEvents.push(clickEvent);
+    });
     const originalElementFromPoint = document.elementFromPoint;
     document.elementFromPoint = () => label;
 
     try {
       fireEvent.touchStart(label, {
-        touches: [createTouch(label, { clientX: 0, clientY: 0 })],
+        touches: [createTouch(label, { clientX: 24, clientY: 48 })],
       });
 
-      const touchEnd = createNativeTouchEnd(label, { clientX: 0, clientY: 0 });
+      const touchEnd = createNativeTouchEnd(label, { clientX: 24, clientY: 48 });
 
       await act(async () => {
         label.dispatchEvent(touchEnd);
@@ -1319,6 +1368,10 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
       expect(touchEnd.defaultPrevented).toBe(true);
       expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+      expect(labelClickEvents).toHaveLength(1);
+      expect(labelClickEvents[0].clientX).toBe(24);
+      expect(labelClickEvents[0].clientY).toBe(48);
+      expect(labelClickEvents[0].detail).toBe(1);
     } finally {
       document.elementFromPoint = originalElementFromPoint;
       focusSpy.mockRestore();
