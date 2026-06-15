@@ -890,6 +890,145 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     }
   });
 
+  it.skipIf(isJSDOM)('preserves native taps on disabled inputs', async () => {
+    await render(
+      <Drawer.Root open modal={false}>
+        <Drawer.VirtualKeyboardProvider>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <input data-testid="input" type="text" disabled />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.VirtualKeyboardProvider>
+      </Drawer.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    const focusSpy = vi.spyOn(input, 'focus');
+    const clickEvents: MouseEvent[] = [];
+    input.addEventListener('click', (clickEvent) => {
+      clickEvents.push(clickEvent);
+    });
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => input;
+
+    try {
+      fireEvent.touchStart(input, {
+        touches: [createTouch(input, { clientX: 0, clientY: 0 })],
+      });
+
+      const touchEnd = createNativeTouchEnd(input, { clientX: 0, clientY: 0 });
+
+      await act(async () => {
+        input.dispatchEvent(touchEnd);
+        await flushMicrotasks();
+      });
+
+      expect(touchEnd.defaultPrevented).toBe(false);
+      expect(focusSpy).not.toHaveBeenCalled();
+      expect(clickEvents).toHaveLength(0);
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      focusSpy.mockRestore();
+    }
+  });
+
+  it.skipIf(isJSDOM)('preserves native taps on disabled textareas', async () => {
+    await render(
+      <Drawer.Root open modal={false}>
+        <Drawer.VirtualKeyboardProvider>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <textarea data-testid="input" disabled />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.VirtualKeyboardProvider>
+      </Drawer.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    const focusSpy = vi.spyOn(input, 'focus');
+    const clickEvents: MouseEvent[] = [];
+    input.addEventListener('click', (clickEvent) => {
+      clickEvents.push(clickEvent);
+    });
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => input;
+
+    try {
+      fireEvent.touchStart(input, {
+        touches: [createTouch(input, { clientX: 0, clientY: 0 })],
+      });
+
+      const touchEnd = createNativeTouchEnd(input, { clientX: 0, clientY: 0 });
+
+      await act(async () => {
+        input.dispatchEvent(touchEnd);
+        await flushMicrotasks();
+      });
+
+      expect(touchEnd.defaultPrevented).toBe(false);
+      expect(focusSpy).not.toHaveBeenCalled();
+      expect(clickEvents).toHaveLength(0);
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      focusSpy.mockRestore();
+    }
+  });
+
+  it.skipIf(isJSDOM)('preserves native taps on a disabled labelled control', async () => {
+    await render(
+      <Drawer.Root open modal={false}>
+        <Drawer.VirtualKeyboardProvider>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <label data-testid="label" htmlFor="note">
+                  Note
+                </label>
+                <input data-testid="input" id="note" type="text" disabled />
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.VirtualKeyboardProvider>
+      </Drawer.Root>,
+    );
+
+    const label = screen.getByTestId('label');
+    const input = screen.getByTestId('input');
+    const focusSpy = vi.spyOn(input, 'focus');
+    const labelClickEvents: MouseEvent[] = [];
+    label.addEventListener('click', (clickEvent) => {
+      labelClickEvents.push(clickEvent);
+    });
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => label;
+
+    try {
+      fireEvent.touchStart(label, {
+        touches: [createTouch(label, { clientX: 24, clientY: 48 })],
+      });
+
+      const touchEnd = createNativeTouchEnd(label, { clientX: 24, clientY: 48 });
+
+      await act(async () => {
+        label.dispatchEvent(touchEnd);
+        await flushMicrotasks();
+      });
+
+      expect(touchEnd.defaultPrevented).toBe(false);
+      expect(focusSpy).not.toHaveBeenCalled();
+      expect(labelClickEvents).toHaveLength(0);
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+      focusSpy.mockRestore();
+    }
+  });
+
   it.skipIf(isJSDOM)(
     'focuses a keyboard input with data-base-ui-swipe-ignore without starting drawer swipe',
     async () => {

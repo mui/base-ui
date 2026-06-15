@@ -448,13 +448,22 @@ export namespace DrawerVirtualKeyboardProvider {
 }
 
 function isKeyboardInputElement(element: HTMLElement): boolean {
-  const win = ownerWindow(element);
-
-  if (element instanceof win.HTMLTextAreaElement || element.isContentEditable) {
+  if (element.isContentEditable) {
     return true;
   }
 
-  return element instanceof win.HTMLInputElement && KEYBOARD_INPUT_TYPES.has(element.type);
+  const win = ownerWindow(element);
+
+  if (
+    element instanceof win.HTMLTextAreaElement ||
+    (element instanceof win.HTMLInputElement && KEYBOARD_INPUT_TYPES.has(element.type))
+  ) {
+    // Disabled controls can't focus or open the keyboard, so tap-to-focus must skip them —
+    // otherwise the dispatched click fires handlers a native tap on a disabled control never would.
+    return !element.matches(':disabled');
+  }
+
+  return false;
 }
 
 function resolveKeyboardInputTarget(target: EventTarget | null): HTMLElement | null {
