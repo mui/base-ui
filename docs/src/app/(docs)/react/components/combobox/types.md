@@ -87,6 +87,7 @@ type ComboboxRootChangeEventReason =
   | 'input-clear'
   | 'clear-press'
   | 'chip-remove-press'
+  | 'select-all-press'
   | 'none';
 ```
 
@@ -106,6 +107,7 @@ type ComboboxRootChangeEventDetails = (
   | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'select-all-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;
@@ -1088,6 +1090,47 @@ type ComboboxInputGroupState = {
 };
 ```
 
+### SelectAll
+
+Selects or deselects all currently filtered items in multiple selection mode.
+Renders a `<button>` element with `role="checkbox"`.
+
+**SelectAll Props:**
+
+| Prop         | Type                                                                                             | Default | Description                                                                                                                                                                                   |
+| :----------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                        | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                        | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| className    | `string \| ((state: Combobox.SelectAll.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Combobox.SelectAll.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.SelectAll.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**SelectAll Data Attributes:**
+
+| Attribute          | Type | Description |
+| :----------------- | :--- | :---------- |
+| data-checked       | -    | -           |
+| data-unchecked     | -    | -           |
+| data-disabled      | -    | -           |
+| data-indeterminate | -    | -           |
+
+### SelectAll.Props
+
+Re-export of [SelectAll](#selectall) props.
+
+### SelectAll.State
+
+```typescript
+type ComboboxSelectAllState = {
+  /** Whether all currently filtered items are selected. */
+  checked: boolean;
+  /** Whether some but not all currently filtered items are selected. */
+  indeterminate: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+};
+```
+
 ### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
@@ -1212,10 +1255,11 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Collection`: `Combobox.Collection`, `Combobox.Collection.State`, `Combobox.Collection.Props`
 - `Combobox.Empty`: `Combobox.Empty`, `Combobox.Empty.State`, `Combobox.Empty.Props`
 - `Combobox.Clear`: `Combobox.Clear`, `Combobox.Clear.State`, `Combobox.Clear.Props`
+- `Combobox.SelectAll`: `Combobox.SelectAll`, `Combobox.SelectAll.State`, `Combobox.SelectAll.Props`
 - `Combobox.Separator`: `Combobox.Separator`, `Combobox.Separator.Props`, `Combobox.Separator.State`
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxSelectAllState`, `ComboboxSelectAllProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 
@@ -1276,3 +1320,5 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Combobox.Empty.Props`: `ComboboxEmptyProps`
 - `Combobox.Clear.State`: `ComboboxClearState`
 - `Combobox.Clear.Props`: `ComboboxClearProps`
+- `Combobox.SelectAll.State`: `ComboboxSelectAllState`
+- `Combobox.SelectAll.Props`: `ComboboxSelectAllProps`

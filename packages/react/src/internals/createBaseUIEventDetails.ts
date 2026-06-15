@@ -14,6 +14,7 @@ interface ReasonToEventMap {
   [REASONS.linkPress]: MouseEvent | PointerEvent;
   [REASONS.clearPress]: PointerEvent | MouseEvent | KeyboardEvent;
   [REASONS.chipRemovePress]: PointerEvent | MouseEvent | KeyboardEvent;
+  [REASONS.selectAllPress]: PointerEvent | MouseEvent | KeyboardEvent;
   [REASONS.trackPress]: PointerEvent | MouseEvent | TouchEvent;
   [REASONS.incrementPress]: PointerEvent | MouseEvent | TouchEvent;
   [REASONS.decrementPress]: PointerEvent | MouseEvent | TouchEvent;

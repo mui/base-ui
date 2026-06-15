@@ -23,6 +23,7 @@ export type * from './chips/ComboboxChips';
 export type * from './chip/ComboboxChip';
 export type * from './chip-remove/ComboboxChipRemove';
 export type * from './clear/ComboboxClear';
+export type * from './select-all/ComboboxSelectAll';
 export type * from './status/ComboboxStatus';
 export type * from './collection/ComboboxCollection';
 
