@@ -32,7 +32,9 @@
       max-width: var(--breakpoint-max-layout-width);
       margin-inline: auto;
       padding-inline: var(--root-layout-padding-x);
-      /* No background fade on desktop */
+    }
+
+    @media (--show-quick-nav) {
       background: none;
     }
 
