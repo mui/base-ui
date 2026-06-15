@@ -78,7 +78,7 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
   });
 
-  it('does not cancel opening menu on mouseup after mousedown outside before 500ms', async () => {
+  it('does not cancel opening menu on mouseup within the move threshold', async () => {
     const onOpenChange = vi.fn();
 
     await render(
@@ -93,22 +93,20 @@ describe('<ContextMenu.Trigger />', () => {
     );
 
     const trigger = screen.getByTestId('trigger');
-    fireEvent.mouseDown(trigger);
-    fireEvent.contextMenu(trigger);
-
-    clock.tick(499);
+    fireEvent.mouseDown(trigger, { clientX: 10, clientY: 10 });
+    fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10 });
 
     expect(onOpenChange.mock.calls.length).toBe(1);
     expect(onOpenChange.mock.lastCall?.[0]).toBe(true);
 
-    fireEvent.mouseUp(document.body);
-
-    clock.tick(1);
+    // Releasing within the threshold box around the opening point keeps the menu open,
+    // regardless of how long the button was held.
+    fireEvent.mouseUp(document.body, { clientX: 11, clientY: 12 });
 
     expect(onOpenChange.mock.calls.length).toBe(1);
   });
 
-  it('cancels opening menu on mouseup after mousedown outside after 500ms', async () => {
+  it('cancels opening menu on mouseup outside the move threshold', async () => {
     const onOpenChange = vi.fn();
 
     await render(
@@ -123,12 +121,12 @@ describe('<ContextMenu.Trigger />', () => {
     );
 
     const trigger = screen.getByTestId('trigger');
-    fireEvent.mouseDown(trigger);
-    fireEvent.contextMenu(trigger);
+    fireEvent.mouseDown(trigger, { clientX: 10, clientY: 10 });
+    fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10 });
 
-    clock.tick(501);
-
-    fireEvent.mouseUp(document.body);
+    // Releasing outside the threshold box turns the gesture into a press-drag-release
+    // that dismisses the menu.
+    fireEvent.mouseUp(document.body, { clientX: 50, clientY: 50 });
 
     expect(onOpenChange.mock.calls.length).toBe(2);
     expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
@@ -262,6 +260,45 @@ describe('<ContextMenu.Trigger />', () => {
 
       expect(screen.queryByRole('menu')).toBe(null);
       expect(onOpenChange.mock.calls.length).toBe(0);
+    });
+
+    it('stays open when the native contextmenu event fires after a long press', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      const touchObj = new Touch({
+        identifier: 0,
+        target: trigger,
+        clientX: 100,
+        clientY: 100,
+      });
+
+      fireEvent.touchStart(trigger, {
+        touches: [touchObj],
+      });
+
+      clock.tick(500);
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
+
+      // After the long press opens the menu, the browser fires its own
+      // `contextmenu` event at the touch point, which now lies on the backdrop or
+      // popup. It must not toggle the menu closed.
+      const backdrop = document.querySelector('[role="presentation"][data-base-ui-inert]')!;
+      fireEvent.contextMenu(backdrop, { clientX: 100, clientY: 100 });
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
     });
 
     it('does not open on long press when disabled', async () => {
