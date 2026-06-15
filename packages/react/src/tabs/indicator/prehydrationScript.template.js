@@ -18,6 +18,20 @@
     return;
   }
 
+  // When the active tab carries its own transform, the layout offset below can't reflect
+  // its visual position, and the hydrated component may follow it. Skip the pre-hydration
+  // paint and let the component position the indicator on hydration; this avoids painting
+  // at the wrong spot and then jumping. Keep this in sync with `TabsIndicator.tsx`.
+  const activeTabStyle = getComputedStyle(activeTab);
+  if (
+    activeTabStyle.transform !== 'none' ||
+    activeTabStyle.translate !== 'none' ||
+    activeTabStyle.rotate !== 'none' ||
+    activeTabStyle.scale !== 'none'
+  ) {
+    return;
+  }
+
   let left = 0;
   let right = 0;
   let top = 0;

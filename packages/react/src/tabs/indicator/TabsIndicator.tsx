@@ -247,27 +247,36 @@ function getCumulativeOffset(element: HTMLElement) {
 
 // Returns the active tab's own 2D translation, in CSS pixels, as the sum of the
 // `translate` longhand and the translation component of the `transform` property.
-// Only pixel values are handled; non-pixel `translate` units would require resolving
-// against the tab's size and aren't supported here.
 function getActiveTabTranslation(element: HTMLElement) {
   const { x, y } = getElementTransform(element);
   let translateX = x;
   let translateY = y;
 
   // The `translate` longhand is a separate property and is not reflected in the
-  // computed `transform` matrix that `getElementTransform` reads.
+  // computed `transform` matrix that `getElementTransform` reads. `getComputedStyle`
+  // resolves absolute and font-relative lengths to pixels but keeps percentages, which
+  // resolve against the tab's border box.
   const { translate } = ownerWindow(element).getComputedStyle(element);
   if (translate && translate !== 'none') {
-    const parts = translate.split(/\s+/);
-    const tx = parseFloat(parts[0]);
-    const ty = parseFloat(parts[1]);
-    if (Number.isFinite(tx)) {
-      translateX += tx;
-    }
-    if (Number.isFinite(ty)) {
-      translateY += ty;
-    }
+    const parts = translate.split(' ');
+    translateX += resolveTranslateLength(parts[0], element.offsetWidth);
+    translateY += resolveTranslateLength(parts[1], element.offsetHeight);
   }
 
   return { x: translateX, y: translateY };
+}
+
+// Resolves a single `translate` longhand component to pixels. Percentages resolve against
+// the given border-box size; anything that isn't a plain number or percentage (e.g.
+// `calc(...)`) is treated as no translation, so the indicator falls back to the tab's
+// layout slot rather than guessing.
+function resolveTranslateLength(value: string | undefined, referenceSize: number): number {
+  if (!value) {
+    return 0;
+  }
+  const numeric = parseFloat(value);
+  if (!Number.isFinite(numeric)) {
+    return 0;
+  }
+  return value.endsWith('%') ? (numeric / 100) * referenceSize : numeric;
 }
