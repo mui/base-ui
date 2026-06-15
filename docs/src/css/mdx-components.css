@@ -44,13 +44,6 @@
     text-wrap: balance;
   }
 
-  @media (--show-side-nav) {
-    .MdH2,
-    .MdH3 {
-      scroll-margin-top: 4rem;
-    }
-  }
-
   .MdH4,
   .MdH5,
   .MdH6 {
@@ -59,6 +52,16 @@
     scroll-margin-top: 4rem;
     font-weight: var(--font-weight-700);
     text-wrap: balance;
+  }
+
+  @media (--show-side-nav) {
+    .MdH2,
+    .MdH3,
+    .MdH4,
+    .MdH5,
+    .MdH6 {
+      scroll-margin-top: 1.5rem;
+    }
   }
 
   .MdP {
