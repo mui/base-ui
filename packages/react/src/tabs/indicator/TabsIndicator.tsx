@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
+import { getElementTransform } from '../../utils/getElementTransform';
 import { useIsHydrating } from '../../utils/useIsHydrating';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
@@ -19,6 +21,10 @@ const stateAttributesMapping = {
   activeTabPosition: () => null,
   activeTabSize: () => null,
 };
+
+// `offsetLeft`/`offsetTop` are rounded to whole pixels and the error can compound
+// across the offset parent chain.
+const MAX_LAYOUT_ROUNDING_ERROR = 2;
 
 /**
  * A visual indicator that can be styled to match the position of the currently active tab.
@@ -77,15 +83,39 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
       const hasNonZeroScale =
         Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
-      if (hasNonZeroScale) {
-        const tabLeftDelta = tabRect.left - tabsListRect.left;
-        const tabTopDelta = tabRect.top - tabsListRect.top;
+      // Layout offsets are immune to transforms, but lose sub-pixel precision.
+      const layoutOffset = getLayoutOffset(activeTab, tabsListElement);
+      left = layoutOffset.left;
+      top = layoutOffset.top;
 
-        left = tabLeftDelta / scaleX + tabsListElement.scrollLeft - tabsListElement.clientLeft;
-        top = tabTopDelta / scaleY + tabsListElement.scrollTop - tabsListElement.clientTop;
-      } else {
-        left = activeTab.offsetLeft;
-        top = activeTab.offsetTop;
+      if (hasNonZeroScale) {
+        const rectLeft =
+          (tabRect.left - tabsListRect.left) / scaleX +
+          tabsListElement.scrollLeft -
+          tabsListElement.clientLeft;
+        const rectTop =
+          (tabRect.top - tabsListRect.top) / scaleY +
+          tabsListElement.scrollTop -
+          tabsListElement.clientTop;
+
+        // The rect-based offset is sub-pixel-precise but is derived from projected viewport
+        // geometry: a rotation, skew, flip, perspective, or 3D transform on the tab or any
+        // ancestor warps it beyond what the scale division can undo. When it agrees with the
+        // layout offset (up to layout rounding), no distortion is in effect and the more
+        // precise value is safe to use.
+        //
+        // The active tab's own translation moves the rect but not the layout offset, so
+        // strip it from the comparison. This lets the indicator follow tab-local animations
+        // (e.g. `transform: translateX(12px)` on the selected tab) — the indicator is a
+        // sibling of the tab and does not inherit its transform.
+        const tabTranslation = getActiveTabTranslation(activeTab);
+        if (
+          Math.abs(rectLeft - tabTranslation.x - left) <= MAX_LAYOUT_ROUNDING_ERROR &&
+          Math.abs(rectTop - tabTranslation.y - top) <= MAX_LAYOUT_ROUNDING_ERROR
+        ) {
+          left = rectLeft;
+          top = rectTop;
+        }
       }
 
       width = computedWidth;
@@ -182,4 +212,62 @@ export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsInd
 export namespace TabsIndicator {
   export type State = TabsIndicatorState;
   export type Props = TabsIndicatorProps;
+}
+
+function getLayoutOffset(element: HTMLElement, ancestor: HTMLElement) {
+  const elementOffset = getCumulativeOffset(element);
+  const ancestorOffset = getCumulativeOffset(ancestor);
+
+  return {
+    left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
+    top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
+  };
+}
+
+function getCumulativeOffset(element: HTMLElement) {
+  let left = 0;
+  let top = 0;
+  let currentElement: HTMLElement | null = element;
+
+  while (currentElement != null) {
+    left += currentElement.offsetLeft;
+    top += currentElement.offsetTop;
+
+    const offsetParent = currentElement.offsetParent as HTMLElement | null;
+    if (offsetParent != null) {
+      left += offsetParent.clientLeft;
+      top += offsetParent.clientTop;
+    }
+
+    currentElement = offsetParent;
+  }
+
+  return { left, top };
+}
+
+// Returns the active tab's own 2D translation, in CSS pixels, as the sum of the
+// `translate` longhand and the translation component of the `transform` property.
+// Only pixel values are handled; non-pixel `translate` units would require resolving
+// against the tab's size and aren't supported here.
+function getActiveTabTranslation(element: HTMLElement) {
+  const { x, y } = getElementTransform(element);
+  let translateX = x;
+  let translateY = y;
+
+  // The `translate` longhand is a separate property and is not reflected in the
+  // computed `transform` matrix that `getElementTransform` reads.
+  const { translate } = ownerWindow(element).getComputedStyle(element);
+  if (translate && translate !== 'none') {
+    const parts = translate.split(/\s+/);
+    const tx = parseFloat(parts[0]);
+    const ty = parseFloat(parts[1]);
+    if (Number.isFinite(tx)) {
+      translateX += tx;
+    }
+    if (Number.isFinite(ty)) {
+      translateY += ty;
+    }
+  }
+
+  return { x: translateX, y: translateY };
 }

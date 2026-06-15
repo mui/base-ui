@@ -8,12 +8,8 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import {
-  getDisplacement,
-  getElementTransform,
-  useSwipeDismiss,
-  type SwipeDirection,
-} from '../../utils/useSwipeDismiss';
+import { getDisplacement, useSwipeDismiss, type SwipeDirection } from '../../utils/useSwipeDismiss';
+import { getElementTransform } from '../../utils/getElementTransform';
 import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
