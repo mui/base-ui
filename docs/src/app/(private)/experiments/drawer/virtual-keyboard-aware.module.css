@@ -60,7 +60,12 @@
 }
 
 .SplitFooterScroll {
-  padding-bottom: calc(1.5rem + var(--footer-reserved-height));
+  /*
+   * The pinned footer already reserves its own height via `.FooterSlot`
+   * (`min-height: var(--footer-reserved-height)`), so the scroll body only needs
+   * `scroll-padding-bottom` to keep keyboard scroll-into-view clear of it — not an
+   * extra `padding-bottom`, which would reserve the footer height a second time.
+   */
   scroll-padding-bottom: var(--footer-reserved-height);
 }
 
@@ -79,7 +84,13 @@
 .ScrollablePopup.ScrollablePopup {
   --bleed: 0px;
   width: 100%;
-  height: 24rem;
+  /*
+   * The sheet is bottom-anchored, so the software keyboard covers its lower
+   * `--drawer-keyboard-inset` pixels. Grow the height by that inset so the area that
+   * stays visible above the keyboard remains ~24rem instead of collapsing to a sliver.
+   * `max-height` still caps it to the layout viewport on short screens.
+   */
+  height: calc(24rem + var(--drawer-keyboard-inset, 0px));
   max-width: 28rem;
   max-height: calc(100% - 2rem);
   min-height: 0;
