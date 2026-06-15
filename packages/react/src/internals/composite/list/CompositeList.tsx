@@ -107,6 +107,16 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
       nextIndexRef.current = sortedMap.size;
     }
 
+    // Re-sync refs from the sorted map so list navigation can resolve live nodes even
+    // when ref callbacks don't re-run after StrictMode cleanup wipes `elementsRef`.
+    sortedMap.forEach((metadata, node) => {
+      if (metadata.index == null) {
+        return;
+      }
+
+      elementsRef.current[metadata.index] = node as HTMLElement;
+    });
+
     onMapChange(sortedMap);
   }, [onMapChange, sortedMap, elementsRef, labelsRef, mapTick]);
 
