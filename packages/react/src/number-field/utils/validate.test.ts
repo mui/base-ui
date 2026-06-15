@@ -617,6 +617,23 @@ describe('NumberField validate', () => {
     ).toBe(0.3);
   });
 
+  it('clamps before rounding for non-integer bounds', () => {
+    // 0.4 is below min 0.6, so it's clamped to 0.6 first and the integer format rounds that to 1.
+    // Rounding first would round 0.4 to 0, then clamp back up to 0.6, disagreeing with the
+    // displayed "1". Both clamp passes (before and after rounding) are needed here.
+    expect(
+      toValidatedNumber(0.4, {
+        ...defaultOptions,
+        step: undefined,
+        snapOnStep: false,
+        minWithDefault: 0.6,
+        minWithZeroDefault: 0,
+        maxWithDefault: 10,
+        format: { maximumFractionDigits: 0 },
+      }),
+    ).toBe(1);
+  });
+
   describe('fractional step with snapOnStep', () => {
     it('handles increment with step 0.1 without getting stuck', () => {
       // Simulates incrementing 100.1 by 0.1: the raw value becomes 100.19999999999999

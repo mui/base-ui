@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import { usePressAndHold } from '../../internals/usePressAndHold';
+import { isTouchLikePointerType, usePressAndHold } from '../../internals/usePressAndHold';
 import {
-  DEFAULT_STEP,
   CHANGE_VALUE_TICK_DELAY,
   START_AUTO_CHANGE_DELAY,
   SCROLLING_POINTER_MOVE_DISTANCE,
@@ -12,21 +11,14 @@ import {
   createChangeEventDetails,
   createGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
-import type {
-  EventWithOptionalKeyState,
-  Direction,
-  IncrementValueParameters,
-} from '../utils/types';
+import type { EventWithOptionalKeyState, IncrementValueParameters } from '../utils/types';
 import type { NumberFieldRoot } from './NumberFieldRoot';
-import type { HTMLProps } from '../../internals/types';
 import { REASONS } from '../../internals/reasons';
 
-// Treat pen as touch-like to avoid forcing the software keyboard on stylus taps.
-// Linux Chrome may emit "pen" historically for mouse usage due to a bug, but the touch path
-// still works with minor behavioral differences.
-function isTouchLikePointerType(pointerType: string) {
-  return pointerType === 'touch' || pointerType === 'pen';
-}
+const SELECT_NONE_STYLE: React.CSSProperties = {
+  WebkitUserSelect: 'none',
+  userSelect: 'none',
+};
 
 export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
   const {
@@ -68,18 +60,17 @@ export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
     const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
     if (parsedValue !== null) {
-      // The increment value function needs to know the current input value to increment it
-      // correctly.
-      valueRef.current = parsedValue;
-      setValue(
-        parsedValue,
-        createChangeEventDetails<
-          NumberFieldRoot.ChangeEventReason,
-          { direction?: Direction | undefined }
-        >(pressReason, nativeEvent, undefined, {
-          direction: isIncrement ? 1 : -1,
-        }),
-      );
+      // Sync the dirty typed value with no direction so it isn't directionally snapped
+      // (`snapOnStep`) before the real increment/decrement runs, which would otherwise emit a
+      // spurious intermediate value.
+      const details = createChangeEventDetails(pressReason, nativeEvent);
+      setValue(parsedValue, details);
+
+      // Only sync the ref base when the commit wasn't canceled, so a subsequent increment in the
+      // same interaction steps from the value actually applied.
+      if (!details.isCanceled) {
+        valueRef.current = parsedValue;
+      }
     }
   }
 
@@ -90,7 +81,7 @@ export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
     startDelay: START_AUTO_CHANGE_DELAY,
     scrollDistance: SCROLLING_POINTER_MOVE_DISTANCE,
     tick(triggerEvent) {
-      const amount = getStepAmount(triggerEvent as EventWithOptionalKeyState) ?? DEFAULT_STEP;
+      const amount = getStepAmount(triggerEvent as EventWithOptionalKeyState);
       return incrementValue(amount, {
         direction: isIncrement ? 1 : -1,
         event: triggerEvent,
@@ -98,6 +89,8 @@ export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
       });
     },
     onStop(nativeEvent: PointerEvent) {
+      // `onStop` fires on every release; fall back to the current value when no tick changed it.
+      // Step interactions never commit `null`, so the `??` can't mask a legitimate null commit.
       const committed = lastChangedValueRef.current ?? valueRef.current;
       onValueCommitted(committed, createGenericEventDetails(pressReason, nativeEvent));
     },
@@ -112,10 +105,7 @@ export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
     // to change the value. On the other hand, `aria-hidden` is not applied because touch screen
     // readers should be able to use the buttons.
     tabIndex: -1,
-    style: {
-      WebkitUserSelect: 'none',
-      userSelect: 'none',
-    },
+    style: SELECT_NONE_STYLE,
     ...pointerHandlers,
     onClick(event) {
       const isDisabled = disabled || readOnly;
@@ -125,7 +115,7 @@ export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
 
       commitValue(event.nativeEvent);
 
-      const amount = getStepAmount(event) ?? DEFAULT_STEP;
+      const amount = getStepAmount(event);
 
       const prev = valueRef.current;
 
@@ -148,6 +138,9 @@ export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
 
       // Sync dirty input value before starting the hold sequence.
       commitValue(event.nativeEvent);
+      // Treat `lastChangedValueRef` as a per-hold result slot. If the first tick is a no-op or is
+      // canceled, `onStop` should fall back to the current value, not a previous interaction.
+      lastChangedValueRef.current = null;
 
       if (!isTouchLikePointerType(event.pointerType)) {
         // Focus the input so the user can continue with keyboard interactions.
@@ -165,7 +158,7 @@ export interface UseNumberFieldButtonParameters {
   allowInputSyncRef: React.RefObject<boolean | null>;
   disabled: boolean;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
-  getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
+  getStepAmount: (event?: EventWithOptionalKeyState) => number;
   id: string | undefined;
   incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
@@ -181,9 +174,3 @@ export interface UseNumberFieldButtonParameters {
     eventDetails: NumberFieldRoot.CommitEventDetails,
   ) => void;
 }
-
-export interface UseNumberFieldButtonReturnValue {
-  props: HTMLProps;
-}
-
-export interface UseNumberFieldButtonState {}

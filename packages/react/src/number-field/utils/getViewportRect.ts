@@ -1,16 +1,16 @@
 import { ownerWindow } from '@base-ui/utils/owner';
 
-// Calculates the viewport rect for the virtual cursor.
+// Calculates the bounds the virtual cursor wraps within, as absolute edge coordinates.
 export function getViewportRect(teleportDistance: number | undefined, scrubAreaEl: HTMLElement) {
   const win = ownerWindow(scrubAreaEl);
-  const rect = scrubAreaEl.getBoundingClientRect();
 
-  if (rect && teleportDistance != null) {
+  if (teleportDistance != null) {
+    const rect = scrubAreaEl.getBoundingClientRect();
     return {
-      x: rect.left - teleportDistance / 2,
-      y: rect.top - teleportDistance / 2,
-      width: rect.right + teleportDistance / 2,
-      height: rect.bottom + teleportDistance / 2,
+      left: rect.left - teleportDistance / 2,
+      top: rect.top - teleportDistance / 2,
+      right: rect.right + teleportDistance / 2,
+      bottom: rect.bottom + teleportDistance / 2,
     };
   }
 
@@ -18,17 +18,17 @@ export function getViewportRect(teleportDistance: number | undefined, scrubAreaE
 
   if (vV) {
     return {
-      x: vV.offsetLeft,
-      y: vV.offsetTop,
-      width: vV.offsetLeft + vV.width,
-      height: vV.offsetTop + vV.height,
+      left: vV.offsetLeft,
+      top: vV.offsetTop,
+      right: vV.offsetLeft + vV.width,
+      bottom: vV.offsetTop + vV.height,
     };
   }
 
   return {
-    x: 0,
-    y: 0,
-    width: win.document.documentElement.clientWidth,
-    height: win.document.documentElement.clientHeight,
+    left: 0,
+    top: 0,
+    right: win.document.documentElement.clientWidth,
+    bottom: win.document.documentElement.clientHeight,
   };
 }
