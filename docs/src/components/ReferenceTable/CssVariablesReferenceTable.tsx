@@ -15,9 +15,16 @@ export function CssVariablesReferenceTable({
   name: partName,
   ...props
 }: CssVariablesReferenceTableProps) {
+  // Lets CSS compute the exact closed height for `contain-intrinsic-height`
+  const rowsStyle = { '--rows': Object.keys(data).length, ...props.style } as React.CSSProperties;
+
   return (
     <React.Fragment>
-      <Accordion.Root {...props} className={clsx(props.className, 'bp0:bui-d-n')}>
+      <Accordion.Root
+        {...props}
+        className={clsx('ReferenceAccordionRoot', 'bp0:bui-d-n', props.className)}
+        style={rowsStyle}
+      >
         <Accordion.HeaderRow>
           <Accordion.HeaderCell className="bui-pl-3">CSS Variable</Accordion.HeaderCell>
         </Accordion.HeaderRow>
@@ -57,7 +64,11 @@ export function CssVariablesReferenceTable({
         })}
       </Accordion.Root>
 
-      <Table.Root {...props} className={clsx('bui-d-n', 'bp0:bui-d-b', props.className)}>
+      <Table.Root
+        {...props}
+        className={clsx('ReferenceTableRoot', 'bui-d-n', 'bp0:bui-d-b', props.className)}
+        style={rowsStyle}
+      >
         <Table.Head>
           <Table.Row>
             {/* widths must match the props table grid layout */}

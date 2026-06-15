@@ -36,7 +36,7 @@ export function DemoCodeBlock({
   selectedFile,
   selectedFileLines,
   collapsibleOpen,
-  collapsibleLinesThreshold = 12,
+  collapsibleLinesThreshold = 6,
   copyButton,
 }: DemoCodeBlockProps) {
   if (selectedFileLines < collapsibleLinesThreshold) {
