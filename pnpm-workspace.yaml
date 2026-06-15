@@ -6,14 +6,11 @@ packages:
   - scripts/*
   - playground/*
 
-onlyBuiltDependencies:
-  - '@mui/internal-babel-plugin-display-name'
-  - '@vvago/vale'
-  - core-js
-  - esbuild
-  - nx
-  - sharp
-  - unrs-resolver
+allowBuilds:
+  esbuild: true
+  nx: true
+  sharp: true
+  unrs-resolver: true
 
 engineStrict: true
 updateNotifier: false
