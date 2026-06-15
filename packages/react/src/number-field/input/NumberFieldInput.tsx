@@ -30,7 +30,7 @@ import {
   createChangeEventDetails,
   createGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
-import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
+import { formatNumber } from '../../utils/formatNumber';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { REASONS } from '../../internals/reasons';
 import { hasNumberFormatRoundingOptions, removeFloatingPointErrors } from '../utils/validate';
@@ -207,12 +207,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       // Normalize only the displayed text
       const canonicalText = formatNumber(committedValue, locale, formatOptions);
-      const shouldPreserveFullPrecision =
-        !hasRoundingOptions &&
-        parsedValue === value &&
-        inputValue === formatNumberMaxPrecision(parsedValue, locale, formatOptions);
-
-      if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
+      if (inputValue !== canonicalText) {
         setInputValue(canonicalText);
       }
     },

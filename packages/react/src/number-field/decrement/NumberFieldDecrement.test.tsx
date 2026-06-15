@@ -69,10 +69,10 @@ describe('<NumberField.Decrement />', () => {
     const increase = screen.getByLabelText('Decrease');
 
     await user.click(screen.getByText('external'));
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
 
     await user.click(increase);
-    expect(input).toHaveValue((0.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((0.23456).toLocaleString());
   });
 
   it('only calls onValueChange once per decrement', async () => {

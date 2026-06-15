@@ -163,7 +163,7 @@ describe('<NumberField.Input />', () => {
     fireEvent.keyDown(input, { key: 'ArrowUp', altKey: true });
 
     expect(onValueChange.mock.lastCall?.[0]).toBe(0.0001);
-    expect(input).toHaveValue('0.0001');
+    expect(input).toHaveValue('0');
   });
 
   it('allows unicode plus/minus, permille and fullwidth digits on keydown when formatted as percent', async () => {
@@ -330,7 +330,7 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('3');
   });
 
-  it('should preserve full precision on first blur after external value change', async () => {
+  it('should preserve default formatting on first blur after external value change', async () => {
     const onValueChange = vi.fn();
 
     function Controlled(props: { value: number | null }) {
@@ -348,15 +348,16 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.23456 });
     });
 
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
 
     await act(async () => {
       input.focus();
       input.blur();
     });
 
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
-    expect(onValueChange.mock.calls.length).toBe(0);
+    expect(input).toHaveValue((1.23456).toLocaleString());
+    expect(onValueChange.mock.calls.length).toBe(1);
+    expect(onValueChange.mock.lastCall?.[0]).toBe(1.235);
   });
 
   it('should update input value after increment/decrement followed by external value change', async () => {
@@ -393,7 +394,7 @@ describe('<NumberField.Input />', () => {
 
     await user.click(screen.getByText('external'));
 
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
   });
 
   it('should update input value after decrement followed by external value change', async () => {
@@ -430,10 +431,10 @@ describe('<NumberField.Input />', () => {
 
     await user.click(screen.getByText('external'));
 
-    expect(input).toHaveValue((2.98765).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((2.98765).toLocaleString());
   });
 
-  it('should allow typing after precision is preserved on blur', async () => {
+  it('should allow typing after default formatting on blur', async () => {
     const onValueChange = vi.fn();
 
     function Controlled(props: { value: number | null }) {
@@ -451,14 +452,14 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.23456 });
     });
 
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
 
     await act(async () => {
       input.focus();
       input.blur();
     });
 
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
 
     await act(async () => {
       input.focus();
@@ -469,10 +470,10 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('1.234567');
 
     fireEvent.blur(input);
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.234567).toLocaleString());
   });
 
-  it('should format to canonical representation when input differs from max precision', async () => {
+  it('should format to default canonical representation on blur', async () => {
     const onValueChange = vi.fn();
 
     function Controlled(props: { value: number | null }) {
@@ -490,7 +491,7 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.23456 });
     });
 
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
 
     await act(async () => {
       input.focus();
@@ -501,10 +502,10 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('1.23456000');
 
     fireEvent.blur(input);
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
   });
 
-  it('should handle multiple blur cycles with precision preservation', async () => {
+  it('should handle multiple blur cycles with default formatting', async () => {
     const onValueChange = vi.fn();
 
     function Controlled(props: { value: number | null }) {
@@ -522,23 +523,24 @@ describe('<NumberField.Input />', () => {
       setProps({ value: 1.23456789 });
     });
 
-    expect(input).toHaveValue((1.23456789).toLocaleString(undefined, { minimumFractionDigits: 8 }));
+    expect(input).toHaveValue((1.23456789).toLocaleString());
 
     await act(async () => {
       input.focus();
       input.blur();
     });
 
-    expect(input).toHaveValue((1.23456789).toLocaleString(undefined, { minimumFractionDigits: 8 }));
-    expect(onValueChange.mock.calls.length).toBe(0);
+    expect(input).toHaveValue((1.23456789).toLocaleString());
+    expect(onValueChange.mock.calls.length).toBe(1);
 
     await act(async () => {
       input.focus();
       input.blur();
     });
 
-    expect(input).toHaveValue((1.23456789).toLocaleString(undefined, { minimumFractionDigits: 8 }));
-    expect(onValueChange.mock.calls.length).toBe(0);
+    expect(input).toHaveValue((1.23456789).toLocaleString());
+    expect(onValueChange.mock.calls.length).toBe(2);
+    expect(onValueChange.mock.lastCall?.[0]).toBe(1.235);
   });
 
   it('should handle edge case where parsed value equals current value but input differs', async () => {
@@ -573,7 +575,7 @@ describe('<NumberField.Input />', () => {
     expect((input as HTMLInputElement).value).toMatch(/^1[.,]5/);
   });
 
-  it('should preserve precision when value matches max precision after external change during typing', async () => {
+  it('should apply default formatting after external change during typing', async () => {
     const onValueChange = vi.fn();
 
     function Controlled() {
@@ -604,10 +606,10 @@ describe('<NumberField.Input />', () => {
 
     await user.click(screen.getByText('set pi'));
 
-    expect(input).toHaveValue((3.14159265).toLocaleString(undefined, { minimumFractionDigits: 8 }));
+    expect(input).toHaveValue((3.14159265).toLocaleString());
 
     fireEvent.blur(input);
-    expect(input).toHaveValue((3.14159265).toLocaleString(undefined, { minimumFractionDigits: 8 }));
+    expect(input).toHaveValue((3.14159265).toLocaleString());
   });
 
   it('should round to explicit maximumFractionDigits on blur', async () => {
@@ -1017,7 +1019,7 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('1.239');
   });
 
-  it('should preserve default floating point precision on blur', async () => {
+  it('should preserve default numeric precision while formatting display on blur', async () => {
     const onValueChange = vi.fn();
     const onValueCommitted = vi.fn();
 
@@ -1047,15 +1049,15 @@ describe('<NumberField.Input />', () => {
     await user.keyboard('1.23456');
     expect(input).toHaveValue('1.23456');
 
-    // Without explicit rounding options the stored value keeps full precision rather than
-    // being truncated to the Intl default of 3 fraction digits.
+    // Without explicit rounding options the numeric value keeps full precision rather than
+    // being truncated to the Intl display default of 3 fraction digits.
     expect(onValueChange.mock.lastCall?.[0]).toBe(1.23456);
 
     fireEvent.blur(input);
 
-    // The committed value and displayed text both retain full precision on blur.
+    // The committed value retains full precision, while the displayed text uses default formatting.
     expect(onValueCommitted.mock.lastCall?.[0]).toBe(1.23456);
-    expect(input).toHaveValue('1.23456');
+    expect(input).toHaveValue((1.23456).toLocaleString());
   });
 
   it('should preserve values typed with more than 15 significant digits', async () => {
@@ -1094,7 +1096,7 @@ describe('<NumberField.Input />', () => {
     fireEvent.blur(input);
 
     expect(onValueCommitted.mock.lastCall?.[0]).toBe(1.234567890123456);
-    expect(input).toHaveValue('1.234567890123456');
+    expect(input).toHaveValue((1.234567890123456).toLocaleString());
   });
 
   it('commits parsed value on blur and normalizes display for fr-FR', async () => {

@@ -52,9 +52,14 @@ export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
     : REASONS.decrementPress;
 
   function commitValue(nativeEvent: MouseEvent) {
+    const shouldCommitInputValue = !allowInputSyncRef.current;
     allowInputSyncRef.current = true;
 
-    // The input may be dirty but not yet blurred, so the value won't have been committed.
+    if (!shouldCommitInputValue) {
+      return;
+    }
+
+    // The input is dirty but not yet blurred, so the value won't have been committed.
     const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
     if (parsedValue !== null) {

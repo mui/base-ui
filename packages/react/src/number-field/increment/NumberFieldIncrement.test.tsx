@@ -69,13 +69,13 @@ describe('<NumberField.Increment />', () => {
     const increase = screen.getByLabelText('Increase');
 
     await user.click(screen.getByText('external'));
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
 
     await user.click(increase);
-    expect(input).toHaveValue((2.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((2.23456).toLocaleString());
   });
 
-  it('preserves uncontrolled defaultValue precision on first increment', async () => {
+  it('increments uncontrolled defaultValue from numeric state, not rounded display text', async () => {
     const onValueChange = vi.fn();
 
     const { user } = await render(
@@ -87,15 +87,15 @@ describe('<NumberField.Increment />', () => {
 
     const input = screen.getByRole('textbox');
 
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
 
     await user.click(screen.getByLabelText('Increase'));
 
     expect(onValueChange.mock.calls.map((call) => call[0])).toEqual([2.23456]);
-    expect(input).toHaveValue((2.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((2.23456).toLocaleString());
   });
 
-  it('preserves uncontrolled typed precision after later increments', async () => {
+  it('increments from numeric state after typed precision is formatted on blur', async () => {
     const onValueChange = vi.fn();
 
     const { user } = await render(
@@ -112,14 +112,14 @@ describe('<NumberField.Increment />', () => {
     await user.keyboard('1.23456');
     fireEvent.blur(input);
 
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
 
     await user.click(increase);
-    expect(input).toHaveValue((2.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((2.23456).toLocaleString());
 
     await user.click(increase);
     expect(onValueChange.mock.lastCall?.[0]).toBe(3.23456);
-    expect(input).toHaveValue((3.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((3.23456).toLocaleString());
   });
 
   it('advances by a step finer than 3 fraction digits', async () => {
@@ -149,11 +149,11 @@ describe('<NumberField.Increment />', () => {
     // A step smaller than the old 3-digit default used to round back to 0, making this a no-op.
     await user.click(increase);
     expect(onValueChange.mock.lastCall?.[0]).toBe(0.0001);
-    expect(input).toHaveValue('0.0001');
+    expect(input).toHaveValue('0');
 
     await user.click(increase);
     expect(onValueChange.mock.lastCall?.[0]).toBe(0.0002);
-    expect(input).toHaveValue('0.0002');
+    expect(input).toHaveValue('0');
   });
 
   it('cleans binary floating point noise introduced by stepping', async () => {
