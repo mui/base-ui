@@ -18,7 +18,7 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { ClosePartProvider, useClosePartCount } from '../../utils/closePart';
-import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { FOCUSABLE_POPUP_PROPS, createDefaultInitialFocus } from '../../utils/popups';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopupState> = {
   ...baseMapping,
@@ -74,17 +74,8 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   useHoverFloatingInteraction(floatingContext, { enabled: openOnHover && !disabled, closeDelay });
 
-  // Default initial focus logic:
-  // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
-  // (this is required for Android specifically as iOS handles this automatically).
-  function defaultInitialFocus(interactionType: InteractionType) {
-    if (interactionType === 'touch') {
-      return store.context.popupRef.current;
-    }
-    return true;
-  }
-
-  const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
+  const resolvedInitialFocus =
+    initialFocus === undefined ? createDefaultInitialFocus(store.context.popupRef) : initialFocus;
 
   const focusManagerModal = modal !== false && hasClosePart;
   store.useSyncedValue('focusManagerModal', focusManagerModal);
