@@ -363,8 +363,13 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      // We need to commit the number at this point if the input hasn't been blurred.
-      const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+      // Step from the authoritative numeric value unless the input has unsaved manual edits.
+      // When the text is already synced, parsing the rounded display would collapse precision,
+      // so pass no `currentValue` and let `incrementValue` fall back to the numeric state
+      // (mirrors the button path).
+      const currentValue = allowInputSyncRef.current
+        ? null
+        : parseNumber(inputValue, locale, formatOptionsRef.current);
 
       const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
@@ -376,7 +381,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       if (event.key === 'ArrowUp') {
         incrementValue(amount, {
           direction: 1,
-          currentValue: parsedValue,
+          currentValue,
           event: nativeEvent,
           reason: REASONS.keyboard,
         });
@@ -384,7 +389,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       } else if (event.key === 'ArrowDown') {
         incrementValue(amount, {
           direction: -1,
-          currentValue: parsedValue,
+          currentValue,
           event: nativeEvent,
           reason: REASONS.keyboard,
         });

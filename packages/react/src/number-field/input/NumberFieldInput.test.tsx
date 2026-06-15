@@ -166,6 +166,59 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('0');
   });
 
+  it('increments with keyboard from numeric state, not rounded display text', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <NumberField.Root defaultValue={1.23456} onValueChange={onValueChange}>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveValue((1.23456).toLocaleString());
+
+    await act(async () => input.focus());
+
+    // Synced display shows the rounded `1.235`; stepping must advance the full-precision
+    // numeric value (matching the button path), not the parsed display string.
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(2.23456);
+  });
+
+  it('increments with keyboard from numeric state after a no-edit blur cycle', async () => {
+    const onValueChange = vi.fn();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(null);
+      return (
+        <NumberField.Root
+          value={value}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+        >
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => input.focus());
+    await user.keyboard('1.23456');
+    fireEvent.blur(input);
+    expect(input).toHaveValue((1.23456).toLocaleString());
+
+    await act(async () => input.focus());
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(2.23456);
+  });
+
   it('allows unicode plus/minus, permille and fullwidth digits on keydown when formatted as percent', async () => {
     await render(
       <NumberField.Root format={{ style: 'percent' }}>
