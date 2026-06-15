@@ -985,6 +985,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     return () => {
       visualStateStore?.set({ swipeProgress: 0, frontmostHeight: 0 });
       setBackdropSwipingAttribute(backdropElement, false);
+      // `data-swiping` is set on whichever backdrop is current when a swipe starts, which can
+      // differ from the captured element if the backdrop mounted late or changed identity.
+      const currentBackdrop = backdropRef.current;
+      if (currentBackdrop !== backdropElement) {
+        setBackdropSwipingAttribute(currentBackdrop, false);
+      }
       finishNestedSwipe();
     };
   }, [backdropRef, finishNestedSwipe, visualStateStore]);
