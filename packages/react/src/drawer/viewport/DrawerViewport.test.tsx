@@ -193,6 +193,49 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('clears the backdrop data-swiping attribute when the drawer unmounts mid-swipe', async () => {
+    const { unmount } = await render(
+      <Drawer.Root open>
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <button type="button" data-testid="button">
+                Action
+              </button>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const button = screen.getByTestId('button');
+    const backdrop = screen.getByTestId('backdrop');
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => button;
+
+    try {
+      fireEvent.touchStart(button, {
+        touches: [createTouch(button, { clientX: 0, clientY: 0 })],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    await act(async () => {
+      unmount();
+    });
+
+    // The detached node keeps its attributes, so this asserts the cleanup removed
+    // `data-swiping` from the backdrop that was mounted while swiping.
+    expect(backdrop).not.toHaveAttribute('data-swiping');
+  });
+
   it('uses the event target for non-keyboard touch scroll arbitration', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">

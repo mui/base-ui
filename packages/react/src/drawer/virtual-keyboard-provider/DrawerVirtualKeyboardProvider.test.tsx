@@ -196,6 +196,14 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
           } as DOMRect;
         };
 
+        // Apply the provider's scroll synchronously so the centering assertion below is fast
+        // and deterministic instead of waiting on an animated (smooth) scroll.
+        scroll.scrollTo = ((options?: ScrollToOptions | number) => {
+          if (typeof options === 'object' && options !== null && options.top !== undefined) {
+            scroll.scrollTop = options.top;
+          }
+        }) as typeof scroll.scrollTo;
+
         const keyboardViewportHeight = 500;
         await act(async () => {
           input.focus();
@@ -204,14 +212,19 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
         });
 
         await waitFor(() => {
+          expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
+        });
+        await waitFor(() => {
+          expect(scroll.style.scrollPaddingBottom).not.toBe('');
+        });
+        await waitFor(() => {
+          expect(scroll.style.overflowAnchor).toBe('none');
+        });
+        await waitFor(() => {
           const scrollRect = scroll.getBoundingClientRect();
           const inputRect = input.getBoundingClientRect();
           const inputCenter = (inputRect.top + inputRect.bottom) / 2;
           const visibleCenter = (scrollRect.top + keyboardViewportHeight) / 2;
-
-          expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
-          expect(scroll.style.scrollPaddingBottom).not.toBe('');
-          expect(scroll.style.overflowAnchor).toBe('none');
           expect(inputCenter).toBeCloseTo(visibleCenter, 0);
         });
 
@@ -221,7 +234,11 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
         await waitFor(() => {
           expect(scroll.style.paddingBottom).toBe('20px');
+        });
+        await waitFor(() => {
           expect(scroll.style.scrollPaddingBottom).toBe('');
+        });
+        await waitFor(() => {
           expect(scroll.style.overflowAnchor).toBe('auto');
         });
       } finally {
@@ -305,6 +322,8 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
         await waitFor(() => {
           expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
+        });
+        await waitFor(() => {
           expect(textarea.style.paddingBottom).toBe('');
         });
       } finally {
@@ -433,6 +452,8 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
         await waitFor(() => {
           expect(viewport.style.getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
+        });
+        await waitFor(() => {
           expect(getComputedStyle(popup).getPropertyValue('--drawer-keyboard-inset')).toBe('300px');
         });
 
@@ -541,7 +562,11 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
       await waitFor(() => {
         expect(scroll.style.paddingBottom).toBe('20px');
+      });
+      await waitFor(() => {
         expect(scroll.style.scrollPaddingBottom).toBe('');
+      });
+      await waitFor(() => {
         expect(scroll.scrollTop).toBe(0);
       });
     } finally {
@@ -623,6 +648,8 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
       await waitFor(() => {
         expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
+      });
+      await waitFor(() => {
         expect(scroll.style.overflowAnchor).toBe('none');
       });
 
@@ -630,7 +657,11 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
       await waitFor(() => {
         expect(scroll.style.paddingBottom).toBe('20px');
+      });
+      await waitFor(() => {
         expect(scroll.style.scrollPaddingBottom).toBe('');
+      });
+      await waitFor(() => {
         expect(scroll.style.overflowAnchor).toBe('auto');
       });
     } finally {
@@ -676,7 +707,11 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
 
       await waitFor(() => {
         expect(scroll.style.paddingBottom).toBe('20px');
+      });
+      await waitFor(() => {
         expect(scroll.style.scrollPaddingBottom).toBe('');
+      });
+      await waitFor(() => {
         expect(scroll.scrollTop).toBe(0);
       });
     } finally {
