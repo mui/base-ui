@@ -61,10 +61,15 @@ type PopupStoreWithOpen<
  * See https://github.com/mui/base-ui/issues/4951
  *
  * Only the open-cycle fields of the base `PopupStoreState` are reset by default. Fields added by
- * concrete stores are not visible here — pass them via `additionalResetState` (as Menu does for
- * `activeIndex`), unless they are benign when stale or cleaned up by the Root's own effects (as
- * `openMethod` is by `usePopupRootSync` in Dialog and Popover, or by the Root's synced values in
- * Menu).
+ * concrete stores are not visible here — pass them via `additionalResetState`. Each store forwards
+ * its own open-cycle fields (those written while opening/closing, e.g. `openMethod`,
+ * `openChangeReason`, `instantType`, `stickIfOpen`) so that an initially open adoption (`defaultOpen`
+ * or controlled `open`), which becomes open from `initialState` without a fresh `setOpen()` call,
+ * does not inherit stale focus/modal/scroll-lock/transition metadata from the previous Root's open
+ * cycle. A field whose stale value is read during the adopting Root's first render (before the
+ * Root's layout-effect syncs run) must be reset here, not relied on to be re-synced afterwards.
+ * Config fields the Root re-applies from its props (e.g. `modal`, `disabled`) and trigger
+ * registration are left untouched.
  *
  * This also means `handle.open()` calls made before any Root mounts are discarded when the Root
  * adopts the handle; pre-mount open requests are not replayed. During concurrent renders, the
@@ -140,6 +145,7 @@ export function usePopupStore<
   externalStore: Store | undefined,
   createStore: (floatingId: string | undefined, nested: boolean) => Store,
   initialState?: Partial<State>,
+  additionalResetState?: Partial<State>,
   treatPopupAsFloatingElement = false,
 ) {
   const floatingId = useId();
@@ -152,7 +158,7 @@ export function usePopupStore<
 
   const store = externalStore ?? internalStoreRef.current!;
 
-  useAdoptedStoreReset(externalStore, initialState);
+  useAdoptedStoreReset(externalStore, initialState, additionalResetState);
 
   useSyncedFloatingRootContext({
     popupStore: store,

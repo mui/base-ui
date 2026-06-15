@@ -992,6 +992,83 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByRole('dialog')).not.toBe(null);
       });
     });
+
+    it('does not expose a stale nested-dialog count to the adopting Root before its first commit', async () => {
+      const dialog = Dialog.createHandle();
+
+      // `nestedOpenDialogCount` is open-cycle state on the parent store. The adopting Root only
+      // re-derives it through a layout-effect sync, so a render-phase consumer (one rendered
+      // before the popup mounts) would read the previous Root's value on the first render unless
+      // the adoption reset clears it. This probe is such a consumer: it subscribes to the count
+      // and is rendered directly under the Root (not gated by the popup mounting), recording every
+      // value it sees while the adopting Root is mounted.
+      const observedCounts: number[] = [];
+      function NestedCountProbe() {
+        observedCounts.push(dialog.store.useState('nestedOpenDialogCount'));
+        return null;
+      }
+
+      function ParentWithNestedChild() {
+        return (
+          <Dialog.Root handle={dialog} defaultOpen>
+            <Dialog.Portal>
+              <Dialog.Popup>
+                <Dialog.Root defaultOpen>
+                  <Dialog.Portal>
+                    <Dialog.Popup>Nested</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      function AdoptingParent() {
+        return (
+          <Dialog.Root handle={dialog} defaultOpen>
+            <NestedCountProbe />
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="adopted-popup">Adopted</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      function App({ page }: { page: 'with-nested' | 'none' | 'adopting' }) {
+        if (page === 'with-nested') {
+          return <ParentWithNestedChild />;
+        }
+        if (page === 'adopting') {
+          return <AdoptingParent />;
+        }
+        return <div>Other page</div>;
+      }
+
+      const { setProps } = await render(<App page="with-nested" />);
+
+      // Parent is open with a nested child open, so it reports one nested dialog.
+      await waitFor(() => {
+        expect(dialog.store.state.nestedOpenDialogCount).toBe(1);
+      });
+
+      // Navigate away while both are open: the handle store keeps `nestedOpenDialogCount` at 1.
+      await setProps({ page: 'none' });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+      expect(dialog.store.state.nestedOpenDialogCount).toBe(1);
+
+      // A `defaultOpen` Root with no nested child adopts the handle.
+      observedCounts.length = 0;
+      await setProps({ page: 'adopting' });
+      await screen.findByTestId('adopted-popup');
+
+      // The adopting Root must never see the previous Root's nested count, including on its very
+      // first render before the layout-effect sync runs.
+      expect(observedCounts.length).toBeGreaterThan(0);
+      expect(observedCounts.every((count) => count === 0)).toBe(true);
+    });
   });
 });
 

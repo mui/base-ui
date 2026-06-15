@@ -28,6 +28,14 @@ export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
   inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
 };
 
+// Open-cycle field written while the preview card is open that is not re-derived when a new Root
+// adopts a handle-owned store. `instantType` describes the previous open cycle's transition
+// behavior, so an initially open adoption (`defaultOpen` or controlled `open`) would otherwise
+// inherit stale transition metadata. See `useAdoptedStoreReset`.
+const ADOPTION_RESET_STATE = {
+  instantType: undefined,
+} satisfies Partial<State<unknown>>;
+
 const selectors = {
   ...popupStoreSelectors,
   instantType: createSelector((state: State<unknown>) => state.instantType),
@@ -142,6 +150,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
       externalStore,
       (floatingId, nested) => new PreviewCardStore<Payload>(initialState, floatingId, nested),
       initialState,
+      ADOPTION_RESET_STATE,
     ).store;
     /* eslint-enable react-hooks/rules-of-hooks */
 

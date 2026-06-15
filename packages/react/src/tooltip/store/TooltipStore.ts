@@ -32,6 +32,15 @@ export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
 };
 
+// Open-cycle fields written while the tooltip is open that are not re-derived when a new Root
+// adopts a handle-owned store. `openChangeReason` and `instantType` describe the previous open
+// cycle's transition behavior, so an initially open adoption (`defaultOpen` or controlled `open`)
+// would otherwise inherit stale transition metadata. See `useAdoptedStoreReset`.
+const ADOPTION_RESET_STATE = {
+  openChangeReason: null,
+  instantType: undefined,
+} satisfies Partial<State<unknown>>;
+
 const selectors = {
   ...popupStoreSelectors,
   disabled: createSelector((state: State<unknown>) => state.disabled),
@@ -142,6 +151,7 @@ export class TooltipStore<Payload> extends ReactStore<
       externalStore,
       (floatingId, nested) => new TooltipStore<Payload>(initialState, floatingId, nested),
       initialState,
+      ADOPTION_RESET_STATE,
     ).store;
     /* eslint-enable react-hooks/rules-of-hooks */
 

@@ -1071,5 +1071,89 @@ describe('<Popover.Root />', () => {
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
       });
     });
+
+    // A modal popover opened by hover intentionally does not lock scroll (so the page can still
+    // be swiped to dismiss). That decision is driven by the open-cycle `openChangeReason`, which
+    // is concrete-store state. If it is not reset on adoption, a `defaultOpen` modal Root that
+    // adopts the hover-opened handle would inherit the stale `triggerHover` reason and skip
+    // scroll locking even though it never opened by hover.
+    describe.skipIf(isJSDOM)('with stale open-cycle metadata from a hover open', () => {
+      function isScrollLocked(doc: Document) {
+        return (
+          doc.documentElement.style.overflow === 'hidden' ||
+          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          doc.body.style.overflow === 'hidden'
+        );
+      }
+
+      it('locks scroll when a defaultOpen modal Root adopts a hover-opened handle', async () => {
+        const popover = Popover.createHandle();
+
+        function HoverPage() {
+          return (
+            <React.Fragment>
+              <Popover.Trigger handle={popover} id="trigger" openOnHover delay={0}>
+                Trigger
+              </Popover.Trigger>
+              <Popover.Root handle={popover} modal>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup data-testid="content">Content</Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </React.Fragment>
+          );
+        }
+
+        function DefaultOpenPage() {
+          return (
+            <Popover.Root handle={popover} modal defaultOpen>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="content">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        }
+
+        function App({ page }: { page: 'hover' | 'none' | 'default-open' }) {
+          if (page === 'hover') {
+            return <HoverPage />;
+          }
+          if (page === 'default-open') {
+            return <DefaultOpenPage />;
+          }
+          return <div>Other page</div>;
+        }
+
+        const { setProps } = await render(<App page="hover" />);
+
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        const popup = await screen.findByTestId('content');
+        const doc = popup.ownerDocument;
+
+        // A hover-opened modal popover does not lock scroll.
+        expect(isScrollLocked(doc)).toBe(false);
+
+        // Unmount the hover Root while open: the handle store keeps `open: true` and the stale
+        // `triggerHover` reason.
+        await setProps({ page: 'none' });
+        expect(popover.isOpen).toBe(true);
+
+        // A `defaultOpen` modal Root adopts the handle.
+        await setProps({ page: 'default-open' });
+        await screen.findByTestId('content');
+
+        // The stale `triggerHover` reason is reset on adoption, so scroll lock now applies.
+        await waitFor(() => {
+          expect(isScrollLocked(doc)).toBe(true);
+        });
+      });
+    });
   });
 });

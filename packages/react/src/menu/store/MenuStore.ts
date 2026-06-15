@@ -183,13 +183,22 @@ export class MenuStore<Payload> extends ReactStore<
       return new MenuStore<Payload>(initialState);
     }).current;
 
-    // Menu-specific open-cycle state that is neither benign when stale nor re-derived by a Root
-    // effect: a stale `activeIndex` would be re-applied (highlighting and focusing the wrong
-    // item) on the first open after adoption, and `allowMouseEnter` is otherwise only cleared
-    // when a close transition completes, which never happens when a Root unmounts while open.
+    // Menu-specific open-cycle state that is neither benign when stale nor re-derived in time by a
+    // Root effect when a new Root adopts a handle-owned store. `activeIndex` would otherwise be
+    // re-applied (highlighting and focusing the wrong item) on the first open after adoption;
+    // `allowMouseEnter`/`stickIfOpen` are otherwise only cleared when a close transition
+    // completes, which never happens when a Root unmounts while open; `openChangeReason`
+    // (`lastOpenChangeReason`) gates modal/backdrop/scroll-lock decisions; and `openMethod` is
+    // read during render by the popup/positioner (focus manager and scroll lock) — the Root only
+    // re-syncs it in a layout effect, so an initially open adoption (`defaultOpen` or controlled
+    // `open`) would commit once with the previous open cycle's value before that sync lands.
     useAdoptedStoreReset(externalStore, initialState, {
       activeIndex: null,
       allowMouseEnter: false,
+      openChangeReason: null,
+      instantType: undefined,
+      stickIfOpen: true,
+      openMethod: null,
     });
     /* eslint-enable react-hooks/rules-of-hooks */
 

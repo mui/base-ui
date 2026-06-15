@@ -64,6 +64,18 @@ function createInitialState<Payload>(): State<Payload> {
   };
 }
 
+// Open-cycle fields written while the popover is open that are not re-derived when a new Root
+// adopts a handle-owned store. They drive first-render behavior of an initially open adoption
+// (`defaultOpen` or controlled `open`): `openChangeReason` gates modal scroll lock, `openMethod`
+// the focus manager, and `instantType`/`stickIfOpen` the transition/dismissal behavior. Without
+// the reset they would carry the previous Root's open-cycle values. See `useAdoptedStoreReset`.
+const ADOPTION_RESET_STATE = {
+  openMethod: null,
+  openChangeReason: null,
+  instantType: undefined,
+  stickIfOpen: true,
+} satisfies Partial<State<unknown>>;
+
 const selectors = {
   ...popupStoreSelectors,
   disabled: createSelector((state: State<unknown>) => state.disabled),
@@ -203,6 +215,7 @@ export class PopoverStore<Payload> extends ReactStore<
       externalStore,
       (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
       initialState,
+      ADOPTION_RESET_STATE,
     );
 
     React.useEffect(() => internalStore?.disposeEffect(), [internalStore]);
