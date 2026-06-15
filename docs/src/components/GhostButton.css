@@ -31,12 +31,12 @@
     &:not(:focus-visible) {
       @media (hover: hover) {
         &:hover {
-          background-color: var(--gray-c2);
+          background-color: var(--gray-c1);
         }
       }
 
       &[data-popup-open] {
-        background-color: var(--gray-c2);
+        background-color: var(--gray-c1);
       }
     }
   }

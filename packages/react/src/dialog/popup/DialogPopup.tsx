@@ -126,12 +126,14 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopupState> {
   /**
    * Determines the element to focus when the dialog is opened.
+   * By default, focus moves to the first tabbable element inside the popup, except when the dialog
+   * is opened by touch — then the popup itself is focused to avoid opening the virtual keyboard.
    *
    * - `false`: Do not move focus.
    * - `true`: Move focus based on the default behavior (first tabbable element or popup).
    * - `RefObject`: Move focus to the ref element.
    * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
-   *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
+   *   Return an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
     | boolean
@@ -145,7 +147,7 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    * - `true`: Move focus based on the default behavior (trigger or previously focused element).
    * - `RefObject`: Move focus to the ref element.
    * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
-   *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
+   *   Return an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
     | boolean
