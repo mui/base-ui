@@ -17,13 +17,9 @@
     align-items: center;
     justify-content: space-between;
     padding-inline: 1.5rem;
-
     position: fixed;
     top: 0;
     inset-inline: 0;
-    /* Stay opaque behind the header content, then ease content scrolling under
-       the header's lower edge out with a smooth scrim (eased stops avoid any
-       visible banding). It's also the iOS overscroll background. */
     background: var(--color-content);
     z-index: 2;
 
