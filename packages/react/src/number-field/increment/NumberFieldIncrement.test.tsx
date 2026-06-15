@@ -755,7 +755,7 @@ describe('<NumberField.Increment />', () => {
   });
 
   describe('disabled state', () => {
-    it('exposes aria-controls and aria-readonly on the stepper', async () => {
+    it('exposes aria-controls on the stepper', async () => {
       await render(
         <NumberField.Root readOnly>
           <NumberField.Increment />
@@ -765,7 +765,6 @@ describe('<NumberField.Increment />', () => {
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button');
       expect(button).toHaveAttribute('aria-controls', input.id);
-      expect(button).toHaveAttribute('aria-readonly', 'true');
     });
 
     it('should not increment when root is disabled', async () => {

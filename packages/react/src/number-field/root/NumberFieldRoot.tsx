@@ -29,7 +29,6 @@ import {
   PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
 import { formatNumber } from '../../utils/formatNumber';
-import { clamp } from '../../internals/clamp';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
@@ -276,12 +275,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       const nativeEvent = event as ReasonToEvent<IncrementValueParameters['reason']> | undefined;
 
       if (typeof prevValue !== 'number') {
-        // Seed an empty field with the in-range value nearest 0 (e.g. `max` for a negative range).
-        // No `direction`: the seed isn't a step, so it must not be directionally snapped.
-        return setValue(
-          clamp(0, minWithDefault, maxWithDefault),
-          createChangeEventDetails(reason, nativeEvent),
-        );
+        // Seed an empty field with 0; `setValue` clamps it to the in-range value nearest 0
+        // (e.g. `max` for a negative range). No `direction`: the seed isn't a step, so it must
+        // not be directionally snapped.
+        return setValue(0, createChangeEventDetails(reason, nativeEvent));
       }
 
       return setValue(
