@@ -174,11 +174,11 @@ export interface PopoverTrigger {
 
 export interface PopoverTriggerState {
   /**
-   * Whether the popover is currently disabled.
+   * Whether the trigger is currently disabled.
    */
   disabled: boolean;
   /**
-   * Whether the popover is currently open.
+   * Whether the popover is currently open and was opened by this trigger.
    */
   open: boolean;
 }

@@ -1161,7 +1161,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('grid navigation when items have different sizes', () => {
+  describe('grid navigation in a multi-column grid with disabled items', () => {
     it('focuses first non-disabled item in grid', async () => {
       render(<ComplexGrid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
