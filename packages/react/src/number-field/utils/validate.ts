@@ -2,9 +2,8 @@ import { clamp } from '../../internals/clamp';
 import { getFormatter } from '../../utils/formatNumber';
 import { parseNumber } from './parse';
 
-const STEP_EPSILON_FACTOR = 1e-10;
-// Matches Intl.NumberFormat's decimal maximumFractionDigits default.
-const DEFAULT_DIGITS = 3;
+const FLOATING_POINT_TOLERANCE = 1e-10;
+const FLOATING_POINT_CLEANUP_EPSILON_FACTOR = 4;
 
 // The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
 // Delete this once tsconfig.base.json includes es2023.
@@ -34,7 +33,21 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   }
 
   if (!hasNumberFormatRoundingOptions(format)) {
-    return Number(value.toFixed(DEFAULT_DIGITS));
+    // Clean binary floating-point noise (e.g. `0.1 + 0.2`) without discarding legitimate
+    // precision. Integer Number values are already integral as stored, so returning them
+    // verbatim avoids corrupting large integer values that `toPrecision(15)` would change.
+    if (Number.isInteger(value)) {
+      return value;
+    }
+
+    const roundedValue = parseFloat(value.toPrecision(15));
+    const cleanupDelta = Math.abs(roundedValue - value);
+    const cleanupTolerance = Math.min(
+      Number.EPSILON * Math.max(1, Math.abs(value)) * FLOATING_POINT_CLEANUP_EPSILON_FACTOR,
+      FLOATING_POINT_TOLERANCE,
+    );
+
+    return cleanupDelta <= cleanupTolerance ? roundedValue : value;
   }
 
   const formatter = getFormatter('en-US', {
@@ -63,7 +76,7 @@ function snapToStep(
 ) {
   const stepSize = Math.abs(step);
   const direction = Math.sign(step);
-  const tolerance = stepSize * STEP_EPSILON_FACTOR * direction;
+  const tolerance = stepSize * FLOATING_POINT_TOLERANCE * direction;
   const rawSteps = value - base + tolerance;
 
   if (mode === 'nearest') {
@@ -113,6 +126,14 @@ export function toValidatedNumber(
 
   if (shouldClamp) {
     nextValue = clamp(nextValue, minWithDefault, maxWithDefault);
+  }
+
+  // Parsed input (typing, paste, blur) involves no arithmetic, so it carries no binary
+  // noise to clean — return it verbatim to keep every typed digit, including values with
+  // more than 15 significant digits. Stepping and snapping arithmetic can introduce noise
+  // (e.g. 0.7 + 0.1), which `removeFloatingPointErrors` cleans.
+  if (step == null && !hasNumberFormatRoundingOptions(format)) {
+    return nextValue;
   }
 
   const roundedValue = removeFloatingPointErrors(nextValue, format);

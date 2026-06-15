@@ -21,6 +21,25 @@ describe('NumberField validate', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1)).toBe(0.3);
     });
 
+    it('cleans negative floating point noise without a format', () => {
+      expect(removeFloatingPointErrors(-0.1 - 0.2)).toBe(-0.3);
+    });
+
+    it('preserves precision finer than 3 fraction digits without a format', () => {
+      expect(removeFloatingPointErrors(0.0005)).toBe(0.0005);
+      expect(removeFloatingPointErrors(1.23456)).toBe(1.23456);
+    });
+
+    it('preserves safe integers exactly without a format', () => {
+      expect(removeFloatingPointErrors(Number.MAX_SAFE_INTEGER)).toBe(Number.MAX_SAFE_INTEGER);
+      expect(removeFloatingPointErrors(Number.MIN_SAFE_INTEGER)).toBe(Number.MIN_SAFE_INTEGER);
+    });
+
+    it('cleans 16-digit noise patterns from arithmetic', () => {
+      expect(removeFloatingPointErrors(0.1 + 0.7)).toBe(0.8);
+      expect(removeFloatingPointErrors(0.1 + 0.2 + 0.3)).toBe(0.6);
+    });
+
     it('returns 0.3 for 0.2 + 0.1 with maximumFractionDigits', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1, { maximumFractionDigits: 1 })).toBe(0.3);
     });
@@ -380,6 +399,30 @@ describe('NumberField validate', () => {
       ).toBe(12);
     });
 
+    it('preserves parsed input beyond 15 significant digits when step is undefined', () => {
+      // Parsed input performs no arithmetic, so there is no binary noise to clean.
+      expect(toValidatedNumber(1.234567890123456, { ...defaultOptions, step: undefined })).toBe(
+        1.234567890123456,
+      );
+      expect(toValidatedNumber(0.1234567890123456, { ...defaultOptions, step: undefined })).toBe(
+        0.1234567890123456,
+      );
+    });
+
+    it('cleans arithmetic noise when stepping', () => {
+      expect(
+        toValidatedNumber(0.1 + 0.7, { ...defaultOptions, step: 0.1, snapOnStep: false }),
+      ).toBe(0.8);
+    });
+
+    it('preserves large fractional values when stepping cleanup would be too coarse', () => {
+      const steppedValue = 100000000000000.1 + 0.1;
+
+      expect(
+        toValidatedNumber(steppedValue, { ...defaultOptions, step: 0.1, snapOnStep: false }),
+      ).toBe(steppedValue);
+    });
+
     describe('incrementing', () => {
       it('snaps 5 to 5 when step is 1', () => {
         expect(toValidatedNumber(5, defaultOptions)).toBe(5);
@@ -544,11 +587,11 @@ describe('NumberField validate', () => {
     ).toBe(0.01235);
   });
 
-  it('removes floating point errors by default', () => {
+  it('removes floating point errors when stepping', () => {
     expect(
       toValidatedNumber(0.2 + 0.1, {
         ...defaultOptions,
-        step: undefined,
+        step: 0.1,
         snapOnStep: false,
       }),
     ).toBe(0.3);
