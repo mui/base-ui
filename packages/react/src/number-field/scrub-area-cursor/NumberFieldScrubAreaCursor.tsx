@@ -10,6 +10,13 @@ import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 
+const CURSOR_STYLE: React.CSSProperties = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  pointerEvents: 'none',
+};
+
 /**
  * A custom element to display instead of the native cursor while using the scrub area.
  * Renders a `<span>` element.
@@ -41,12 +48,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
     props: [
       {
         role: 'presentation',
-        style: {
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          pointerEvents: 'none',
-        },
+        style: CURSOR_STYLE,
       },
       elementProps,
     ],

@@ -109,7 +109,7 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type PreviewCardTriggerState = {
-  /** Whether the preview card is currently open. */
+  /** Whether the preview card is currently open and was opened by this trigger. */
   open: boolean;
 };
 ```

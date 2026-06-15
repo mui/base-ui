@@ -7,16 +7,11 @@ import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
-import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
-import { DEFAULT_STEP } from '../utils/constants';
 import {
-  ARABIC_DETECT_RE,
-  PERSIAN_DETECT_RE,
-  HAN_DETECT_RE,
-  FULLWIDTH_DETECT_RE,
   getNumberLocaleDetails,
+  isNumeralChar,
   parseNumber,
   ANY_MINUS_RE,
   ANY_PLUS_RE,
@@ -24,21 +19,16 @@ import {
   ANY_PLUS_DETECT_RE,
 } from '../utils/parse';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
-import { stateAttributesMapping as numberFieldStateAttributesMapping } from '../utils/stateAttributesMapping';
+import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
-import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
+import { formatNumber } from '../../utils/formatNumber';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { REASONS } from '../../internals/reasons';
 import { hasNumberFormatRoundingOptions, removeFloatingPointErrors } from '../utils/validate';
-
-const stateAttributesMapping = {
-  ...fieldValidityMapping,
-  ...numberFieldStateAttributesMapping,
-};
 
 const NAVIGATE_KEYS = new Set([
   'Backspace',
@@ -178,9 +168,19 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Avoid applying Intl's default precision unless the format opts into rounding.
       const hasRoundingOptions = hasNumberFormatRoundingOptions(formatOptions);
 
-      const committed = hasRoundingOptions
-        ? removeFloatingPointErrors(parsedValue, formatOptions)
-        : parsedValue;
+      let committed: number | null;
+      if (!hadManualInput && !hasRoundingOptions) {
+        // No rounding options and no manual edit: the visible text is purely formatted
+        // display, so keep the authoritative numeric value as-is rather than re-parsing the
+        // rounded text and discarding precision (e.g. focus/blur with no edits, or blur after
+        // a programmatic change).
+        committed = value;
+      } else if (hasRoundingOptions) {
+        // Explicit rounding options apply to the committed value, whether typed or external.
+        committed = removeFloatingPointErrors(parsedValue, formatOptions);
+      } else {
+        committed = parsedValue;
+      }
 
       const nextEventDetails = createGenericEventDetails(REASONS.inputBlur, event.nativeEvent);
       const shouldUpdateValue = value !== committed;
@@ -207,12 +207,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       // Normalize only the displayed text
       const canonicalText = formatNumber(committedValue, locale, formatOptions);
-      const shouldPreserveFullPrecision =
-        !hasRoundingOptions &&
-        parsedValue === value &&
-        inputValue === formatNumberMaxPrecision(parsedValue, locale, formatOptions);
-
-      if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
+      if (inputValue !== canonicalText) {
         setInputValue(canonicalText);
       }
     },
@@ -235,23 +230,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // currently parseable into a number. This preserves good UX for IME
       // composition/partial input while still providing live numeric updates when possible.
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
-      const isValidCharacterString = Array.from(targetValue).every((ch) => {
-        const isAsciiDigit = ch >= '0' && ch <= '9';
-        const isArabicNumeral = ARABIC_DETECT_RE.test(ch);
-        const isHanNumeral = HAN_DETECT_RE.test(ch);
-        const isPersianNumeral = PERSIAN_DETECT_RE.test(ch);
-        const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(ch);
-        const isMinus = ANY_MINUS_DETECT_RE.test(ch);
-        return (
-          isAsciiDigit ||
-          isArabicNumeral ||
-          isHanNumeral ||
-          isPersianNumeral ||
-          isFullwidthNumeral ||
-          isMinus ||
-          allowedNonNumericKeys.has(ch)
-        );
-      });
+      const isValidCharacterString = Array.from(targetValue).every(
+        (ch) => isNumeralChar(ch) || ANY_MINUS_DETECT_RE.test(ch) || allowedNonNumericKeys.has(ch),
+      );
 
       if (!isValidCharacterString) {
         return;
@@ -272,7 +253,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const nativeEvent = event.nativeEvent;
 
-      allowInputSyncRef.current = true;
+      // Snapshot the dirty state without clearing it: navigation/allowed keys (ArrowLeft, Tab,
+      // Enter, Escape, …) return early without changing the value, so marking the input synced
+      // here would wrongly discard dirty-input authority. Only the value-changing branches below
+      // mark it synced.
+      const hadManualInput = !allowInputSyncRef.current;
 
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
 
@@ -287,38 +272,32 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const selectionEnd = event.currentTarget.selectionEnd;
       const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
 
-      // Normalize handling of plus/minus signs via precomputed regexes
       const selectionContainsIndex = (index: number) =>
         selectionStart != null &&
         selectionEnd != null &&
         index >= selectionStart &&
         index < selectionEnd;
 
-      if (
-        ANY_MINUS_DETECT_RE.test(event.key) &&
-        Array.from(allowedNonNumericKeys).some((k) => ANY_MINUS_DETECT_RE.test(k || ''))
-      ) {
-        // Only allow one sign unless replacing the existing one or all text is selected
-        const existingIndex = inputValue.search(ANY_MINUS_RE);
-        const isReplacingExisting =
-          existingIndex != null && existingIndex !== -1 && selectionContainsIndex(existingIndex);
-        isAllowedNonNumericKey =
-          !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
-          isAllSelected ||
-          isReplacingExisting;
-      }
-      if (
-        ANY_PLUS_DETECT_RE.test(event.key) &&
-        Array.from(allowedNonNumericKeys).some((k) => ANY_PLUS_DETECT_RE.test(k || ''))
-      ) {
-        const existingIndex = inputValue.search(ANY_PLUS_RE);
-        const isReplacingExisting =
-          existingIndex != null && existingIndex !== -1 && selectionContainsIndex(existingIndex);
-        isAllowedNonNumericKey =
-          !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
-          isAllSelected ||
-          isReplacingExisting;
-      }
+      // Only allow a single sign character: permit it when there is no existing sign of either
+      // kind, when all text is selected, or when the selection covers the existing sign so it's
+      // being replaced.
+      const signGroups = [
+        [ANY_MINUS_DETECT_RE, ANY_MINUS_RE],
+        [ANY_PLUS_DETECT_RE, ANY_PLUS_RE],
+      ] as const;
+      signGroups.forEach(([detectRe, globalRe]) => {
+        if (
+          detectRe.test(event.key) &&
+          Array.from(allowedNonNumericKeys).some((k) => detectRe.test(k))
+        ) {
+          const existingIndex = inputValue.search(globalRe);
+          const isReplacingExisting = existingIndex !== -1 && selectionContainsIndex(existingIndex);
+          isAllowedNonNumericKey =
+            !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
+            isAllSelected ||
+            isReplacingExisting;
+        }
+      });
 
       // Only allow one of each symbol.
       [decimal, currency, percentSign].forEach((symbol) => {
@@ -330,11 +309,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         }
       });
 
-      const isAsciiDigit = event.key >= '0' && event.key <= '9';
-      const isArabicNumeral = ARABIC_DETECT_RE.test(event.key);
-      const isHanNumeral = HAN_DETECT_RE.test(event.key);
-      const isPersianNumeral = PERSIAN_DETECT_RE.test(event.key);
-      const isFullwidthNumeral = FULLWIDTH_DETECT_RE.test(event.key);
       const isNavigateKey = NAVIGATE_KEYS.has(event.key);
       // Alt+ArrowUp/ArrowDown selects smallStep, so don't treat it as a bypass modifier.
       const isStepKey = event.key === 'ArrowUp' || event.key === 'ArrowDown';
@@ -348,46 +322,55 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         event.ctrlKey ||
         event.metaKey ||
         isAllowedNonNumericKey ||
-        isAsciiDigit ||
-        isArabicNumeral ||
-        isFullwidthNumeral ||
-        isHanNumeral ||
-        isPersianNumeral ||
+        isNumeralChar(event.key) ||
         isNavigateKey
       ) {
         return;
       }
 
-      // We need to commit the number at this point if the input hasn't been blurred.
-      const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+      // Step from the authoritative numeric value unless the input has unsaved manual edits.
+      // When the text is already synced, parsing the rounded display would collapse precision,
+      // so pass no `currentValue` and let `incrementValue` fall back to the numeric state
+      // (mirrors the button path).
+      const currentValue = hadManualInput
+        ? parseNumber(inputValue, locale, formatOptionsRef.current)
+        : null;
 
-      const amount = getStepAmount(event) ?? DEFAULT_STEP;
+      const amount = getStepAmount(event);
 
       // Prevent insertion of text or caret from moving.
       stopEvent(event);
 
       const commitDetails = createGenericEventDetails(REASONS.keyboard, nativeEvent);
 
-      if (event.key === 'ArrowUp') {
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        allowInputSyncRef.current = true;
+
+        // When stepping from the synced numeric state, refresh the commit ref to the current
+        // value so a canceled step can't commit a stale `lastChangedValueRef` left over from an
+        // earlier change (mirrors the button path).
+        if (!hadManualInput) {
+          lastChangedValueRef.current = valueRef.current;
+        }
+
+        const prev = valueRef.current;
         incrementValue(amount, {
-          direction: 1,
-          currentValue: parsedValue,
+          direction: event.key === 'ArrowUp' ? 1 : -1,
+          currentValue,
           event: nativeEvent,
           reason: REASONS.keyboard,
         });
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
-      } else if (event.key === 'ArrowDown') {
-        incrementValue(amount, {
-          direction: -1,
-          currentValue: parsedValue,
-          event: nativeEvent,
-          reason: REASONS.keyboard,
-        });
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
+
+        const committed = lastChangedValueRef.current ?? valueRef.current;
+        if (committed !== prev) {
+          onValueCommitted(committed, commitDetails);
+        }
       } else if (event.key === 'Home' && min != null) {
+        allowInputSyncRef.current = true;
         setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
         onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       } else if (event.key === 'End' && max != null) {
+        allowInputSyncRef.current = true;
         setValue(max, createChangeEventDetails(REASONS.keyboard, nativeEvent));
         onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       }
@@ -443,7 +426,8 @@ export interface NumberFieldInputProps extends BaseUIComponentProps<
   NumberFieldInputState
 > {
   /**
-   * A string value that provides a user-friendly name for the role of the input.
+   * A user-friendly description of the input's role for assistive tech. This is a role
+   * description, not an accessible name — use `Field.Label` or `aria-label` to name the control.
    * @default 'Number field'
    */
   'aria-roledescription'?: React.AriaAttributes['aria-roledescription'] | undefined;

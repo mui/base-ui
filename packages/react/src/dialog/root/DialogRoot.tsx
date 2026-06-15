@@ -52,15 +52,15 @@ export interface DialogRootProps<Payload = unknown> {
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
-   * Determines whether the dialog should close on outside clicks.
+   * Whether to prevent the dialog from closing on outside presses.
+   * For non-modal dialogs, this also prevents the dialog from closing when focus moves outside of it.
    * @default false
    */
   disablePointerDismissal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the dialog will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the dialog manually.
-   * Useful when the dialog's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the dialog.
+   * Call this after any externally controlled closing animation finishes.
    * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<DialogRoot.Actions | null> | undefined;

@@ -215,6 +215,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   );
 
   const defaultProps: HTMLProps = {
+    id: idProp,
     role: 'radiogroup',
     'aria-required': required || undefined,
     'aria-disabled': disabled || undefined,
@@ -235,7 +236,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     },
     onKeyDownCapture(event) {
       if (event.key.startsWith('Arrow')) {
-        setFieldTouched(true);
         setTouched(true);
         setFocused(true);
       }
