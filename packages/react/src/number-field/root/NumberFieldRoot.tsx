@@ -28,9 +28,9 @@ import {
   MINUS_SIGNS_WITH_ASCII,
   PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
-import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
+import { formatNumber } from '../../utils/formatNumber';
 import { DEFAULT_STEP } from '../utils/constants';
-import { hasNumberFormatRoundingOptions, toValidatedNumber } from '../utils/validate';
+import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
 import {
@@ -141,12 +141,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() => {
-    if (valueProp !== undefined) {
-      return getControlledInputValue(value, locale, format);
-    }
-    return formatNumber(value, locale, format);
-  });
+  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, locale, format));
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useStableCallback(() => {
@@ -310,10 +305,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       return;
     }
 
-    const nextInputValue =
-      valueProp !== undefined
-        ? getControlledInputValue(value, locale, format)
-        : formatNumber(value, locale, format);
+    const nextInputValue = formatNumber(value, locale, format);
 
     if (nextInputValue !== inputValue) {
       setInputValue(nextInputValue);
@@ -690,16 +682,6 @@ export type NumberFieldRootCommitEventReason =
   | typeof REASONS.none;
 export type NumberFieldRootCommitEventDetails =
   BaseUIGenericEventDetails<NumberFieldRoot.CommitEventReason>;
-
-function getControlledInputValue(
-  value: number | null,
-  locale: Intl.LocalesArgument,
-  format: Intl.NumberFormatOptions | undefined,
-) {
-  return hasNumberFormatRoundingOptions(format)
-    ? formatNumber(value, locale, format)
-    : formatNumberMaxPrecision(value, locale, format);
-}
 
 export namespace NumberFieldRoot {
   export type State = NumberFieldRootState;
