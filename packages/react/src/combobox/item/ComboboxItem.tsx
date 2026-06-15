@@ -92,24 +92,28 @@ export const ComboboxItem = React.memo(
     }, [hasRegistered, virtualized, index, indexProp, store]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || hasItems) {
+      if (!hasRegistered || (hasItems && virtualized)) {
         return undefined;
       }
 
+      // Register the rendered item value so the visible registry preserves its exact
+      // shape (a primitive `value`, or the whole item for `value={item}`) for selection,
+      // highlight callbacks, autofill, and typeahead. Virtualized `items` lists are
+      // owned by the root registry because it may directly reference the `items` array.
       const visibleMap = store.state.valuesRef.current;
       visibleMap[index] = itemValue;
 
       // Stable registry that doesn't depend on filtering. Assume that no
       // filtering had occurred at this point; otherwise, an `items` prop is
       // required.
-      if (selectionMode !== 'none') {
+      if (!hasItems && selectionMode !== 'none') {
         store.state.allValuesRef.current.push(itemValue);
       }
 
       return () => {
         delete visibleMap[index];
       };
-    }, [hasRegistered, hasItems, index, itemValue, store, selectionMode]);
+    }, [hasRegistered, hasItems, virtualized, index, itemValue, store, selectionMode]);
 
     useIsoLayoutEffect(() => {
       if (!open) {

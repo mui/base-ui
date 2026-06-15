@@ -359,6 +359,34 @@ describe('<Select.Value />', () => {
       expect(screen.getByTestId('value')).toHaveTextContent('Canada');
     });
 
+    it('uses itemToStringLabel before item labels for primitive selected values', async () => {
+      const items = [
+        { value: 'US', label: 'United States' },
+        { value: 'CA', label: 'Canada' },
+      ];
+
+      await render(
+        <Select.Root value="CA" items={items} itemToStringLabel={() => 'Custom label'}>
+          <Select.Trigger>
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {items.map((item) => (
+                  <Select.Item key={item.value} value={item.value}>
+                    {item.label}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).toHaveTextContent('Custom label');
+    });
+
     it('falls back to label/value properties when functions are not provided', async () => {
       const items = [
         { label: 'United States', value: 'US' },

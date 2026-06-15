@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -48,6 +49,9 @@ import { NOOP } from '../../internals/noop';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import {
+  findItemIndexByValue,
+  inferItemValue,
+  resolveLabelString,
   stringifyAsLabel,
   stringifyAsValue,
   Group,
@@ -210,7 +214,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return defaultInputValueProp ?? '';
       }
       if (single) {
-        return stringifyAsLabel(selectedValue, itemToStringLabel);
+        return resolveLabelString(selectedValue, items, itemToStringLabel, isItemEqualToValue);
       }
       return '';
     },
@@ -233,7 +237,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const isGrouped = isGroupedItems(items);
   const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
 
-  const selectedLabelString = single ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+  // Resolving the label can scan `items`, so memoize to avoid repeating it on every
+  // render (e.g. each keystroke) when the selection and items are unchanged.
+  const selectedLabelString = React.useMemo(
+    () =>
+      single ? resolveLabelString(selectedValue, items, itemToStringLabel, isItemEqualToValue) : '',
+    [single, selectedValue, items, itemToStringLabel, isItemEqualToValue],
+  );
 
   const shouldBypassFiltering =
     single &&
@@ -302,12 +312,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (filterQuery === '') {
       return limit > -1
         ? flatItems.slice(0, limit)
-        : // The cast here is done as `flatItems` is readonly.
-          // valuesRef.current, a mutable ref, can be set to `flatFilteredItems`, which may
-          // reference this exact readonly value, creating a mutation risk.
-          // However, <Combobox.Item> can never mutate this value as the mutating effect
-          // bails early when `items` is provided, and this is only ever returned
-          // when `items` is provided due to the early return at the top of this hook.
+        : // The cast here is done as `flatItems` is readonly. The derived filtered list
+          // is only ever read (the visible registry is a separate `valuesRef` array that
+          // is mutated independently), so reusing the prop's array here is safe.
           (flatItems as Value[]);
     }
 
@@ -456,12 +463,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     nameProp,
   );
 
-  const forceMount = useStableCallback(() => {
+  const forceMount = useStableCallback((renderItems = false) => {
     if (items) {
       // Ensure typeahead works on a closed list.
       labelsRef.current = flatFilteredItems.map((item) =>
         stringifyAsLabel(item, itemToStringLabel),
       );
+      if (renderItems && !virtualized) {
+        store.set('forceMounted', true);
+      }
     } else {
       store.set('forceMounted', true);
     }
@@ -642,7 +652,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (shouldFillInput) {
         setInputValue(
-          stringifyAsLabel(nextValue, itemToStringLabel),
+          resolveLabelString(nextValue, items, itemToStringLabel, isItemEqualToValue),
           createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
@@ -757,7 +767,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           setInputValue('', createChangeEventDetails(REASONS.inputClear));
         }
       } else {
-        const stringVal = stringifyAsLabel(selectedValue, itemToStringLabel);
+        const stringVal = selectedLabelString;
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? REASONS.inputClear : REASONS.none;
@@ -791,31 +801,48 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
+  const navigationValue =
+    multiple && Array.isArray(selectedValue)
+      ? selectedValue[selectedValue.length - 1]
+      : selectedValue;
+
+  // Derive the selected value's index in the (unfiltered) `items`. Non-virtualized
+  // lists can match the full item (object `value={item}`) or its inferred value
+  // (primitive `value` against a `{ value, label }` entry). Only the closed state is
+  // consumed (the syncing effect bails while open), so skip the scan while open to
+  // avoid rescanning large lists on every selection change during open interactions.
+  const itemsSelectedIndex = React.useMemo(() => {
+    if (open || selectionMode === 'none' || !items) {
+      return -1;
+    }
+    if (virtualized) {
+      return findItemIndex(flatItems, navigationValue, isItemEqualToValue);
+    }
+    return findItemIndexByValue(flatItems, navigationValue, isItemEqualToValue);
+  }, [open, selectionMode, items, virtualized, flatItems, navigationValue, isItemEqualToValue]);
+
   useIsoLayoutEffect(
     function syncSelectedIndex() {
+      // Snapshot the selected index only while the popup is closed, so selecting,
+      // deselecting, clearing, or filtering while open doesn't move the highlight off
+      // the active item. Drives initial highlight and scroll-into-view on open.
       if (open || selectionMode === 'none') {
         return;
       }
 
-      const registry = items ? flatItems : allValuesRef.current;
-
-      if (multiple) {
-        const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
-        const lastValue = currentValue[currentValue.length - 1];
-        const lastIndex = findItemIndex(registry, lastValue, isItemEqualToValue);
-        setIndices({ selectedIndex: lastIndex === -1 ? null : lastIndex });
-      } else {
-        const index = findItemIndex(registry, selectedValue, isItemEqualToValue);
-        setIndices({ selectedIndex: index === -1 ? null : index });
-      }
+      // With `items` the index is the derived value above; without `items`, match
+      // against the values registered by mounted items.
+      const index = items
+        ? itemsSelectedIndex
+        : findItemIndex(allValuesRef.current, navigationValue, isItemEqualToValue);
+      setIndices({ selectedIndex: index === -1 ? null : index });
     },
     [
       open,
-      selectedValue,
-      items,
       selectionMode,
-      flatItems,
-      multiple,
+      items,
+      itemsSelectedIndex,
+      navigationValue,
       isItemEqualToValue,
       setIndices,
     ],
@@ -823,10 +850,25 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useIsoLayoutEffect(() => {
     if (items) {
-      valuesRef.current = flatFilteredItems;
+      if (virtualized) {
+        valuesRef.current = flatFilteredItems;
+        listRef.current.length = flatFilteredItems.length;
+        return;
+      }
+
+      // Mounted items register their own rendered value (preserving its exact shape).
+      // Fill any remaining slots in place with an inferred value so the registry stays
+      // complete without clobbering those writes.
+      const visibleMap = valuesRef.current;
+      visibleMap.length = flatFilteredItems.length;
+      for (let index = 0; index < flatFilteredItems.length; index += 1) {
+        if (visibleMap[index] === undefined) {
+          visibleMap[index] = inferItemValue(flatFilteredItems[index]);
+        }
+      }
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [items, flatFilteredItems]);
+  }, [items, virtualized, flatFilteredItems]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -876,7 +918,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const itemValue = candidateItems[storeActiveIndex];
+    const candidateItem = candidateItems[storeActiveIndex];
+    // Surface the rendered item value so highlight callbacks report the same shape used
+    // for selection. Non-virtualized lists can fall back to the inferred value for any
+    // slot not registered by a mounted item; virtualized lists keep the item shape.
+    let itemValue = candidateItem;
+    if (hasItems) {
+      itemValue = valuesRef.current[storeActiveIndex];
+      if (itemValue === undefined) {
+        itemValue = virtualized ? candidateItem : inferItemValue(candidateItem);
+      }
+    }
     const previouslyHighlightedItemValue = lastHighlightRef.current.value;
     const isSameItem =
       previouslyHighlightedItemValue !== NO_ACTIVE_VALUE &&
@@ -902,6 +954,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     inline,
     open,
     store,
+    virtualized,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -940,7 +993,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     validation.change(selectedValue);
 
     if (single && !hasInputValue && !inputInsidePopup) {
-      const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
+      const nextInputValue = selectedLabelString;
 
       if (inputValue !== nextInputValue) {
         setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
@@ -964,7 +1017,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
+    const nextInputValue = selectedLabelString;
 
     if (inputValue !== nextInputValue) {
       setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
@@ -1296,30 +1349,69 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
                 return;
               }
 
-              const matchingValue = valuesRef.current.find((v) => {
+              const candidates = items ? flatFilteredItems : valuesRef.current;
+              const matchingIndex = candidates.findIndex((candidate, index) => {
+                const renderedValue = valuesRef.current[index];
+
                 // Try matching by value first (e.g., "US" for country code)
-                const candidateValue = stringifyAsValue(v, itemToStringValue);
+                const candidateValue = stringifyAsValue(candidate, itemToStringValue);
                 if (candidateValue.toLowerCase() === nextValue.toLowerCase()) {
                   return true;
                 }
                 // Also try matching by label for browser autofill compatibility
                 // (browsers autofill with displayed text like "United States", not the underlying value)
-                const candidateLabel = stringifyAsLabel(v, itemToStringLabel);
+                const candidateLabel = stringifyAsLabel(candidate, itemToStringLabel);
                 if (candidateLabel.toLowerCase() === nextValue.toLowerCase()) {
                   return true;
                 }
+
+                if (renderedValue !== undefined && renderedValue !== candidate) {
+                  const renderedValueString = stringifyAsValue(renderedValue, itemToStringValue);
+                  if (renderedValueString.toLowerCase() === nextValue.toLowerCase()) {
+                    return true;
+                  }
+
+                  const renderedLabel = stringifyAsLabel(renderedValue, itemToStringLabel);
+                  if (renderedLabel.toLowerCase() === nextValue.toLowerCase()) {
+                    return true;
+                  }
+                }
+
                 return false;
               });
 
-              if (matchingValue != null) {
-                setDirty(matchingValue !== validityData.initialValue);
-                setSelectedValue?.(matchingValue, details);
-                validation.change(matchingValue);
+              if (matchingIndex !== -1) {
+                const candidate = candidates[matchingIndex];
+                const renderedValue = valuesRef.current[matchingIndex];
+                let matchingValue = renderedValue;
+                if (renderedValue === undefined && listRef.current[matchingIndex] == null) {
+                  matchingValue = virtualized ? candidate : inferItemValue(candidate);
+                }
+
+                if (matchingValue != null) {
+                  setDirty(matchingValue !== validityData.initialValue);
+                  setSelectedValue?.(matchingValue, details);
+                  validation.change(matchingValue);
+                }
               }
             }
 
             if (items) {
+              // Rendered item values can differ from the inferred `items` values, so
+              // render the hidden list synchronously to register them before matching.
+              // The portal node is inserted and removed within the same task, so it
+              // never paints.
+              if (!virtualized) {
+                ReactDOM.flushSync(() => {
+                  forceMount(true);
+                });
+              }
+
               handleChange();
+
+              if (!virtualized) {
+                store.set('forceMounted', false);
+              }
             } else {
               forceMount();
               queueMicrotask(handleChange);
@@ -1491,6 +1583,10 @@ interface ComboboxRootProps<ItemValue> {
   /**
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
+   * In non-virtualized lists, when items use the `{ value, label }` shape, a primitive
+   * `<Combobox.Item value>` resolves its text label from the matching item, and
+   * `<Combobox.Value>` and the input render the label instead of the raw value.
+   * Virtualized lists do not support this primitive value inference.
    */
   items?: readonly any[] | readonly Group<any>[] | undefined;
   /**
