@@ -15,15 +15,18 @@
       color: var(--gray-s1);
     }
 
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(code) {
       text-decoration-color: var(--color-blue);
     }
 
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(code):active {
       color: var(--color-background);
       background-color: var(--color-blue);
     }
 
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
     &:has(code):active * {
       color: var(--color-background) !important;
     }
