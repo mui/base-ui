@@ -69,7 +69,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
   });
 
   const { getButtonProps, buttonRef } = useButton({
-    disabled,
+    disabled: disabled || readOnly,
     native: nativeButton,
     focusableWhenDisabled: true,
   });

@@ -69,7 +69,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
   });
 
   const { getButtonProps, buttonRef } = useButton({
-    disabled,
+    disabled: disabled || readOnly,
     native: nativeButton,
     focusableWhenDisabled: true,
   });
