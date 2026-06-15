@@ -38,7 +38,9 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     const roundedValue = parseFloat(value.toPrecision(15));
     const cleanupDelta = Math.abs(roundedValue - value);
     // Cap the cleanup delta so `toPrecision(15)` cannot erase meaningful fractional values
-    // at large magnitudes, where the relative epsilon alone is too permissive.
+    // at large magnitudes, where the relative epsilon alone is too permissive. The trade-off is
+    // that above ~1e6 a single ULP can exceed the absolute cap, so genuine stepping noise is
+    // left uncleaned there (e.g. `1000000.1 + 0.1`) rather than risk corrupting real precision.
     const cleanupTolerance = Math.min(
       Number.EPSILON * Math.max(1, Math.abs(value)),
       MAX_FLOATING_POINT_CLEANUP_DELTA,
