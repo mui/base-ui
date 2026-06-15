@@ -157,7 +157,9 @@
     &:focus-visible {
       z-index: 1;
       outline: 2px solid var(--gray-t2);
-      outline-offset: -1px;
+      /* Fully inset (>= outline width) so the ring isn't clipped by the
+         scroll viewport's overflow where the pill bleeds to its edge */
+      outline-offset: -2px;
     }
   }
 
