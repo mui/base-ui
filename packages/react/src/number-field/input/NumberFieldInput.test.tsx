@@ -136,6 +136,36 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('0.2');
   });
 
+  it('advances by a smallStep finer than 3 fraction digits', async () => {
+    const onValueChange = vi.fn();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(0);
+      return (
+        <NumberField.Root
+          value={value}
+          smallStep={0.0001}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+        >
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
+    await render(<Controlled />);
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    fireEvent.keyDown(input, { key: 'ArrowUp', altKey: true });
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.0001);
+    expect(input).toHaveValue('0.0001');
+  });
+
   it('allows unicode plus/minus, permille and fullwidth digits on keydown when formatted as percent', async () => {
     await render(
       <NumberField.Root format={{ style: 'percent' }}>

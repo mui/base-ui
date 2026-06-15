@@ -415,6 +415,14 @@ describe('NumberField validate', () => {
       ).toBe(0.8);
     });
 
+    it('preserves large fractional values when stepping cleanup would be too coarse', () => {
+      const steppedValue = 100000000000000.1 + 0.1;
+
+      expect(
+        toValidatedNumber(steppedValue, { ...defaultOptions, step: 0.1, snapOnStep: false }),
+      ).toBe(steppedValue);
+    });
+
     describe('incrementing', () => {
       it('snaps 5 to 5 when step is 1', () => {
         expect(toValidatedNumber(5, defaultOptions)).toBe(5);

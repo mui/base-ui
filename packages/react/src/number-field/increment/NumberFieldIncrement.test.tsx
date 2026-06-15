@@ -125,6 +125,33 @@ describe('<NumberField.Increment />', () => {
     expect(onValueChange.mock.lastCall?.[0]).toBe(0.8);
   });
 
+  it('preserves large fractional values when stepping cleanup would be too coarse', async () => {
+    const onValueChange = vi.fn();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(100000000000000.1);
+      return (
+        <NumberField.Root
+          value={value}
+          step={0.1}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+        >
+          <NumberField.Input />
+          <NumberField.Increment />
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+
+    await user.click(screen.getByLabelText('Increase'));
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(100000000000000.1 + 0.1);
+  });
+
   it('only calls onValueChange once per increment', async () => {
     const handleValueChange = vi.fn();
     const { user } = await render(

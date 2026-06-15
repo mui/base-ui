@@ -2,7 +2,8 @@ import { clamp } from '../../internals/clamp';
 import { getFormatter } from '../../utils/formatNumber';
 import { parseNumber } from './parse';
 
-const STEP_EPSILON_FACTOR = 1e-10;
+const FLOATING_POINT_TOLERANCE = 1e-10;
+const FLOATING_POINT_CLEANUP_EPSILON_FACTOR = 4;
 
 // The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
 // Delete this once tsconfig.base.json includes es2023.
@@ -33,9 +34,20 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
 
   if (!hasNumberFormatRoundingOptions(format)) {
     // Clean binary floating-point noise (e.g. `0.1 + 0.2`) without discarding legitimate
-    // precision. Integers in the safe range are already exact, so returning them verbatim
-    // preserves values like `Number.MAX_SAFE_INTEGER` that `toPrecision(15)` would corrupt.
-    return Number.isInteger(value) ? value : parseFloat(value.toPrecision(15));
+    // precision. Integer Number values are already integral as stored, so returning them
+    // verbatim avoids corrupting large integer values that `toPrecision(15)` would change.
+    if (Number.isInteger(value)) {
+      return value;
+    }
+
+    const roundedValue = parseFloat(value.toPrecision(15));
+    const cleanupDelta = Math.abs(roundedValue - value);
+    const cleanupTolerance = Math.min(
+      Number.EPSILON * Math.max(1, Math.abs(value)) * FLOATING_POINT_CLEANUP_EPSILON_FACTOR,
+      FLOATING_POINT_TOLERANCE,
+    );
+
+    return cleanupDelta <= cleanupTolerance ? roundedValue : value;
   }
 
   const formatter = getFormatter('en-US', {
@@ -64,7 +76,7 @@ function snapToStep(
 ) {
   const stepSize = Math.abs(step);
   const direction = Math.sign(step);
-  const tolerance = stepSize * STEP_EPSILON_FACTOR * direction;
+  const tolerance = stepSize * FLOATING_POINT_TOLERANCE * direction;
   const rawSteps = value - base + tolerance;
 
   if (mode === 'nearest') {
