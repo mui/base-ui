@@ -449,6 +449,12 @@ Renders a `<div>` element.
 | data-starting-style | -    | Present when the drawer is animating in.                 |
 | data-ending-style   | -    | Present when the drawer is animating out.                |
 
+**Viewport CSS Variables:**
+
+| Variable                  | Type  | Description                                                                                                                |
+| :------------------------ | :---- | :------------------------------------------------------------------------------------------------------------------------- |
+| `--drawer-keyboard-inset` | `CSS` | The software keyboard inset measured from the bottom edge of the layout viewport, set by `Drawer.VirtualKeyboardProvider`. |
+
 ### Viewport.Props
 
 Re-export of [Viewport](#viewport) props.
@@ -615,6 +621,26 @@ type DrawerSwipeAreaState = {
 };
 ```
 
+### VirtualKeyboardProvider
+
+Provides keyboard-aware focus and scroll handling for bottom-sheet drawers with form fields.
+
+**VirtualKeyboardProvider Props:**
+
+| Prop     | Type              | Default | Description |
+| :------- | :---------------- | :------ | :---------- |
+| children | `React.ReactNode` | -       | -           |
+
+### VirtualKeyboardProvider.Props
+
+Re-export of [VirtualKeyboardProvider](#virtualkeyboardprovider) props.
+
+### VirtualKeyboardProvider.State
+
+```typescript
+type DrawerVirtualKeyboardProviderState = {};
+```
+
 ## External Types
 
 ### InteractionType
@@ -669,9 +695,10 @@ type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 - `Drawer.Title`: `Drawer.Title`, `Drawer.Title.Props`, `Drawer.Title.State`
 - `Drawer.Trigger`: `Drawer.Trigger`, `Drawer.Trigger.Props`, `Drawer.Trigger.State`
 - `Drawer.Viewport`: `Drawer.Viewport`, `Drawer.Viewport.Props`, `Drawer.Viewport.State`
+- `Drawer.VirtualKeyboardProvider`: `Drawer.VirtualKeyboardProvider`, `Drawer.VirtualKeyboardProvider.State`, `Drawer.VirtualKeyboardProvider.Props`
 - `Drawer.createHandle`
 - `Drawer.Handle`
-- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`
+- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
 
 ## Canonical Types
 
@@ -710,3 +737,5 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Drawer.Trigger.State`: `DrawerTriggerState`
 - `Drawer.Viewport.Props`: `DrawerViewportProps`
 - `Drawer.Viewport.State`: `DrawerViewportState`
+- `Drawer.VirtualKeyboardProvider.State`: `DrawerVirtualKeyboardProviderState`
+- `Drawer.VirtualKeyboardProvider.Props`: `DrawerVirtualKeyboardProviderProps`

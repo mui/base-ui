@@ -46,6 +46,8 @@ import { Drawer } from '@base-ui/react/drawer';
 
 Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer. Add `data-base-ui-swipe-ignore` to a descendant when you need to opt that element out of swipe dismissal for all input types.
 
+Use `<Drawer.VirtualKeyboardProvider>` when a bottom sheet contains form fields and you want Base UI to manage keyboard-aware focus and scroll handling for software keyboards. Drawers without this provider are unaffected.
+
 ## Examples
 
 ### State
@@ -137,6 +139,24 @@ import { DemoDrawerSnapPoints } from './demos/snap-points';
 <DemoDrawerSnapPoints />
 
 By default, the drawer can skip snap points when swiping quickly. Specify the `snapToSequentialPoints` prop to disable velocity-based skipping so the snap target is determined by drag distance (you can still drag past multiple points).
+
+### Virtual keyboard aware
+
+Wrap a bottom sheet in `<Drawer.VirtualKeyboardProvider>` to make it react to software keyboards when it contains form controls.
+
+Place header and footer content outside a plain scrollable body so the popup frame stays stable. When the keyboard opens, the provider scrolls the body to keep the focused field visible.
+
+If a footer contains its own input, reserve a footer slot below the scroll area and lift the pinned footer with `--drawer-keyboard-inset`. In the demo, the focused footer switches to `position: fixed` — positioned against the popup, since its `transform` contains fixed descendants — and adds the inset to its bottom padding.
+
+```tsx title="Virtual keyboard aware drawer"
+<Drawer.Root>
+  <Drawer.VirtualKeyboardProvider>{/* ... */}</Drawer.VirtualKeyboardProvider>
+</Drawer.Root>
+```
+
+import { DemoDrawerVirtualKeyboardAware } from './demos/virtual-keyboard-aware';
+
+<DemoDrawerVirtualKeyboardAware />
 
 ### Indent effect
 
