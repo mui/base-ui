@@ -285,6 +285,50 @@ describe('<NumberField.Input />', () => {
     expect(onValueCommitted.mock.calls.length).toBe(1);
   });
 
+  it('keeps dirty-input authority after a non-mutating key so the next keyboard step uses dirty text', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <NumberField.Root value={0} onValueChange={onValueChange}>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    // Dirty text the parent never mirrors back into `value` (still 0).
+    fireEvent.change(input, { target: { value: '1.5' } });
+
+    // A non-mutating navigation key must not mark the input as synced.
+    fireEvent.keyDown(input, { key: 'ArrowLeft' });
+
+    // ArrowUp must still step from the dirty text (1.5 -> 2.5), not the stale numeric state.
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    expect(onValueChange.mock.lastCall?.[0]).toBe(2.5);
+  });
+
+  it('keeps dirty-input authority after a non-mutating key so a button step uses dirty text', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <NumberField.Root value={0} onValueChange={onValueChange}>
+        <NumberField.Input />
+        <NumberField.Increment />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    fireEvent.change(input, { target: { value: '1.5' } });
+    fireEvent.keyDown(input, { key: 'ArrowLeft' });
+
+    // The button commits the dirty text before stepping, so it must step from 1.5, not 0.
+    fireEvent.click(screen.getByLabelText('Increase'));
+    expect(onValueChange.mock.lastCall?.[0]).toBe(2.5);
+  });
+
   it('allows unicode plus/minus, permille and fullwidth digits on keydown when formatted as percent', async () => {
     await render(
       <NumberField.Root format={{ style: 'percent' }}>

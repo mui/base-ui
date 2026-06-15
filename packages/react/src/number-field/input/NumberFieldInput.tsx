@@ -277,10 +277,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const nativeEvent = event.nativeEvent;
 
-      // Snapshot before resetting: the step logic below needs to know whether the visible text
-      // had unsaved manual edits, but the keydown re-syncs the input before we get there.
+      // Snapshot the dirty state without clearing it: navigation/allowed keys (ArrowLeft, Tab,
+      // Enter, Escape, …) return early without changing the value, so marking the input synced
+      // here would wrongly discard dirty-input authority. Only the value-changing branches below
+      // mark it synced.
       const hadManualInput = !allowInputSyncRef.current;
-      allowInputSyncRef.current = true;
 
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
 
@@ -369,8 +370,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Step from the authoritative numeric value unless the input has unsaved manual edits.
       // When the text is already synced, parsing the rounded display would collapse precision,
       // so pass no `currentValue` and let `incrementValue` fall back to the numeric state
-      // (mirrors the button path). Read `hadManualInput` rather than `allowInputSyncRef`, which
-      // was reset to `true` at the top of this handler.
+      // (mirrors the button path).
       const currentValue = hadManualInput
         ? parseNumber(inputValue, locale, formatOptionsRef.current)
         : null;
@@ -383,6 +383,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const commitDetails = createGenericEventDetails(REASONS.keyboard, nativeEvent);
 
       if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        allowInputSyncRef.current = true;
+
         // When stepping from the synced numeric state, refresh the commit ref to the current
         // value so a canceled step can't commit a stale `lastChangedValueRef` left over from an
         // earlier change (mirrors the button path).
@@ -403,9 +405,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           onValueCommitted(committed, commitDetails);
         }
       } else if (event.key === 'Home' && min != null) {
+        allowInputSyncRef.current = true;
         setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
         onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       } else if (event.key === 'End' && max != null) {
+        allowInputSyncRef.current = true;
         setValue(max, createChangeEventDetails(REASONS.keyboard, nativeEvent));
         onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       }
