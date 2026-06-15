@@ -216,9 +216,11 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
 
     // Listen to the event on the capture phase so they run before the focus
     // trap elements onFocus prop is called.
+    // Guard with `portalNode &&` to defend against concurrent React renders
+    // where the effect fires before the ref is attached (issue #4739).
     return mergeCleanups(
-      addEventListener(portalNode, 'focusin', onFocus, true),
-      addEventListener(portalNode, 'focusout', onFocus, true),
+      portalNode && addEventListener(portalNode, 'focusin', onFocus, true),
+      portalNode && addEventListener(portalNode, 'focusout', onFocus, true),
     );
   }, [portalNode, modal]);
 
