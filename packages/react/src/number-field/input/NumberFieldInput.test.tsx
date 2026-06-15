@@ -219,6 +219,72 @@ describe('<NumberField.Input />', () => {
     expect(onValueChange.mock.lastCall?.[0]).toBe(2.23456);
   });
 
+  it('steps keyboard from dirty input text when the controlled value lags onValueChange', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <NumberField.Root value={0} onValueChange={onValueChange}>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    // The parent intentionally never mirrors `onValueChange` back into `value`, so the numeric
+    // state stays 0 while the visible text is dirty.
+    fireEvent.change(input, { target: { value: '1.5' } });
+    expect(onValueChange.mock.lastCall?.[0]).toBe(1.5);
+
+    // ArrowUp must step from the dirty text (1.5 -> 2.5), not the stale numeric state (0 -> 1).
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    expect(onValueChange.mock.lastCall?.[0]).toBe(2.5);
+  });
+
+  it('does not commit a stale value when a synced keyboard step is canceled after an external change', async () => {
+    const onValueCommitted = vi.fn();
+    let cancelNextChange = false;
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(0);
+      return (
+        <NumberField.Root
+          value={value}
+          onValueChange={(val, details) => {
+            if (cancelNextChange) {
+              details.cancel();
+              return;
+            }
+            setValue(val);
+          }}
+          onValueCommitted={onValueCommitted}
+        >
+          <NumberField.Input />
+          <button onClick={() => setValue(10)}>external</button>
+        </NumberField.Root>
+      );
+    }
+
+    await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    // A prior committed keyboard step populates the internal `lastChangedValueRef` (1).
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+    expect(onValueCommitted.mock.calls.length).toBe(1);
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(1);
+
+    // The controlled value changes externally to 10.
+    fireEvent.click(screen.getByText('external'));
+
+    // Canceling the next keyboard step must not commit the stale earlier value (1): the synced
+    // path now refreshes the commit ref to the current value before stepping.
+    cancelNextChange = true;
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+    expect(onValueCommitted.mock.calls.length).toBe(1);
+  });
+
   it('allows unicode plus/minus, permille and fullwidth digits on keydown when formatted as percent', async () => {
     await render(
       <NumberField.Root format={{ style: 'percent' }}>

@@ -277,6 +277,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const nativeEvent = event.nativeEvent;
 
+      // Snapshot before resetting: the step logic below needs to know whether the visible text
+      // had unsaved manual edits, but the keydown re-syncs the input before we get there.
+      const hadManualInput = !allowInputSyncRef.current;
       allowInputSyncRef.current = true;
 
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
@@ -366,10 +369,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Step from the authoritative numeric value unless the input has unsaved manual edits.
       // When the text is already synced, parsing the rounded display would collapse precision,
       // so pass no `currentValue` and let `incrementValue` fall back to the numeric state
-      // (mirrors the button path).
-      const currentValue = allowInputSyncRef.current
-        ? null
-        : parseNumber(inputValue, locale, formatOptionsRef.current);
+      // (mirrors the button path). Read `hadManualInput` rather than `allowInputSyncRef`, which
+      // was reset to `true` at the top of this handler.
+      const currentValue = hadManualInput
+        ? parseNumber(inputValue, locale, formatOptionsRef.current)
+        : null;
 
       const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
@@ -378,22 +382,26 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const commitDetails = createGenericEventDetails(REASONS.keyboard, nativeEvent);
 
-      if (event.key === 'ArrowUp') {
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        // When stepping from the synced numeric state, refresh the commit ref to the current
+        // value so a canceled step can't commit a stale `lastChangedValueRef` left over from an
+        // earlier change (mirrors the button path).
+        if (!hadManualInput) {
+          lastChangedValueRef.current = valueRef.current;
+        }
+
+        const prev = valueRef.current;
         incrementValue(amount, {
-          direction: 1,
+          direction: event.key === 'ArrowUp' ? 1 : -1,
           currentValue,
           event: nativeEvent,
           reason: REASONS.keyboard,
         });
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
-      } else if (event.key === 'ArrowDown') {
-        incrementValue(amount, {
-          direction: -1,
-          currentValue,
-          event: nativeEvent,
-          reason: REASONS.keyboard,
-        });
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
+
+        const committed = lastChangedValueRef.current ?? valueRef.current;
+        if (committed !== prev) {
+          onValueCommitted(committed, commitDetails);
+        }
       } else if (event.key === 'Home' && min != null) {
         setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
         onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);

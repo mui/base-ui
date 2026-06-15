@@ -34,7 +34,10 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
 
   if (!hasNumberFormatRoundingOptions(format)) {
     // Clean binary floating-point noise (e.g. `0.1 + 0.2`) without discarding legitimate
-    // precision.
+    // precision. The cleanup is delta-bounded, so it cannot tell noise apart from real digits
+    // that fall within the same epsilon: arithmetic that produces sub-epsilon precision (e.g.
+    // accumulating a high-significance `step` past the first tick) is normalized to ~15
+    // significant digits.
     const roundedValue = parseFloat(value.toPrecision(15));
     const cleanupDelta = Math.abs(roundedValue - value);
     // Cap the cleanup delta so `toPrecision(15)` cannot erase meaningful fractional values
