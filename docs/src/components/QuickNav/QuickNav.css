@@ -74,7 +74,7 @@
     /* Click target width */
     width: var(--quick-nav-scrollbar-width);
 
-    /* opacity: 0; */
+    opacity: 0;
     transition: opacity 200ms 500ms;
 
     &:active,
