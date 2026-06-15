@@ -178,9 +178,19 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Avoid applying Intl's default precision unless the format opts into rounding.
       const hasRoundingOptions = hasNumberFormatRoundingOptions(formatOptions);
 
-      const committed = hasRoundingOptions
-        ? removeFloatingPointErrors(parsedValue, formatOptions)
-        : parsedValue;
+      let committed: number | null;
+      if (!hadManualInput && !hasRoundingOptions) {
+        // No rounding options and no manual edit: the visible text is purely formatted
+        // display, so keep the authoritative numeric value as-is rather than re-parsing the
+        // rounded text and discarding precision (e.g. focus/blur with no edits, or blur after
+        // a programmatic change).
+        committed = value;
+      } else if (hasRoundingOptions) {
+        // Explicit rounding options apply to the committed value, whether typed or external.
+        committed = removeFloatingPointErrors(parsedValue, formatOptions);
+      } else {
+        committed = parsedValue;
+      }
 
       const nextEventDetails = createGenericEventDetails(REASONS.inputBlur, event.nativeEvent);
       const shouldUpdateValue = value !== committed;

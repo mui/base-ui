@@ -355,9 +355,10 @@ describe('<NumberField.Input />', () => {
       input.blur();
     });
 
+    // A focus/blur with no edits must not re-parse the rounded display text and overwrite the
+    // numeric value: the display is purely visual formatting.
     expect(input).toHaveValue((1.23456).toLocaleString());
-    expect(onValueChange.mock.calls.length).toBe(1);
-    expect(onValueChange.mock.lastCall?.[0]).toBe(1.235);
+    expect(onValueChange.mock.calls.length).toBe(0);
   });
 
   it('should update input value after increment/decrement followed by external value change', async () => {
@@ -531,16 +532,17 @@ describe('<NumberField.Input />', () => {
     });
 
     expect(input).toHaveValue((1.23456789).toLocaleString());
-    expect(onValueChange.mock.calls.length).toBe(1);
+    expect(onValueChange.mock.calls.length).toBe(0);
 
     await act(async () => {
       input.focus();
       input.blur();
     });
 
+    // Repeated no-edit blur cycles keep the full-precision numeric value; only the display
+    // stays formatted to the Intl default.
     expect(input).toHaveValue((1.23456789).toLocaleString());
-    expect(onValueChange.mock.calls.length).toBe(2);
-    expect(onValueChange.mock.lastCall?.[0]).toBe(1.235);
+    expect(onValueChange.mock.calls.length).toBe(0);
   });
 
   it('should handle edge case where parsed value equals current value but input differs', async () => {
@@ -1087,8 +1089,8 @@ describe('<NumberField.Input />', () => {
       input.focus();
     });
 
-    // 16 significant digits: round-trips exactly through a double, so every typed digit
-    // must survive. Parsed input carries no arithmetic noise that would need cleaning.
+    // Parsed input gets no rounding or cleanup beyond standard JS number parsing, so every
+    // digit the resulting `number` can represent is preserved (here all 16 typed digits).
     await user.keyboard('1.234567890123456');
     expect(input).toHaveValue('1.234567890123456');
     expect(onValueChange.mock.lastCall?.[0]).toBe(1.234567890123456);
@@ -1097,6 +1099,54 @@ describe('<NumberField.Input />', () => {
 
     expect(onValueCommitted.mock.lastCall?.[0]).toBe(1.234567890123456);
     expect(input).toHaveValue((1.234567890123456).toLocaleString());
+  });
+
+  it('keeps full numeric precision across no-edit focus/blur cycles and subsequent stepping', async () => {
+    const onValueChange = vi.fn();
+    const onValueCommitted = vi.fn();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(null);
+      return (
+        <NumberField.Root
+          value={value}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+          onValueCommitted={onValueCommitted}
+        >
+          <NumberField.Input />
+          <NumberField.Increment />
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      input.focus();
+    });
+    await user.keyboard('1.23456');
+    fireEvent.blur(input);
+
+    // Display rounds to the Intl default; the committed numeric value keeps full precision.
+    expect(input).toHaveValue((1.23456).toLocaleString());
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(1.23456);
+
+    // Re-focusing and blurring without edits must not re-parse the rounded display text and
+    // collapse the stored value, so no new commit fires.
+    await act(async () => {
+      input.focus();
+      input.blur();
+    });
+    expect(onValueCommitted.mock.calls.length).toBe(1);
+
+    // Stepping advances from the full-precision numeric value (2.23456), not the rounded
+    // display, which would have yielded 2.235.
+    await user.click(screen.getByLabelText('Increase'));
+    expect(onValueChange.mock.lastCall?.[0]).toBe(2.23456);
   });
 
   it('commits parsed value on blur and normalizes display for fr-FR', async () => {
