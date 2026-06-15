@@ -157,7 +157,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   const localInteractionProps = click.reference ?? EMPTY_OBJECT;
 
   const rootTriggerProps = store.useState('triggerProps', true);
-  delete rootTriggerProps.id;
 
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
 

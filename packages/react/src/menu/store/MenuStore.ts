@@ -129,16 +129,24 @@ export class MenuStore<Payload> extends ReactStore<
       selectors,
     );
 
+    // This menu's own mouse-up gate, used when it has no parent to borrow from.
+    const ownAllowMouseUpTriggerRef = this.context.allowMouseUpTriggerRef;
+
     // Set up propagation of state from parent menu if applicable.
-    this.unsubscribeParentListener = this.observe('parent', (parent) => {
-      this.unsubscribeParentListener?.();
+    // `observe` fires the listener synchronously here and again on every `parent` change, so the
+    // observer's own unsubscriber and the per-parent store subscription must live in separate
+    // fields — otherwise the synchronous first call clobbers one with the other and the first
+    // parent change tears down the observer itself.
+    this.observe('parent', (parent) => {
+      this.unsubscribeParentStore?.();
+      this.unsubscribeParentStore = null;
 
       if (parent.type === 'menu') {
         let rootId = parent.store.select('rootId');
         let floatingTreeRoot = parent.store.select('floatingTreeRoot');
         let keyboardEventRelay = parent.store.select('keyboardEventRelay');
 
-        this.unsubscribeParentListener = parent.store.subscribe(() => {
+        this.unsubscribeParentStore = parent.store.subscribe(() => {
           const nextRootId = parent.store.select('rootId');
           const nextFloatingTreeRoot = parent.store.select('floatingTreeRoot');
           const nextKeyboardEventRelay = parent.store.select('keyboardEventRelay');
@@ -163,9 +171,11 @@ export class MenuStore<Payload> extends ReactStore<
 
       if (parent.type !== undefined) {
         this.context.allowMouseUpTriggerRef = parent.context.allowMouseUpTriggerRef;
+        return;
       }
 
-      this.unsubscribeParentListener = null;
+      // Back at the root: stop borrowing a parent's ref so mouse-up state stays isolated.
+      this.context.allowMouseUpTriggerRef = ownAllowMouseUpTriggerRef;
     });
   }
 
@@ -185,7 +195,7 @@ export class MenuStore<Payload> extends ReactStore<
     return externalStore ?? internalStore;
   }
 
-  private unsubscribeParentListener: (() => void) | null = null;
+  private unsubscribeParentStore: (() => void) | null = null;
 }
 
 function createInitialState<Payload>(): State<Payload> {
