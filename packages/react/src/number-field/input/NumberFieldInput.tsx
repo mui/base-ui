@@ -30,7 +30,7 @@ import {
   createChangeEventDetails,
   createGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
-import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
+import { formatNumber } from '../../utils/formatNumber';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { REASONS } from '../../internals/reasons';
 import { hasNumberFormatRoundingOptions, removeFloatingPointErrors } from '../utils/validate';
@@ -178,9 +178,19 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Avoid applying Intl's default precision unless the format opts into rounding.
       const hasRoundingOptions = hasNumberFormatRoundingOptions(formatOptions);
 
-      const committed = hasRoundingOptions
-        ? removeFloatingPointErrors(parsedValue, formatOptions)
-        : parsedValue;
+      let committed: number | null;
+      if (!hadManualInput && !hasRoundingOptions) {
+        // No rounding options and no manual edit: the visible text is purely formatted
+        // display, so keep the authoritative numeric value as-is rather than re-parsing the
+        // rounded text and discarding precision (e.g. focus/blur with no edits, or blur after
+        // a programmatic change).
+        committed = value;
+      } else if (hasRoundingOptions) {
+        // Explicit rounding options apply to the committed value, whether typed or external.
+        committed = removeFloatingPointErrors(parsedValue, formatOptions);
+      } else {
+        committed = parsedValue;
+      }
 
       const nextEventDetails = createGenericEventDetails(REASONS.inputBlur, event.nativeEvent);
       const shouldUpdateValue = value !== committed;
@@ -207,12 +217,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       // Normalize only the displayed text
       const canonicalText = formatNumber(committedValue, locale, formatOptions);
-      const shouldPreserveFullPrecision =
-        !hasRoundingOptions &&
-        parsedValue === value &&
-        inputValue === formatNumberMaxPrecision(parsedValue, locale, formatOptions);
-
-      if (!shouldPreserveFullPrecision && inputValue !== canonicalText) {
+      if (inputValue !== canonicalText) {
         setInputValue(canonicalText);
       }
     },
@@ -272,7 +277,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const nativeEvent = event.nativeEvent;
 
-      allowInputSyncRef.current = true;
+      // Snapshot the dirty state without clearing it: navigation/allowed keys (ArrowLeft, Tab,
+      // Enter, Escape, …) return early without changing the value, so marking the input synced
+      // here would wrongly discard dirty-input authority. Only the value-changing branches below
+      // mark it synced.
+      const hadManualInput = !allowInputSyncRef.current;
 
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
 
@@ -358,8 +367,13 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      // We need to commit the number at this point if the input hasn't been blurred.
-      const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
+      // Step from the authoritative numeric value unless the input has unsaved manual edits.
+      // When the text is already synced, parsing the rounded display would collapse precision,
+      // so pass no `currentValue` and let `incrementValue` fall back to the numeric state
+      // (mirrors the button path).
+      const currentValue = hadManualInput
+        ? parseNumber(inputValue, locale, formatOptionsRef.current)
+        : null;
 
       const amount = getStepAmount(event) ?? DEFAULT_STEP;
 
@@ -368,26 +382,34 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const commitDetails = createGenericEventDetails(REASONS.keyboard, nativeEvent);
 
-      if (event.key === 'ArrowUp') {
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        allowInputSyncRef.current = true;
+
+        // When stepping from the synced numeric state, refresh the commit ref to the current
+        // value so a canceled step can't commit a stale `lastChangedValueRef` left over from an
+        // earlier change (mirrors the button path).
+        if (!hadManualInput) {
+          lastChangedValueRef.current = valueRef.current;
+        }
+
+        const prev = valueRef.current;
         incrementValue(amount, {
-          direction: 1,
-          currentValue: parsedValue,
+          direction: event.key === 'ArrowUp' ? 1 : -1,
+          currentValue,
           event: nativeEvent,
           reason: REASONS.keyboard,
         });
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
-      } else if (event.key === 'ArrowDown') {
-        incrementValue(amount, {
-          direction: -1,
-          currentValue: parsedValue,
-          event: nativeEvent,
-          reason: REASONS.keyboard,
-        });
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
+
+        const committed = lastChangedValueRef.current ?? valueRef.current;
+        if (committed !== prev) {
+          onValueCommitted(committed, commitDetails);
+        }
       } else if (event.key === 'Home' && min != null) {
+        allowInputSyncRef.current = true;
         setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
         onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       } else if (event.key === 'End' && max != null) {
+        allowInputSyncRef.current = true;
         setValue(max, createChangeEventDetails(REASONS.keyboard, nativeEvent));
         onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       }

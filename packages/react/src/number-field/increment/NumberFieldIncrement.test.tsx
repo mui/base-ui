@@ -69,10 +69,178 @@ describe('<NumberField.Increment />', () => {
     const increase = screen.getByLabelText('Increase');
 
     await user.click(screen.getByText('external'));
-    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+    expect(input).toHaveValue((1.23456).toLocaleString());
 
     await user.click(increase);
-    expect(input).toHaveValue((2.235).toLocaleString(undefined, { minimumFractionDigits: 3 }));
+    expect(input).toHaveValue((2.23456).toLocaleString());
+  });
+
+  it('increments uncontrolled defaultValue from numeric state, not rounded display text', async () => {
+    const onValueChange = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root defaultValue={1.23456} onValueChange={onValueChange}>
+        <NumberField.Input />
+        <NumberField.Increment />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    expect(input).toHaveValue((1.23456).toLocaleString());
+
+    await user.click(screen.getByLabelText('Increase'));
+
+    expect(onValueChange.mock.calls.map((call) => call[0])).toEqual([2.23456]);
+    expect(input).toHaveValue((2.23456).toLocaleString());
+  });
+
+  it('increments from numeric state after typed precision is formatted on blur', async () => {
+    const onValueChange = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root onValueChange={onValueChange}>
+        <NumberField.Input />
+        <NumberField.Increment />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    const increase = screen.getByLabelText('Increase');
+
+    await user.click(input);
+    await user.keyboard('1.23456');
+    fireEvent.blur(input);
+
+    expect(input).toHaveValue((1.23456).toLocaleString());
+
+    await user.click(increase);
+    expect(input).toHaveValue((2.23456).toLocaleString());
+
+    await user.click(increase);
+    expect(onValueChange.mock.lastCall?.[0]).toBe(3.23456);
+    expect(input).toHaveValue((3.23456).toLocaleString());
+  });
+
+  it('advances by a step finer than 3 fraction digits', async () => {
+    const onValueChange = vi.fn();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(0);
+      return (
+        <NumberField.Root
+          value={value}
+          step={0.0001}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+        >
+          <NumberField.Input />
+          <NumberField.Increment />
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+    const input = screen.getByRole('textbox');
+    const increase = screen.getByLabelText('Increase');
+
+    // A step smaller than the old 3-digit default used to round back to 0, making this a no-op.
+    await user.click(increase);
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.0001);
+    expect(input).toHaveValue('0');
+
+    await user.click(increase);
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.0002);
+    expect(input).toHaveValue('0');
+  });
+
+  it('cleans binary floating point noise introduced by stepping', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <NumberField.Root defaultValue={0.7} step={0.1} onValueChange={onValueChange}>
+        <NumberField.Input />
+        <NumberField.Increment />
+      </NumberField.Root>,
+    );
+
+    fireEvent.click(screen.getByLabelText('Increase'));
+
+    // 0.7 + 0.1 === 0.7999999999999999 in binary floating point.
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.8);
+  });
+
+  it('preserves large fractional values when stepping cleanup would be too coarse', async () => {
+    const onValueChange = vi.fn();
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(100000000000000.1);
+      return (
+        <NumberField.Root
+          value={value}
+          step={0.1}
+          onValueChange={(val) => {
+            onValueChange(val);
+            setValue(val);
+          }}
+        >
+          <NumberField.Input />
+          <NumberField.Increment />
+        </NumberField.Root>
+      );
+    }
+
+    const { user } = await render(<Controlled />);
+
+    await user.click(screen.getByLabelText('Increase'));
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(100000000000000.1 + 0.1);
+  });
+
+  it('does not commit a stale value when a synced increment is canceled after an external change', async () => {
+    const onValueCommitted = vi.fn();
+    let cancelNextChange = false;
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(0);
+      return (
+        <NumberField.Root
+          value={value}
+          onValueChange={(val, details) => {
+            if (cancelNextChange) {
+              details.cancel();
+              return;
+            }
+            setValue(val);
+          }}
+          onValueCommitted={onValueCommitted}
+        >
+          <NumberField.Input />
+          <NumberField.Increment />
+          <button onClick={() => setValue(10)}>external</button>
+        </NumberField.Root>
+      );
+    }
+
+    await render(<Controlled />);
+    const increase = screen.getByLabelText('Increase');
+
+    // A prior committed increment populates the internal `lastChangedValueRef` (1).
+    fireEvent.click(increase);
+    expect(onValueCommitted.mock.calls.length).toBe(1);
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(1);
+
+    // The controlled value changes externally to 10.
+    fireEvent.click(screen.getByText('external'));
+
+    // Canceling the next increment must not commit the stale earlier value (1): the synced
+    // path now refreshes the commit ref to the current value before stepping.
+    cancelNextChange = true;
+    fireEvent.click(increase);
+
+    expect(onValueCommitted.mock.calls.length).toBe(1);
   });
 
   it('only calls onValueChange once per increment', async () => {

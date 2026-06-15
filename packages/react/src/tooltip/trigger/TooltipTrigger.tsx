@@ -318,7 +318,7 @@ export interface TooltipTrigger {
 
 export interface TooltipTriggerState {
   /**
-   * Whether the tooltip is currently open.
+   * Whether the tooltip is currently open and was opened by this trigger.
    */
   open: boolean;
 }
