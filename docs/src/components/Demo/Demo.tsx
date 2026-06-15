@@ -29,15 +29,9 @@ import './Demo.css';
 export type DemoProps = ContentProps<{
   compact?: boolean;
   className?: string;
-  showExtraPlaygroundLink?: boolean;
 }>;
 
-export function Demo({
-  compact = false,
-  showExtraPlaygroundLink = false,
-  className,
-  ...demoProps
-}: DemoProps) {
+export function Demo({ compact = false, className, ...demoProps }: DemoProps) {
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
   const sourceLinkCopyResetTimeout = useTimeout();
@@ -160,11 +154,7 @@ export function Demo({
         <span key={slug} id={slug} className="bui-scroll-mt-4" />
       ))}
       <div onPointerDown={onPlaygroundInteraction} onKeyDownCapture={onPlaygroundInteraction}>
-        <DemoPlayground component={demo.component} variant={demo.selectedVariant}>
-          {showExtraPlaygroundLink && (
-            <span className="DemoPlaygroundExternalLink">{externalPlaygroundLink}</span>
-          )}
-        </DemoPlayground>
+        <DemoPlayground component={demo.component} variant={demo.selectedVariant} />
       </div>
       <Collapsible.Root
         className="DemoCollapsibleRoot"
