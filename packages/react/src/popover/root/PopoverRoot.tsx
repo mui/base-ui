@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useDismiss, FloatingTree, useFloatingParentNodeId } from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore } from '../store/PopoverStore';
@@ -14,6 +13,7 @@ import { REASONS } from '../../internals/reasons';
 import {
   FOCUSABLE_POPUP_PROPS,
   useImplicitActiveTrigger,
+  useInitialOpenSync,
   useOpenStateTransitions,
   usePopupInteractionProps,
   usePopupRootSync,
@@ -42,15 +42,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     triggerIdProp,
   });
 
-  // Support initially open state when uncontrolled
-  useOnFirstRender(() => {
-    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
-      store.update({
-        open: true,
-        activeTriggerId: defaultTriggerIdProp,
-      });
-    }
-  });
+  useInitialOpenSync(store, openProp, defaultOpen, defaultTriggerIdProp);
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -151,9 +143,8 @@ export interface PopoverRootProps<Payload = unknown> {
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the popover will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the popover manually.
-   * Useful when the popover's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the popover.
+   * Call this after any externally controlled closing animation finishes.
    * - `close`: Closes the popover imperatively when called.
    */
   actionsRef?: React.RefObject<PopoverRoot.Actions | null> | undefined;

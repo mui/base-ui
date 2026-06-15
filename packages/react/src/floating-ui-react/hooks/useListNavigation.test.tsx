@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM, useTestInteractions } from '#test-utils';
 import { useClick, useDismiss, useFloating, useListNavigation } from '../index';
+import { gridNavigation } from './gridNavigation';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
 import { Main as Grid } from '../../../test/floating-ui-tests/Grid';
@@ -119,9 +120,9 @@ function VirtualizedGridRows({
       onNavigate: setActiveIndex,
       virtual: true,
       loopFocus,
-      cols: 2,
       orientation: 'horizontal',
       disabledIndices,
+      grid: gridNavigation,
     }),
   ]);
 
@@ -1160,7 +1161,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('grid navigation when items have different sizes', () => {
+  describe('grid navigation in a multi-column grid with disabled items', () => {
     it('focuses first non-disabled item in grid', async () => {
       render(<ComplexGrid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });

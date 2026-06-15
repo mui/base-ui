@@ -12,16 +12,12 @@ import { useFloatingParentNodeId, useFloatingTree } from '../components/Floating
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import {
-  createGridCellMap,
   findNonDisabledListIndex,
-  getGridCellIndexOfCorner,
-  getGridCellIndices,
-  getGridNavigatedIndex,
   getMaxListIndex,
   getMinListIndex,
   isIndexOutOfListBounds,
-  isListIndexDisabled,
 } from '../utils/composite';
+import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
 import {
   activeElement,
@@ -82,11 +78,11 @@ function isCrossOrientationCloseKey(
   key: string,
   orientation: UseListNavigationProps['orientation'],
   rtl: boolean,
-  cols?: number,
+  grid: boolean,
 ) {
   const vertical = rtl ? key === ARROW_RIGHT : key === ARROW_LEFT;
   const horizontal = key === ARROW_UP;
-  if (orientation === 'both' || (orientation === 'horizontal' && cols && cols > 1)) {
+  if (orientation === 'both' || (orientation === 'horizontal' && grid)) {
     return key === ESCAPE;
   }
   return doSwitch(orientation, vertical, horizontal);
@@ -200,15 +196,6 @@ export interface UseListNavigationProps {
    */
   orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
   /**
-   * Specifies how many columns the list has (i.e., it's a grid). Use an
-   * orientation of 'horizontal' (e.g. for an emoji picker/date picker, where
-   * pressing ArrowRight or ArrowLeft can change rows), or 'both' (where the
-   * current row cannot be escaped with ArrowRight or ArrowLeft, only ArrowUp
-   * and ArrowDown).
-   * @default 1
-   */
-  cols?: number | undefined;
-  /**
    * The id of the root component.
    */
   id?: string | undefined;
@@ -221,6 +208,10 @@ export interface UseListNavigationProps {
    * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
+  /**
+   * Computes two-dimensional list navigation for grid-capable consumers.
+   */
+  grid?: typeof gridNavigation | null | undefined;
 }
 
 /**
@@ -249,11 +240,12 @@ export function useListNavigation(
     disabledIndices = undefined,
     orientation = 'vertical',
     parentOrientation,
-    cols = 1,
     id,
     resetOnPointerLeave = true,
     externalTree,
+    grid: navigateGrid,
   } = props;
+  const isGrid = navigateGrid != null;
 
   if (process.env.NODE_ENV !== 'production') {
     if (allowEscape) {
@@ -266,9 +258,9 @@ export function useListNavigation(
       }
     }
 
-    if (orientation === 'vertical' && cols > 1) {
+    if (orientation === 'vertical' && isGrid) {
       console.warn(
-        'In grid list navigation mode (`cols` > 1), the `orientation` should',
+        'In grid list navigation mode, the `orientation` should',
         'be either "horizontal" or "both".',
       );
     }
@@ -298,7 +290,6 @@ export function useListNavigation(
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
-  const previousOnNavigateRef = React.useRef(onNavigate);
   const previousMountedRef = React.useRef(!!floatingElement);
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
@@ -379,11 +370,11 @@ export function useListNavigation(
         onNavigate();
       }
     } else if (previousMountedRef.current) {
-      // Since the user can specify `onNavigate` conditionally
-      // (onNavigate: open ? setActiveIndex : setSelectedIndex),
-      // we store and call the previous function.
+      // Reset the active index when the list is no longer open and mounted (closing or
+      // unmounting). `onNavigate` is a stable callback that always forwards to the latest
+      // `onNavigate` prop.
       indexRef.current = -1;
-      previousOnNavigateRef.current();
+      onNavigate();
     }
   }, [enabled, open, floatingElement, selectedIndex, onNavigate]);
 
@@ -434,7 +425,10 @@ export function useListNavigation(
             }
             runs += 1;
           } else {
-            // initially focus the first non-disabled item
+            // Initially focus the first non-disabled item. `disabledIndices` is deliberately
+            // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
+            // on open even when the consumer passes an empty `disabledIndices` array. Passing it
+            // would regress that behavior (see mui/base-ui#2604).
             indexRef.current =
               keyRef.current == null ||
               isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
@@ -477,7 +471,10 @@ export function useListNavigation(
 
     const nodes = tree.nodesRef.current;
     const parent = nodes.find((node) => node.id === parentId)?.context?.elements.floating;
-    const activeEl = activeElement(ownerDocument(floatingElement));
+    // `floatingElement` is null here (see the guard above), so resolve the owner document from an
+    // in-DOM element for realm-safety (shadow DOM/iframes): the reference element, falling back to
+    // the parent floating element when the reference is virtual (`domReferenceElement` is null).
+    const activeEl = activeElement(ownerDocument(domReferenceElement ?? parent ?? null));
     const treeContainsActiveEl = nodes.some(
       (node) => node.context && contains(node.context.elements.floating, activeEl),
     );
@@ -485,10 +482,9 @@ export function useListNavigation(
     if (parent && !treeContainsActiveEl && isPointerModalityRef.current) {
       parent.focus({ preventScroll: true });
     }
-  }, [enabled, floatingElement, tree, parentId, virtual]);
+  }, [enabled, floatingElement, domReferenceElement, tree, parentId, virtual]);
 
   useIsoLayoutEffect(() => {
-    previousOnNavigateRef.current = onNavigate;
     previousOpenRef.current = open;
     previousMountedRef.current = !!floatingElement;
   });
@@ -545,7 +541,7 @@ export function useListNavigation(
       return;
     }
 
-    if (nested && isCrossOrientationCloseKey(event.key, orientation, rtl, cols)) {
+    if (nested && isCrossOrientationCloseKey(event.key, orientation, rtl, isGrid)) {
       // If the nested list's close key is also the parent navigation key,
       // let the parent navigate. Otherwise, stop propagating the event.
       if (!isMainOrientationKey(event.key, getParentOrientation())) {
@@ -583,72 +579,20 @@ export function useListNavigation(
       }
     }
 
-    // Grid navigation.
-    if (cols > 1) {
-      const sizes = Array.from({ length: listRef.current.length }, () => ({
-        width: 1,
-        height: 1,
-      }));
-      // To calculate movements on the grid, we use hypothetical cell indices
-      // as if every item was 1x1, then convert back to real indices.
-      const cellMap = createGridCellMap(sizes, cols, false);
-      const minGridIndex = cellMap.findIndex(
-        (index) => index != null && !isListIndexDisabled(listRef.current, index, disabledIndices),
+    // Grid navigation is injected by grid-capable consumers so non-grid
+    // consumers (menu, select) tree-shake the grid helpers out.
+    if (navigateGrid != null) {
+      const index = navigateGrid(
+        event,
+        indexRef.current,
+        listRef,
+        orientation,
+        loopFocus,
+        rtl,
+        disabledIndices,
+        minIndex,
+        maxIndex,
       );
-      // last enabled index
-      const maxGridIndex = cellMap.reduce(
-        (foundIndex: number, index, cellIndex) =>
-          index != null && !isListIndexDisabled(listRef.current, index, disabledIndices)
-            ? cellIndex
-            : foundIndex,
-        -1,
-      );
-
-      const index =
-        cellMap[
-          getGridNavigatedIndex(
-            cellMap.map((itemIndex) => (itemIndex != null ? listRef.current[itemIndex] : null)),
-            {
-              event,
-              orientation,
-              loopFocus,
-              rtl,
-              cols,
-              // treat undefined (empty grid spaces) as disabled indices so we
-              // don't end up in them
-              disabledIndices: getGridCellIndices(
-                [
-                  ...((typeof disabledIndices !== 'function' ? disabledIndices : null) ||
-                    listRef.current.map((_, listIndex) =>
-                      isListIndexDisabled(listRef.current, listIndex, disabledIndices)
-                        ? listIndex
-                        : undefined,
-                    )),
-                  undefined,
-                ],
-                cellMap,
-              ),
-              minIndex: minGridIndex,
-              maxIndex: maxGridIndex,
-              prevIndex: getGridCellIndexOfCorner(
-                indexRef.current > maxIndex ? minIndex : indexRef.current,
-                sizes,
-                cellMap,
-                cols,
-                // use a corner matching the edge closest to the direction
-                // we're moving in so we don't end up in the same item. Prefer
-                // top/left over bottom/right.
-                // eslint-disable-next-line no-nested-ternary
-                event.key === ARROW_DOWN
-                  ? 'bl'
-                  : event.key === (rtl ? ARROW_LEFT : ARROW_RIGHT)
-                    ? 'tr'
-                    : 'tl',
-              ),
-              stopEvent: true,
-            },
-          )
-        ];
 
       if (index != null) {
         indexRef.current = index;

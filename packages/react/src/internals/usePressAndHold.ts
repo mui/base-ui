@@ -15,7 +15,7 @@ const MAX_POINTER_MOVES_AFTER_TOUCH = 3;
 // Treat pen as touch-like to avoid forcing the software keyboard on stylus taps.
 // Linux Chrome may emit "pen" historically for mouse usage due to a bug, but the touch path
 // still works with minor behavioral differences.
-function isTouchLikePointerType(pointerType: string) {
+export function isTouchLikePointerType(pointerType: string) {
   return pointerType === 'touch' || pointerType === 'pen';
 }
 
