@@ -70,8 +70,8 @@
 
   .SideNavScrollbar {
     display: flex;
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
 
     /* Click target width */
     width: var(--side-nav-scrollbar-width);

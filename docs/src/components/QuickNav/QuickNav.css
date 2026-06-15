@@ -12,7 +12,7 @@
     padding-bottom: 4rem;
 
     @media (--show-side-nav) {
-      padding-top: 1rem;
+      padding-top: 0.75rem;
     }
   }
 
@@ -68,13 +68,13 @@
 
   .QuickNavScrollbar {
     display: flex;
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
 
     /* Click target width */
     width: var(--quick-nav-scrollbar-width);
 
-    opacity: 0;
+    /* opacity: 0; */
     transition: opacity 200ms 500ms;
 
     &:active,
