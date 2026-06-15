@@ -71,6 +71,8 @@
   }
 
   .HeaderButton {
+    height: 1.75rem;
+
     @media (hover: hover) {
       &:hover {
         background-color: var(--gray-c1);
@@ -136,7 +138,7 @@
   .HeaderMobileActions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
 
     @media (--lg) {
       display: none;
@@ -145,7 +147,6 @@
 
   .HeaderMobileSearch {
     display: flex;
-    padding-inline: 1rem;
   }
 
   .HeaderNavTrigger {
@@ -165,7 +166,7 @@
     content: '';
     display: block;
     width: 0.875rem;
-    height: 2px;
+    height: 1px;
     background-color: currentColor;
   }
 

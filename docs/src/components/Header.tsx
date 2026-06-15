@@ -28,7 +28,7 @@ export function Header() {
         </div>
         <div className="HeaderMobileActions">
           <div className="HeaderMobileSearch">
-            <SearchTrigger />
+            <SearchTrigger iconOnly />
           </div>
           {sitemap && (
             <MobileNav.Root>
