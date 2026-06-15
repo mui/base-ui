@@ -249,6 +249,109 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
   );
 
   it.skipIf(isJSDOM)(
+    'adds scroll slack to a light-DOM scroller for an input inside a shadow root',
+    async () => {
+      const restoreInnerHeight = mockWindowInnerHeight(800);
+      const visualViewport = mockVisualViewport(800);
+
+      try {
+        await render(
+          <Drawer.Root open modal={false}>
+            <Drawer.VirtualKeyboardProvider>
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup>
+                    <Drawer.Content
+                      data-testid="scroll"
+                      style={{
+                        height: 420,
+                        overflowY: 'auto',
+                        overflowAnchor: 'auto',
+                        paddingBottom: 20,
+                      }}
+                    >
+                      <div style={{ height: 900 }} />
+                      <div data-testid="host" />
+                    </Drawer.Content>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.VirtualKeyboardProvider>
+          </Drawer.Root>,
+        );
+
+        const scroll = screen.getByTestId('scroll');
+        const host = screen.getByTestId('host');
+        const shadowRoot = host.attachShadow({ mode: 'open' });
+        const input = document.createElement('input');
+        input.type = 'text';
+        shadowRoot.append(input);
+
+        Object.defineProperties(scroll, {
+          clientHeight: { configurable: true, value: 420 },
+          scrollHeight: { configurable: true, value: 1200 },
+        });
+        scroll.getBoundingClientRect = () =>
+          ({
+            top: 300,
+            bottom: 720,
+            height: 420,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: 300,
+            toJSON: () => {},
+          }) as DOMRect;
+        input.getBoundingClientRect = () => {
+          const top = 650 - scroll.scrollTop;
+          return {
+            top,
+            bottom: top + 40,
+            height: 40,
+            left: 0,
+            right: 320,
+            width: 320,
+            x: 0,
+            y: top,
+            toJSON: () => {},
+          } as DOMRect;
+        };
+        scroll.scrollTo = ((options?: ScrollToOptions | number) => {
+          if (typeof options === 'object' && options !== null && options.top !== undefined) {
+            scroll.scrollTop = options.top;
+          }
+        }) as typeof scroll.scrollTo;
+
+        const keyboardViewportHeight = 500;
+        await act(async () => {
+          input.focus();
+          scroll.scrollTop = 0;
+          visualViewport.resize(keyboardViewportHeight);
+        });
+
+        // Slack reaches the light-DOM scroller even though the input lives in a shadow root.
+        await waitFor(() => {
+          expect(Number.parseFloat(scroll.style.paddingBottom)).toBeGreaterThan(20);
+        });
+        await waitFor(() => {
+          expect(scroll.style.overflowAnchor).toBe('none');
+        });
+        await waitFor(() => {
+          const scrollRect = scroll.getBoundingClientRect();
+          const inputRect = input.getBoundingClientRect();
+          const inputCenter = (inputRect.top + inputRect.bottom) / 2;
+          const visibleCenter = (scrollRect.top + keyboardViewportHeight) / 2;
+          expect(inputCenter).toBeCloseTo(visibleCenter, 0);
+        });
+      } finally {
+        visualViewport.restore();
+        restoreInnerHeight();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)(
     'adds keyboard scroll slack to a potential scroll ancestor for textareas',
     async () => {
       const restoreInnerHeight = mockWindowInnerHeight(800);

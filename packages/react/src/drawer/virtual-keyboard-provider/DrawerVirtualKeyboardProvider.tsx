@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { getComputedStyle, isHTMLElement } from '@floating-ui/utils/dom';
+import { getComputedStyle, getParentNode, isHTMLElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
@@ -588,11 +588,14 @@ function focusKeyboardInputWithoutPageScroll(target: HTMLElement) {
 function findKeyboardScrollTarget(target: HTMLElement, root: HTMLElement): HTMLElement | null {
   // Start at the parent: scrolling the focused field's own content (an overflowing
   // textarea is scrollable itself) can never move its box out from under the keyboard.
-  // Prefer an already-scrollable ancestor, then fall back to one that only becomes
-  // scrollable once keyboard slack is added (overflow intent without current overflow).
+  // `getParentNode` crosses shadow boundaries so an input inside a shadow root still reaches
+  // the drawer body scroller. Prefer an already-scrollable ancestor, then fall back to one
+  // that only becomes scrollable once keyboard slack is added (overflow intent without
+  // current overflow).
+  const scrollStart = getParentNode(target);
   return (
-    findScrollableTouchTarget(target.parentElement, root, 'vertical') ??
-    findScrollableTouchTarget(target.parentElement, root, 'vertical', true)
+    findScrollableTouchTarget(scrollStart, root, 'vertical') ??
+    findScrollableTouchTarget(scrollStart, root, 'vertical', true)
   );
 }
 
