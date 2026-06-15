@@ -37,9 +37,9 @@ export interface UseHoverReferenceInteractionProps {
   mouseOnly?: boolean | undefined;
   externalTree?: FloatingTreeStore | undefined;
   /**
-   * Whether the hook controls the active trigger. When false, the props are
-   * returned under the `trigger` key so they can be applied to inactive
-   * triggers via `getTriggerProps`.
+   * Whether the hook controls the active trigger. When false, the returned
+   * props are intended for an inactive trigger and the hook listens for the
+   * hover that would make this trigger the active one.
    * @default true
    */
   isActiveTrigger?: boolean | undefined;
@@ -120,10 +120,9 @@ export function useHoverReferenceInteraction(
         return false;
       }
 
-      const targetElement = target as Element;
       return (
-        allTriggers.hasMatchingElement((trigger) => contains(trigger, targetElement)) &&
-        (!currentDomReference || !contains(currentDomReference, targetElement))
+        allTriggers.hasMatchingElement((trigger) => contains(trigger, target)) &&
+        (!currentDomReference || !contains(currentDomReference, target))
       );
     },
   );
@@ -143,8 +142,11 @@ export function useHoverReferenceInteraction(
   });
 
   if (isActiveTrigger) {
+    // Read the prop directly rather than `handleCloseRef.current`: the ref is
+    // only committed in a layout effect, so during render it still holds the
+    // previous value and `handleCloseOptions` would lag a render behind.
     // eslint-disable-next-line no-underscore-dangle
-    instance.handleCloseOptions = handleCloseRef.current?.__options;
+    instance.handleCloseOptions = handleClose?.__options;
   }
 
   React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);
@@ -180,14 +182,14 @@ export function useHoverReferenceInteraction(
       return undefined;
     }
 
-    function closeWithDelay(event: MouseEvent, runElseBranch = true) {
+    function closeWithDelay(event: MouseEvent) {
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
       if (closeDelay) {
         instance.openChangeTimeout.start(closeDelay, () => {
           store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
           tree?.events.emit('floating.closed', event);
         });
-      } else if (runElseBranch) {
+      } else {
         instance.openChangeTimeout.clear();
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
         tree?.events.emit('floating.closed', event);
@@ -210,8 +212,6 @@ export function useHoverReferenceInteraction(
         return;
       }
 
-      // Only rest delay is set; there's no fallback delay.
-      // This will be handled by `onMouseMove`.
       const restMsValue = getRestMs(restMsRef.current);
       const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
       const eventTarget = getTarget(event);
@@ -271,13 +271,20 @@ export function useHoverReferenceInteraction(
         return;
       }
 
+      // Only a rest delay is set with no fallback open delay, so defer entirely
+      // to the rest-movement tracking in `onMouseMove`.
       if (isRestOnlyDelay) {
         return;
       }
 
       if (openDelay) {
         instance.openChangeTimeout.start(openDelay, () => {
-          if (shouldOpen && checkShouldOpen()) {
+          // Re-check the live open state at fire time: focus (or another trigger)
+          // may have opened the popup while this delay was pending, in which case
+          // firing again would emit a duplicate `onOpenChange(true)` and clobber
+          // the existing `instantType`. Moving onto an inactive trigger still
+          // re-fires, since that intentionally switches the active trigger.
+          if (shouldOpen && (isOverInactive || !store.select('open')) && checkShouldOpen()) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
         });
@@ -327,7 +334,7 @@ export function useHoverReferenceInteraction(
               !isClickLikeOpenEvent() &&
               currentTrigger === store.select('domReferenceElement')
             ) {
-              closeWithDelay(event, true);
+              closeWithDelay(event);
             }
           },
         });

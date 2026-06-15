@@ -9,45 +9,35 @@ import { isInteractiveElement } from '../utils';
 export { isInteractiveElement };
 
 export class HoverInteraction {
-  pointerType: string | undefined;
-  interactedInside: boolean;
-  handler: ((event: MouseEvent) => void) | undefined;
-  blockMouseMove: boolean;
-  performedPointerEventsMutation: boolean;
-  pointerEventsScopeElement: HTMLElement | SVGSVGElement | null;
-  pointerEventsReferenceElement: HTMLElement | SVGSVGElement | null;
-  pointerEventsFloatingElement: HTMLElement | null;
-  restTimeoutPending: boolean;
-  openChangeTimeout: Timeout;
-  restTimeout: Timeout;
-  handleCloseOptions: SafePolygonOptions | undefined;
+  pointerType: string | undefined = undefined;
+  interactedInside = false;
+  handler: ((event: MouseEvent) => void) | undefined = undefined;
+  blockMouseMove = true;
+  performedPointerEventsMutation = false;
+  pointerEventsScopeElement: HTMLElement | SVGSVGElement | null = null;
+  pointerEventsReferenceElement: HTMLElement | SVGSVGElement | null = null;
+  pointerEventsFloatingElement: HTMLElement | null = null;
+  restTimeoutPending = false;
+  openChangeTimeout = new Timeout();
+  restTimeout = new Timeout();
+  handleCloseOptions: SafePolygonOptions | undefined = undefined;
 
-  constructor() {
-    this.pointerType = undefined;
-    this.interactedInside = false;
-    this.handler = undefined;
-    this.blockMouseMove = true;
-    this.performedPointerEventsMutation = false;
-    this.pointerEventsScopeElement = null;
-    this.pointerEventsReferenceElement = null;
-    this.pointerEventsFloatingElement = null;
-    this.restTimeoutPending = false;
-    this.openChangeTimeout = new Timeout();
-    this.restTimeout = new Timeout();
-    this.handleCloseOptions = undefined;
-  }
+  // The instance is shared (via the root's `dataRef`) by every trigger and the
+  // popup, each of which mounts and unmounts independently. Ref-count the
+  // consumers so the pending timers are only cleared once the last one unmounts,
+  // not whenever any single consumer does (which would cancel another's pending
+  // open/close).
+  private refCount = 0;
 
-  static create(): HoverInteraction {
-    return new HoverInteraction();
-  }
-
-  dispose = () => {
-    this.openChangeTimeout.clear();
-    this.restTimeout.clear();
-  };
-
-  disposeEffect = () => {
-    return this.dispose;
+  retain = () => {
+    this.refCount += 1;
+    return () => {
+      this.refCount -= 1;
+      if (this.refCount === 0) {
+        this.openChangeTimeout.clear();
+        this.restTimeout.clear();
+      }
+    };
   };
 }
 
@@ -118,14 +108,14 @@ type HoverContextData = ContextData & {
 export function useHoverInteractionSharedState(store: FloatingRootContext): HoverInteraction {
   const data = store.context.dataRef.current as HoverContextData;
   const instance = useRefWithInit(
-    () => data.hoverInteractionState ?? HoverInteraction.create(),
+    () => data.hoverInteractionState ?? new HoverInteraction(),
   ).current;
 
   if (!data.hoverInteractionState) {
     data.hoverInteractionState = instance;
   }
 
-  useOnMount(data.hoverInteractionState.disposeEffect);
+  useOnMount(data.hoverInteractionState.retain);
 
   return data.hoverInteractionState;
 }
