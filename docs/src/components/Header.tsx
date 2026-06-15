@@ -1,12 +1,10 @@
 import NextLink from 'next/link';
 
-import { GitHubIcon } from '../icons/GitHubIcon';
-import { NpmIcon } from '../icons/NpmIcon';
 import * as MobileNav from './MobileNav';
 import { sitemap } from '../app/sitemap';
 import { Logo } from './Logo';
 import { SkipNav } from './SkipNav';
-import { HeaderSearch } from './HeaderSearch';
+import { SearchTrigger } from './SearchTrigger';
 import './Header.css';
 
 export const titleMap: Record<string, string> = {
@@ -26,23 +24,11 @@ export function Header() {
           <Logo aria-label="Base UI" />
         </NextLink>
         <div className="HeaderDesktopActions">
-          <HeaderSearch containedScroll enableKeyboardShortcut />
-          <a
-            className="HeaderLink"
-            href="https://www.npmjs.com/package/@base-ui/react"
-            aria-label={`npm version ${process.env.LIB_VERSION}`}
-          >
-            <NpmIcon />
-            {process.env.LIB_VERSION}
-          </a>
-          <a className="HeaderLink" href="https://github.com/mui/base-ui">
-            <GitHubIcon />
-            GitHub
-          </a>
+          <SearchTrigger containedScroll enableKeyboardShortcut />
         </div>
         <div className="HeaderMobileActions">
           <div className="HeaderMobileSearch">
-            <HeaderSearch />
+            <SearchTrigger />
           </div>
           {sitemap && (
             <MobileNav.Root>
@@ -85,22 +71,6 @@ export function Header() {
                       </MobileNav.List>
                     </MobileNav.Section>
                   ))}
-                  <MobileNav.Section>
-                    <MobileNav.Heading>Resources</MobileNav.Heading>
-                    <MobileNav.List>
-                      <MobileNav.Item href="https://www.npmjs.com/package/@base-ui/react">
-                        <NpmIcon />
-                        <span className="HeaderResourceRow">
-                          npm package
-                          <span className="HeaderVersion">{process.env.LIB_VERSION}</span>
-                        </span>
-                      </MobileNav.Item>
-                      <MobileNav.Item href="https://github.com/mui/base-ui">
-                        <GitHubIcon className="HeaderGitHubIcon" />
-                        GitHub
-                      </MobileNav.Item>
-                    </MobileNav.List>
-                  </MobileNav.Section>
                 </MobileNav.Popup>
               </MobileNav.Portal>
             </MobileNav.Root>

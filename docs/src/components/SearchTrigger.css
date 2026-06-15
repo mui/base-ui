@@ -1,5 +1,5 @@
 @layer components {
-  .WebsiteSearchTrigger {
+  .SearchTrigger {
     display: inline-flex;
     align-items: center;
     gap: var(--space-4);
@@ -8,7 +8,19 @@
     margin: -0.25rem -0.5rem;
     border: 0;
     background: transparent;
-    font: inherit;
+    font-family:
+      'die grotesk a',
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Helvetica Neue',
+      arial,
+      sans-serif;
+    font-weight: var(--font-weight-400);
+    font-size: 15px;
+    line-height: 22px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     color: currentColor;
     text-align: left;
     border-radius: var(--radius-6);
@@ -17,21 +29,21 @@
     outline: 0;
   }
 
-  .WebsiteSearchTriggerShortcut {
+  .SearchTriggerShortcut {
     color: var(--gray-t1);
   }
 
-  .WebsiteSearchTrigger kbd {
+  .SearchTrigger kbd {
     font: inherit;
   }
 
   @media (hover: hover) {
-    .WebsiteSearchTrigger:hover {
+    .SearchTrigger:hover {
       background-color: var(--gray-c1);
     }
   }
 
-  .WebsiteSearchTrigger:focus-visible {
+  .SearchTrigger:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -1px;
   }

@@ -9,14 +9,10 @@
 
   .QuickNavContent {
     padding-top: 1.5rem;
-    padding-bottom: 5rem;
-
-    @media (--sm) {
-      padding-top: 2rem;
-    }
+    padding-bottom: 4rem;
 
     @media (--show-side-nav) {
-      padding-bottom: 8rem;
+      padding-top: 1rem;
     }
   }
 
@@ -32,32 +28,33 @@
       var(--quick-nav-item-height) / 2 - var(--quick-nav-item-line-height) / 2
     );
 
-    font-size: var(--font-size-15);
+    font-size: var(--font-size-14);
     line-height: 1.375rem;
     z-index: 1;
-    position: sticky;
-    top: 0;
-    width: 0;
-    float: right;
-    contain: layout;
     display: none;
 
     @media (--show-quick-nav) {
       display: block;
+      position: fixed;
+      top: var(--header-height);
+      right: max(
+        var(--root-layout-padding-x),
+        calc(50% - var(--breakpoint-max-layout-width) / 2 + var(--root-layout-padding-x))
+      );
+      width: calc(var(--sidebar-width) - var(--quick-nav-margin-x));
     }
   }
 
   .QuickNavInner {
     position: relative;
-    left: var(--quick-nav-margin-x);
-    width: calc(var(--sidebar-width) - var(--quick-nav-margin-x));
+    width: 100%;
   }
 
   .QuickNavViewport {
-    max-height: 100dvh;
+    max-height: calc(100dvh - var(--header-height));
     padding-top: 0.75rem;
-    padding-right: var(--quick-nav-scrollbar-width);
-    padding-bottom: 4.5rem;
+    padding-right: 0;
+    padding-bottom: 0.75rem;
     padding-left: 0;
 
     /* Scroll containers are focusable */
@@ -72,7 +69,7 @@
   .QuickNavScrollbar {
     display: flex;
     padding-top: 1.5rem;
-    padding-bottom: 4.5rem;
+    padding-bottom: 1.5rem;
 
     /* Click target width */
     width: var(--quick-nav-scrollbar-width);
