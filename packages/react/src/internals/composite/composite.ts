@@ -5,19 +5,10 @@ export {
   stopEvent,
   isIndexOutOfListBounds,
   isListIndexDisabled,
-  createGridCellMap,
   findNonDisabledListIndex,
-  getGridCellIndexOfCorner,
-  getGridCellIndices,
-  getGridNavigatedIndex,
   getMaxListIndex,
   getMinListIndex,
 } from '../../floating-ui-react/utils';
-
-export interface Dimensions {
-  width: number;
-  height: number;
-}
 
 export const ARROW_UP = 'ArrowUp';
 export const ARROW_DOWN = 'ArrowDown';

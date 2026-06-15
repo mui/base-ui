@@ -256,8 +256,8 @@
 
   /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
   .MdCode[data-inline]:not(:has(> .di-ht)) {
+    display: inline-block;
     background-color: var(--color-line-highlight);
-    border-radius: var(--radius-3);
     padding: 0.05em 0.2em;
   }
 
