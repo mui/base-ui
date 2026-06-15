@@ -24,20 +24,7 @@
     /* Stay opaque behind the header content, then ease content scrolling under
        the header's lower edge out with a smooth scrim (eased stops avoid any
        visible banding). It's also the iOS overscroll background. */
-    background: linear-gradient(
-      to bottom,
-      var(--color-content) 0%,
-      var(--color-content) 42%,
-      color-mix(in oklab, var(--color-content), transparent 3%) 52%,
-      color-mix(in oklab, var(--color-content), transparent 8%) 60%,
-      color-mix(in oklab, var(--color-content), transparent 16%) 67%,
-      color-mix(in oklab, var(--color-content), transparent 27%) 74%,
-      color-mix(in oklab, var(--color-content), transparent 41%) 80%,
-      color-mix(in oklab, var(--color-content), transparent 57%) 86%,
-      color-mix(in oklab, var(--color-content), transparent 74%) 92%,
-      color-mix(in oklab, var(--color-content), transparent 89%) 97%,
-      transparent 100%
-    );
+    background: var(--color-content);
     z-index: 2;
 
     @media (--show-side-nav) {
@@ -45,6 +32,8 @@
       max-width: var(--breakpoint-max-layout-width);
       margin-inline: auto;
       padding-inline: var(--root-layout-padding-x);
+      /* No background fade on desktop */
+      background: none;
     }
 
     @media print {
