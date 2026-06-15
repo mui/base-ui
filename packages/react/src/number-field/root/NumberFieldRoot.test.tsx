@@ -958,10 +958,9 @@ describe('<NumberField />', () => {
     });
 
     it('should snap when incrementing to the nearest multiple of the `step` prop', async () => {
-      await render(<NumberField defaultValue={5} step={2} />);
+      await render(<NumberField defaultValue={5} step={2} snapOnStep />);
       const input = screen.getByRole('textbox');
-      fireEvent.change(input, { target: { value: '6' } });
-      fireEvent.blur(input);
+      fireEvent.click(screen.getByLabelText('Increase'));
       expect(input).toHaveValue('6');
     });
 
@@ -973,10 +972,9 @@ describe('<NumberField />', () => {
     });
 
     it('should snap when decrementing to the nearest multiple of the `step` prop', async () => {
-      await render(<NumberField defaultValue={5} step={2} />);
+      await render(<NumberField defaultValue={5} step={2} snapOnStep />);
       const input = screen.getByRole('textbox');
-      fireEvent.change(input, { target: { value: '4' } });
-      fireEvent.blur(input);
+      fireEvent.click(screen.getByLabelText('Decrease'));
       expect(input).toHaveValue('4');
     });
   });
@@ -1050,6 +1048,17 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: format', () => {
+    it('reformats the visible text when the format prop changes at the same value', async () => {
+      const { setProps } = await render(<NumberField value={1000} />);
+      const input = screen.getByRole('textbox');
+      expect(input).toHaveValue(new Intl.NumberFormat().format(1000));
+
+      await setProps({ format: { style: 'currency', currency: 'USD' } });
+      expect(input).toHaveValue(
+        new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(1000),
+      );
+    });
+
     it('should format the value using the provided options', async () => {
       await render(
         <NumberField defaultValue={1000} format={{ style: 'currency', currency: 'USD' }} />,
