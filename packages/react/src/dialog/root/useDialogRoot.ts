@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { mergeProps } from '../../merge-props';
 import { useDismiss } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
@@ -16,6 +17,14 @@ import {
   usePopupInteractionProps,
   usePopupRootSync,
 } from '../../utils/popups';
+
+// Process-local counter for identifying nested dialogs when reporting counts to a parent.
+// This id is never rendered to the DOM, so it doesn't need to be SSR-stable.
+let nestedDialogIdCounter = 0;
+function getNextNestedDialogId() {
+  nestedDialogIdCounter += 1;
+  return `nested-dialog-${nestedDialogIdCounter}`;
+}
 
 export function useDialogRoot(params: UseDialogRootParameters): UseDialogRootReturnValue {
   const { store, parentContext, actionsRef, isDrawer } = params;
@@ -95,7 +104,9 @@ export function DialogInteractions({
       if ('button' in event && event.button !== 0) {
         return false;
       }
-      if ('touches' in event && event.touches.length !== 1) {
+      // On `touchend`, `touches` is empty because the finger has lifted, so count
+      // the touch points from `changedTouches` instead.
+      if ('changedTouches' in event && event.changedTouches.length !== 1) {
         return false;
       }
 
@@ -122,34 +133,59 @@ export function DialogInteractions({
 
   useScrollLock(open && modal === true, popupElement);
 
+  // Each direct child dialog reports the deepest open count in its own subtree,
+  // keyed by a stable id. Aggregating with `Math.max` (rather than letting the
+  // last reporter overwrite) keeps the counts correct when sibling dialogs open
+  // and close independently: a closing sibling no longer zeroes the parent's
+  // count while another sibling stays open.
+  const nestedDialogId = useRefWithInit(getNextNestedDialogId).current;
+  const nestedChildContributionsRef = useRefWithInit(
+    () => new Map<string, { dialogs: number; drawers: number }>(),
+  );
+
+  function recomputeNestedCounts() {
+    let dialogs = 0;
+    let drawers = 0;
+    nestedChildContributionsRef.current.forEach((contribution) => {
+      dialogs = Math.max(dialogs, contribution.dialogs);
+      drawers = Math.max(drawers, contribution.drawers);
+    });
+    setOwnNestedOpenDialogs(dialogs);
+    setOwnNestedOpenDrawers(drawers);
+  }
+
   // Listen for nested open/close events on this store to maintain the counts.
-  store.useContextCallback('onNestedDialogOpen', (dialogCount, drawerCount) => {
-    setOwnNestedOpenDialogs(dialogCount);
-    setOwnNestedOpenDrawers(drawerCount);
+  store.useContextCallback('onNestedDialogOpen', (childId, dialogCount, drawerCount) => {
+    nestedChildContributionsRef.current.set(childId, {
+      dialogs: dialogCount,
+      drawers: drawerCount,
+    });
+    recomputeNestedCounts();
   });
 
-  store.useContextCallback('onNestedDialogClose', () => {
-    setOwnNestedOpenDialogs(0);
-    setOwnNestedOpenDrawers(0);
+  store.useContextCallback('onNestedDialogClose', (childId) => {
+    nestedChildContributionsRef.current.delete(childId);
+    recomputeNestedCounts();
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
   React.useEffect(() => {
     if (parentContext?.onNestedDialogOpen && open) {
       parentContext.onNestedDialogOpen(
+        nestedDialogId,
         ownNestedOpenDialogs + 1,
         ownNestedOpenDrawers + (isDrawer ? 1 : 0),
       );
     }
     if (parentContext?.onNestedDialogClose && !open) {
-      parentContext.onNestedDialogClose();
+      parentContext.onNestedDialogClose(nestedDialogId);
     }
     return () => {
       if (parentContext?.onNestedDialogClose && open) {
-        parentContext.onNestedDialogClose();
+        parentContext.onNestedDialogClose(nestedDialogId);
       }
     };
-  }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
+  }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext, nestedDialogId]);
 
   const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
   const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;

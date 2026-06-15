@@ -1445,6 +1445,66 @@ describe('<Dialog.Root />', () => {
       expect(outsideAfter).not.toHaveFocus();
     },
   );
+
+  it.skipIf(isJSDOM)(
+    'keeps the parent nested-dialog state when one of two sibling nested dialogs closes',
+    async () => {
+      function NestedSiblings() {
+        return (
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger>Open parent</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="parent-popup">
+                <Dialog.Root modal={false} disablePointerDismissal>
+                  <Dialog.Trigger>Open A</Dialog.Trigger>
+                  <Dialog.Portal>
+                    <Dialog.Popup data-testid="popup-a">Dialog A</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+                <Dialog.Root modal={false} disablePointerDismissal>
+                  <Dialog.Trigger>Open B</Dialog.Trigger>
+                  <Dialog.Portal>
+                    <Dialog.Popup data-testid="popup-b">
+                      <Dialog.Close>Close B</Dialog.Close>
+                    </Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { user } = await render(<NestedSiblings />);
+
+      await user.click(screen.getByRole('button', { name: 'Open parent' }));
+      const parentPopup = await screen.findByTestId('parent-popup');
+
+      await user.click(screen.getByRole('button', { name: 'Open A' }));
+      await screen.findByTestId('popup-a');
+
+      await user.click(screen.getByRole('button', { name: 'Open B' }));
+      await screen.findByTestId('popup-b');
+
+      // Both siblings are open, so the parent reflects an open nested dialog.
+      expect(parentPopup).toHaveAttribute('data-nested-dialog-open');
+
+      // Closing sibling B must not zero the parent's count while sibling A stays open.
+      await user.click(screen.getByRole('button', { name: 'Close B' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-b')).toBe(null);
+      });
+
+      expect(parentPopup).toHaveAttribute('data-nested-dialog-open');
+
+      // The parent is not topmost (A is still open), so Escape closes A, not the parent.
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-a')).toBe(null);
+      });
+      expect(screen.queryByTestId('parent-popup')).not.toBe(null);
+    },
+  );
 });
 
 function DialogOpenChangeSpy(props: {

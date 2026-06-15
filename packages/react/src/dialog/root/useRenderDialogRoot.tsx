@@ -42,19 +42,30 @@ export function useRenderDialogRoot<Payload>(
     ...rootState,
   });
 
-  // Support initially open state when uncontrolled
   useOnFirstRender(() => {
-    const nextState =
-      openProp === undefined && store.state.open === false && defaultOpen === true
-        ? { open: true, activeTriggerId: defaultTriggerIdProp }
-        : null;
+    // Support initially open state when uncontrolled.
+    const shouldOpen = openProp === undefined && store.state.open === false && defaultOpen === true;
+    // A reused handle store isn't seeded with `openProp` from `initialState` (the handle
+    // is created before the Root knows the prop). Seed it during the first render so the
+    // open selector reflects the controlled value immediately; otherwise an initially-open
+    // dialog would flip from closed to open after the first paint and play an unwanted
+    // enter transition (`useTransitionStatus`).
+    const shouldSeedOpenProp = openProp !== undefined && store.state.openProp !== openProp;
 
-    if (isAlertDialog) {
-      // Handles can reuse plain Dialog stores; alert dialog invariants must exist immediately.
-      store.update(nextState ? { ...rootState, ...nextState } : rootState);
-    } else if (nextState) {
-      store.update(nextState);
+    if (!isAlertDialog && !shouldOpen && !shouldSeedOpenProp) {
+      return;
     }
+
+    // Assign `store.state` directly instead of calling `store.update` (which notifies
+    // synchronously). This runs during render, so notifying detached-trigger subscribers
+    // here would update other components mid-render.
+    store.state = {
+      ...store.state,
+      // Handles can reuse plain Dialog stores; alert dialog invariants must exist immediately.
+      ...(isAlertDialog ? rootState : null),
+      ...(shouldSeedOpenProp ? { openProp } : null),
+      ...(shouldOpen ? { open: true, activeTriggerId: defaultTriggerIdProp } : null),
+    };
   });
 
   store.useControlledProp('openProp', openProp);
