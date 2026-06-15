@@ -1,5 +1,5 @@
 import { expectType } from '#test-utils';
-import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
+import { OTPField } from '@base-ui/react/otp-field';
 import { REASONS } from '../../internals/reasons';
 
 type OTPFieldChangeHandler = NonNullable<OTPField.Root.Props['onValueChange']>;
