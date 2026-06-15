@@ -634,12 +634,18 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       mark: false,
     });
 
+    const inertCleanup = markOthers(insideElements, {
+      inert: modal && !isUntrappedTypeableCombobox,
+      mark: false,
+    });
+
     const markerInsideElements = [floating, ...portalNodes].filter((x): x is Element => x != null);
     const markerCleanup = markOthers(markerInsideElements);
 
     return () => {
       markerCleanup();
       ariaHiddenCleanup();
+      inertCleanup();
     };
   }, [
     open,

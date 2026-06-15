@@ -2086,7 +2086,7 @@ describe('FloatingFocusManager', () => {
       expect(screen.getByTestId('reference')).not.toHaveFocus();
     });
 
-    test('uses aria-hidden instead of inert on outside nodes if opened with hover and modal=true', async () => {
+    test('uses both aria-hidden and inert on outside nodes if opened with hover and modal=true', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);
 
@@ -2117,7 +2117,7 @@ describe('FloatingFocusManager', () => {
       await userEvent.hover(screen.getByTestId('reference'));
       await flushMicrotasks();
 
-      expect(screen.getByText('outside')).not.toHaveAttribute('inert');
+      expect(screen.getByText('outside')).toHaveAttribute('inert');
       expect(screen.getByText('outside')).toHaveAttribute('aria-hidden', 'true');
     });
 
