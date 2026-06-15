@@ -159,7 +159,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   width: 'device-width',
   themeColor: [
-    // Match the page background (--color-content)
+    // Safari header background: match the page background (--color-content)
     {
       media: '(prefers-color-scheme: light)',
       color: 'white',
