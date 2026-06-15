@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -87,8 +88,19 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
+  const pendingCaretRef = React.useRef<number | null>(null);
 
   useRegisterFieldControl(inputRef, id, value, undefined, !disabled, nameProp);
+
+  // After a paste splices text into the controlled value, the browser would otherwise drop the
+  // caret at the end of the new value. Restore it just after the inserted text.
+  useIsoLayoutEffect(() => {
+    if (pendingCaretRef.current != null) {
+      const caret = pendingCaretRef.current;
+      pendingCaretRef.current = null;
+      inputRef.current?.setSelectionRange(caret, caret);
+    }
+  });
 
   useValueChanged(value, () => {
     clearErrors(name);
@@ -119,7 +131,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     // causing a hydration mismatch.
     suppressHydrationWarning: true,
     onFocus(event) {
-      if (event.defaultPrevented || readOnly || disabled) {
+      // Read-only inputs are still focusable; only the value-changing handlers stay gated on it.
+      if (event.defaultPrevented || disabled) {
         return;
       }
 
@@ -138,12 +151,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       target.setSelectionRange(length, length);
     },
     onBlur(event) {
-      if (event.defaultPrevented || readOnly || disabled) {
+      if (event.defaultPrevented || disabled) {
         return;
       }
 
       setTouched(true);
       setFocused(false);
+
+      if (readOnly) {
+        return;
+      }
 
       const hadManualInput = !allowInputSyncRef.current;
       const hadPendingProgrammaticChange = hasPendingCommitRef.current;
@@ -151,11 +168,20 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       allowInputSyncRef.current = true;
 
       if (inputValue.trim() === '') {
-        setValue(null, createChangeEventDetails(REASONS.inputClear, event.nativeEvent));
+        const clearDetails = createChangeEventDetails(REASONS.inputClear, event.nativeEvent);
+        setValue(null, clearDetails);
+        // Respect a canceled clear, mirroring the non-empty blur path below.
+        if (clearDetails.isCanceled) {
+          return;
+        }
         if (validationMode === 'onBlur') {
           validation.commit(null);
         }
-        onValueCommitted(null, createGenericEventDetails(REASONS.inputClear, event.nativeEvent));
+        // Don't report a commit when blurring an already-empty field that the user never
+        // interacted with: nothing was cleared and no programmatic change is pending.
+        if (hadManualInput || hadPendingProgrammaticChange || value !== null) {
+          onValueCommitted(null, createGenericEventDetails(REASONS.inputClear, event.nativeEvent));
+        }
         return;
       }
 
@@ -197,6 +223,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           return;
         }
         committedValue = lastChangedValueRef.current ?? committed;
+        // If validation normalized back to the current value, `useValueChanged` won't fire to
+        // reset the flag, so reset it here or the next external change won't revalidate.
+        if (committedValue === value) {
+          blockRevalidationRef.current = false;
+        }
       }
       if (validationMode === 'onBlur') {
         validation.commit(committedValue);
@@ -328,6 +359,15 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
+      const willSetHome = event.key === 'Home' && min != null;
+      const willSetEnd = event.key === 'End' && max != null;
+
+      // Let the browser handle multi-character keys we don't act on (PageUp, Insert, F-keys,
+      // Home/End without min/max); invalid single characters are still blocked below.
+      if (event.key.length > 1 && !isStepKey && !willSetHome && !willSetEnd) {
+        return;
+      }
+
       // Step from the authoritative numeric value unless the input has unsaved manual edits.
       // When the text is already synced, parsing the rounded display would collapse precision,
       // so pass no `currentValue` and let `incrementValue` fall back to the numeric state
@@ -343,6 +383,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const commitDetails = createGenericEventDetails(REASONS.keyboard, nativeEvent);
 
+      let changed = false;
       if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
         allowInputSyncRef.current = true;
 
@@ -353,25 +394,21 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           lastChangedValueRef.current = valueRef.current;
         }
 
-        const prev = valueRef.current;
-        incrementValue(amount, {
+        changed = incrementValue(amount, {
           direction: event.key === 'ArrowUp' ? 1 : -1,
           currentValue,
           event: nativeEvent,
           reason: REASONS.keyboard,
         });
+      } else if (willSetHome) {
+        allowInputSyncRef.current = true;
+        changed = setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
+      } else if (willSetEnd) {
+        allowInputSyncRef.current = true;
+        changed = setValue(max, createChangeEventDetails(REASONS.keyboard, nativeEvent));
+      }
 
-        const committed = lastChangedValueRef.current ?? valueRef.current;
-        if (committed !== prev) {
-          onValueCommitted(committed, commitDetails);
-        }
-      } else if (event.key === 'Home' && min != null) {
-        allowInputSyncRef.current = true;
-        setValue(min, createChangeEventDetails(REASONS.keyboard, nativeEvent));
-        onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
-      } else if (event.key === 'End' && max != null) {
-        allowInputSyncRef.current = true;
-        setValue(max, createChangeEventDetails(REASONS.keyboard, nativeEvent));
+      if (changed) {
         onValueCommitted(lastChangedValueRef.current ?? valueRef.current, commitDetails);
       }
     },
@@ -399,12 +436,21 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Prevent `onChange` from being called.
       event.preventDefault();
 
-      const parsedValue = parseNumber(pastedData, locale, formatOptionsRef.current);
+      // Insert the pasted text at the caret/selection instead of replacing the entire value,
+      // matching native input behavior (e.g. pasting "5" into "123|" yields "1235").
+      const input = event.currentTarget;
+      const selectionStart = input.selectionStart ?? inputValue.length;
+      const selectionEnd = input.selectionEnd ?? inputValue.length;
+      const nextText =
+        inputValue.slice(0, selectionStart) + pastedData + inputValue.slice(selectionEnd);
+
+      const parsedValue = parseNumber(nextText, locale, formatOptionsRef.current);
 
       if (parsedValue !== null) {
         allowInputSyncRef.current = false;
+        pendingCaretRef.current = selectionStart + pastedData.length;
         setValue(parsedValue, createChangeEventDetails(REASONS.inputPaste, event.nativeEvent));
-        setInputValue(pastedData);
+        setInputValue(nextText);
       }
     },
   };
