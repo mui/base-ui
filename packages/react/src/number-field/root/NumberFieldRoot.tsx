@@ -29,7 +29,6 @@ import {
   PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
 import { formatNumber } from '../../utils/formatNumber';
-import { DEFAULT_STEP } from '../utils/constants';
 import { clamp } from '../../internals/clamp';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
@@ -210,18 +209,18 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     (unvalidatedValue: number | null, details: NumberFieldRoot.ChangeEventDetails): boolean => {
       const eventWithOptionalKeyState = details.event as EventWithOptionalKeyState;
       const dir = details.direction;
-      const reason = details.reason;
-      // Only allow out-of-range values for direct text entry (native-like behavior).
-      // Step-based interactions (keyboard arrows, buttons, wheel, scrub) still clamp to min/max.
-      const shouldClampValue =
-        !allowOutOfRange ||
-        !(
-          reason === REASONS.inputChange ||
-          reason === REASONS.inputBlur ||
-          reason === REASONS.inputPaste ||
-          reason === REASONS.inputClear ||
-          reason === REASONS.none
-        );
+
+      // Direct text entry (typing, pasting, clearing, autofill) behaves natively; step-based
+      // interactions (keyboard arrows, buttons, wheel, scrub) do not.
+      const isInputReason =
+        details.reason === REASONS.inputChange ||
+        details.reason === REASONS.inputClear ||
+        details.reason === REASONS.inputBlur ||
+        details.reason === REASONS.inputPaste ||
+        details.reason === REASONS.none;
+
+      // Only allow out-of-range values for direct text entry. Step-based interactions still clamp.
+      const shouldClampValue = !allowOutOfRange || !isInputReason;
 
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
@@ -234,15 +233,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         clamp: shouldClampValue,
       });
 
-      // Determine whether we should notify about a change even if the numeric value is unchanged.
-      // This is needed when the user input is clamped/snapped to the same current value, or when
-      // the source value differs but validation normalizes to the existing value.
-      const isInputReason =
-        details.reason === REASONS.inputChange ||
-        details.reason === REASONS.inputClear ||
-        details.reason === REASONS.inputBlur ||
-        details.reason === REASONS.inputPaste ||
-        details.reason === REASONS.none;
+      // Notify about a change even when the numeric value is unchanged for input reasons: the
+      // typed text may clamp/snap to the current value, or differ while validation normalizes
+      // it back to the existing value.
       const shouldFireChange =
         validatedValue !== value ||
         (isInputReason && (unvalidatedValue !== value || allowInputSyncRef.current === false));
@@ -302,7 +295,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   // We need to update the input value when the external `value` prop changes. This ends up acting
   // as a single source of truth to update the input value, bypassing the need to manually set it in
-  // each event handler internally in this hook.
+  // each event handler.
   // This is done inside a layout effect as an alternative to the technique to set state during
   // render as we're accessing a ref, which must be inside an effect.
   // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
@@ -342,10 +335,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       setInputMode(computedInputMode);
     },
-    [minWithDefault, formatStyle],
+    [minWithDefault],
   );
 
-  // The `onWheel` prop can't be prevented, so we need to use a global event listener.
+  // React attaches `onWheel` as a passive listener, so calling `preventDefault` there is ignored.
+  // Attach a native (non-passive) `wheel` listener to the input instead to prevent page scrolling.
   React.useEffect(
     function registerElementWheelListener() {
       const element = inputRef.current;
@@ -366,7 +360,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         event.preventDefault();
         allowInputSyncRef.current = true;
 
-        const amount = getStepAmount(event) ?? DEFAULT_STEP;
+        const amount = getStepAmount(event);
 
         // Each wheel turn is a discrete, final change, so commit it immediately like keyboard
         // steps (gated on an actual change so boundary no-ops don't commit).
@@ -552,21 +546,21 @@ export interface NumberFieldRootProps extends Omit<
    */
   allowOutOfRange?: boolean | undefined;
   /**
-   * The small step value of the input element when incrementing while the alt key is held. Snaps
-   * to multiples of this value.
+   * The small step value of the input element when incrementing while the alt key is held.
+   * Snaps to multiples of this value when `snapOnStep` is enabled.
    * @default 0.1
    */
   smallStep?: number | undefined;
   /**
    * Amount to increment and decrement with the buttons and arrow keys, or to scrub with pointer movement in the scrub area.
    * To always enable step validation on form submission, specify the `min` prop explicitly in conjunction with this prop.
-   * Specify `step="any"` to always disable step validation.
+   * Specify `step="any"` to always disable step validation; interactive stepping then uses a base amount of `1`, while the alt and shift keys still step by `smallStep` and `largeStep`.
    * @default 1
    */
   step?: number | 'any' | undefined;
   /**
-   * The large step value of the input element when incrementing while the shift key is held. Snaps
-   * to multiples of this value.
+   * The large step value of the input element when incrementing while the shift key is held.
+   * Snaps to multiples of this value when `snapOnStep` is enabled.
    * @default 10
    */
   largeStep?: number | undefined;
@@ -627,7 +621,7 @@ export interface NumberFieldRootProps extends Omit<
    * - `'input-clear'` when the field becomes empty
    * - `'input-blur'` when formatting (and clamping, if enabled) occurs on blur
    * - `'input-paste'` for paste interactions
-   * - `'keyboard'` for keyboard input
+   * - `'keyboard'` for arrow-key/Home/End stepping (typing digits uses `'input-change'`/`'input-clear'`)
    * - `'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls
    * - `'wheel'` for wheel-based scrubbing
    * - `'scrub'` for scrub area drags
@@ -703,6 +697,8 @@ export type NumberFieldRootChangeEventDetails = BaseUIChangeEventDetails<
   ChangeEventCustomProperties
 >;
 
+// `none` is kept for consistency with other components even though the number field never
+// commits with it.
 export type NumberFieldRootCommitEventReason =
   | typeof REASONS.inputBlur
   | typeof REASONS.inputClear
