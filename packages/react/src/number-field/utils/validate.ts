@@ -3,7 +3,6 @@ import { getFormatter } from '../../utils/formatNumber';
 import { parseNumber } from './parse';
 
 const STEP_EPSILON_FACTOR = 1e-10;
-const FLOATING_POINT_CLEANUP_EPSILON_FACTOR = 1;
 const MAX_FLOATING_POINT_CLEANUP_DELTA = 1e-10;
 
 // The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
@@ -41,7 +40,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
     // Cap the cleanup delta so `toPrecision(15)` cannot erase meaningful fractional values
     // at large magnitudes, where the relative epsilon alone is too permissive.
     const cleanupTolerance = Math.min(
-      Number.EPSILON * Math.max(1, Math.abs(value)) * FLOATING_POINT_CLEANUP_EPSILON_FACTOR,
+      Number.EPSILON * Math.max(1, Math.abs(value)),
       MAX_FLOATING_POINT_CLEANUP_DELTA,
     );
 
