@@ -1,7 +1,7 @@
 import { Mock, vi, expect } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
-import { waitFor, screen } from '@mui/internal-test-utils';
+import { act, waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
 
@@ -51,6 +51,38 @@ describe('<Avatar.Fallback />', () => {
     });
   });
 
+  it.skipIf(!isJSDOM)('shows the fallback when a loaded image is unmounted', async () => {
+    (useImageLoadingStatus as Mock).mockReturnValue('loaded');
+
+    function Test() {
+      const [showImage, setShowImage] = React.useState(true);
+
+      return (
+        <div>
+          <button onClick={() => setShowImage(false)}>Hide image</button>
+          <Avatar.Root>
+            {showImage && <Avatar.Image data-testid="image" src="avatar.png" />}
+            <Avatar.Fallback data-testid="fallback">AC</Avatar.Fallback>
+          </Avatar.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<Test />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('fallback')).toBe(null);
+    });
+    expect(screen.getByTestId('image')).not.toBe(null);
+
+    await user.click(screen.getByText('Hide image'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('fallback')).not.toBe(null);
+    });
+    expect(screen.queryByTestId('image')).toBe(null);
+  });
+
   describe.skipIf(!isJSDOM)('prop: delay', () => {
     const { clock, render: renderFakeTimers } = createRenderer();
 
@@ -67,6 +99,33 @@ describe('<Avatar.Fallback />', () => {
       expect(screen.queryByText('AC')).toBe(null);
 
       clock.tick(100);
+
+      expect(screen.queryByText('AC')).not.toBe(null);
+    });
+
+    it('shows the fallback when delay changes to undefined', async () => {
+      (useImageLoadingStatus as Mock).mockReturnValue('error');
+      let setDelay!: React.Dispatch<React.SetStateAction<number | undefined>>;
+
+      function Test() {
+        const [delay, setDelayState] = React.useState<number | undefined>(100);
+        setDelay = setDelayState;
+
+        return (
+          <Avatar.Root>
+            <Avatar.Image />
+            <Avatar.Fallback delay={delay}>AC</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      await renderFakeTimers(<Test />);
+
+      expect(screen.queryByText('AC')).toBe(null);
+
+      act(() => {
+        setDelay(undefined);
+      });
 
       expect(screen.queryByText('AC')).not.toBe(null);
     });
