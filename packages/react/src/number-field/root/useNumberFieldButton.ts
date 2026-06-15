@@ -56,6 +56,11 @@ export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
     allowInputSyncRef.current = true;
 
     if (!shouldCommitInputValue) {
+      // The input is already synced, so step from the authoritative numeric value rather than
+      // re-parsing the rounded display text. Refresh the commit ref to the current value so a
+      // subsequent canceled step can't commit a stale `lastChangedValueRef` left over from an
+      // earlier change (the `setValue` that used to refresh it is now skipped on this path).
+      lastChangedValueRef.current = valueRef.current;
       return;
     }
 

@@ -199,6 +199,50 @@ describe('<NumberField.Increment />', () => {
     expect(onValueChange.mock.lastCall?.[0]).toBe(100000000000000.1 + 0.1);
   });
 
+  it('does not commit a stale value when a synced increment is canceled after an external change', async () => {
+    const onValueCommitted = vi.fn();
+    let cancelNextChange = false;
+
+    function Controlled() {
+      const [value, setValue] = React.useState<number | null>(0);
+      return (
+        <NumberField.Root
+          value={value}
+          onValueChange={(val, details) => {
+            if (cancelNextChange) {
+              details.cancel();
+              return;
+            }
+            setValue(val);
+          }}
+          onValueCommitted={onValueCommitted}
+        >
+          <NumberField.Input />
+          <NumberField.Increment />
+          <button onClick={() => setValue(10)}>external</button>
+        </NumberField.Root>
+      );
+    }
+
+    await render(<Controlled />);
+    const increase = screen.getByLabelText('Increase');
+
+    // A prior committed increment populates the internal `lastChangedValueRef` (1).
+    fireEvent.click(increase);
+    expect(onValueCommitted.mock.calls.length).toBe(1);
+    expect(onValueCommitted.mock.lastCall?.[0]).toBe(1);
+
+    // The controlled value changes externally to 10.
+    fireEvent.click(screen.getByText('external'));
+
+    // Canceling the next increment must not commit the stale earlier value (1): the synced
+    // path now refreshes the commit ref to the current value before stepping.
+    cancelNextChange = true;
+    fireEvent.click(increase);
+
+    expect(onValueCommitted.mock.calls.length).toBe(1);
+  });
+
   it('only calls onValueChange once per increment', async () => {
     const handleValueChange = vi.fn();
     const { user } = await render(
