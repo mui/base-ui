@@ -55,6 +55,7 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
       )}
       <GhostButton
         aria-label="Copy code"
+        layout="icon"
         onClick={async () => {
           const codeRoot = document.getElementById(codeId);
           const code = codeRoot?.querySelector('pre code')?.textContent ?? codeRoot?.textContent;
@@ -80,7 +81,6 @@ export function Panel({ className, title, children, ...other }: CodeBlockPanelPr
           }
         }}
       >
-        Copy
         <span className="CodeBlockCopyIcon">{copyTimeout ? <CheckIcon /> : <CopyIcon />}</span>
       </GhostButton>
     </div>
