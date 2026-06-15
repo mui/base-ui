@@ -2088,6 +2088,43 @@ describe('<NumberField />', () => {
       expect(input).toHaveValue('10');
     });
 
+    it('revalidates an external change after a blur that normalizes back to the current value', async () => {
+      const validate = (value: unknown) => (value === 5 ? 'error' : null);
+
+      function App() {
+        const [value, setValue] = React.useState<number | null>(5);
+        return (
+          <Form>
+            <Field.Root validationMode="onBlur" validate={validate} name="quantity">
+              <NumberFieldBase.Root value={value} onValueChange={setValue} max={5}>
+                <NumberFieldBase.Input />
+              </NumberFieldBase.Root>
+            </Field.Root>
+            <button type="button" onClick={() => setValue(3)}>
+              external
+            </button>
+          </Form>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      // Blur after typing a value that clamps back to the current value (5). This sets the
+      // internal block-revalidation flag and commits an error, but since the stored value is
+      // unchanged `useValueChanged` won't fire to reset the flag.
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '9' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('5');
+      expect(input).toHaveAttribute('aria-invalid', 'true');
+
+      // The flag must have been reset on blur so the next external change revalidates and
+      // clears the error rather than being swallowed.
+      await user.click(screen.getByText('external'));
+      expect(input).not.toHaveAttribute('aria-invalid');
+    });
+
     it('Field.Label', async () => {
       await render(
         <Field.Root>
