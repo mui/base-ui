@@ -145,6 +145,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
     id: nativeButton ? inputId : id,
     onKeyDown(event) {
       if (event.key === 'Enter') {
+        // Radio only activates with Space. Preventing the keydown's default
+        // stops useButton from turning Enter into a click.
         event.preventDefault();
       }
     },

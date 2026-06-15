@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { error } from '@base-ui/utils/error';
 import { SafeReact } from '@base-ui/utils/safeReact';
@@ -124,7 +125,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
             }
 
             const isCurrentTarget = event.target === event.currentTarget;
-            const currentTarget = event.currentTarget as HTMLElement;
+            const currentTarget = event.currentTarget as Element;
             const isButton = isButtonElement(currentTarget);
             const isLink = !isNativeButton && isValidLinkElement(currentTarget);
             const shouldClick = isCurrentTarget && (isNativeButton ? isButton : !isLink);
@@ -141,26 +142,27 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
               event.preventDefault();
 
-              if (isLink || (isNativeButton && isButton)) {
-                currentTarget.click();
-                event.preventBaseUIHandler();
-              } else if (shouldClick) {
-                externalOnClick?.(event);
-                event.preventBaseUIHandler();
+              if (isLink || (isNativeButton && isButton) || shouldClick) {
+                activateElement(event, currentTarget, externalOnClick);
               }
 
               return;
             }
 
             // Keyboard accessibility for native and non-native elements.
-            if (shouldClick) {
-              if (!isNativeButton && (isSpaceKey || isEnterKey)) {
-                event.preventDefault();
-              }
+            if (!shouldClick || isNativeButton || (!isSpaceKey && !isEnterKey)) {
+              return;
+            }
 
-              if (!isNativeButton && isEnterKey) {
-                externalOnClick?.(event);
-              }
+            // Match native buttons: preventing the keydown's default cancels activation.
+            if (event.defaultPrevented) {
+              return;
+            }
+
+            event.preventDefault();
+
+            if (isEnterKey) {
+              activateElement(event, currentTarget, externalOnClick);
             }
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
@@ -195,7 +197,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               !isCompositeItem &&
               event.key === ' '
             ) {
-              externalOnClick?.(event);
+              activateElement(event, event.currentTarget as Element, externalOnClick);
             }
           },
           onPointerDown(event: React.PointerEvent) {
@@ -225,14 +227,41 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
   };
 }
 
-function isButtonElement(
-  elem: HTMLButtonElement | HTMLAnchorElement | HTMLElement | null,
-): elem is HTMLButtonElement {
+function activateElement(
+  event: BaseUIEvent<React.KeyboardEvent>,
+  element: Element,
+  fallback: ((event: React.SyntheticEvent) => void) | undefined,
+) {
+  event.preventBaseUIHandler();
+
+  if (!isHTMLElement(element)) {
+    // Preserve the previous direct-handler behavior for non-HTML render roots.
+    fallback?.(event);
+    return;
+  }
+
+  // Equivalent to `click()` — an untrusted click still runs native activation behavior
+  // (form submission, link navigation) — but carries the keyboard event's modifier
+  // state, which `click()` always reports as unpressed.
+  element.dispatchEvent(
+    new (ownerWindow(element).PointerEvent)('click', {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+      shiftKey: event.shiftKey,
+      ctrlKey: event.ctrlKey,
+      altKey: event.altKey,
+      metaKey: event.metaKey,
+    }),
+  );
+}
+
+function isButtonElement(elem: Element | null): elem is HTMLButtonElement {
   return isHTMLElement(elem) && elem.tagName === 'BUTTON';
 }
 
-function isValidLinkElement(elem: HTMLElement | null): elem is HTMLAnchorElement {
-  return Boolean(elem?.tagName === 'A' && (elem as HTMLAnchorElement)?.href);
+function isValidLinkElement(elem: Element | null): elem is HTMLAnchorElement {
+  return isHTMLElement(elem) && elem.tagName === 'A' && Boolean((elem as HTMLAnchorElement).href);
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {

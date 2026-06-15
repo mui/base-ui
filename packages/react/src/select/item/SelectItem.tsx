@@ -114,7 +114,6 @@ export const SelectItem = React.memo(
       }
     }, [hasRegistered, index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
 
-    const lastKeyRef = React.useRef<string | null>(null);
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
     const allowMouseSelectionRef = React.useRef(false);
 
@@ -160,15 +159,16 @@ export const SelectItem = React.memo(
       'aria-selected': selected,
       tabIndex: open && highlighted ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-        lastKeyRef.current = event.key;
         store.set('activeIndex', index);
 
         if (event.key === ' ' && typingRef.current) {
+          // `useButton` skips Space activation for `role="option"` items when the keydown
+          // is `defaultPrevented`, keeping typeahead spaces from committing a selection.
           event.preventDefault();
         }
       },
       onClick(event) {
-        const isMouseClick = event.type === 'click' && pointerTypeRef.current !== 'touch';
+        const isMouseClick = pointerTypeRef.current !== 'touch';
         const clickPointerType = (event.nativeEvent as PointerEvent).pointerType;
         const isVirtualMouseClick =
           isMouseClick &&
@@ -185,20 +185,10 @@ export const SelectItem = React.memo(
 
         allowMouseSelectionRef.current = false;
 
-        // Prevent double commit on {Enter}
-        if (event.type === 'keydown' && lastKeyRef.current === null) {
+        if (disabled || isInvalidMouseClick) {
           return;
         }
 
-        if (
-          disabled ||
-          (event.type === 'keydown' && lastKeyRef.current === ' ' && typingRef.current) ||
-          isInvalidMouseClick
-        ) {
-          return;
-        }
-
-        lastKeyRef.current = null;
         commitSelection(event.nativeEvent);
       },
       onPointerEnter(event) {

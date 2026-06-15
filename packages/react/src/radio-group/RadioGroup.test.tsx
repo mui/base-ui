@@ -93,6 +93,26 @@ describe('<RadioGroup />', () => {
       expect(handleChange).toHaveBeenLastCalledWith('a', expect.anything());
     });
 
+    it('should not select an item with Enter', async () => {
+      const handleChange = vi.fn();
+      const { user } = await render(
+        <RadioGroup onValueChange={handleChange}>
+          <Radio.Root value="a" data-testid="item" />
+        </RadioGroup>,
+      );
+
+      const item = screen.getByTestId('item');
+
+      act(() => {
+        item.focus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      expect(handleChange).not.toHaveBeenCalled();
+      expect(item).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('does not change state when canceled via a root click', async () => {
       const { user } = await render(
         <Field.Root>
