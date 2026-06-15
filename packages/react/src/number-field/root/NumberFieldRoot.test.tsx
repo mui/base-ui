@@ -831,6 +831,22 @@ describe('<NumberField />', () => {
       fireEvent.blur(input);
       expect(input).not.toHaveAttribute('data-focused');
     });
+
+    it('does not render aria-readonly on stepper buttons', async () => {
+      await render(<NumberField readOnly />);
+
+      const input = screen.getByRole('textbox');
+      const increment = screen.getByRole('button', { name: 'Increase' });
+      const decrement = screen.getByRole('button', { name: 'Decrease' });
+
+      // `aria-readonly` isn't valid on the `button` role; the readonly state lives on the input,
+      // and the steppers are exposed as unavailable via disabled semantics instead.
+      expect(input).toHaveAttribute('readonly');
+      expect(increment).not.toHaveAttribute('aria-readonly');
+      expect(decrement).not.toHaveAttribute('aria-readonly');
+      expect(increment).toHaveAttribute('aria-disabled', 'true');
+      expect(decrement).toHaveAttribute('aria-disabled', 'true');
+    });
   });
 
   describe('prop: required', () => {
