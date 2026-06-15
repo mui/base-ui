@@ -41,6 +41,12 @@ export class DialogHandle<Payload> {
       true,
       createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
     );
+
+    if (triggerId && !triggerElement) {
+      // The intended trigger hasn't mounted yet. Record the association so it is claimed
+      // (with its payload) once it registers, instead of being treated as a trigger-less open.
+      this.store.update({ activeTriggerId: triggerId, openedWithoutTrigger: false });
+    }
   }
 
   /**

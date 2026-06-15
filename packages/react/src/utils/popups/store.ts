@@ -55,6 +55,12 @@ export type PopupStoreState<Payload> = {
    */
   activeTriggerElement: Element | null;
   /**
+   * Whether the popup was opened imperatively without a trigger (e.g. via a handle's
+   * `openWithPayload`/`open(null)`). When set, a later-mounting trigger must not claim ownership
+   * and overwrite programmatically set state such as `payload`.
+   */
+  openedWithoutTrigger: boolean;
+  /**
    * ID of the trigger (external prop).
    */
   readonly triggerIdProp: string | null | undefined;
@@ -94,6 +100,7 @@ export function createInitialPopupStoreState<Payload>(): PopupStoreState<Payload
     payload: undefined,
     activeTriggerId: null,
     activeTriggerElement: null,
+    openedWithoutTrigger: false,
     triggerIdProp: undefined,
     popupElement: null,
     positionerElement: null,
@@ -168,7 +175,9 @@ function triggerOwnsOpenPopupOrIsOnlyTrigger(state: S, triggerId: string | undef
     triggerId !== undefined &&
     openSelector(state) &&
     activeTriggerIdSelector(state) == null &&
-    state.triggerCount === 1
+    state.triggerCount === 1 &&
+    // A popup opened without a trigger must not be associated with a lone late trigger.
+    !state.openedWithoutTrigger
   );
 }
 
