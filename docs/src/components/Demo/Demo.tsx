@@ -28,11 +28,10 @@ import { DemoPlayground } from './DemoPlayground';
 import './Demo.css';
 
 export type DemoProps = ContentProps<{
-  compact?: boolean;
   className?: string;
 }>;
 
-export function Demo({ compact = false, className, ...demoProps }: DemoProps) {
+export function Demo({ className, ...demoProps }: DemoProps) {
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
   const sourceLinkCopyResetTimeout = useTimeout();
@@ -207,29 +206,27 @@ export function Demo({ compact = false, className, ...demoProps }: DemoProps) {
         onOpenChange={onOpenChange}
       >
         <div role="figure" aria-label="Component demo code">
-          {(compact ? demo.expanded : true) && (
-            <div className="DemoToolbar">
-              {/* One ScrollArea drives the edge-fade indicators at every viewport.
-                  Below --sm the actions sit inside it (they scroll with the tabs);
-                  at --sm+ the in-scroll copy is hidden and the sticky copy outside
-                  takes over. Both copies stay mounted so state survives a resize. */}
-              <ScrollArea.Root className="DemoToolbarScrollAreaRoot">
-                <ScrollArea.Viewport className="DemoToolbarViewport">
-                  <DemoFileSelector
-                    files={demo.files}
-                    selectedFileName={demo.selectedFileName}
-                    selectFileName={onSelectFile}
-                    onTabChange={demo.expand}
-                  />
-                  <div className="DemoToolbarActions DemoToolbarActionsMobile">
-                    {toolbarActions}
-                  </div>
-                </ScrollArea.Viewport>
-              </ScrollArea.Root>
+          <div className="DemoToolbar">
+            {/* One ScrollArea drives the edge-fade indicators at every viewport.
+                Below --sm the actions sit inside it (they scroll with the tabs);
+                at --sm+ the in-scroll copy is hidden and the sticky copy outside
+                takes over. Both copies stay mounted so state survives a resize. */}
+            <ScrollArea.Root className="DemoToolbarScrollAreaRoot">
+              <ScrollArea.Viewport className="DemoToolbarViewport">
+                <DemoFileSelector
+                  files={demo.files}
+                  selectedFileName={demo.selectedFileName}
+                  selectFileName={onSelectFile}
+                  onTabChange={demo.expand}
+                />
+                <div className="DemoToolbarActions DemoToolbarActionsMobile">
+                  {toolbarActions}
+                </div>
+              </ScrollArea.Viewport>
+            </ScrollArea.Root>
 
-              <div className="DemoToolbarActions DemoToolbarActionsDesktop">{toolbarActions}</div>
-            </div>
-          )}
+            <div className="DemoToolbarActions DemoToolbarActionsDesktop">{toolbarActions}</div>
+          </div>
 
           <DemoCodeBlock
             selectedFile={demo.selectedFile}
