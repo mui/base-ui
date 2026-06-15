@@ -141,6 +141,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
     const store = usePopupStore(
       externalStore,
       (floatingId, nested) => new PreviewCardStore<Payload>(initialState, floatingId, nested),
+      initialState,
     ).store;
     /* eslint-enable react-hooks/rules-of-hooks */
 

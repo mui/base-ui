@@ -12,6 +12,7 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  useAdoptedStoreReset,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -177,10 +178,20 @@ export class MenuStore<Payload> extends ReactStore<
     externalStore: MenuStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    /* eslint-disable react-hooks/rules-of-hooks */
     const internalStore = useRefWithInit(() => {
       return new MenuStore<Payload>(initialState);
     }).current;
+
+    // Menu-specific open-cycle state that is neither benign when stale nor re-derived by a Root
+    // effect: a stale `activeIndex` would be re-applied (highlighting and focusing the wrong
+    // item) on the first open after adoption, and `allowMouseEnter` is otherwise only cleared
+    // when a close transition completes, which never happens when a Root unmounts while open.
+    useAdoptedStoreReset(externalStore, initialState, {
+      activeIndex: null,
+      allowMouseEnter: false,
+    });
+    /* eslint-enable react-hooks/rules-of-hooks */
 
     return externalStore ?? internalStore;
   }

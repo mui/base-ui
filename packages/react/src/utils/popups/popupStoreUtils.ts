@@ -37,6 +37,91 @@ type PopupStoreWithOpen<
   setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
 };
 
+/**
+ * Resets the open-cycle state of a handle-owned (external) store when a Root adopts it.
+ *
+ * A handle-owned store outlives the Root that mounts it, so it can carry open-cycle state left
+ * over from a previously unmounted Root (e.g. one unmounted while open on navigation), or state
+ * written by trigger interactions that fired while no Root was mounted. Resetting on adoption
+ * makes the popup start from the adopting Root's initial state, just like an internal store
+ * (which is recreated on each mount). Resetting to `initialState` (rather than a hardcoded
+ * closed state) keeps `defaultOpen` intact; the controlled `open`/`triggerId` props are
+ * re-applied by the Root via `useControlledProp`. Trigger registrations are untouched;
+ * active-trigger fields are reset and re-derived from the still-mounted triggers.
+ * See https://github.com/mui/base-ui/issues/4951
+ *
+ * Only the open-cycle fields of the base `PopupStoreState` are reset by default. Fields added by
+ * concrete stores are not visible here — pass them via `additionalResetState` (as Menu does for
+ * `activeIndex`), unless they are benign when stale or cleaned up by the Root's own effects (as
+ * `openMethod` is by `usePopupRootSync` in Dialog and Popover, or by the Root's synced values in
+ * Menu).
+ *
+ * This also means `handle.open()` calls made before any Root mounts are discarded when the Root
+ * adopts the handle; pre-mount open requests are not replayed. During concurrent renders, the
+ * shared store is reset before commit, so if a render is later aborted while an old Root is still
+ * visibly mounted, or if two Roots using the same handle briefly overlap, the store may already
+ * reflect the adopting Root's initial state until React commits the final tree.
+ *
+ * Adoption is detected only on the Root's first render: swapping the `handle` of a mounted Root
+ * to a different store is not supported and does not re-run the reset.
+ *
+ * @param externalStore The handle-owned store being adopted, or `undefined` when the Root uses an
+ * internal store (in which case the hook does nothing).
+ * @param initialState The adopting Root's initial state; the open-cycle fields are reset to the
+ * values it carries (`defaultOpen`, controlled props, default trigger) rather than a hardcoded
+ * closed state.
+ * @param additionalResetState Extra reset values for open-cycle fields that concrete stores add on
+ * top of the base `PopupStoreState`, applied after (and overriding) the base reset fields. The
+ * values must be render-stable: the reset re-runs on every render until the adoption commits.
+ */
+export function useAdoptedStoreReset<State extends PopupStoreState<unknown>>(
+  externalStore: ReactStore<State, any, any> | undefined,
+  initialState: Partial<State> | undefined,
+  additionalResetState?: Partial<State>,
+) {
+  const pendingAdoptionRef = React.useRef(externalStore !== undefined);
+
+  // The state object is replaced directly during render (not via `update`) so the adopting Root
+  // and its children read the reset values in their very first render: the popup never mounts
+  // with the stale open state, and no subscribers are notified mid-render. Resetting in a layout
+  // effect instead does not work — by then the first commit has already mounted the stale-open
+  // popup, and effects registered after the reset (such as `useOpenStateTransitions`'s synced
+  // `mounted`) write their stale render-computed values back, producing a visible close
+  // transition of a popup the user never opened.
+  //
+  // The replacement is idempotent and re-runs on every render until the adoption commits, so a
+  // render that React discards (StrictMode's double render, an interrupted or suspended render)
+  // neither loses the reset nor consumes it prematurely: the retry render re-applies it, and only
+  // the committed render flushes subscribers (e.g. detached triggers) after commit. Until then,
+  // each re-run also clobbers render-phase writes to these fields made after this hook, so such
+  // writes must agree with `initialState` (as the Root's `useOnFirstRender` defaultOpen logic
+  // does). An unmount-cleanup reset is not an option either: it would run in StrictMode's
+  // simulated unmount and wipe state the Root applied during its first render and never
+  // re-applies.
+  if (pendingAdoptionRef.current && externalStore !== undefined) {
+    externalStore.state = {
+      ...externalStore.state,
+      open: initialState?.open ?? false,
+      openProp: initialState?.openProp,
+      mounted: false,
+      transitionStatus: undefined,
+      activeTriggerId: initialState?.activeTriggerId ?? null,
+      activeTriggerElement: null,
+      triggerIdProp: initialState?.triggerIdProp,
+      payload: initialState?.payload,
+      preventUnmountingOnClose: false,
+      ...additionalResetState,
+    };
+  }
+
+  useIsoLayoutEffect(() => {
+    if (pendingAdoptionRef.current) {
+      pendingAdoptionRef.current = false;
+      externalStore?.notifyAll();
+    }
+  }, [externalStore]);
+}
+
 export function usePopupStore<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
@@ -44,6 +129,7 @@ export function usePopupStore<
 >(
   externalStore: Store | undefined,
   createStore: (floatingId: string | undefined, nested: boolean) => Store,
+  initialState?: Partial<State>,
   treatPopupAsFloatingElement = false,
 ) {
   const floatingId = useId();
@@ -55,6 +141,8 @@ export function usePopupStore<
   }
 
   const store = externalStore ?? internalStoreRef.current!;
+
+  useAdoptedStoreReset(externalStore, initialState);
 
   useSyncedFloatingRootContext({
     popupStore: store,

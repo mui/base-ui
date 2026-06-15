@@ -118,6 +118,7 @@ export class DialogStore<Payload> extends ReactStore<
     const store = usePopupStore(
       externalStore,
       (floatingId, nested) => new DialogStore<Payload>(initialState, floatingId, nested),
+      initialState,
       true,
     ).store;
     /* eslint-enable react-hooks/rules-of-hooks */

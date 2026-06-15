@@ -2,7 +2,7 @@ import { expect } from 'vitest';
 import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Popover } from '@base-ui/react/popover';
 
 describe('<Popover.Root />', () => {
@@ -956,6 +956,120 @@ describe('<Popover.Root />', () => {
       });
 
       expect(trigger2).toHaveAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Regression test for https://github.com/mui/base-ui/issues/4951.
+  // A handle-owned store is not reset when the Root unmounts; the stale state is cleared when
+  // the next Root adopts the handle. The "page" (trigger + Root together) unmounts and remounts
+  // to emulate navigating away from and back to a route while the module-level handle persists.
+  describe('resetting handle-owned state when a new Root adopts the handle', () => {
+    it('does not resurface the open state on a subsequent Root mount', async () => {
+      const popover = Popover.createHandle();
+
+      function Page() {
+        return (
+          <React.Fragment>
+            <Popover.Trigger handle={popover} id="trigger">
+              Trigger
+            </Popover.Trigger>
+            <Popover.Root handle={popover}>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="content">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      function App({ showPage }: { showPage: boolean }) {
+        return <div>{showPage ? <Page /> : <div>Other page</div>}</div>;
+      }
+
+      const { setProps } = await render(<App showPage />);
+
+      await act(() => popover.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      // Navigate away while open.
+      await setProps({ showPage: false });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      // Navigate back: the popover stays closed.
+      await setProps({ showPage: true });
+      expect(screen.queryByRole('dialog')).toBe(null);
+      expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+        'aria-expanded',
+        'false',
+      );
+
+      // The handle still controls the popover after the remount.
+      await act(() => popover.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+    });
+
+    describe('with a pending delayed trigger interaction', () => {
+      // This scenario stages a precise interleaving of a fake hover timer with a single
+      // mount/unmount sequence. StrictMode's double-invoked effects re-run the hover
+      // interaction setup and disturb that timing, so it runs without StrictMode,
+      // matching a production render.
+      const { render: renderNonStrict, clock: nonStrictClock } = createRenderer({ strict: false });
+      nonStrictClock.withFakeTimers();
+
+      it('does not resurface open state written by a hover timer that fired while no Root was mounted', async () => {
+        const popover = Popover.createHandle();
+
+        // Unlike the navigation scenario above, the trigger stays mounted while only the
+        // Root unmounts, so a hover open timer scheduled before the unmount fires while
+        // no Root is mounted and writes open state into the handle-owned store.
+        function App({ showRoot }: { showRoot: boolean }) {
+          return (
+            <div>
+              <Popover.Trigger handle={popover} id="trigger" openOnHover delay={100}>
+                Trigger
+              </Popover.Trigger>
+              {showRoot && (
+                <Popover.Root handle={popover}>
+                  <Popover.Portal>
+                    <Popover.Positioner>
+                      <Popover.Popup data-testid="content">Content</Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              )}
+            </div>
+          );
+        }
+
+        const { setProps } = await renderNonStrict(<App showRoot />);
+
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+        // Schedule the delayed hover open, then unmount the Root before it fires.
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        await setProps({ showRoot: false });
+
+        // The timer fires with no Root mounted and writes `open: true` into the store.
+        nonStrictClock.tick(100);
+        await flushMicrotasks();
+        expect(popover.isOpen).toBe(true);
+        expect(screen.queryByRole('dialog')).toBe(null);
+
+        // A newly mounted Root must not inherit that state.
+        await setProps({ showRoot: true });
+        expect(screen.queryByRole('dialog')).toBe(null);
+        expect(popover.isOpen).toBe(false);
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
     });
   });
 });
