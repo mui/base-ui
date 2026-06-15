@@ -56,11 +56,11 @@ describe('<Slider.Value />', () => {
         currency: 'USD',
       };
       function formatValue(v: number) {
-        return new Intl.NumberFormat(undefined, format).format(v);
+        return new Intl.NumberFormat('en-US', format).format(v);
       }
       const renderSpy = vi.fn();
       await render(
-        <Slider.Root defaultValue={[40, 60]} format={format}>
+        <Slider.Root defaultValue={[40, 60]} format={format} locale="en-US">
           <Slider.Value data-testid="output">{renderSpy}</Slider.Value>
         </Slider.Root>,
       );
