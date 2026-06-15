@@ -75,6 +75,26 @@ describe('<NumberField.Decrement />', () => {
     expect(input).toHaveValue((0.23456).toLocaleString());
   });
 
+  it('decrements uncontrolled defaultValue from numeric state, not rounded display text', async () => {
+    const onValueChange = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root defaultValue={1.23456} onValueChange={onValueChange}>
+        <NumberField.Input />
+        <NumberField.Decrement />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    expect(input).toHaveValue((1.23456).toLocaleString());
+
+    await user.click(screen.getByLabelText('Decrease'));
+
+    expect(onValueChange.mock.calls.map((call) => call[0])).toEqual([0.23456]);
+    expect(input).toHaveValue((0.23456).toLocaleString());
+  });
+
   it('does not commit a stale value when a synced decrement is canceled after an external change', async () => {
     const onValueCommitted = vi.fn();
     let cancelNextChange = false;

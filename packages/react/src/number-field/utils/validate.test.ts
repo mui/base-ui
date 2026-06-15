@@ -40,6 +40,14 @@ describe('NumberField validate', () => {
       expect(removeFloatingPointErrors(0.1 + 0.2 + 0.3)).toBe(0.6);
     });
 
+    it('leaves large-magnitude noise uncleaned once one ULP exceeds the absolute cap', () => {
+      // From the 2^19 binade (~5.2e5) up, a single ULP exceeds MAX_FLOATING_POINT_CLEANUP_DELTA,
+      // so the delta-bounded cleanup returns the raw (noisy) sum rather than risk corrupting
+      // real precision.
+      expect(removeFloatingPointErrors(1000000.1 + 0.2)).toBe(1000000.1 + 0.2);
+      expect(removeFloatingPointErrors(1000000.1 + 0.2)).not.toBe(1000000.3);
+    });
+
     it('returns 0.3 for 0.2 + 0.1 with maximumFractionDigits', () => {
       expect(removeFloatingPointErrors(0.2 + 0.1, { maximumFractionDigits: 1 })).toBe(0.3);
     });

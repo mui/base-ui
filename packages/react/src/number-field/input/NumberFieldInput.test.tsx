@@ -187,6 +187,27 @@ describe('<NumberField.Input />', () => {
     expect(onValueChange.mock.lastCall?.[0]).toBe(2.23456);
   });
 
+  it('decrements with keyboard from numeric state, not rounded display text', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <NumberField.Root defaultValue={1.23456} onValueChange={onValueChange}>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveValue((1.23456).toLocaleString());
+
+    await act(async () => input.focus());
+
+    // ArrowDown must step from the full-precision numeric value (0.23456), not the rounded
+    // display (which would yield 0.235).
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+    expect(onValueChange.mock.lastCall?.[0]).toBe(0.23456);
+  });
+
   it('increments with keyboard from numeric state after a no-edit blur cycle', async () => {
     const onValueChange = vi.fn();
 
@@ -327,6 +348,30 @@ describe('<NumberField.Input />', () => {
     // The button commits the dirty text before stepping, so it must step from 1.5, not 0.
     fireEvent.click(screen.getByLabelText('Increase'));
     expect(onValueChange.mock.lastCall?.[0]).toBe(2.5);
+  });
+
+  it('commits dirty text on blur after a cursor key when the controlled value does not mirror it', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <NumberField.Root value={0} onValueChange={onValueChange}>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    await act(async () => input.focus());
+
+    // Parent never mirrors onValueChange, so the numeric state stays 0 while the text is dirty.
+    fireEvent.change(input, { target: { value: '5' } });
+    expect(onValueChange.mock.lastCall?.[0]).toBe(5);
+
+    // A cursor key must not clear dirty authority, so blur commits the typed text (5) rather
+    // than silently reverting to the stale numeric state (0).
+    fireEvent.keyDown(input, { key: 'ArrowLeft' });
+    onValueChange.mockClear();
+    fireEvent.blur(input);
+    expect(onValueChange.mock.lastCall?.[0]).toBe(5);
   });
 
   it('allows unicode plus/minus, permille and fullwidth digits on keydown when formatted as percent', async () => {
