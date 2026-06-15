@@ -2,13 +2,12 @@
 
 @layer components {
   .SideNavRoot {
-    /* Match quick nav spacing so side nav and quick nav are visually aligned */
-    --side-nav-item-height: 2rem;
+    --side-nav-item-height: 1.75rem;
     --side-nav-item-line-height: 1.375rem;
     --side-nav-item-padding-y: calc(
       var(--side-nav-item-height) / 2 - var(--side-nav-item-line-height) / 2
     );
-    --side-nav-link-padding-x: 0.75rem;
+    --side-nav-link-padding-x: 0.5rem;
 
     --side-nav-scrollbar-thumb-width: 0.25rem;
     --side-nav-scrollbar-width: 1.5rem;
