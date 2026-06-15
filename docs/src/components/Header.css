@@ -32,6 +32,13 @@
 
     @media (--show-quick-nav) {
       background: none;
+      /* The header is transparent here, so let clicks fall through to the
+         content scrolling under it while keeping its own controls interactive. */
+      pointer-events: none;
+
+      & > * {
+        pointer-events: auto;
+      }
     }
 
     @media print {
