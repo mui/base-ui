@@ -423,6 +423,18 @@ describe('NumberField validate', () => {
       ).toBe(steppedValue);
     });
 
+    it('preserves high-significance step values', () => {
+      const step = 0.1234567890123456;
+
+      expect(
+        toValidatedNumber(step, {
+          ...defaultOptions,
+          step,
+          snapOnStep: false,
+        }),
+      ).toBe(step);
+    });
+
     describe('incrementing', () => {
       it('snaps 5 to 5 when step is 1', () => {
         expect(toValidatedNumber(5, defaultOptions)).toBe(5);

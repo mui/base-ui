@@ -3,7 +3,7 @@ import { getFormatter } from '../../utils/formatNumber';
 import { parseNumber } from './parse';
 
 const STEP_EPSILON_FACTOR = 1e-10;
-const FLOATING_POINT_CLEANUP_EPSILON_FACTOR = 4;
+const FLOATING_POINT_CLEANUP_EPSILON_FACTOR = 1;
 const MAX_FLOATING_POINT_CLEANUP_DELTA = 1e-10;
 
 // The repo compiles against es2022 Intl types, so model NumberFormat v3 options locally.
@@ -35,12 +35,7 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
 
   if (!hasNumberFormatRoundingOptions(format)) {
     // Clean binary floating-point noise (e.g. `0.1 + 0.2`) without discarding legitimate
-    // precision. Integer Number values are already integral as stored, so returning them
-    // verbatim avoids corrupting large integer values that `toPrecision(15)` would change.
-    if (Number.isInteger(value)) {
-      return value;
-    }
-
+    // precision.
     const roundedValue = parseFloat(value.toPrecision(15));
     const cleanupDelta = Math.abs(roundedValue - value);
     // Cap the cleanup delta so `toPrecision(15)` cannot erase meaningful fractional values

@@ -75,6 +75,53 @@ describe('<NumberField.Increment />', () => {
     expect(input).toHaveValue((2.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
   });
 
+  it('preserves uncontrolled defaultValue precision on first increment', async () => {
+    const onValueChange = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root defaultValue={1.23456} onValueChange={onValueChange}>
+        <NumberField.Input />
+        <NumberField.Increment />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+
+    await user.click(screen.getByLabelText('Increase'));
+
+    expect(onValueChange.mock.calls.map((call) => call[0])).toEqual([2.23456]);
+    expect(input).toHaveValue((2.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+  });
+
+  it('preserves uncontrolled typed precision after later increments', async () => {
+    const onValueChange = vi.fn();
+
+    const { user } = await render(
+      <NumberField.Root onValueChange={onValueChange}>
+        <NumberField.Input />
+        <NumberField.Increment />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+    const increase = screen.getByLabelText('Increase');
+
+    await user.click(input);
+    await user.keyboard('1.23456');
+    fireEvent.blur(input);
+
+    expect(input).toHaveValue((1.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+
+    await user.click(increase);
+    expect(input).toHaveValue((2.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+
+    await user.click(increase);
+    expect(onValueChange.mock.lastCall?.[0]).toBe(3.23456);
+    expect(input).toHaveValue((3.23456).toLocaleString(undefined, { minimumFractionDigits: 5 }));
+  });
+
   it('advances by a step finer than 3 fraction digits', async () => {
     const onValueChange = vi.fn();
 
