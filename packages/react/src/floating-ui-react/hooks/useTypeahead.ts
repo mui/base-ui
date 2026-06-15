@@ -158,9 +158,13 @@ export function useTypeahead(
     }
 
     // Bail out if the list contains a word like "llama" or "aaron". TODO:
-    // allow it in this case, too.
-    const allowRapidSuccessionOfFirstLetter = listContent.every((text) =>
-      text ? text[0]?.toLocaleLowerCase() !== text[1]?.toLocaleLowerCase() : true,
+    // allow it in this case, too. Disabled items are skipped while matching, so
+    // they must be ignored here as well — otherwise a disabled double-letter
+    // label would block rapid cycling through the enabled items.
+    const allowRapidSuccessionOfFirstLetter = listContent.every((text, index) =>
+      text && !isIndexDisabled?.(index)
+        ? text[0]?.toLocaleLowerCase() !== text[1]?.toLocaleLowerCase()
+        : true,
     );
 
     // Allows the user to cycle through items that start with the same letter

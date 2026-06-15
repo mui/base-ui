@@ -4540,6 +4540,43 @@ describe('<Select.Root />', () => {
       expect(valueEl.textContent).toBe('');
     });
 
+    it('does not let a disabled double-letter item block rapid cycling among enabled matches', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <Select.Root value={value} onValueChange={setValue}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="aaron" disabled>
+                    aaron
+                  </Select.Item>
+                  <Select.Item value="apple">apple</Select.Item>
+                  <Select.Item value="avocado">avocado</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+
+      // The disabled "aaron" has a doubled first letter, which would otherwise disable
+      // rapid same-letter cycling. Because disabled items are skipped while matching, they
+      // must not count toward that guard: pressing "a" twice should cycle apple -> avocado.
+      await act(async () => trigger.focus());
+      await user.keyboard('a');
+      expect(valueEl.textContent).toBe('apple');
+      await user.keyboard('a');
+      expect(valueEl.textContent).toBe('avocado');
+    });
+
     it('starts from the first match after value reset (closed)', async () => {
       function App() {
         const [value, setValue] = React.useState<string | null>(null);
