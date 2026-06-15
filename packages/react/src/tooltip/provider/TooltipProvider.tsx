@@ -12,17 +12,14 @@ import { TooltipProviderContext } from './TooltipProviderContext';
 export const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;
 
-  const { contextValue, delayValue } = React.useMemo(
-    () => ({
-      contextValue: { delay, closeDelay } satisfies TooltipProviderContext,
-      delayValue: { open: delay, close: closeDelay },
-    }),
+  const contextValue: TooltipProviderContext = React.useMemo(
+    () => ({ open: delay, close: closeDelay }),
     [delay, closeDelay],
   );
 
   return (
     <TooltipProviderContext.Provider value={contextValue}>
-      <FloatingDelayGroup delay={delayValue} timeoutMs={timeout}>
+      <FloatingDelayGroup delay={contextValue} timeoutMs={timeout}>
         {props.children}
       </FloatingDelayGroup>
     </TooltipProviderContext.Provider>
