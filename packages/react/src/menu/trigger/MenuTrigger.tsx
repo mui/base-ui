@@ -348,7 +348,7 @@ export interface MenuTriggerProps<Payload = unknown>
 
 export interface MenuTriggerState {
   /**
-   * Whether the menu is currently open.
+   * Whether the menu is currently open and was opened by this trigger.
    */
   open: boolean;
   /**
