@@ -1518,6 +1518,73 @@ describe('<Dialog.Root />', () => {
       });
     },
   );
+
+  it.skipIf(isJSDOM)(
+    'does not leak a non-modal popup field into an unrelated dialog return focus',
+    async () => {
+      function App() {
+        const [confirmationOpen, setConfirmationOpen] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            {/* Clicking this non-focusable surface blurs the field to the body and
+                opens the confirmation while the body is focused. */}
+            <div
+              data-testid="surface"
+              onClick={() => setConfirmationOpen(true)}
+              style={{ width: 100, height: 100 }}
+            >
+              surface
+            </div>
+
+            {/* A non-modal dialog held open (controlled, no `onOpenChange`). Its field
+                blurs to the body on the outside press, but because it is non-modal it
+                must not feed the shared focus stack. */}
+            <Dialog.Root open modal={false}>
+              <Dialog.Portal>
+                <Dialog.Popup>
+                  <textarea data-testid="nonmodal-field" />
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+
+            <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
+              <AlertDialog.Portal>
+                <AlertDialog.Popup>
+                  <AlertDialog.Close data-testid="go-back">Go back</AlertDialog.Close>
+                </AlertDialog.Popup>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const field = screen.getByTestId('nonmodal-field');
+      await user.click(field);
+      expect(field).toHaveFocus();
+
+      // Blur the field to the body and open the confirmation while it is focused.
+      await user.click(screen.getByTestId('surface'));
+
+      const goBack = await screen.findByTestId('go-back');
+      await waitFor(() => {
+        expect(goBack).toHaveFocus();
+      });
+
+      await user.keyboard('[Enter]');
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('go-back')).toBe(null);
+      });
+
+      // The modal gate keeps the non-modal field out of the shared stack, so the
+      // confirmation must not restore focus into the unrelated dialog.
+      await flushMicrotasks();
+      expect(field).not.toHaveFocus();
+    },
+  );
 });
 
 function DialogOpenChangeSpy(props: {
