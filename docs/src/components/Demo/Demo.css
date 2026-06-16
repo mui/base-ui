@@ -73,10 +73,26 @@
      and the (in-scroll) actions; at --sm+ it holds just the tabs and the sticky
      actions sit outside it. */
   .DemoToolbarScrollAreaRoot {
+    position: relative;
     display: flex;
     flex: 1 1 auto;
     min-width: 0;
     align-self: stretch;
+  }
+
+  /* The viewport is focusable, but its own outline is unusable here: an inset
+     outline paints beneath the tabs, and the viewport's edge-fade mask erases it
+     at the edges. Draw the focus ring on this (unmasked, non-scrolling) wrapper
+     instead, overlaid above the tabs, when the viewport is focused. */
+  /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+  .DemoToolbarScrollAreaRoot:has(.DemoToolbarViewport:focus-visible)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    outline: 2px solid var(--gray-t2);
+    outline-offset: -2px;
+    pointer-events: none;
   }
 
   .DemoToolbarViewport {
@@ -113,10 +129,10 @@
       100% calc(100% - 1px),
       100% 1px;
 
+    /* Focus ring is drawn on `.DemoToolbarScrollAreaRoot` so it sits above the
+       tabs and outside this viewport's edge-fade mask. */
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
-      outline-offset: -1px;
-      z-index: 1;
+      outline: none;
     }
 
     &[data-has-overflow-x] {
