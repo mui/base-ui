@@ -152,6 +152,7 @@
   /* Inside the scroller — shown on mobile so the actions scroll with the tabs */
   .DemoToolbarActionsMobile {
     flex: 0 0 auto;
+    margin-left: auto;
 
     @media (--sm) {
       display: none;
