@@ -142,11 +142,11 @@ By default, the drawer can skip snap points when swiping quickly. Specify the `s
 
 ### Virtual keyboard aware
 
-Wrap a bottom sheet in `<Drawer.VirtualKeyboardProvider>` to make it react to software keyboards when it contains form controls.
+Wrap a bottom sheet in `<Drawer.VirtualKeyboardProvider>` to make it react to software keyboards when it contains form controls. When the keyboard opens, the provider scrolls the body to keep the focused field visible.
 
-Place header and footer content outside a plain scrollable body so the popup frame stays stable. When the keyboard opens, the provider scrolls the body to keep the focused field visible.
-
-If a footer contains its own input, reserve a footer slot below the scroll area and lift the pinned footer with `var(--drawer-keyboard-inset, 0px)`. Always include the `0px` fallback: the provider only sets the variable while the keyboard is aligned and removes it otherwise, so a bare `var(--drawer-keyboard-inset)` resolves to an invalid value before the first alignment and after cleanup. In the demo, the focused footer switches to `position: fixed` — positioned against the popup, since its `transform` contains fixed descendants — and adds the inset to its bottom padding.
+- **Keep the popup frame stable:** place header and footer content outside a plain scrollable body.
+- **Lift a pinned footer input:** if a footer contains its own input, reserve a footer slot below the scroll area and offset it by `var(--drawer-keyboard-inset, 0px)`. The demo switches the focused footer to `position: fixed` — positioned against the popup, since its `transform` contains fixed descendants — and adds the inset to its bottom padding.
+- **Always include the `0px` fallback:** the provider only sets `--drawer-keyboard-inset` while the keyboard is aligned, so a bare `var(--drawer-keyboard-inset)` is invalid before the first alignment and after cleanup.
 
 ```tsx title="Virtual keyboard aware drawer"
 <Drawer.Root>
