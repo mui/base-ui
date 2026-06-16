@@ -12,7 +12,7 @@
     padding-bottom: 4rem;
 
     @media (--show-side-nav) {
-      padding-top: 0.75rem;
+      padding-top: 0.25rem;
     }
   }
 
@@ -52,10 +52,7 @@
 
   .QuickNavViewport {
     max-height: calc(100dvh - var(--header-height));
-    padding-top: 0.75rem;
-    padding-right: 0;
-    padding-bottom: 0.75rem;
-    padding-left: 0;
+    padding: 0.25rem 0 0.75rem;
 
     /* Scroll containers are focusable */
     outline: 0;

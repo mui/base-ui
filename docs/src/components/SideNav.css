@@ -45,7 +45,7 @@
 
   .SideNavViewport {
     max-height: calc(100dvh - var(--header-height));
-    padding: 0.75rem
+    padding: 0.25rem
       calc(
         var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
           var(--side-nav-scrollbar-thumb-width) / 2
