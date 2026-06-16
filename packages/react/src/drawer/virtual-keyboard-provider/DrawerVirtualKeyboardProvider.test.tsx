@@ -993,6 +993,61 @@ describe('<Drawer.VirtualKeyboardProvider />', () => {
     }
   });
 
+  it.skipIf(isJSDOM)(
+    'preserves native taps that lift over a neighboring interactive element',
+    async () => {
+      await render(
+        <Drawer.Root open modal={false}>
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <input data-testid="input" type="text" />
+                  <button data-testid="button" type="button">
+                    Action
+                  </button>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const button = screen.getByTestId('button');
+      const focusSpy = vi.spyOn(input, 'focus');
+      const inputClickEvents: MouseEvent[] = [];
+      input.addEventListener('click', (clickEvent) => {
+        inputClickEvents.push(clickEvent as MouseEvent);
+      });
+      const originalElementFromPoint = document.elementFromPoint;
+      // The finger lifts over the button, but `touchend.target` stays on the
+      // touchstart input on mobile, so the lift point must win over the fallback.
+      document.elementFromPoint = () => button;
+
+      try {
+        fireEvent.touchStart(input, {
+          touches: [createTouch(input, { clientX: 0, clientY: 0 })],
+        });
+
+        // The native touchend is still dispatched on the touchstart input.
+        const touchEnd = createNativeTouchEnd(input, { clientX: 5, clientY: 5 });
+
+        await act(async () => {
+          input.dispatchEvent(touchEnd);
+          await flushMicrotasks();
+        });
+
+        expect(touchEnd.defaultPrevented).toBe(false);
+        expect(focusSpy).not.toHaveBeenCalled();
+        expect(inputClickEvents).toHaveLength(0);
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+        focusSpy.mockRestore();
+      }
+    },
+  );
+
   it.skipIf(isJSDOM)('preserves native taps on disabled inputs', async () => {
     await render(
       <Drawer.Root open modal={false}>

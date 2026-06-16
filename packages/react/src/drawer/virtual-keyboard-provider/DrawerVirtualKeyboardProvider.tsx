@@ -61,6 +61,12 @@ interface KeyboardTouchTarget {
   readonly clickTarget: HTMLElement;
 }
 
+// Returned by the point-based resolver when the lift point lands on another
+// interactive/label element. It signals that the tap was intentionally rejected, so the
+// caller must NOT fall back to the touchstart target (`touchend.target` stays at the
+// touchstart node on mobile) — doing so would steal a tap meant for that element.
+const KEYBOARD_TAP_BLOCKED = Symbol('KeyboardTapBlocked');
+
 /**
  * Provides keyboard-aware focus and scroll handling for bottom-sheet drawers with form fields.
  *
@@ -369,10 +375,18 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     const touch = event.changedTouches[0] ?? event.touches[0];
     const doc = ownerDocument(event.currentTarget);
     const nativeEventTarget = getTarget(event.nativeEvent);
-    const keyboardTarget =
-      touch &&
-      (resolveKeyboardTouchTargetFromPoint(doc, touch.clientX, touch.clientY) ??
-        resolveKeyboardTouchTarget(nativeEventTarget));
+    const pointTarget = touch
+      ? resolveKeyboardTouchTargetFromPoint(doc, touch.clientX, touch.clientY)
+      : null;
+
+    // The lift point landed on another interactive/label element; let its native tap
+    // through instead of stealing it for the touchstart input.
+    if (pointTarget === KEYBOARD_TAP_BLOCKED) {
+      resetTouchTrackingState();
+      return;
+    }
+
+    const keyboardTarget = touch && (pointTarget ?? resolveKeyboardTouchTarget(nativeEventTarget));
 
     if (
       keyboardTarget &&
@@ -507,7 +521,7 @@ function resolveKeyboardTouchTargetFromPoint(
   doc: Document,
   clientX: number,
   clientY: number,
-): KeyboardTouchTarget | null {
+): KeyboardTouchTarget | typeof KEYBOARD_TAP_BLOCKED | null {
   const exactTarget = getElementAtPoint(doc, clientX, clientY);
   const exactKeyboardTarget = resolveKeyboardInputTarget(exactTarget);
   if (exactKeyboardTarget) {
@@ -521,8 +535,10 @@ function resolveKeyboardTouchTargetFromPoint(
   // to the keyboard, but it must not steal a tap that lands on another interactive
   // element — that would suppress its click and focus a neighboring field instead.
   // `closest('label')` covers labels of non-keyboard controls (e.g. checkboxes).
+  // Returning the blocked sentinel (rather than `null`) stops the caller from falling
+  // back to the touchstart target, which would re-steal the very tap rejected here.
   if (isInteractiveElement(exactTarget) || exactTarget?.closest('label') != null) {
-    return null;
+    return KEYBOARD_TAP_BLOCKED;
   }
 
   for (const [offsetX, offsetY] of [
