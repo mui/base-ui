@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -192,10 +193,30 @@ export class MenuStore<Payload> extends ReactStore<
       return new MenuStore<Payload>(initialState);
     }).current;
 
+    // Only the internally-created store is owned by this component. An external `handle` store is
+    // owned by the consumer and may outlive the menu, so it must not be disposed here.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(
+      () => (externalStore ? undefined : internalStore.disposeEffect()),
+      [externalStore, internalStore],
+    );
+
     return externalStore ?? internalStore;
   }
 
   private unsubscribeParentStore: (() => void) | null = null;
+
+  // Tears down the subscription this store holds on its parent store. Without this, a submenu's
+  // store (which subscribes into the parent menu's store) stays referenced by the parent's listener
+  // set after it unmounts, leaking the child store on every open/close cycle. The `observe` listener
+  // itself is registered on this store, so it is collected together with the store and needs no
+  // explicit cleanup.
+  private disposeEffect = () => {
+    return () => {
+      this.unsubscribeParentStore?.();
+      this.unsubscribeParentStore = null;
+    };
+  };
 }
 
 function createInitialState<Payload>(): State<Payload> {
