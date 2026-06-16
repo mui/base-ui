@@ -52,7 +52,7 @@
 
   .QuickNavViewport {
     max-height: calc(100dvh - var(--header-height));
-    padding: 0.25rem 0 0.75rem;
+    padding: 0 0 0.75rem;
 
     /* Scroll containers are focusable */
     outline: 0;

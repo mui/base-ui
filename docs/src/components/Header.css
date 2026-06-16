@@ -28,9 +28,6 @@
       max-width: var(--breakpoint-max-layout-width);
       margin-inline: auto;
       padding-inline: var(--root-layout-padding-x);
-
-      /* Move the header content closer to the page content so it feels equally spaced from the top and bottom */
-      padding-top: 0.5rem;
     }
 
     @media (--show-quick-nav) {
@@ -112,10 +109,6 @@
 
     &:active {
       color: var(--gray-p1);
-    }
-
-    & svg {
-      margin-top: -0.125rem;
     }
 
     &:focus-visible {
