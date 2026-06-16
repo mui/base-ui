@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
-import { act, waitFor, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
@@ -187,6 +187,62 @@ describe('<Dialog.Popup />', () => {
       await waitFor(() => {
         expect(screen.getByTestId('input-2')).toHaveFocus();
       });
+    });
+
+    it('passes the latest interaction type to initialFocus after reopening', async () => {
+      const initialFocus = vi.fn(() => false);
+
+      const { user } = await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup initialFocus={initialFocus}>Content</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await act(async () => trigger.focus());
+      await user.keyboard('[Enter]');
+
+      await waitFor(() => {
+        expect(initialFocus).toHaveBeenLastCalledWith('keyboard');
+      });
+
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.click(trigger, { detail: 1 });
+
+      await waitFor(() => {
+        expect(initialFocus).toHaveBeenLastCalledWith('touch');
+      });
+    });
+
+    it('focuses the popup itself rather than inner content when opened by touch', async () => {
+      await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="dialog">
+              <input data-testid="input" />
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.click(trigger, { detail: 1 });
+
+      // On touch the default focuses the popup to avoid opening the virtual keyboard.
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog')).toHaveFocus();
+      });
+      expect(screen.getByTestId('input')).not.toHaveFocus();
     });
 
     it('should not move focus when initialFocus is false', async () => {

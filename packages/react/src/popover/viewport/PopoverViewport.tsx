@@ -69,16 +69,17 @@ export interface PopoverViewportState {
   /**
    * Present if animations should be instant.
    */
-  instant: 'dismiss' | 'click' | undefined;
+  instant: 'dismiss' | 'click' | 'focus' | 'trigger-change' | undefined;
+}
+
+export interface PopoverViewportProps extends BaseUIComponentProps<'div', PopoverViewportState> {
+  /**
+   * The content to render inside the transition container.
+   */
+  children?: React.ReactNode;
 }
 
 export namespace PopoverViewport {
-  export interface Props extends BaseUIComponentProps<'div', PopoverViewportState> {
-    /**
-     * The content to render inside the transition container.
-     */
-    children?: React.ReactNode;
-  }
-
+  export type Props = PopoverViewportProps;
   export type State = PopoverViewportState;
 }

@@ -87,10 +87,8 @@ const unsubscribeFromSelector = store.observe(
 );
 expectType<() => void, typeof unsubscribeFromSelector>(unsubscribeFromSelector);
 
+const mismatchedListener = (newValue: string) => {
+  expectType<string, typeof newValue>(newValue);
+};
 // @ts-expect-error listener must match selector return type
-store.observe(
-  (state) => state.text.length,
-  (newValue: string) => {
-    expectType<string, typeof newValue>(newValue);
-  },
-);
+store.observe((state) => state.text.length, mismatchedListener);

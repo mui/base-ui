@@ -2,6 +2,7 @@
 import * as React from 'react';
 import c from 'clsx';
 import { useId } from '@base-ui/utils/useId';
+import { useTestInteractions } from '#test-utils';
 import type { Placement } from '../../src/floating-ui-react/types';
 import {
   arrow,
@@ -13,12 +14,13 @@ import {
   useClick,
   useDismiss,
   useFloating,
-  useInteractions,
   useListNavigation,
-  useRole,
 } from '../../src/floating-ui-react';
 import { Button } from './Button';
 import styles from './EmojiPicker.module.css';
+import { gridNavigationWithColumns } from './gridNavigationWithColumns';
+
+const grid = gridNavigationWithColumns(3);
 
 const emojis = [
   {
@@ -132,10 +134,25 @@ export function Main() {
   });
 
   // Handles opening the floating element via the Choose Emoji button.
-  const { getReferenceProps, getFloatingProps } = useInteractions([
+  const menuRoleProps = React.useMemo(
+    () => ({
+      reference: {
+        'aria-haspopup': 'menu' as const,
+        'aria-expanded': open,
+        'aria-controls': open ? context.floatingId : undefined,
+      },
+      floating: {
+        id: context.floatingId,
+        role: 'menu' as const,
+      },
+    }),
+    [context.floatingId, open],
+  );
+
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
     useClick(context),
     useDismiss(context),
-    useRole(context, { role: 'menu' }),
+    menuRoleProps,
   ]);
 
   // Handles the list navigation where the reference is the inner input, not
@@ -144,17 +161,17 @@ export function Main() {
     getReferenceProps: getInputProps,
     getFloatingProps: getListFloatingProps,
     getItemProps,
-  } = useInteractions([
+  } = useTestInteractions([
     useListNavigation(context, {
       listRef,
       onNavigate: open ? setActiveIndex : undefined,
       activeIndex,
-      cols: 3,
       orientation: 'horizontal',
       loopFocus: true,
       focusItemOnOpen: false,
       virtual: true,
       allowEscape: true,
+      grid,
     }),
   ]);
 

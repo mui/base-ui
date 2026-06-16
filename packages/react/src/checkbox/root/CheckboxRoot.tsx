@@ -7,11 +7,12 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
+import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
 import { NOOP } from '../../internals/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import type { NativeButtonComponentProps } from '../../internals/types';
+import type { BaseUIEvent, NativeButtonComponentProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button/useButton';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -76,7 +77,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     state: fieldState,
     validationMode,
     validityData,
-    shouldValidateOnChange,
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
@@ -140,6 +140,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     state: 'checked',
   });
 
+  const computedChecked = isGroupedWithParent ? Boolean(groupChecked) : checked;
+  const computedIndeterminate = isGroupedWithParent
+    ? groupIndeterminate || indeterminate
+    : indeterminate;
+
   // can't use useLabelableId because of optional groupContext and/or parent
   useIsoLayoutEffect(() => {
     if (registerControlId === NOOP) {
@@ -165,10 +170,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     };
   }, [registerControlId, controlSourceRef]);
 
-  useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext);
+  useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
+  const mergedInputRef = useMergedRefs(
+    inputRefProp,
+    inputRef,
+    validation.inputRef,
+    validation.registerInput,
+  );
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
     labelId,
@@ -179,15 +189,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
-      inputRef.current.indeterminate = groupIndeterminate;
+      inputRef.current.indeterminate = computedIndeterminate;
       if (checked) {
         setFilled(true);
       }
     }
-  }, [checked, groupIndeterminate, setFilled]);
+  }, [checked, computedIndeterminate, setFilled]);
 
   useValueChanged(checked, () => {
-    if (groupContext && !parent) {
+    if (groupContext) {
       return;
     }
 
@@ -195,11 +205,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     setFilled(checked);
     setDirty(checked !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(checked);
-    } else {
-      validation.commit(checked, true);
-    }
+    validation.change(checked);
   });
 
   const inputProps = mergeProps<'input'>(
@@ -232,8 +238,13 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         const nextChecked = event.currentTarget.checked;
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
-        groupOnChange?.(nextChecked, details);
         onCheckedChange?.(nextChecked, details);
+
+        if (details.isCanceled) {
+          return;
+        }
+
+        groupOnChange?.(nextChecked, details);
 
         if (details.isCanceled) {
           return;
@@ -259,13 +270,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       ? { value: (groupContext ? checked && valueProp : valueProp) || '' }
       : EMPTY_OBJECT,
     getDescriptionProps,
-    groupContext ? validation.getValidationProps : validation.getInputValidationProps,
+    (props) => validation.getValidationProps(disabled, props),
   );
-
-  const computedChecked = isGroupedWithParent ? Boolean(groupChecked) : checked;
-  const computedIndeterminate = isGroupedWithParent
-    ? groupIndeterminate || indeterminate
-    : indeterminate;
 
   React.useEffect(() => {
     if (!parentContext || !value) {
@@ -301,13 +307,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       {
         id: nativeButton ? (inputId ?? undefined) : id,
         role: 'checkbox',
-        'aria-checked': groupIndeterminate ? 'mixed' : checked,
+        'aria-checked': computedIndeterminate ? 'mixed' : computedChecked,
         'aria-readonly': readOnly || undefined,
         'aria-required': required || undefined,
         'aria-labelledby': ariaLabelledBy,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
-          setFocused(true);
+          if (!disabled) {
+            setFocused(true);
+          }
         },
         onBlur() {
           const inputEl = inputRef.current;
@@ -321,6 +329,49 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           if (validationMode === 'onBlur') {
             validation.commit(groupContext ? groupValue : inputEl.checked);
           }
+        },
+        onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+          if (event.key !== 'Enter') {
+            return;
+          }
+
+          // Let consumer `preventDefault()` handlers opt out while defensively stopping
+          // any remaining Base UI Enter handling from treating the checkbox as a button.
+          event.preventBaseUIHandler();
+
+          if (event.defaultPrevented) {
+            return;
+          }
+
+          const formToSubmit = inputRef.current?.form ?? null;
+          const currentTarget = event.currentTarget;
+          const nativeEvent = event.nativeEvent;
+          const originalPreventDefault = event.preventDefault;
+          const originalNativePreventDefault = nativeEvent.preventDefault;
+          let preventDefaultCalledAfterPropagation = false;
+
+          event.preventDefault = () => {
+            preventDefaultCalledAfterPropagation = true;
+            originalPreventDefault.call(event);
+          };
+          nativeEvent.preventDefault = () => {
+            preventDefaultCalledAfterPropagation = true;
+            originalNativePreventDefault.call(nativeEvent);
+          };
+
+          // Enter should not activate/toggle the checkbox. Cancel the native button behavior
+          // without setting React's synthetic `defaultPrevented`, so ancestor React handlers
+          // can still opt out by calling `preventDefault()` during propagation.
+          originalNativePreventDefault.call(nativeEvent);
+
+          ownerWindow(currentTarget).queueMicrotask(() => {
+            event.preventDefault = originalPreventDefault;
+            nativeEvent.preventDefault = originalNativePreventDefault;
+
+            if (!preventDefaultCalledAfterPropagation) {
+              getDefaultFormSubmitter(formToSubmit)?.click();
+            }
+          });
         },
         onClick(event: React.MouseEvent) {
           if (readOnly || disabled) {
@@ -345,11 +396,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
           );
         },
       },
-      getDescriptionProps,
-      validation.getValidationProps,
       elementProps,
       otherGroupProps,
       getButtonProps,
+      getDescriptionProps,
+      (props) => validation.getValidationProps(disabled, props),
     ],
     stateAttributesMapping,
   });
@@ -358,7 +409,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     <CheckboxRootContext.Provider value={state}>
       {element}
       {!checked && !groupContext && name && !parent && uncheckedValue !== undefined && (
-        <input type="hidden" form={form} name={name} value={uncheckedValue} />
+        <input type="hidden" form={form} name={name} value={uncheckedValue} disabled={disabled} />
       )}
       <input {...inputProps} suppressHydrationWarning />
     </CheckboxRootContext.Provider>

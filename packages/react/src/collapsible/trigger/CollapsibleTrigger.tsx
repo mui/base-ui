@@ -35,7 +35,6 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   const {
     className,
     disabled = contextDisabled,
-    id,
     render,
     nativeButton = true,
     style,

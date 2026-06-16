@@ -37,6 +37,7 @@ import { Menu } from '@base-ui/react/menu';
         </Menu.Group>
 
         <Menu.RadioGroup>
+          <Menu.GroupLabel />
           <Menu.RadioItem>
             <Menu.RadioItemIndicator />
           </Menu.RadioItem>
@@ -61,7 +62,7 @@ To create a menu that opens on hover, add the `openOnHover` prop to `<Menu.Trigg
 
 import { DemoMenuOpenOnHover } from './demos/open-on-hover';
 
-<DemoMenuOpenOnHover compact />
+<DemoMenuOpenOnHover />
 
 ### Checkbox items
 
@@ -69,7 +70,7 @@ Use the `<Menu.CheckboxItem>` part to create a menu item that can toggle a setti
 
 import { DemoMenuCheckboxItems } from './demos/checkbox-items';
 
-<DemoMenuCheckboxItems compact />
+<DemoMenuCheckboxItems />
 
 ### Radio items
 
@@ -77,7 +78,7 @@ Use the `<Menu.RadioGroup>` and `<Menu.RadioItem>` parts to create menu items th
 
 import { DemoMenuRadioItems } from './demos/radio-items';
 
-<DemoMenuRadioItems compact />
+<DemoMenuRadioItems />
 
 ### Close on click
 
@@ -93,11 +94,11 @@ Use the `closeOnClick` prop to change whether the menu closes when an item is cl
 
 ### Group labels
 
-Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>`
+Use the `<Menu.GroupLabel>` part to add a label to a `<Menu.Group>` or `<Menu.RadioGroup>`.
 
 import { DemoMenuGroupLabels } from './demos/group-labels';
 
-<DemoMenuGroupLabels compact />
+<DemoMenuGroupLabels />
 
 ### Nested menu
 
@@ -109,7 +110,6 @@ To create a submenu, nest another menu inside the parent menu with `<Menu.Submen
   <Menu.Portal>
     <Menu.Positioner>
       <Menu.Popup>
-        <Menu.Arrow />
         <Menu.Item />
 
         {/* @highlight-start */}
@@ -135,7 +135,7 @@ To create a submenu, nest another menu inside the parent menu with `<Menu.Submen
 
 import { DemoMenuSubmenu } from './demos/submenu';
 
-<DemoMenuSubmenu compact />
+<DemoMenuSubmenu />
 
 ### Navigate to another page
 
@@ -300,7 +300,15 @@ The `onOpenChange` callback receives `eventDetails`, which includes the DOM elem
 
 import { DemoMenuDetachedTriggersControlled } from './demos/detached-triggers-controlled';
 
-<DemoMenuDetachedTriggersControlled compact />
+<DemoMenuDetachedTriggersControlled />
+
+### Arrow
+
+Use the `<Menu.Arrow>` part inside the popup to visually connect the menu to its trigger.
+
+import { DemoMenuArrow } from './demos/arrow';
+
+<DemoMenuArrow />
 
 ### Animating the Menu
 
@@ -318,7 +326,7 @@ The menu also supports content transitions.
 This is useful when different triggers display different content within the same menu.
 
 To enable content animations, wrap the menu content in the `<Menu.Viewport>` part.
-This part renders a `div` with `data-activation-direction` (`left`, `right`, `up`, or `down`) so you can make direction-aware animations.
+This part renders a `div` with `data-activation-direction`, containing space-separated horizontal (`left` or `right`) and vertical (`up` or `down`) values so you can make direction-aware animations.
 
 Inside `<Menu.Viewport>`, content is wrapped in `div`s with transition data attributes:
 

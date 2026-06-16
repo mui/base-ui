@@ -9,6 +9,7 @@ import {
 import { defineConfig, globalIgnores } from 'eslint/config';
 import * as path from 'node:path';
 import { fileURLToPath } from 'url';
+import remarkConfig from './.remarkrc.mjs';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -35,7 +36,13 @@ export default defineConfig(
   globalIgnores(['./examples', './playground/vite-app/dist']),
   createBaseConfig({
     baseDirectory: dirname,
+    markdown: true,
   }),
+  // eslint-plugin-mdx loads `.remarkrc.mjs` itself, but ESLint doesn't know
+  // that file is a config dependency, so `--cache` doesn't invalidate when
+  // it changes. Embedding the imported value in a setting puts its content
+  // into the resolved-config hash, forcing cache invalidation on edits.
+  { settings: { remarkConfig } },
   {
     name: 'Playground Vite app overrides',
     files: ['playground/vite-app/**/*.{ts,tsx}'],
@@ -87,6 +94,12 @@ export default defineConfig(
           additionalHooks: 'useIsoLayoutEffect',
         },
       ],
+
+      // Modern browsers imply rel="noopener" for target="_blank", so no rel is required.
+      // See https://github.com/mui/material-ui/pull/40447
+      // TODO move to mui/mui-public.
+      'react/jsx-no-target-blank': 'off',
+
       // This prevents us from creating components like `<h1 {...props} />`
       'jsx-a11y/heading-has-content': 'off',
       'jsx-a11y/anchor-has-content': 'off',

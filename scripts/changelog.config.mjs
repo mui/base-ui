@@ -39,7 +39,8 @@ export default {
       },
       // Category overrides - labels that force a specific section
       categoryOverrides: {
-        'scope: all components': 'general changes',
+        'scope: all components': 'General changes',
+        'component: otp field': 'OTP Field',
       },
       // Explicit flag labels
       flags: {
@@ -51,9 +52,9 @@ export default {
 
     sections: {
       order: {
-        'general changes': -1,
+        'General changes': -1,
       },
-      fallbackSection: 'general changes',
+      fallbackSection: 'General changes',
     },
   },
 };

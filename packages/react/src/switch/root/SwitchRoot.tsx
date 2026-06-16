@@ -64,7 +64,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     validityData,
     setFilled,
     setFocused,
-    shouldValidateOnChange,
     validationMode,
     disabled: fieldDisabled,
     name: fieldName,
@@ -96,7 +95,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     state: 'checked',
   });
 
-  useRegisterFieldControl(switchRef, id, checked);
+  useRegisterFieldControl(switchRef, id, checked, undefined, !disabled, nameProp);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
@@ -109,11 +108,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     setDirty(checked !== validityData.initialValue);
     setFilled(checked);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(checked);
-    } else {
-      validation.commit(checked, true);
-    }
+    validation.change(checked);
   });
 
   const { getButtonProps, buttonRef } = useButton({
@@ -216,7 +211,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         switchRef.current?.focus();
       },
     },
-    validation.getInputValidationProps,
+    (props) => validation.getValidationProps(disabled, props),
     // React <19 sets an empty value if `undefined` is passed explicitly
     // To avoid this, we only set the value if it's defined
     value !== undefined ? { value } : EMPTY_OBJECT,
@@ -236,7 +231,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const element = useRenderElement('span', componentProps, {
     state,
     ref: [forwardedRef, switchRef, buttonRef],
-    props: [rootProps, validation.getValidationProps, elementProps, getButtonProps],
+    props: [
+      rootProps,
+      elementProps,
+      getButtonProps,
+      (props) => validation.getValidationProps(disabled, props),
+    ],
     stateAttributesMapping,
   });
 
@@ -244,7 +244,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     <SwitchRootContext.Provider value={state}>
       {element}
       {!checked && name && uncheckedValue !== undefined && (
-        <input type="hidden" form={form} name={name} value={uncheckedValue} />
+        <input type="hidden" form={form} name={name} value={uncheckedValue} disabled={disabled} />
       )}
       <input {...inputProps} suppressHydrationWarning />
     </SwitchRootContext.Provider>
@@ -278,7 +278,9 @@ export type SwitchRootProps<
   'disabled' | 'onChange'
 > & {
   /**
-   * The id of the switch element.
+   * The id of the hidden input element.
+   *
+   * When `nativeButton` is `true`, the id is applied to the root element.
    */
   id?: string | undefined;
   /**

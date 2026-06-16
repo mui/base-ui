@@ -20,9 +20,9 @@ Doesn't render its own HTML element.
 | defaultSnapPoint        | `DrawerSnapPoint \| null`                                                                               | -        | The initial snap point value when uncontrolled.                                                                                                                                                                                                                                                                                                                                                                                                   |
 | snapPoint               | `DrawerSnapPoint \| null`                                                                               | -        | The currently active snap point. Use with `onSnapPointChange` to control the snap point.                                                                                                                                                                                                                                                                                                                                                          |
 | onSnapPointChange       | `((snapPoint: DrawerSnapPoint \| null, eventDetails: Drawer.Root.SnapPointChangeEventDetails) => void)` | -        | Callback fired when the snap point changes.                                                                                                                                                                                                                                                                                                                                                                                                       |
-| actionsRef              | `React.RefObject<Drawer.Root.Actions \| null>`                                                          | -        | A ref to imperative actions. `unmount`: When specified, the drawer will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the drawer manually.&#xA;Useful when the drawer's animation is controlled by an external library.`close`: Closes the drawer imperatively when called.                                                                                                                         |
+| actionsRef              | `React.RefObject<Drawer.Root.Actions \| null>`                                                          | -        | A ref to imperative actions. `unmount`: Manually unmounts the drawer.&#xA;Call this after any externally controlled closing animation finishes.`close`: Closes the drawer imperatively when called.                                                                                                                                                                                                                                               |
 | defaultTriggerId        | `string \| null`                                                                                        | -        | ID of the trigger that the drawer is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open drawer.                                                                                                                                                                                                                                                                                           |
-| disablePointerDismissal | `boolean`                                                                                               | `false`  | Determines whether the drawer should close on outside clicks.                                                                                                                                                                                                                                                                                                                                                                                     |
+| disablePointerDismissal | `boolean`                                                                                               | `false`  | Whether to prevent the drawer from closing on outside presses.&#xA;For non-modal drawers, this also prevents the drawer from closing when focus moves outside of it.                                                                                                                                                                                                                                                                              |
 | handle                  | `Drawer.Handle<Payload>`                                                                                | -        | A handle to associate the drawer with a trigger.&#xA;If specified, allows detached triggers to control the drawer's open state.&#xA;Can be created with the Drawer.createHandle() method.                                                                                                                                                                                                                                                         |
 | modal                   | `boolean \| 'trap-focus'`                                                                               | `true`   | Determines if the drawer enters a modal state when open. `true`: user interaction is limited to just the drawer: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed.`'trap-focus'`: focus is trapped inside the drawer, but document page scroll is not locked and pointer interactions outside of it remain enabled. |
 | onOpenChangeComplete    | `((open: boolean) => void)`                                                                             | -        | Event handler called after any animations complete when the drawer is opened or closed.                                                                                                                                                                                                                                                                                                                                                           |
@@ -185,9 +185,9 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type DrawerTriggerState = {
-  /** Whether the drawer is currently disabled. */
+  /** Whether the trigger is currently disabled. */
   disabled: boolean;
-  /** Whether the drawer is currently open. */
+  /** Whether the drawer is currently open and was opened by this trigger. */
   open: boolean;
 };
 ```
@@ -451,6 +451,12 @@ Renders a `<div>` element.
 | data-starting-style | -    | Present when the drawer is animating in.                 |
 | data-ending-style   | -    | Present when the drawer is animating out.                |
 
+**Viewport CSS Variables:**
+
+| Variable                  | Type  | Description                                                                                                                                                         |
+| :------------------------ | :---- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `--drawer-keyboard-inset` | `CSS` | The software keyboard inset, measured from the bottom edge of the layout viewport.&#xA;Present only when the drawer is wrapped in `Drawer.VirtualKeyboardProvider`. |
+
 ### Viewport.Props
 
 Re-export of [Viewport](#viewport) props.
@@ -503,7 +509,7 @@ function open(triggerId: string | null): void;
 ```
 
 Opens the dialog and associates it with the trigger with the given id.
-The trigger, if provided, must be a Dialog.Trigger component with this handle passed as a prop.
+The trigger, if provided, must be a matching Trigger component with this handle passed as a prop.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
@@ -617,6 +623,26 @@ type DrawerSwipeAreaState = {
 };
 ```
 
+### VirtualKeyboardProvider
+
+Provides keyboard-aware focus and scroll handling for bottom-sheet drawers with form fields.
+
+**VirtualKeyboardProvider Props:**
+
+| Prop     | Type              | Default | Description |
+| :------- | :---------------- | :------ | :---------- |
+| children | `React.ReactNode` | -       | -           |
+
+### VirtualKeyboardProvider.Props
+
+Re-export of [VirtualKeyboardProvider](#virtualkeyboardprovider) props.
+
+### VirtualKeyboardProvider.State
+
+```typescript
+type DrawerVirtualKeyboardProviderState = {};
+```
+
 ## External Types
 
 ### InteractionType
@@ -671,9 +697,10 @@ type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 - `Drawer.Title`: `Drawer.Title`, `Drawer.Title.Props`, `Drawer.Title.State`
 - `Drawer.Trigger`: `Drawer.Trigger`, `Drawer.Trigger.Props`, `Drawer.Trigger.State`
 - `Drawer.Viewport`: `Drawer.Viewport`, `Drawer.Viewport.Props`, `Drawer.Viewport.State`
+- `Drawer.VirtualKeyboardProvider`: `Drawer.VirtualKeyboardProvider`, `Drawer.VirtualKeyboardProvider.State`, `Drawer.VirtualKeyboardProvider.Props`
 - `Drawer.createHandle`
 - `Drawer.Handle`
-- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`
+- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
 
 ## Canonical Types
 
@@ -712,3 +739,5 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Drawer.Trigger.State`: `DrawerTriggerState`
 - `Drawer.Viewport.Props`: `DrawerViewportProps`
 - `Drawer.Viewport.State`: `DrawerViewportState`
+- `Drawer.VirtualKeyboardProvider.State`: `DrawerVirtualKeyboardProviderState`
+- `Drawer.VirtualKeyboardProvider.Props`: `DrawerVirtualKeyboardProviderProps`

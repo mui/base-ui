@@ -3,8 +3,9 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
+import { isJSDOM, useTestInteractions } from '#test-utils';
+import { useClick, useDismiss, useFloating, useListNavigation } from '../index';
+import { gridNavigation } from './gridNavigation';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
 import { Main as Grid } from '../../../test/floating-ui-tests/Grid';
@@ -30,7 +31,7 @@ function App(
     open,
     onOpenChange: setOpen,
   });
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
     useClick(context),
     useListNavigation(context, {
       ...props,
@@ -112,16 +113,16 @@ function VirtualizedGridRows({
     onOpenChange: setOpen,
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
     useListNavigation(context, {
       listRef,
       activeIndex,
       onNavigate: setActiveIndex,
       virtual: true,
       loopFocus,
-      cols: 2,
       orientation: 'horizontal',
       disabledIndices,
+      grid: gridNavigation,
     }),
   ]);
 
@@ -318,7 +319,7 @@ describe('useListNavigation', () => {
         onOpenChange: setOpen,
       });
 
-      const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+      const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
         useDismiss(context),
         useListNavigation(context, {
           listRef,
@@ -1160,7 +1161,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('grid navigation when items have different sizes', () => {
+  describe('grid navigation in a multi-column grid with disabled items', () => {
     it('focuses first non-disabled item in grid', async () => {
       render(<ComplexGrid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
@@ -1463,7 +1464,7 @@ describe('useListNavigation', () => {
         open,
         onOpenChange: setOpen,
       });
-      const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+      const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
         useClick(context),
         useListNavigation(context, {
           listRef,

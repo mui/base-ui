@@ -47,11 +47,13 @@ export class ReactStore<
     value: Value,
   ) {
     React.useDebugValue(key);
+    // eslint-disable-next-line consistent-this
+    const store = this;
     useIsoLayoutEffect(() => {
-      if (this.state[key] !== value) {
-        this.set(key, value);
+      if (store.state[key] !== value) {
+        store.set(key, value);
       }
-    }, [key, value]);
+    }, [store, key, value]);
   }
 
   /**
@@ -119,14 +121,16 @@ export class ReactStore<
     controlled: Value | undefined,
   ): void {
     React.useDebugValue(key);
+    // eslint-disable-next-line consistent-this
+    const store = this;
     const isControlled = controlled !== undefined;
 
     useIsoLayoutEffect(() => {
-      if (isControlled && !Object.is(this.state[key], controlled)) {
+      if (isControlled && !Object.is(store.state[key], controlled)) {
         // Set the internal state to match the controlled value.
-        super.setState({ ...this.state, [key]: controlled });
+        store.setState({ ...store.state, [key]: controlled });
       }
-    }, [key, controlled, isControlled]);
+    }, [store, key, controlled, isControlled]);
 
     if (process.env.NODE_ENV !== 'production') {
       // eslint-disable-next-line

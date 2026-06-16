@@ -52,11 +52,11 @@ export type DrawerTriggerProps<
 
 export interface DrawerTriggerState {
   /**
-   * Whether the drawer is currently disabled.
+   * Whether the trigger is currently disabled.
    */
   disabled: boolean;
   /**
-   * Whether the drawer is currently open.
+   * Whether the drawer is currently open and was opened by this trigger.
    */
   open: boolean;
 }

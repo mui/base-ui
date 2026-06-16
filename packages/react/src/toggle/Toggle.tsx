@@ -7,6 +7,7 @@ import { useBaseUiId } from '../internals/useBaseUiId';
 import { useRenderElement } from '../internals/useRenderElement';
 import type { NativeButtonComponentProps } from '../internals/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
+import type { ToolbarRoot } from '../toolbar/root/ToolbarRoot';
 import { useButton } from '../internals/use-button/useButton';
 import { CompositeItem } from '../internals/composite/item/CompositeItem';
 import {
@@ -87,10 +88,17 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
         const nextPressed = !pressed;
         const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
+        // `onPressedChange` runs before the group commits so that canceling here
+        // can also veto the group value change, which shares this `details` object.
+        onPressedChange?.(nextPressed, details);
+
+        if (details.isCanceled) {
+          return;
+        }
+
         if (value) {
           groupContext?.setGroupValue?.(value, nextPressed, details);
         }
-        onPressedChange?.(nextPressed, details);
 
         if (details.isCanceled) {
           return;
@@ -110,6 +118,13 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     props,
   });
 
+  // A disabled toggle is natively disabled and cannot hold roving focus.
+  // Toolbar reads this metadata to compute its `disabledIndices`.
+  const itemMetadata: ToolbarRoot.ItemMetadata = React.useMemo(
+    () => ({ disabled, focusableWhenDisabled: false }),
+    [disabled],
+  );
+
   if (groupContext) {
     return (
       <CompositeItem
@@ -117,6 +132,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
         render={render}
         className={className}
         style={style}
+        metadata={itemMetadata}
         state={state}
         refs={refs}
         props={props}

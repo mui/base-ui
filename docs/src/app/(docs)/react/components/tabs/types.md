@@ -258,6 +258,8 @@ type TabsTabState = {
   active: boolean;
   /** The component orientation. */
   orientation: Tabs.Root.Orientation;
+  /** The direction used for tab activation. */
+  tabActivationDirection: Tabs.Tab.ActivationDirection;
 };
 ```
 

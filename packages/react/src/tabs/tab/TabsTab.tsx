@@ -10,6 +10,7 @@ import { ACTIVE_COMPOSITE_ITEM } from '../../internals/composite/constants';
 import { useCompositeItem } from '../../internals/composite/item/useCompositeItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
+import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -36,7 +37,12 @@ export const TabsTab = React.forwardRef(function TabsTab(
     ...elementProps
   } = componentProps;
 
-  const { value: activeTabValue, getTabPanelIdByValue, orientation } = useTabsRootContext();
+  const {
+    value: activeTabValue,
+    getTabPanelIdByValue,
+    orientation,
+    tabActivationDirection,
+  } = useTabsRootContext();
 
   const {
     activateOnFocus,
@@ -66,7 +72,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const isNavigatingRef = React.useRef(false);
   const tabElementRef = React.useRef<HTMLElement | null>(null);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     const tabElement = tabElementRef.current;
     if (!tabElement) {
       return undefined;
@@ -181,6 +187,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     disabled,
     active,
     orientation,
+    tabActivationDirection,
   };
 
   const element = useRenderElement('button', componentProps, {
@@ -204,6 +211,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
       elementProps,
       getButtonProps,
     ],
+    stateAttributesMapping: tabsStateAttributesMapping,
   });
 
   return element;
@@ -244,6 +252,10 @@ export interface TabsTabState {
    * The component orientation.
    */
   orientation: TabsRoot.Orientation;
+  /**
+   * The direction used for tab activation.
+   */
+  tabActivationDirection: TabsTab.ActivationDirection;
 }
 
 export type TabsTabProps<

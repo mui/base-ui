@@ -21,7 +21,7 @@ export function CssVariablesReferenceTable({
         <Accordion.HeaderRow>
           <Accordion.HeaderCell className="bui-pl-3">CSS Variable</Accordion.HeaderCell>
         </Accordion.HeaderRow>
-        {Object.keys(data).map((name, index) => {
+        {Object.keys(data).map((name) => {
           const attribute = data[name];
 
           return (
@@ -35,7 +35,7 @@ export function CssVariablesReferenceTable({
                 part_name: partName || '',
               }}
             >
-              <Accordion.Trigger index={index}>
+              <Accordion.Trigger>
                 <TableCode style={{ color: 'var(--color-navy)' }}>{name}</TableCode>
                 <svg
                   className="AccordionIcon bui-ml-a bui-mr-1"

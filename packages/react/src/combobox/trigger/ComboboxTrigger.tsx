@@ -268,7 +268,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
       },
-      validation ? validation.getValidationProps(elementProps) : elementProps,
+      validation ? validation.getValidationProps(disabled, elementProps) : elementProps,
       getButtonProps,
     ],
     stateAttributesMapping: triggerStateAttributesMapping,

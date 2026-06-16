@@ -6,6 +6,8 @@ export interface DialogRootContext<Payload = unknown> {
   store: DialogStore<Payload>;
 }
 
+export const IsDrawerContext = React.createContext(false);
+
 export const DialogRootContext = React.createContext<DialogRootContext | undefined>(undefined);
 
 export function useDialogRootContext(optional?: false): DialogRootContext;

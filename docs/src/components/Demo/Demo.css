@@ -2,24 +2,10 @@
 
 @layer components {
   .DemoRoot {
-    background-color: var(--color-content);
-    border: 1px solid var(--gray-c2);
-    border-radius: var(--radius-6);
+    --demo-radius: var(--radius-12);
+    border: 1px solid var(--color-border);
+    border-radius: var(--demo-radius);
     margin-bottom: var(--space-24);
-
-    --shadow-1:
-      0 1px 1px 0 var(--blackA-1), 0 2px 1px -1px var(--blackA-1), 0 1px 3px 0 var(--blackA-1);
-    --shadow-2:
-      0 1px 1px 0 var(--blackA-1), 0 1px 3px -1px var(--blackA-1), 0 4px 8px -2px var(--blackA-1);
-    --shadow-3:
-      0 1px 1px 0 var(--blackA-1), 0 2px 6px -1px var(--blackA-1), 0 6px 12px -3px var(--blackA-1),
-      0 8px 16px -4px var(--blackA-1);
-    --shadow-4:
-      0 1px 1px 0 var(--blackA-1), 0 2px 4px -1px var(--blackA-1), 0 4px 8px -2px var(--blackA-1),
-      0 12px 32px -6px var(--blackA-3), 0 20px 48px -10px var(--blackA-1);
-    --shadow-5:
-      0 10px 32px var(--blackA-5), 0 1px 1px var(--blackA-1), 0 4px 6px var(--blackA-2),
-      0 1px 1px var(--blackA-2), 0 24px 68px var(--blackA-4);
   }
 
   .DemoPlaygroundExternalLink {
@@ -28,20 +14,12 @@
     right: 1.125rem;
   }
 
-  .DemoCopyIconWrap {
-    display: flex;
-    width: 0.875rem;
-    height: 0.875rem;
-    align-items: center;
-    justify-content: center;
-  }
-
   .DemoPlayground {
     position: relative;
 
     background-color: var(--color-content);
-    border-top-left-radius: var(--radius-6);
-    border-top-right-radius: var(--radius-6);
+    border-top-left-radius: calc(var(--demo-radius) - 1px);
+    border-top-right-radius: calc(var(--demo-radius) - 1px);
 
     /* Scroll */
     overflow: auto hidden;
@@ -50,7 +28,7 @@
 
     /* Scroll containers may be focusable */
     &:focus-visible {
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
       z-index: 1;
     }
@@ -68,27 +46,23 @@
     display: flex;
     justify-content: center;
     align-items: center;
-
-    @media (--xs) {
-      padding: 3rem 1.5rem;
-      min-height: 11.25rem; /* Match .DemoCodeBlockRoot pre min-height */
-    }
   }
 
   .DemoToolbar {
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
     font-size: var(--font-size-13);
     line-height: 1.25rem;
     white-space: nowrap;
     color: var(--gray-t2);
-    background-color: var(--gray-s2);
     background-clip: padding-box;
-    border-block: 1px solid var(--gray-c2);
     display: flex;
-    align-items: center;
-    gap: 2rem;
+    align-items: end;
+    gap: 1.5rem;
     height: 2.25rem;
-    padding: 0;
-    padding-inline-start: 0.75rem;
+    padding: 0 0 0 calc(0.25rem - 1px);
+    -webkit-user-select: none;
     user-select: none;
 
     /* Scroll */
@@ -103,7 +77,7 @@
     /* Scroll containers may be focusable */
     &:focus-visible {
       position: relative;
-      outline: 2px solid var(--color-blue);
+      outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
       z-index: 1;
     }
@@ -111,137 +85,178 @@
 
   .DemoToolbarActions {
     position: relative;
-    /* Apply sticky only on wider viewports to avoid actions taking up most of it */
-    @media (min-width: 48rem) {
-      position: sticky;
-      padding-left: 1rem;
-    }
     right: 0;
     display: flex;
     align-items: center;
     margin-left: auto;
     padding-right: 0.5rem;
-    background-color: var(--gray-s2);
     height: 100%;
-    gap: 0.25rem;
+    gap: var(--space-4);
 
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -24px;
-      width: 24px;
-      height: 100%;
-      background: linear-gradient(to right, transparent, var(--gray-s2));
-      pointer-events: none;
+    /* Apply sticky only on wider viewports to avoid actions taking up most of it */
+    @media (min-width: 48rem) {
+      position: sticky;
+      padding-left: 0.75rem;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 1px;
+        border-radius: inherit;
+        background-color: var(--color-content);
+        pointer-events: none;
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 1px;
+        left: -24px;
+        width: 24px;
+        background: linear-gradient(to right, transparent, var(--color-content));
+        pointer-events: none;
+      }
     }
-  }
-
-  .DemoFilename {
-    font-family: var(--font-mono);
-    color: var(--color-foreground);
-    font-weight: bold;
-    user-select: text;
-  }
-
-  .DemoFilename:hover {
-    text-decoration: underline;
   }
 
   .DemoTabsList {
     display: flex;
-    gap: 2px;
-    margin-inline-start: -0.5rem;
+    align-self: flex-end;
+    gap: 0.125rem;
   }
 
   .DemoTab {
     font-family: var(--font-mono);
-    cursor: default;
     position: relative;
     z-index: 0;
     outline: 0;
-    height: 1.75rem;
+    height: 2.25rem;
     padding-inline: 0.5rem;
-    border-radius: var(--radius-8);
+    padding-top: 0.25rem;
+    padding-bottom: calc(0.25rem + 1px);
+    border-top: 1px solid transparent;
+    border-right: 1px solid transparent;
+    border-left: 1px solid transparent;
+    border-top-left-radius: var(--radius-8);
+    border-top-right-radius: var(--radius-8);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
 
+    > span {
+      position: relative;
+    }
+
     @media (hover: hover) {
-      &:hover {
-        background-color: var(--gray-c2);
+      &:hover:not([data-active]) {
+        border-color: var(--gray-s2);
+
+        &::before {
+          content: '';
+          position: absolute;
+          inset: 0 0 1px;
+          border-top-left-radius: calc(var(--radius-8) - 1px);
+          border-top-right-radius: calc(var(--radius-8) - 1px);
+          background-color: var(--gray-s2);
+          pointer-events: none;
+        }
       }
     }
 
     &[data-active] {
-      color: var(--color-foreground);
-      font-weight: var(--font-weight-700);
-      background-color: white;
+      border-color: var(--color-border);
+      background-color: var(--gray-s1);
 
-      @media (prefers-color-scheme: light) {
-        box-shadow:
-          0 0 1px var(--blackA-4),
-          0 0.5px 1px var(--blackA-3),
-          0 1px 3px var(--blackA-1),
-          0 2px 4px -1px var(--blackA-1),
-          0 4px 12px -2px var(--blackA-1),
-          0 4px 16px -4px var(--blackA-1);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        background-color: var(--gray-c2);
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background-color: var(--gray-s1);
+        pointer-events: none;
       }
     }
 
     &:focus-visible {
       outline: 2px solid var(--gray-t2);
-      outline-offset: -1px;
+      outline-offset: -2px;
+
+      &::after {
+        content: none;
+      }
     }
+  }
+
+  .DemoCodeBlockCollapsible {
+    position: relative;
+    display: flex;
+    flex-direction: column;
   }
 
   .DemoCodeBlockRoot {
     display: flex;
     flex-direction: column;
     position: relative;
+    isolation: isolate;
     outline: 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom-left-radius: var(--demo-radius);
+    border-bottom-right-radius: var(--demo-radius);
+    margin-top: -1px;
+    background-color: var(--gray-s1);
 
     &[data-closed] {
       &::before {
         content: '';
         position: absolute;
+        z-index: 1;
         pointer-events: none;
-        height: 7.5rem;
+        height: 100%;
         bottom: 0;
         left: 0;
         right: 0;
-        background: linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / 60%));
-      }
-
-      @media (prefers-color-scheme: dark) {
-        &::before {
-          background: linear-gradient(to bottom, rgb(0 0 0 / 0), rgb(0 0 0 / 60%));
-        }
+        border-bottom-left-radius: calc(var(--demo-radius) - 1px);
+        border-bottom-right-radius: calc(var(--demo-radius) - 1px);
+        background: linear-gradient(
+          to bottom,
+          transparent 0%,
+          color-mix(in srgb, var(--gray-s1), transparent 5%) 100%
+        );
       }
     }
   }
 
   .DemoCodeBlockViewport {
-    /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
-    overscroll-behavior-x: contain;
+    --demo-code-block-line-height: 1.25rem; /* 20px */
+    line-height: var(--demo-code-block-line-height);
+
+    &[data-has-overflow-x] {
+      /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
+      overscroll-behavior-x: contain;
+    }
 
     /* Max height for code blocks, if we ever want to recover this (https://github.com/mui/base-ui/pull/1187) */
     /* max-height: clamp(8.75lh + 0.5rem, 80vh, 23.75lh + 0.5rem); */
 
     &[data-closed] {
       overflow: hidden;
-      max-height: calc(8.75lh + 0.5rem); /* Show almost 9 code lines plus top padding */
+      max-height: calc(5.7lh + 0.5rem); /* Display almost 6 code lines plus top padding */
+    }
+    &[data-closed] code .frame:not([data-frame-type]),
+    &[data-closed] code .frame[data-frame-type='highlighted-unfocused'],
+    &[data-closed] code .frame[data-frame-type='focus-unfocused'] {
+      display: none;
     }
   }
 
   .DemoSourceBrowser {
+    position: relative;
     font-size: 0.8125rem; /* 13px */
-    line-height: 1.25rem; /* 20px */
+    line-height: var(--demo-code-block-line-height); /* 20px */
     cursor: text;
     display: flex;
 
@@ -277,42 +292,104 @@
     }
   }
 
-  .DemoCollapseButton {
-    font-size: var(--font-size-13);
-    line-height: 1.25rem;
-    background-color: var(--gray-s2);
-    cursor: default;
-    width: 100%;
-    color: var(--gray-t2);
-    height: 2.25rem;
-    border-top: 1px solid var(--gray-c2);
-    border-bottom-left-radius: 0.375rem;
-    border-bottom-right-radius: 0.375rem;
-    border-bottom: 1px solid transparent;
-    background-clip: padding-box;
-    margin-bottom: -1px;
-    user-select: none;
+  .DemoCodeBlockCopyButton {
+    position: absolute;
+    z-index: 3;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: color-mix(in srgb, var(--gray-s1), transparent 10%);
 
-    &[data-sticky] {
-      position: sticky;
-      bottom: -1px;
-      z-index: 1;
+    @media (--md) {
+      background-color: transparent;
+      box-shadow: none;
+    }
+  }
+
+  .DemoCollapseButton {
+    box-sizing: border-box;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    padding: 0 0 0.75rem;
+    color: var(--color-foreground);
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--font-size-13);
+    font-weight: 500;
+    line-height: 1;
+    vertical-align: top;
+    cursor: default;
+    z-index: 2;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    appearance: none;
+
+    &:focus-visible {
+      outline: 0;
+    }
+
+    &:focus-visible .DemoCollapseButtonVisual {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: -1px;
+    }
+  }
+
+  .DemoCollapseButtonVisual {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-8);
+    height: var(--space-28);
+    padding-inline: var(--space-12);
+    border-radius: var(--radius-pill);
+    background: linear-gradient(to bottom, hsl(0deg 0% 0% / 8%), hsl(0deg 0% 0% / 16%));
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 0;
+
+    &::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: 1px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(to bottom, white 25%, hsl(0deg 0% 98%));
+      pointer-events: none;
+      box-shadow:
+        inset 0 0 0 1px white,
+        0 1px 1px hsl(0deg 0% 0% / 4%),
+        0 1px 2px hsl(0deg 0% 0% / 4%),
+        0 2px 4px -2px hsl(0deg 0% 0% / 4%);
     }
 
     @media (hover: hover) {
-      &:hover {
-        background-color: var(--gray-c1);
+      .DemoCollapseButton:hover & {
+        background: linear-gradient(to bottom, hsl(0deg 0% 0% / 16%), hsl(0deg 0% 0% / 32%));
       }
     }
 
-    &:active {
-      background-color: color-mix(in oklch, var(--gray-c1), var(--gray-t2) 5%);
-    }
+    @media (prefers-color-scheme: dark) {
+      background: linear-gradient(to bottom, hsl(0deg 0% 100% / 16%), hsl(0deg 0% 100% / 24%));
 
-    &:focus-visible {
-      outline: 2px solid var(--gray-t2);
-      outline-offset: -1px;
-      z-index: 1;
+      &::before {
+        background: linear-gradient(to bottom, var(--gray-c2), var(--gray-c1));
+        box-shadow:
+          0 1px 1px hsl(0deg 0% 0% / 16%),
+          0 1px 2px hsl(0deg 0% 0% / 16%),
+          0 2px 4px -2px hsl(0deg 0% 0% / 24%);
+      }
+
+      @media (hover: hover) {
+        .DemoCollapseButton:hover & {
+          background: linear-gradient(to bottom, hsl(0deg 0% 100% / 24%), hsl(0deg 0% 100% / 36%));
+        }
+      }
     }
   }
 }

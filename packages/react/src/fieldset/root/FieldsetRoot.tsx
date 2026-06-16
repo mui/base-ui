@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FieldsetRootContext } from './FieldsetRootContext';
+import { FieldsetRootContext, useFieldsetRootContext } from './FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 
@@ -14,9 +14,18 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   componentProps: FieldsetRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, style, disabled = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    disabled: disabledProp = false,
+    ...elementProps
+  } = componentProps;
 
   const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
+
+  const parentDisabled = useFieldsetRootContext(true)?.disabled;
+  const disabled = parentDisabled || disabledProp;
 
   const state: FieldsetRootState = {
     disabled,
@@ -28,6 +37,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     props: [
       {
         'aria-labelledby': legendId,
+        disabled,
       },
       elementProps,
     ],
@@ -53,6 +63,7 @@ export interface FieldsetRootState {
    */
   disabled: boolean;
 }
+
 export interface FieldsetRootProps extends BaseUIComponentProps<'fieldset', FieldsetRootState> {}
 
 export namespace FieldsetRoot {

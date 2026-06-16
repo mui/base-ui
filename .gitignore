@@ -28,7 +28,9 @@ size-snapshot.json
 # Remove if you want to pregenerate the docs md files
 docs/public/llms.txt
 docs/public/llms-full.txt
+docs/public/index.md
 docs/public/react
+packages/react/published-docs/
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
@@ -38,6 +40,7 @@ next-env.d.ts
 
 # Claude
 .claude/settings.local.json
+.claude/worktrees/
 
 # Testing
 test-results/

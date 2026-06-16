@@ -38,20 +38,25 @@ export function InstallationBlock(props: InstallationBlockProps) {
       onValueChange={handleValueChange}
     >
       <CodeBlock.Root>
-        <CodeBlock.Panel title="Installation command">
-          <Tabs.List className="InstallationBlockTabsList" aria-label="Package manager">
+        <CodeBlock.Panel
+          title="Installation command"
+          style={{ paddingLeft: 'calc(0.125rem + 1px)', borderBottom: 'none' }}
+        >
+          <Tabs.List
+            className="InstallationBlockTabsList"
+            aria-label="Package manager"
+            activateOnFocus
+          >
             {INSTALLATION_PACKAGE_MANAGERS.map((pm) => (
               <Tabs.Tab key={pm.value} value={pm.value} className="InstallationBlockTab">
-                <span className="InstallationBlockTabLabel" data-text={pm.label}>
-                  {pm.label}
-                </span>
+                <span>{pm.label}</span>
               </Tabs.Tab>
             ))}
           </Tabs.List>
         </CodeBlock.Panel>
 
         {INSTALLATION_PACKAGE_MANAGERS.map((pm) => (
-          <Tabs.Panel key={pm.value} value={pm.value}>
+          <Tabs.Panel key={pm.value} value={pm.value} className="InstallationBlockTabPanel">
             <CodeBlock.Pre>
               <Code className="language-bash">
                 <span className="frame">

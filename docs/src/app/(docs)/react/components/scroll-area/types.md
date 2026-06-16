@@ -77,6 +77,18 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: ScrollArea.Content.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Content.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Content Data Attributes:**
+
+| Attribute             | Type | Description                                                       |
+| :-------------------- | :--- | :---------------------------------------------------------------- |
+| data-has-overflow-x   | -    | Present when the scroll area content is wider than the viewport.  |
+| data-has-overflow-y   | -    | Present when the scroll area content is taller than the viewport. |
+| data-overflow-x-end   | -    | Present when there is overflow on the horizontal end side.        |
+| data-overflow-x-start | -    | Present when there is overflow on the horizontal start side.      |
+| data-overflow-y-end   | -    | Present when there is overflow on the vertical end side.          |
+| data-overflow-y-start | -    | Present when there is overflow on the vertical start side.        |
+| data-scrolling        | -    | Present when the user scrolls inside the scroll area.             |
+
 ### Content.Props
 
 Re-export of [Content](#content) props.
@@ -180,9 +192,10 @@ Renders a `<div>` element.
 
 **Thumb Data Attributes:**
 
-| Attribute        | Type                         | Description                                 |
-| :--------------- | :--------------------------- | :------------------------------------------ |
-| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the scrollbar. |
+| Attribute        | Type                         | Description                                           |
+| :--------------- | :--------------------------- | :---------------------------------------------------- |
+| data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the scrollbar.           |
+| data-scrolling   | -                            | Present when the user scrolls inside the scroll area. |
 
 ### Thumb.Props
 
@@ -192,8 +205,10 @@ Re-export of [Thumb](#thumb) props.
 
 ```typescript
 type ScrollAreaThumbState = {
+  /** Whether the scroll area is being scrolled. */
+  scrolling: boolean;
   /** The component orientation. */
-  orientation?: 'horizontal' | 'vertical';
+  orientation: 'horizontal' | 'vertical';
 };
 ```
 

@@ -36,7 +36,13 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   const disabledIndices = React.useMemo(() => {
     const output: number[] = [];
     for (const itemMetadata of itemMap.values()) {
-      if (itemMetadata?.index && !itemMetadata.focusableWhenDisabled) {
+      // Only items that are disabled and not focusable when disabled
+      // are removed from roving focus.
+      if (
+        itemMetadata?.index != null &&
+        itemMetadata.disabled &&
+        !itemMetadata.focusableWhenDisabled
+      ) {
         output.push(itemMetadata.index);
       }
     }
@@ -78,6 +84,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 });
 
 export interface ToolbarRootItemMetadata {
+  disabled: boolean;
   focusableWhenDisabled: boolean;
 }
 

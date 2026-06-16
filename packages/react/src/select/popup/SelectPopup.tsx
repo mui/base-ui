@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { rectToClientRect } from '@floating-ui/utils';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -57,6 +57,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     onOpenChangeComplete,
     setOpen,
     valueRef,
+    firstItemTextRef,
     selectedItemTextRef,
     keyboardActiveRef,
     multiple,
@@ -82,6 +83,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
+  const openMethod = useStore(store, selectors.openMethod);
   const mounted = useStore(store, selectors.mounted);
   const popupProps = useStore(store, selectors.popupProps);
   const transitionStatus = useStore(store, selectors.transitionStatus);
@@ -285,7 +287,16 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     popupElement.style.removeProperty('--transform-origin');
 
     try {
-      const textElement = selectedItemTextRef.current;
+      let textElement = selectedItemTextRef.current;
+
+      if (!textElement?.isConnected) {
+        const hasSelectedValue = selectors.hasSelectedValue(store.state);
+        textElement =
+          !hasSelectedValue && firstItemTextRef.current?.isConnected
+            ? firstItemTextRef.current
+            : null;
+      }
+
       const valueElement = valueRef.current;
 
       const positionerStyles = getComputedStyle(positionerElement);
@@ -366,7 +377,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         Math.ceil(height) + SCROLL_EDGE_TOLERANCE_PX < Math.min(scrollHeight, minHeight);
 
       // Safari doesn't position the popup correctly when pinch-zoomed.
-      const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && isWebKit;
+      const isPinchZoomed = (win.visualViewport?.scale ?? 1) !== 1 && platform.engine.webkit;
 
       if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
         initialPlacedRef.current = true;
@@ -425,6 +436,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     positionerElement,
     triggerElement,
     valueRef,
+    firstItemTextRef,
     selectedItemTextRef,
     popupRef,
     handleScrollArrowVisibility,
@@ -508,6 +520,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         context={floatingRootContext}
         modal={false}
         disabled={!mounted}
+        openInteractionType={openMethod}
         returnFocus={finalFocus}
         restoreFocus
       >

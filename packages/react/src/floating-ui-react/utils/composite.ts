@@ -5,7 +5,7 @@ import type { Dimensions } from '../types';
 import { stopEvent } from './event';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from './constants';
 
-type DisabledIndices = ReadonlyArray<number> | ((index: number) => boolean);
+export type DisabledIndices = ReadonlyArray<number> | ((index: number) => boolean);
 
 export function isDifferentGridRow(index: number, cols: number, prevRow: number) {
   return Math.floor(index / cols) !== prevRow;
@@ -390,6 +390,8 @@ export function createGridCellMap(sizes: Dimensions[], cols: number, dense: bool
   sizes.forEach(({ width, height }, index) => {
     if (width > cols) {
       if (process.env.NODE_ENV !== 'production') {
+        // TODO: fix mui/no-guarded-throw
+        // eslint-disable-next-line mui/no-guarded-throw
         throw new Error(
           `[Floating UI]: Invalid grid - item width at index ${index} is greater than grid columns`,
         );

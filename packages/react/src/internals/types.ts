@@ -3,6 +3,9 @@ import type { BaseUIEvent, ComponentRenderFn, HTMLProps } from '../types';
 
 export type { HTMLProps, BaseUIEvent, ComponentRenderFn };
 
+export type MaybeBaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E &
+  Partial<Pick<BaseUIEvent<E>, 'preventBaseUIHandler' | 'baseUIHandlerPrevented'>>;
+
 export interface FloatingUIOpenChangeDetails {
   open: boolean;
   reason: string;

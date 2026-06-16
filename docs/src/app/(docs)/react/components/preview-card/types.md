@@ -109,7 +109,7 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type PreviewCardTriggerState = {
-  /** Whether the preview card is currently open. */
+  /** Whether the preview card is currently open and was opened by this trigger. */
   open: boolean;
 };
 ```
@@ -380,13 +380,13 @@ Renders a `<div>` element.
 
 **Viewport Data Attributes:**
 
-| Attribute                 | Type                                              | Description                                                                                                                                                                                                                        |
-| :------------------------ | :------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-activation-direction | `` `${'left' \| 'right'} ${'top' \| 'bottom'}` `` | Indicates the direction from which the popup was activated.&#xA;This can be used to create directional animations based on how the popup was triggered.&#xA;Contains space-separated values for both horizontal and vertical axes. |
-| data-current              | -                                                 | Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.                                                                                                                 |
-| data-instant              | `'dismiss' \| 'focus'`                            | Present if animations should be instant.                                                                                                                                                                                           |
-| data-previous             | -                                                 | Applied to the direct child of the viewport that contains the exiting content when transitions are present.                                                                                                                        |
-| data-transitioning        | -                                                 | Indicates that the viewport is currently transitioning between old and new content.                                                                                                                                                |
+| Attribute                 | Type                                                       | Description                                                                                                                                                                                                                        |
+| :------------------------ | :--------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data-activation-direction | `` `${'left' \| 'right' \| ''} ${'down' \| 'up' \| ''}` `` | Indicates the direction from which the popup was activated.&#xA;This can be used to create directional animations based on how the popup was triggered.&#xA;Contains space-separated values for both horizontal and vertical axes. |
+| data-current              | -                                                          | Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.                                                                                                                 |
+| data-instant              | `'dismiss' \| 'focus'`                                     | Present if animations should be instant.                                                                                                                                                                                           |
+| data-previous             | -                                                          | Applied to the direct child of the viewport that contains the exiting content when transitions are present.                                                                                                                        |
+| data-transitioning        | -                                                          | Indicates that the viewport is currently transitioning between old and new content.                                                                                                                                                |
 
 **Viewport CSS Variables:**
 
@@ -498,7 +498,7 @@ type OffsetFunction = (data: {
 - `PreviewCard.Viewport`: `PreviewCard.Viewport`, `PreviewCard.Viewport.Props`, `PreviewCard.Viewport.State`
 - `PreviewCard.createHandle`
 - `PreviewCard.Handle`
-- `Default`: `PreviewCardRootState`, `PreviewCardRootProps`, `PreviewCardRootActions`, `PreviewCardRootChangeEventReason`, `PreviewCardRootChangeEventDetails`, `PreviewCardTriggerState`, `PreviewCardTriggerProps`, `PreviewCardPortalState`, `PreviewCardPortalProps`, `PreviewCardPositionerState`, `PreviewCardPositionerProps`, `PreviewCardPopupState`, `PreviewCardPopupProps`, `PreviewCardArrowState`, `PreviewCardArrowProps`, `PreviewCardViewportState`, `PreviewCardBackdropState`, `PreviewCardBackdropProps`
+- `Default`: `PreviewCardRootState`, `PreviewCardRootProps`, `PreviewCardRootActions`, `PreviewCardRootChangeEventReason`, `PreviewCardRootChangeEventDetails`, `PreviewCardTriggerState`, `PreviewCardTriggerProps`, `PreviewCardPortalState`, `PreviewCardPortalProps`, `PreviewCardPositionerState`, `PreviewCardPositionerProps`, `PreviewCardPopupState`, `PreviewCardPopupProps`, `PreviewCardArrowState`, `PreviewCardArrowProps`, `PreviewCardViewportState`, `PreviewCardViewportProps`, `PreviewCardBackdropState`, `PreviewCardBackdropProps`
 
 ## Canonical Types
 
@@ -521,4 +521,5 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `PreviewCard.Arrow.Props`: `PreviewCardArrowProps`
 - `PreviewCard.Backdrop.State`: `PreviewCardBackdropState`
 - `PreviewCard.Backdrop.Props`: `PreviewCardBackdropProps`
+- `PreviewCard.Viewport.Props`: `PreviewCardViewportProps`
 - `PreviewCard.Viewport.State`: `PreviewCardViewportState`

@@ -1,8 +1,10 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import type { UserEvent } from '@testing-library/user-event';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { DialogStore } from '../../dialog/store/DialogStore';
 import { REASONS } from '../../internals/reasons';
 
 describe('<AlertDialog.Root />', () => {
@@ -52,6 +54,84 @@ describe('<AlertDialog.Root />', () => {
     );
   });
 
+  it('synchronizes trigger ARIA attributes in controlled mode', async () => {
+    await render(
+      <AlertDialog.Root open triggerId="trigger-2">
+        <AlertDialog.Trigger id="trigger-1">Trigger 1</AlertDialog.Trigger>
+        <AlertDialog.Trigger id="trigger-2">Trigger 2</AlertDialog.Trigger>
+        <AlertDialog.Portal>
+          <AlertDialog.Popup>Dialog</AlertDialog.Popup>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>,
+    );
+
+    const trigger1 = screen.getByText('Trigger 1');
+    const trigger2 = screen.getByText('Trigger 2');
+    const popup = screen.getByRole('alertdialog');
+
+    expect(trigger1).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger1).not.toHaveAttribute('aria-controls');
+    expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger2.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+  });
+
+  it('synchronizes trigger ARIA attributes when initially open with a handle', async () => {
+    const handle = AlertDialog.createHandle();
+
+    await render(
+      <AlertDialog.Root handle={handle} defaultOpen defaultTriggerId="trigger">
+        <AlertDialog.Trigger id="trigger">Open</AlertDialog.Trigger>
+        <AlertDialog.Portal>
+          <AlertDialog.Popup>Dialog</AlertDialog.Popup>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>,
+    );
+
+    const trigger = screen.getByText('Open');
+    const popup = screen.getByRole('alertdialog');
+
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+  });
+
+  it('synchronizes detached trigger ARIA attributes when initially open with a handle', async () => {
+    const handle = AlertDialog.createHandle();
+
+    await render(
+      <React.Fragment>
+        <AlertDialog.Trigger handle={handle} id="trigger">
+          Open
+        </AlertDialog.Trigger>
+        <AlertDialog.Root handle={handle} defaultOpen defaultTriggerId="trigger">
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>Dialog</AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>
+      </React.Fragment>,
+    );
+
+    const trigger = screen.getByText('Open');
+    const popup = screen.getByRole('alertdialog');
+
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger.getAttribute('aria-controls')).toBe(popup.getAttribute('id'));
+    expect(handle.isOpen).toBe(true);
+  });
+
+  it('renders a viewport', async () => {
+    await render(
+      <AlertDialog.Root open>
+        <AlertDialog.Portal>
+          <AlertDialog.Viewport data-testid="viewport">
+            <AlertDialog.Popup>Dialog</AlertDialog.Popup>
+          </AlertDialog.Viewport>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>,
+    );
+
+    expect(screen.getByTestId('viewport')).toContain(screen.getByRole('alertdialog'));
+  });
+
   describe('prop: onOpenChange', () => {
     it('calls onOpenChange with the new open state', async () => {
       const handleOpenChange = vi.fn();
@@ -87,7 +167,7 @@ describe('<AlertDialog.Root />', () => {
 
       const { user } = await render(
         <AlertDialog.Root onOpenChange={handleOpenChange}>
-          <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+          <AlertDialog.Trigger id="open-trigger">Open</AlertDialog.Trigger>
           <AlertDialog.Portal>
             <AlertDialog.Popup>
               <AlertDialog.Close>Close</AlertDialog.Close>
@@ -101,12 +181,16 @@ describe('<AlertDialog.Root />', () => {
 
       expect(handleOpenChange.mock.calls.length).toBe(1);
       expect(handleOpenChange.mock.calls[0][1].reason).toBe(REASONS.triggerPress);
+      expect(handleOpenChange.mock.calls[0][1].trigger).toBe(openButton);
+      expect(handleOpenChange.mock.calls[0][1].trigger?.id).toBe('open-trigger');
 
       const closeButton = screen.getByText('Close');
       await user.click(closeButton);
 
       expect(handleOpenChange.mock.calls.length).toBe(2);
       expect(handleOpenChange.mock.calls[1][1].reason).toBe(REASONS.closePress);
+      expect(handleOpenChange.mock.calls[1][1].trigger).toBe(openButton);
+      expect(handleOpenChange.mock.calls[1][1].trigger?.id).toBe('open-trigger');
     });
 
     it('calls onOpenChange with the reason for change when pressed Esc while the dialog is open', async () => {
@@ -195,18 +279,15 @@ describe('<AlertDialog.Root />', () => {
 
   describe('prop: actionsRef', () => {
     it('unmounts the alert dialog when the `unmount` method is called', async () => {
-      const actionsRef = {
-        current: {
-          unmount: vi.fn(),
-          close: vi.fn(),
-        },
-      };
+      const actionsRef = React.createRef<AlertDialog.Root.Actions>();
 
       const { user } = await render(
         <AlertDialog.Root
           actionsRef={actionsRef}
           onOpenChange={(open, details) => {
-            details.preventUnmountOnClose();
+            if (!open) {
+              details.preventUnmountOnClose();
+            }
           }}
         >
           <AlertDialog.Trigger>Open</AlertDialog.Trigger>
@@ -229,7 +310,73 @@ describe('<AlertDialog.Root />', () => {
         expect(screen.queryByRole('alertdialog')).not.toBe(null);
       });
 
-      await act(async () => actionsRef.current.unmount());
+      await act(async () => actionsRef.current?.unmount());
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).toBe(null);
+      });
+    });
+
+    it('clears manual unmount state after the `unmount` method is called', async () => {
+      const actionsRef = React.createRef<AlertDialog.Root.Actions>();
+      let shouldPreventUnmount = true;
+
+      const { user } = await render(
+        <AlertDialog.Root
+          actionsRef={actionsRef}
+          onOpenChange={(open, details) => {
+            if (!open && shouldPreventUnmount) {
+              shouldPreventUnmount = false;
+              details.preventUnmountOnClose();
+            }
+          }}
+        >
+          <AlertDialog.Trigger>Open</AlertDialog.Trigger>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup>
+              <AlertDialog.Close>Close</AlertDialog.Close>
+            </AlertDialog.Popup>
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await user.click(trigger);
+      expect(await screen.findByRole('alertdialog')).not.toBe(null);
+
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).not.toBe(null);
+      });
+
+      await act(async () => actionsRef.current?.unmount());
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).toBe(null);
+      });
+
+      await user.click(trigger);
+      expect(await screen.findByRole('alertdialog')).not.toBe(null);
+
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByRole('alertdialog')).toBe(null);
+      });
+    });
+
+    it('closes the alert dialog when the `close` method is called', async () => {
+      const actionsRef = React.createRef<AlertDialog.Root.Actions>();
+
+      await render(
+        <AlertDialog.Root defaultOpen actionsRef={actionsRef}>
+          <AlertDialog.Portal>
+            <AlertDialog.Popup />
+          </AlertDialog.Portal>
+        </AlertDialog.Root>,
+      );
+
+      expect(screen.queryByRole('alertdialog')).not.toBe(null);
+
+      await act(async () => actionsRef.current?.close());
 
       await waitFor(() => {
         expect(screen.queryByRole('alertdialog')).toBe(null);
@@ -439,7 +586,7 @@ describe('<AlertDialog.Root />', () => {
       );
     }
 
-    async function openAndCloseDialog(user: any) {
+    async function openAndCloseDialog(user: UserEvent) {
       await user.click(screen.getByRole('button', { name: 'Trigger' }));
       await waitFor(() => {
         expect(screen.getByText('Alert dialog content')).toBeVisible();
@@ -659,6 +806,15 @@ describe('<AlertDialog.Root />', () => {
   });
 
   describe('imperative actions on the handle', () => {
+    it('enforces alert dialog state when constructed with a plain store', () => {
+      const store = new DialogStore();
+      const handle = new AlertDialog.Handle(store);
+
+      expect(handle.store.select('modal')).toBe(true);
+      expect(handle.store.select('disablePointerDismissal')).toBe(true);
+      expect(handle.store.select('role')).toBe('alertdialog');
+    });
+
     it('keeps the alert dialog open when the backdrop is clicked', async () => {
       const handle = AlertDialog.createHandle();
 
