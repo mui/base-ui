@@ -98,7 +98,6 @@ export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
 
   const props: React.ComponentProps<'button'> = {
     disabled,
-    'aria-readonly': readOnly || undefined,
     'aria-label': isIncrement ? 'Increase' : 'Decrease',
     'aria-controls': id,
     // Keyboard users shouldn't have access to the buttons, since they can use the input element
