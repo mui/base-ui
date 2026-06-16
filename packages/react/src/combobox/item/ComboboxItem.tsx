@@ -233,11 +233,8 @@ export interface ComboboxItemState {
   highlighted: boolean;
 }
 
-export type ComboboxItemProps<
-  TNativeButton extends boolean = false,
-  TElement extends React.ElementType = 'div',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, ComboboxItem.State, false>,
+export type ComboboxItemProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, ComboboxItem.State, false>,
   'disabled' | 'id' | 'onClick' | 'value'
 > & {
   children?: React.ReactNode;
@@ -246,7 +243,7 @@ export type ComboboxItemProps<
    * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
    */
   onClick?:
-    | NativeButtonComponentProps<TNativeButton, TElement, ComboboxItem.State, false>['onClick']
+    | NativeButtonComponentProps<TNativeButton, ComboboxItem.State, false>['onClick']
     | undefined;
   /**
    * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
@@ -266,23 +263,20 @@ export type ComboboxItemProps<
 
 export namespace ComboboxItem {
   export type State = ComboboxItemState;
-  export type Props<
-    TNativeButton extends boolean = false,
-    TElement extends React.ElementType = 'div',
-  > = ComboboxItemProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = false> = ComboboxItemProps<TNativeButton>;
 }
 
 type ComboboxItemComponent = {
-  <TElement extends React.ElementType = 'div'>(
-    props: ComboboxItem.Props<false, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+  (
+    props: ComboboxItem.Props<false> & { ref?: React.Ref<HTMLElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: ComboboxItem.Props<true, TElement> & { nativeButton: true } & {
+  (
+    props: ComboboxItem.Props<true> & { nativeButton: true } & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: ComboboxItem.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: ComboboxItem.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

@@ -70,32 +70,27 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 
 export interface AccordionTriggerState extends AccordionItemState {}
 
-export type AccordionTriggerProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, AccordionTrigger.State>;
+export type AccordionTriggerProps<TNativeButton extends boolean = true> =
+  NativeButtonComponentProps<TNativeButton, AccordionTrigger.State>;
 
 export namespace AccordionTrigger {
   export type State = AccordionTriggerState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = AccordionTriggerProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = AccordionTriggerProps<TNativeButton>;
 }
 
 type AccordionTriggerComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: AccordionTrigger.Props<true, TElement> & {
+  (
+    props: AccordionTrigger.Props<true> & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: AccordionTrigger.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: AccordionTrigger.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: AccordionTrigger.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: AccordionTrigger.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

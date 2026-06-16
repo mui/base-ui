@@ -67,32 +67,27 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 
 export interface CollapsibleTriggerState extends CollapsibleRootState {}
 
-export type CollapsibleTriggerProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, CollapsibleTrigger.State>;
+export type CollapsibleTriggerProps<TNativeButton extends boolean = true> =
+  NativeButtonComponentProps<TNativeButton, CollapsibleTrigger.State>;
 
 export namespace CollapsibleTrigger {
   export type State = CollapsibleTriggerState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = CollapsibleTriggerProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = CollapsibleTriggerProps<TNativeButton>;
 }
 
 type CollapsibleTriggerComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: CollapsibleTrigger.Props<true, TElement> & {
+  (
+    props: CollapsibleTrigger.Props<true> & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: CollapsibleTrigger.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: CollapsibleTrigger.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: CollapsibleTrigger.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: CollapsibleTrigger.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

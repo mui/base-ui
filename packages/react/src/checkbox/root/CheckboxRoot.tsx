@@ -439,11 +439,8 @@ export interface CheckboxRootState extends FieldRootState {
   indeterminate: boolean;
 }
 
-export type CheckboxRootProps<
-  TNativeButton extends boolean = false,
-  TElement extends React.ElementType = 'span',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, CheckboxRoot.State, false, 'value'>,
+export type CheckboxRootProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, CheckboxRoot.State, false, 'value'>,
   'disabled' | 'onChange'
 > & {
   /**
@@ -528,25 +525,22 @@ export type CheckboxRootChangeEventDetails =
 
 export namespace CheckboxRoot {
   export type State = CheckboxRootState;
-  export type Props<
-    TNativeButton extends boolean = false,
-    TElement extends React.ElementType = 'span',
-  > = CheckboxRootProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = false> = CheckboxRootProps<TNativeButton>;
   export type ChangeEventReason = CheckboxRootChangeEventReason;
   export type ChangeEventDetails = CheckboxRootChangeEventDetails;
 }
 
 type CheckboxRootComponent = {
-  <TElement extends React.ElementType = 'span'>(
-    props: CheckboxRoot.Props<false, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+  (
+    props: CheckboxRoot.Props<false> & { ref?: React.Ref<HTMLElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'span'>(
-    props: CheckboxRoot.Props<true, TElement> & { nativeButton: true } & {
+  (
+    props: CheckboxRoot.Props<true> & { nativeButton: true } & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'span'>(
-    props: CheckboxRoot.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: CheckboxRoot.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

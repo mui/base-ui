@@ -870,32 +870,28 @@ export interface NavigationMenuTriggerState {
   open: boolean;
 }
 
-export type NavigationMenuTriggerProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, NavigationMenuTrigger.State>;
+export type NavigationMenuTriggerProps<TNativeButton extends boolean = true> =
+  NativeButtonComponentProps<TNativeButton, NavigationMenuTrigger.State>;
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = NavigationMenuTriggerProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> =
+    NavigationMenuTriggerProps<TNativeButton>;
 }
 
 type NavigationMenuTriggerComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: NavigationMenuTrigger.Props<true, TElement> & {
+  (
+    props: NavigationMenuTrigger.Props<true> & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: NavigationMenuTrigger.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: NavigationMenuTrigger.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: NavigationMenuTrigger.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: NavigationMenuTrigger.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

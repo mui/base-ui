@@ -13,17 +13,16 @@ import type { NativeButtonComponentProps } from '../../internals/types';
 export const DrawerTrigger = DialogTrigger as DrawerTrigger;
 
 export interface DrawerTrigger {
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: DrawerTrigger.Props<Payload, true, TElement> &
-      React.RefAttributes<HTMLButtonElement>,
+  <Payload = unknown>(
+    componentProps: DrawerTrigger.Props<Payload, true> & React.RefAttributes<HTMLButtonElement>,
   ): React.JSX.Element;
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: DrawerTrigger.Props<Payload, false, TElement> & {
+  <Payload = unknown>(
+    componentProps: DrawerTrigger.Props<Payload, false> & {
       nativeButton: false;
     } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: DrawerTrigger.Props<Payload, boolean, TElement> & {
+  <Payload = unknown>(
+    componentProps: DrawerTrigger.Props<Payload, boolean> & {
       nativeButton: boolean;
     } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
@@ -32,8 +31,7 @@ export interface DrawerTrigger {
 export type DrawerTriggerProps<
   Payload = unknown,
   TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, DrawerTrigger.State> & {
+> = NativeButtonComponentProps<TNativeButton, DrawerTrigger.State> & {
   /**
    * A handle to associate the trigger with a drawer.
    * Can be created with the Drawer.createHandle() method.
@@ -62,10 +60,9 @@ export interface DrawerTriggerState {
 }
 
 export namespace DrawerTrigger {
-  export type Props<
-    Payload = unknown,
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = DrawerTriggerProps<Payload, TNativeButton, TElement>;
+  export type Props<Payload = unknown, TNativeButton extends boolean = true> = DrawerTriggerProps<
+    Payload,
+    TNativeButton
+  >;
   export type State = DrawerTriggerState;
 }

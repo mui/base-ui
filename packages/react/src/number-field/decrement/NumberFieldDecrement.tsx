@@ -19,32 +19,28 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
 
 export interface NumberFieldDecrementState extends NumberFieldRootState {}
 
-export type NumberFieldDecrementProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, NumberFieldDecrement.State>;
+export type NumberFieldDecrementProps<TNativeButton extends boolean = true> =
+  NativeButtonComponentProps<TNativeButton, NumberFieldDecrement.State>;
 
 export namespace NumberFieldDecrement {
   export type State = NumberFieldDecrementState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = NumberFieldDecrementProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> =
+    NumberFieldDecrementProps<TNativeButton>;
 }
 
 type NumberFieldDecrementComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: NumberFieldDecrement.Props<true, TElement> & {
+  (
+    props: NumberFieldDecrement.Props<true> & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: NumberFieldDecrement.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: NumberFieldDecrement.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: NumberFieldDecrement.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: NumberFieldDecrement.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

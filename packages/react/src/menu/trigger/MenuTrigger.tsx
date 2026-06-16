@@ -304,27 +304,25 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 }) as unknown as MenuTrigger;
 
 export interface MenuTrigger {
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: MenuTrigger.Props<Payload, true, TElement> &
-      React.RefAttributes<HTMLButtonElement>,
+  <Payload = unknown>(
+    componentProps: MenuTrigger.Props<Payload, true> & React.RefAttributes<HTMLButtonElement>,
   ): React.JSX.Element;
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: MenuTrigger.Props<Payload, false, TElement> & {
+  <Payload = unknown>(
+    componentProps: MenuTrigger.Props<Payload, false> & {
       nativeButton: false;
     } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: MenuTrigger.Props<Payload, boolean, TElement> & {
+  <Payload = unknown>(
+    componentProps: MenuTrigger.Props<Payload, boolean> & {
       nativeButton: boolean;
     } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
 }
 
-export type MenuTriggerProps<
-  Payload = unknown,
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = Omit<NativeButtonComponentProps<TNativeButton, TElement, MenuTrigger.State>, 'disabled'> & {
+export type MenuTriggerProps<Payload = unknown, TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, MenuTrigger.State>,
+  'disabled'
+> & {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
@@ -372,11 +370,10 @@ export interface MenuTriggerState {
 }
 
 export namespace MenuTrigger {
-  export type Props<
-    Payload = unknown,
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = MenuTriggerProps<Payload, TNativeButton, TElement>;
+  export type Props<Payload = unknown, TNativeButton extends boolean = true> = MenuTriggerProps<
+    Payload,
+    TNativeButton
+  >;
   export type State = MenuTriggerState;
 }
 

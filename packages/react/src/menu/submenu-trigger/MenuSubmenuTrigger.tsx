@@ -202,20 +202,12 @@ export interface MenuSubmenuTriggerState {
   open: boolean;
 }
 
-export type MenuSubmenuTriggerProps<
-  TNativeButton extends boolean = false,
-  TElement extends React.ElementType = 'div',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, MenuSubmenuTrigger.State, false>,
+export type MenuSubmenuTriggerProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, MenuSubmenuTrigger.State, false>,
   'disabled' | 'onClick'
 > & {
   onClick?:
-    | NativeButtonComponentProps<
-        TNativeButton,
-        TElement,
-        MenuSubmenuTrigger.State,
-        false
-      >['onClick']
+    | NativeButtonComponentProps<TNativeButton, MenuSubmenuTrigger.State, false>['onClick']
     | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
@@ -252,26 +244,23 @@ export type MenuSubmenuTriggerProps<
 };
 
 export namespace MenuSubmenuTrigger {
-  export type Props<
-    TNativeButton extends boolean = false,
-    TElement extends React.ElementType = 'div',
-  > = MenuSubmenuTriggerProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = false> = MenuSubmenuTriggerProps<TNativeButton>;
   export type State = MenuSubmenuTriggerState;
 }
 
 type MenuSubmenuTriggerComponent = {
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuSubmenuTrigger.Props<false, TElement> & {
+  (
+    props: MenuSubmenuTrigger.Props<false> & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuSubmenuTrigger.Props<true, TElement> & { nativeButton: true } & {
+  (
+    props: MenuSubmenuTrigger.Props<true> & { nativeButton: true } & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuSubmenuTrigger.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: MenuSubmenuTrigger.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

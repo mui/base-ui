@@ -32,11 +32,8 @@ export interface AutocompleteTriggerState extends FieldRootState {
   listEmpty: boolean;
 }
 
-export type AutocompleteTriggerProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, AutocompleteTrigger.State>,
+export type AutocompleteTriggerProps<TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, AutocompleteTrigger.State>,
   'disabled'
 > & {
   /**
@@ -47,17 +44,16 @@ export type AutocompleteTriggerProps<
 };
 
 export interface AutocompleteTrigger {
-  <TElement extends React.ElementType = 'button'>(
-    componentProps: AutocompleteTrigger.Props<true, TElement> &
-      React.RefAttributes<HTMLButtonElement>,
+  (
+    componentProps: AutocompleteTrigger.Props<true> & React.RefAttributes<HTMLButtonElement>,
   ): React.JSX.Element;
-  <TElement extends React.ElementType = 'button'>(
-    componentProps: AutocompleteTrigger.Props<false, TElement> & {
+  (
+    componentProps: AutocompleteTrigger.Props<false> & {
       nativeButton: false;
     } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
-  <TElement extends React.ElementType = 'button'>(
-    componentProps: AutocompleteTrigger.Props<boolean, TElement> & {
+  (
+    componentProps: AutocompleteTrigger.Props<boolean> & {
       nativeButton: boolean;
     } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
@@ -65,8 +61,5 @@ export interface AutocompleteTrigger {
 
 export namespace AutocompleteTrigger {
   export type State = AutocompleteTriggerState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = AutocompleteTriggerProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = AutocompleteTriggerProps<TNativeButton>;
 }

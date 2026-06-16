@@ -300,10 +300,10 @@ export interface ComboboxTriggerState extends FieldRootState {
   placeholder: boolean;
 }
 
-export type ComboboxTriggerProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = Omit<NativeButtonComponentProps<TNativeButton, TElement, ComboboxTrigger.State>, 'disabled'> & {
+export type ComboboxTriggerProps<TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, ComboboxTrigger.State>,
+  'disabled'
+> & {
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -313,25 +313,22 @@ export type ComboboxTriggerProps<
 
 export namespace ComboboxTrigger {
   export type State = ComboboxTriggerState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = ComboboxTriggerProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = ComboboxTriggerProps<TNativeButton>;
 }
 
 type ComboboxTriggerComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: ComboboxTrigger.Props<true, TElement> & {
+  (
+    props: ComboboxTrigger.Props<true> & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: ComboboxTrigger.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: ComboboxTrigger.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: ComboboxTrigger.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: ComboboxTrigger.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

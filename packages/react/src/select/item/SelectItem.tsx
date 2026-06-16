@@ -280,11 +280,8 @@ export interface SelectItemState {
   highlighted: boolean;
 }
 
-export type SelectItemProps<
-  TNativeButton extends boolean = false,
-  TElement extends React.ElementType = 'div',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, SelectItem.State, false>,
+export type SelectItemProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, SelectItem.State, false>,
   'disabled' | 'id' | 'value'
 > & {
   children?: React.ReactNode;
@@ -308,36 +305,20 @@ export type SelectItemProps<
 
 export namespace SelectItem {
   export type State = SelectItemState;
-  export type Props<
-    TNativeButton extends boolean = false,
-    TElement extends React.ElementType = 'div',
-  > = SelectItemProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = false> = SelectItemProps<TNativeButton>;
 }
 
 type SelectItemComponent = {
   (
-    props: SelectItem.Props<false, 'div'> & { ref?: React.Ref<HTMLElement> | undefined },
+    props: SelectItem.Props<false> & { ref?: React.Ref<HTMLElement> | undefined },
   ): React.ReactElement | null;
   (
-    props: SelectItem.Props<true, 'div'> & { nativeButton: true } & {
+    props: SelectItem.Props<true> & { nativeButton: true } & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
   (
-    props: SelectItem.Props<boolean, 'div'> & { nativeButton: boolean } & {
-      ref?: React.Ref<HTMLElement> | undefined;
-    },
-  ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: SelectItem.Props<false, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
-  ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: SelectItem.Props<true, TElement> & { nativeButton: true } & {
-      ref?: React.Ref<HTMLButtonElement> | undefined;
-    },
-  ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: SelectItem.Props<boolean, TElement> & { nativeButton: boolean } & {
+    props: SelectItem.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

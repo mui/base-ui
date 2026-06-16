@@ -71,30 +71,27 @@ export interface ToastCloseState {
   type: string | undefined;
 }
 
-export type ToastCloseProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, ToastClose.State>;
+export type ToastCloseProps<TNativeButton extends boolean = true> = NativeButtonComponentProps<
+  TNativeButton,
+  ToastClose.State
+>;
 
 export namespace ToastClose {
   export type State = ToastCloseState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = ToastCloseProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = ToastCloseProps<TNativeButton>;
 }
 
 type ToastCloseComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: ToastClose.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  (
+    props: ToastClose.Props<true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: ToastClose.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: ToastClose.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: ToastClose.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: ToastClose.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

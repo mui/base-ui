@@ -54,30 +54,27 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
 
 export interface PopoverCloseState {}
 
-export type PopoverCloseProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, PopoverClose.State>;
+export type PopoverCloseProps<TNativeButton extends boolean = true> = NativeButtonComponentProps<
+  TNativeButton,
+  PopoverClose.State
+>;
 
 export namespace PopoverClose {
   export type State = PopoverCloseState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = PopoverCloseProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = PopoverCloseProps<TNativeButton>;
 }
 
 type PopoverCloseComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: PopoverClose.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  (
+    props: PopoverClose.Props<true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: PopoverClose.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: PopoverClose.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: PopoverClose.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: PopoverClose.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

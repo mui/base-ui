@@ -320,12 +320,8 @@ export interface RadioRootState extends FieldRootState {
   focused: boolean;
 }
 
-export type RadioRootProps<
-  Value = any,
-  TNativeButton extends boolean = false,
-  TElement extends React.ElementType = 'span',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, RadioRoot.State, false, 'value'>,
+export type RadioRootProps<Value = any, TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, RadioRoot.State, false, 'value'>,
   'disabled'
 > & {
   /**
@@ -352,26 +348,25 @@ export type RadioRootProps<
 
 export namespace RadioRoot {
   export type State = RadioRootState;
-  export type Props<
-    Value = any,
-    TNativeButton extends boolean = false,
-    TElement extends React.ElementType = 'span',
-  > = RadioRootProps<Value, TNativeButton, TElement>;
+  export type Props<Value = any, TNativeButton extends boolean = false> = RadioRootProps<
+    Value,
+    TNativeButton
+  >;
 }
 
 type RadioRootComponent = {
-  <Value = any, TElement extends React.ElementType = 'span'>(
-    props: RadioRoot.Props<Value, false, TElement> & {
+  <Value = any>(
+    props: RadioRoot.Props<Value, false> & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <Value = any, TElement extends React.ElementType = 'span'>(
-    props: RadioRoot.Props<Value, true, TElement> & { nativeButton: true } & {
+  <Value = any>(
+    props: RadioRoot.Props<Value, true> & { nativeButton: true } & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <Value = any, TElement extends React.ElementType = 'span'>(
-    props: RadioRoot.Props<Value, boolean, TElement> & { nativeButton: boolean } & {
+  <Value = any>(
+    props: RadioRoot.Props<Value, boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

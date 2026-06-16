@@ -145,19 +145,16 @@ type NativeButtonElementProps<
 
 export type NativeButtonComponentProps<
   TNativeButton extends boolean,
-  TElement extends React.ElementType,
   State,
   TDefaultNativeButton extends boolean = true,
   TNativeButtonAttributeOverrides extends NativeButtonAttributeKeys = never,
-> = [TElement] extends [React.ElementType]
-  ? NativeButtonProp<TNativeButton, TDefaultNativeButton> &
-      NativeButtonElementProps<TNativeButton, State, TNativeButtonAttributeOverrides> & {
-        /**
-         * Whether the component should ignore user interaction.
-         */
-        disabled?: boolean | undefined;
-      }
-  : never;
+> = NativeButtonProp<TNativeButton, TDefaultNativeButton> &
+  NativeButtonElementProps<TNativeButton, State, TNativeButtonAttributeOverrides> & {
+    /**
+     * Whether the component should ignore user interaction.
+     */
+    disabled?: boolean | undefined;
+  };
 
 /**
  * Simplifies the display of a type (without modifying it).

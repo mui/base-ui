@@ -163,10 +163,10 @@ export interface ComboboxClearState {
   transitionStatus: TransitionStatus;
 }
 
-export type ComboboxClearProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = Omit<NativeButtonComponentProps<TNativeButton, TElement, ComboboxClear.State>, 'disabled'> & {
+export type ComboboxClearProps<TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, ComboboxClear.State>,
+  'disabled'
+> & {
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -181,23 +181,20 @@ export type ComboboxClearProps<
 
 export namespace ComboboxClear {
   export type State = ComboboxClearState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = ComboboxClearProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = ComboboxClearProps<TNativeButton>;
 }
 
 type ComboboxClearComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: ComboboxClear.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  (
+    props: ComboboxClear.Props<true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: ComboboxClear.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: ComboboxClear.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: ComboboxClear.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: ComboboxClear.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

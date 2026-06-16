@@ -290,10 +290,10 @@ export interface SelectTriggerState extends FieldRootState {
   placeholder: boolean;
 }
 
-export type SelectTriggerProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = Omit<NativeButtonComponentProps<TNativeButton, TElement, SelectTrigger.State>, 'disabled'> & {
+export type SelectTriggerProps<TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, SelectTrigger.State>,
+  'disabled'
+> & {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
@@ -303,23 +303,20 @@ export type SelectTriggerProps<
 
 export namespace SelectTrigger {
   export type State = SelectTriggerState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = SelectTriggerProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = SelectTriggerProps<TNativeButton>;
 }
 
 type SelectTriggerComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: SelectTrigger.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  (
+    props: SelectTrigger.Props<true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: SelectTrigger.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: SelectTrigger.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: SelectTrigger.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: SelectTrigger.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

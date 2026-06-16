@@ -270,11 +270,8 @@ export interface SwitchRootState extends FieldRootState {
   required: boolean;
 }
 
-export type SwitchRootProps<
-  TNativeButton extends boolean = false,
-  TElement extends React.ElementType = 'span',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, SwitchRoot.State, false>,
+export type SwitchRootProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, SwitchRoot.State, false>,
   'disabled' | 'onChange'
 > & {
   /**
@@ -347,25 +344,22 @@ export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.C
 
 export namespace SwitchRoot {
   export type State = SwitchRootState;
-  export type Props<
-    TNativeButton extends boolean = false,
-    TElement extends React.ElementType = 'span',
-  > = SwitchRootProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = false> = SwitchRootProps<TNativeButton>;
   export type ChangeEventReason = SwitchRootChangeEventReason;
   export type ChangeEventDetails = SwitchRootChangeEventDetails;
 }
 
 type SwitchRootComponent = {
-  <TElement extends React.ElementType = 'span'>(
-    props: SwitchRoot.Props<false, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+  (
+    props: SwitchRoot.Props<false> & { ref?: React.Ref<HTMLElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'span'>(
-    props: SwitchRoot.Props<true, TElement> & { nativeButton: true } & {
+  (
+    props: SwitchRoot.Props<true> & { nativeButton: true } & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'span'>(
-    props: SwitchRoot.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: SwitchRoot.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

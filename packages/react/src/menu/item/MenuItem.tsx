@@ -72,19 +72,14 @@ export interface MenuItemState {
   highlighted: boolean;
 }
 
-export type MenuItemProps<
-  TNativeButton extends boolean = false,
-  TElement extends React.ElementType = 'div',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, MenuItem.State, false>,
+export type MenuItemProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, MenuItem.State, false>,
   'disabled' | 'onClick'
 > & {
   /**
    * The click handler for the menu item.
    */
-  onClick?:
-    | NativeButtonComponentProps<TNativeButton, TElement, MenuItem.State, false>['onClick']
-    | undefined;
+  onClick?: NativeButtonComponentProps<TNativeButton, MenuItem.State, false>['onClick'] | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -108,23 +103,20 @@ export type MenuItemProps<
 
 export namespace MenuItem {
   export type State = MenuItemState;
-  export type Props<
-    TNativeButton extends boolean = false,
-    TElement extends React.ElementType = 'div',
-  > = MenuItemProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = false> = MenuItemProps<TNativeButton>;
 }
 
 type MenuItemComponent = {
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuItem.Props<false, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+  (
+    props: MenuItem.Props<false> & { ref?: React.Ref<HTMLElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuItem.Props<true, TElement> & { nativeButton: true } & {
+  (
+    props: MenuItem.Props<true> & { nativeButton: true } & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuItem.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: MenuItem.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

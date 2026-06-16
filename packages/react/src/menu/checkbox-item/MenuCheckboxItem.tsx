@@ -124,11 +124,8 @@ export interface MenuCheckboxItemState {
   checked: boolean;
 }
 
-export type MenuCheckboxItemProps<
-  TNativeButton extends boolean = false,
-  TElement extends React.ElementType = 'div',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, MenuCheckboxItem.State, false>,
+export type MenuCheckboxItemProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, MenuCheckboxItem.State, false>,
   'disabled' | 'onClick'
 > & {
   /**
@@ -154,7 +151,7 @@ export type MenuCheckboxItemProps<
    * The click handler for the menu item.
    */
   onClick?:
-    | NativeButtonComponentProps<TNativeButton, TElement, MenuCheckboxItem.State, false>['onClick']
+    | NativeButtonComponentProps<TNativeButton, MenuCheckboxItem.State, false>['onClick']
     | undefined;
   /**
    * Whether the component should ignore user interaction.
@@ -181,27 +178,24 @@ export type MenuCheckboxItemChangeEventDetails = MenuRoot.ChangeEventDetails;
 
 export namespace MenuCheckboxItem {
   export type State = MenuCheckboxItemState;
-  export type Props<
-    TNativeButton extends boolean = false,
-    TElement extends React.ElementType = 'div',
-  > = MenuCheckboxItemProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = false> = MenuCheckboxItemProps<TNativeButton>;
   export type ChangeEventReason = MenuCheckboxItemChangeEventReason;
   export type ChangeEventDetails = MenuCheckboxItemChangeEventDetails;
 }
 
 type MenuCheckboxItemComponent = {
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuCheckboxItem.Props<false, TElement> & {
+  (
+    props: MenuCheckboxItem.Props<false> & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuCheckboxItem.Props<true, TElement> & { nativeButton: true } & {
+  (
+    props: MenuCheckboxItem.Props<true> & { nativeButton: true } & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuCheckboxItem.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: MenuCheckboxItem.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

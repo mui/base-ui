@@ -49,10 +49,10 @@ export const DialogClose = React.forwardRef(function DialogClose(
   });
 }) as unknown as DialogCloseComponent;
 
-export type DialogCloseProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, DialogClose.State>;
+export type DialogCloseProps<TNativeButton extends boolean = true> = NativeButtonComponentProps<
+  TNativeButton,
+  DialogClose.State
+>;
 
 export interface DialogCloseState {
   /**
@@ -62,24 +62,21 @@ export interface DialogCloseState {
 }
 
 export namespace DialogClose {
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = DialogCloseProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = DialogCloseProps<TNativeButton>;
   export type State = DialogCloseState;
 }
 
 type DialogCloseComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: DialogClose.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  (
+    props: DialogClose.Props<true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: DialogClose.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: DialogClose.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: DialogClose.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: DialogClose.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

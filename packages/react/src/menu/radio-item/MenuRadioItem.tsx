@@ -115,11 +115,8 @@ export interface MenuRadioItemState {
   checked: boolean;
 }
 
-export type MenuRadioItemProps<
-  TNativeButton extends boolean = false,
-  TElement extends React.ElementType = 'div',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, MenuRadioItem.State, false, 'value'>,
+export type MenuRadioItemProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, MenuRadioItem.State, false, 'value'>,
   'disabled' | 'onClick'
 > & {
   /**
@@ -131,7 +128,7 @@ export type MenuRadioItemProps<
    * The click handler for the menu item.
    */
   onClick?:
-    | NativeButtonComponentProps<TNativeButton, TElement, MenuRadioItem.State, false>['onClick']
+    | NativeButtonComponentProps<TNativeButton, MenuRadioItem.State, false>['onClick']
     | undefined;
   /**
    * Whether the component should ignore user interaction.
@@ -155,23 +152,20 @@ export type MenuRadioItemProps<
 
 export namespace MenuRadioItem {
   export type State = MenuRadioItemState;
-  export type Props<
-    TNativeButton extends boolean = false,
-    TElement extends React.ElementType = 'div',
-  > = MenuRadioItemProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = false> = MenuRadioItemProps<TNativeButton>;
 }
 
 type MenuRadioItemComponent = {
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuRadioItem.Props<false, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+  (
+    props: MenuRadioItem.Props<false> & { ref?: React.Ref<HTMLElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuRadioItem.Props<true, TElement> & { nativeButton: true } & {
+  (
+    props: MenuRadioItem.Props<true> & { nativeButton: true } & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'div'>(
-    props: MenuRadioItem.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: MenuRadioItem.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

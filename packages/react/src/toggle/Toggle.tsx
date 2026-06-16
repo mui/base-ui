@@ -154,11 +154,10 @@ export interface ToggleState {
   disabled: boolean;
 }
 
-export type ToggleProps<
-  Value extends string = string,
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = Omit<NativeButtonComponentProps<TNativeButton, TElement, Toggle.State>, 'disabled'> & {
+export type ToggleProps<Value extends string = string, TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, Toggle.State>,
+  'disabled'
+> & {
   /**
    * Whether the toggle button is currently pressed.
    * This is the controlled counterpart of `defaultPressed`.
@@ -197,23 +196,22 @@ export namespace Toggle {
   export type Props<
     Value extends string = string,
     TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = ToggleProps<Value, TNativeButton, TElement>;
+  > = ToggleProps<Value, TNativeButton>;
   export type ChangeEventReason = ToggleChangeEventReason;
   export type ChangeEventDetails = ToggleChangeEventDetails;
 }
 
 type ToggleComponent = {
-  <Value extends string = string, TElement extends React.ElementType = 'button'>(
-    props: Toggle.Props<Value, true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  <Value extends string = string>(
+    props: Toggle.Props<Value, true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
   ): React.ReactElement | null;
-  <Value extends string = string, TElement extends React.ElementType = 'button'>(
-    props: Toggle.Props<Value, false, TElement> & { nativeButton: false } & {
+  <Value extends string = string>(
+    props: Toggle.Props<Value, false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <Value extends string = string, TElement extends React.ElementType = 'button'>(
-    props: Toggle.Props<Value, boolean, TElement> & { nativeButton: boolean } & {
+  <Value extends string = string>(
+    props: Toggle.Props<Value, boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

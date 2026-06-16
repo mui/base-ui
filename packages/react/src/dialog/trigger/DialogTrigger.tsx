@@ -100,17 +100,16 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 }) as unknown as DialogTrigger;
 
 export interface DialogTrigger {
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: DialogTrigger.Props<Payload, true, TElement> &
-      React.RefAttributes<HTMLButtonElement>,
+  <Payload = unknown>(
+    componentProps: DialogTrigger.Props<Payload, true> & React.RefAttributes<HTMLButtonElement>,
   ): React.JSX.Element;
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: DialogTrigger.Props<Payload, false, TElement> & {
+  <Payload = unknown>(
+    componentProps: DialogTrigger.Props<Payload, false> & {
       nativeButton: false;
     } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: DialogTrigger.Props<Payload, boolean, TElement> & {
+  <Payload = unknown>(
+    componentProps: DialogTrigger.Props<Payload, boolean> & {
       nativeButton: boolean;
     } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
@@ -119,8 +118,7 @@ export interface DialogTrigger {
 export type DialogTriggerProps<
   Payload = unknown,
   TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, DialogTrigger.State> & {
+> = NativeButtonComponentProps<TNativeButton, DialogTrigger.State> & {
   /**
    * A handle to associate the trigger with a dialog.
    * Can be created with the Dialog.createHandle() method.
@@ -149,10 +147,9 @@ export interface DialogTriggerState {
 }
 
 export namespace DialogTrigger {
-  export type Props<
-    Payload = unknown,
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = DialogTriggerProps<Payload, TNativeButton, TElement>;
+  export type Props<Payload = unknown, TNativeButton extends boolean = true> = DialogTriggerProps<
+    Payload,
+    TNativeButton
+  >;
   export type State = DialogTriggerState;
 }

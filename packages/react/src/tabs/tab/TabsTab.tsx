@@ -258,11 +258,8 @@ export interface TabsTabState {
   tabActivationDirection: TabsTab.ActivationDirection;
 }
 
-export type TabsTabProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = Omit<
-  NativeButtonComponentProps<TNativeButton, TElement, TabsTab.State, true, 'value'>,
+export type TabsTabProps<TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, TabsTab.State, true, 'value'>,
   'disabled'
 > & {
   /**
@@ -288,23 +285,20 @@ export namespace TabsTab {
   export type Size = TabsTabSize;
   export type Metadata = TabsTabMetadata;
   export type State = TabsTabState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = TabsTabProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = TabsTabProps<TNativeButton>;
 }
 
 type TabsTabComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: TabsTab.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  (
+    props: TabsTab.Props<true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: TabsTab.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: TabsTab.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: TabsTab.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: TabsTab.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

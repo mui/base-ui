@@ -48,10 +48,10 @@ export interface ButtonState {
   disabled: boolean;
 }
 
-export type ButtonProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, Button.State> & {
+export type ButtonProps<TNativeButton extends boolean = true> = NativeButtonComponentProps<
+  TNativeButton,
+  Button.State
+> & {
   /**
    * Whether the button should be focusable when disabled.
    * @default false
@@ -61,23 +61,20 @@ export type ButtonProps<
 
 export namespace Button {
   export type State = ButtonState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = ButtonProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = ButtonProps<TNativeButton>;
 }
 
 type ButtonComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: Button.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  (
+    props: Button.Props<true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: Button.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: Button.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: Button.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: Button.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

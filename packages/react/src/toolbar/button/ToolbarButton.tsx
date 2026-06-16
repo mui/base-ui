@@ -86,10 +86,10 @@ export interface ToolbarButtonState extends ToolbarRootState {
   focusable: boolean;
 }
 
-export type ToolbarButtonProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = Omit<NativeButtonComponentProps<TNativeButton, TElement, ToolbarButton.State>, 'disabled'> & {
+export type ToolbarButtonProps<TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, ToolbarButton.State>,
+  'disabled'
+> & {
   /**
    * When `true` the item is disabled.
    * @default false
@@ -104,23 +104,20 @@ export type ToolbarButtonProps<
 
 export namespace ToolbarButton {
   export type State = ToolbarButtonState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = ToolbarButtonProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = ToolbarButtonProps<TNativeButton>;
 }
 
 type ToolbarButtonComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: ToolbarButton.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  (
+    props: ToolbarButton.Props<true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: ToolbarButton.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: ToolbarButton.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: ToolbarButton.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: ToolbarButton.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

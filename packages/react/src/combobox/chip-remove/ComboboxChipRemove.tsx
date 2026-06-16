@@ -137,32 +137,27 @@ export interface ComboboxChipRemoveState {
   disabled: boolean;
 }
 
-export type ComboboxChipRemoveProps<
-  TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, ComboboxChipRemove.State>;
+export type ComboboxChipRemoveProps<TNativeButton extends boolean = true> =
+  NativeButtonComponentProps<TNativeButton, ComboboxChipRemove.State>;
 
 export namespace ComboboxChipRemove {
   export type State = ComboboxChipRemoveState;
-  export type Props<
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = ComboboxChipRemoveProps<TNativeButton, TElement>;
+  export type Props<TNativeButton extends boolean = true> = ComboboxChipRemoveProps<TNativeButton>;
 }
 
 type ComboboxChipRemoveComponent = {
-  <TElement extends React.ElementType = 'button'>(
-    props: ComboboxChipRemove.Props<true, TElement> & {
+  (
+    props: ComboboxChipRemove.Props<true> & {
       ref?: React.Ref<HTMLButtonElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: ComboboxChipRemove.Props<false, TElement> & { nativeButton: false } & {
+  (
+    props: ComboboxChipRemove.Props<false> & { nativeButton: false } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;
-  <TElement extends React.ElementType = 'button'>(
-    props: ComboboxChipRemove.Props<boolean, TElement> & { nativeButton: boolean } & {
+  (
+    props: ComboboxChipRemove.Props<boolean> & { nativeButton: boolean } & {
       ref?: React.Ref<HTMLElement> | undefined;
     },
   ): React.ReactElement | null;

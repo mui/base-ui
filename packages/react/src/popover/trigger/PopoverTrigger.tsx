@@ -167,17 +167,16 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 }) as unknown as PopoverTrigger;
 
 export interface PopoverTrigger {
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: PopoverTrigger.Props<Payload, true, TElement> &
-      React.RefAttributes<HTMLButtonElement>,
+  <Payload = unknown>(
+    componentProps: PopoverTrigger.Props<Payload, true> & React.RefAttributes<HTMLButtonElement>,
   ): React.JSX.Element;
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: PopoverTrigger.Props<Payload, false, TElement> & {
+  <Payload = unknown>(
+    componentProps: PopoverTrigger.Props<Payload, false> & {
       nativeButton: false;
     } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
-  <Payload = unknown, TElement extends React.ElementType = 'button'>(
-    componentProps: PopoverTrigger.Props<Payload, boolean, TElement> & {
+  <Payload = unknown>(
+    componentProps: PopoverTrigger.Props<Payload, boolean> & {
       nativeButton: boolean;
     } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
@@ -197,8 +196,7 @@ export interface PopoverTriggerState {
 export type PopoverTriggerProps<
   Payload = unknown,
   TNativeButton extends boolean = true,
-  TElement extends React.ElementType = 'button',
-> = NativeButtonComponentProps<TNativeButton, TElement, PopoverTrigger.State> & {
+> = NativeButtonComponentProps<TNativeButton, PopoverTrigger.State> & {
   /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
@@ -243,9 +241,8 @@ export type PopoverTriggerProps<
 
 export namespace PopoverTrigger {
   export type State = PopoverTriggerState;
-  export type Props<
-    Payload = unknown,
-    TNativeButton extends boolean = true,
-    TElement extends React.ElementType = 'button',
-  > = PopoverTriggerProps<Payload, TNativeButton, TElement>;
+  export type Props<Payload = unknown, TNativeButton extends boolean = true> = PopoverTriggerProps<
+    Payload,
+    TNativeButton
+  >;
 }
