@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -33,12 +33,11 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
   );
 });
 
-export namespace SelectPortal {
-  export interface State {}
-}
+export interface SelectPortalState {}
 
-export interface SelectPortalProps extends FloatingPortal.Props<SelectPortal.State> {}
+export interface SelectPortalProps extends FloatingPortal.Props<SelectPortalState> {}
 
 export namespace SelectPortal {
+  export type State = SelectPortalState;
   export type Props = SelectPortalProps;
 }

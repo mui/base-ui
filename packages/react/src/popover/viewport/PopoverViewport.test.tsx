@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Popover.Viewport />', () => {
@@ -40,8 +40,57 @@ describe('<Popover.Viewport />', () => {
     );
 
     const currentContainer = screen.getByTestId('content').closest('[data-current]');
-    expect(currentContainer).not.to.equal(null);
-    expect(currentContainer!.textContent).to.equal('Content');
+    expect(currentContainer).not.toBe(null);
+    expect(currentContainer!.textContent).toBe('Content');
+  });
+
+  it('should remount the `current` container when the active trigger changes', async () => {
+    const { user } = await render(
+      <Popover.Root>
+        {({ payload }) => (
+          <React.Fragment>
+            <Popover.Trigger payload="first" data-testid="trigger1">
+              Trigger 1
+            </Popover.Trigger>
+            <Popover.Trigger payload="second" data-testid="trigger2">
+              Trigger 2
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Popover.Viewport>
+                    {payload === 'first' ? (
+                      <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
+                    ) : null}
+                    {payload === 'second' ? (
+                      <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
+                    ) : null}
+                  </Popover.Viewport>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </React.Fragment>
+        )}
+      </Popover.Root>,
+    );
+
+    const trigger1 = screen.getByTestId('trigger1');
+    const trigger2 = screen.getByTestId('trigger2');
+
+    await user.click(trigger1);
+
+    const firstImage = await screen.findByTestId('payload-image-1');
+    const firstContainer = firstImage.closest('[data-current]');
+    expect(firstContainer).not.toBe(null);
+
+    await user.click(trigger2);
+
+    await waitFor(() => {
+      const secondImage = screen.getByTestId('payload-image-2');
+      const secondContainer = secondImage.closest('[data-current]');
+      expect(secondContainer).not.toBe(null);
+      expect(secondContainer).not.toBe(firstContainer);
+    });
   });
 
   describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {
@@ -133,22 +182,112 @@ describe('<Popover.Viewport />', () => {
       let previousContainer: HTMLElement | null = null;
       await waitFor(() => {
         previousContainer = document.querySelector('[data-previous]');
-        expect(previousContainer).not.to.equal(null);
+        expect(previousContainer).not.toBe(null);
       });
 
-      expect(previousContainer).to.have.attribute('inert');
-      expect(previousContainer!.textContent).to.equal('Content 0');
+      expect(previousContainer).toHaveAttribute('inert');
+      expect(previousContainer!.textContent).toBe('Content 0');
 
       const nextContainer = document.querySelector('[data-current]');
-      expect(nextContainer).not.to.equal(null);
-      expect(nextContainer!.textContent).to.equal('Content 1');
+      expect(nextContainer).not.toBe(null);
+      expect(nextContainer!.textContent).toBe('Content 1');
 
       // Verify they are cleaned up after animation
       await waitFor(() => {
-        expect(document.querySelector('[data-previous]')).to.equal(null);
+        expect(document.querySelector('[data-previous]')).toBe(null);
       });
 
       expect(document.querySelector('[data-current]')).toBeVisible();
+      expect(screen.getByText('Content 1')).toBeVisible();
+    });
+
+    it('should create morphing containers after a kept-mounted popup closes and reopens', async () => {
+      function TestComponent() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            <style>
+              {`
+                [data-transitioning] [data-previous] {
+                  animation: slide-out 0.2s ease-out forwards;
+                }
+                [data-transitioning] [data-current] {
+                  animation: slide-in 0.2s ease-out forwards;
+                }
+                @keyframes slide-out {
+                  from { transform: translateX(0); opacity: 1; }
+                  to { transform: translateX(-30%); opacity: 0; }
+                }
+                @keyframes slide-in {
+                  from { transform: translateX(30%); opacity: 0; }
+                  to { transform: translateX(0); opacity: 1; }
+                }
+              `}
+            </style>
+            <button type="button" onClick={() => setOpen(false)}>
+              Close
+            </button>
+            <Popover.Root open={open} onOpenChange={setOpen}>
+              {({ payload }) => (
+                <React.Fragment>
+                  <Popover.Trigger payload={0} data-testid="trigger1">
+                    Trigger 1
+                  </Popover.Trigger>
+                  <Popover.Trigger payload={1} data-testid="trigger2">
+                    Trigger 2
+                  </Popover.Trigger>
+                  <Popover.Portal keepMounted>
+                    <Popover.Positioner>
+                      <Popover.Popup data-testid="popup">
+                        <Popover.Viewport>Content {payload as number}</Popover.Viewport>
+                      </Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </React.Fragment>
+              )}
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+
+      const trigger1 = screen.getByTestId('trigger1');
+      const trigger2 = screen.getByTestId('trigger2');
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByText('Content 0')).toBeVisible();
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(document.querySelector('[data-previous]')).not.toBe(null);
+      });
+      await waitFor(() => {
+        expect(document.querySelector('[data-previous]')).toBe(null);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).not.toBeVisible();
+      });
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByText('Content 0')).toBeVisible();
+      });
+
+      await user.click(trigger2);
+
+      let previousContainer: HTMLElement | null = null;
+      await waitFor(() => {
+        previousContainer = document.querySelector('[data-previous]');
+        expect(previousContainer).not.toBe(null);
+      });
+
+      expect(previousContainer!.textContent).toBe('Content 0');
       expect(screen.getByText('Content 1')).toBeVisible();
     });
 
@@ -338,16 +477,16 @@ describe('<Popover.Viewport />', () => {
 
       const viewport = screen.getByTestId('viewport');
       await waitFor(() => {
-        expect(viewport).to.have.attribute('data-activation-direction');
+        expect(viewport).toHaveAttribute('data-activation-direction');
       });
 
       const direction = viewport.getAttribute('data-activation-direction');
 
       if (expectedDirection.length === 0) {
-        expect(direction?.trim()).to.equal('');
+        expect(direction?.trim()).toBe('');
       } else {
         expectedDirection.forEach((dir) => {
-          expect(direction).to.contain(dir);
+          expect(direction).toContain(dir);
         });
       }
     });

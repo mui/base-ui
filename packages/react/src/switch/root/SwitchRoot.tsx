@@ -1,27 +1,29 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useButton } from '../../use-button';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useButton } from '../../internals/use-button';
 import { SwitchRootContext } from './SwitchRootContext';
 import { stateAttributesMapping } from '../stateAttributesMapping';
-import { useField } from '../../field/useField';
-import type { FieldRoot } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import type { FieldRootState } from '../../field/root/FieldRoot';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
-import { useValueChanged } from '../../utils/useValueChanged';
+import { useValueChanged } from '../../internals/useValueChanged';
 
 /**
  * Represents the switch itself.
@@ -37,15 +39,20 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     checked: checkedProp,
     className,
     defaultChecked,
+    'aria-labelledby': ariaLabelledByProp,
+    form,
     id: idProp,
     inputRef: externalInputRef,
     name: nameProp,
     nativeButton = false,
-    onCheckedChange: onCheckedChangeProp,
+    onCheckedChange,
     readOnly = false,
     required = false,
     disabled: disabledProp = false,
     render,
+    uncheckedValue,
+    value,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -57,7 +64,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     validityData,
     setFilled,
     setFocused,
-    shouldValidateOnChange,
     validationMode,
     disabled: fieldDisabled,
     name: fieldName,
@@ -68,8 +74,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const onCheckedChange = useStableCallback(onCheckedChangeProp);
-
   const inputRef = React.useRef<HTMLInputElement>(null);
   const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
 
@@ -77,11 +81,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const id = useBaseUiId();
 
-  const inputId = useLabelableId({
+  const controlId = useLabelableId({
     id: idProp,
     implicit: false,
     controlRef: switchRef,
   });
+  const hiddenInputId = nativeButton ? undefined : controlId;
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -90,14 +95,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     state: 'checked',
   });
 
-  useField({
-    id,
-    commit: validation.commit,
-    value: checked,
-    controlRef: switchRef,
-    name,
-    getValue: () => checked,
-  });
+  useRegisterFieldControl(switchRef, id, checked, undefined, !disabled, nameProp);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
@@ -110,24 +108,28 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     setDirty(checked !== validityData.initialValue);
     setFilled(checked);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(checked);
-    } else {
-      validation.commit(checked, true);
-    }
+    validation.change(checked);
   });
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
   });
+  const ariaLabelledBy = useAriaLabelledBy(
+    ariaLabelledByProp,
+    labelId,
+    inputRef,
+    !nativeButton,
+    hiddenInputId,
+  );
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
-    id,
+    id: nativeButton ? controlId : id,
     role: 'switch',
     'aria-checked': checked,
     'aria-readonly': readOnly || undefined,
-    'aria-labelledby': labelId,
+    'aria-required': required || undefined,
+    'aria-labelledby': ariaLabelledBy,
     onFocus() {
       if (!disabled) {
         setFocused(true);
@@ -153,61 +155,69 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
       event.preventDefault();
 
-      inputRef?.current?.click();
+      const input = inputRef.current;
+      if (!input) {
+        return;
+      }
+
+      input.dispatchEvent(
+        new (ownerWindow(input).PointerEvent)('click', {
+          bubbles: true,
+          shiftKey: event.shiftKey,
+          ctrlKey: event.ctrlKey,
+          altKey: event.altKey,
+          metaKey: event.metaKey,
+        }),
+      );
     },
   };
 
-  const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
-    () =>
-      mergeProps<'input'>(
-        {
-          checked,
-          disabled,
-          id: inputId,
-          name,
-          required,
-          style: visuallyHidden,
-          tabIndex: -1,
-          type: 'checkbox',
-          'aria-hidden': true,
-          ref: handleInputRef,
-          onChange(event) {
-            // Workaround for https://github.com/facebook/react/issues/9023
-            if (event.nativeEvent.defaultPrevented) {
-              return;
-            }
-
-            const nextChecked = event.target.checked;
-            const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
-
-            onCheckedChange?.(nextChecked, eventDetails);
-
-            if (eventDetails.isCanceled) {
-              return;
-            }
-
-            setCheckedState(nextChecked);
-          },
-          onFocus() {
-            switchRef.current?.focus();
-          },
-        },
-        validation.getInputValidationProps,
-      ),
-    [
+  const inputProps: React.ComponentPropsWithRef<'input'> = mergeProps<'input'>(
+    {
       checked,
       disabled,
-      handleInputRef,
-      inputId,
+      form,
+      id: hiddenInputId,
       name,
-      onCheckedChange,
       required,
-      setCheckedState,
-      validation,
-    ],
+      style: name ? visuallyHiddenInput : visuallyHidden,
+      tabIndex: -1,
+      type: 'checkbox',
+      'aria-hidden': true,
+      ref: handleInputRef,
+      onChange(event) {
+        // Workaround for https://github.com/facebook/react/issues/9023
+        if (event.nativeEvent.defaultPrevented) {
+          return;
+        }
+
+        if (readOnly) {
+          event.preventDefault();
+          return;
+        }
+
+        const nextChecked = event.currentTarget.checked;
+        const eventDetails = createChangeEventDetails(REASONS.none, event.nativeEvent);
+
+        onCheckedChange?.(nextChecked, eventDetails);
+
+        if (eventDetails.isCanceled) {
+          return;
+        }
+
+        setCheckedState(nextChecked);
+      },
+      onFocus() {
+        switchRef.current?.focus();
+      },
+    },
+    (props) => validation.getValidationProps(disabled, props),
+    // React <19 sets an empty value if `undefined` is passed explicitly
+    // To avoid this, we only set the value if it's defined
+    value !== undefined ? { value } : EMPTY_OBJECT,
   );
 
-  const state: SwitchRoot.State = React.useMemo(
+  const state: SwitchRootState = React.useMemo(
     () => ({
       ...fieldState,
       checked,
@@ -221,20 +231,27 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   const element = useRenderElement('span', componentProps, {
     state,
     ref: [forwardedRef, switchRef, buttonRef],
-    props: [rootProps, validation.getValidationProps, elementProps, getButtonProps],
+    props: [
+      rootProps,
+      elementProps,
+      getButtonProps,
+      (props) => validation.getValidationProps(disabled, props),
+    ],
     stateAttributesMapping,
   });
 
   return (
     <SwitchRootContext.Provider value={state}>
       {element}
-      {!checked && name && <input type="hidden" name={name} value="off" />}
-      <input {...inputProps} />
+      {!checked && name && uncheckedValue !== undefined && (
+        <input type="hidden" form={form} name={name} value={uncheckedValue} disabled={disabled} />
+      )}
+      <input {...inputProps} suppressHydrationWarning />
     </SwitchRootContext.Provider>
   );
 });
 
-export interface SwitchRootState extends FieldRoot.State {
+export interface SwitchRootState extends FieldRootState {
   /**
    * Whether the switch is currently active.
    */
@@ -252,54 +269,74 @@ export interface SwitchRootState extends FieldRoot.State {
    */
   required: boolean;
 }
+
 export interface SwitchRootProps
-  extends NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', SwitchRootState>, 'onChange'> {
   /**
-   * The id of the switch element.
+   * The id of the hidden input element.
+   *
+   * When `nativeButton` is `true`, the id is applied to the root element.
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Whether the switch is currently active.
    *
    * To render an uncontrolled switch, use the `defaultChecked` prop instead.
    */
-  checked?: boolean;
+  checked?: boolean | undefined;
   /**
    * Whether the switch is initially active.
    *
    * To render a controlled switch, use the `checked` prop instead.
    * @default false
    */
-  defaultChecked?: boolean;
+  defaultChecked?: boolean | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * A ref to access the hidden `<input>` element.
    */
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
   /**
    * Identifies the field when a form is submitted.
    */
-  name?: string;
+  name?: string | undefined;
+  /**
+   * Identifies the form that owns the hidden input.
+   * Useful when the switch is rendered outside the form.
+   */
+  form?: string | undefined;
   /**
    * Event handler called when the switch is activated or deactivated.
    */
-  onCheckedChange?: (checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void;
+  onCheckedChange?:
+    | ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether the user should be unable to activate or deactivate the switch.
    * @default false
    */
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   /**
    * Whether the user must activate the switch before submitting a form.
    * @default false
    */
-  required?: boolean;
+  required?: boolean | undefined;
+  /**
+   * The value submitted with the form when the switch is on.
+   * By default, switch submits the "on" value, matching native checkbox behavior.
+   */
+  value?: string | undefined;
+  /**
+   * The value submitted with the form when the switch is off.
+   * By default, unchecked switches do not submit any value, matching native checkbox behavior.
+   */
+  uncheckedValue?: string | undefined;
 }
+
 export type SwitchRootChangeEventReason = typeof REASONS.none;
 export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.ChangeEventReason>;
 

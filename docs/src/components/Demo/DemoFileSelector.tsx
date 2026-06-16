@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Tabs } from '@base-ui-components/react/tabs';
+import { Tabs } from '@base-ui/react/tabs';
 
 interface DemoFileSelectorProps {
   files: Array<{ name: string; slug?: string; component: React.ReactNode }>;
@@ -57,12 +57,8 @@ export function DemoFileSelector({
     }
   }, []);
 
-  if (files.length === 1) {
-    return (
-      <a className="DemoFilename" href={files[0].slug ? `#${files[0].slug}` : undefined}>
-        {files[0].name}
-      </a>
-    );
+  if (files.length <= 1) {
+    return null;
   }
 
   return (
@@ -78,7 +74,7 @@ export function DemoFileSelector({
             nativeButton={false}
             onPointerDown={onTabPointerDown}
           >
-            {tab.name}
+            <span>{tab.name}</span>
           </Tabs.Tab>
         ))}
       </Tabs.List>

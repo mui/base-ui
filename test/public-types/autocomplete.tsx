@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Autocomplete } from '@base-ui-components/react/autocomplete';
+import { Autocomplete } from '@base-ui/react/autocomplete';
 
 export type AutocompleteProps<Value = string> = Autocomplete.Root.Props<Value>;
 export type AutocompleteActions = Autocomplete.Root.Actions;

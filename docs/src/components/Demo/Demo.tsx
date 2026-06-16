@@ -1,36 +1,69 @@
 'use client';
 import * as React from 'react';
-import { Collapsible } from '@base-ui-components/react/collapsible';
+import { Collapsible } from '@base-ui/react/collapsible';
+import * as Menu from 'docs/src/components/Menu';
+import { usePathname } from 'next/navigation';
 import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/types';
 import { useDemo } from '@mui/internal-docs-infra/useDemo';
 import { CopyIcon } from 'docs/src/icons/CopyIcon';
+import copy from 'clipboard-copy';
 import clsx from 'clsx';
+import kebabCase from 'es-toolkit/compat/kebabCase';
 import { CheckIcon } from 'docs/src/icons/CheckIcon';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
+import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
+import { MoreVertIcon } from 'docs/src/icons/MoreVertIcon';
 import { exportCodeSandbox, exportOpts } from 'docs/src/utils/demoExportOptions';
-import { isSafari, isEdge } from '@base-ui-components/utils/detectBrowser';
+import { getGitHubDemoUrl } from 'docs/src/utils/getGitHubDemoUrl';
+import { platform } from '@base-ui/utils/platform';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { DemoCodeBlock } from './DemoCodeBlock';
 import { GhostButton } from '../GhostButton';
 import { DemoPlayground } from './DemoPlayground';
+import './Demo.css';
 
 export type DemoProps = ContentProps<{
-  defaultOpen?: boolean;
   compact?: boolean;
   className?: string;
-  showExtraPlaygroundLink?: boolean;
 }>;
 
-export function Demo({
-  defaultOpen = false,
-  compact = false,
-  showExtraPlaygroundLink = false,
-  className,
-  ...demoProps
-}: DemoProps) {
+export function Demo({ compact = false, className, ...demoProps }: DemoProps) {
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
+  const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
+  const sourceLinkCopyResetTimeout = useTimeout();
+  const ga = useGoogleAnalytics();
+  const pathname = usePathname();
+  const demoSlug = React.useMemo(
+    () => demoProps.slug || (demoProps.name ? kebabCase(demoProps.name) : undefined),
+    [demoProps.slug, demoProps.name],
+  );
+  const demoId = demoSlug ? `${pathname}#${demoSlug}` : pathname;
+  const hasLoggedInteraction = React.useRef(false);
+
+  const onPlaygroundInteraction = React.useCallback(() => {
+    if (!hasLoggedInteraction.current) {
+      hasLoggedInteraction.current = true;
+      ga?.trackEvent({
+        category: 'demo',
+        action: 'interaction',
+        label: demoId,
+        params: { interaction: demoId, slug: demoSlug || '' },
+      });
+    }
+  }, [ga, demoId, demoSlug]);
+
   const onCopied = React.useCallback(() => {
+    ga?.trackEvent({
+      category: 'demo',
+      action: 'copy',
+      label: demoId,
+      params: { copy: demoId, slug: demoSlug || '' },
+    });
+
     /* eslint-disable no-restricted-syntax */
     const newTimeout = window.setTimeout(() => {
       window.clearTimeout(newTimeout);
@@ -39,18 +72,66 @@ export function Demo({
     window.clearTimeout(copyTimeout);
     setCopyTimeout(newTimeout);
     /* eslint-enable no-restricted-syntax */
-  }, [copyTimeout]);
+  }, [copyTimeout, ga, demoId, demoSlug]);
 
   const demo = useDemo(demoProps, {
     copy: { onCopied },
-    defaultOpen,
     export: exportOpts,
     exportCodeSandbox,
   });
 
+  const githubUrl = getGitHubDemoUrl(demoProps.url, demo.selectedVariant);
+
+  const onViewSource = useStableCallback(() => {
+    ga?.trackEvent({
+      category: 'demo',
+      action: 'open_github',
+      label: demoId,
+      params: { github: demoId, slug: demoSlug || '' },
+    });
+  });
+
+  const onCopySourceLink = useStableCallback(async () => {
+    if (!githubUrl) {
+      return;
+    }
+    await copy(githubUrl);
+    setSourceLinkCopied(true);
+
+    ga?.trackEvent({
+      category: 'demo',
+      action: 'copy_source_link',
+      label: demoId,
+      params: { copy_source_link: demoId, slug: demoSlug || '' },
+    });
+
+    sourceLinkCopyResetTimeout.start(2000, () => setSourceLinkCopied(false));
+  });
+
+  const onOpenChange = useStableCallback((nextOpen: boolean) => {
+    const action = nextOpen ? 'expand' : 'collapse';
+    ga?.trackEvent({
+      category: 'demo',
+      action,
+      label: demoId,
+      params: { [action]: demoId, slug: demoSlug || '' },
+    });
+    demo.setExpanded(nextOpen);
+  });
+
+  const onSelectFile = useStableCallback((fileName: string) => {
+    ga?.trackEvent({
+      category: 'demo',
+      action: 'file_select',
+      label: demoId,
+      params: { file_select: fileName, slug: demoSlug || '' },
+    });
+    demo.selectFileName(fileName);
+  });
+
   const [fallbackToCodeSandbox, setFallbackToCodeSandbox] = React.useState(false);
   React.useEffect(() => {
-    if (isSafari || isEdge) {
+    if (platform.engine.webkit) {
       setFallbackToCodeSandbox(true);
     }
   }, []);
@@ -70,52 +151,89 @@ export function Demo({
   return (
     <div className={clsx('DemoRoot', className)}>
       {demo.allFilesSlugs.map(({ slug }) => (
-        <span key={slug} id={slug} className="scroll-mt-4" />
+        <span key={slug} id={slug} className="bui-scroll-mt-4" />
       ))}
-      <DemoPlayground component={demo.component} variant={demo.selectedVariant}>
-        {showExtraPlaygroundLink && (
-          <span className="absolute top-3 right-4.5">{externalPlaygroundLink}</span>
-        )}
-      </DemoPlayground>
-      <Collapsible.Root open={demo.expanded} onOpenChange={demo.setExpanded}>
+      <div onPointerDown={onPlaygroundInteraction} onKeyDownCapture={onPlaygroundInteraction}>
+        <DemoPlayground component={demo.component} variant={demo.selectedVariant} />
+      </div>
+      <Collapsible.Root
+        className="DemoCollapsibleRoot"
+        open={demo.expanded}
+        onOpenChange={onOpenChange}
+      >
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
             <div className="DemoToolbar">
               <DemoFileSelector
                 files={demo.files}
                 selectedFileName={demo.selectedFileName}
-                selectFileName={demo.selectFileName}
+                selectFileName={onSelectFile}
                 onTabChange={demo.expand}
               />
 
-              <div className="ml-auto flex items-center gap-4">
-                <DemoVariantSelector
-                  className="contents"
-                  onVariantChange={demo.expand}
-                  variants={demo.variants}
-                  selectedVariant={demo.selectedVariant}
-                  selectVariant={demo.selectVariant as any}
-                  availableTransforms={demo.availableTransforms}
-                  selectedTransform={demo.selectedTransform}
-                  selectTransform={demo.selectTransform}
-                />
+              <div className="DemoToolbarActions">
+                {demo.variants.length > 1 && (
+                  <DemoVariantSelector
+                    onVariantChange={demo.expand}
+                    variants={demo.variants}
+                    selectedVariant={demo.selectedVariant}
+                    selectVariant={demo.selectVariant as any}
+                  />
+                )}
                 {externalPlaygroundLink}
-                <GhostButton aria-label="Copy code" onClick={demo.copy}>
-                  Copy
-                  <span className="flex size-3.5 items-center justify-center">
-                    {copyTimeout ? <CheckIcon /> : <CopyIcon />}
-                  </span>
-                </GhostButton>
+                {githubUrl && (
+                  <Menu.Root>
+                    <Menu.Trigger
+                      render={
+                        <GhostButton layout="icon" aria-label="More actions">
+                          <MoreVertIcon aria-hidden="true" />
+                        </GhostButton>
+                      }
+                    />
+                    <Menu.Popup align="end" alignOffset={-5}>
+                      <Menu.LinkItem
+                        href={githubUrl}
+                        target="_blank"
+                        rel="noopener"
+                        onClick={onViewSource}
+                      >
+                        <GitHubIcon aria-hidden="true" />
+                        View source on GitHub
+                        <ExternalLinkIcon aria-hidden="true" />
+                      </Menu.LinkItem>
+
+                      <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
+                        {sourceLinkCopied ? (
+                          <CheckIcon aria-hidden="true" />
+                        ) : (
+                          <CopyIcon aria-hidden="true" />
+                        )}
+                        Copy link to source
+                        <span className="sr-only" aria-live="polite">
+                          {sourceLinkCopied && 'Link copied!'}
+                        </span>
+                      </Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Root>
+                )}
               </div>
             </div>
           )}
 
           <DemoCodeBlock
             selectedFile={demo.selectedFile}
-            selectedFileName={demo.selectedFileName}
             selectedFileLines={demo.selectedFileLines}
             collapsibleOpen={demo.expanded}
-            compact={compact}
+            copyButton={
+              <GhostButton
+                layout="icon"
+                aria-label="Copy code"
+                onClick={demo.copy}
+                className="DemoCodeBlockCopyButton"
+              >
+                {copyTimeout ? <CheckIcon /> : <CopyIcon />}
+              </GhostButton>
+            }
           />
         </div>
       </Collapsible.Root>

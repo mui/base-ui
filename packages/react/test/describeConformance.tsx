@@ -20,8 +20,10 @@ export type ConformantComponentProps = {
   nativeButton?: boolean;
 };
 
-export interface BaseUiConformanceTestsOptions
-  extends Omit<Partial<ConformanceOptions>, 'render' | 'mount' | 'skip' | 'classes'> {
+export interface BaseUiConformanceTestsOptions extends Omit<
+  Partial<ConformanceOptions>,
+  'render' | 'mount' | 'skip' | 'classes'
+> {
   render: (
     element: React.ReactElement<
       ConformantComponentProps,
@@ -32,6 +34,11 @@ export interface BaseUiConformanceTestsOptions
   skip?: (keyof typeof fullSuite)[];
   testRenderPropWith?: keyof React.JSX.IntrinsicElements;
   button?: boolean;
+  /**
+   * Whether the component is allowed to be wrapped by an extra element for testing.
+   * @default true
+   */
+  wrappingAllowed?: boolean;
 }
 
 const fullSuite = {

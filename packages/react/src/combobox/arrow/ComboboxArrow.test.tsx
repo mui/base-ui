@@ -1,4 +1,4 @@
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Combobox.Arrow />', () => {

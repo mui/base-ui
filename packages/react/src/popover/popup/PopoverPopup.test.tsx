@@ -1,11 +1,11 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { createRenderer, describeConformance } from '#test-utils';
+import { Popover } from '@base-ui/react/popover';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Popover.Popup />', () => {
-  const { render } = createRenderer();
+  const { render, clock } = createRenderer();
 
   describeConformance(<Popover.Popup />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -33,7 +33,7 @@ describe('<Popover.Popup />', () => {
       </Popover.Root>,
     );
 
-    expect(screen.getByText('Content')).not.to.equal(null);
+    expect(screen.getByText('Content')).not.toBe(null);
   });
 
   describe('prop: initialFocus', () => {
@@ -187,6 +187,41 @@ describe('<Popover.Popup />', () => {
       });
     });
 
+    it('passes the latest interaction type to initialFocus after reopening', async () => {
+      const initialFocus = vi.fn(() => false);
+
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup initialFocus={initialFocus}>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await act(async () => trigger.focus());
+      await user.keyboard('[Enter]');
+
+      await waitFor(() => {
+        expect(initialFocus).toHaveBeenLastCalledWith('keyboard');
+      });
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.click(trigger, { detail: 1 });
+
+      await waitFor(() => {
+        expect(initialFocus).toHaveBeenLastCalledWith('touch');
+      });
+    });
+
     it('should not move focus when initialFocus is false', async () => {
       function TestComponent() {
         return (
@@ -261,6 +296,85 @@ describe('<Popover.Popup />', () => {
       await waitFor(() => {
         expect(screen.getByTestId('input-1')).toHaveFocus();
       });
+    });
+  });
+
+  it.skipIf(isJSDOM)('focuses the popup when the active element becomes display:none', async () => {
+    function TestComponent() {
+      const [hidden, setHidden] = React.useState(false);
+
+      return (
+        <Popover.Root open>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popup">
+                <button
+                  data-testid="hide-button"
+                  style={{ display: hidden ? 'none' : undefined }}
+                  onClick={() => setHidden(true)}
+                >
+                  Hide
+                </button>
+                <input />
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('hide-button')).toHaveFocus();
+    });
+
+    await user.click(screen.getByTestId('hide-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toHaveFocus();
+    });
+  });
+
+  describe('openOnHover: delay + click', () => {
+    clock.withFakeTimers();
+
+    it('returns focus to the trigger if opened by click before the hover delay completes', async () => {
+      await render(
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={300}>
+            Open
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Close>Close</Popover.Close>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByText('Close')).not.toBe(null);
+
+      clock.tick(1000);
+      await flushMicrotasks();
+
+      fireEvent.click(screen.getByText('Close'));
+      await flushMicrotasks();
+
+      expect(trigger).toHaveFocus();
     });
   });
 
@@ -472,6 +586,7 @@ describe('<Popover.Popup />', () => {
 
       // Close via keyboard: should move focus to final-input
       await user.click(trigger);
+      await waitSingleFrame();
       await user.keyboard('{Escape}');
       await waitFor(() => {
         expect(screen.getByTestId('final-input')).toHaveFocus();

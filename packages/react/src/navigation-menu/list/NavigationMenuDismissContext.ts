@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { ElementProps } from '../../floating-ui-react';
 

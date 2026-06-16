@@ -5,7 +5,7 @@
     "test": "node ./index.mjs"
   },
   "dependencies": {
-    "@base-ui-components/react": "workspace:*",
-    "@base-ui-components/utils": "workspace:*"
+    "@base-ui/react": "workspace:*",
+    "@base-ui/utils": "workspace:*"
   }
 }

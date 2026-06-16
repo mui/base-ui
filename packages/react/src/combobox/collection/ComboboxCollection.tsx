@@ -8,6 +8,8 @@ import { useGroupCollectionContext } from './GroupCollectionContext';
  * Doesn't render its own HTML element.
  *
  * If rendering a flat list, pass a function child to the `List` component instead, which implicitly wraps it.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.Element | null {
   const { children } = props;
@@ -24,10 +26,13 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
   return <React.Fragment>{itemsToRender.map(children)}</React.Fragment>;
 }
 
+export interface ComboboxCollectionState {}
+
 export interface ComboboxCollectionProps {
   children: (item: any, index: number) => React.ReactNode;
 }
 
 export namespace ComboboxCollection {
+  export type State = ComboboxCollectionState;
   export type Props = ComboboxCollectionProps;
 }

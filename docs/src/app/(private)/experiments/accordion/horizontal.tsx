@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
-import { Accordion } from '@base-ui-components/react/accordion';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { Accordion } from '@base-ui/react/accordion';
 import styles from './horizontal.module.css';
 
 const displayValueMap = {

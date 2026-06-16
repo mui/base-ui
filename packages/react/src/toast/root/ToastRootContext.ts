@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { ToastObject } from '../useToastManager';
 
@@ -13,7 +14,7 @@ export interface ToastRootContext {
   index: number;
   visibleIndex: number;
   expanded: boolean;
-  recalculateHeight: () => void;
+  recalculateHeight: (flushSync?: boolean) => void;
 }
 
 export const ToastRootContext = React.createContext<ToastRootContext | undefined>(undefined);

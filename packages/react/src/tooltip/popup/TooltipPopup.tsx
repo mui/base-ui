@@ -2,18 +2,18 @@
 import * as React from 'react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { EMPTY_OBJECT, DISABLED_TRANSITIONS_STYLE } from '../../utils/constants';
-import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { useHoverFloatingInteraction } from '../../floating-ui-react';
 
-const stateAttributesMapping: StateAttributesMapping<TooltipPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<TooltipPopupState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -28,21 +28,18 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   componentProps: TooltipPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
-  const { store } = useTooltipRootContext();
+  const store = useTooltipRootContext();
   const { side, align } = useTooltipPositionerContext();
 
   const open = store.useState('open');
-  const mounted = store.useState('mounted');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
-  const triggers = store.useState('triggers');
-  const payload = store.useState('payload');
-  const popupElement = store.useState('popupElement');
-  const positionerElement = store.useState('positionerElement');
   const floatingContext = store.useState('floatingRootContext');
+  const disabled = store.useState('disabled');
+  const closeDelay = store.useState('closeDelay');
 
   useOpenChangeComplete({
     open,
@@ -54,53 +51,25 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     },
   });
 
-  function handleMeasureLayout() {
-    floatingContext.events.emit('measure-layout');
-  }
-
-  function handleMeasureLayoutComplete(
-    previousDimensions: { width: number; height: number } | null,
-    nextDimensions: { width: number; height: number },
-  ) {
-    floatingContext.events.emit('measure-layout-complete', {
-      previousDimensions,
-      nextDimensions,
-    });
-  }
-
-  // If there's just one trigger, we can skip the auto-resize logic as
-  // the tooltip will always be anchored to the same position.
-  const autoresizeEnabled = triggers.size > 1;
-
-  usePopupAutoResize({
-    popupElement,
-    positionerElement,
-    mounted,
-    content: payload,
-    enabled: autoresizeEnabled,
-    onMeasureLayout: handleMeasureLayout,
-    onMeasureLayoutComplete: handleMeasureLayoutComplete,
+  useHoverFloatingInteraction(floatingContext, {
+    enabled: !disabled,
+    closeDelay,
   });
 
-  const state: TooltipPopup.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      instant: instantType,
-      transitionStatus,
-    }),
-    [open, side, align, instantType, transitionStatus],
-  );
+  const setPopupElement = store.useStateSetter('popupElement');
+
+  const state: TooltipPopupState = {
+    open,
+    side,
+    align,
+    instant: instantType,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
-    props: [
-      popupProps,
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
-      elementProps,
-    ],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement],
+    props: [popupProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     stateAttributesMapping,
   });
 
@@ -112,13 +81,25 @@ export interface TooltipPopupState {
    * Whether the tooltip is currently open.
    */
   open: boolean;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
+  /**
+   * Whether transitions should be skipped.
+   */
   instant: 'delay' | 'focus' | 'dismiss' | undefined;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface TooltipPopupProps extends BaseUIComponentProps<'div', TooltipPopup.State> {}
+export interface TooltipPopupProps extends BaseUIComponentProps<'div', TooltipPopupState> {}
 
 export namespace TooltipPopup {
   export type State = TooltipPopupState;

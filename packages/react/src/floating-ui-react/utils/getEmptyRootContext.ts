@@ -1,23 +1,17 @@
+import { PopupTriggerMap } from '../../utils/popups';
+import { FloatingRootStore } from '../components/FloatingRootStore';
 import type { FloatingRootContext } from '../types';
 
 export function getEmptyRootContext(): FloatingRootContext {
-  return {
+  return new FloatingRootStore({
     open: false,
-    onOpenChange: () => {},
-    dataRef: { current: {} },
-    elements: {
-      floating: null,
-      reference: null,
-      domReference: null,
-    },
-    events: {
-      on: () => {},
-      off: () => {},
-      emit: () => {},
-    },
-    floatingId: '',
-    refs: {
-      setPositionReference: () => {},
-    },
-  };
+    transitionStatus: undefined,
+    floatingElement: null,
+    referenceElement: null,
+    triggerElements: new PopupTriggerMap(),
+    floatingId: undefined,
+    syncOnly: false,
+    nested: false,
+    onOpenChange: undefined,
+  });
 }

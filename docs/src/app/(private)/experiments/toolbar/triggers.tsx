@@ -1,21 +1,21 @@
 'use client';
 import * as React from 'react';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { Switch } from '@base-ui-components/react/switch';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { Slider } from '@base-ui-components/react/slider';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { Popover } from '@base-ui-components/react/popover';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { Menu } from '@base-ui-components/react/menu';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { Switch } from '@base-ui/react/switch';
+import { NumberField } from '@base-ui/react/number-field';
+import { Slider } from '@base-ui/react/slider';
+import { Tooltip } from '@base-ui/react/tooltip';
+import { Popover } from '@base-ui/react/popover';
+import { Dialog } from '@base-ui/react/dialog';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
+import { Menu } from '@base-ui/react/menu';
 import toolbarClasses from './toolbar.module.css';
 import triggerToolbarClasses from './triggers.module.css';
-import menuClasses from '../../../(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
-import tooltipClasses from '../../../(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
-import switchClasses from '../../../(public)/(content)/react/components/switch/demos/hero/css-modules/index.module.css';
-import dialogClasses from '../../../(public)/(content)/react/components/alert-dialog/demos/hero/css-modules/index.module.css';
-import popoverClasses from '../../../(public)/(content)/react/components/popover/demos/_index.module.css';
+import menuClasses from '../../../(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import tooltipClasses from '../../../(docs)/react/components/tooltip/demos/hero/css-modules/index.module.css';
+import switchClasses from '../../../(docs)/react/components/switch/demos/hero/css-modules/index.module.css';
+import dialogClasses from '../../../(docs)/react/components/alert-dialog/demos/hero/css-modules/index.module.css';
+import popoverClasses from '../../../(docs)/react/components/popover/demos/_index.module.css';
 import comboSliderClasses from './slider.module.css';
 import {
   SlidersIcon,
@@ -26,10 +26,7 @@ import {
   MoreHorizontalIcon,
   ChevronRightIcon,
 } from './_icons';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 
 interface Settings extends Record<string, boolean> {}
 
@@ -138,7 +135,6 @@ export default function App() {
         className={styles.toolbar.a}
         href="https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/"
         target="_blank"
-        rel="noreferrer"
       >
         <h3 className={styles.toolbar.h3}>Toolbar pattern</h3>
       </a>
@@ -163,7 +159,7 @@ export default function App() {
               <Menu.Positioner className={styles.menu.Positioner}>
                 <Menu.Popup className={styles.menu.Popup}>
                   <Menu.Item className={styles.menu.Item}>Save</Menu.Item>
-                  <Menu.Item className={styles.menu.Item}>Save as...</Menu.Item>
+                  <Menu.Item className={styles.menu.Item}>Save as…</Menu.Item>
                   <Menu.Separator className={styles.menu.Separator} />
                   <Menu.SubmenuRoot>
                     <Menu.SubmenuTrigger className={styles.menu.SubmenuTrigger}>

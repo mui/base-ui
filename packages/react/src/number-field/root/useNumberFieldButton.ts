@@ -1,26 +1,26 @@
 'use client';
 import * as React from 'react';
-import type { Timeout } from '@base-ui-components/utils/useTimeout';
+import { isTouchLikePointerType, usePressAndHold } from '../../internals/usePressAndHold';
 import {
-  DEFAULT_STEP,
-  MAX_POINTER_MOVES_AFTER_TOUCH,
+  CHANGE_VALUE_TICK_DELAY,
+  START_AUTO_CHANGE_DELAY,
   SCROLLING_POINTER_MOVE_DISTANCE,
-  TOUCH_TIMEOUT,
 } from '../utils/constants';
 import { parseNumber } from '../utils/parse';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import type {
-  EventWithOptionalKeyState,
-  Direction,
-  IncrementValueParameters,
-} from '../utils/types';
+} from '../../internals/createBaseUIEventDetails';
+import type { EventWithOptionalKeyState, IncrementValueParameters } from '../utils/types';
 import type { NumberFieldRoot } from './NumberFieldRoot';
-import type { HTMLProps } from '../../utils/types';
+import { REASONS } from '../../internals/reasons';
 
-export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
+const SELECT_NONE_STYLE: React.CSSProperties = {
+  WebkitUserSelect: 'none',
+  userSelect: 'none',
+};
+
+export function useNumberFieldButton(params: UseNumberFieldButtonParameters) {
   const {
     allowInputSyncRef,
     disabled,
@@ -30,91 +30,91 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
     incrementValue,
     inputRef,
     inputValue,
-    intentionalTouchCheckTimeout,
     isIncrement,
-    isPressedRef,
     locale,
-    maxWithDefault,
-    minWithDefault,
-    movesAfterTouchRef,
     readOnly,
     setValue,
-    startAutoChange,
-    stopAutoChange,
-    value,
     valueRef,
     lastChangedValueRef,
     onValueCommitted,
   } = params;
 
-  const incrementDownCoordsRef = React.useRef({ x: 0, y: 0 });
-  const isTouchingButtonRef = React.useRef(false);
-  const ignoreClickRef = React.useRef(false);
-  const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen' | ''>('');
-
-  const isMin = value != null && value <= minWithDefault;
-  const isMax = value != null && value >= maxWithDefault;
   const pressReason: NumberFieldRoot.ChangeEventReason = isIncrement
-    ? 'increment-press'
-    : 'decrement-press';
+    ? REASONS.incrementPress
+    : REASONS.decrementPress;
 
   function commitValue(nativeEvent: MouseEvent) {
+    const shouldCommitInputValue = !allowInputSyncRef.current;
     allowInputSyncRef.current = true;
 
-    // The input may be dirty but not yet blurred, so the value won't have been committed.
+    if (!shouldCommitInputValue) {
+      // The input is already synced, so step from the authoritative numeric value rather than
+      // re-parsing the rounded display text. Refresh the commit ref to the current value so a
+      // subsequent canceled step can't commit a stale `lastChangedValueRef` left over from an
+      // earlier change (the `setValue` that used to refresh it is now skipped on this path).
+      lastChangedValueRef.current = valueRef.current;
+      return;
+    }
+
+    // The input is dirty but not yet blurred, so the value won't have been committed.
     const parsedValue = parseNumber(inputValue, locale, formatOptionsRef.current);
 
     if (parsedValue !== null) {
-      // The increment value function needs to know the current input value to increment it
-      // correctly.
-      valueRef.current = parsedValue;
-      setValue(
-        parsedValue,
-        createChangeEventDetails<NumberFieldRoot.ChangeEventReason, { direction?: Direction }>(
-          pressReason,
-          nativeEvent,
-          undefined,
-          {
-            direction: isIncrement ? 1 : -1,
-          },
-        ),
-      );
+      // Sync the dirty typed value with no direction so it isn't directionally snapped
+      // (`snapOnStep`) before the real increment/decrement runs, which would otherwise emit a
+      // spurious intermediate value.
+      const details = createChangeEventDetails(pressReason, nativeEvent);
+      setValue(parsedValue, details);
+
+      // Only sync the ref base when the commit wasn't canceled, so a subsequent increment in the
+      // same interaction steps from the value actually applied.
+      if (!details.isCanceled) {
+        valueRef.current = parsedValue;
+      }
     }
   }
 
+  const { pointerHandlers, shouldSkipClick } = usePressAndHold({
+    disabled: disabled || readOnly,
+    elementRef: inputRef,
+    tickDelay: CHANGE_VALUE_TICK_DELAY,
+    startDelay: START_AUTO_CHANGE_DELAY,
+    scrollDistance: SCROLLING_POINTER_MOVE_DISTANCE,
+    tick(triggerEvent) {
+      const amount = getStepAmount(triggerEvent as EventWithOptionalKeyState);
+      return incrementValue(amount, {
+        direction: isIncrement ? 1 : -1,
+        event: triggerEvent,
+        reason: pressReason,
+      });
+    },
+    onStop(nativeEvent: PointerEvent) {
+      // `onStop` fires on every release; fall back to the current value when no tick changed it.
+      // Step interactions never commit `null`, so the `??` can't mask a legitimate null commit.
+      const committed = lastChangedValueRef.current ?? valueRef.current;
+      onValueCommitted(committed, createGenericEventDetails(pressReason, nativeEvent));
+    },
+  });
+
   const props: React.ComponentProps<'button'> = {
-    disabled: disabled || (isIncrement ? isMax : isMin),
-    'aria-readonly': readOnly || undefined,
+    disabled,
     'aria-label': isIncrement ? 'Increase' : 'Decrease',
     'aria-controls': id,
     // Keyboard users shouldn't have access to the buttons, since they can use the input element
     // to change the value. On the other hand, `aria-hidden` is not applied because touch screen
     // readers should be able to use the buttons.
     tabIndex: -1,
-    style: {
-      WebkitUserSelect: 'none',
-      userSelect: 'none',
-    },
-    onTouchStart() {
-      isTouchingButtonRef.current = true;
-    },
-    onTouchEnd() {
-      isTouchingButtonRef.current = false;
-    },
+    style: SELECT_NONE_STYLE,
+    ...pointerHandlers,
     onClick(event) {
-      const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
-      if (
-        event.defaultPrevented ||
-        isDisabled ||
-        // If it's not a keyboard/virtual click, ignore.
-        (pointerTypeRef.current === 'touch' ? ignoreClickRef.current : event.detail !== 0)
-      ) {
+      const isDisabled = disabled || readOnly;
+      if (event.defaultPrevented || isDisabled || shouldSkipClick(event)) {
         return;
       }
 
       commitValue(event.nativeEvent);
 
-      const amount = getStepAmount(event) ?? DEFAULT_STEP;
+      const amount = getStepAmount(event);
 
       const prev = valueRef.current;
 
@@ -131,98 +131,22 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
     },
     onPointerDown(event) {
       const isMainButton = !event.button || event.button === 0;
-      const isDisabled = disabled || (isIncrement ? isMax : isMin);
-      if (event.defaultPrevented || readOnly || !isMainButton || isDisabled) {
+      if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
         return;
       }
 
-      pointerTypeRef.current = event.pointerType;
-      ignoreClickRef.current = false;
-      isPressedRef.current = true;
-      incrementDownCoordsRef.current = { x: event.clientX, y: event.clientY };
-
+      // Sync dirty input value before starting the hold sequence.
       commitValue(event.nativeEvent);
+      // Treat `lastChangedValueRef` as a per-hold result slot. If the first tick is a no-op or is
+      // canceled, `onStop` should fall back to the current value, not a previous interaction.
+      lastChangedValueRef.current = null;
 
-      // Note: "pen" is sometimes returned for mouse usage on Linux Chrome.
-      if (event.pointerType !== 'touch') {
-        event.preventDefault();
+      if (!isTouchLikePointerType(event.pointerType)) {
+        // Focus the input so the user can continue with keyboard interactions.
         inputRef.current?.focus();
-        startAutoChange(isIncrement, event);
-      } else {
-        // We need to check if the pointerdown was intentional, and not the result of a scroll
-        // or pinch-zoom. In that case, we don't want to change the value.
-        intentionalTouchCheckTimeout.start(TOUCH_TIMEOUT, () => {
-          const moves = movesAfterTouchRef.current;
-          movesAfterTouchRef.current = 0;
-          // Only start auto-change if the touch is still pressed (prevents races
-          // with pointerup occurring before the timeout fires on quick taps).
-          const stillPressed = isPressedRef.current;
-          if (stillPressed && moves != null && moves < MAX_POINTER_MOVES_AFTER_TOUCH) {
-            startAutoChange(isIncrement, event);
-            ignoreClickRef.current = true; // synthesized click should be ignored
-          } else {
-            // No auto-change (simple tap or scroll gesture), allow the click handler
-            // to perform a single increment and commit.
-            ignoreClickRef.current = false;
-            stopAutoChange();
-          }
-        });
-      }
-    },
-    onPointerUp(event) {
-      // Ensure we mark the press as released for touch flows even if auto-change never started,
-      // so the delayed auto-change check won’t start after a quick tap.
-      if (event.pointerType === 'touch') {
-        isPressedRef.current = false;
-      }
-    },
-    onPointerMove(event) {
-      const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
-      if (isDisabled || event.pointerType !== 'touch' || !isPressedRef.current) {
-        return;
       }
 
-      if (movesAfterTouchRef.current != null) {
-        movesAfterTouchRef.current += 1;
-      }
-
-      const { x, y } = incrementDownCoordsRef.current;
-      const dx = x - event.clientX;
-      const dy = y - event.clientY;
-
-      // An alternative to this technique is to detect when the NumberField's parent container
-      // has been scrolled
-      if (dx ** 2 + dy ** 2 > SCROLLING_POINTER_MOVE_DISTANCE ** 2) {
-        stopAutoChange();
-      }
-    },
-    onMouseEnter(event) {
-      const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
-      if (
-        event.defaultPrevented ||
-        isDisabled ||
-        !isPressedRef.current ||
-        isTouchingButtonRef.current ||
-        pointerTypeRef.current === 'touch'
-      ) {
-        return;
-      }
-
-      startAutoChange(isIncrement, event);
-    },
-    onMouseLeave() {
-      if (isTouchingButtonRef.current) {
-        return;
-      }
-
-      stopAutoChange();
-    },
-    onMouseUp() {
-      if (isTouchingButtonRef.current) {
-        return;
-      }
-
-      stopAutoChange();
+      pointerHandlers.onPointerDown(event);
     },
   };
 
@@ -233,36 +157,19 @@ export interface UseNumberFieldButtonParameters {
   allowInputSyncRef: React.RefObject<boolean | null>;
   disabled: boolean;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
-  getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
+  getStepAmount: (event?: EventWithOptionalKeyState) => number;
   id: string | undefined;
-  incrementValue: (amount: number, params: IncrementValueParameters) => void;
+  incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
   inputValue: string;
-  intentionalTouchCheckTimeout: Timeout;
   isIncrement: boolean;
-  isPressedRef: React.RefObject<boolean | null>;
-  locale?: Intl.LocalesArgument;
-  maxWithDefault: number;
-  minWithDefault: number;
-  movesAfterTouchRef: React.RefObject<number | null>;
+  locale?: Intl.LocalesArgument | undefined;
   readOnly: boolean;
-  setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => void;
-  startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
-  stopAutoChange: () => void;
-  value: number | null;
+  setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => boolean;
   valueRef: React.RefObject<number | null>;
   lastChangedValueRef: React.RefObject<number | null>;
   onValueCommitted: (
     value: number | null,
     eventDetails: NumberFieldRoot.CommitEventDetails,
   ) => void;
-}
-
-export interface UseNumberFieldButtonReturnValue {
-  props: HTMLProps;
-}
-
-export namespace useNumberFieldButton {
-  export type Parameters = UseNumberFieldButtonParameters;
-  export type ReturnValue = UseNumberFieldButtonReturnValue;
 }

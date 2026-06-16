@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 
 /**
  * A heading that labels the popover.
@@ -16,18 +15,13 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
   componentProps: PopoverTitle.Props,
   forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = usePopoverRootContext();
 
   const id = useBaseUiId(elementProps.id);
 
-  useIsoLayoutEffect(() => {
-    store.set('titleElementId', id);
-    return () => {
-      store.set('titleElementId', undefined);
-    };
-  }, [store, id]);
+  store.useSyncedValueWithCleanup('titleElementId', id);
 
   const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,
@@ -39,8 +33,10 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
 
 export interface PopoverTitleState {}
 
-export interface PopoverTitleProps
-  extends BaseUIComponentProps<'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6', PopoverTitle.State> {}
+export interface PopoverTitleProps extends BaseUIComponentProps<
+  'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+  PopoverTitleState
+> {}
 
 export namespace PopoverTitle {
   export type State = PopoverTitleState;

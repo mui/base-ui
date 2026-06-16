@@ -1,9 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
-import { Menu } from '@base-ui-components/react/menu';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Select } from '@base-ui/react/select';
+import { Menu } from '@base-ui/react/menu';
+import { Dialog } from '@base-ui/react/dialog';
 import styles from './modality.module.css';
 
 export default function Modality() {
@@ -121,14 +121,7 @@ interface Props {
 
 const CheckIcon = function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-    >
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none">
       <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
     </svg>
   );

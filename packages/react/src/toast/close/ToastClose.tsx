@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useToastContext } from '../provider/ToastProviderContext';
-import { useButton } from '../../use-button/useButton';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useToastProviderContext } from '../provider/ToastProviderContext';
+import { useButton } from '../../internals/use-button/useButton';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * Closes the toast when clicked.
@@ -16,31 +16,44 @@ export const ToastClose = React.forwardRef(function ToastClose(
   componentProps: ToastClose.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    disabled,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
-  const { close, expanded } = useToastContext();
+  const store = useToastProviderContext();
   const { toast } = useToastRootContext();
+  const expanded = store.useState('expanded');
+
+  const [hasFocus, setHasFocus] = React.useState(false);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
   });
 
-  const state: ToastClose.State = React.useMemo(
-    () => ({
-      type: toast.type,
-    }),
-    [toast.type],
-  );
+  const state: ToastCloseState = {
+    type: toast.type,
+  };
 
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
     state,
     props: [
       {
-        'aria-hidden': !expanded,
+        'aria-hidden': !expanded && !hasFocus,
         onClick() {
-          close(toast.id);
+          store.closeToast(toast.id);
+        },
+        onFocus() {
+          setHasFocus(true);
+        },
+        onBlur() {
+          setHasFocus(false);
         },
       },
       elementProps,
@@ -59,8 +72,7 @@ export interface ToastCloseState {
 }
 
 export interface ToastCloseProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', ToastClose.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToastCloseState> {}
 
 export namespace ToastClose {
   export type State = ToastCloseState;

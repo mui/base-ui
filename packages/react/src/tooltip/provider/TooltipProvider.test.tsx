@@ -1,6 +1,6 @@
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { expect } from 'vitest';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -29,17 +29,17 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       clock.tick(1_000);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       clock.tick(9_000);
 
       await flushMicrotasks();
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).not.toBe(null);
     });
 
     it('respects delay=0', async () => {
@@ -63,7 +63,7 @@ describe('<Tooltip.Provider />', () => {
 
       clock.tick(0);
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).not.toBe(null);
     });
 
     it('respects trigger delay prop over provider delay prop', async () => {
@@ -85,17 +85,17 @@ describe('<Tooltip.Provider />', () => {
       fireEvent.mouseEnter(trigger);
       fireEvent.mouseMove(trigger);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       clock.tick(99);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       clock.tick(1);
 
       await flushMicrotasks();
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).not.toBe(null);
     });
   });
 
@@ -125,17 +125,59 @@ describe('<Tooltip.Provider />', () => {
 
       await flushMicrotasks();
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).not.toBe(null);
 
       fireEvent.mouseLeave(trigger);
 
       clock.tick(300);
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+      expect(screen.queryByText('Content')).not.toBe(null);
 
       clock.tick(300);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
+    });
+
+    it('uses the latest closeDelay after the prop updates', async () => {
+      function Test({ closeDelay }: { closeDelay: number }) {
+        return (
+          <Tooltip.Provider closeDelay={closeDelay}>
+            <Tooltip.Root>
+              <Tooltip.Trigger />
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup>Content</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </Tooltip.Provider>
+        );
+      }
+
+      const { rerender } = await render(<Test closeDelay={400} />);
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(OPEN_DELAY);
+
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      await rerender(<Test closeDelay={1000} />);
+
+      fireEvent.mouseLeave(trigger);
+
+      clock.tick(999);
+
+      expect(screen.queryByText('Content')).not.toBe(null);
+
+      clock.tick(1);
+
+      expect(screen.queryByText('Content')).toBe(null);
     });
   });
 });

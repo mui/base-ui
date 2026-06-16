@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { mergeProps } from '../../merge-props';
 
 const objectItems = [
@@ -14,6 +14,18 @@ const objectItemsReadonly = [
   { value: 'b', label: 'banana' },
   { value: 'c', label: 'cherry' },
 ] as const;
+
+const groupedItemsReadonly = [
+  {
+    heading: 'Fruits',
+    items: [
+      { value: 'a', label: 'apple' },
+      { value: 'b', label: 'banana' },
+    ],
+  },
+] as const;
+
+<Select.Root items={groupedItemsReadonly} />;
 
 <Select.Root
   items={objectItemsReadonly}
@@ -187,6 +199,9 @@ function App() {
   defaultOpen
   multiple
 />;
+
+// Should accept null value
+<Select.Root items={objectItemsReadonly} value={null} />;
 
 function App2() {
   const [value, setValue] = React.useState('a');

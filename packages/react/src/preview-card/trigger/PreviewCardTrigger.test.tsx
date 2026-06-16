@@ -1,4 +1,4 @@
-import { PreviewCard } from '@base-ui-components/react/preview-card';
+import { PreviewCard } from '@base-ui/react/preview-card';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<PreviewCard.Trigger />', () => {

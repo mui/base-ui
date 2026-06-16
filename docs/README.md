@@ -10,11 +10,11 @@ pnpm start
 
 If you do not have pnpm installed, select your OS and follow the instructions on the [pnpm website](https://pnpm.io/installation).
 
-Package managers other than pnpm (like npm or Yarn) are not supported and will not work.
+Package managers other than pnpm (like npm or Yarn) are not supported and don't work.
 
 ## How can I add a new demo to the documentation?
 
-[You can follow this guide](https://github.com/mui/base-ui/blob/HEAD/CONTRIBUTING.md)
+[You can follow this guide](../CONTRIBUTING.md)
 on how to get started contributing to Base UI.
 
 ## Error code extraction

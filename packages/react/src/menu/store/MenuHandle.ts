@@ -1,4 +1,4 @@
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { MenuStore } from './MenuStore';
 
 export class MenuHandle<Payload> {
@@ -20,7 +20,7 @@ export class MenuHandle<Payload> {
    */
   open(triggerId: string) {
     const triggerElement = triggerId
-      ? (this.store.state.triggers.get(triggerId) ?? undefined)
+      ? (this.store.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
       : undefined;
 
     if (triggerId && !triggerElement) {
@@ -44,7 +44,7 @@ export class MenuHandle<Payload> {
    * Indicates whether the menu is currently open.
    */
   get isOpen() {
-    return this.store.state.open;
+    return this.store.select('open');
   }
 }
 

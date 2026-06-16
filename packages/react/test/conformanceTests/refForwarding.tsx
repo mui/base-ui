@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import type {
   ConformantComponentProps,
   BaseUiConformanceTestsOptions,
@@ -33,7 +33,7 @@ export function testRefForwarding(
       const { render, refInstanceof } = getOptions();
 
       await verifyRef(element, render, (instance) => {
-        expect(instance).to.be.instanceof(refInstanceof);
+        expect(instance).toBeInstanceOf(refInstanceof);
       });
     });
   });

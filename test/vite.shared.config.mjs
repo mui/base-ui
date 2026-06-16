@@ -12,13 +12,13 @@ export default defineConfig({
       ...(shouldDisableWorkspaceAliases
         ? undefined
         : {
-            '@base-ui-components/react': path.join(process.cwd(), 'packages/react/src'),
-            '@base-ui-components/utils': path.join(process.cwd(), 'packages/utils/src'),
+            '@base-ui/react': path.join(process.cwd(), 'packages/react/src'),
+            '@base-ui/utils': path.join(process.cwd(), 'packages/utils/src'),
           }),
-      './fonts': path.join(process.cwd(), '/docs/src/fonts'),
+      './fonts': path.join(process.cwd(), '/docs/src/css/fonts'),
       docs: path.join(process.cwd(), '/docs'),
-      stream: null,
-      zlib: null,
+      stream: '',
+      zlib: '',
     },
   },
   build: { outDir: 'build', chunkSizeWarningLimit: 9999 },

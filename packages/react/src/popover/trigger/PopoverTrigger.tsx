@@ -1,35 +1,24 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { type FocusableElement } from 'tabbable';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import { useButton } from '../../use-button/useButton';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { useButton } from '../../internals/use-button/useButton';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
 } from '../../utils/popupStateMapping';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
-import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
+import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { PopoverHandle } from '../store/PopoverHandle';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
-import {
-  contains,
-  getNextTabbable,
-  getTabbableAfterElement,
-  getTabbableBeforeElement,
-  isOutsideEvent,
-} from '../../floating-ui-react/utils';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { useTriggerRegistration } from '../../utils/popupStoreUtils';
+import { REASONS } from '../../internals/reasons';
+import { useTriggerDataForwarding } from '../../utils/popups';
+import { useTriggerFocusGuards } from '../../utils/popups/useTriggerFocusGuards';
+import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**
  * A button that opens the popover.
@@ -39,11 +28,12 @@ import { useTriggerRegistration } from '../../utils/popupStoreUtils';
  */
 export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,
-  forwardedRef: React.ForwardedRef<any>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
     className,
+    style,
     disabled = false,
     nativeButton = true,
     handle,
@@ -56,7 +46,6 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   } = componentProps;
 
   const rootContext = usePopoverRootContext(true);
-
   const store = handle?.store ?? rootContext?.store;
   if (!store) {
     throw new Error(
@@ -64,40 +53,34 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     );
   }
 
-  const id = useBaseUiId(idProp);
-
+  const thisTriggerId = useBaseUiId(idProp);
+  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingContext = store.useState('floatingRootContext');
-  const open = store.useState('open');
-  const openReason = store.useState('openReason');
-  const rootActiveTriggerProps = store.useState('activeTriggerProps');
-  const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const popupId = store.useState('triggerPopupId', thisTriggerId);
+
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
+
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
+    thisTriggerId,
+    triggerElementRef,
+    store,
+    {
+      payload,
+      disabled,
+      openOnHover,
+      closeDelay,
+    },
+  );
+
+  const openReason = store.useState('openChangeReason');
   const stickIfOpen = store.useState('stickIfOpen');
-  const mounted = store.useState('mounted');
-  const activeTrigger = store.useState('activeTriggerElement');
-  const positionerElement = store.useState('positionerElement');
+  const openMethod = store.useState('openMethod');
+  const focusManagerModal = store.useState('focusManagerModal');
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-
-  const isTriggerActive = activeTrigger === triggerElement;
-
-  const {
-    openMethod,
-    triggerProps: interactionTypeTriggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
-
-  useIsoLayoutEffect(() => {
-    store.set('openMethod', openMethod);
-  }, [store, openMethod]);
-
-  React.useEffect(() => {
-    if (!mounted) {
-      resetOpenInteractionType();
-    }
-  }, [mounted, resetOpenInteractionType]);
-
-  const hover = useHover(floatingContext, {
+  const hoverProps = useHoverReferenceInteraction(floatingContext, {
     enabled:
+      !disabled &&
       floatingContext != null &&
       openOnHover &&
       (openMethod !== 'touch' || openReason !== REASONS.triggerPress),
@@ -108,127 +91,79 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     delay: {
       close: closeDelay,
     },
-    triggerElement,
+    triggerElementRef,
+    isActiveTrigger: isTriggerActive,
+    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
-
-  const localProps = useInteractions([click, hover]);
-
-  const registerTrigger = useTriggerRegistration(id, store);
-
-  useIsoLayoutEffect(() => {
-    if (isTriggerActive) {
-      store.set('payload', payload);
-    }
-  }, [isTriggerActive, payload, store]);
-
-  const state: PopoverTrigger.State = React.useMemo(
-    () => ({
-      disabled,
-      open: isTriggerActive && open,
-    }),
-    [disabled, open, isTriggerActive],
+  const interactionTypeProps = useOpenMethodTriggerProps(
+    () => store.select('open'),
+    (interactionType) => {
+      store.set('openMethod', interactionType);
+    },
   );
+
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
   });
 
-  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = React.useMemo(
-    () => ({
-      open(value) {
-        if (value && openReason === REASONS.triggerPress) {
-          return pressableTriggerOpenStateMapping.open(value);
-        }
+  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = {
+    open(value) {
+      if (value && openReason === REASONS.triggerPress) {
+        return pressableTriggerOpenStateMapping.open(value);
+      }
 
-        return triggerOpenStateMapping.open(value);
-      },
-    }),
-    [openReason],
-  );
+      return triggerOpenStateMapping.open(value);
+    },
+  };
+
+  const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
+    useTriggerFocusGuards(store, triggerElementRef);
+
+  const state: PopoverTriggerState = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, registerTrigger, setTriggerElement],
+    ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
-      localProps.getReferenceProps(),
-      isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
-      interactionTypeTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id },
+      click.reference,
+      hoverProps,
+      rootTriggerProps,
+      interactionTypeProps,
+      {
+        [CLICK_TRIGGER_IDENTIFIER as string]: '',
+        id: thisTriggerId,
+        'aria-haspopup': 'dialog' as const,
+        'aria-expanded': isOpenedByThisTrigger,
+        'aria-controls': popupId,
+      },
       elementProps,
       getButtonProps,
     ],
     stateAttributesMapping,
   });
 
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
-
-  const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
-    ReactDOM.flushSync(() => {
-      store.setOpen(
-        false,
-        createChangeEventDetails(
-          REASONS.focusOut,
-          event.nativeEvent,
-          event.currentTarget as HTMLElement,
-        ),
-      );
-    });
-
-    const previousTabbable: FocusableElement | null = getTabbableBeforeElement(
-      preFocusGuardRef.current,
-    );
-    previousTabbable?.focus();
-  });
-
-  const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
-    if (positionerElement && isOutsideEvent(event, positionerElement)) {
-      store.context.beforeContentFocusGuardRef.current?.focus();
-    } else {
-      ReactDOM.flushSync(() => {
-        store.setOpen(
-          false,
-          createChangeEventDetails(
-            REASONS.focusOut,
-            event.nativeEvent,
-            event.currentTarget as HTMLElement,
-          ),
-        );
-      });
-
-      let nextTabbable = getTabbableAfterElement(triggerElement);
-
-      while (
-        (nextTabbable !== null && contains(positionerElement, nextTabbable)) ||
-        nextTabbable?.hasAttribute('aria-hidden')
-      ) {
-        const prevTabbable = nextTabbable;
-        nextTabbable = getNextTabbable(nextTabbable);
-        if (nextTabbable === prevTabbable) {
-          break;
-        }
-      }
-
-      nextTabbable?.focus();
-    }
-  });
-
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
   // regardless of whether the focus guards are rendered or not.
 
-  if (isTriggerActive) {
+  if (isMountedByThisTrigger && !focusManagerModal) {
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
-        <React.Fragment key={id}>{element}</React.Fragment>
+        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
         <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }
 
-  return <React.Fragment key={id}>{element}</React.Fragment>;
+  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 }) as PopoverTrigger;
 
 export interface PopoverTrigger {
@@ -239,11 +174,11 @@ export interface PopoverTrigger {
 
 export interface PopoverTriggerState {
   /**
-   * Whether the popover is currently disabled.
+   * Whether the trigger is currently disabled.
    */
   disabled: boolean;
   /**
-   * Whether the popover is currently open.
+   * Whether the popover is currently open and was opened by this trigger.
    */
   open: boolean;
 }
@@ -256,32 +191,32 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
      * Set to `false` if the rendered element is not a button (e.g. `<div>`).
      * @default true
      */
-    nativeButton?: boolean;
+    nativeButton?: boolean | undefined;
     /**
      * A handle to associate the trigger with a popover.
      */
-    handle?: PopoverHandle<Payload>;
+    handle?: PopoverHandle<Payload> | undefined;
     /**
      * A payload to pass to the popover when it is opened.
      */
-    payload?: Payload;
+    payload?: Payload | undefined;
     /**
      * ID of the trigger. In addition to being forwarded to the rendered element,
      * it is also used to specify the active trigger for the popover in controlled mode (with the PopoverRoot `triggerId` prop).
      */
-    id?: string;
+    id?: string | undefined;
     /**
      * Whether the popover should also open when the trigger is hovered.
      * @default false
      */
-    openOnHover?: boolean;
+    openOnHover?: boolean | undefined;
     /**
      * How long to wait before the popover may be opened on hover. Specified in milliseconds.
      *
      * Requires the `openOnHover` prop.
      * @default 300
      */
-    delay?: number;
+    delay?: number | undefined;
     /**
      * How long to wait before closing the popover that was opened on hover.
      * Specified in milliseconds.
@@ -289,7 +224,7 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
      * Requires the `openOnHover` prop.
      * @default 0
      */
-    closeDelay?: number;
+    closeDelay?: number | undefined;
   };
 
 export namespace PopoverTrigger {

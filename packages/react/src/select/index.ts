@@ -1,6 +1,7 @@
 export * as Select from './index.parts';
 
 export type * from './root/SelectRoot';
+export type * from './label/SelectLabel';
 export type * from './trigger/SelectTrigger';
 export type * from './value/SelectValue';
 export type * from './icon/SelectIcon';

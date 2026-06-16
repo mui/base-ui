@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useStore } from '@base-ui-components/utils/store';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useStore } from '@base-ui/utils/store';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
 import { selectors } from '../store';
@@ -20,13 +20,13 @@ export const SelectList = React.forwardRef(function SelectList(
   componentProps: SelectList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { store, scrollHandlerRef } = useSelectRootContext();
   const { alignItemWithTriggerActive } = useSelectPositionerContext();
 
   const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
-  const touchModality = useStore(store, selectors.touchModality);
+  const openMethod = useStore(store, selectors.openMethod);
   const multiple = useStore(store, selectors.multiple);
   const id = useStore(store, selectors.id);
 
@@ -40,7 +40,8 @@ export const SelectList = React.forwardRef(function SelectList(
     ...(alignItemWithTriggerActive && {
       style: LIST_FUNCTIONAL_STYLES,
     }),
-    className: hasScrollArrows && !touchModality ? styleDisableScrollbar.className : undefined,
+    className:
+      hasScrollArrows && openMethod !== 'touch' ? styleDisableScrollbar.className : undefined,
   };
 
   const setListElement = useStableCallback((element: HTMLElement | null) => {
@@ -53,7 +54,7 @@ export const SelectList = React.forwardRef(function SelectList(
   });
 });
 
-export interface SelectListProps extends BaseUIComponentProps<'div', SelectList.State> {}
+export interface SelectListProps extends BaseUIComponentProps<'div', SelectListState> {}
 
 export interface SelectListState {}
 

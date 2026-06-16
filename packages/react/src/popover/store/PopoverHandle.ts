@@ -1,5 +1,5 @@
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { PopoverStore } from './PopoverStore';
 
 export class PopoverHandle<Payload> {
@@ -21,7 +21,7 @@ export class PopoverHandle<Payload> {
    */
   open(triggerId: string) {
     const triggerElement = triggerId
-      ? (this.store.state.triggers.get(triggerId) ?? undefined)
+      ? (this.store.context.triggerElements.getById(triggerId) ?? undefined)
       : undefined;
 
     if (triggerId && !triggerElement) {
@@ -30,7 +30,11 @@ export class PopoverHandle<Payload> {
 
     this.store.setOpen(
       true,
-      createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
+      createChangeEventDetails(
+        REASONS.imperativeAction,
+        undefined,
+        triggerElement as HTMLElement | undefined,
+      ),
     );
   }
 
@@ -48,7 +52,7 @@ export class PopoverHandle<Payload> {
    * Indicates whether the popover is currently open.
    */
   get isOpen() {
-    return this.store.state.open;
+    return this.store.select('open');
   }
 }
 

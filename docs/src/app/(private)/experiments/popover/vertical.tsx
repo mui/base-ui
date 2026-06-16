@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
-import { Avatar } from '@base-ui-components/react/avatar';
+import { Popover } from '@base-ui/react/popover';
+import { Avatar } from '@base-ui/react/avatar';
 import { demoPopover } from './vertical-shared';
 import styles from './vertical.module.css';
 
@@ -115,7 +115,7 @@ function DiscussionPanel() {
     <div className={styles.DiscussionPanel}>
       <Popover.Title className={styles.Title}>Discussion</Popover.Title>
       <p className={styles.NoComments}>There aren't any comments yet.</p>
-      <textarea className={styles.TextArea} placeholder="Write a comment..." />
+      <textarea className={styles.TextArea} placeholder="Write a comment…" />
       <div className={styles.Actions}>
         <button className={styles.Button} type="button">
           Post
@@ -147,7 +147,6 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 function PropertiesIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -171,7 +170,6 @@ function PropertiesIcon(props: React.ComponentProps<'svg'>) {
 function HistoryIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -192,7 +190,6 @@ function HistoryIcon(props: React.ComponentProps<'svg'>) {
 function DiscussionIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"

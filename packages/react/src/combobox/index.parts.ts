@@ -1,6 +1,8 @@
 export { ComboboxRoot as Root } from './root/ComboboxRoot';
+export { ComboboxLabel as Label } from './label/ComboboxLabel';
 export { ComboboxValue as Value } from './value/ComboboxValue';
 export { ComboboxInput as Input } from './input/ComboboxInput';
+export { ComboboxInputGroup as InputGroup } from './input-group/ComboboxInputGroup';
 export { ComboboxTrigger as Trigger } from './trigger/ComboboxTrigger';
 export { ComboboxList as List } from './list/ComboboxList';
 export { ComboboxStatus as Status } from './status/ComboboxStatus';
@@ -25,3 +27,4 @@ export { ComboboxClear as Clear } from './clear/ComboboxClear';
 export { Separator } from '../separator';
 
 export { useComboboxFilter as useFilter } from './root/utils/useFilter';
+export { useFilteredItems } from './root/utils/useFilteredItems';

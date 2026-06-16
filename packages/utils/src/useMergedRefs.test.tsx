@@ -1,7 +1,6 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { createRenderer, MuiRenderResult, screen } from '@mui/internal-test-utils';
-import { spy } from 'sinon';
 import { getReactElementRef } from './getReactElementRef';
 import { useMergedRefs } from './useMergedRefs';
 
@@ -27,7 +26,7 @@ describe('useMergedRefs', () => {
     expect(() => {
       render(<Component innerRef={outerRef} />);
     }).not.toErrorDev();
-    expect(outerRef.current!.textContent).to.equal('has a ref');
+    expect(outerRef.current!.textContent).toBe('has a ref');
   });
 
   it('forks if only one of the branches requires a ref', () => {
@@ -47,7 +46,7 @@ describe('useMergedRefs', () => {
       render(<Component />);
     }).not.toErrorDev();
 
-    expect(screen.getByTestId('hasRef')).to.have.text('true');
+    expect(screen.getByTestId('hasRef')).toHaveTextContent('true');
   });
 
   it('does nothing if none of the forked branches requires a ref', () => {
@@ -100,7 +99,7 @@ describe('useMergedRefs', () => {
       expect(() => {
         view.setProps({ leftRef: ref });
       }).not.toErrorDev();
-      expect(ref.current!.id).to.equal('test');
+      expect(ref.current!.id).toBe('test');
     });
 
     it('cleans up detached refs', () => {
@@ -113,23 +112,23 @@ describe('useMergedRefs', () => {
         view = render(<Div leftRef={firstLeftRef} rightRef={firstRightRef} id="test" />);
       }).not.toErrorDev();
 
-      expect(firstLeftRef.current!.id).to.equal('test');
-      expect(firstRightRef.current!.id).to.equal('test');
-      expect(secondRightRef.current).to.equal(null);
+      expect(firstLeftRef.current!.id).toBe('test');
+      expect(firstRightRef.current!.id).toBe('test');
+      expect(secondRightRef.current).toBe(null);
 
       view!.setProps({ rightRef: secondRightRef });
 
-      expect(firstLeftRef.current!.id).to.equal('test');
-      expect(firstRightRef.current).to.equal(null);
-      expect(secondRightRef.current!.id).to.equal('test');
+      expect(firstLeftRef.current!.id).toBe('test');
+      expect(firstRightRef.current).toBe(null);
+      expect(secondRightRef.current!.id).toBe('test');
     });
   });
 
   test('calls clean up function if it exists', () => {
-    const cleanUp = spy();
-    const setup = spy();
-    const setup2 = spy();
-    const nullHandler = spy();
+    const cleanUp = vi.fn();
+    const setup = vi.fn();
+    const setup2 = vi.fn();
+    const nullHandler = vi.fn();
 
     function onRefChangeWithCleanup(ref: HTMLDivElement | null) {
       if (ref) {
@@ -155,21 +154,21 @@ describe('useMergedRefs', () => {
 
     const { unmount } = render(<App />, { strict: false });
 
-    expect(setup.args[0][0]).to.equal('test');
-    expect(setup.callCount).to.equal(1);
-    expect(cleanUp.callCount).to.equal(0);
+    expect(setup.mock.calls[0][0]).toBe('test');
+    expect(setup.mock.calls.length).toBe(1);
+    expect(cleanUp.mock.calls.length).toBe(0);
 
-    expect(setup2.args[0][0]).to.equal('test');
-    expect(setup2.callCount).to.equal(1);
+    expect(setup2.mock.calls[0][0]).toBe('test');
+    expect(setup2.mock.calls.length).toBe(1);
 
     unmount();
 
-    expect(setup.callCount).to.equal(1);
-    expect(cleanUp.callCount).to.equal(1);
+    expect(setup.mock.calls.length).toBe(1);
+    expect(cleanUp.mock.calls.length).toBe(1);
 
     // Setup was not called again
-    expect(setup2.callCount).to.equal(1);
+    expect(setup2.mock.calls.length).toBe(1);
     // Null handler hit because no cleanup is returned
-    expect(nullHandler.callCount).to.equal(1);
+    expect(nullHandler.mock.calls.length).toBe(1);
   });
 });

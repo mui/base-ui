@@ -1,5 +1,5 @@
 'use client';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import styles from './menu-nested.module.css';
 
 export default function NestedMenu() {
@@ -48,7 +48,9 @@ export default function NestedMenu() {
               </Menu.SubmenuRoot>
 
               <Menu.SubmenuRoot>
-                <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Style</Menu.SubmenuTrigger>
+                <Menu.SubmenuTrigger className={styles.SubmenuTrigger} closeDelay={1000}>
+                  Style
+                </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner align="start" side="right" sideOffset={12}>
                     <Menu.Popup className={styles.MenuPopup}>

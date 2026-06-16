@@ -2,10 +2,10 @@
 import * as React from 'react';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
 /**
@@ -16,7 +16,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
  */
 export const MenuItem = React.forwardRef(function MenuItem(
   componentProps: MenuItem.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -26,6 +26,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     nativeButton = false,
     disabled = false,
     closeOnClick = true,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -44,17 +45,14 @@ export const MenuItem = React.forwardRef(function MenuItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuItem.State = React.useMemo(
-    () => ({
-      disabled,
-      highlighted,
-    }),
-    [disabled, highlighted],
-  );
+  const state: MenuItemState = {
+    disabled,
+    highlighted,
+  };
 
   return useRenderElement('div', componentProps, {
     state,
@@ -75,31 +73,30 @@ export interface MenuItemState {
 }
 
 export interface MenuItemProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuItemState> {
   /**
    * The click handler for the menu item.
    */
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onClick?: BaseUIComponentProps<'div', MenuItemState>['onClick'] | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
-  label?: string;
+  label?: string | undefined;
   /**
    * @ignore
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
-  closeOnClick?: boolean;
+  closeOnClick?: boolean | undefined;
 }
 
 export namespace MenuItem {

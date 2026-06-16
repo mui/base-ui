@@ -1,11 +1,8 @@
 'use client';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from 'docs/src/components/Experiments/SettingsPanel';
-import demoStyles from 'docs/src/app/(public)/(content)/react/components/popover/demos/detached-triggers-full/css-modules/index.module.css';
+import { Popover } from '@base-ui/react/popover';
+import demoStyles from 'docs/src/app/(docs)/react/components/popover/demos/detached-triggers-full/css-modules/index.module.css';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './popovers.module.css';
 
 const popover1 = Popover.createHandle<number>();
@@ -68,15 +65,15 @@ export default function Popovers() {
       <h1>Popovers</h1>
       <h2>Uncontrolled, single trigger</h2>
       <div className={styles.Container}>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
         </Popover.Root>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           <StyledTrigger />
           {renderPopoverContent(1, settings)}
         </Popover.Root>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           <StyledTrigger />
           {renderPopoverContent(2, settings)}
         </Popover.Root>
@@ -87,6 +84,7 @@ export default function Popovers() {
         <Popover.Root
           open={singleTriggerOpen}
           onOpenChange={(nextOpen) => setSingleTriggerOpen(nextOpen)}
+          modal={settings.modal}
         >
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
@@ -98,7 +96,7 @@ export default function Popovers() {
 
       <h2>Uncontrolled, multiple triggers within Root</h2>
       <div className={styles.Container}>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           {({ payload }) => (
             <React.Fragment>
               <StyledTrigger payload={0} />
@@ -118,6 +116,7 @@ export default function Popovers() {
             setControlledWithinRootOpen(open);
             setControlledWithinRootTriggerId(eventDetails.trigger?.id ?? null);
           }}
+          modal={settings.modal}
           triggerId={controlledWithinRootTriggerId}
         >
           {({ payload }) => (
@@ -218,7 +217,13 @@ function StyledPopover(props: StyledPopoverProps<number>) {
   const { settings } = useExperimentSettings<Settings>();
 
   return (
-    <Popover.Root handle={handle} open={open} onOpenChange={onOpenChange} triggerId={triggerId}>
+    <Popover.Root
+      handle={handle}
+      open={open}
+      onOpenChange={onOpenChange}
+      triggerId={triggerId}
+      modal={settings.modal}
+    >
       {({ payload }) => renderPopoverContent(payload, settings)}
     </Popover.Root>
   );
@@ -308,14 +313,7 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 
 function PopupIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-      height="24px"
-      viewBox="0 -960 960 960"
-      width="24px"
-      fill="#606060"
-    >
+    <svg {...props} height="24px" viewBox="0 -960 960 960" width="24px" fill="#606060">
       <path d="M480-80 373-240H160q-33 0-56.5-23.5T80-320v-480q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H587L480-80Zm0-144 64-96h256v-480H160v480h256l64 96Zm0-336Z" />
     </svg>
   );

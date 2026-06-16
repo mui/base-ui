@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useBaseUiId } from '../utils/useBaseUiId';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
-import type { BaseUIEventReasons } from '../utils/reasons';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useBaseUiId } from '../internals/useBaseUiId';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../internals/reasons';
 
 const EMPTY: string[] = [];
 
 export function useCheckboxGroupParent(
-  params: useCheckboxGroupParent.Parameters,
-): useCheckboxGroupParent.ReturnValue {
+  params: UseCheckboxGroupParentParameters,
+): UseCheckboxGroupParentReturnValue {
   const { allValues = EMPTY, value = EMPTY, onValueChange: onValueChangeProp } = params;
 
   const uncontrolledStateRef = React.useRef(value);
@@ -23,7 +23,7 @@ export function useCheckboxGroupParent(
 
   const onValueChange = useStableCallback(onValueChangeProp);
 
-  const getParentProps: useCheckboxGroupParent.ReturnValue['getParentProps'] = React.useCallback(
+  const getParentProps: UseCheckboxGroupParentReturnValue['getParentProps'] = React.useCallback(
     () => ({
       id,
       indeterminate,
@@ -59,22 +59,28 @@ export function useCheckboxGroupParent(
           return;
         }
 
+        let nextStatus: 'on' | 'off' | 'mixed' = 'mixed';
+        let nextValue = uncontrolledState;
+
         if (status === 'mixed') {
-          onValueChange(all, eventDetails);
-          setStatus('on');
+          nextStatus = 'on';
+          nextValue = all;
         } else if (status === 'on') {
-          onValueChange(none, eventDetails);
-          setStatus('off');
-        } else if (status === 'off') {
-          onValueChange(uncontrolledState, eventDetails);
-          setStatus('mixed');
+          nextStatus = 'off';
+          nextValue = none;
+        }
+
+        onValueChange(nextValue, eventDetails);
+
+        if (!eventDetails.isCanceled) {
+          setStatus(nextStatus);
         }
       },
     }),
     [allValues, checked, id, indeterminate, onValueChange, status, value.length],
   );
 
-  const getChildProps: useCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
+  const getChildProps: UseCheckboxGroupParentReturnValue['getChildProps'] = React.useCallback(
     (childValue: string) => ({
       checked: value.includes(childValue),
       onCheckedChange(nextChecked, eventDetails) {
@@ -84,9 +90,13 @@ export function useCheckboxGroupParent(
         } else {
           newValue.splice(newValue.indexOf(childValue), 1);
         }
-        uncontrolledStateRef.current = newValue;
+
         onValueChange(newValue, eventDetails);
-        setStatus('mixed');
+
+        if (!eventDetails.isCanceled) {
+          uncontrolledStateRef.current = newValue;
+          setStatus('mixed');
+        }
       },
     }),
     [onValueChange, value],
@@ -105,12 +115,14 @@ export function useCheckboxGroupParent(
 }
 
 export interface UseCheckboxGroupParentParameters {
-  allValues?: string[];
-  value?: string[];
-  onValueChange?: (
-    value: string[],
-    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
-  ) => void;
+  allValues?: string[] | undefined;
+  value?: string[] | undefined;
+  onValueChange?:
+    | ((
+        value: string[],
+        eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+      ) => void)
+    | undefined;
 }
 
 export interface UseCheckboxGroupParentReturnValue {
@@ -136,7 +148,4 @@ export interface UseCheckboxGroupParentReturnValue {
   };
 }
 
-export namespace useCheckboxGroupParent {
-  export type Parameters = UseCheckboxGroupParentParameters;
-  export type ReturnValue = UseCheckboxGroupParentReturnValue;
-}
+export interface UseCheckboxGroupParentState {}

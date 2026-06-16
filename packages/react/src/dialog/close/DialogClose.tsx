@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { useButton } from '../../use-button';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useButton } from '../../internals/use-button';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * A button that closes the dialog.
@@ -20,6 +20,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
   const {
     render,
     className,
+    style,
     disabled = false,
     nativeButton = true,
     ...elementProps
@@ -28,18 +29,18 @@ export const DialogClose = React.forwardRef(function DialogClose(
   const { store } = useDialogRootContext();
   const open = store.useState('open');
 
-  function handleClick(event: React.MouseEvent) {
-    if (open) {
-      store.setOpen(false, createChangeEventDetails(REASONS.closePress, event.nativeEvent));
-    }
-  }
-
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
   });
 
-  const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
+  const state: DialogCloseState = { disabled };
+
+  function handleClick(event: React.MouseEvent) {
+    if (open) {
+      store.setOpen(false, createChangeEventDetails(REASONS.closePress, event.nativeEvent));
+    }
+  }
 
   return useRenderElement('button', componentProps, {
     state,
@@ -49,8 +50,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
 });
 
 export interface DialogCloseProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', DialogClose.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', DialogCloseState> {}
 
 export interface DialogCloseState {
   /**
