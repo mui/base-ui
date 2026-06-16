@@ -2,7 +2,7 @@
 
 ## Sending a pull request
 
-Base UI is community-driven, so pull requests are always welcome, but before working on a large change, it's best to open an issue first to discuss it with the maintainers.
+Base UI is community-driven, so pull requests are always welcome, but before working on a large change, it's best to open an issue first to discuss it with the maintainers.
 
 When in doubt, keep your pull requests small.
 For the best chances of being accepted, don't bundle more than one feature or bug fix per PR.
@@ -22,28 +22,28 @@ git remote add upstream https://github.com/mui/base-ui.git
 
 3. Synchronize your local `master` branch with the upstream one:
 
-  ```bash
-  git checkout master
-  git pull upstream master
-  ```
+```bash
+git checkout master
+git pull upstream master
+```
 
 4. Install the dependencies with pnpm (yarn or npm aren't supported):
 
-  ```bash
-  pnpm install
-  ```
+```bash
+pnpm install
+```
 
 5. Create a new topic branch:
 
-  ```bash
-  git checkout -b my-topic-branch
-  ```
+```bash
+git checkout -b my-topic-branch
+```
 
 6. Make changes, commit, and push to your fork:
 
-  ```bash
-  git push -u origin HEAD
-  ```
+```bash
+git push -u origin HEAD
+```
 
 7. Go to [the repository](https://github.com/mui/base-ui) and open a pull request.
 
@@ -52,7 +52,7 @@ We will review your PR and either merge it, request changes to it, or close it w
 
 ### Trying changes on the documentation site
 
-The documentation site is built with Base UI and contains examples of all of the components.
+The documentation site is built with Base UI and contains examples of all of the components.
 This is the best place to experiment with your changes—it's the local development environment used by the maintainers.
 
 To get started, run:
