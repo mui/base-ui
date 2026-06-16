@@ -97,22 +97,22 @@ export function useTypeahead(
       return !element || isElementVisible(element);
     }
 
+    function isItemAvailable(index: number) {
+      return isVisible(index) && !isIndexDisabled?.(index);
+    }
+
     function getMatchingIndex(list: Array<string | null>, string: string, startIndex = 0) {
       if (list.length === 0) {
         return -1;
       }
 
       const normalizedStartIndex = ((startIndex % list.length) + list.length) % list.length;
-      const lowerString = string.toLocaleLowerCase();
+      const lowerString = string.toLowerCase();
 
       for (let offset = 0; offset < list.length; offset += 1) {
         const index = (normalizedStartIndex + offset) % list.length;
         const text = list[index];
-        if (
-          !text?.toLocaleLowerCase().startsWith(lowerString) ||
-          !isVisible(index) ||
-          isIndexDisabled?.(index)
-        ) {
+        if (!text?.toLowerCase().startsWith(lowerString) || !isItemAvailable(index)) {
           continue;
         }
         return index;
@@ -158,13 +158,11 @@ export function useTypeahead(
     }
 
     // Bail out if the list contains a word like "llama" or "aaron". TODO:
-    // allow it in this case, too. Disabled items are skipped while matching, so
-    // they must be ignored here as well — otherwise a disabled double-letter
-    // label would block rapid cycling through the enabled items.
+    // allow it in this case, too. Unavailable items are skipped while matching, so
+    // they must be ignored here as well — otherwise a hidden or disabled double-letter
+    // label would block rapid cycling through the available items.
     const allowRapidSuccessionOfFirstLetter = listContent.every((text, index) =>
-      text && !isIndexDisabled?.(index)
-        ? text[0]?.toLocaleLowerCase() !== text[1]?.toLocaleLowerCase()
-        : true,
+      text && isItemAvailable(index) ? text[0]?.toLowerCase() !== text[1]?.toLowerCase() : true,
     );
 
     // Allows the user to cycle through items that start with the same letter
