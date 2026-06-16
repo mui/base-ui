@@ -219,9 +219,7 @@ export function Demo({ className, ...demoProps }: DemoProps) {
                   selectFileName={onSelectFile}
                   onTabChange={demo.expand}
                 />
-                <div className="DemoToolbarActions DemoToolbarActionsMobile">
-                  {toolbarActions}
-                </div>
+                <div className="DemoToolbarActions DemoToolbarActionsMobile">{toolbarActions}</div>
               </ScrollArea.Viewport>
             </ScrollArea.Root>
 
