@@ -59,71 +59,106 @@
     background-clip: padding-box;
     display: flex;
     align-items: end;
-    gap: 1.5rem;
     height: 2.25rem;
-    padding: 0 0 0 calc(0.25rem - 1px);
+    border-top: 1px solid var(--color-border);
     -webkit-user-select: none;
     user-select: none;
+    overflow: hidden;
+  }
 
-    /* Scroll */
-    overflow: auto hidden;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
+  /* The single horizontal scroller for the toolbar. On mobile it holds the tabs
+     and the (in-scroll) actions; at --sm+ it holds just the tabs and the sticky
+     actions sit outside it. */
+  .DemoToolbarScrollAreaRoot {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-self: stretch;
+  }
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
+  .DemoToolbarViewport {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: calc(100% + 1px);
+    margin-left: -1px;
 
-    /* Scroll containers may be focusable */
+    /* ScrollArea hardcodes `overflow: scroll` on both axes; force horizontal-only
+       so a trackpad gesture can't rubber-band the (non-scrolling) vertical axis. */
+    overflow-y: hidden !important;
+
+    /* Edge-fade scroll indicators at every viewport, driven by the
+       distance-from-edge ScrollArea exposes (`--scroll-area-overflow-x-*`), so
+       each fade is absent at rest and grows in only once scrolled past that
+       edge. The second mask layer keeps the bottom 1px opaque so the active
+       tab's background can bridge the border into the code block below. */
+    --demo-tabs-fade: 1.5rem;
+    mask-image:
+      linear-gradient(
+        to right,
+        transparent,
+        #000 min(var(--demo-tabs-fade), var(--scroll-area-overflow-x-start, 0px)),
+        #000 calc(100% - min(var(--demo-tabs-fade), var(--scroll-area-overflow-x-end, 0px))),
+        transparent
+      ),
+      linear-gradient(#000, #000);
+    mask-repeat: no-repeat;
+    mask-position:
+      0 0,
+      0 100%;
+    mask-size:
+      100% calc(100% - 1px),
+      100% 1px;
+
     &:focus-visible {
-      position: relative;
       outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
       z-index: 1;
     }
+
+    &[data-has-overflow-x] {
+      /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
+      overscroll-behavior-x: contain;
+    }
   }
 
   .DemoToolbarActions {
-    position: relative;
-    right: 0;
     display: flex;
     align-items: center;
-    margin-left: auto;
-    padding-right: 0.5rem;
     height: 100%;
     gap: var(--space-4);
+    padding-inline: 0.5rem;
+  }
 
-    /* Apply sticky only on wider viewports to avoid actions taking up most of it */
-    @media (min-width: 48rem) {
-      position: sticky;
-      padding-left: 0.75rem;
+  /* Inside the scroller — shown on mobile so the actions scroll with the tabs */
+  .DemoToolbarActionsMobile {
+    flex: 0 0 auto;
 
-      &::before {
-        content: '';
-        position: absolute;
-        inset: 0 0 1px;
-        border-radius: inherit;
-        background-color: var(--color-content);
-        pointer-events: none;
-      }
-
-      &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 1px;
-        left: -24px;
-        width: 24px;
-        background: linear-gradient(to right, transparent, var(--color-content));
-        pointer-events: none;
-      }
+    @media (--sm) {
+      display: none;
     }
+  }
+
+  /* Outside the scroller — shown at --sm+, pinned to the toolbar's right edge */
+  .DemoToolbarActionsDesktop {
+    display: none;
+
+    @media (--sm) {
+      display: flex;
+      flex: 0 0 auto;
+      padding-inline-start: 1rem;
+    }
+  }
+
+  .DemoTabsRoot {
+    display: flex;
+    flex: 0 0 auto;
   }
 
   .DemoTabsList {
     display: flex;
     align-self: flex-end;
-    gap: 0.125rem;
+    width: max-content;
   }
 
   .DemoTab {
@@ -132,14 +167,11 @@
     z-index: 0;
     outline: 0;
     height: 2.25rem;
-    padding-inline: 0.5rem;
+    padding-inline: 0.75rem;
     padding-top: 0.25rem;
     padding-bottom: calc(0.25rem + 1px);
-    border-top: 1px solid transparent;
     border-right: 1px solid transparent;
     border-left: 1px solid transparent;
-    border-top-left-radius: var(--radius-8);
-    border-top-right-radius: var(--radius-8);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -151,14 +183,10 @@
 
     @media (hover: hover) {
       &:hover:not([data-active]) {
-        border-color: var(--gray-s2);
-
         &::before {
           content: '';
           position: absolute;
-          inset: 0 0 1px;
-          border-top-left-radius: calc(var(--radius-8) - 1px);
-          border-top-right-radius: calc(var(--radius-8) - 1px);
+          inset: 0 -1px 1px;
           background-color: var(--gray-s2);
           pointer-events: none;
         }
