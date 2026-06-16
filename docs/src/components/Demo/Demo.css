@@ -59,7 +59,10 @@
     background-clip: padding-box;
     display: flex;
     align-items: end;
-    height: 2.25rem;
+    /* Tab row (2.25rem) plus the top border. Without the extra 1px the tab would
+       overflow into the border strip that `overflow: hidden` clips, cutting the
+       top 1px of the tab's focus ring. */
+    height: calc(2.25rem + 1px);
     border-top: 1px solid var(--color-border);
     -webkit-user-select: none;
     user-select: none;
@@ -188,6 +191,7 @@
           position: absolute;
           inset: 0 -1px 1px;
           background-color: var(--gray-s2);
+          background-clip: padding-box;
           pointer-events: none;
         }
       }
@@ -223,6 +227,11 @@
     position: relative;
     display: flex;
     flex-direction: column;
+
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+    &:has(.DemoCodeBlockViewport:focus-visible) {
+      z-index: 1;
+    }
   }
 
   .DemoCodeBlockRoot {
