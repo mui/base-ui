@@ -125,11 +125,11 @@ export interface DialogTriggerProps<Payload = unknown>
 
 export interface DialogTriggerState {
   /**
-   * Whether the dialog is currently disabled.
+   * Whether the trigger is currently disabled.
    */
   disabled: boolean;
   /**
-   * Whether the dialog is currently open.
+   * Whether the dialog is currently open and was opened by this trigger.
    */
   open: boolean;
 }

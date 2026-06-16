@@ -117,10 +117,10 @@
 
     box-shadow:
       0 10px 64px -10px rgb(36 40 52 / 20%),
-      0 0.25px 0 1px var(--gray-c2);
+      0 0.25px 0 1px var(--color-border);
 
     @media (prefers-color-scheme: dark) {
-      box-shadow: 0 0 0 1px var(--gray-c2);
+      box-shadow: 0 0 0 1px var(--color-border);
     }
 
     /* Make bottom overscroll edges soft; visible during extreme rubber band overscroll at the bottom */
@@ -169,7 +169,7 @@
       content: '';
       display: block;
       margin-top: -1px;
-      border-bottom: 1px solid var(--gray-c2);
+      border-bottom: 1px solid var(--color-border);
     }
   }
 
@@ -184,7 +184,7 @@
       content: '';
       display: block;
       margin-inline: var(--mobile-nav-item-padding-x);
-      border-bottom: 1px solid var(--gray-c2);
+      border-bottom: 1px solid var(--color-border);
     }
   }
 
