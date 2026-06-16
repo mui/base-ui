@@ -12,6 +12,7 @@ export { DrawerSwipeArea as SwipeArea } from './swipe-area/DrawerSwipeArea';
 export { DrawerTitle as Title } from './title/DrawerTitle';
 export { DrawerTrigger as Trigger } from './trigger/DrawerTrigger';
 export { DrawerViewport as Viewport } from './viewport/DrawerViewport';
+export { DrawerVirtualKeyboardProvider as VirtualKeyboardProvider } from './virtual-keyboard-provider/DrawerVirtualKeyboardProvider';
 export {
   createDialogHandle as createHandle,
   DialogHandle as Handle,
