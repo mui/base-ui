@@ -34,11 +34,15 @@ export function register(hook: HookType): void {
  * specialized hook implementations to batch operations and reduce overhead. The wrapper creates a
  * stable instance object that persists across renders, sets it as the current context, calls
  * registered hooks before and after rendering, then clears the context. The primary benefit is
- * with `useStore`, where multiple store subscriptions within the same component are batched into
- * a single subscription, significantly reducing re-render overhead.
+ * with `useStore`, where multiple store subscriptions within the same component are collapsed into
+ * a single `useSyncExternalStore` subscription per store, significantly reducing re-render overhead.
+ * This optimization is only active on React 19+; on earlier versions `useStore` falls back to a
+ * separate subscription per call.
  *
  * **Requirements:**
  * - The component function should follow standard React component patterns
+ * - `useStore` calls must keep a stable order and count across renders, as batched hooks are
+ *   matched by call index
  * - Do not rely on the instance context outside of specialized hooks
  *
  * @param fn - The component function to wrap
