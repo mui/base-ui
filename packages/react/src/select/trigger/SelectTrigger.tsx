@@ -3,7 +3,6 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -73,7 +72,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     required,
     alignItemWithTriggerActiveRef,
     disabled: selectDisabled,
-    keyboardActiveRef,
   } = useSelectRootContext();
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
@@ -107,13 +105,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
   });
-
-  const mergedRef = useMergedRefs<HTMLElement>(
-    forwardedRef,
-    triggerRef,
-    buttonRef,
-    setTriggerElement,
-  );
 
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
@@ -160,7 +151,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       'aria-readonly': readOnly || undefined,
       'aria-required': required || undefined,
       tabIndex: disabled ? -1 : 0,
-      ref: mergedRef,
       onFocus(event) {
         setFocused(true);
 
@@ -172,8 +162,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         // Saves a re-render on initial click: `forceMount === true` mounts
         // the items before `open === true`. We could sync those cycles better
         // without a timeout, but this is enough for now.
-        //
-        // XXX: might be causing `act()` warnings.
         timeoutFocus.start(0, () => {
           store.set('forceMount', true);
         });
@@ -191,12 +179,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           validation.commit(value);
         }
       },
-      onPointerMove() {
-        keyboardActiveRef.current = false;
-      },
-      onKeyDown() {
-        keyboardActiveRef.current = true;
-      },
       onMouseDown(event) {
         if (open) {
           return;
@@ -211,11 +193,11 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
           const mouseUpTarget = mouseEvent.target as Element | null;
 
-          // Early return if clicked on trigger element or its children
+          // Don't treat the release as an outside press when it lands on the trigger or inside
+          // the popup positioner (or their children).
           if (
             contains(triggerRef.current, mouseUpTarget) ||
-            contains(positionerRef.current, mouseUpTarget) ||
-            mouseUpTarget === triggerRef.current
+            contains(positionerRef.current, mouseUpTarget)
           ) {
             return;
           }
@@ -260,7 +242,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   };
 
   return useRenderElement('button', componentProps, {
-    ref: [forwardedRef, triggerRef],
+    ref: [forwardedRef, triggerRef, buttonRef, setTriggerElement],
     state,
     stateAttributesMapping,
     props,

@@ -434,6 +434,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const currentTarget = event.currentTarget;
       const target = getTarget(event) as HTMLElement | null;
 
+      // When focus is lost to the body (e.g. on a backdrop press), record the element that
+      // had focus so a confirmation dialog opened while the body is focused can return focus
+      // to it. Scoped to `modal` to avoid non-modal popups polluting the shared stack.
+      if (modal && relatedTarget == null && target != null && contains(floating, target)) {
+        addPreviouslyFocusedElement(target);
+      }
+
       queueMicrotask(() => {
         const nodeId = getNodeId();
         const triggers = store.context.triggerElements;

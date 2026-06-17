@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Collapsible } from '@base-ui/react/collapsible';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import * as Menu from 'docs/src/components/Menu';
 import { usePathname } from 'next/navigation';
 import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/types';
@@ -29,15 +30,9 @@ import './Demo.css';
 export type DemoProps = ContentProps<{
   compact?: boolean;
   className?: string;
-  showExtraPlaygroundLink?: boolean;
 }>;
 
-export function Demo({
-  compact = false,
-  showExtraPlaygroundLink = false,
-  className,
-  ...demoProps
-}: DemoProps) {
+export function Demo({ compact = false, className, ...demoProps }: DemoProps) {
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
   const sourceLinkCopyResetTimeout = useTimeout();
@@ -154,17 +149,57 @@ export function Demo({
     </GhostButton>
   );
 
+  const toolbarActions = (
+    <React.Fragment>
+      {demo.variants.length > 1 && (
+        <DemoVariantSelector
+          onVariantChange={demo.expand}
+          variants={demo.variants}
+          selectedVariant={demo.selectedVariant}
+          selectVariant={demo.selectVariant as any}
+        />
+      )}
+      {externalPlaygroundLink}
+      {githubUrl && (
+        <Menu.Root>
+          <Menu.Trigger
+            render={
+              <GhostButton layout="icon" aria-label="More actions">
+                <MoreVertIcon aria-hidden="true" />
+              </GhostButton>
+            }
+          />
+          <Menu.Popup align="end" alignOffset={-5}>
+            <Menu.LinkItem href={githubUrl} target="_blank" rel="noopener" onClick={onViewSource}>
+              <GitHubIcon aria-hidden="true" />
+              View source on GitHub
+              <ExternalLinkIcon aria-hidden="true" />
+            </Menu.LinkItem>
+
+            <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
+              {sourceLinkCopied ? (
+                <CheckIcon aria-hidden="true" />
+              ) : (
+                <CopyIcon aria-hidden="true" />
+              )}
+              Copy link to source
+              <span className="sr-only" aria-live="polite">
+                {sourceLinkCopied && 'Link copied!'}
+              </span>
+            </Menu.Item>
+          </Menu.Popup>
+        </Menu.Root>
+      )}
+    </React.Fragment>
+  );
+
   return (
     <div className={clsx('DemoRoot', className)}>
       {demo.allFilesSlugs.map(({ slug }) => (
         <span key={slug} id={slug} className="bui-scroll-mt-4" />
       ))}
       <div onPointerDown={onPlaygroundInteraction} onKeyDownCapture={onPlaygroundInteraction}>
-        <DemoPlayground component={demo.component} variant={demo.selectedVariant}>
-          {showExtraPlaygroundLink && (
-            <span className="DemoPlaygroundExternalLink">{externalPlaygroundLink}</span>
-          )}
-        </DemoPlayground>
+        <DemoPlayground component={demo.component} variant={demo.selectedVariant} />
       </div>
       <Collapsible.Root
         className="DemoCollapsibleRoot"
@@ -174,59 +209,25 @@ export function Demo({
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
             <div className="DemoToolbar">
-              <DemoFileSelector
-                files={demo.files}
-                selectedFileName={demo.selectedFileName}
-                selectFileName={onSelectFile}
-                onTabChange={demo.expand}
-              />
-
-              <div className="DemoToolbarActions">
-                {demo.variants.length > 1 && (
-                  <DemoVariantSelector
-                    onVariantChange={demo.expand}
-                    variants={demo.variants}
-                    selectedVariant={demo.selectedVariant}
-                    selectVariant={demo.selectVariant as any}
+              {/* One ScrollArea drives the edge-fade indicators at every viewport.
+                  Below --sm the actions sit inside it (they scroll with the tabs);
+                  at --sm+ the in-scroll copy is hidden and the sticky copy outside
+                  takes over. Both copies stay mounted so state survives a resize. */}
+              <ScrollArea.Root className="DemoToolbarScrollAreaRoot">
+                <ScrollArea.Viewport className="DemoToolbarViewport">
+                  <DemoFileSelector
+                    files={demo.files}
+                    selectedFileName={demo.selectedFileName}
+                    selectFileName={onSelectFile}
+                    onTabChange={demo.expand}
                   />
-                )}
-                {externalPlaygroundLink}
-                {githubUrl && (
-                  <Menu.Root>
-                    <Menu.Trigger
-                      render={
-                        <GhostButton layout="icon" aria-label="More actions">
-                          <MoreVertIcon aria-hidden="true" />
-                        </GhostButton>
-                      }
-                    />
-                    <Menu.Popup align="end" alignOffset={-5}>
-                      <Menu.LinkItem
-                        href={githubUrl}
-                        target="_blank"
-                        rel="noopener"
-                        onClick={onViewSource}
-                      >
-                        <GitHubIcon aria-hidden="true" />
-                        View source on GitHub
-                        <ExternalLinkIcon aria-hidden="true" />
-                      </Menu.LinkItem>
+                  <div className="DemoToolbarActions DemoToolbarActionsMobile">
+                    {toolbarActions}
+                  </div>
+                </ScrollArea.Viewport>
+              </ScrollArea.Root>
 
-                      <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
-                        {sourceLinkCopied ? (
-                          <CheckIcon aria-hidden="true" />
-                        ) : (
-                          <CopyIcon aria-hidden="true" />
-                        )}
-                        Copy link to source
-                        <span className="sr-only" aria-live="polite">
-                          {sourceLinkCopied && 'Link copied!'}
-                        </span>
-                      </Menu.Item>
-                    </Menu.Popup>
-                  </Menu.Root>
-                )}
-              </div>
+              <div className="DemoToolbarActions DemoToolbarActionsDesktop">{toolbarActions}</div>
             </div>
           )}
 
