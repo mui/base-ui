@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingPortal } from '../../floating-ui-react';
+import type { PortalCommonProps } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
@@ -43,7 +44,7 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
 
 export interface DialogPortalState {}
 
-export interface DialogPortalProps extends FloatingPortal.Props<DialogPortalState> {
+export interface DialogPortalProps extends PortalCommonProps<DialogPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
@@ -52,7 +53,7 @@ export interface DialogPortalProps extends FloatingPortal.Props<DialogPortalStat
   /**
    * A parent element to render the portal element into.
    */
-  container?: FloatingPortal.Props<DialogPortalState>['container'] | undefined;
+  container?: PortalCommonProps<DialogPortalState>['container'] | undefined;
 }
 
 export namespace DialogPortal {

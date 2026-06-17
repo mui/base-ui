@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
+import type { PortalCommonProps } from '../../floating-ui-react';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPortalContext } from './ComboboxPortalContext';
 import { selectors } from '../store';
@@ -38,7 +39,7 @@ export const ComboboxPortal = React.forwardRef(function ComboboxPortal(
 
 export interface ComboboxPortalState {}
 
-export interface ComboboxPortalProps extends FloatingPortal.Props<ComboboxPortalState> {
+export interface ComboboxPortalProps extends PortalCommonProps<ComboboxPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false

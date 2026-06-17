@@ -162,11 +162,19 @@ export function useFloatingPortalNode(
  * @internal
  */
 export const FloatingPortal = React.forwardRef(function FloatingPortal(
-  componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean | undefined },
+  componentProps: FloatingPortal.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, container, renderGuards, ...elementProps } =
-    componentProps;
+  const {
+    render,
+    className,
+    style,
+    children,
+    container,
+    renderGuards,
+    portalOwnerRole,
+    ...elementProps
+  } = componentProps;
 
   const { portalNode, portalSubtree } = useFloatingPortalNode({
     container,
@@ -264,7 +272,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
           />
         )}
         {shouldRenderGuards && portalNode && (
-          <span aria-owns={portalNode.id} style={ownerVisuallyHidden} />
+          <span role={portalOwnerRole} aria-owns={portalNode.id} style={ownerVisuallyHidden} />
         )}
         {portalNode && ReactDOM.createPortal(children, portalNode)}
         {shouldRenderGuards && portalNode && (
@@ -303,5 +311,20 @@ export namespace FloatingPortal {
      * A parent element to render the portal element into.
      */
     container?: UseFloatingPortalNodeProps['container'] | undefined;
+    /**
+     * @ignore
+     * Whether to render the focus guards and hidden `aria-owns` owner element.
+     */
+    renderGuards?: boolean | undefined;
+    /**
+     * @ignore
+     * The role for the hidden `aria-owns` owner element.
+     */
+    portalOwnerRole?: React.AriaRole | undefined;
   }
 }
+
+export type PortalCommonProps<TState> = Omit<
+  FloatingPortal.Props<TState>,
+  'renderGuards' | 'portalOwnerRole'
+>;

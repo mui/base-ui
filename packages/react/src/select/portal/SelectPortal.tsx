@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { FloatingPortal } from '../../floating-ui-react';
+import type { PortalCommonProps } from '../../floating-ui-react';
 import { SelectPortalContext } from './SelectPortalContext';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
@@ -35,7 +36,7 @@ export const SelectPortal = React.forwardRef(function SelectPortal(
 
 export interface SelectPortalState {}
 
-export interface SelectPortalProps extends FloatingPortal.Props<SelectPortalState> {}
+export interface SelectPortalProps extends PortalCommonProps<SelectPortalState> {}
 
 export namespace SelectPortal {
   export type State = SelectPortalState;

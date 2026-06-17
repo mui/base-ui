@@ -984,6 +984,22 @@ describe('<Menubar />', () => {
     });
   });
 
+  it('renders contained top-level portal ownership as an allowed menubar child', async () => {
+    const { user } = await render(<ContainedTriggerMenubar />);
+
+    await user.click(screen.getByTestId('file-trigger'));
+
+    const fileMenu = await screen.findByTestId('file-menu');
+    const fileMenuPortal = fileMenu.closest('[data-base-ui-portal]');
+    const fileMenuPortalId = fileMenuPortal?.id ?? '';
+    const owner = screen.getByRole('menubar').querySelector('span[aria-owns]');
+
+    expect(fileMenuPortalId).not.toBe('');
+    expect(owner).toHaveAttribute('role', 'group');
+    expect(owner).not.toHaveAttribute('aria-hidden');
+    expect(owner).toHaveAttribute('aria-owns', fileMenuPortalId);
+  });
+
   describe('disabled state', () => {
     it('keeps the menubar reachable when the first trigger is disabled', async () => {
       const { user } = await render(
