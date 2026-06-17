@@ -28,6 +28,7 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
 
   return (
     <MenuPortalContext.Provider value={keepMounted}>
+      {/* The hidden `aria-owns` owner must be an allowed child of `menu` and `menubar`. */}
       <FloatingPortal ref={forwardedRef} {...portalProps} portalOwnerRole="group" />
     </MenuPortalContext.Provider>
   );
