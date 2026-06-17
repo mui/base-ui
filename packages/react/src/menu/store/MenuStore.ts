@@ -134,11 +134,11 @@ export class MenuStore<Payload> extends ReactStore<
     const ownAllowMouseUpTriggerRef = this.context.allowMouseUpTriggerRef;
 
     // Set up propagation of state from parent menu if applicable.
-    // `observe` fires the listener synchronously here and again on every `parent` change, so the
-    // observer's own unsubscriber and the per-parent store subscription must live in separate
-    // fields — otherwise the synchronous first call clobbers one with the other and the first
-    // parent change tears down the observer itself.
-    this.observe('parent', (parent) => {
+    // `observe` fires the listener synchronously here and again on every `parent` change. The
+    // observer's own unsubscriber (`unsubscribeParentObserver`) and the per-parent store
+    // subscription (`unsubscribeParentStore`) live in separate fields so re-running the listener
+    // only tears down the previous parent's subscription, never the observer itself.
+    this.unsubscribeParentObserver = this.observe('parent', (parent) => {
       this.unsubscribeParentStore?.();
       this.unsubscribeParentStore = null;
 
@@ -206,15 +206,19 @@ export class MenuStore<Payload> extends ReactStore<
 
   private unsubscribeParentStore: (() => void) | null = null;
 
-  // Tears down the subscription this store holds on its parent store. Without this, a submenu's
-  // store (which subscribes into the parent menu's store) stays referenced by the parent's listener
-  // set after it unmounts, leaking the child store on every open/close cycle. The `observe` listener
-  // itself is registered on this store, so it is collected together with the store and needs no
-  // explicit cleanup.
+  private unsubscribeParentObserver: (() => void) | null = null;
+
+  // Tears down both subscriptions this store created. Without releasing `unsubscribeParentStore`, a
+  // submenu's store (which subscribes into the parent menu's store) stays referenced by the
+  // parent's listener set after it unmounts, leaking the child store on every open/close cycle.
+  // `unsubscribeParentObserver` releases this store's own `observe` self-subscription; it would be
+  // collected with the store anyway, but releasing it keeps cleanup symmetric and future-proof.
   private disposeEffect = () => {
     return () => {
       this.unsubscribeParentStore?.();
       this.unsubscribeParentStore = null;
+      this.unsubscribeParentObserver?.();
+      this.unsubscribeParentObserver = null;
     };
   };
 }

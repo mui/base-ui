@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer } from '#test-utils';
@@ -464,5 +464,65 @@ describe('<Menu.Trigger />', () => {
 
     const button = screen.getByTestId('menu-trigger');
     expect(button).toHaveAttribute('role', 'button');
+  });
+
+  describe('hover-open document listeners', () => {
+    it('removes the document mouseup listener when a hover-opened menu closes without a mouseup', async () => {
+      const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+      const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
+
+      try {
+        await render(
+          <Menu.Root modal={false}>
+            <Menu.Trigger delay={0} openOnHover>
+              Open
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner data-testid="positioner">
+                <Menu.Popup data-testid="menu" />
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Open' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await flushMicrotasks();
+        expect(screen.queryByTestId('menu')).not.toBe(null);
+
+        // The hover-open effect arms a `{ once: true }` document `mouseup` listener.
+        let documentMouseUpHandler: EventListenerOrEventListenerObject | undefined;
+        for (let i = addEventListenerSpy.mock.calls.length - 1; i >= 0; i -= 1) {
+          const [eventName, listener, options] = addEventListenerSpy.mock.calls[i];
+          if (eventName === 'mouseup' && typeof options === 'object' && options?.once === true) {
+            documentMouseUpHandler = listener;
+            break;
+          }
+        }
+        expect(documentMouseUpHandler).toEqual(expect.any(Function));
+
+        // Hovering out closes the menu without ever firing a `mouseup`. The listener must be
+        // removed, otherwise it stays armed and fires on an unrelated later interaction.
+        const positioner = screen.getByTestId('positioner');
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu')).toBe(null);
+        });
+
+        expect(removeEventListenerSpy).toHaveBeenCalledWith(
+          'mouseup',
+          documentMouseUpHandler,
+          expect.objectContaining({ once: true }),
+        );
+      } finally {
+        addEventListenerSpy.mockRestore();
+        removeEventListenerSpy.mockRestore();
+      }
+    });
   });
 });

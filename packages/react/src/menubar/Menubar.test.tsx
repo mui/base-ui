@@ -1051,6 +1051,78 @@ describe('<Menubar />', () => {
       expect(handleClick).not.toHaveBeenCalled();
     });
   });
+
+  // Driven in jsdom: it forces `:focus-visible` to match so a programmatic focus reproduces the
+  // mobile "focus opens, delayed click would close" sequence that arms this guard. The guard logic
+  // under test lives in `MenuRoot` and is environment-independent.
+  describe.skipIf(!isJSDOM)('touch-to-close guard', () => {
+    it('keeps a controlled menu open on a delayed touch click after a focus-driven open', async () => {
+      const editOnOpenChange = vi.fn();
+
+      function App() {
+        const [editOpen, setEditOpen] = React.useState(false);
+        return (
+          <Menubar>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu">
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Root
+              open={editOpen}
+              onOpenChange={(open, details) => {
+                editOnOpenChange(open, details);
+                setEditOpen(open);
+              }}
+            >
+              <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="edit-menu">
+                  <Menu.Popup>
+                    <Menu.Item>Copy</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const fileTrigger = screen.getByTestId('file-trigger');
+      const editTrigger = screen.getByTestId('edit-trigger');
+
+      // Open the File menu so the menubar has an open menu (this enables focus-to-open on siblings).
+      await user.click(fileTrigger);
+      await screen.findByTestId('file-menu');
+
+      // Focusing the Edit trigger opens its menu via `triggerFocus`, which arms the touch-to-close
+      // guard for the next 300ms.
+      await act(async () => {
+        editTrigger.focus();
+      });
+      await screen.findByTestId('edit-menu');
+      expect(editOnOpenChange).toHaveBeenLastCalledWith(true, expect.anything());
+
+      editOnOpenChange.mockClear();
+
+      // The delayed synthetic touch `click` that follows a tap must not close the just-opened menu.
+      // Before the guard ran ahead of `onOpenChange`, the controlled menu closed regardless.
+      fireEvent(
+        editTrigger,
+        new PointerEvent('click', { pointerType: 'touch', bubbles: true, cancelable: true }),
+      );
+
+      expect(editOnOpenChange).not.toHaveBeenCalledWith(false, expect.anything());
+      expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+    });
+  });
 });
 
 function ContainedTriggerMenubar(props: Menubar.Props) {

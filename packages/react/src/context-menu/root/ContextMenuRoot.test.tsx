@@ -1,5 +1,6 @@
 import { vi, expect } from 'vitest';
 import {
+  act,
   fireEvent,
   flushMicrotasks,
   ignoreActWarnings,
@@ -230,6 +231,78 @@ describe('<ContextMenu.Root />', () => {
 
       expect(screen.queryByTestId('context-popup')).toBe(null);
       expect(onOpenChange.mock.calls.length).toBe(0);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('keyboard navigation', () => {
+    it('does not close the root context menu on the cross-orientation close key, but closes its submenus', async () => {
+      const rootOnOpenChange = vi.fn();
+
+      const { user } = await render(
+        <ContextMenu.Root onOpenChange={rootOnOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-root-popup">
+                <ContextMenu.SubmenuRoot>
+                  <ContextMenu.SubmenuTrigger data-testid="context-submenu-trigger">
+                    More options
+                  </ContextMenu.SubmenuTrigger>
+                  <ContextMenu.Portal>
+                    <ContextMenu.Positioner>
+                      <ContextMenu.Popup data-testid="context-submenu-popup">
+                        <ContextMenu.Item data-testid="context-submenu-item">
+                          Deep action
+                        </ContextMenu.Item>
+                      </ContextMenu.Popup>
+                    </ContextMenu.Positioner>
+                  </ContextMenu.Portal>
+                </ContextMenu.SubmenuRoot>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await flushMicrotasks();
+
+      await screen.findByTestId('context-root-popup');
+
+      const submenuTrigger = screen.getByTestId('context-submenu-trigger');
+      await act(async () => {
+        submenuTrigger.focus();
+      });
+      await waitFor(() => {
+        expect(submenuTrigger).toHaveFocus();
+      });
+
+      // ArrowRight opens the (nested) submenu and moves focus to its first item.
+      await user.keyboard('[ArrowRight]');
+      await screen.findByTestId('context-submenu-popup');
+      const submenuItem = screen.getByTestId('context-submenu-item');
+      await waitFor(() => {
+        expect(submenuItem).toHaveFocus();
+      });
+
+      // ArrowLeft closes the submenu because it is nested, returning focus to its trigger.
+      await user.keyboard('[ArrowLeft]');
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-submenu-popup')).toBe(null);
+      });
+      expect(screen.queryByTestId('context-root-popup')).not.toBe(null);
+      await waitFor(() => {
+        expect(submenuTrigger).toHaveFocus();
+      });
+
+      // ArrowLeft on the root context menu must NOT close it: unlike a submenu, a root context
+      // menu has no parent list to return to, and native context menus never close on this key.
+      await user.keyboard('[ArrowLeft]');
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-root-popup')).not.toBe(null);
+      expect(rootOnOpenChange.mock.calls.some((call) => call[0] === false)).toBe(false);
     });
   });
 

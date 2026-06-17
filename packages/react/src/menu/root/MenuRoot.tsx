@@ -275,8 +275,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
       store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
-      // Reset the touch-to-close guard so a delayed click after a focus-driven open is ignored
-      // (see the early return above).
+      // Arm the touch-to-close guard for 300ms after a focus-driven open, so the delayed click
+      // that follows a tap is ignored (see the early return above). Any other open/close clears
+      // the guard so a normal click can close the menu right away.
       if (nextOpen && reason === REASONS.triggerFocus) {
         allowTouchToCloseRef.current = false;
         allowTouchToCloseTimeout.start(300, () => {
