@@ -78,6 +78,14 @@
     flex: 1 1 auto;
     min-width: 0;
     align-self: stretch;
+
+    /* Shift 1px left (keeping the right edge flush) so the active first tab's left
+       border lands on top of the card's 1px left border instead of 1px inboard.
+       This lives on the (non-scrolling) Root rather than the scrolling viewport so
+       it doesn't inflate the viewport's scrollWidth and falsely trip
+       `data-has-overflow-x`. */
+    width: calc(100% + 1px);
+    margin-left: -1px;
   }
 
   /* The viewport is focusable, but its own outline is unusable here: an inset
@@ -99,8 +107,6 @@
     display: flex;
     flex: 1 1 auto;
     min-width: 0;
-    width: calc(100% + 1px);
-    margin-left: -1px;
 
     /* ScrollArea hardcodes `overflow: scroll` on both axes; force horizontal-only
        so a trackpad gesture can't rubber-band the (non-scrolling) vertical axis. */
