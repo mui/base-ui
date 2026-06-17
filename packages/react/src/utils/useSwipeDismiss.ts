@@ -783,10 +783,20 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
       // Cancel the swipe if a non-primary button takes over the interaction.
       // This handles cases where a right-click interrupts dragging.
-      const lostPrimaryButtonDuringSwipe =
-        event.buttons === 0 && sawPrimaryButtonsOnMoveRef.current;
-      if ((event.buttons !== 0 && !hasPrimaryButton) || lostPrimaryButtonDuringSwipe) {
+      if (event.buttons !== 0 && !hasPrimaryButton) {
         cancelSwipeInteraction(event);
+        return;
+      }
+
+      // A `buttons: 0` pointermove means the primary button was already released, so the gesture is
+      // over even if no pointerup reached us. On fast trackpad flicks this trailing move is
+      // dispatched just before pointerup; commit the gesture here (mirroring touchend) so the flick
+      // still applies, instead of cancelling and snapping the element back. Sub-threshold releases
+      // restore as before, and a not-yet-active gesture is discarded. `handleEnd` is defined just
+      // below and only ever runs at event time, so the forward reference is safe.
+      if (event.buttons === 0 && sawPrimaryButtonsOnMoveRef.current) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        handleEnd(event);
         return;
       }
     }
