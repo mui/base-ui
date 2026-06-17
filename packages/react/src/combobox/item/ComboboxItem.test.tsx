@@ -390,4 +390,71 @@ describe('<Combobox.Item />', () => {
       expect(screen.queryByRole('listbox')).toBe(null);
     });
   });
+
+  // Virtualized items without an explicit `index` resolve their index from the filtered set
+  // (via the dedicated `ComboboxItemVirtualizedIndex` subscriber). Filtering must keep that
+  // index fresh, otherwise keyboard highlight/Enter selection targets the wrong filtered item.
+  describe('virtualized without explicit index', () => {
+    function VirtualizedItems() {
+      const items = Combobox.useFilteredItems<string>();
+      return items.map((item) => (
+        <Combobox.Item key={item} value={item}>
+          {item}
+        </Combobox.Item>
+      ));
+    }
+
+    function VirtualizedCombobox() {
+      return (
+        <Combobox.Root virtualized items={['one', 'two', 'three', 'four', 'five']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <VirtualizedItems />
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    it('selects the highlighted filtered item with the keyboard after filtering', async () => {
+      const { user } = await render(<VirtualizedCombobox />);
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      // Narrows the list to items containing "f" ("four", "five"), which sat at full-list
+      // indices 3 and 4. The first filtered item is now "four", not "one".
+      await user.type(input, 'f');
+      await waitFor(() => expect(screen.queryByRole('option', { name: 'one' })).toBe(null));
+      expect(screen.getByRole('option', { name: 'four' })).not.toBe(null);
+
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => expect(input).toHaveValue('four'));
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+
+    it('selects the clicked filtered item after filtering', async () => {
+      const { user } = await render(<VirtualizedCombobox />);
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+
+      await user.type(input, 'f');
+      await waitFor(() => expect(screen.queryByRole('option', { name: 'one' })).toBe(null));
+
+      await user.click(screen.getByRole('option', { name: 'five' }));
+
+      await waitFor(() => expect(input).toHaveValue('five'));
+      expect(screen.queryByRole('listbox')).toBe(null);
+    });
+  });
 });

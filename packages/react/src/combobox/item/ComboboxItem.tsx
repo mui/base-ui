@@ -24,6 +24,11 @@ interface ComboboxItemImplProps {
   componentProps: ComboboxItem.Props;
   forwardedRef: React.ForwardedRef<HTMLDivElement>;
   /**
+   * Whether the list is externally virtualized. Passed down from the wrapper (which already
+   * subscribes to it) so the impl doesn't re-subscribe to the store.
+   */
+  virtualized: boolean;
+  /**
    * Pre-resolved index for the virtualized fallback (when no `index` prop is provided).
    * `undefined` for the common path, where the index is derived from `index` prop or the
    * composite list registration order.
@@ -32,7 +37,7 @@ interface ComboboxItemImplProps {
 }
 
 function ComboboxItemImpl(props: ComboboxItemImplProps) {
-  const { componentProps, forwardedRef, indexFromFilter } = props;
+  const { componentProps, forwardedRef, virtualized, indexFromFilter } = props;
   const {
     render,
     className,
@@ -59,7 +64,6 @@ function ComboboxItemImpl(props: ComboboxItemImplProps) {
   const open = useStore(store, selectors.open);
   const selectionMode = useStore(store, selectors.selectionMode);
   const readOnly = useStore(store, selectors.readOnly);
-  const virtualized = useStore(store, selectors.virtualized);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
   const selectable = selectionMode !== 'none';
@@ -214,8 +218,9 @@ function ComboboxItemImpl(props: ComboboxItemImplProps) {
 /**
  * Resolves the index from the filtered items for the virtualized fallback (no `index` prop).
  * Isolated here so that this per-keystroke subscription to the derived-items context is only
- * paid by virtualized items (which re-render on every input change regardless), keeping every
- * non-virtualized item off that context.
+ * paid by virtualized items. Those re-render on every input change anyway — the parent
+ * virtualizer re-windows the list as the filtered set changes — so the extra subscription costs
+ * them nothing, while it keeps every non-virtualized item off that context.
  */
 function ComboboxItemVirtualizedIndex(props: {
   componentProps: ComboboxItem.Props;
@@ -231,10 +236,12 @@ function ComboboxItemVirtualizedIndex(props: {
     isItemEqualToValue,
   );
 
+  // Only reached when `virtualized` is true (see the wrapper below).
   return (
     <ComboboxItemImpl
       componentProps={componentProps}
       forwardedRef={forwardedRef}
+      virtualized
       indexFromFilter={indexFromFilter}
     />
   );
@@ -254,6 +261,9 @@ export const ComboboxItem = React.memo(
     const store = useComboboxRootContext();
     const virtualized = useStore(store, selectors.virtualized);
 
+    // `virtualized` (and whether an item provides an explicit `index`) must be stable for an
+    // item's lifetime: the two branches return different component types, so flipping it at
+    // runtime remounts the item and resets its refs and effects.
     if (virtualized && componentProps.index == null) {
       return (
         <ComboboxItemVirtualizedIndex componentProps={componentProps} forwardedRef={forwardedRef} />
@@ -264,6 +274,7 @@ export const ComboboxItem = React.memo(
       <ComboboxItemImpl
         componentProps={componentProps}
         forwardedRef={forwardedRef}
+        virtualized={virtualized}
         indexFromFilter={undefined}
       />
     );
