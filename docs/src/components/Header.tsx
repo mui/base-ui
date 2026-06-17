@@ -5,6 +5,8 @@ import { sitemap } from '../app/sitemap';
 import { Logo } from './Logo';
 import { SkipNav } from './SkipNav';
 import { SearchTrigger } from './SearchTrigger';
+import { GitHubIcon } from '../icons/GitHubIcon';
+import { NpmIcon } from '../icons/NpmIcon';
 import './Header.css';
 
 export const titleMap: Record<string, string> = {
@@ -72,6 +74,22 @@ export function Header() {
                       </MobileNav.List>
                     </MobileNav.Section>
                   ))}
+                  <MobileNav.Section>
+                    <MobileNav.Heading>Resources</MobileNav.Heading>
+                    <MobileNav.List>
+                      <MobileNav.Item href="https://www.npmjs.com/package/@base-ui/react">
+                        <NpmIcon />
+                        <span className="HeaderResourceRow">
+                          npm package
+                          <span className="HeaderVersion">{process.env.LIB_VERSION}</span>
+                        </span>
+                      </MobileNav.Item>
+                      <MobileNav.Item href="https://github.com/mui/base-ui">
+                        <GitHubIcon className="HeaderGitHubIcon" />
+                        GitHub
+                      </MobileNav.Item>
+                    </MobileNav.List>
+                  </MobileNav.Section>
                 </MobileNav.Popup>
               </MobileNav.Portal>
             </MobileNav.Root>
