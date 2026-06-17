@@ -464,7 +464,7 @@
 
     @media (hover: hover) {
       .DemoCollapseButton:hover & {
-        background: linear-gradient(to bottom, hsl(0deg 0% 0% / 8%), hsl(0deg 0% 0% / 16%));
+        background: linear-gradient(to bottom, hsl(0deg 0% 0% / 10%), hsl(0deg 0% 0% / 20%));
 
         @media (prefers-color-scheme: dark) {
           background: linear-gradient(to bottom, hsl(0deg 0% 100% / 16%), hsl(0deg 0% 100% / 32%));
