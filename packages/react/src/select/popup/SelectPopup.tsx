@@ -312,7 +312,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       const borderBottom = parseFloat(popupStyles.borderBottomWidth);
       // The `|| N` fallbacks cover an unset/`auto` value (parses to `NaN`). Note a literal `0`
-      // also resolves to the fallback, so the align algorithm always reserves some spacing.
+      // also resolves to the fallback, so an explicit `margin: 0` or `min-height: 0` still takes
+      // the default below.
       const marginTop = parseFloat(positionerStyles.marginTop) || 10;
       const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
       const minHeight = parseFloat(positionerStyles.minHeight) || 100;

@@ -3,7 +3,8 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { isElementVisible } from '../utils/composite';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { isElementVisible, isListIndexDisabled, type DisabledIndices } from '../utils/composite';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { contains } from '../utils/element';
 import { stopEvent } from '../utils/event';
@@ -32,13 +33,14 @@ export interface UseTypeaheadProps {
    */
   elementsRef?: React.RefObject<Array<HTMLElement | null>> | undefined;
   /**
-   * Predicate invoked with a `listRef` index to determine whether that item is disabled.
-   * Disabled items are skipped while matching, so a single keypress advances to the next
-   * selectable item (matching native `<select>` and arrow-key navigation). This is independent
-   * of `elementsRef`/visibility, so consumers whose items stay mounted-but-hidden while closed
-   * can still skip disabled items.
+   * Indices that are disabled, either as an array or a predicate (the same shape as
+   * `useListNavigation`'s `disabledIndices`). Disabled items are skipped while matching,
+   * so a single keypress advances to the next selectable item (matching native `<select>`
+   * and arrow-key navigation). The disabled check doesn't read `elementsRef`, so consumers
+   * whose items stay mounted-but-hidden while closed can still skip disabled items without
+   * opting into the visibility filter.
    */
-  isIndexDisabled?: ((index: number) => boolean) | undefined;
+  disabledIndices?: DisabledIndices | undefined;
   /**
    * Callback invoked with the current typing activity as the user types.
    */
@@ -75,7 +77,7 @@ export function useTypeahead(
     elementsRef,
     activeIndex,
     onMatch: onMatchProp,
-    isIndexDisabled,
+    disabledIndices,
     onTyping,
     enabled = true,
     resetMs = 750,
@@ -98,7 +100,14 @@ export function useTypeahead(
     }
 
     function isItemAvailable(index: number) {
-      return isVisible(index) && !isIndexDisabled?.(index);
+      if (!isVisible(index)) {
+        return false;
+      }
+      // Visibility is handled above; pass an empty element list so `isListIndexDisabled`
+      // resolves only the explicit `disabledIndices` (array/predicate) and skips its own
+      // visibility/attribute fallbacks. Consumers that don't opt in keep matching every
+      // visible item.
+      return disabledIndices == null || !isListIndexDisabled(EMPTY_ARRAY, index, disabledIndices);
     }
 
     function getMatchingIndex(list: Array<string | null>, string: string, startIndex = 0) {

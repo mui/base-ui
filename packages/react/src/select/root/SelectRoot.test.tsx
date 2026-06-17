@@ -1070,6 +1070,44 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('does not invoke isItemEqualToValue with the value array in multiple mode when empty', async () => {
+    const items = [
+      { value: 'a', label: 'a' },
+      { value: 'b', label: 'b' },
+    ];
+
+    // A custom `isItemEqualToValue` is written for single items. Before the fix, an empty
+    // selection in multiple mode handed the raw `[]` to the comparer (`[]` is non-null, so
+    // `compareItemEquality` forwarded it), causing the comparer to run against the array.
+    // It must instead be compared against `undefined` (nothing selected), so the comparer
+    // is never invoked here.
+    const isItemEqualToValue = vi.fn((a: { value: string }, b: { value: string }) => {
+      if (Array.isArray(b)) {
+        throw new Error('isItemEqualToValue received the value array');
+      }
+      return a.value === b.value;
+    });
+
+    await render(
+      <Select.Root multiple defaultValue={[]} isItemEqualToValue={isItemEqualToValue}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value={items[0]}>a</Select.Item>
+              <Select.Item value={items[1]}>b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    expect(screen.getByTestId('trigger')).not.toBeNull();
+    expect(isItemEqualToValue).not.toHaveBeenCalledWith(expect.anything(), expect.any(Array));
+  });
+
   it('keeps [data-dirty] in multiple mode when the same values return in a different order', async () => {
     const { user } = await render(
       <Field.Root>
@@ -4576,6 +4614,45 @@ describe('<Select.Root />', () => {
       await user.keyboard('a');
       expect(valueEl.textContent).toBe('avocado');
     });
+
+    it.skipIf(isJSDOM)(
+      'skips disabled items when highlighting via typeahead on an open popup',
+      async () => {
+        const { user } = await render(
+          <Select.Root defaultOpen>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apricot" disabled>
+                    apricot
+                  </Select.Item>
+                  <Select.Item value="avocado">avocado</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
+
+        const apricot = await screen.findByRole('option', { name: 'apricot' });
+        const avocado = screen.getByRole('option', { name: 'avocado' });
+
+        await act(async () => {
+          avocado.focus();
+        });
+
+        // Open-state typeahead highlights via `activeIndex` (the closed branch commits the value
+        // instead). Typing "a" must skip the disabled "apricot" and highlight "avocado".
+        await user.keyboard('a');
+
+        await waitFor(() => {
+          expect(avocado).toHaveAttribute('data-highlighted');
+        });
+        expect(apricot).not.toHaveAttribute('data-highlighted');
+      },
+    );
 
     it('starts from the first match after value reset (closed)', async () => {
       function App() {

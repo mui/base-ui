@@ -392,13 +392,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     activeIndex,
     selectedIndex,
     // Skip disabled items while matching so typeahead advances to the next selectable item
-    // (a click can never select a disabled item and native `<select>` skips them too). Use the
-    // attribute-only `isElementDisabled` rather than `useTypeahead`'s `elementsRef`/visibility
-    // filter (or `isListIndexDisabled`), which would also drop the hidden, force-mounted items
-    // used for closed-trigger typeahead.
-    isIndexDisabled(index) {
-      return isElementDisabled(listRef.current[index]);
-    },
+    // (a click can never select a disabled item and native `<select>` skips them too). Resolve
+    // the disabled state from the element via the attribute-only `isElementDisabled` so the
+    // hidden, force-mounted items used for closed-trigger typeahead aren't dropped by the
+    // `elementsRef`/visibility filter that `disabledIndices` deliberately sidesteps.
+    disabledIndices: (index) => isElementDisabled(listRef.current[index]),
     onMatch(index) {
       if (open) {
         store.set('activeIndex', index);
