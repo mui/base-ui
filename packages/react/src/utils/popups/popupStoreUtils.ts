@@ -31,6 +31,16 @@ export const FOCUSABLE_POPUP_PROPS = {
   [FOCUSABLE_ATTRIBUTE]: '',
 } satisfies HTMLProps<HTMLElement> & Record<typeof FOCUSABLE_ATTRIBUTE, string>;
 
+/**
+ * Returns the default `initialFocus` resolver for a popup. When opened by touch it focuses the
+ * popup element itself to prevent the virtual keyboard from opening (required for Android
+ * specifically; iOS handles this automatically). Otherwise it falls back to the default behavior.
+ */
+export function createDefaultInitialFocus(popupRef: React.RefObject<HTMLElement | null>) {
+  return (interactionType: InteractionType) =>
+    interactionType === 'touch' ? popupRef.current : true;
+}
+
 type PopupStoreWithOpen<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
