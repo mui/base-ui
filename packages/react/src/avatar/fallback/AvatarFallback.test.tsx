@@ -144,6 +144,32 @@ describe('<Avatar.Fallback />', () => {
 
       expect(screen.queryByText('AC')).not.toBe(null);
     });
+
+    it('keeps the fallback visible across a number -> undefined -> number delay change', async () => {
+      (useImageLoadingStatus as Mock).mockReturnValue('error');
+
+      function Test(props: { delay?: number }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image />
+            <Avatar.Fallback delay={props.delay}>AC</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { setProps } = await renderFakeTimers(<Test delay={100} />);
+
+      // Fallback is hidden until the delay elapses.
+      expect(screen.queryByText('AC')).toBe(null);
+
+      // Removing the delay before it elapses shows the fallback immediately.
+      await setProps({ delay: undefined });
+      expect(screen.queryByText('AC')).not.toBe(null);
+
+      // Restoring the delay must not re-hide the already-visible fallback.
+      await setProps({ delay: 100 });
+      expect(screen.queryByText('AC')).not.toBe(null);
+    });
   });
 
   it.skipIf(!isJSDOM)(
