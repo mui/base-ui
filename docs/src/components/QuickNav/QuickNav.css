@@ -12,7 +12,7 @@
     padding-bottom: 4rem;
 
     @media (--show-side-nav) {
-      padding-top: 0.25rem;
+      padding-top: 0;
     }
   }
 
