@@ -775,6 +775,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       return;
     }
 
+    let endAfterMove = false;
+
     if (!('touches' in event)) {
       const hasPrimaryButton = hasPrimaryMouseButton(event.buttons);
       if (hasPrimaryButton) {
@@ -790,14 +792,19 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
       // A `buttons: 0` pointermove means the primary button was already released, so the gesture is
       // over even if no pointerup reached us. On fast trackpad flicks this trailing move is
-      // dispatched just before pointerup; commit the gesture here (mirroring touchend) so the flick
-      // still applies, instead of cancelling and snapping the element back. Sub-threshold releases
-      // restore as before, and a not-yet-active gesture is discarded. `handleEnd` is defined just
-      // below and only ever runs at event time, so the forward reference is safe.
+      // dispatched just before pointerup; treat it as the release (mirroring touchend) instead of
+      // cancelling and snapping the element back.
       if (event.buttons === 0 && sawPrimaryButtonsOnMoveRef.current) {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        handleEnd(event);
-        return;
+        if (!isSwipingRef.current) {
+          // The gesture never activated — discard it.
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          handleEnd(event);
+          return;
+        }
+        // This release move can itself carry the threshold-crossing displacement (and the peak
+        // release velocity), so let it flow through `handleMoveCore` below to update the drag
+        // offset / velocity sample, then commit the release afterwards.
+        endAfterMove = true;
       }
     }
 
@@ -883,6 +890,13 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
 
     lastMovePosRef.current = currentPos;
     handleMoveCore(event, currentPos, movement);
+
+    // `endAfterMove` is only set in the non-touch branch above; the `'touches'` guard re-narrows the
+    // event type for `handleEnd` after the shared move handling has run.
+    if (endAfterMove && !('touches' in event)) {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
+      handleEnd(event);
+    }
   });
 
   // Feeds a native touchmove into the swipe pipeline. Used by consumers that claim the gesture

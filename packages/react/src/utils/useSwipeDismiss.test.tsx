@@ -828,6 +828,82 @@ describe('useSwipeDismiss', () => {
     expect(onCancel).not.toHaveBeenCalled();
   });
 
+  it('uses the final buttons:0 release move to decide dismissal when it crosses the threshold', async () => {
+    const onDismiss = vi.fn();
+    const onCancel = vi.fn();
+
+    function SwipeBoxReleaseMove() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onDismiss,
+        onCancel,
+      });
+
+      return (
+        <div
+          data-testid="release-move"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    await render(<SwipeBoxReleaseMove />);
+    const element = screen.getByTestId('release-move');
+
+    fireEvent.pointerDown(element, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    // Last pressed move stays just BELOW the 40px threshold.
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 1,
+      clientX: 0,
+      clientY: 35,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    // The trailing `buttons: 0` release move is the one that carries the threshold-crossing
+    // displacement; it must be applied before the release is decided.
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 0,
+      clientX: 0,
+      clientY: 100,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+    expect(onCancel).not.toHaveBeenCalled();
+  });
+
   it('resets swiping when touch ends over a scrollable descendant', async () => {
     const onSwipingChange = vi.fn();
 
