@@ -65,12 +65,13 @@ export class PreviewCardStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<PreviewCardRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
+    const { inlineRectCoordsRef } = this.context;
     applyPopupOpenChange<State<Payload>, PreviewCardRoot.ChangeEventDetails>(
       this,
       nextOpen,
       eventDetails as PreviewCardRoot.ChangeEventDetails,
       {
-        onBeforeDispatch: () => {
+        onBeforeDispatch() {
           // Capture the hovered inline-rect coordinates so the card anchors to the
           // exact point on the link that was hovered.
           const event = eventDetails.event;
@@ -80,10 +81,10 @@ export class PreviewCardStore<Payload> extends ReactStore<
             eventDetails.trigger &&
             'clientX' in event &&
             'clientY' in event &&
-            this.context.inlineRectCoordsRef.current?.element !== eventDetails.trigger
+            inlineRectCoordsRef.current?.element !== eventDetails.trigger
           ) {
             updateInlineRectCoords(
-              this.context.inlineRectCoordsRef,
+              inlineRectCoordsRef,
               eventDetails.trigger,
               event.clientX,
               event.clientY,
