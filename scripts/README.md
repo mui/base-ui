@@ -2,6 +2,9 @@
 
 ## Release
 
+> [!NOTE]
+> These instructions are intended for the Base UI core team, who have the permissions required to publish releases.
+
 A typical release goes like this:
 
 ### Prepare the release of the packages
@@ -18,7 +21,8 @@ A typical release goes like this:
 8. Add a new entry to `docs/src/data/releases.ts` with the version, versionSlug, date, and highlights. Move the `latest: true` flag to the new release if appropriate.
 9. Run `pnpm release:version`. Keep the package versions of stable public packages (`@base-ui/react`) the same as the root `package.json` version.
 10. Open a PR with changes and wait for review and green CI.
-11. Merge the PR once the CI is green and it has been approved.
+11. When the PR is close to being merged, announce a merge freeze on the Base UI Slack channel so no other changes land on the main branch until the release is published and the docs are deployed.
+12. Merge the PR once the CI is green and it has been approved.
 
 ### Release the packages
 
@@ -45,6 +49,8 @@ pnpm docs:deploy
 
 You can follow the deployment process [on the Netlify Dashboard](https://app.netlify.com/sites/base-ui/deploys?filter=docs-v1)
 Once deployed, it will be accessible at https://base-ui.netlify.app/ for the `docs-v1` deployment.
+
+Once the docs are deployed, lift the merge freeze on the Base UI Slack channel.
 
 ### GitHub release
 
