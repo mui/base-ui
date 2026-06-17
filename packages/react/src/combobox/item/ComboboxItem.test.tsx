@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -455,6 +456,64 @@ describe('<Combobox.Item />', () => {
 
       await waitFor(() => expect(input).toHaveValue('five'));
       expect(screen.queryByRole('listbox')).toBe(null);
+    });
+  });
+
+  // A keystroke that doesn't change which items match must not re-render the items that stay
+  // mounted. Items used to re-render on every keystroke because they subscribed to the
+  // derived-items context, whose identity changes per keystroke. This guards the split that keeps
+  // the common (non-virtualized) path off that context so `React.memo` on `<Combobox.Item>` can
+  // bail.
+  describe('item re-renders on keystroke', () => {
+    it('does not re-render still-mounted items when filtering keeps the same membership', async () => {
+      const items = ['apple', 'apricot', 'avocado'];
+      const renderSpy = vi.fn();
+
+      const LoggingItem = React.forwardRef(function LoggingItem(
+        props: any,
+        ref: React.ForwardedRef<HTMLDivElement>,
+      ) {
+        const { state, ...other } = props;
+        renderSpy();
+        return <div {...other} ref={ref} />;
+      });
+
+      // Stable `render` element per item so `React.memo` can bail: a fresh element each render
+      // would change the `render` prop identity and force a re-render regardless of the
+      // optimization under test (`value` and the string children are already stable).
+      const renderByItem = new Map(items.map((item) => [item, <LoggingItem />] as const));
+
+      await render(
+        <Combobox.Root items={items} defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item} render={renderByItem.get(item)}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+
+      renderSpy.mockClear();
+
+      // "a" matches all three items, so the filtered set is unchanged and every item stays mounted.
+      fireEvent.change(screen.getByTestId('input'), { target: { value: 'a' } });
+
+      await waitFor(() => expect(screen.getByTestId('input')).toHaveValue('a'));
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+
+      expect(renderSpy).not.toHaveBeenCalled();
     });
   });
 });
