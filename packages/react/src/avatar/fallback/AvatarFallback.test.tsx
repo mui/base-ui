@@ -1,7 +1,7 @@
 import { Mock, vi, expect } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
-import { act, waitFor, screen } from '@mui/internal-test-utils';
+import { waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
 
@@ -105,27 +105,42 @@ describe('<Avatar.Fallback />', () => {
 
     it('shows the fallback when delay changes to undefined', async () => {
       (useImageLoadingStatus as Mock).mockReturnValue('error');
-      let setDelay!: React.Dispatch<React.SetStateAction<number | undefined>>;
 
-      function Test() {
-        const [delay, setDelayState] = React.useState<number | undefined>(100);
-        setDelay = setDelayState;
-
+      function Test(props: { delay?: number }) {
         return (
           <Avatar.Root>
             <Avatar.Image />
-            <Avatar.Fallback delay={delay}>AC</Avatar.Fallback>
+            <Avatar.Fallback delay={props.delay}>AC</Avatar.Fallback>
           </Avatar.Root>
         );
       }
 
-      await renderFakeTimers(<Test />);
+      const { setProps } = await renderFakeTimers(<Test delay={100} />);
 
       expect(screen.queryByText('AC')).toBe(null);
 
-      act(() => {
-        setDelay(undefined);
-      });
+      await setProps({ delay: undefined });
+
+      expect(screen.queryByText('AC')).not.toBe(null);
+    });
+
+    it('keeps the fallback visible when delay changes from undefined to a number', async () => {
+      (useImageLoadingStatus as Mock).mockReturnValue('error');
+
+      function Test(props: { delay?: number }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image />
+            <Avatar.Fallback delay={props.delay}>AC</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { setProps } = await renderFakeTimers(<Test />);
+
+      expect(screen.queryByText('AC')).not.toBe(null);
+
+      await setProps({ delay: 100 });
 
       expect(screen.queryByText('AC')).not.toBe(null);
     });

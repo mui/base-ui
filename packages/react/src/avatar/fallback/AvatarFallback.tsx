@@ -20,7 +20,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   const { className, render, delay, style, ...elementProps } = componentProps;
 
   const { imageLoadingStatus } = useAvatarRootContext();
-  const [delayPassed, setDelayPassed] = React.useState(false);
+  const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
   const timeout = useTimeout();
 
   React.useEffect(() => {
