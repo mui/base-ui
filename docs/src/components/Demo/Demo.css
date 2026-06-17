@@ -284,6 +284,15 @@
     }
   }
 
+  /* Round the viewport's bottom corners so the code text and selection
+     highlight are clipped to the card's curve instead of bleeding past it. The
+     viewport's own overflow doesn't clip its own focus-ring outline, so the
+     focus ring is unaffected (and rounds to match the card). */
+  .DemoCodeBlockRoot .ScrollAreaViewport {
+    border-bottom-left-radius: calc(var(--demo-radius) - 1px);
+    border-bottom-right-radius: calc(var(--demo-radius) - 1px);
+  }
+
   .DemoCodeBlockViewport {
     --demo-code-block-line-height: 1.25rem; /* 20px */
     line-height: var(--demo-code-block-line-height);
