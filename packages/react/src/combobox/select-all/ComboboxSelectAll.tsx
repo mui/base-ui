@@ -1,9 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
-import { useRenderElement } from '../../internals/useRenderElement';
-import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -17,8 +14,8 @@ import {
 } from '../root/ComboboxRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { selectors } from '../store';
-import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { ComboboxSelectAllDataAttributes } from './ComboboxSelectAllDataAttributes';
+import { ComboboxItem } from '../item/ComboboxItem';
+import { COMBOBOX_SELECT_ALL_VALUE } from './selectAllValue';
 
 function mergeSelection<Value>(
   current: Value[],
@@ -34,44 +31,25 @@ function mergeSelection<Value>(
   return next;
 }
 
-const stateAttributesMapping: StateAttributesMapping<ComboboxSelectAllState> = {
-  checked(value): Record<string, string> {
-    if (value) {
-      return { [ComboboxSelectAllDataAttributes.checked]: '' };
-    }
-    return { [ComboboxSelectAllDataAttributes.unchecked]: '' };
-  },
-  indeterminate(value): Record<string, string> {
-    if (value) {
-      return { [ComboboxSelectAllDataAttributes.indeterminate]: '' };
-    }
-    return {};
-  },
-  disabled(value): Record<string, string> {
-    if (value) {
-      return { [ComboboxSelectAllDataAttributes.disabled]: '' };
-    }
-    return {};
-  },
-};
-
 /**
  * Selects or deselects all currently filtered items in multiple selection mode.
- * Renders a `<button>` element with `role="checkbox"`.
+ * Renders as the first `role="option"` in the list so keyboard navigation can reach it.
+ *
+ * Place it inside `<Combobox.List>` before the collection items.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxSelectAll = React.forwardRef(function ComboboxSelectAll(
   componentProps: ComboboxSelectAll.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     render,
-    className,
+    className: classNameProp,
+    style: styleProp,
     disabled: disabledProp = false,
-    nativeButton = true,
     children = 'Select all',
-    style,
+    onClick,
     ...elementProps
   } = componentProps;
 
@@ -84,6 +62,7 @@ export const ComboboxSelectAll = React.forwardRef(function ComboboxSelectAll(
   const readOnly = useStore(store, selectors.readOnly);
   const selectedValue = useStore(store, selectors.selectedValue);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const highlighted = useStore(store, selectors.isActive, 0);
 
   const current = Array.isArray(selectedValue) ? selectedValue : [];
   const allVisibleSelected =
@@ -92,6 +71,7 @@ export const ComboboxSelectAll = React.forwardRef(function ComboboxSelectAll(
   const someVisibleSelected = filteredItems.some((item) =>
     selectedValueIncludes(current, item, isItemEqualToValue),
   );
+  const indeterminate = someVisibleSelected && !allVisibleSelected;
 
   const disabled =
     fieldDisabled ||
@@ -100,33 +80,31 @@ export const ComboboxSelectAll = React.forwardRef(function ComboboxSelectAll(
     selectionMode !== 'multiple' ||
     filteredItems.length === 0;
 
-  const { buttonRef, getButtonProps } = useButton({
-    native: nativeButton,
-    disabled,
-  });
-
-  const state: ComboboxSelectAllState = {
+  const selectAllState: ComboboxSelectAllState = {
     checked: allVisibleSelected,
-    indeterminate: someVisibleSelected && !allVisibleSelected,
+    indeterminate,
     disabled,
+    selected: allVisibleSelected,
+    highlighted,
   };
 
-  return useRenderElement('button', componentProps, {
-    state,
-    ref: [forwardedRef, buttonRef],
-    props: [
-      {
-        type: 'button',
-        role: 'checkbox',
-        'aria-checked': state.indeterminate ? 'mixed' : state.checked,
-        children,
-        onMouseDown(event) {
-          event.preventDefault();
-        },
-        onClick(event) {
-          if (disabled || readOnly || selectionMode !== 'multiple') {
-            return;
-          }
+  const className =
+    typeof classNameProp === 'function' ? classNameProp(selectAllState) : classNameProp;
+  const style = typeof styleProp === 'function' ? styleProp(selectAllState) : styleProp;
+
+  return (
+    <ComboboxItem
+      {...elementProps}
+      ref={forwardedRef}
+      render={render}
+      className={className}
+      style={style}
+      value={COMBOBOX_SELECT_ALL_VALUE}
+      disabled={disabled}
+      aria-selected={allVisibleSelected}
+      onClick={(event) => {
+        if (!disabled && !readOnly && selectionMode === 'multiple') {
+          event.preventBaseUIHandler();
 
           let next = current;
 
@@ -142,13 +120,14 @@ export const ComboboxSelectAll = React.forwardRef(function ComboboxSelectAll(
             next,
             createChangeEventDetails(REASONS.selectAllPress, event.nativeEvent),
           );
-        },
-      },
-      elementProps,
-      getButtonProps,
-    ],
-    stateAttributesMapping,
-  });
+        }
+
+        onClick?.(event);
+      }}
+    >
+      {children}
+    </ComboboxItem>
+  );
 });
 
 export interface ComboboxSelectAllState {
@@ -164,15 +143,23 @@ export interface ComboboxSelectAllState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the list option is selected.
+   */
+  selected: boolean;
+  /**
+   * Whether the list option is highlighted.
+   */
+  highlighted: boolean;
 }
 
-export interface ComboboxSelectAllProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxSelectAllState> {
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled?: boolean | undefined;
+export interface ComboboxSelectAllProps extends Omit<ComboboxItem.Props, 'value' | 'index' | 'className' | 'style'> {
+  children?: React.ReactNode;
+  className?: string | ((state: ComboboxSelectAllState) => string | undefined) | undefined;
+  style?:
+    | React.CSSProperties
+    | ((state: ComboboxSelectAllState) => React.CSSProperties | undefined)
+    | undefined;
 }
 
 export namespace ComboboxSelectAll {

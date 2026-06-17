@@ -54,8 +54,16 @@ export default function ExampleSelectAllCombobox() {
                 No languages found.
               </div>
             </Combobox.Empty>
-            <Combobox.SelectAll className="w-full cursor-default border-b border-neutral-200 p-2 text-left text-sm leading-4 font-medium outline-none select-none dark:border-neutral-700" />
             <Combobox.List>
+              <Combobox.SelectAll className="grid w-full cursor-default grid-cols-[1rem_1fr] items-center gap-2 border-b border-neutral-200 p-2 text-sm leading-4 outline-none select-none dark:border-neutral-700">
+                <Combobox.ItemIndicator
+                  className="col-start-1 opacity-0 [[aria-selected=true]_&]:opacity-100"
+                  keepMounted
+                >
+                  <CheckIcon />
+                </Combobox.ItemIndicator>
+                <span className="col-start-2 font-medium">Select all</span>
+              </Combobox.SelectAll>
               {(language: ProgrammingLanguage) => (
                 <Combobox.Item
                   key={language.id}

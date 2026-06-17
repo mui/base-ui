@@ -233,6 +233,11 @@
   font-weight: 500;
   text-align: left;
   color: inherit;
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: 1rem 1fr;
+  outline: 0;
 
   @media (prefers-color-scheme: dark) {
     border-bottom-color: oklch(37.1% 0 0deg);
@@ -310,6 +315,14 @@
 
 .ItemIndicator {
   grid-column-start: 1;
+}
+
+.SelectAllIndicator {
+  opacity: 0;
+}
+
+.SelectAll[aria-selected='true'] .SelectAllIndicator {
+  opacity: 1;
 }
 
 .Empty {

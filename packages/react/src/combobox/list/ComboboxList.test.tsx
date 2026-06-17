@@ -31,4 +31,29 @@ describe('<Combobox.List />', () => {
     const list = screen.getByRole('listbox');
     expect(list).toHaveAttribute('aria-multiselectable', 'true');
   });
+
+  it('renders static siblings before a collection render function', async () => {
+    await render(
+      <Combobox.Root items={['a', 'b']} multiple defaultOpen>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.SelectAll />
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const options = screen.getAllByRole('option');
+    expect(options[0]).toHaveAccessibleName('Select all');
+    expect(options[1]).toHaveAccessibleName('a');
+  });
 });

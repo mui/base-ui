@@ -50,8 +50,13 @@ export default function ExampleSelectAllCombobox() {
             <Combobox.Empty>
               <div className={styles.Empty}>No languages found.</div>
             </Combobox.Empty>
-            <Combobox.SelectAll className={styles.SelectAll} />
             <Combobox.List>
+              <Combobox.SelectAll className={styles.SelectAll}>
+                <Combobox.ItemIndicator className={`${styles.ItemIndicator} ${styles.SelectAllIndicator}`} keepMounted>
+                  <CheckIcon />
+                </Combobox.ItemIndicator>
+                <span className={styles.ItemText}>Select all</span>
+              </Combobox.SelectAll>
               {(language: ProgrammingLanguage) => (
                 <Combobox.Item key={language.id} className={styles.Item} value={language}>
                   <Combobox.ItemIndicator className={styles.ItemIndicator}>
