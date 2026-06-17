@@ -1,7 +1,6 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { MarkdownIcon } from '../../icons/MarkdownIcon';
-import './MarkdownLink.css';
 
 export function MarkdownLink() {
   const pathname = usePathname();
@@ -9,12 +8,12 @@ export function MarkdownLink() {
   return (
     <a
       href={`${pathname}.md`}
-      className="MarkdownLinkAnchor"
+      className="SubtitleLink"
       aria-label="View markdown source"
       rel="alternate"
       type="text/markdown"
     >
-      <span className="MarkdownLink">
+      <span className="SubtitleLinkText">
         <MarkdownIcon />
         View as Markdown
       </span>

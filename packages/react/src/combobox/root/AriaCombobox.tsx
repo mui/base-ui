@@ -29,6 +29,7 @@ import { REASONS } from '../../internals/reasons';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
+  ComboboxHasItemsContext,
   ComboboxRootContext,
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
@@ -1380,11 +1381,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   return (
     <ComboboxRootContext.Provider value={store}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
-        <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-          <ComboboxInputValueContext.Provider value={inputValue}>
-            {children}
-          </ComboboxInputValueContext.Provider>
-        </ComboboxDerivedItemsContext.Provider>
+        <ComboboxHasItemsContext.Provider value={hasItems}>
+          <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
+            <ComboboxInputValueContext.Provider value={inputValue}>
+              {children}
+            </ComboboxInputValueContext.Provider>
+          </ComboboxDerivedItemsContext.Provider>
+        </ComboboxHasItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
@@ -1496,9 +1499,8 @@ interface ComboboxRootProps<ItemValue> {
   defaultInputValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the combobox will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the combobox manually.
-   * Useful when the combobox's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the combobox.
+   * Call this after any externally controlled closing animation finishes.
    */
   actionsRef?: React.RefObject<AriaCombobox.Actions | null> | undefined;
   /**

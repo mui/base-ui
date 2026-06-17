@@ -136,6 +136,12 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
 
   useIsoLayoutEffect(() => {
+    if (!open || !mounted) {
+      lastHandledTriggerRef.current = null;
+    }
+  }, [open, mounted]);
+
+  useIsoLayoutEffect(() => {
     // When a trigger changes, set the captured children HTML to state,
     // so we can render both new and old content.
     if (

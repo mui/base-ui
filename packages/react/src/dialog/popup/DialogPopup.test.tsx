@@ -222,6 +222,29 @@ describe('<Dialog.Popup />', () => {
       });
     });
 
+    it('focuses the popup itself rather than inner content when opened by touch', async () => {
+      await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="dialog">
+              <input data-testid="input" />
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.click(trigger, { detail: 1 });
+
+      // On touch the default focuses the popup to avoid opening the virtual keyboard.
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog')).toHaveFocus();
+      });
+      expect(screen.getByTestId('input')).not.toHaveFocus();
+    });
+
     it('should not move focus when initialFocus is false', async () => {
       function TestComponent() {
         return (

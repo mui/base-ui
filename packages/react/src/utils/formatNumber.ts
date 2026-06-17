@@ -27,17 +27,6 @@ export function formatNumber(
   return getFormatter(locale, options).format(value);
 }
 
-export function formatNumberMaxPrecision(
-  value: number | null,
-  locale?: Intl.LocalesArgument,
-  options?: Intl.NumberFormatOptions,
-) {
-  return formatNumber(value, locale, {
-    ...options,
-    maximumFractionDigits: 20,
-  });
-}
-
 export function formatNumberValue(
   value: number | null,
   locale?: Intl.LocalesArgument,
