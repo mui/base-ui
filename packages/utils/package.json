@@ -30,7 +30,6 @@
   "dependencies": {
     "@babel/runtime": "^7.29.2",
     "@floating-ui/utils": "^0.2.11",
-    "reselect": "^5.2.0",
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
