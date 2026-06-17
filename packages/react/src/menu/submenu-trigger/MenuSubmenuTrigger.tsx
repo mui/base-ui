@@ -6,7 +6,7 @@ import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
-import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -178,14 +178,14 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
           }
         },
       },
-      elementProps,
+      elementProps as React.HTMLAttributes<HTMLDivElement>,
       getItemProps,
     ],
     ref: [forwardedRef, listItem.ref, itemRef, registerTrigger, handleTriggerElementRef],
   });
 
   return element;
-});
+}) as unknown as MenuSubmenuTriggerComponent;
 
 export interface MenuSubmenuTriggerState {
   /**
@@ -202,9 +202,13 @@ export interface MenuSubmenuTriggerState {
   open: boolean;
 }
 
-export interface MenuSubmenuTriggerProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTriggerState> {
-  onClick?: BaseUIComponentProps<'div', MenuSubmenuTriggerState>['onClick'] | undefined;
+export type MenuSubmenuTriggerProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, MenuSubmenuTrigger.State, false>,
+  'disabled' | 'onClick'
+> & {
+  onClick?:
+    | NativeButtonComponentProps<TNativeButton, MenuSubmenuTrigger.State, false>['onClick']
+    | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
@@ -237,9 +241,27 @@ export interface MenuSubmenuTriggerProps
    * Whether the menu should also open when the trigger is hovered.
    */
   openOnHover?: boolean | undefined;
-}
+};
 
 export namespace MenuSubmenuTrigger {
-  export type Props = MenuSubmenuTriggerProps;
+  export type Props<TNativeButton extends boolean = false> = MenuSubmenuTriggerProps<TNativeButton>;
   export type State = MenuSubmenuTriggerState;
 }
+
+type MenuSubmenuTriggerComponent = {
+  (
+    props: MenuSubmenuTrigger.Props<false> & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: MenuSubmenuTrigger.Props<true> & { nativeButton: true } & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: MenuSubmenuTrigger.Props<boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

@@ -27,7 +27,7 @@ export default function MenuFullyFeatured() {
     [settings.customTriggerElement],
   );
 
-  const handleItemClick = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+  const handleItemClick = React.useCallback((event: React.MouseEvent<HTMLElement>) => {
     console.log(`${event.currentTarget.textContent} clicked`);
   }, []);
 

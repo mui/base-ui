@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useComboboxChipContext } from '../chip/ComboboxChipContext';
 import { useButton } from '../../internals/use-button';
@@ -128,7 +128,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
   });
 
   return element;
-});
+}) as unknown as ComboboxChipRemoveComponent;
 
 export interface ComboboxChipRemoveState {
   /**
@@ -137,10 +137,28 @@ export interface ComboboxChipRemoveState {
   disabled: boolean;
 }
 
-export interface ComboboxChipRemoveProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxChipRemoveState> {}
+export type ComboboxChipRemoveProps<TNativeButton extends boolean = true> =
+  NativeButtonComponentProps<TNativeButton, ComboboxChipRemove.State>;
 
 export namespace ComboboxChipRemove {
   export type State = ComboboxChipRemoveState;
-  export type Props = ComboboxChipRemoveProps;
+  export type Props<TNativeButton extends boolean = true> = ComboboxChipRemoveProps<TNativeButton>;
 }
+
+type ComboboxChipRemoveComponent = {
+  (
+    props: ComboboxChipRemove.Props<true> & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: ComboboxChipRemove.Props<false> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: ComboboxChipRemove.Props<boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

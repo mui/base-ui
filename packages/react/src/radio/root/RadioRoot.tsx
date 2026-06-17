@@ -6,7 +6,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
+import type { HTMLProps, NativeButtonComponentProps } from '../../internals/types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { NOOP } from '../../internals/noop';
@@ -279,9 +279,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       <input {...inputProps} suppressHydrationWarning />
     </RadioRootContext.Provider>
   );
-}) as {
-  <Value>(props: RadioRoot.Props<Value>): React.JSX.Element;
-};
+}) as unknown as RadioRootComponent;
 
 export interface RadioRootState extends FieldRootState {
   /**
@@ -322,8 +320,10 @@ export interface RadioRootState extends FieldRootState {
   focused: boolean;
 }
 
-export interface RadioRootProps<Value = any>
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', RadioRootState>, 'value'> {
+export type RadioRootProps<Value = any, TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, RadioRoot.State, false, 'value'>,
+  'disabled'
+> & {
   /**
    * The unique identifying value of the radio in a group.
    */
@@ -344,9 +344,30 @@ export interface RadioRootProps<Value = any>
    * A ref to access the hidden input element.
    */
   inputRef?: React.Ref<HTMLInputElement> | undefined;
-}
+};
 
 export namespace RadioRoot {
   export type State = RadioRootState;
-  export type Props<TValue = any> = RadioRootProps<TValue>;
+  export type Props<Value = any, TNativeButton extends boolean = false> = RadioRootProps<
+    Value,
+    TNativeButton
+  >;
 }
+
+type RadioRootComponent = {
+  <Value = any>(
+    props: RadioRoot.Props<Value, false> & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <Value = any>(
+    props: RadioRoot.Props<Value, true> & { nativeButton: true } & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <Value = any>(
+    props: RadioRoot.Props<Value, boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

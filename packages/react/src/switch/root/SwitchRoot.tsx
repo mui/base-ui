@@ -7,7 +7,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useRenderElement } from '../../internals/useRenderElement';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useButton } from '../../internals/use-button';
@@ -249,7 +249,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       <input {...inputProps} suppressHydrationWarning />
     </SwitchRootContext.Provider>
   );
-});
+}) as unknown as SwitchRootComponent;
 
 export interface SwitchRootState extends FieldRootState {
   /**
@@ -270,8 +270,10 @@ export interface SwitchRootState extends FieldRootState {
   required: boolean;
 }
 
-export interface SwitchRootProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', SwitchRootState>, 'onChange'> {
+export type SwitchRootProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, SwitchRoot.State, false>,
+  'disabled' | 'onChange'
+> & {
   /**
    * The id of the hidden input element.
    *
@@ -335,14 +337,30 @@ export interface SwitchRootProps
    * By default, unchecked switches do not submit any value, matching native checkbox behavior.
    */
   uncheckedValue?: string | undefined;
-}
+};
 
 export type SwitchRootChangeEventReason = typeof REASONS.none;
 export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.ChangeEventReason>;
 
 export namespace SwitchRoot {
   export type State = SwitchRootState;
-  export type Props = SwitchRootProps;
+  export type Props<TNativeButton extends boolean = false> = SwitchRootProps<TNativeButton>;
   export type ChangeEventReason = SwitchRootChangeEventReason;
   export type ChangeEventDetails = SwitchRootChangeEventDetails;
 }
+
+type SwitchRootComponent = {
+  (
+    props: SwitchRoot.Props<false> & { ref?: React.Ref<HTMLElement> | undefined },
+  ): React.ReactElement | null;
+  (
+    props: SwitchRoot.Props<true> & { nativeButton: true } & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: SwitchRoot.Props<boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

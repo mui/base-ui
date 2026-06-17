@@ -7,12 +7,7 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../internals/composite/list/useCompositeListItem';
-import type {
-  BaseUIComponentProps,
-  BaseUIEvent,
-  HTMLProps,
-  NonNativeButtonProps,
-} from '../../internals/types';
+import type { BaseUIEvent, HTMLProps, NativeButtonComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -247,7 +242,12 @@ export const SelectItem = React.memo(
     const element = useRenderElement('div', componentProps, {
       ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
       state,
-      props: [itemProps, defaultProps, elementProps, getButtonProps],
+      props: [
+        itemProps,
+        defaultProps,
+        elementProps as React.HTMLAttributes<HTMLDivElement>,
+        getButtonProps,
+      ],
     });
 
     const contextValue: SelectItemContext = React.useMemo(
@@ -263,7 +263,7 @@ export const SelectItem = React.memo(
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
   }),
-);
+) as unknown as SelectItemComponent;
 
 export interface SelectItemState {
   /**
@@ -280,8 +280,10 @@ export interface SelectItemState {
   highlighted: boolean;
 }
 
-export interface SelectItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItemState>, 'id'> {
+export type SelectItemProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, SelectItem.State, false>,
+  'disabled' | 'id' | 'value'
+> & {
   children?: React.ReactNode;
   /**
    * A unique value that identifies this select item.
@@ -299,9 +301,25 @@ export interface SelectItemProps
    * Defaults to the item text content if not provided.
    */
   label?: string | undefined;
-}
+};
 
 export namespace SelectItem {
   export type State = SelectItemState;
-  export type Props = SelectItemProps;
+  export type Props<TNativeButton extends boolean = false> = SelectItemProps<TNativeButton>;
 }
+
+type SelectItemComponent = {
+  (
+    props: SelectItem.Props<false> & { ref?: React.Ref<HTMLElement> | undefined },
+  ): React.ReactElement | null;
+  (
+    props: SelectItem.Props<true> & { nativeButton: true } & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: SelectItem.Props<boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

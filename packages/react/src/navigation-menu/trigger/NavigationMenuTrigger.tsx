@@ -31,7 +31,7 @@ import {
   stopEvent,
 } from '../../floating-ui-react/utils';
 import type { HandleCloseContextBase } from '../../floating-ui-react/hooks/useHoverShared';
-import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../internals/types';
+import type { HTMLProps, NativeButtonComponentProps } from '../../internals/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
   useNavigationMenuRootContext,
@@ -861,7 +861,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       )}
     </React.Fragment>
   );
-});
+}) as unknown as NavigationMenuTriggerComponent;
 
 export interface NavigationMenuTriggerState {
   /**
@@ -870,13 +870,32 @@ export interface NavigationMenuTriggerState {
   open: boolean;
 }
 
-export interface NavigationMenuTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTriggerState> {}
+export type NavigationMenuTriggerProps<TNativeButton extends boolean = true> =
+  NativeButtonComponentProps<TNativeButton, NavigationMenuTrigger.State>;
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;
-  export type Props = NavigationMenuTriggerProps;
+  export type Props<TNativeButton extends boolean = true> =
+    NavigationMenuTriggerProps<TNativeButton>;
 }
+
+type NavigationMenuTriggerComponent = {
+  (
+    props: NavigationMenuTrigger.Props<true> & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: NavigationMenuTrigger.Props<false> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: NavigationMenuTrigger.Props<boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};
 
 function getPlacementFromElements(
   domReferenceElement: Element,

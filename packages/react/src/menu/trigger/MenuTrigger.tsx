@@ -20,7 +20,7 @@ import { contains } from '../../floating-ui-react/utils';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
@@ -301,16 +301,28 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   }
 
   return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
-}) as MenuTrigger;
+}) as unknown as MenuTrigger;
 
 export interface MenuTrigger {
-  <Payload>(
-    componentProps: MenuTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+  <Payload = unknown>(
+    componentProps: MenuTrigger.Props<Payload, true> & React.RefAttributes<HTMLButtonElement>,
+  ): React.JSX.Element;
+  <Payload = unknown>(
+    componentProps: MenuTrigger.Props<Payload, false> & {
+      nativeButton: false;
+    } & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
+  <Payload = unknown>(
+    componentProps: MenuTrigger.Props<Payload, boolean> & {
+      nativeButton: boolean;
+    } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
 }
 
-export interface MenuTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTriggerState> {
+export type MenuTriggerProps<Payload = unknown, TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, MenuTrigger.State>,
+  'disabled'
+> & {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
@@ -344,7 +356,7 @@ export interface MenuTriggerProps<Payload = unknown>
    * Whether the menu should also open when the trigger is hovered.
    */
   openOnHover?: boolean | undefined;
-}
+};
 
 export interface MenuTriggerState {
   /**
@@ -358,7 +370,10 @@ export interface MenuTriggerState {
 }
 
 export namespace MenuTrigger {
-  export type Props<Payload = unknown> = MenuTriggerProps<Payload>;
+  export type Props<Payload = unknown, TNativeButton extends boolean = true> = MenuTriggerProps<
+    Payload,
+    TNativeButton
+  >;
   export type State = MenuTriggerState;
 }
 

@@ -4,7 +4,7 @@ import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import { type CollapsibleRootState } from '../root/CollapsibleRoot';
@@ -63,14 +63,32 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   });
 
   return element;
-});
+}) as unknown as CollapsibleTriggerComponent;
 
 export interface CollapsibleTriggerState extends CollapsibleRootState {}
 
-export interface CollapsibleTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', CollapsibleTriggerState> {}
+export type CollapsibleTriggerProps<TNativeButton extends boolean = true> =
+  NativeButtonComponentProps<TNativeButton, CollapsibleTrigger.State>;
 
 export namespace CollapsibleTrigger {
   export type State = CollapsibleTriggerState;
-  export type Props = CollapsibleTriggerProps;
+  export type Props<TNativeButton extends boolean = true> = CollapsibleTriggerProps<TNativeButton>;
 }
+
+type CollapsibleTriggerComponent = {
+  (
+    props: CollapsibleTrigger.Props<true> & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: CollapsibleTrigger.Props<false> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: CollapsibleTrigger.Props<boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

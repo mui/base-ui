@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useNumberFieldStepperButton } from '../root/useNumberFieldStepperButton';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 
@@ -15,14 +15,33 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   return useNumberFieldStepperButton(componentProps, forwardedRef, false);
-});
+}) as unknown as NumberFieldDecrementComponent;
 
 export interface NumberFieldDecrementState extends NumberFieldRootState {}
 
-export interface NumberFieldDecrementProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldDecrementState> {}
+export type NumberFieldDecrementProps<TNativeButton extends boolean = true> =
+  NativeButtonComponentProps<TNativeButton, NumberFieldDecrement.State>;
 
 export namespace NumberFieldDecrement {
   export type State = NumberFieldDecrementState;
-  export type Props = NumberFieldDecrementProps;
+  export type Props<TNativeButton extends boolean = true> =
+    NumberFieldDecrementProps<TNativeButton>;
 }
+
+type NumberFieldDecrementComponent = {
+  (
+    props: NumberFieldDecrement.Props<true> & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: NumberFieldDecrement.Props<false> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: NumberFieldDecrement.Props<boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

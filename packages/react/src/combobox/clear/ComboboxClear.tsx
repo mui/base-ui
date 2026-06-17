@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
@@ -142,7 +142,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   }
 
   return element;
-});
+}) as unknown as ComboboxClearComponent;
 
 export interface ComboboxClearState {
   /**
@@ -163,8 +163,10 @@ export interface ComboboxClearState {
   transitionStatus: TransitionStatus;
 }
 
-export interface ComboboxClearProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClearState> {
+export type ComboboxClearProps<TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, ComboboxClear.State>,
+  'disabled'
+> & {
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -175,9 +177,25 @@ export interface ComboboxClearProps
    * @default false
    */
   keepMounted?: boolean | undefined;
-}
+};
 
 export namespace ComboboxClear {
   export type State = ComboboxClearState;
-  export type Props = ComboboxClearProps;
+  export type Props<TNativeButton extends boolean = true> = ComboboxClearProps<TNativeButton>;
 }
+
+type ComboboxClearComponent = {
+  (
+    props: ComboboxClear.Props<true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  ): React.ReactElement | null;
+  (
+    props: ComboboxClear.Props<false> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: ComboboxClear.Props<boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

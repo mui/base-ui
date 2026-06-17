@@ -8,7 +8,8 @@ import { useNumberFieldButton } from './useNumberFieldButton';
 import type { NumberFieldRootState } from './NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 
-type StepperButtonProps = NativeButtonProps & BaseUIComponentProps<'button', NumberFieldRootState>;
+type StepperButtonProps = NativeButtonProps<boolean> &
+  BaseUIComponentProps<'button', NumberFieldRootState>;
 
 /**
  * Shared implementation for the increment and decrement stepper buttons. They differ only in the

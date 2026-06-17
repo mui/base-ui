@@ -4,7 +4,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../internals/composite/constants';
 import { useCompositeItem } from '../../internals/composite/item/useCompositeItem';
@@ -215,7 +215,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   });
 
   return element;
-});
+}) as unknown as TabsTabComponent;
 
 export type TabsTabValue = any | null;
 
@@ -258,8 +258,10 @@ export interface TabsTabState {
   tabActivationDirection: TabsTab.ActivationDirection;
 }
 
-export interface TabsTabProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', TabsTabState> {
+export type TabsTabProps<TNativeButton extends boolean = true> = Omit<
+  NativeButtonComponentProps<TNativeButton, TabsTab.State, true, 'value'>,
+  'disabled'
+> & {
   /**
    * The value of the Tab.
    */
@@ -274,7 +276,7 @@ export interface TabsTabProps
    * To work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.
    */
   disabled?: boolean | undefined;
-}
+};
 
 export namespace TabsTab {
   export type Value = TabsTabValue;
@@ -283,5 +285,21 @@ export namespace TabsTab {
   export type Size = TabsTabSize;
   export type Metadata = TabsTabMetadata;
   export type State = TabsTabState;
-  export type Props = TabsTabProps;
+  export type Props<TNativeButton extends boolean = true> = TabsTabProps<TNativeButton>;
 }
+
+type TabsTabComponent = {
+  (
+    props: TabsTab.Props<true> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  ): React.ReactElement | null;
+  (
+    props: TabsTab.Props<false> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: TabsTab.Props<boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

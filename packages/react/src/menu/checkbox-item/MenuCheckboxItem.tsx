@@ -7,7 +7,7 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -98,7 +98,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
         'aria-checked': checked,
         onClick: handleClick,
       },
-      elementProps,
+      elementProps as React.HTMLAttributes<HTMLDivElement>,
       getItemProps,
     ],
     ref: [itemRef, forwardedRef, listItem.ref],
@@ -107,7 +107,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   return (
     <MenuCheckboxItemContext.Provider value={state}>{element}</MenuCheckboxItemContext.Provider>
   );
-});
+}) as unknown as MenuCheckboxItemComponent;
 
 export interface MenuCheckboxItemState {
   /**
@@ -124,8 +124,10 @@ export interface MenuCheckboxItemState {
   checked: boolean;
 }
 
-export interface MenuCheckboxItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuCheckboxItemState> {
+export type MenuCheckboxItemProps<TNativeButton extends boolean = false> = Omit<
+  NativeButtonComponentProps<TNativeButton, MenuCheckboxItem.State, false>,
+  'disabled' | 'onClick'
+> & {
   /**
    * Whether the checkbox item is currently ticked.
    *
@@ -148,7 +150,9 @@ export interface MenuCheckboxItemProps
   /**
    * The click handler for the menu item.
    */
-  onClick?: BaseUIComponentProps<'div', MenuCheckboxItemState>['onClick'] | undefined;
+  onClick?:
+    | NativeButtonComponentProps<TNativeButton, MenuCheckboxItem.State, false>['onClick']
+    | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -167,14 +171,32 @@ export interface MenuCheckboxItemProps
    * @default false
    */
   closeOnClick?: boolean | undefined;
-}
+};
 
 export type MenuCheckboxItemChangeEventReason = MenuRoot.ChangeEventReason;
 export type MenuCheckboxItemChangeEventDetails = MenuRoot.ChangeEventDetails;
 
 export namespace MenuCheckboxItem {
   export type State = MenuCheckboxItemState;
-  export type Props = MenuCheckboxItemProps;
+  export type Props<TNativeButton extends boolean = false> = MenuCheckboxItemProps<TNativeButton>;
   export type ChangeEventReason = MenuCheckboxItemChangeEventReason;
   export type ChangeEventDetails = MenuCheckboxItemChangeEventDetails;
 }
+
+type MenuCheckboxItemComponent = {
+  (
+    props: MenuCheckboxItem.Props<false> & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: MenuCheckboxItem.Props<true> & { nativeButton: true } & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  (
+    props: MenuCheckboxItem.Props<boolean> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};
