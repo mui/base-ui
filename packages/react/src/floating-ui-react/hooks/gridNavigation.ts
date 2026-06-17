@@ -1,18 +1,21 @@
 import type * as React from 'react';
 import {
-  createGridCellMap,
-  getGridCellIndexOfCorner,
-  getGridCellIndices,
   getGridNavigatedIndex,
-  isListIndexDisabled,
+  isIndexOutOfListBounds,
   type DisabledIndices,
 } from '../utils/composite';
-import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../utils/constants';
 
 /**
  * Positional arguments are deliberate: property names of an options object
  * don't minify, and the signature is locked to the caller via `typeof` on the
  * `grid` option of `useListNavigation`.
+ *
+ * The injected grid navigator only ever operates on a uniform 1x1 grid (sizes are
+ * always `1x1` and packing is never dense), so the cell-map machinery that supports
+ * multi-cell items collapses to an identity transform over the item list. Calling
+ * `getGridNavigatedIndex` directly keeps the cell-map helpers
+ * (`createGridCellMap`/`getGridCellIndexOfCorner`/`getGridCellIndices`) out of
+ * grid-combobox bundles.
  */
 export function gridNavigation(
   event: React.KeyboardEvent,
@@ -26,62 +29,22 @@ export function gridNavigation(
   maxIndex: number,
   cols = 2,
 ): number | undefined {
-  const sizes = Array.from({ length: listRef.current.length }, () => ({
-    width: 1,
-    height: 1,
-  }));
-  // Navigate through hypothetical 1x1 grid cells, then map back to item indices.
-  const cellMap = createGridCellMap(sizes, cols, false);
-  const minGridIndex = cellMap.findIndex(
-    (index) => index != null && !isListIndexDisabled(listRef.current, index, disabledIndices),
-  );
-  const maxGridIndex = cellMap.reduce(
-    (foundIndex: number, index, cellIndex) =>
-      index != null && !isListIndexDisabled(listRef.current, index, disabledIndices)
-        ? cellIndex
-        : foundIndex,
-    -1,
-  );
+  const nextIndex = getGridNavigatedIndex(listRef.current, {
+    event,
+    orientation,
+    loopFocus,
+    rtl,
+    cols,
+    disabledIndices,
+    minIndex,
+    maxIndex,
+    // An out-of-range previous index falls back to the first enabled item.
+    prevIndex: prevIndex > maxIndex ? minIndex : prevIndex,
+    stopEvent: true,
+  });
 
-  return cellMap[
-    getGridNavigatedIndex(
-      cellMap.map((itemIndex) => (itemIndex != null ? listRef.current[itemIndex] : null)),
-      {
-        event,
-        orientation,
-        loopFocus,
-        rtl,
-        cols,
-        // Treat empty grid cells as disabled so navigation skips them.
-        disabledIndices: getGridCellIndices(
-          [
-            ...((typeof disabledIndices !== 'function' ? disabledIndices : null) ||
-              listRef.current.map((_, listIndex) =>
-                isListIndexDisabled(listRef.current, listIndex, disabledIndices)
-                  ? listIndex
-                  : undefined,
-              )),
-            undefined,
-          ],
-          cellMap,
-        ),
-        minIndex: minGridIndex,
-        maxIndex: maxGridIndex,
-        prevIndex: getGridCellIndexOfCorner(
-          prevIndex > maxIndex ? minIndex : prevIndex,
-          sizes,
-          cellMap,
-          cols,
-          // Match the corner to the movement edge to avoid landing on the same item.
-          // eslint-disable-next-line no-nested-ternary
-          event.key === ARROW_DOWN
-            ? 'bl'
-            : event.key === (rtl ? ARROW_LEFT : ARROW_RIGHT)
-              ? 'tr'
-              : 'tl',
-        ),
-        stopEvent: true,
-      },
-    )
-  ];
+  // `getGridNavigatedIndex` can return an out-of-bounds sentinel (e.g. `-1` when there is no
+  // previous item to move from); surface that as `undefined` so the caller treats it as
+  // "no navigation" rather than highlighting index `-1`.
+  return isIndexOutOfListBounds(listRef.current, nextIndex) ? undefined : nextIndex;
 }

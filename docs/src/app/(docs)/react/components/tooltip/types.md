@@ -141,7 +141,7 @@ Re-export of [Trigger](#trigger) props.
 
 ```typescript
 type TooltipTriggerState = {
-  /** Whether the tooltip is currently open. */
+  /** Whether the tooltip is currently open and was opened by this trigger. */
   open: boolean;
 };
 ```

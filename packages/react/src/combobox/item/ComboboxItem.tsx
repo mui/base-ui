@@ -5,6 +5,7 @@ import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   useComboboxRootContext,
+  useComboboxHasItemsContext,
   useComboboxDerivedItemsContext,
 } from '../root/ComboboxRootContext';
 import {
@@ -19,6 +20,235 @@ import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
 
+interface ComboboxItemInnerProps {
+  componentProps: ComboboxItem.Props;
+  forwardedRef: React.ForwardedRef<HTMLDivElement>;
+  /**
+   * Whether the list is externally virtualized. Passed down from the wrapper (which already
+   * subscribes to it) so the inner component doesn't re-subscribe to the store.
+   */
+  virtualized: boolean;
+  /**
+   * Pre-resolved index for the virtualized fallback (when no `index` prop is provided).
+   * `undefined` for the common path, where the index is derived from `index` prop or the
+   * composite list registration order.
+   */
+  indexFromFilter: number | undefined;
+}
+
+function ComboboxItemInner(props: ComboboxItemInnerProps) {
+  const { componentProps, forwardedRef, virtualized, indexFromFilter } = props;
+  const {
+    render,
+    className,
+    style,
+    value: itemValue = null,
+    index: indexProp,
+    disabled = false,
+    nativeButton = false,
+    ...elementProps
+  } = componentProps;
+
+  const didPointerDownRef = React.useRef(false);
+  const textRef = React.useRef<HTMLElement | null>(null);
+  const listItem = useCompositeListItem({
+    index: indexProp,
+    textRef,
+    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
+  });
+
+  const store = useComboboxRootContext();
+  const isRow = useComboboxRowContext();
+  const hasItems = useComboboxHasItemsContext();
+
+  const open = useStore(store, selectors.open);
+  const selectionMode = useStore(store, selectors.selectionMode);
+  const readOnly = useStore(store, selectors.readOnly);
+  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+
+  const selectable = selectionMode !== 'none';
+  const index = indexProp ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
+  const hasRegistered = listItem.index !== -1;
+
+  const rootId = useStore(store, selectors.id);
+  const highlighted = useStore(store, selectors.isActive, index);
+  const matchesSelectedValue = useStore(store, selectors.isSelected, itemValue);
+  const itemProps = useStore(store, selectors.itemProps);
+
+  const itemRef = React.useRef<HTMLDivElement | null>(null);
+
+  const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
+  const selected = matchesSelectedValue && selectable;
+
+  useIsoLayoutEffect(() => {
+    const shouldRun = hasRegistered && (virtualized || indexProp != null);
+    if (!shouldRun) {
+      return undefined;
+    }
+
+    const list = store.state.listRef.current;
+    list[index] = itemRef.current;
+
+    return () => {
+      delete list[index];
+    };
+  }, [hasRegistered, virtualized, index, indexProp, store]);
+
+  useIsoLayoutEffect(() => {
+    if (!hasRegistered || hasItems) {
+      return undefined;
+    }
+
+    const visibleMap = store.state.valuesRef.current;
+    visibleMap[index] = itemValue;
+
+    // Stable registry that doesn't depend on filtering. Assume that no
+    // filtering had occurred at this point; otherwise, an `items` prop is
+    // required.
+    if (selectionMode !== 'none') {
+      store.state.allValuesRef.current.push(itemValue);
+    }
+
+    return () => {
+      delete visibleMap[index];
+    };
+  }, [hasRegistered, hasItems, index, itemValue, store, selectionMode]);
+
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      didPointerDownRef.current = false;
+      return;
+    }
+
+    if (!hasRegistered || hasItems) {
+      return;
+    }
+
+    const selectedValue = store.state.selectedValue;
+    const lastSelectedValue = Array.isArray(selectedValue)
+      ? selectedValue[selectedValue.length - 1]
+      : selectedValue;
+
+    if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
+      store.set('selectedIndex', index);
+    }
+  }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled,
+    focusableWhenDisabled: true,
+    native: nativeButton,
+    composite: true,
+  });
+
+  const state: ComboboxItemState = {
+    disabled,
+    selected,
+    highlighted,
+  };
+
+  function commitSelection(nativeEvent: MouseEvent) {
+    function selectItem() {
+      store.state.handleSelection(nativeEvent, itemValue);
+    }
+
+    if (store.state.submitOnItemClick) {
+      ReactDOM.flushSync(selectItem);
+      store.state.requestSubmit();
+    } else {
+      selectItem();
+    }
+  }
+
+  const defaultProps: HTMLProps = {
+    id,
+    role: isRow ? 'gridcell' : 'option',
+    'aria-selected': selectable ? selected : undefined,
+    // Focusable items steal focus from the input upon mouseup.
+    // Warn if the user renders a natively focusable element like `<button>`,
+    // as it should be a `<div>` instead.
+    tabIndex: undefined,
+    onPointerDownCapture(event) {
+      didPointerDownRef.current = true;
+      event.preventDefault();
+    },
+    onMouseDown(event) {
+      // iOS Safari can emit a synthetic mousedown for touch taps without a preceding
+      // pointerdown. Prevent default here too so tapping an item does not blur the input.
+      event.preventDefault();
+    },
+    onClick(event) {
+      if (disabled || readOnly) {
+        return;
+      }
+
+      commitSelection(event.nativeEvent);
+    },
+    onMouseUp(event) {
+      const pointerStartedOnItem = didPointerDownRef.current;
+      didPointerDownRef.current = false;
+
+      if (disabled || readOnly || event.button !== 0 || pointerStartedOnItem || !highlighted) {
+        return;
+      }
+
+      commitSelection(event.nativeEvent);
+    },
+  };
+
+  const element = useRenderElement('div', componentProps, {
+    ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
+    state,
+    props: [itemProps, defaultProps, elementProps, getButtonProps],
+  });
+
+  const contextValue: ComboboxItemContext = React.useMemo(
+    () => ({
+      selected,
+      textRef,
+    }),
+    [selected, textRef],
+  );
+
+  return (
+    <ComboboxItemContext.Provider value={contextValue}>{element}</ComboboxItemContext.Provider>
+  );
+}
+
+/**
+ * Resolves the index from the filtered items for the virtualized fallback (no `index` prop).
+ * Isolated here so that this per-keystroke subscription to the derived-items context is only
+ * paid by virtualized items. Those re-render on every input change anyway — the parent
+ * virtualizer re-windows the list as the filtered set changes — so the extra subscription costs
+ * them nothing, while it keeps every non-virtualized item off that context.
+ */
+function ComboboxItemVirtualizedIndex(props: {
+  componentProps: ComboboxItem.Props;
+  forwardedRef: React.ForwardedRef<HTMLDivElement>;
+}) {
+  const { componentProps, forwardedRef } = props;
+
+  const store = useComboboxRootContext();
+  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const { flatFilteredItems } = useComboboxDerivedItemsContext();
+
+  const indexFromFilter = findItemIndex(
+    flatFilteredItems,
+    componentProps.value ?? null,
+    isItemEqualToValue,
+  );
+
+  // Only reached when `virtualized` is true (see the wrapper below).
+  return (
+    <ComboboxItemInner
+      componentProps={componentProps}
+      forwardedRef={forwardedRef}
+      virtualized
+      indexFromFilter={indexFromFilter}
+    />
+  );
+}
+
 /**
  * An individual item in the list.
  * Renders a `<div>` element.
@@ -30,185 +260,25 @@ export const ComboboxItem = React.memo(
     componentProps: ComboboxItem.Props,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const {
-      render,
-      className,
-      style,
-      value: itemValue = null,
-      index: indexProp,
-      disabled = false,
-      nativeButton = false,
-      ...elementProps
-    } = componentProps;
-
-    const didPointerDownRef = React.useRef(false);
-    const textRef = React.useRef<HTMLElement | null>(null);
-    const listItem = useCompositeListItem({
-      index: indexProp,
-      textRef,
-      indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
-    });
-
     const store = useComboboxRootContext();
-    const isRow = useComboboxRowContext();
-    const { flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
-
-    const open = useStore(store, selectors.open);
-    const selectionMode = useStore(store, selectors.selectionMode);
-    const readOnly = useStore(store, selectors.readOnly);
     const virtualized = useStore(store, selectors.virtualized);
-    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
-    const selectable = selectionMode !== 'none';
-    const index =
-      indexProp ??
-      (virtualized
-        ? findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
-        : listItem.index);
-    const hasRegistered = listItem.index !== -1;
-
-    const rootId = useStore(store, selectors.id);
-    const highlighted = useStore(store, selectors.isActive, index);
-    const matchesSelectedValue = useStore(store, selectors.isSelected, itemValue);
-    const itemProps = useStore(store, selectors.itemProps);
-
-    const itemRef = React.useRef<HTMLDivElement | null>(null);
-
-    const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
-    const selected = matchesSelectedValue && selectable;
-
-    useIsoLayoutEffect(() => {
-      const shouldRun = hasRegistered && (virtualized || indexProp != null);
-      if (!shouldRun) {
-        return undefined;
-      }
-
-      const list = store.state.listRef.current;
-      list[index] = itemRef.current;
-
-      return () => {
-        delete list[index];
-      };
-    }, [hasRegistered, virtualized, index, indexProp, store]);
-
-    useIsoLayoutEffect(() => {
-      if (!hasRegistered || hasItems) {
-        return undefined;
-      }
-
-      const visibleMap = store.state.valuesRef.current;
-      visibleMap[index] = itemValue;
-
-      // Stable registry that doesn't depend on filtering. Assume that no
-      // filtering had occurred at this point; otherwise, an `items` prop is
-      // required.
-      if (selectionMode !== 'none') {
-        store.state.allValuesRef.current.push(itemValue);
-      }
-
-      return () => {
-        delete visibleMap[index];
-      };
-    }, [hasRegistered, hasItems, index, itemValue, store, selectionMode]);
-
-    useIsoLayoutEffect(() => {
-      if (!open) {
-        didPointerDownRef.current = false;
-        return;
-      }
-
-      if (!hasRegistered || hasItems) {
-        return;
-      }
-
-      const selectedValue = store.state.selectedValue;
-      const lastSelectedValue = Array.isArray(selectedValue)
-        ? selectedValue[selectedValue.length - 1]
-        : selectedValue;
-
-      if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
-        store.set('selectedIndex', index);
-      }
-    }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
-
-    const { getButtonProps, buttonRef } = useButton({
-      disabled,
-      focusableWhenDisabled: true,
-      native: nativeButton,
-      composite: true,
-    });
-
-    const state: ComboboxItemState = {
-      disabled,
-      selected,
-      highlighted,
-    };
-
-    function commitSelection(nativeEvent: MouseEvent) {
-      function selectItem() {
-        store.state.handleSelection(nativeEvent, itemValue);
-      }
-
-      if (store.state.submitOnItemClick) {
-        ReactDOM.flushSync(selectItem);
-        store.state.requestSubmit();
-      } else {
-        selectItem();
-      }
+    // `virtualized` (and whether an item provides an explicit `index`) must be stable for an
+    // item's lifetime: the two branches return different component types, so flipping it at
+    // runtime remounts the item and resets its refs and effects.
+    if (virtualized && componentProps.index == null) {
+      return (
+        <ComboboxItemVirtualizedIndex componentProps={componentProps} forwardedRef={forwardedRef} />
+      );
     }
 
-    const defaultProps: HTMLProps = {
-      id,
-      role: isRow ? 'gridcell' : 'option',
-      'aria-selected': selectable ? selected : undefined,
-      // Focusable items steal focus from the input upon mouseup.
-      // Warn if the user renders a natively focusable element like `<button>`,
-      // as it should be a `<div>` instead.
-      tabIndex: undefined,
-      onPointerDownCapture(event) {
-        didPointerDownRef.current = true;
-        event.preventDefault();
-      },
-      onMouseDown(event) {
-        // iOS Safari can emit a synthetic mousedown for touch taps without a preceding
-        // pointerdown. Prevent default here too so tapping an item does not blur the input.
-        event.preventDefault();
-      },
-      onClick(event) {
-        if (disabled || readOnly) {
-          return;
-        }
-
-        commitSelection(event.nativeEvent);
-      },
-      onMouseUp(event) {
-        const pointerStartedOnItem = didPointerDownRef.current;
-        didPointerDownRef.current = false;
-
-        if (disabled || readOnly || event.button !== 0 || pointerStartedOnItem || !highlighted) {
-          return;
-        }
-
-        commitSelection(event.nativeEvent);
-      },
-    };
-
-    const element = useRenderElement('div', componentProps, {
-      ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
-      state,
-      props: [itemProps, defaultProps, elementProps, getButtonProps],
-    });
-
-    const contextValue: ComboboxItemContext = React.useMemo(
-      () => ({
-        selected,
-        textRef,
-      }),
-      [selected, textRef],
-    );
-
     return (
-      <ComboboxItemContext.Provider value={contextValue}>{element}</ComboboxItemContext.Provider>
+      <ComboboxItemInner
+        componentProps={componentProps}
+        forwardedRef={forwardedRef}
+        virtualized={virtualized}
+        indexFromFilter={undefined}
+      />
     );
   }),
 );

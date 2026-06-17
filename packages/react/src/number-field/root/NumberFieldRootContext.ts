@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { NumberFieldRoot, NumberFieldRootState } from './NumberFieldRoot';
-import { EventWithOptionalKeyState } from '../utils/types';
-import type { IncrementValueParameters } from '../utils/types';
+import type { EventWithOptionalKeyState, IncrementValueParameters } from '../utils/types';
 
 export type InputMode = 'numeric' | 'decimal' | 'text';
 
@@ -15,7 +14,7 @@ export interface NumberFieldRootContext {
   readOnly: boolean;
   id: string | undefined;
   setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => boolean;
-  getStepAmount: (event?: EventWithOptionalKeyState) => number | undefined;
+  getStepAmount: (event?: EventWithOptionalKeyState) => number;
   incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
   allowInputSyncRef: React.RefObject<boolean | null>;
@@ -28,7 +27,7 @@ export interface NumberFieldRootContext {
   required: boolean;
   invalid: boolean | undefined;
   inputMode: InputMode;
-  getAllowedNonNumericKeys: () => Set<string | undefined>;
+  getAllowedNonNumericKeys: () => Set<string>;
   min: number | undefined;
   max: number | undefined;
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
