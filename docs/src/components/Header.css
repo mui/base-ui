@@ -181,8 +181,4 @@
     line-height: 1.375rem;
     color: var(--gray-t1);
   }
-
-  .HeaderGitHubIcon {
-    margin-top: -2px;
-  }
 }

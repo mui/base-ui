@@ -85,7 +85,7 @@ export function Header() {
                         </span>
                       </MobileNav.Item>
                       <MobileNav.Item href="https://github.com/mui/base-ui">
-                        <GitHubIcon className="HeaderGitHubIcon" />
+                        <GitHubIcon />
                         GitHub
                       </MobileNav.Item>
                     </MobileNav.List>
