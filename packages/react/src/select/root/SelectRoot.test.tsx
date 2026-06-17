@@ -1080,7 +1080,8 @@ describe('<Select.Root />', () => {
     // selection in multiple mode handed the raw `[]` to the comparer (`[]` is non-null, so
     // `compareItemEquality` forwarded it), causing the comparer to run against the array.
     // It must instead be compared against `undefined` (nothing selected), so the comparer
-    // is never invoked here.
+    // is never invoked here. `defaultOpen` ensures the items mount and run the registration
+    // effect that used to call the comparer with the raw array.
     const isItemEqualToValue = vi.fn((a: { value: string }, b: { value: string }) => {
       if (Array.isArray(b)) {
         throw new Error('isItemEqualToValue received the value array');
@@ -1089,7 +1090,7 @@ describe('<Select.Root />', () => {
     });
 
     await render(
-      <Select.Root multiple defaultValue={[]} isItemEqualToValue={isItemEqualToValue}>
+      <Select.Root multiple defaultOpen defaultValue={[]} isItemEqualToValue={isItemEqualToValue}>
         <Select.Trigger data-testid="trigger">
           <Select.Value />
         </Select.Trigger>
@@ -1105,6 +1106,7 @@ describe('<Select.Root />', () => {
     );
 
     expect(screen.getByTestId('trigger')).not.toBeNull();
+    expect(await screen.findAllByRole('option')).toHaveLength(2);
     expect(isItemEqualToValue).not.toHaveBeenCalledWith(expect.anything(), expect.any(Array));
   });
 

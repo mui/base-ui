@@ -38,7 +38,7 @@ export interface UseTypeaheadProps {
    * so a single keypress advances to the next selectable item (matching native `<select>`
    * and arrow-key navigation). The disabled check doesn't read `elementsRef`, so consumers
    * whose items stay mounted-but-hidden while closed can still skip disabled items without
-   * opting into the visibility filter.
+   * passing `elementsRef`.
    */
   disabledIndices?: DisabledIndices | undefined;
   /**
