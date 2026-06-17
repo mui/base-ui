@@ -1090,6 +1090,36 @@ type ComboboxInputGroupState = {
 };
 ```
 
+### isComboboxSelectAllValue
+
+**Parameters:**
+
+| Parameter | Type      | Default | Description |
+| :-------- | :-------- | :------ | :---------- |
+| value     | `unknown` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = boolean;
+```
+
+### prependSelectAllFilteredItems
+
+Prepends the select-all sentinel to filtered items when using a custom `filteredItems` list.
+
+**Parameters:**
+
+| Parameter     | Type  | Default | Description |
+| :------------ | :---- | :------ | :---------- |
+| filteredItems | `T[]` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = (T | COMBOBOX_SELECT_ALL_VALUE)[];
+```
+
 ### SelectAll
 
 Selects or deselects all currently filtered items in multiple selection mode.
@@ -1099,21 +1129,15 @@ Place it inside `<Combobox.List>` before the collection items.
 
 **SelectAll Props:**
 
-| Prop         | Type                                                                                             | Default | Description                                                                                                                                                                                   |
-| :----------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| disabled     | `boolean`                                                                                        | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
-| nativeButton | `boolean`                                                                                        | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
-| className    | `string \| ((state: Combobox.SelectAll.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `React.CSSProperties \| ((state: Combobox.SelectAll.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.SelectAll.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**SelectAll Data Attributes:**
-
-| Attribute | Type | Description |
-| :-------- | :--- | :---------- |
-| data-selected | - | - |
-| data-highlighted | - | - |
-| data-disabled | - | - |
+| Prop         | Type                                                                                             | Default | Description                                                                                                                                                                                                                             |
+| :----------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                   | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus. |
+| nativeButton | `boolean`                                                                                        | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                    |
+| disabled     | `boolean`                                                                                        | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                   |
+| children     | `React.ReactNode`                                                                                | -       | -                                                                                                                                                                                                                                       |
+| className    | `string \| ((state: Combobox.SelectAll.State) => string \| undefined)`                           | -       | -                                                                                                                                                                                                                                       |
+| style        | `React.CSSProperties \| ((state: Combobox.SelectAll.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                                                                       |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Item.State) => ReactElement)`               | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                           |
 
 ### SelectAll.Props
 
@@ -1261,6 +1285,8 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.Empty`: `Combobox.Empty`, `Combobox.Empty.State`, `Combobox.Empty.Props`
 - `Combobox.Clear`: `Combobox.Clear`, `Combobox.Clear.State`, `Combobox.Clear.Props`
 - `Combobox.SelectAll`: `Combobox.SelectAll`, `Combobox.SelectAll.State`, `Combobox.SelectAll.Props`
+- `Combobox.isComboboxSelectAllValue`
+- `Combobox.prependSelectAllFilteredItems`
 - `Combobox.Separator`: `Combobox.Separator`, `Combobox.Separator.Props`, `Combobox.Separator.State`
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
