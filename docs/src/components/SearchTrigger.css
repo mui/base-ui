@@ -9,17 +9,10 @@
     margin: -0.25rem -0.5rem;
     border: 0;
     background: transparent;
-    font-family:
-      'die grotesk a',
-      system-ui,
-      -apple-system,
-      BlinkMacSystemFont,
-      'Helvetica Neue',
-      arial,
-      sans-serif;
+    font-family: var(--font-sans);
     font-weight: var(--font-weight-400);
-    font-size: 15px;
-    line-height: 22px;
+    font-size: var(--font-size-15);
+    line-height: 1.375rem;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: currentColor;
@@ -30,7 +23,7 @@
     outline: 0;
 
     /* Square icon-only variant (used where there's no room for the label) */
-    &.icon-only {
+    &.SearchTriggerIconOnly {
       width: 1.75rem;
       justify-content: center;
       padding-inline: 0;

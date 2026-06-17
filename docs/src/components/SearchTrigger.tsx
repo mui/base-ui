@@ -17,7 +17,7 @@ export function SearchTrigger({ className, iconOnly = false, ...props }: SearchT
   return (
     <Search
       triggerProps={{
-        className: clsx('SearchTrigger', iconOnly && 'icon-only', className),
+        className: clsx('SearchTrigger', iconOnly && 'SearchTriggerIconOnly', className),
         'aria-label': iconOnly ? 'Search' : undefined,
       }}
       {...props}
