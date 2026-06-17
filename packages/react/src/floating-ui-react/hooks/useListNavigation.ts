@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isHTMLElement } from '@floating-ui/utils/dom';
@@ -294,6 +295,7 @@ export function useListNavigation(
   const previousOpenRef = React.useRef(open);
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
+  const delayInitialFocusRef = React.useRef(false);
   const cancelQueuedFocusRef = React.useRef<(() => void) | null>(null);
 
   const disabledIndicesRef = useValueAsRef(disabledIndices);
@@ -302,15 +304,16 @@ export function useListNavigation(
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
 
   const focusFrame = useAnimationFrame();
+  const delayFocusFrame = useAnimationFrame();
   const waitForListPopulatedFrame = useAnimationFrame();
 
   const focusItem = useStableCallback(() => {
-    function runFocus(item: HTMLElement) {
+    function runFocus(item: HTMLElement, sync = forceSyncFocusRef.current) {
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
       } else {
         cancelQueuedFocusRef.current = enqueueFocus(item, {
-          sync: forceSyncFocusRef.current,
+          sync,
           preventScroll: true,
         });
       }
@@ -318,8 +321,10 @@ export function useListNavigation(
 
     const initialItem = listRef.current[indexRef.current];
     const forceScrollIntoView = forceScrollIntoViewRef.current;
+    const shouldDelayInitialFocus =
+      delayInitialFocusRef.current && !forceSyncFocusRef.current && !virtual;
 
-    if (initialItem) {
+    if (initialItem && !shouldDelayInitialFocus) {
       runFocus(initialItem);
     }
 
@@ -331,10 +336,21 @@ export function useListNavigation(
       const waitedItem = listRef.current[indexRef.current] || initialItem;
 
       if (!waitedItem) {
+        delayInitialFocusRef.current = false;
         return;
       }
 
-      if (!initialItem) {
+      if (shouldDelayInitialFocus) {
+        delayInitialFocusRef.current = false;
+        delayFocusFrame.request(() => {
+          if (!latestOpenRef.current) {
+            return;
+          }
+
+          const latestItem = listRef.current[indexRef.current] || waitedItem;
+          runFocus(latestItem, true);
+        });
+      } else if (!initialItem) {
         runFocus(waitedItem);
       }
 
@@ -386,6 +402,8 @@ export function useListNavigation(
     }
     if (!open) {
       forceSyncFocusRef.current = false;
+      delayInitialFocusRef.current = false;
+      delayFocusFrame.cancel();
       return;
     }
     if (!floatingElement) {
@@ -429,6 +447,16 @@ export function useListNavigation(
             // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
             // on open even when the consumer passes an empty `disabledIndices` array. Passing it
             // would regress that behavior (see mui/base-ui#2604).
+            // macOS Safari VoiceOver can miss this first focus event as a freshly mounted
+            // submenu enters the accessibility tree. Delay only DOM focus; activeIndex still
+            // updates immediately so visual highlight and navigation state are not delayed.
+            delayInitialFocusRef.current =
+              platform.os.mac &&
+              platform.screenReader.voiceOver &&
+              platform.engine.webkit &&
+              nested &&
+              keyRef.current != null &&
+              !previousMountedRef.current;
             indexRef.current =
               keyRef.current == null ||
               isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
@@ -459,6 +487,7 @@ export function useListNavigation(
     rtl,
     onNavigate,
     focusItem,
+    delayFocusFrame,
     waitForListPopulatedFrame,
   ]);
 
