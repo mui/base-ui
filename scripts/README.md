@@ -6,18 +6,19 @@ A typical release goes like this:
 
 ### Prepare the release of the packages
 
-1. Update the root `/package.json`'s version. It should match the target version of `@base-ui/react`.
-2. Generate the changelog with `pnpm release:changelog`
+1. Create a `release/vX.Y.Z` branch off the current main branch.
+2. Update the root `/package.json`'s version. It should match the target version of `@base-ui/react`.
+3. Generate the changelog with `pnpm release:changelog`
    The output must be prepended to the top level `CHANGELOG.md`.
    Run `pnpm release:changelog --help` for more information.
-3. Update the changelog as necessary. In particular, describe all the breaking changes.
-4. Generate the changelog in a format suitable for the docs with `pnpm release:changelog:docs`.
-5. Create a new release page at `docs/src/app/(docs)/react/overview/releases/<version-slug>/page.mdx` (where `<version-slug>` uses hyphens, for example, `v1-1-0` for v1.1.0). Paste the generated changelog there, following the format of existing release pages (title, `<Subtitle>` with the date, `<Meta>` tag).
-6. Copy the changes made in point 3 to the new release page and adapt to the required format.
-7. Add a new entry to `docs/src/data/releases.ts` with the version, versionSlug, date, and highlights. Move the `latest: true` flag to the new release if appropriate.
-8. Run `pnpm release:version`. Keep the package versions of stable public packages (`@base-ui/react`) the same as the root `package.json` version.
-9. Open a PR with changes and wait for review and green CI.
-10. Merge the PR once the CI is green and it has been approved.
+4. Update the changelog as necessary. In particular, describe all the breaking changes.
+5. Generate the changelog in a format suitable for the docs with `pnpm release:changelog:docs`.
+6. Create a new release page at `docs/src/app/(docs)/react/overview/releases/<version-slug>/page.mdx` (where `<version-slug>` uses hyphens, for example, `v1-1-0` for v1.1.0). Paste the generated changelog there, following the format of existing release pages (title, `<Subtitle>` with the date, `<Meta>` tag).
+7. Copy the changes made in point 4 to the new release page and adapt to the required format.
+8. Add a new entry to `docs/src/data/releases.ts` with the version, versionSlug, date, and highlights. Move the `latest: true` flag to the new release if appropriate.
+9. Run `pnpm release:version`. Keep the package versions of stable public packages (`@base-ui/react`) the same as the root `package.json` version.
+10. Open a PR with changes and wait for review and green CI.
+11. Merge the PR once the CI is green and it has been approved.
 
 ### Release the packages
 
