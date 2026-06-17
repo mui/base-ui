@@ -6,7 +6,7 @@ A typical release goes like this:
 
 ### Prepare the release of the packages
 
-1. Create a `release/vX.Y.Z` branch off the current main branch.
+1. Create a Git branch off the current main branch.
 2. Update the root `/package.json`'s version. It should match the target version of `@base-ui/react`.
 3. Generate the changelog with `pnpm release:changelog`
    The output must be prepended to the top level `CHANGELOG.md`.
