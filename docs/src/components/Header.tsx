@@ -11,7 +11,8 @@ export const titleMap: Record<string, string> = {
   'About Base\xa0UI': 'About',
 };
 
-export const HEADER_HEIGHT = 48;
+export const HEADER_HEIGHT_MOBILE = 48;
+export const HEADER_HEIGHT_DESKTOP = 64;
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
