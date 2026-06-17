@@ -146,7 +146,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
 
   function getOpenDelay() {
-    const providerDelay = providerContext?.open;
+    const providerDelay = providerContext?.openDelay;
     const groupOpenValue = typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
 
     let computedOpenDelay = delayWithDefault;

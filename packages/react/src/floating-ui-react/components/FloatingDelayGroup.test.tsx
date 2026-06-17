@@ -63,7 +63,7 @@ function Tooltip({ children, label }: Props) {
 
 function App() {
   return (
-    <FloatingDelayGroup delay={{ open: 1000, close: 200 }}>
+    <FloatingDelayGroup delay={{ openDelay: 1000, closeDelay: 200 }}>
       <Tooltip label="one">
         <button data-testid="reference-one" />
       </Tooltip>
@@ -135,7 +135,7 @@ describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
   test('timeoutMs', async () => {
     function App() {
       return (
-        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+        <FloatingDelayGroup delay={{ openDelay: 1000, closeDelay: 100 }} timeoutMs={500}>
           <Tooltip label="one">
             <button data-testid="reference-one" />
           </Tooltip>
@@ -204,7 +204,7 @@ describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
       const [showSecond, setShowSecond] = React.useState(true);
 
       return (
-        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+        <FloatingDelayGroup delay={{ openDelay: 1000, closeDelay: 100 }} timeoutMs={500}>
           <Tooltip label="one">
             <button data-testid="reference-one" />
           </Tooltip>
@@ -251,7 +251,7 @@ describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
       const [showFirst, setShowFirst] = React.useState(true);
 
       return (
-        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+        <FloatingDelayGroup delay={{ openDelay: 1000, closeDelay: 100 }} timeoutMs={500}>
           {showFirst && (
             <Tooltip label="one">
               <button data-testid="reference-one" />
@@ -298,7 +298,7 @@ describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
   it('does not re-render unrelated consumers', async () => {
     function App() {
       return (
-        <FloatingDelayGroup delay={{ open: 1000, close: 100 }} timeoutMs={500}>
+        <FloatingDelayGroup delay={{ openDelay: 1000, closeDelay: 100 }} timeoutMs={500}>
           <Tooltip label="one">
             <button data-testid="reference-one" />
           </Tooltip>

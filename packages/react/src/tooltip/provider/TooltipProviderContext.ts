@@ -2,8 +2,8 @@
 import * as React from 'react';
 
 export interface TooltipProviderContext {
-  open: number | undefined;
-  close: number | undefined;
+  openDelay: number | undefined;
+  closeDelay: number | undefined;
 }
 
 export const TooltipProviderContext = React.createContext<TooltipProviderContext | undefined>(

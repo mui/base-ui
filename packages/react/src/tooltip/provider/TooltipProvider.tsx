@@ -13,7 +13,7 @@ export const TooltipProvider: React.FC<TooltipProvider.Props> = function Tooltip
   const { delay, closeDelay, timeout = 400 } = props;
 
   const contextValue: TooltipProviderContext = React.useMemo(
-    () => ({ open: delay, close: closeDelay }),
+    () => ({ openDelay: delay, closeDelay }),
     [delay, closeDelay],
   );
 
