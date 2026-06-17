@@ -17,19 +17,28 @@
     align-items: center;
     justify-content: space-between;
     padding-inline: 1.5rem;
-
     position: fixed;
     top: 0;
     inset-inline: 0;
-    box-shadow: inset 0 -1px var(--color-gridline);
-    /* It's also the iOS header overscroll background */
-    background-color: var(--gray-s2);
+    background: var(--color-content);
     z-index: 2;
 
     @media (--show-side-nav) {
-      position: static;
-      box-shadow: none;
-      background-color: transparent;
+      /* Keep the fixed header content aligned with the centered layout container */
+      max-width: var(--breakpoint-max-layout-width);
+      margin-inline: auto;
+      padding-inline: var(--root-layout-padding-x);
+    }
+
+    @media (--show-quick-nav) {
+      background: none;
+      /* The header is transparent here, so let clicks fall through to the
+         content scrolling under it while keeping its own controls interactive. */
+      pointer-events: none;
+
+      & > * {
+        pointer-events: auto;
+      }
     }
 
     @media print {
@@ -65,6 +74,8 @@
   }
 
   .HeaderButton {
+    height: 1.75rem;
+
     @media (hover: hover) {
       &:hover {
         background-color: var(--gray-c1);
@@ -100,10 +111,6 @@
       color: var(--gray-p1);
     }
 
-    & svg {
-      margin-top: -0.125rem;
-    }
-
     &:focus-visible {
       border-radius: var(--radius-6);
       outline: 2px solid var(--gray-t2);
@@ -118,12 +125,19 @@
     @media (--lg) {
       display: flex;
     }
+
+    @media (--show-quick-nav) {
+      /* Align the search trigger's text with the right sidebar (quick nav) text.
+         2rem matches the quick nav's --quick-nav-margin-x; the extra 0.5rem
+         matches the quick nav link's left padding. */
+      width: calc(var(--sidebar-width) - 2.5rem);
+    }
   }
 
   .HeaderMobileActions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
 
     @media (--lg) {
       display: none;
@@ -132,7 +146,6 @@
 
   .HeaderMobileSearch {
     display: flex;
-    padding-inline: 1rem;
   }
 
   .HeaderNavTrigger {
@@ -152,7 +165,7 @@
     content: '';
     display: block;
     width: 0.875rem;
-    height: 2px;
+    height: 1px;
     background-color: currentColor;
   }
 
@@ -167,148 +180,5 @@
     font-size: var(--font-size-15);
     line-height: 1.375rem;
     color: var(--gray-t1);
-  }
-
-  .HeaderGitHubIcon {
-    margin-top: -2px;
-  }
-
-  .SearchTrigger {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-8);
-    height: var(--space-32);
-    padding-inline: 0.875rem;
-    margin: 0;
-    border: none;
-    border-radius: 9999px;
-    background-color: hsl(0deg 0% 0% / 5%);
-    font: inherit;
-    font-size: var(--font-size-16);
-    font-weight: var(--font-weight-400);
-    line-height: 1.5;
-    color: var(--gray-t2);
-    -webkit-user-select: none;
-    user-select: none;
-    outline: none;
-
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--gray-c2);
-    }
-  }
-
-  .SearchTrigger::before {
-    content: '';
-    position: absolute;
-    inset: 1px;
-    border-radius: 9999px;
-    background-color: var(--color-popup);
-    z-index: 0;
-
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--gray-c1);
-    }
-  }
-
-  .SearchTrigger::after {
-    content: '';
-    position: absolute;
-    inset: 1px;
-    border-radius: 9999px;
-    box-shadow: 0 1px 2px hsl(0deg 0% 0% / 5%);
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .SearchTrigger > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  .SearchTrigger:hover {
-    background-color: hsl(0deg 0% 0% / 15%);
-
-    @media (prefers-color-scheme: dark) {
-      background-color: var(--gray-c3);
-    }
-  }
-
-  .SearchTrigger:hover::before {
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(21.5% 0.5% 264deg);
-    }
-  }
-
-  .SearchTrigger:hover .SearchTriggerKbd {
-    @media (prefers-color-scheme: dark) {
-      border-color: var(--gray-c3);
-    }
-  }
-
-  .SearchTrigger:focus-visible {
-    outline: 2px solid var(--gray-t2);
-    outline-offset: -1px;
-  }
-
-  .SearchTrigger[data-disabled] {
-    color: var(--gray-p1);
-    cursor: default;
-  }
-
-  .SearchTrigger[data-disabled]:hover {
-    background-color: hsl(0deg 0% 0% / 5%);
-  }
-
-  .SearchTriggerIcon {
-    width: 1rem;
-    height: 1rem;
-    color: var(--gray-p1);
-  }
-
-  .SearchTriggerKbd {
-    display: none;
-    height: 20px;
-    line-height: 1;
-    align-items: center;
-    gap: 0.25rem;
-    padding-inline: 0.375rem;
-    border-radius: 9999px;
-    border: 1px solid var(--gray-c3);
-    background-color: var(--gray-s2);
-    pointer-events: none;
-    color: var(--gray-t2);
-
-    @media (--lg) {
-      display: inline-flex;
-      margin-right: -0.5rem;
-    }
-  }
-
-  .SearchTriggerKbd kbd {
-    line-height: 1;
-  }
-
-  .SearchTriggerKbd kbd:first-child {
-    display: inline-flex;
-    margin-top: 1px;
-  }
-
-  .SearchTriggerCmd {
-    font-size: var(--font-size-18);
-  }
-
-  .SearchTriggerCtrl {
-    font-size: var(--font-size-13);
-  }
-
-  .SearchTriggerPlus {
-    font-size: var(--font-size-13);
-    color: var(--gray-t1);
-  }
-
-  .SearchTriggerK {
-    font-size: 0.8125rem;
   }
 }
