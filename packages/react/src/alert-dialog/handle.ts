@@ -24,6 +24,9 @@ export class AlertDialogHandle<Payload> extends DialogHandle<Payload> {
   }
 }
 
+/**
+ * Creates a new handle to connect an AlertDialog.Root with detached AlertDialog.Trigger components.
+ */
 export function createAlertDialogHandle<Payload>(): AlertDialogHandle<Payload> {
   return new AlertDialogHandle<Payload>();
 }

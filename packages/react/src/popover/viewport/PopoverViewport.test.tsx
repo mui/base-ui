@@ -201,6 +201,96 @@ describe('<Popover.Viewport />', () => {
       expect(screen.getByText('Content 1')).toBeVisible();
     });
 
+    it('should create morphing containers after a kept-mounted popup closes and reopens', async () => {
+      function TestComponent() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <div>
+            <style>
+              {`
+                [data-transitioning] [data-previous] {
+                  animation: slide-out 0.2s ease-out forwards;
+                }
+                [data-transitioning] [data-current] {
+                  animation: slide-in 0.2s ease-out forwards;
+                }
+                @keyframes slide-out {
+                  from { transform: translateX(0); opacity: 1; }
+                  to { transform: translateX(-30%); opacity: 0; }
+                }
+                @keyframes slide-in {
+                  from { transform: translateX(30%); opacity: 0; }
+                  to { transform: translateX(0); opacity: 1; }
+                }
+              `}
+            </style>
+            <button type="button" onClick={() => setOpen(false)}>
+              Close
+            </button>
+            <Popover.Root open={open} onOpenChange={setOpen}>
+              {({ payload }) => (
+                <React.Fragment>
+                  <Popover.Trigger payload={0} data-testid="trigger1">
+                    Trigger 1
+                  </Popover.Trigger>
+                  <Popover.Trigger payload={1} data-testid="trigger2">
+                    Trigger 2
+                  </Popover.Trigger>
+                  <Popover.Portal keepMounted>
+                    <Popover.Positioner>
+                      <Popover.Popup data-testid="popup">
+                        <Popover.Viewport>Content {payload as number}</Popover.Viewport>
+                      </Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </React.Fragment>
+              )}
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+
+      const trigger1 = screen.getByTestId('trigger1');
+      const trigger2 = screen.getByTestId('trigger2');
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByText('Content 0')).toBeVisible();
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(document.querySelector('[data-previous]')).not.toBe(null);
+      });
+      await waitFor(() => {
+        expect(document.querySelector('[data-previous]')).toBe(null);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).not.toBeVisible();
+      });
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByText('Content 0')).toBeVisible();
+      });
+
+      await user.click(trigger2);
+
+      let previousContainer: HTMLElement | null = null;
+      await waitFor(() => {
+        previousContainer = document.querySelector('[data-previous]');
+        expect(previousContainer).not.toBe(null);
+      });
+
+      expect(previousContainer!.textContent).toBe('Content 0');
+      expect(screen.getByText('Content 1')).toBeVisible();
+    });
+
     it('should handle rapid trigger changes', async () => {
       function TestComponent() {
         return (
