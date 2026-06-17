@@ -1,4 +1,14 @@
 @layer components {
+  /* The active tab bridges into the body over .InstallationBlockTabPanel's
+     border-top, so suppress the panel's own border-bottom: it would sit 1px below
+     as a second divider line, and (since the panel clips its overflow) it would
+     shrink the content box and clip the active tab's bridge strip. The flush
+     padding lets the first tab sit against the card's left border. */
+  .InstallationBlock .CodeBlockPanel {
+    padding-inline-start: 0;
+    border-bottom: 0;
+  }
+
   .InstallationBlockTabsList {
     display: flex;
     align-self: flex-end;
@@ -78,8 +88,10 @@
 
   .InstallationBlockTabPanel {
     border-top: 1px solid var(--color-border);
-    border-bottom-left-radius: var(--radius-4);
-    border-bottom-right-radius: var(--radius-4);
+    /* Match the card's inner corner so the focus ring rounds to follow the
+       card's rounded bottom corners. */
+    border-bottom-left-radius: calc(var(--radius-12) - 1px);
+    border-bottom-right-radius: calc(var(--radius-12) - 1px);
     margin-top: -1px;
     outline: 0;
 
