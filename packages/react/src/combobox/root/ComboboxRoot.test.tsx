@@ -6496,6 +6496,8 @@ describe('<Combobox.Root />', () => {
 
       await waitFor(() => {
         expect(input).toHaveAttribute('data-dirty', '');
+      });
+      await waitFor(() => {
         expect(trigger).toHaveAttribute('data-dirty', '');
       });
 
@@ -6503,6 +6505,8 @@ describe('<Combobox.Root />', () => {
 
       await waitFor(() => {
         expect(input).not.toHaveAttribute('data-dirty');
+      });
+      await waitFor(() => {
         expect(trigger).not.toHaveAttribute('data-dirty');
       });
     });
