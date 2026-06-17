@@ -20,16 +20,19 @@ export const MenuPortal = React.forwardRef(function MenuPortal(
 
   const { store } = useMenuRootContext();
   const mounted = store.useState('mounted');
+  const parent = store.useState('parent');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
     return null;
   }
 
+  const portalOwnerRole = parent.type === 'menu' || parent.type === 'menubar' ? 'group' : undefined;
+
   return (
     <MenuPortalContext.Provider value={keepMounted}>
-      {/* The hidden `aria-owns` owner must be an allowed child of `menu` and `menubar`. */}
-      <FloatingPortal ref={forwardedRef} {...portalProps} portalOwnerRole="group" />
+      {/* The hidden `aria-owns` owner needs `group` only under role-constrained parents. */}
+      <FloatingPortal ref={forwardedRef} {...portalProps} portalOwnerRole={portalOwnerRole} />
     </MenuPortalContext.Provider>
   );
 });

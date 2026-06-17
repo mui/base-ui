@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { screen, within } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { MenuGroupContext } from '../group/MenuGroupContext';
@@ -53,7 +53,7 @@ describe('<Menu.GroupLabel />', () => {
         </Menu.Root>,
       );
 
-      const group = within(screen.getByRole('menu')).getByRole('group');
+      const group = screen.getByRole('group');
       const groupLabel = screen.getByText('Test group');
 
       expect(group).toHaveAttribute('aria-labelledby', groupLabel.id);
@@ -74,7 +74,7 @@ describe('<Menu.GroupLabel />', () => {
         </Menu.Root>,
       );
 
-      const group = within(screen.getByRole('menu')).getByRole('group');
+      const group = screen.getByRole('group');
       expect(group).toHaveAttribute('aria-labelledby', 'test-group');
     });
 
@@ -93,7 +93,7 @@ describe('<Menu.GroupLabel />', () => {
         </Menu.Root>,
       );
 
-      const radioGroup = within(screen.getByRole('menu')).getByRole('group');
+      const radioGroup = screen.getByRole('group');
       const groupLabel = screen.getByText('Test group');
 
       expect(radioGroup).toHaveAttribute('aria-labelledby', groupLabel.id);
@@ -114,7 +114,7 @@ describe('<Menu.GroupLabel />', () => {
         </Menu.Root>,
       );
 
-      const radioGroup = within(screen.getByRole('menu')).getByRole('group');
+      const radioGroup = screen.getByRole('group');
       expect(radioGroup).toHaveAttribute('aria-labelledby', 'test-group');
     });
 
@@ -133,7 +133,7 @@ describe('<Menu.GroupLabel />', () => {
         </Menu.Root>,
       );
 
-      const radioGroup = within(screen.getByRole('menu')).getByRole('group');
+      const radioGroup = screen.getByRole('group');
       const groupLabel = screen.getByText('Test group');
 
       expect(radioGroup).toHaveAttribute('aria-labelledby', groupLabel.id);

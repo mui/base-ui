@@ -641,6 +641,22 @@ describe('<Menu.Root />', () => {
         expect(await screen.findByTestId('item-4_1')).toHaveTextContent('Item 4.1');
       });
 
+      it('renders root menu portal ownership without an accessibility role', async () => {
+        const { user } = await render(<TestMenu />);
+
+        const mainTrigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(mainTrigger);
+
+        const menu = await screen.findByTestId('menu');
+        const menuPortal = menu.closest('[data-base-ui-portal]');
+        const menuPortalId = menuPortal?.id ?? '';
+        const owner = menu.ownerDocument.querySelector('span[aria-owns]');
+
+        expect(menuPortalId).not.toBe('');
+        expect(owner).toHaveAttribute('aria-owns', menuPortalId);
+        expect(owner).not.toHaveAttribute('role');
+      });
+
       it('renders submenu portal ownership as an allowed menu child', async () => {
         const { user } = await render(<TestMenu submenuTriggerProps={{ openOnHover: false }} />);
 
