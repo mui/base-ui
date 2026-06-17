@@ -1122,6 +1122,70 @@ describe('<Menubar />', () => {
       expect(editOnOpenChange).not.toHaveBeenCalledWith(false, expect.anything());
       expect(screen.queryByTestId('edit-menu')).not.toBe(null);
     });
+
+    it('still closes the menu when an item is tapped within the guard window', async () => {
+      const editOnOpenChange = vi.fn();
+
+      function App() {
+        const [editOpen, setEditOpen] = React.useState(false);
+        return (
+          <Menubar>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu">
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Root
+              open={editOpen}
+              onOpenChange={(open, details) => {
+                editOnOpenChange(open, details);
+                setEditOpen(open);
+              }}
+            >
+              <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="edit-menu">
+                  <Menu.Popup>
+                    <Menu.Item data-testid="edit-item">Copy</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const fileTrigger = screen.getByTestId('file-trigger');
+      const editTrigger = screen.getByTestId('edit-trigger');
+
+      await user.click(fileTrigger);
+      await screen.findByTestId('file-menu');
+
+      // Focusing the Edit trigger opens its menu via `triggerFocus`, arming the touch-to-close guard.
+      await act(async () => {
+        editTrigger.focus();
+      });
+      const editItem = await screen.findByTestId('edit-item');
+      expect(editOnOpenChange).toHaveBeenLastCalledWith(true, expect.anything());
+
+      editOnOpenChange.mockClear();
+
+      // A genuine item tap inside the guard window must still close the menu: the guard only
+      // suppresses the trigger's own delayed click (`triggerPress`), not an `itemPress` close.
+      fireEvent(
+        editItem,
+        new PointerEvent('click', { pointerType: 'touch', bubbles: true, cancelable: true }),
+      );
+
+      expect(editOnOpenChange).toHaveBeenCalledWith(false, expect.anything());
+    });
   });
 });
 

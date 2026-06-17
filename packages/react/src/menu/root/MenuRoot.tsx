@@ -246,10 +246,14 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       // Prevent the menu from closing on mobile devices that have a delayed click event.
       // In some cases the menu, when tapped, will fire the focus event first and then the click
       // event. Without this guard, the menu will close immediately after opening.
+      // Scoped to `triggerPress` so it only swallows the trigger's own delayed click: a genuine
+      // close from within the popup (e.g. tapping an item, reason `itemPress`) must still go
+      // through even within the guard window.
       // This must bail before notifying `onOpenChange` and dispatching the open change, otherwise
       // controlled consumers (and floating-ui's own state) would close the menu regardless.
       if (
         nextOpen === false &&
+        reason === REASONS.triggerPress &&
         nativeEvent?.type === 'click' &&
         (nativeEvent as PointerEvent).pointerType === 'touch' &&
         !allowTouchToCloseRef.current
@@ -276,8 +280,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
       // Arm the touch-to-close guard for 300ms after a focus-driven open, so the delayed click
-      // that follows a tap is ignored (see the early return above). Any other open/close clears
-      // the guard so a normal click can close the menu right away.
+      // that follows a tap is ignored (see the early return above). Any other open/close disarms
+      // the guard (and clears the timer) so a normal click can close the menu right away.
       if (nextOpen && reason === REASONS.triggerFocus) {
         allowTouchToCloseRef.current = false;
         allowTouchToCloseTimeout.start(300, () => {
@@ -399,14 +403,18 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [store],
   );
 
+  // A root context menu has no parent menu to return to, so list navigation must not treat it as
+  // nested: otherwise the cross-orientation close key (e.g. ArrowLeft) would close it, which native
+  // context menus never do. Its submenus are regular menus with `parent.type === 'menu'`.
+  // Named separately from the floating-tree `nested` above (`floatingParentNodeId != null`) since
+  // the two predicates answer different questions.
+  const treatAsNestedForListNav = parent.type !== undefined && parent.type !== 'context-menu';
+
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !disabled,
     listRef: store.context.itemDomElements,
     activeIndex,
-    // A root context menu has no parent menu to return to, so it must not be treated as nested:
-    // otherwise the cross-orientation close key (e.g. ArrowLeft) would close it, which native
-    // context menus never do. Its submenus are regular menus with `parent.type === 'menu'`.
-    nested: parent.type !== undefined && parent.type !== 'context-menu',
+    nested: treatAsNestedForListNav,
     loopFocus,
     orientation,
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
