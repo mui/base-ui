@@ -78,7 +78,6 @@ export class PreviewCardStore<Payload> extends ReactStore<
             nextOpen &&
             eventDetails.reason === REASONS.triggerHover &&
             eventDetails.trigger &&
-            event &&
             'clientX' in event &&
             'clientY' in event &&
             this.context.inlineRectCoordsRef.current?.element !== eventDetails.trigger
