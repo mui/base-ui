@@ -115,6 +115,13 @@
     color: var(--gray-t1);
   }
 
+  .SideNavSeparator {
+    margin-block: 1rem;
+    border: none;
+    border-top: 1px solid var(--color-border);
+    width: var(--space-32);
+  }
+
   .SideNavItem {
     display: flex;
   }
@@ -165,7 +172,7 @@
 
   .SideNavBadge {
     /* inline-block makes the badge an atomic inline so it doesn't inherit the
-       link's hover underline; the margin replaces the link's former flex gap */
+       link's hover underline */
     display: inline-block;
     vertical-align: middle;
     margin-inline-start: 4px;
@@ -180,5 +187,18 @@
     padding-inline: 2px;
     translate: 0 -2px;
     word-break: keep-all;
+  }
+
+  .SideNavLinkIconContainer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+  }
+
+  .SideNavVersion {
+    /* inline-block keeps the version out of the link's hover underline */
+    display: inline-block;
+    margin-inline-start: 0.375rem;
+    color: var(--gray-t1);
   }
 }

@@ -11,6 +11,8 @@ import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
 import { Header, titleMap } from 'docs/src/components/Header';
 import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
 import { sitemap } from 'docs/src/app/sitemap';
+import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
+import { NpmIcon } from 'docs/src/icons/NpmIcon';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
@@ -93,6 +95,28 @@ export default function Layout({ children }: React.PropsWithChildren) {
                             </SideNav.List>
                           </SideNav.Section>
                         ))}
+                      <SideNav.Separator />
+                      <SideNav.Section>
+                        <SideNav.List>
+                          <SideNav.Item
+                            href="https://github.com/mui/base-ui"
+                            icon={<GitHubIcon />}
+                            external
+                          >
+                            GitHub
+                          </SideNav.Item>
+                          <SideNav.Item
+                            href="https://www.npmjs.com/package/@base-ui/react"
+                            icon={<NpmIcon />}
+                            external
+                          >
+                            <span>
+                              npm
+                              <span className="SideNavVersion">{process.env.LIB_VERSION}</span>
+                            </span>
+                          </SideNav.Item>
+                        </SideNav.List>
+                      </SideNav.Section>
                     </SideNav.Root>
 
                     <main className="ContentLayoutMain" id={MAIN_CONTENT_ID}>
