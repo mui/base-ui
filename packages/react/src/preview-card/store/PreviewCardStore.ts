@@ -66,6 +66,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
     eventDetails: Omit<PreviewCardRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
     const { inlineRectCoordsRef } = this.context;
+
     applyPopupOpenChange<State<Payload>, PreviewCardRoot.ChangeEventDetails>(
       this,
       nextOpen,
