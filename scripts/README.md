@@ -30,13 +30,13 @@ A typical release goes like this:
    > - **--dist-tag** Use to publish legacy or canary versions.
 
 5. This command invokes the [Publish](https://github.com/mui/base-ui/actions/workflows/publish.yml) GitHub action. It'll log the URL which can be opened to see the latest workflow run.
-6. The next screen shows "@username requested your review to deploy to npm-publish", click "Review deployments" and authorize your workflow run. **Never approve workflow runs you didn't initiaite.**
+6. The next screen shows "@username requested your review to deploy to npm-publish", click "Review deployments" and authorize your workflow run. **Never approve workflow runs you didn't initiate.**
 
 ### Publish the documentation
 
 The documentation must be updated on the `docs-vX` branch (`docs-v1` for `v1.X` releases, `docs-v2` for `v2.X` releases, etc.)
 
-Push the working branch to the documentation release branch to deploy the documentation with the latest changes:
+Force-push the latest upstream `master` to the documentation release branch to deploy the documentation with the latest changes:
 
 ```bash
 pnpm docs:deploy
