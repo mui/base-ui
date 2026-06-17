@@ -1,58 +1,54 @@
 @layer components {
   .InstallationBlockTabsList {
-    position: relative;
     display: flex;
     align-self: flex-end;
-    gap: 0.125rem;
   }
 
   .InstallationBlockTab {
-    box-sizing: border-box;
     font-family: var(--font-mono);
     font-size: var(--font-size-14);
-    line-height: 1;
-    cursor: default;
     position: relative;
     z-index: 0;
     outline: 0;
-    height: calc(2rem + 1px);
-    padding-inline: 0.5rem;
+    height: 2.25rem;
+    padding-inline: 0.75rem;
     padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-    border-top: 1px solid transparent;
+    padding-bottom: calc(0.25rem + 1px);
     border-right: 1px solid transparent;
     border-left: 1px solid transparent;
-    border-top-left-radius: var(--radius-8);
-    border-top-right-radius: var(--radius-8);
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
 
     > span {
       position: relative;
     }
 
+    /* Match the card's inner corner so the inset focus ring rounds to follow it
+       instead of being clipped square by the panel's rounded overflow. */
+    &:first-child {
+      border-top-left-radius: calc(var(--radius-12) - 1px);
+    }
+
     @media (hover: hover) {
       &:hover:not([data-active]) {
-        border-color: var(--gray-c1);
-
         &::before {
           content: '';
           position: absolute;
-          inset: 0 0 1px;
-          border-top-left-radius: calc(var(--radius-8) - 1px);
-          border-top-right-radius: calc(var(--radius-8) - 1px);
+          inset: 0 -1px 1px;
           background-color: var(--gray-c1);
+          background-clip: padding-box;
           pointer-events: none;
         }
       }
     }
 
     &[data-active] {
-      background-color: var(--color-content);
       border-color: var(--color-border);
+      background-color: var(--color-content);
 
-      &::before {
+      &::after {
         content: '';
         position: absolute;
         bottom: 0;
@@ -62,13 +58,19 @@
         background-color: var(--color-content);
         pointer-events: none;
       }
+
+      /* The first tab sits flush against the card's left border, so drop its own
+         left border to avoid doubling it up. */
+      &:first-child {
+        border-left-color: transparent;
+      }
     }
 
     &:focus-visible {
       outline: 2px solid var(--gray-t2);
       outline-offset: -2px;
 
-      &::before {
+      &::after {
         content: none;
       }
     }

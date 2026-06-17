@@ -40,7 +40,7 @@ export function InstallationBlock(props: InstallationBlockProps) {
       <CodeBlock.Root>
         <CodeBlock.Panel
           title="Installation command"
-          style={{ paddingLeft: 'calc(0.125rem + 1px)', borderBottom: 'none' }}
+          style={{ paddingLeft: 0, borderBottom: 'none' }}
         >
           <Tabs.List
             className="InstallationBlockTabsList"
