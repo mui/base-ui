@@ -17,6 +17,7 @@ import {
   useListNavigation,
   useClick,
 } from '../../floating-ui-react';
+import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
@@ -42,7 +43,7 @@ import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from '.
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import type { HTMLProps } from '../../internals/types';
+import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { NOOP } from '../../internals/noop';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
@@ -1062,14 +1063,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave: !keepHighlight,
-    // `cols` > 1 enables grid navigation.
-    // Since <Combobox.Row> infers column sizes (and is required when building a grid),
-    // it works correctly even with a value of `2`.
-    // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
-    cols: grid ? 2 : 1,
     orientation: grid ? 'horizontal' : undefined,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY as number[],
+    grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
@@ -1090,8 +1087,28 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const inputProps = React.useMemo(
-    () => mergeProps(listNavigation.reference, dismiss.reference, click.reference, role.reference),
-    [listNavigation.reference, dismiss.reference, click.reference, role.reference],
+    () =>
+      mergeProps(
+        listNavigation.reference,
+        {
+          onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+            // In grid mode the navigation hook treats ArrowLeft/ArrowRight as horizontal
+            // grid movement. When the input has focus and no item is highlighted the user
+            // is still editing the query, so let the input keep its native caret behavior.
+            if (
+              grid &&
+              store.state.activeIndex == null &&
+              (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
+            ) {
+              event.preventBaseUIHandler();
+            }
+          },
+        },
+        dismiss.reference,
+        click.reference,
+        role.reference,
+      ),
+    [listNavigation.reference, dismiss.reference, click.reference, role.reference, grid, store],
   );
 
   const popupProps = React.useMemo(
@@ -1449,9 +1466,8 @@ interface ComboboxRootProps<ItemValue> {
   defaultInputValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the combobox will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the combobox manually.
-   * Useful when the combobox's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the combobox.
+   * Call this after any externally controlled closing animation finishes.
    */
   actionsRef?: React.RefObject<AriaCombobox.Actions | null> | undefined;
   /**

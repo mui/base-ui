@@ -214,7 +214,7 @@ function StackedToasts() {
 
 import { DemoToastAnchored } from './demos/anchored';
 
-<DemoToastAnchored compact />
+<DemoToastAnchored />
 
 ### Custom position
 
@@ -225,7 +225,7 @@ The following shows a top-center position:
 
 import { DemoToastPosition } from './demos/position';
 
-<DemoToastPosition compact />
+<DemoToastPosition />
 
 ### Undo action
 
@@ -233,7 +233,7 @@ When adding a toast, the `actionProps` option can be used to define props for an
 
 import { DemoToastUndo } from './demos/undo';
 
-<DemoToastUndo compact />
+<DemoToastUndo />
 
 ### Promise
 
@@ -243,7 +243,7 @@ Each of the states also accepts the [method options](#toastmanagerupdateoptions)
 
 import { DemoToastPromise } from './demos/promise';
 
-<DemoToastPromise compact />
+<DemoToastPromise />
 
 ### Custom
 
@@ -252,7 +252,7 @@ This enables you to pass any data (including functions) you need to the toast an
 
 import { DemoToastCustom } from './demos/custom';
 
-<DemoToastCustom compact />
+<DemoToastCustom />
 
 ### Deduplicated toast
 
@@ -260,7 +260,7 @@ When you upsert the same toast by `id`, the `updateKey` property increments so a
 
 import { DemoToastDeduplicate } from './demos/deduplicate';
 
-<DemoToastDeduplicate compact />
+<DemoToastDeduplicate />
 
 ### Varying heights
 
@@ -269,7 +269,7 @@ This prevents taller toasts from overflowing the stack when collapsed.
 
 import { DemoToastVaryingHeights } from './demos/varying-heights';
 
-<DemoToastVaryingHeights compact />
+<DemoToastVaryingHeights />
 
 ## API reference
 
@@ -279,13 +279,13 @@ import { TypesToast, TypesToastAdditional } from './types';
 
 <TypesToast.Provider />
 
-### Viewport
-
-<TypesToast.Viewport />
-
 ### Portal
 
 <TypesToast.Portal />
+
+### Viewport
+
+<TypesToast.Viewport />
 
 ### Root
 

@@ -1,17 +1,16 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
+  applyPopupOpenChange,
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setPopupOpenState,
   usePopupStore,
 } from '../../utils/popups';
 
@@ -75,48 +74,12 @@ export class TooltipStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    const reason = eventDetails.reason;
-
-    const isHover = reason === REASONS.triggerHover;
-    const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
-    const isDismissClose =
-      !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
-
-    (eventDetails as TooltipRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-      this.set('preventUnmountingOnClose', true);
-    };
-
-    this.context.onOpenChange?.(nextOpen, eventDetails as TooltipRoot.ChangeEventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-    const changeState = () => {
-      const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
-
-      if (isFocusOpen) {
-        updatedState.instantType = 'focus';
-      } else if (isDismissClose) {
-        updatedState.instantType = 'dismiss';
-      } else if (reason === REASONS.triggerHover) {
-        updatedState.instantType = undefined;
-      }
-
-      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
-
-      this.update(updatedState);
-    };
-
-    if (isHover) {
-      // If a hover reason is provided, we need to flush the state synchronously. This ensures
-      // `node.getAnimations()` knows about the new state.
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
+    applyPopupOpenChange<State<Payload>, TooltipRoot.ChangeEventDetails>(
+      this,
+      nextOpen,
+      eventDetails as TooltipRoot.ChangeEventDetails,
+      { extraState: { openChangeReason: eventDetails.reason } },
+    );
   };
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.

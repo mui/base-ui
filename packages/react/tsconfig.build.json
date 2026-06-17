@@ -10,7 +10,7 @@
     "moduleResolution": "bundler",
     "noEmit": false,
     "rootDir": "./src",
-    "outDir": "build/esm",
+    "outDir": "build",
     "types": ["@mui/internal-code-infra/build-env"]
   },
   "include": ["src/**/*.ts*"],

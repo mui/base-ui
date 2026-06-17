@@ -177,7 +177,12 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
+  const mergedInputRef = useMergedRefs(
+    inputRefProp,
+    inputRef,
+    validation.inputRef,
+    validation.registerInput,
+  );
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
     labelId,
@@ -312,7 +317,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         'aria-labelledby': ariaLabelledBy,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
-          setFocused(true);
+          if (!disabled) {
+            setFocused(true);
+          }
         },
         onBlur() {
           const inputEl = inputRef.current;

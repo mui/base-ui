@@ -9,7 +9,7 @@ import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { isIOS } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { activeElement } from '../../floating-ui-react/utils';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -28,13 +28,13 @@ import {
   MINUS_SIGNS_WITH_ASCII,
   PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
-import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
-import { DEFAULT_STEP } from '../utils/constants';
-import { hasNumberFormatRoundingOptions, toValidatedNumber } from '../utils/validate';
+import { formatNumber } from '../../utils/formatNumber';
+import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
 import {
   createChangeEventDetails,
+  createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
   type ReasonToEvent,
@@ -141,12 +141,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() => {
-    if (valueProp !== undefined) {
-      return getControlledInputValue(value, locale, format);
-    }
-    return formatNumber(value, locale, format);
-  });
+  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, locale, format));
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useStableCallback(() => {
@@ -189,9 +184,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       }
     }
 
-    // Allow plus sign in all cases; minus sign only when negatives are valid
+    // Allow plus sign in all cases; minus sign when negatives are valid, or when out-of-range
+    // entry is allowed so native underflow validation can be triggered from the keyboard.
     PLUS_SIGNS_WITH_ASCII.forEach((key) => keys.add(key));
-    if (minWithDefault < 0) {
+    if (minWithDefault < 0 || allowOutOfRange) {
       MINUS_SIGNS_WITH_ASCII.forEach((key) => keys.add(key));
     }
 
@@ -212,18 +208,18 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     (unvalidatedValue: number | null, details: NumberFieldRoot.ChangeEventDetails): boolean => {
       const eventWithOptionalKeyState = details.event as EventWithOptionalKeyState;
       const dir = details.direction;
-      const reason = details.reason;
-      // Only allow out-of-range values for direct text entry (native-like behavior).
-      // Step-based interactions (keyboard arrows, buttons, wheel, scrub) still clamp to min/max.
-      const shouldClampValue =
-        !allowOutOfRange ||
-        !(
-          reason === REASONS.inputChange ||
-          reason === REASONS.inputBlur ||
-          reason === REASONS.inputPaste ||
-          reason === REASONS.inputClear ||
-          reason === REASONS.none
-        );
+
+      // Direct text entry (typing, pasting, clearing, autofill) behaves natively; step-based
+      // interactions (keyboard arrows, buttons, wheel, scrub) do not.
+      const isInputReason =
+        details.reason === REASONS.inputChange ||
+        details.reason === REASONS.inputClear ||
+        details.reason === REASONS.inputBlur ||
+        details.reason === REASONS.inputPaste ||
+        details.reason === REASONS.none;
+
+      // Only allow out-of-range values for direct text entry. Step-based interactions still clamp.
+      const shouldClampValue = !allowOutOfRange || !isInputReason;
 
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
@@ -236,15 +232,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         clamp: shouldClampValue,
       });
 
-      // Determine whether we should notify about a change even if the numeric value is unchanged.
-      // This is needed when the user input is clamped/snapped to the same current value, or when
-      // the source value differs but validation normalizes to the existing value.
-      const isInputReason =
-        details.reason === REASONS.inputChange ||
-        details.reason === REASONS.inputClear ||
-        details.reason === REASONS.inputBlur ||
-        details.reason === REASONS.inputPaste ||
-        details.reason === REASONS.none;
+      // Notify about a change even when the numeric value is unchanged for input reasons: the
+      // typed text may clamp/snap to the current value, or differ while validation normalizes
+      // it back to the existing value.
       const shouldFireChange =
         validatedValue !== value ||
         (isInputReason && (unvalidatedValue !== value || allowInputSyncRef.current === false));
@@ -253,7 +243,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
-          return shouldFireChange;
+          // Report a vetoed change as not applied, so callers don't commit a value never stored.
+          return false;
         }
 
         setValueUnwrapped(validatedValue);
@@ -281,11 +272,17 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const incrementValue = useStableCallback(
     (amount: number, { direction, currentValue, event, reason }: IncrementValueParameters) => {
       const prevValue = currentValue == null ? valueRef.current : currentValue;
-      const nextValue =
-        typeof prevValue === 'number' ? prevValue + amount * direction : Math.max(0, min ?? 0);
       const nativeEvent = event as ReasonToEvent<IncrementValueParameters['reason']> | undefined;
+
+      if (typeof prevValue !== 'number') {
+        // Seed an empty field with 0; `setValue` clamps it to the in-range value nearest 0
+        // (e.g. `max` for a negative range). No `direction`: the seed isn't a step, so it must
+        // not be directionally snapped.
+        return setValue(0, createChangeEventDetails(reason, nativeEvent));
+      }
+
       return setValue(
-        nextValue,
+        prevValue + amount * direction,
         createChangeEventDetails(reason, nativeEvent, undefined, {
           direction,
         }),
@@ -295,7 +292,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   // We need to update the input value when the external `value` prop changes. This ends up acting
   // as a single source of truth to update the input value, bypassing the need to manually set it in
-  // each event handler internally in this hook.
+  // each event handler.
   // This is done inside a layout effect as an alternative to the technique to set state during
   // render as we're accessing a ref, which must be inside an effect.
   // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
@@ -310,10 +307,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       return;
     }
 
-    const nextInputValue =
-      valueProp !== undefined
-        ? getControlledInputValue(value, locale, format)
-        : formatNumber(value, locale, format);
+    const nextInputValue = formatNumber(value, locale, format);
 
     if (nextInputValue !== inputValue) {
       setInputValue(nextInputValue);
@@ -322,7 +316,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   useIsoLayoutEffect(
     function setDynamicInputModeForIOS() {
-      if (!isIOS) {
+      if (!platform.os.ios) {
         return;
       }
 
@@ -338,10 +332,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       setInputMode(computedInputMode);
     },
-    [minWithDefault, formatStyle],
+    [minWithDefault],
   );
 
-  // The `onWheel` prop can't be prevented, so we need to use a global event listener.
+  // React attaches `onWheel` as a passive listener, so calling `preventDefault` there is ignored.
+  // Attach a native (non-passive) `wheel` listener to the input instead to prevent page scrolling.
   React.useEffect(
     function registerElementWheelListener() {
       const element = inputRef.current;
@@ -362,18 +357,35 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         event.preventDefault();
         allowInputSyncRef.current = true;
 
-        const amount = getStepAmount(event) ?? DEFAULT_STEP;
+        const amount = getStepAmount(event);
 
-        incrementValue(amount, {
+        // Each wheel turn is a discrete, final change, so commit it immediately like keyboard
+        // steps (gated on an actual change so boundary no-ops don't commit).
+        const changed = incrementValue(amount, {
           direction: event.deltaY > 0 ? -1 : 1,
           event,
           reason: 'wheel',
         });
+        if (changed) {
+          onValueCommitted(
+            lastChangedValueRef.current ?? valueRef.current,
+            createGenericEventDetails(REASONS.wheel, event),
+          );
+        }
       }
 
       return addEventListener(element, 'wheel', handleWheel);
     },
-    [allowWheelScrub, incrementValue, disabled, readOnly, getStepAmount],
+    [
+      allowWheelScrub,
+      incrementValue,
+      disabled,
+      readOnly,
+      getStepAmount,
+      onValueCommitted,
+      lastChangedValueRef,
+      valueRef,
+    ],
   );
 
   const state: NumberFieldRootState = React.useMemo(
@@ -478,10 +490,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
             const parsedValue = Number.isNaN(nextValue) ? null : nextValue;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
-            setDirty(parsedValue !== validityData.initialValue);
+            // `setValue` updates the dirty flag from the stored (clamped) value, so validate with
+            // that same value rather than the raw autofilled one.
             setValue(parsedValue, details);
             clearErrors(name);
-            validation.change(parsedValue);
+            validation.change(lastChangedValueRef.current ?? parsedValue);
           },
         })}
         ref={hiddenInputRef}
@@ -495,6 +508,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         // See https://github.com/facebook/react/issues/12334.
         step={stepProp}
         disabled={disabled}
+        readOnly={readOnly}
         required={required}
         aria-hidden
         tabIndex={-1}
@@ -529,21 +543,21 @@ export interface NumberFieldRootProps extends Omit<
    */
   allowOutOfRange?: boolean | undefined;
   /**
-   * The small step value of the input element when incrementing while the alt key is held. Snaps
-   * to multiples of this value.
+   * The small step value of the input element when incrementing while the alt key is held.
+   * Snaps to multiples of this value when `snapOnStep` is enabled.
    * @default 0.1
    */
   smallStep?: number | undefined;
   /**
    * Amount to increment and decrement with the buttons and arrow keys, or to scrub with pointer movement in the scrub area.
    * To always enable step validation on form submission, specify the `min` prop explicitly in conjunction with this prop.
-   * Specify `step="any"` to always disable step validation.
+   * Specify `step="any"` to always disable step validation; interactive stepping then uses a base amount of `1`, while the alt and shift keys still step by `smallStep` and `largeStep`.
    * @default 1
    */
   step?: number | 'any' | undefined;
   /**
-   * The large step value of the input element when incrementing while the shift key is held. Snaps
-   * to multiples of this value.
+   * The large step value of the input element when incrementing while the shift key is held.
+   * Snaps to multiples of this value when `snapOnStep` is enabled.
    * @default 10
    */
   largeStep?: number | undefined;
@@ -604,7 +618,7 @@ export interface NumberFieldRootProps extends Omit<
    * - `'input-clear'` when the field becomes empty
    * - `'input-blur'` when formatting (and clamping, if enabled) occurs on blur
    * - `'input-paste'` for paste interactions
-   * - `'keyboard'` for keyboard input
+   * - `'keyboard'` for arrow-key/Home/End stepping (typing digits uses `'input-change'`/`'input-clear'`)
    * - `'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls
    * - `'wheel'` for wheel-based scrubbing
    * - `'scrub'` for scrub area drags
@@ -618,7 +632,8 @@ export interface NumberFieldRootProps extends Omit<
    * - The input is blurred after typing a value.
    * - The pointer is released after scrubbing or pressing the increment/decrement buttons.
    *
-   * It runs simultaneously with `onValueChange` when interacting with the keyboard.
+   * It runs simultaneously with `onValueChange` when interacting with the keyboard or the
+   * mouse wheel.
    *
    * **Warning**: This is a generic event not a change event.
    */
@@ -679,6 +694,8 @@ export type NumberFieldRootChangeEventDetails = BaseUIChangeEventDetails<
   ChangeEventCustomProperties
 >;
 
+// `none` is kept for consistency with other components even though the number field never
+// commits with it.
 export type NumberFieldRootCommitEventReason =
   | typeof REASONS.inputBlur
   | typeof REASONS.inputClear
@@ -690,16 +707,6 @@ export type NumberFieldRootCommitEventReason =
   | typeof REASONS.none;
 export type NumberFieldRootCommitEventDetails =
   BaseUIGenericEventDetails<NumberFieldRoot.CommitEventReason>;
-
-function getControlledInputValue(
-  value: number | null,
-  locale: Intl.LocalesArgument,
-  format: Intl.NumberFormatOptions | undefined,
-) {
-  return hasNumberFormatRoundingOptions(format)
-    ? formatNumber(value, locale, format)
-    : formatNumberMaxPrecision(value, locale, format);
-}
 
 export namespace NumberFieldRoot {
   export type State = NumberFieldRootState;

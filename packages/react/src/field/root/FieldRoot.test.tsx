@@ -1071,6 +1071,35 @@ describe('<Field.Root />', () => {
           expect(control).not.toHaveAttribute('aria-invalid');
         });
 
+        it('revalidates on change when clearing a type mismatch leaves only `valueMissing`', async () => {
+          await render(
+            <Field.Root validationMode="onBlur">
+              <Field.Control type="email" required data-testid="control" />
+              <Field.Error match="typeMismatch" data-testid="type-error">
+                Invalid email
+              </Field.Error>
+              <Field.Error match="valueMissing" data-testid="required-error">
+                Required
+              </Field.Error>
+            </Field.Root>,
+          );
+
+          const control = screen.getByTestId('control');
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: 'invalid' } });
+          fireEvent.blur(control);
+
+          expect(screen.getByTestId('type-error')).not.toBe(null);
+          expect(screen.queryByTestId('required-error')).toBe(null);
+
+          fireEvent.focus(control);
+          fireEvent.change(control, { target: { value: '' } });
+
+          expect(screen.queryByTestId('type-error')).toBe(null);
+          expect(screen.getByTestId('required-error')).not.toBe(null);
+        });
+
         it('clears valueMissing on change but defers other native errors like typeMismatch until blur when both are active', async () => {
           await render(
             <Field.Root validationMode="onBlur">

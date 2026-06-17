@@ -113,7 +113,7 @@ export interface PreviewCardTrigger {
 
 export interface PreviewCardTriggerState {
   /**
-   * Whether the preview card is currently open.
+   * Whether the preview card is currently open and was opened by this trigger.
    */
   open: boolean;
 }

@@ -11,7 +11,7 @@
     "docs-infra": "docs-infra",
     "validate": "pnpm internal-validate --command 'pnpm validate'",
     "internal-validate": "docs-infra validate",
-    "typescript": "tsc -b tsconfig.json",
+    "typescript": "tsgo -b tsconfig.json",
     "link-check": "tsx ./scripts/reportBrokenLinks.mts",
     "generate-llms": "node --experimental-strip-types ./scripts/generateLlmTxt/index.mjs"
   },
@@ -20,7 +20,7 @@
     "@base-ui/utils": "workspace:*",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@mui/internal-docs-infra": "0.11.1-canary.4",
+    "@mui/internal-docs-infra": "0.11.1-canary.22",
     "@next/mdx": "^16.1.6",
     "@react-spring/web": "^10.0.3",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",

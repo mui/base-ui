@@ -14,15 +14,16 @@
     justify-content: center;
     color: var(--gray-t1);
 
-    border: 1px solid var(--gray-c2);
+    border: 1px solid var(--color-border);
     border-collapse: separate;
-    border-radius: var(--radius-6);
+    border-radius: var(--radius-12);
   }
 
   .AccordionHeaderRow {
-    border-radius: var(--radius-6) var(--radius-6) 0 0;
-    border-bottom: 1px solid var(--gray-c2);
+    border-radius: calc(var(--radius-12) - 1px) calc(var(--radius-12) - 1px) 0 0;
+    border-bottom: 1px solid var(--color-border);
     background-color: var(--gray-s2);
+    background-clip: padding-box;
   }
 
   .AccordionHeaderCell {
@@ -33,7 +34,7 @@
   }
 
   .AccordionItem:not(:last-child) {
-    border-bottom: 1px solid var(--gray-c2);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .AccordionTrigger {
@@ -76,8 +77,8 @@
     }
 
     .AccordionItem:not([open]):last-child & {
-      border-bottom-left-radius: var(--radius-6);
-      border-bottom-right-radius: var(--radius-6);
+      border-bottom-left-radius: calc(var(--radius-12) - 1px);
+      border-bottom-right-radius: calc(var(--radius-12) - 1px);
     }
   }
 
@@ -110,8 +111,8 @@
     }
 
     .AccordionItem:last-child & {
-      border-bottom-left-radius: var(--radius-6);
-      border-bottom-right-radius: var(--radius-6);
+      border-bottom-left-radius: calc(var(--radius-12) - 1px);
+      border-bottom-right-radius: calc(var(--radius-12) - 1px);
     }
   }
 
@@ -132,6 +133,12 @@
         width: 1.25rem;
         background-image: linear-gradient(to right, transparent, var(--scrollable-gradient-color));
         animation: accordion-overscroll-overlay 500ms;
+      }
+
+      /* Only applied when the container is scrollable as this creates a layer. */
+      & .AccordionScrollableInner {
+        /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
+        overscroll-behavior-x: contain;
       }
 
       @media (hover: hover) {
@@ -159,7 +166,6 @@
 
     /* Make individual cells scrollable */
     overflow-x: auto;
-    overscroll-behavior-x: contain;
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
@@ -167,6 +173,7 @@
     }
   }
 
+  /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
   .AccordionScrollable:has(pre) .AccordionScrollableInner {
     min-height: unset;
     padding: 0;

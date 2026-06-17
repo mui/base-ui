@@ -1,7 +1,7 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import {
+  applyPopupOpenChange,
   createPopupFloatingRootContext,
   createInitialPopupStoreState,
   InlineRectCoords,
@@ -9,7 +9,6 @@ import {
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
-  setPopupOpenState,
   updateInlineRectCoords,
   usePopupStore,
 } from '../../utils/popups';
@@ -66,65 +65,35 @@ export class PreviewCardStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<PreviewCardRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    const reason = eventDetails.reason;
+    const { inlineRectCoordsRef } = this.context;
 
-    const isHover = reason === REASONS.triggerHover;
-    const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
-    const isDismissClose =
-      !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
-
-    (eventDetails as PreviewCardRoot.ChangeEventDetails).preventUnmountOnClose = () => {
-      this.set('preventUnmountingOnClose', true);
-    };
-
-    this.context.onOpenChange?.(nextOpen, eventDetails as PreviewCardRoot.ChangeEventDetails);
-
-    if (eventDetails.isCanceled) {
-      return;
-    }
-
-    const event = eventDetails.event;
-    if (
-      nextOpen &&
-      isHover &&
-      eventDetails.trigger &&
-      'clientX' in event &&
-      'clientY' in event &&
-      this.context.inlineRectCoordsRef.current?.element !== eventDetails.trigger
-    ) {
-      updateInlineRectCoords(
-        this.context.inlineRectCoordsRef,
-        eventDetails.trigger,
-        event.clientX,
-        event.clientY,
-      );
-    }
-
-    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
-
-    const changeState = () => {
-      const updatedState: Partial<State<Payload>> = { open: nextOpen };
-
-      if (isFocusOpen) {
-        updatedState.instantType = 'focus';
-      } else if (isDismissClose) {
-        updatedState.instantType = 'dismiss';
-      } else if (reason === REASONS.triggerHover) {
-        updatedState.instantType = undefined;
-      }
-
-      setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
-
-      this.update(updatedState);
-    };
-
-    if (isHover) {
-      // If a hover reason is provided, we need to flush the state synchronously. This ensures
-      // `node.getAnimations()` knows about the new state.
-      ReactDOM.flushSync(changeState);
-    } else {
-      changeState();
-    }
+    applyPopupOpenChange<State<Payload>, PreviewCardRoot.ChangeEventDetails>(
+      this,
+      nextOpen,
+      eventDetails as PreviewCardRoot.ChangeEventDetails,
+      {
+        onBeforeDispatch() {
+          // Capture the hovered inline-rect coordinates so the card anchors to the
+          // exact point on the link that was hovered.
+          const event = eventDetails.event;
+          if (
+            nextOpen &&
+            eventDetails.reason === REASONS.triggerHover &&
+            eventDetails.trigger &&
+            'clientX' in event &&
+            'clientY' in event &&
+            inlineRectCoordsRef.current?.element !== eventDetails.trigger
+          ) {
+            updateInlineRectCoords(
+              inlineRectCoordsRef,
+              eventDetails.trigger,
+              event.clientX,
+              event.clientY,
+            );
+          }
+        },
+      },
+    );
   };
 
   public static useStore<Payload>(

@@ -32,7 +32,12 @@ import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
-import { defaultItemEquality, findItemIndex } from '../../internals/itemEquality';
+import {
+  compareItemEquality,
+  defaultItemEquality,
+  findItemIndex,
+} from '../../internals/itemEquality';
+import { areArraysEqual } from '../../internals/areArraysEqual';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
@@ -252,9 +257,21 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     ],
   );
 
+  function isSelectedValueDirty(currentValue: unknown) {
+    const initialValue = validityData.initialValue;
+
+    if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
+      return !areArraysEqual(currentValue, initialValue, (itemValue, initialItemValue) =>
+        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
+      );
+    }
+
+    return currentValue !== initialValue;
+  }
+
   useValueChanged(value, () => {
     clearErrors(name);
-    setDirty(value !== validityData.initialValue);
+    setDirty(isSelectedValueDirty(value));
 
     validation.change(value);
   });
@@ -697,9 +714,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   modal?: boolean | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the select will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the select manually.
-   * Useful when the select's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the select.
+   * Call this after any externally controlled closing animation finishes.
    */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;
   /**
