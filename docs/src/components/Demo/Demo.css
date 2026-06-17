@@ -391,6 +391,23 @@
       outline: 2px solid var(--gray-t2);
       outline-offset: -1px;
     }
+
+    &[data-sticky] {
+      position: sticky;
+      inset: auto;
+      bottom: 0.75rem;
+      align-self: center;
+      align-items: center;
+      width: auto;
+      height: var(--space-28);
+      /* Overlay the button over the code block instead of adding a row below it.
+         The margins cancel out (net 0) so the card keeps its height, while the
+         button rests 0.75rem above the bottom border instead of touching it. */
+      margin-top: calc((var(--space-28) + 0.75rem) * -1);
+      margin-bottom: 0.75rem;
+      padding: 0;
+      z-index: 2;
+    }
   }
 
   .DemoCollapseButtonVisual {

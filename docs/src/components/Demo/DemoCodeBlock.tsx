@@ -71,12 +71,6 @@ export function DemoCodeBlock({
           <div className="DemoSourceBrowser">{selectedFile}</div>
         </Collapsible.Panel>
 
-        {!collapsibleOpen && (
-          <Collapsible.Trigger className="DemoCollapseButton">
-            <span className="DemoCollapseButtonVisual">Show code</span>
-          </Collapsible.Trigger>
-        )}
-
         {collapsibleOpen && (
           <React.Fragment>
             <ScrollArea.Corner />
@@ -85,6 +79,15 @@ export function DemoCodeBlock({
           </React.Fragment>
         )}
         {copyButton}
+
+        <Collapsible.Trigger
+          className="DemoCollapseButton"
+          data-sticky={collapsibleOpen ? '' : undefined}
+        >
+          <span className="DemoCollapseButtonVisual">
+            {collapsibleOpen ? 'Hide code' : 'Show code'}
+          </span>
+        </Collapsible.Trigger>
       </Root>
     </div>
   );
