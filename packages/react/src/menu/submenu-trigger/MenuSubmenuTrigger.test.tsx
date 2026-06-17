@@ -40,7 +40,7 @@ describe('<Menu.SubmenuTrigger />', () => {
                   <Menu.SubmenuTrigger>2</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner>
-                      <Menu.Popup>
+                      <Menu.Popup data-testid="submenu">
                         <Menu.Item>2.1</Menu.Item>
                         <Menu.Item>2.2</Menu.Item>
                       </Menu.Popup>
@@ -91,6 +91,94 @@ describe('<Menu.SubmenuTrigger />', () => {
         expect(item).not.toHaveAttribute('data-highlighted');
       });
     });
+  });
+
+  it('defers the ARIA relationship while a keyboard-opened submenu trigger keeps focus', async () => {
+    await render(
+      <Menu.Root open>
+        <Menu.Trigger>Open menu</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu" />
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const submenuTrigger = screen.getByText('More');
+
+    fireEvent.focus(submenuTrigger);
+    fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
+
+    const submenu = await screen.findByTestId('submenu');
+
+    expect(submenuTrigger).toHaveFocus();
+    expect(submenuTrigger).toHaveAttribute('aria-expanded', 'false');
+    expect(submenuTrigger).not.toHaveAttribute('aria-controls');
+    expect(submenuTrigger).toHaveAttribute('data-popup-open');
+    expect(submenu).not.toHaveAttribute('aria-labelledby');
+  });
+
+  it('keeps the ARIA relationship deferred after keyboard focus moves into the submenu', async () => {
+    await render(<TestComponent direction="ltr" />);
+    const submenuTrigger = screen.getByText('2');
+
+    fireEvent.focus(submenuTrigger);
+    fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
+
+    const submenuItem = screen.getByText('2.1');
+    await waitFor(() => {
+      expect(submenuItem).toHaveFocus();
+    });
+
+    const submenu = screen.getByTestId('submenu');
+
+    expect(submenuTrigger).toHaveAttribute('aria-expanded', 'false');
+    expect(submenuTrigger).not.toHaveAttribute('aria-controls');
+    expect(submenu).not.toHaveAttribute('aria-labelledby');
+  });
+
+  it('exposes the ARIA relationship immediately when the submenu is opened by click', async () => {
+    const { user } = await render(
+      <Menu.Root open>
+        <Menu.Trigger>Open menu</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger openOnHover={false}>More</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu">
+                      <Menu.Item>Child</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const submenuTrigger = screen.getByText('More');
+
+    await user.click(submenuTrigger);
+
+    const submenu = await screen.findByTestId('submenu');
+
+    expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+    expect(submenuTrigger).toHaveAttribute('aria-controls', submenu.id);
+    expect(submenu).toHaveAttribute('aria-labelledby', submenuTrigger.id);
   });
 
   it('sets tabIndex to 0 on the submenu trigger after opening the submenu with a keydown event', async () => {

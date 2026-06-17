@@ -16,6 +16,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * A menu item that opens a submenu.
@@ -48,6 +49,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const open = store.useState('open');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', thisTriggerId);
@@ -170,7 +172,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       rootTriggerProps,
       itemProps,
       {
-        'aria-controls': popupId,
+        'aria-controls':
+          open && lastOpenChangeReason === REASONS.listNavigation ? undefined : popupId,
+        'aria-expanded':
+          open && lastOpenChangeReason === REASONS.listNavigation
+            ? false
+            : rootTriggerProps['aria-expanded'],
         tabIndex: open || highlighted ? 0 : -1,
         onBlur() {
           if (highlighted) {

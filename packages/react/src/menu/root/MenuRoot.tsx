@@ -469,7 +469,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         {
           id: floatingId,
           role: 'menu' as const,
-          'aria-labelledby': activeTriggerElement?.id,
+          'aria-labelledby':
+            parent.type === 'menu' && open && lastOpenChangeReason === REASONS.listNavigation
+              ? undefined
+              : activeTriggerElement?.id,
           onMouseMove() {
             store.set('allowMouseEnter', true);
             if (parent.type === 'menu') {
@@ -498,6 +501,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [
       activeTriggerElement,
       floatingId,
+      lastOpenChangeReason,
+      open,
       parent.type,
       store,
       typeahead.floating,
