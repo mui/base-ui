@@ -402,10 +402,14 @@
     height: var(--space-28);
     padding-inline: var(--space-12);
     border-radius: var(--radius-pill);
-    background: linear-gradient(to bottom, hsl(0deg 0% 0% / 8%), hsl(0deg 0% 0% / 16%));
+    background: linear-gradient(to bottom, hsl(0deg 0% 0% / 4%), hsl(0deg 0% 0% / 10%));
     white-space: nowrap;
     pointer-events: none;
     z-index: 0;
+
+    @media (prefers-color-scheme: dark) {
+      background: linear-gradient(to bottom, hsl(0deg 0% 100% / 12%), hsl(0deg 0% 100% / 24%));
+    }
 
     &::before {
       content: '';
@@ -413,35 +417,25 @@
       z-index: -1;
       inset: 1px;
       border-radius: var(--radius-pill);
-      background: linear-gradient(to bottom, white 25%, hsl(0deg 0% 98%));
+      background: var(--color-content);
       pointer-events: none;
       box-shadow:
         inset 0 0 0 1px white,
-        0 1px 1px hsl(0deg 0% 0% / 4%),
-        0 1px 2px hsl(0deg 0% 0% / 4%),
-        0 2px 4px -2px hsl(0deg 0% 0% / 4%);
+        0 1px 2px hsl(0deg 0% 0% / 5%),
+        0 2px 8px -1px hsl(0deg 0% 0% / 6%),
+        0 4px 16px -4px hsl(0deg 0% 0% / 5%);
+
+      @media (prefers-color-scheme: dark) {
+        box-shadow: none;
+      }
     }
 
     @media (hover: hover) {
       .DemoCollapseButton:hover & {
-        background: linear-gradient(to bottom, hsl(0deg 0% 0% / 16%), hsl(0deg 0% 0% / 32%));
-      }
-    }
+        background: linear-gradient(to bottom, hsl(0deg 0% 0% / 8%), hsl(0deg 0% 0% / 16%));
 
-    @media (prefers-color-scheme: dark) {
-      background: linear-gradient(to bottom, hsl(0deg 0% 100% / 16%), hsl(0deg 0% 100% / 24%));
-
-      &::before {
-        background: linear-gradient(to bottom, var(--gray-c2), var(--gray-c1));
-        box-shadow:
-          0 1px 1px hsl(0deg 0% 0% / 16%),
-          0 1px 2px hsl(0deg 0% 0% / 16%),
-          0 2px 4px -2px hsl(0deg 0% 0% / 24%);
-      }
-
-      @media (hover: hover) {
-        .DemoCollapseButton:hover & {
-          background: linear-gradient(to bottom, hsl(0deg 0% 100% / 24%), hsl(0deg 0% 100% / 36%));
+        @media (prefers-color-scheme: dark) {
+          background: linear-gradient(to bottom, hsl(0deg 0% 100% / 16%), hsl(0deg 0% 100% / 32%));
         }
       }
     }
