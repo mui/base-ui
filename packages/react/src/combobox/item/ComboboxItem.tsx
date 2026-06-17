@@ -20,12 +20,12 @@ import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
 
-interface ComboboxItemImplProps {
+interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
   forwardedRef: React.ForwardedRef<HTMLDivElement>;
   /**
    * Whether the list is externally virtualized. Passed down from the wrapper (which already
-   * subscribes to it) so the impl doesn't re-subscribe to the store.
+   * subscribes to it) so the inner component doesn't re-subscribe to the store.
    */
   virtualized: boolean;
   /**
@@ -36,7 +36,7 @@ interface ComboboxItemImplProps {
   indexFromFilter: number | undefined;
 }
 
-function ComboboxItemImpl(props: ComboboxItemImplProps) {
+function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const { componentProps, forwardedRef, virtualized, indexFromFilter } = props;
   const {
     render,
@@ -227,9 +227,11 @@ function ComboboxItemVirtualizedIndex(props: {
   forwardedRef: React.ForwardedRef<HTMLDivElement>;
 }) {
   const { componentProps, forwardedRef } = props;
+
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
   const { flatFilteredItems } = useComboboxDerivedItemsContext();
+
   const indexFromFilter = findItemIndex(
     flatFilteredItems,
     componentProps.value ?? null,
@@ -238,7 +240,7 @@ function ComboboxItemVirtualizedIndex(props: {
 
   // Only reached when `virtualized` is true (see the wrapper below).
   return (
-    <ComboboxItemImpl
+    <ComboboxItemInner
       componentProps={componentProps}
       forwardedRef={forwardedRef}
       virtualized
@@ -271,7 +273,7 @@ export const ComboboxItem = React.memo(
     }
 
     return (
-      <ComboboxItemImpl
+      <ComboboxItemInner
         componentProps={componentProps}
         forwardedRef={forwardedRef}
         virtualized={virtualized}
