@@ -13,7 +13,6 @@ export const releases: Release[] = [
     versionSlug: 'v1-6-0',
     date: '2026-06-17',
     highlights: [
-      'Docs redesign.',
       '`OTPField` is now stable.',
       'Align `Accordion` keyboard navigation with APG.',
       '`Combobox` performance improvement.',
