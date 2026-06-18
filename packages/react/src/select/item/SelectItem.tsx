@@ -97,8 +97,11 @@ export const SelectItem = React.memo(
       const selectedValue = store.state.value;
 
       let selectedCandidate = selectedValue;
-      if (multiple && Array.isArray(selectedValue) && selectedValue.length > 0) {
-        selectedCandidate = selectedValue[selectedValue.length - 1];
+      if (multiple && Array.isArray(selectedValue)) {
+        // Compare against the last selected item, or `undefined` when nothing is selected — never
+        // the raw array, which a custom `isItemEqualToValue` isn't expected to receive.
+        selectedCandidate =
+          selectedValue.length > 0 ? selectedValue[selectedValue.length - 1] : undefined;
       }
 
       if (

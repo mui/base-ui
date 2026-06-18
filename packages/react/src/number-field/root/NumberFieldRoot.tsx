@@ -34,6 +34,7 @@ import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
 import {
   createChangeEventDetails,
+  createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
   type ReasonToEvent,
@@ -183,9 +184,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       }
     }
 
-    // Allow plus sign in all cases; minus sign only when negatives are valid
+    // Allow plus sign in all cases; minus sign when negatives are valid, or when out-of-range
+    // entry is allowed so native underflow validation can be triggered from the keyboard.
     PLUS_SIGNS_WITH_ASCII.forEach((key) => keys.add(key));
-    if (minWithDefault < 0) {
+    if (minWithDefault < 0 || allowOutOfRange) {
       MINUS_SIGNS_WITH_ASCII.forEach((key) => keys.add(key));
     }
 
@@ -241,7 +243,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
-          return shouldFireChange;
+          // Report a vetoed change as not applied, so callers don't commit a value never stored.
+          return false;
         }
 
         setValueUnwrapped(validatedValue);
@@ -269,11 +272,17 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const incrementValue = useStableCallback(
     (amount: number, { direction, currentValue, event, reason }: IncrementValueParameters) => {
       const prevValue = currentValue == null ? valueRef.current : currentValue;
-      const nextValue =
-        typeof prevValue === 'number' ? prevValue + amount * direction : Math.max(0, min ?? 0);
       const nativeEvent = event as ReasonToEvent<IncrementValueParameters['reason']> | undefined;
+
+      if (typeof prevValue !== 'number') {
+        // Seed an empty field with 0; `setValue` clamps it to the in-range value nearest 0
+        // (e.g. `max` for a negative range). No `direction`: the seed isn't a step, so it must
+        // not be directionally snapped.
+        return setValue(0, createChangeEventDetails(reason, nativeEvent));
+      }
+
       return setValue(
-        nextValue,
+        prevValue + amount * direction,
         createChangeEventDetails(reason, nativeEvent, undefined, {
           direction,
         }),
@@ -350,16 +359,33 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
         const amount = getStepAmount(event);
 
-        incrementValue(amount, {
+        // Each wheel turn is a discrete, final change, so commit it immediately like keyboard
+        // steps (gated on an actual change so boundary no-ops don't commit).
+        const changed = incrementValue(amount, {
           direction: event.deltaY > 0 ? -1 : 1,
           event,
           reason: 'wheel',
         });
+        if (changed) {
+          onValueCommitted(
+            lastChangedValueRef.current ?? valueRef.current,
+            createGenericEventDetails(REASONS.wheel, event),
+          );
+        }
       }
 
       return addEventListener(element, 'wheel', handleWheel);
     },
-    [allowWheelScrub, incrementValue, disabled, readOnly, getStepAmount],
+    [
+      allowWheelScrub,
+      incrementValue,
+      disabled,
+      readOnly,
+      getStepAmount,
+      onValueCommitted,
+      lastChangedValueRef,
+      valueRef,
+    ],
   );
 
   const state: NumberFieldRootState = React.useMemo(
@@ -464,10 +490,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
             const parsedValue = Number.isNaN(nextValue) ? null : nextValue;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
-            setDirty(parsedValue !== validityData.initialValue);
+            // `setValue` updates the dirty flag from the stored (clamped) value, so validate with
+            // that same value rather than the raw autofilled one.
             setValue(parsedValue, details);
             clearErrors(name);
-            validation.change(parsedValue);
+            validation.change(lastChangedValueRef.current ?? parsedValue);
           },
         })}
         ref={hiddenInputRef}
@@ -481,6 +508,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         // See https://github.com/facebook/react/issues/12334.
         step={stepProp}
         disabled={disabled}
+        readOnly={readOnly}
         required={required}
         aria-hidden
         tabIndex={-1}
@@ -604,7 +632,8 @@ export interface NumberFieldRootProps extends Omit<
    * - The input is blurred after typing a value.
    * - The pointer is released after scrubbing or pressing the increment/decrement buttons.
    *
-   * It runs simultaneously with `onValueChange` when interacting with the keyboard.
+   * It runs simultaneously with `onValueChange` when interacting with the keyboard or the
+   * mouse wheel.
    *
    * **Warning**: This is a generic event not a change event.
    */

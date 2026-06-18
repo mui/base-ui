@@ -1,13 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { OTPFieldPreview as OTPFieldBase } from '@base-ui/react/otp-field';
+import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 
-describe('<OTPFieldPreview />', () => {
+describe('<OTPField.Root />', () => {
   const { render, renderToString } = createRenderer();
   const OTP_LENGTH = 6;
 
