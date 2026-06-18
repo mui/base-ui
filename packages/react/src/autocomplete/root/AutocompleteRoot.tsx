@@ -166,6 +166,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'formAutoComplete'
   | 'itemToStringLabel' // itemToStringValue
   // Custom JSDoc
+  | 'inline'
   | 'autoHighlight'
   | 'keepHighlight'
   | 'highlightItemOnHover'
@@ -182,6 +183,19 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * @default 'list'
    */
   mode?: 'list' | 'both' | 'inline' | 'none' | undefined;
+  /**
+   * Whether the list is rendered inline without using the component's own popup.
+   *
+   * Specify `open` unconditionally in conjunction with this prop so the list is considered
+   * visible: `<Autocomplete.Root inline open>`
+   *
+   * In an `Autocomplete.Root` > `Dialog.Root` composition, bind the Autocomplete's `open` and
+   * `onOpenChange` props to the `Dialog`'s `open` and `onOpenChange` state instead so the
+   * component resets its transient state (filter query, highlighted item, and input value) when
+   * the dialog closes.
+   * @default false
+   */
+  inline?: boolean | undefined;
   /**
    * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
