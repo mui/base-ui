@@ -107,6 +107,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     autoHighlight = false,
     keepHighlight = false,
     highlightItemOnHover = true,
+    focusItemOnOpen = 'auto',
     loopFocus = true,
     itemToStringLabel,
     itemToStringValue,
@@ -1073,6 +1074,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
+  const suppressFocusOnOpen =
+    queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode);
+
   const listNavigation = useListNavigation(floatingRootContext, {
     enabled: !readOnly && !disabled,
     id,
@@ -1082,8 +1086,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     virtual: true,
     loopFocus,
     allowEscape: loopFocus && !autoHighlightMode,
-    focusItemOnOpen:
-      queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
+    focusItemOnOpen: focusItemOnOpen === 'auto' && suppressFocusOnOpen ? false : focusItemOnOpen,
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave: !keepHighlight,
     orientation: grid ? 'horizontal' : undefined,
@@ -1474,6 +1477,14 @@ interface ComboboxRootProps<ItemValue> {
    * @default true
    */
   highlightItemOnHover?: boolean | undefined;
+  /**
+   * Controls whether an item is focused when the popup opens.
+   * - `false`: no item is focused when the popup opens.
+   * - `true`: an item is always focused when the popup opens.
+   * - `'auto'`: focus behavior is determined automatically based on selection mode and query state.
+   * @default 'auto'
+   */
+  focusItemOnOpen?: boolean | 'auto' | undefined;
   /**
    * Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing <kbd>ArrowDown</kbd> again from the input, or the last item can be reached by pressing <kbd>ArrowUp</kbd> from the input.
    * The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).
