@@ -50,7 +50,7 @@
         var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
           var(--side-nav-scrollbar-thumb-width) / 2
       )
-      0.75rem var(--side-nav-link-padding-x);
+      2.5rem var(--side-nav-link-padding-x);
 
     /* Scroll containers are focusable */
     outline: 0;
