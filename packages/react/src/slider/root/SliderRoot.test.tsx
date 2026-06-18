@@ -1391,35 +1391,46 @@ describe('<Slider.Root />', () => {
         const removedListeners: EventListenerOrEventListenerObject[] = [];
         const originalAdd = document.addEventListener.bind(document);
         const originalRemove = document.removeEventListener.bind(document);
-        vi.spyOn(document, 'addEventListener').mockImplementation((type, listener, options) => {
-          if (type === 'touchend' && listener != null) {
-            addedListeners.push(listener);
-          }
-          return originalAdd(type, listener, options);
-        });
-        vi.spyOn(document, 'removeEventListener').mockImplementation((type, listener, options) => {
-          if (type === 'touchend' && listener != null) {
-            removedListeners.push(listener);
-          }
-          return originalRemove(type, listener, options);
-        });
+        const addEventListenerSpy = vi
+          .spyOn(document, 'addEventListener')
+          .mockImplementation((type, listener, options) => {
+            if (type === 'touchend' && listener != null) {
+              addedListeners.push(listener);
+            }
+            return originalAdd(type, listener, options);
+          });
+        const removeEventListenerSpy = vi
+          .spyOn(document, 'removeEventListener')
+          .mockImplementation((type, listener, options) => {
+            if (type === 'touchend' && listener != null) {
+              removedListeners.push(listener);
+            }
+            return originalRemove(type, listener, options);
+          });
 
-        fireEvent.touchStart(
-          sliderControl,
-          createTouches([{ identifier: 1, clientX: 5, clientY: 0 }]),
-        );
-        fireEvent.touchMove(
-          document.body,
-          createTouches([{ identifier: 1, clientX: 10, clientY: 0 }]),
-        );
-        fireEvent.touchEnd(
-          document.body,
-          createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
-        );
+        try {
+          fireEvent.touchStart(
+            sliderControl,
+            createTouches([{ identifier: 1, clientX: 5, clientY: 0 }]),
+          );
+          fireEvent.touchMove(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 10, clientY: 0 }]),
+          );
+          fireEvent.touchEnd(
+            document.body,
+            createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
+          );
 
-        // Every `touchend` listener that was added must have been removed.
-        expect(addedListeners.length).toBeGreaterThan(0);
-        expect(addedListeners.every((listener) => removedListeners.includes(listener))).toBe(true);
+          // Every `touchend` listener that was added must have been removed.
+          expect(addedListeners.length).toBeGreaterThan(0);
+          expect(addedListeners.every((listener) => removedListeners.includes(listener))).toBe(
+            true,
+          );
+        } finally {
+          addEventListenerSpy.mockRestore();
+          removeEventListenerSpy.mockRestore();
+        }
       },
     );
 
