@@ -2,7 +2,7 @@
 
 ## v1.6.0
 
-_Jun 17, 2026_
+_Jun 18, 2026_
 
 ### General changes
 
@@ -24,6 +24,7 @@ _Jun 17, 2026_
 ### Autocomplete
 
 - Keep ArrowLeft/ArrowRight on the input caret in grid mode (#4948) by @spokodev
+- Document `open` requirement for the `inline` prop (#5069) by @atomiks
 
 ### Avatar
 
@@ -52,6 +53,7 @@ _Jun 17, 2026_
 - Keep ArrowLeft/ArrowRight on the input caret in grid mode (#4948) by @spokodev
 - Avoid re-rendering every item on each keystroke (#4964) by @flaviendelangle
 - Fix autofill and selected state edge cases (#4972) by @atomiks
+- Document `open` requirement for the `inline` prop (#5069) by @atomiks
 
 ### Dialog
 
@@ -155,6 +157,7 @@ _Jun 17, 2026_
 
 - Fix extra `validate` fn calls (#4911) by @mj12albert
 - Fix interaction edge cases (#4937) by @atomiks
+- Fix touchend listener accumulation leak (#5070) by @atomiks
 
 ### Switch
 
