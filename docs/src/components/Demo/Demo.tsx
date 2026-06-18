@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import * as Menu from 'docs/src/components/Menu';
@@ -19,6 +20,7 @@ import { getGitHubDemoUrl } from 'docs/src/utils/getGitHubDemoUrl';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
@@ -32,6 +34,7 @@ export type DemoProps = ContentProps<{
 }>;
 
 export function Demo({ className, ...demoProps }: DemoProps) {
+  const collapsibleTriggerRef = React.useRef<HTMLSpanElement>(null);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
   const sourceLinkCopyResetTimeout = useTimeout();
@@ -116,6 +119,25 @@ export function Demo({ className, ...demoProps }: DemoProps) {
       label: demoId,
       params: { [action]: demoId, slug: demoSlug || '' },
     });
+
+    if (!nextOpen && collapsibleTriggerRef.current != null) {
+      const buttonVisualEl = collapsibleTriggerRef.current;
+      const rectTopBeforeClose = buttonVisualEl.getBoundingClientRect().top;
+
+      ReactDOM.flushSync(() => demo.setExpanded(nextOpen));
+
+      const rectTopAfterClose = buttonVisualEl.getBoundingClientRect().top;
+      const delta = rectTopAfterClose - rectTopBeforeClose;
+      // Don't scroll if the collapse button is still in the viewport after closing.
+      if (rectTopAfterClose < 0) {
+        ownerWindow(buttonVisualEl).scrollBy({
+          top: delta,
+          behavior: 'instant',
+        });
+      }
+      return;
+    }
+
     demo.setExpanded(nextOpen);
   });
 
@@ -230,6 +252,7 @@ export function Demo({ className, ...demoProps }: DemoProps) {
             selectedFile={demo.selectedFile}
             selectedFileLines={demo.selectedFileLines}
             collapsibleOpen={demo.expanded}
+            collapsibleTriggerRef={collapsibleTriggerRef}
             copyButton={
               <GhostButton
                 layout="icon"
