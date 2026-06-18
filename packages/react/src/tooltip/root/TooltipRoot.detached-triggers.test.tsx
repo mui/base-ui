@@ -1071,5 +1071,101 @@ describe('<Tooltip.Root />', () => {
         expect(screen.queryByTestId('content')).not.toBe(null);
       });
     });
+
+    it('does not expose a stale instant phase to a defaultOpen adopting Root', async () => {
+      const tooltip = Tooltip.createHandle();
+      const observedStates: Array<{
+        isInstantPhase: boolean;
+        instantType: string | undefined;
+      }> = [];
+
+      function StateProbe() {
+        observedStates.push({
+          isInstantPhase: tooltip.store.useState('isInstantPhase'),
+          instantType: tooltip.store.useState('instantType'),
+        });
+        return null;
+      }
+
+      function InstantPhasePage() {
+        return (
+          <Tooltip.Provider>
+            <Tooltip.Root>
+              <Tooltip.Trigger delay={0}>First</Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup data-testid="first-content">First content</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+
+            <Tooltip.Trigger handle={tooltip} id="second-trigger" delay={0}>
+              Second
+            </Tooltip.Trigger>
+            <Tooltip.Root handle={tooltip}>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup data-testid="second-content">Second content</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </Tooltip.Provider>
+        );
+      }
+
+      function DefaultOpenPage() {
+        return (
+          <Tooltip.Provider>
+            <Tooltip.Root handle={tooltip} defaultOpen defaultTriggerId="adopted-trigger">
+              <StateProbe />
+              <Tooltip.Trigger handle={tooltip} id="adopted-trigger" delay={0}>
+                Adopted
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup data-testid="adopted-content">Adopted content</Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </Tooltip.Provider>
+        );
+      }
+
+      function App({ page }: { page: 'instant-phase' | 'none' | 'default-open' }) {
+        if (page === 'instant-phase') {
+          return <InstantPhasePage />;
+        }
+        if (page === 'default-open') {
+          return <DefaultOpenPage />;
+        }
+        return <div>Other page</div>;
+      }
+
+      const { setProps, user } = await render(<App page="instant-phase" />);
+
+      await user.hover(screen.getByRole('button', { name: 'First' }));
+      await screen.findByTestId('first-content');
+
+      await user.hover(screen.getByRole('button', { name: 'Second' }));
+      await screen.findByTestId('second-content');
+      await waitFor(() => {
+        expect(tooltip.store.state.isInstantPhase).toBe(true);
+      });
+
+      await setProps({ page: 'none' });
+      await waitFor(() => {
+        expect(screen.queryByTestId('second-content')).toBe(null);
+      });
+      expect(tooltip.store.state.isInstantPhase).toBe(true);
+
+      observedStates.length = 0;
+      await setProps({ page: 'default-open' });
+      await screen.findByTestId('adopted-content');
+
+      expect(observedStates.length).toBeGreaterThan(0);
+      expect(observedStates.every((state) => state.isInstantPhase === false)).toBe(true);
+      expect(observedStates.every((state) => state.instantType === undefined)).toBe(true);
+      expect(tooltip.store.state.instantType).toBe(undefined);
+    });
   });
 });

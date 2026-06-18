@@ -211,14 +211,14 @@ export class PopoverStore<Payload> extends ReactStore<
     externalStore: PopoverStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
-    const { store, internalStore } = usePopupStore(
+    const store = usePopupStore(
       externalStore,
       (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
       initialState,
       ADOPTION_RESET_STATE,
-    );
+    ).store;
 
-    React.useEffect(() => internalStore?.disposeEffect(), [internalStore]);
+    React.useEffect(() => store.disposeEffect(), [store]);
     return store;
   }
 

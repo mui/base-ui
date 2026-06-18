@@ -1250,5 +1250,95 @@ describe('<MenuRoot />', () => {
       expect(item2).not.toHaveAttribute('data-highlighted');
       expect(item2).not.toHaveFocus();
     });
+
+    it('does not expose stale open-cycle fields to a defaultOpen adopting Root', async () => {
+      const menu = Menu.createHandle();
+      const observedStates: Array<{
+        hoverEnabled: boolean;
+        openMethod: string | null;
+        stickIfOpen: boolean;
+        instantType: string | undefined;
+        lastOpenChangeReason: string | null;
+      }> = [];
+
+      function StateProbe() {
+        observedStates.push({
+          hoverEnabled: menu.store.useState('hoverEnabled'),
+          openMethod: menu.store.useState('openMethod'),
+          stickIfOpen: menu.store.useState('stickIfOpen'),
+          instantType: menu.store.useState('instantType'),
+          lastOpenChangeReason: menu.store.useState('lastOpenChangeReason'),
+        });
+        return null;
+      }
+
+      function OpenCyclePage() {
+        return (
+          <React.Fragment>
+            <Menu.Trigger handle={menu} id="trigger">
+              Trigger
+            </Menu.Trigger>
+            <Menu.Root handle={menu}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="menu-popup">
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>
+        );
+      }
+
+      function DefaultOpenPage() {
+        return (
+          <Menu.Root handle={menu} defaultOpen>
+            <StateProbe />
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      function App({ page }: { page: 'open-cycle' | 'none' | 'default-open' }) {
+        if (page === 'open-cycle') {
+          return <OpenCyclePage />;
+        }
+        if (page === 'default-open') {
+          return <DefaultOpenPage />;
+        }
+        return <div>Other page</div>;
+      }
+
+      const { setProps, user } = await render(<App page="open-cycle" />);
+
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await screen.findByRole('menu');
+
+      fireEvent.click(screen.getByTestId('menu-popup'));
+      expect(menu.store.state.hoverEnabled).toBe(false);
+
+      await setProps({ page: 'none' });
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      observedStates.length = 0;
+      await setProps({ page: 'default-open' });
+      await screen.findByRole('menu');
+
+      expect(observedStates.length).toBeGreaterThan(0);
+      expect(observedStates.every((state) => state.hoverEnabled)).toBe(true);
+      expect(observedStates.every((state) => state.openMethod === null)).toBe(true);
+      expect(observedStates.every((state) => state.stickIfOpen === true)).toBe(true);
+      expect(observedStates.every((state) => state.instantType === undefined)).toBe(true);
+      expect(observedStates.every((state) => state.lastOpenChangeReason === null)).toBe(true);
+    });
   });
 });

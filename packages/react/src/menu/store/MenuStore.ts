@@ -48,6 +48,25 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
 
+// Menu-specific open-cycle state that is neither benign when stale nor re-derived in time by a
+// Root effect when a new Root adopts a handle-owned store. `activeIndex` would otherwise be
+// re-applied (highlighting and focusing the wrong item) on the first open after adoption;
+// `allowMouseEnter`/`stickIfOpen` are otherwise only cleared when a close transition completes;
+// `hoverEnabled` is restored only by a closed-state layout effect; `openChangeReason`
+// (`lastOpenChangeReason`) gates modal/backdrop/scroll-lock decisions; and `openMethod` is read
+// during render by the popup/positioner (focus manager and scroll lock). Resetting them keeps an
+// initially open adoption (`defaultOpen` or controlled `open`) from committing once with the
+// previous open cycle's values before those sync effects land. See `useAdoptedStoreReset`.
+const ADOPTION_RESET_STATE = {
+  activeIndex: null,
+  allowMouseEnter: false,
+  hoverEnabled: true,
+  openChangeReason: null,
+  instantType: undefined,
+  stickIfOpen: true,
+  openMethod: null,
+} satisfies Partial<State<unknown>>;
+
 const selectors = {
   ...popupStoreSelectors,
   disabled: createSelector((state: State<unknown>) =>
@@ -183,23 +202,7 @@ export class MenuStore<Payload> extends ReactStore<
       return new MenuStore<Payload>(initialState);
     }).current;
 
-    // Menu-specific open-cycle state that is neither benign when stale nor re-derived in time by a
-    // Root effect when a new Root adopts a handle-owned store. `activeIndex` would otherwise be
-    // re-applied (highlighting and focusing the wrong item) on the first open after adoption;
-    // `allowMouseEnter`/`stickIfOpen` are otherwise only cleared when a close transition
-    // completes, which never happens when a Root unmounts while open; `openChangeReason`
-    // (`lastOpenChangeReason`) gates modal/backdrop/scroll-lock decisions; and `openMethod` is
-    // read during render by the popup/positioner (focus manager and scroll lock) — the Root only
-    // re-syncs it in a layout effect, so an initially open adoption (`defaultOpen` or controlled
-    // `open`) would commit once with the previous open cycle's value before that sync lands.
-    useAdoptedStoreReset(externalStore, initialState, {
-      activeIndex: null,
-      allowMouseEnter: false,
-      openChangeReason: null,
-      instantType: undefined,
-      stickIfOpen: true,
-      openMethod: null,
-    });
+    useAdoptedStoreReset(externalStore, initialState, ADOPTION_RESET_STATE);
     /* eslint-enable react-hooks/rules-of-hooks */
 
     return externalStore ?? internalStore;

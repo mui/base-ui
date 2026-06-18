@@ -4,6 +4,7 @@ import type { UserEvent } from '@testing-library/user-event';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Popover } from '@base-ui/react/popover';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Popover.Root />', () => {
   beforeEach(() => {
@@ -1069,6 +1070,72 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByRole('dialog')).toBe(null);
         expect(popover.isOpen).toBe(false);
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      it('clears the patient-click timer when a handle-owned Root unmounts', async () => {
+        const popover = Popover.createHandle();
+
+        function HoverPage() {
+          return (
+            <React.Fragment>
+              <Popover.Trigger handle={popover} id="trigger" openOnHover delay={0}>
+                Trigger
+              </Popover.Trigger>
+              <Popover.Root handle={popover}>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup data-testid="content">Content</Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </React.Fragment>
+          );
+        }
+
+        function DefaultOpenPage() {
+          return (
+            <Popover.Root handle={popover} defaultOpen>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="content">Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          );
+        }
+
+        function App({ page }: { page: 'hover' | 'none' | 'default-open' }) {
+          if (page === 'hover') {
+            return <HoverPage />;
+          }
+          if (page === 'default-open') {
+            return <DefaultOpenPage />;
+          }
+          return <div>Other page</div>;
+        }
+
+        const { setProps } = await renderNonStrict(<App page="hover" />);
+
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        nonStrictClock.tick(0);
+        await flushMicrotasks();
+
+        expect(screen.queryByTestId('content')).not.toBe(null);
+        expect(popover.store.state.stickIfOpen).toBe(true);
+
+        await setProps({ page: 'none' });
+        expect(screen.queryByTestId('content')).toBe(null);
+
+        await setProps({ page: 'default-open' });
+        expect(screen.queryByTestId('content')).not.toBe(null);
+        expect(popover.store.state.stickIfOpen).toBe(true);
+
+        nonStrictClock.tick(PATIENT_CLICK_THRESHOLD);
+        await flushMicrotasks();
+
+        expect(popover.store.state.stickIfOpen).toBe(true);
       });
     });
 

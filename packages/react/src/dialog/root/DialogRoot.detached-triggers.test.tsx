@@ -1015,7 +1015,7 @@ describe('<Dialog.Root />', () => {
               <Dialog.Popup>
                 <Dialog.Root defaultOpen>
                   <Dialog.Portal>
-                    <Dialog.Popup>Nested</Dialog.Popup>
+                    <Dialog.Popup>Nested dialog</Dialog.Popup>
                   </Dialog.Portal>
                 </Dialog.Root>
               </Dialog.Popup>

@@ -31,12 +31,13 @@ export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
 };
 
 // Open-cycle fields written while the tooltip is open that are not re-derived when a new Root
-// adopts a handle-owned store. `openChangeReason` and `instantType` describe the previous open
-// cycle's transition behavior, so an initially open adoption (`defaultOpen` or controlled `open`)
-// would otherwise inherit stale transition metadata. See `useAdoptedStoreReset`.
+// adopts a handle-owned store. `openChangeReason`, `instantType`, and `isInstantPhase` describe the
+// previous open cycle's transition behavior, so an initially open adoption (`defaultOpen` or
+// controlled `open`) would otherwise inherit stale transition metadata. See `useAdoptedStoreReset`.
 const ADOPTION_RESET_STATE = {
   openChangeReason: null,
   instantType: undefined,
+  isInstantPhase: false,
 } satisfies Partial<State<unknown>>;
 
 const selectors = {
