@@ -14,9 +14,10 @@ export const releases: Release[] = [
     date: '2026-06-17',
     highlights: [
       'Docs redesign.',
+      '`OTPField` is now stable.',
       'Align `Accordion` keyboard navigation with APG.',
       '`Combobox` performance improvement.',
-      '`Drawer` keyboard UX enhancements.',
+      'Add new `Drawer.VirtualKeyboardProvider` part for mobile drawers.',
       '`Drawer` swipe gesture performance improvements.',
     ],
   },
