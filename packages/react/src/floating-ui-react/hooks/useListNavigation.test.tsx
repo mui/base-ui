@@ -1455,7 +1455,6 @@ describe('useListNavigation', () => {
   );
 
   it('Home or End key press is ignored for typeable combobox reference', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
     function App() {
       const [open, setOpen] = React.useState(false);
       const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
