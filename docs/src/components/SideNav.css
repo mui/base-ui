@@ -56,15 +56,13 @@
     outline: 0;
 
     /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
-    .SideNavRoot:has(&:focus-visible)::before {
+    .SideNavRoot:has(&:focus-visible)::after {
       content: '';
-      inset: 0;
+      inset: 0 -2px;
       pointer-events: none;
       position: absolute;
       outline: 2px solid var(--gray-t2);
       outline-offset: -2px;
-      /* Don't inset the outline on the right */
-      right: -2px;
     }
   }
 
