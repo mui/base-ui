@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -9,6 +9,10 @@ import type { UseTypeaheadProps } from './useTypeahead';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 const useImpl = ({
