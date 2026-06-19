@@ -279,17 +279,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           break;
         }
 
-        const candidateItems =
-          filterQuery === ''
-            ? group.items
-            : group.items.filter((item) => filter(item, filterQuery, itemToStringLabel));
-
-        if (candidateItems.length === 0) {
-          continue;
-        }
-
         const remainingLimit = limit > -1 ? limit - currentCount : Infinity;
-        const itemsToTake = candidateItems.slice(0, remainingLimit);
+        const itemsToTake = filterQuery === '' ? group.items.slice(0, remainingLimit) : [];
+
+        if (filterQuery !== '') {
+          for (const item of group.items) {
+            if (itemsToTake.length >= remainingLimit) {
+              break;
+            }
+            if (filter(item, filterQuery, itemToStringLabel)) {
+              itemsToTake.push(item);
+            }
+          }
+        }
 
         if (itemsToTake.length > 0) {
           const newGroup = { ...group, items: itemsToTake };
