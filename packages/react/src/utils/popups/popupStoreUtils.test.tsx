@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
-import { act, render, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
@@ -10,6 +10,7 @@ import {
   PopupStoreState,
   PopupStoreSelectors,
   PopupTriggerMap,
+  markStoreUnassociatedOpen,
   popupStoreSelectors,
   useAdoptedStoreReset,
   useImplicitActiveTrigger,
@@ -109,6 +110,48 @@ function TestForwardedTrigger({
   }, [registerTrigger, element]);
 
   return null;
+}
+
+function ReversedForwardedTriggers({
+  store,
+}: {
+  store: ReactStore<PopupStoreState<unknown>, PopupStoreContext<unknown>, PopupStoreSelectors>;
+}) {
+  const firstDomRef = React.useRef<HTMLButtonElement | null>(null);
+  const secondDomRef = React.useRef<HTMLButtonElement | null>(null);
+  const firstElementRef = React.useRef<Element | null>(null);
+  const secondElementRef = React.useRef<Element | null>(null);
+  const firstTrigger = useTriggerDataForwarding('first', firstElementRef, store, {});
+  const secondTrigger = useTriggerDataForwarding('second', secondElementRef, store, {});
+
+  useIsoLayoutEffect(() => {
+    const firstElement = firstDomRef.current;
+    const secondElement = secondDomRef.current;
+
+    if (!firstElement || !secondElement) {
+      return undefined;
+    }
+
+    firstElementRef.current = firstElement;
+    secondElementRef.current = secondElement;
+
+    secondTrigger.registerTrigger(secondElement);
+    firstTrigger.registerTrigger(firstElement);
+
+    return () => {
+      firstTrigger.registerTrigger(null);
+      secondTrigger.registerTrigger(null);
+      firstElementRef.current = null;
+      secondElementRef.current = null;
+    };
+  }, [firstTrigger, secondTrigger]);
+
+  return (
+    <React.Fragment>
+      <button ref={firstDomRef}>First</button>
+      <button ref={secondDomRef}>Second</button>
+    </React.Fragment>
+  );
 }
 
 function PopupIdTest({
@@ -291,6 +334,39 @@ describe('useTriggerRegistration', () => {
     expect(store.state.triggerCount).toBe(1);
     expect(store.state.activeTriggerId).toBe('trigger');
     expect(store.state.activeTriggerElement).toBe(element);
+  });
+
+  it('claims the first trigger in document order when multiple triggers register while open', () => {
+    const store = createStore();
+    store.set('open', true);
+
+    render(
+      <React.Fragment>
+        <ReversedForwardedTriggers store={store} />
+        <ImplicitActiveTriggerTest store={store} />
+      </React.Fragment>,
+    );
+
+    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.activeTriggerId).toBe('first');
+    expect(store.state.activeTriggerElement).toBe(screen.getByText('First'));
+  });
+
+  it('does not claim a trigger for an explicitly unassociated open', () => {
+    const store = createStore();
+    markStoreUnassociatedOpen(store);
+    store.set('open', true);
+
+    render(
+      <React.Fragment>
+        <ReversedForwardedTriggers store={store} />
+        <ImplicitActiveTriggerTest store={store} />
+      </React.Fragment>,
+    );
+
+    expect(store.state.triggerCount).toBe(2);
+    expect(store.state.activeTriggerId).toBe(null);
+    expect(store.state.activeTriggerElement).toBe(null);
   });
 
   it('closes when the active trigger unregisters while open', async () => {

@@ -57,6 +57,9 @@ const warnedAboutMultipleStoreOwners = new WeakSet<ReactStore<any, any, any>>();
 // next owner. Other ownerless writes, such as delayed hover timers firing after unmount, are still
 // reset.
 const storesWithPendingOwnerlessOpen = new WeakSet<ReactStore<any, any, any>>();
+// Some imperative APIs intentionally open without a trigger association (for example
+// `DialogHandle.openWithPayload`). These opens remain ownerless even if triggers are mounted.
+const storesWithUnassociatedOpen = new WeakSet<ReactStore<any, any, any>>();
 
 type AdoptionState<
   State extends PopupStoreState<unknown>,
@@ -111,8 +114,20 @@ export function clearStoreOwnerlessOpen(store: ReactStore<any, any, any>) {
   storesWithPendingOwnerlessOpen.delete(store);
 }
 
+export function markStoreUnassociatedOpen(store: ReactStore<any, any, any>) {
+  storesWithUnassociatedOpen.add(store);
+}
+
+export function clearStoreUnassociatedOpen(store: ReactStore<any, any, any>) {
+  storesWithUnassociatedOpen.delete(store);
+}
+
 function hasPendingOwnerlessOpen(store: ReactStore<any, any, any>) {
   return storesWithPendingOwnerlessOpen.has(store);
+}
+
+function hasUnassociatedOpen(store: ReactStore<any, any, any>) {
+  return storesWithUnassociatedOpen.has(store);
 }
 
 function resetFloatingRootContext<State extends PopupStoreState<unknown>>(state: State) {
@@ -238,6 +253,10 @@ function createAdoptionProxy<
     },
   }) as Store;
 
+  if (hasUnassociatedOpen(externalStore)) {
+    markStoreUnassociatedOpen(adoption.proxy);
+  }
+
   return adoption;
 }
 
@@ -252,6 +271,9 @@ function commitAdoption<
   resetFloatingRootContext(adoption.state);
   Object.assign(target.context, adoption.context);
   onAdoptCommit?.(target);
+  if (!hasPendingOwnerlessOpen(target)) {
+    clearStoreUnassociatedOpen(target);
+  }
   clearStoreOwnerlessOpen(target);
   adoption.committed = true;
   if (target.state === adoption.state) {
@@ -471,6 +493,39 @@ export function setPopupOpenState(
   }
 }
 
+const DOCUMENT_POSITION_DISCONNECTED = 1;
+const DOCUMENT_POSITION_FOLLOWING = 4;
+
+function getFirstTriggerEntry(
+  triggerElements: PopupStoreContext<never>['triggerElements'],
+): [string, Element] | null {
+  let firstEntry: [string, Element] | null = null;
+
+  for (const entry of triggerElements.entries()) {
+    const [, element] = entry;
+
+    if (firstEntry === null) {
+      firstEntry = entry;
+      continue;
+    }
+
+    const currentFirstElement = firstEntry[1];
+    const position = element.compareDocumentPosition(currentFirstElement);
+    // compareDocumentPosition returns a bitmask.
+    // eslint-disable-next-line no-bitwise
+    const isDisconnected = (position & DOCUMENT_POSITION_DISCONNECTED) !== 0;
+    // eslint-disable-next-line no-bitwise
+    const isFollowing = (position & DOCUMENT_POSITION_FOLLOWING) !== 0;
+    const isBeforeCurrentFirst = !isDisconnected && isFollowing;
+
+    if (isBeforeCurrentFirst) {
+      firstEntry = entry;
+    }
+  }
+
+  return firstEntry;
+}
+
 export function attachPreventUnmountOnClose(eventDetails: { preventUnmountOnClose(): void }) {
   let preventUnmountOnClose = false;
 
@@ -604,18 +659,6 @@ export function useTriggerDataForwarding<State extends PopupStoreState<unknown>>
         activeTriggerElement: element,
         ...(open ? stateUpdates : null),
       } as Partial<State>);
-      return;
-    }
-
-    if (activeTriggerId == null && open) {
-      // If a popup is already open, a detached trigger can mount before any active trigger
-      // has been established. Claim the first registered trigger so trigger-owned focus
-      // management and ARIA relationships work.
-      store.update({
-        activeTriggerId: triggerId,
-        activeTriggerElement: element,
-        ...stateUpdates,
-      } as Partial<State>);
     }
   });
 
@@ -665,6 +708,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
 
   useIsoLayoutEffect(() => {
     if (!open) {
+      clearStoreUnassociatedOpen(store);
+
       if (store.state.triggerCount !== 0) {
         store.set('triggerCount', 0);
       }
@@ -690,10 +735,18 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       }
     }
 
-    if (!lostActiveTriggerId && !activeTriggerId && triggerCount === 1) {
-      const iteratorResult = store.context.triggerElements.entries().next();
-      if (!iteratorResult.done) {
-        const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
+    if (
+      !lostActiveTriggerId &&
+      !activeTriggerId &&
+      triggerCount > 0 &&
+      !hasUnassociatedOpen(store)
+    ) {
+      // Ownerless opens such as `defaultOpen` do not have an event target to identify the trigger.
+      // Choose the first registered trigger in document order after registration has settled for this
+      // commit, rather than depending on callback ref ordering.
+      const firstTriggerEntry = getFirstTriggerEntry(store.context.triggerElements);
+      if (firstTriggerEntry) {
+        const [implicitTriggerId, implicitTriggerElement] = firstTriggerEntry;
         stateUpdates.activeTriggerId = implicitTriggerId;
         stateUpdates.activeTriggerElement = implicitTriggerElement;
       }

@@ -1,7 +1,12 @@
 import { DialogStore } from './DialogStore';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { clearStoreOwnerlessOpen, markStoreOwnerlessOpen } from '../../utils/popups';
+import {
+  clearStoreOwnerlessOpen,
+  clearStoreUnassociatedOpen,
+  markStoreOwnerlessOpen,
+  markStoreUnassociatedOpen,
+} from '../../utils/popups';
 
 /**
  * A handle to control a Dialog imperatively and to associate detached triggers with it.
@@ -39,6 +44,12 @@ export class DialogHandle<Payload> {
     }
 
     markStoreOwnerlessOpen(this.store);
+    if (triggerElement) {
+      clearStoreUnassociatedOpen(this.store);
+    } else {
+      markStoreUnassociatedOpen(this.store);
+    }
+
     this.store.setOpen(
       true,
       createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
@@ -53,6 +64,7 @@ export class DialogHandle<Payload> {
    */
   openWithPayload(payload: Payload) {
     markStoreOwnerlessOpen(this.store);
+    markStoreUnassociatedOpen(this.store);
     this.store.set('payload', payload);
     this.store.setOpen(
       true,
@@ -65,6 +77,7 @@ export class DialogHandle<Payload> {
    */
   close() {
     clearStoreOwnerlessOpen(this.store);
+    clearStoreUnassociatedOpen(this.store);
     this.store.setOpen(
       false,
       createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
