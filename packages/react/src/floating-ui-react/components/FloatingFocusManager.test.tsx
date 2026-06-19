@@ -2,7 +2,7 @@ import { test, vi, expect } from 'vitest';
 /* eslint-disable jsx-a11y/role-has-required-aria-props */
 /* eslint-disable no-promise-executor-return */
 /* eslint-disable react/function-component-definition */
-/* eslint-disable @typescript-eslint/no-shadow */
+
 /* eslint-disable react/jsx-fragments */
 import userEvent from '@testing-library/user-event';
 import {
