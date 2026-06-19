@@ -1,10 +1,16 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
 describe('<Menu.CheckboxItemIndicator />', () => {
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
+
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });

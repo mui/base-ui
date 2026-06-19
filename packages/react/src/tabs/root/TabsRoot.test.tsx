@@ -1,6 +1,13 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  flushMicrotasks,
+  fireEvent,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
@@ -185,6 +192,8 @@ describe('<Tabs.Root />', () => {
     });
 
     it('should support values of different types', async () => {
+      ignoreActWarnings();
+
       const tabValues = [0, '1', { value: 2 }, () => 3, Symbol('4'), /5/];
 
       await render(
@@ -557,7 +566,7 @@ describe('<Tabs.Root />', () => {
 
   describe('pointer navigation', () => {
     it('selects the clicked tab', async () => {
-      const { user } = await render(
+      await render(
         <Tabs.Root defaultValue={0}>
           <Tabs.List activateOnFocus={false}>
             <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
@@ -577,7 +586,7 @@ describe('<Tabs.Root />', () => {
       );
 
       const tab2 = screen.getByRole('tab', { name: 'Tab 2' });
-      await user.click(tab2);
+      fireEvent.click(tab2);
 
       const panels = screen.getAllByRole('tabpanel', { hidden: true });
 
@@ -587,7 +596,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('does not select the clicked disabled tab', async () => {
-      const { user } = await render(
+      await render(
         <Tabs.Root defaultValue={0}>
           <Tabs.List activateOnFocus={false}>
             <Tabs.Tab value={0}>Tab 1</Tabs.Tab>
@@ -609,7 +618,7 @@ describe('<Tabs.Root />', () => {
       );
 
       const tab2 = screen.getByRole('tab', { name: 'Tab 2' });
-      await user.click(tab2);
+      fireEvent.click(tab2);
 
       const panels = screen.getAllByRole('tabpanel', { hidden: true });
 

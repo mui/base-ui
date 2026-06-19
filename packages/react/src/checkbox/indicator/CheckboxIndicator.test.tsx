@@ -147,7 +147,7 @@ describe('<Checkbox.Indicator />', () => {
         }
 
         .animation-test-indicator[data-ending-style] {
-          animation: test-anim 1ms;
+          animation: test-anim 100ms;
         }
       `;
 
@@ -251,7 +251,7 @@ describe('<Checkbox.Indicator />', () => {
         }
 
         .animation-test-indicator[data-ending-style] {
-          animation: test-anim 1ms;
+          animation: test-anim 200ms;
         }
       `;
 

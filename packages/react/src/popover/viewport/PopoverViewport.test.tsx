@@ -1,10 +1,22 @@
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import {
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Popover.Viewport />', () => {
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
+
   const { render } = createRenderer();
 
   describeConformance(<Popover.Viewport />, () => ({
@@ -45,7 +57,8 @@ describe('<Popover.Viewport />', () => {
   });
 
   it('should remount the `current` container when the active trigger changes', async () => {
-    const { user } = await render(
+    ignoreActWarnings();
+    await render(
       <Popover.Root>
         {({ payload }) => (
           <React.Fragment>
@@ -77,13 +90,15 @@ describe('<Popover.Viewport />', () => {
     const trigger1 = screen.getByTestId('trigger1');
     const trigger2 = screen.getByTestId('trigger2');
 
-    await user.click(trigger1);
+    fireEvent.click(trigger1);
+    await flushMicrotasks();
 
     const firstImage = await screen.findByTestId('payload-image-1');
     const firstContainer = firstImage.closest('[data-current]');
     expect(firstContainer).not.to.equal(null);
 
-    await user.click(trigger2);
+    fireEvent.click(trigger2);
+    await flushMicrotasks();
 
     await waitFor(() => {
       const secondImage = screen.getByTestId('payload-image-2');
@@ -103,7 +118,8 @@ describe('<Popover.Viewport />', () => {
     });
 
     it('should create morphing containers during transitions', async () => {
-      const { user } = await render(
+      ignoreActWarnings();
+      await render(
         <div>
           <style>
             {`
@@ -170,13 +186,15 @@ describe('<Popover.Viewport />', () => {
       const trigger1 = screen.getByTestId('trigger1');
       const trigger2 = screen.getByTestId('trigger2');
 
-      await user.click(trigger1);
+      fireEvent.click(trigger1);
+      await flushMicrotasks();
       await waitFor(() => {
         expect(screen.getByText('Content 0')).toBeVisible();
       });
 
       // Click second trigger to trigger morphing
-      await user.click(trigger2);
+      fireEvent.click(trigger2);
+      await flushMicrotasks();
 
       // Check for morphing containers during transition
       let previousContainer: HTMLElement | null = null;
@@ -202,6 +220,7 @@ describe('<Popover.Viewport />', () => {
     });
 
     it('should handle rapid trigger changes', async () => {
+      ignoreActWarnings();
       function TestComponent() {
         return (
           <div>
@@ -249,16 +268,17 @@ describe('<Popover.Viewport />', () => {
         );
       }
 
-      const { user } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
       const trigger1 = screen.getByTestId('trigger1');
       const trigger2 = screen.getByTestId('trigger2');
       const trigger3 = screen.getByTestId('trigger3');
 
-      await user.click(trigger1);
-      await user.click(trigger2);
-      await user.click(trigger3);
-      await user.click(trigger1);
+      fireEvent.click(trigger1);
+      fireEvent.click(trigger2);
+      fireEvent.click(trigger3);
+      fireEvent.click(trigger1);
+      await flushMicrotasks();
 
       const content = await screen.findByText('Content 1');
       await waitFor(() => {
@@ -310,7 +330,8 @@ describe('<Popover.Viewport />', () => {
         expectedDirection: ['right', 'up'],
       },
     ])('$name', async ({ trigger1, trigger2, expectedDirection }) => {
-      const { user } = await render(
+      ignoreActWarnings();
+      await render(
         <div>
           <style>
             {`
@@ -377,24 +398,30 @@ describe('<Popover.Viewport />', () => {
       const triggerElement1 = screen.getByTestId('trigger1');
       const triggerElement2 = screen.getByTestId('trigger2');
 
-      await user.click(triggerElement1);
+      fireEvent.click(triggerElement1);
+      await flushMicrotasks();
 
       await waitFor(() => {
         expect(screen.getByText('Content 0')).toBeVisible();
       });
 
-      await user.click(triggerElement2);
+      fireEvent.click(triggerElement2);
+      await flushMicrotasks();
 
-      const viewport = screen.getByTestId('viewport');
       await waitFor(() => {
-        expect(viewport).to.have.attribute('data-activation-direction');
+        expect(screen.getByText('Content 1')).toBeVisible();
       });
 
-      const direction = viewport.getAttribute('data-activation-direction');
+      const viewport = screen.getByTestId('viewport');
 
       if (expectedDirection.length === 0) {
-        expect(direction?.trim()).to.equal('');
+        const direction = viewport.getAttribute('data-activation-direction');
+        expect(direction?.trim() ?? '').to.equal('');
       } else {
+        await waitFor(() => {
+          expect(viewport).to.have.attribute('data-activation-direction');
+        });
+        const direction = viewport.getAttribute('data-activation-direction');
         expectedDirection.forEach((dir) => {
           expect(direction).to.contain(dir);
         });

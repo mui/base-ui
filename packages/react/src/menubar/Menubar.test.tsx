@@ -3,7 +3,6 @@ import { expect } from 'chai';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
 import { spy } from 'sinon';
-import { afterEach } from 'vitest';
 import { Menubar } from '@base-ui/react/menubar';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -30,16 +29,8 @@ describe('<Menubar />', () => {
     { name: 'multiple contained triggers', Component: MultipleContainedTriggersMenubar },
   ])('when using $name', ({ Component: TestMenubar }) => {
     describe.skipIf(isJSDOM)('click interactions', () => {
-      afterEach(async () => {
-        const { cleanup } = await import('vitest-browser-react');
-        await cleanup();
-      });
-
       it('should open the menu after clicking on its trigger and close it when clicking again', async () => {
-        const { userEvent: user } = await import('vitest/browser');
-        const { render: vbrRender } = await import('vitest-browser-react');
-
-        await vbrRender(<TestMenubar />);
+        const { user } = await render(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -55,16 +46,8 @@ describe('<Menubar />', () => {
     });
 
     describe.skipIf(isJSDOM)('hover behavior', async () => {
-      afterEach(async () => {
-        const { cleanup } = await import('vitest-browser-react');
-        await cleanup();
-      });
-
       it('should not open submenus on hover when no submenu is already open', async () => {
-        const { userEvent: user } = await import('vitest/browser');
-        const { render: vbrRender } = await import('vitest-browser-react');
-
-        await vbrRender(<TestMenubar />);
+        const { user } = await render(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
 
@@ -75,10 +58,7 @@ describe('<Menubar />', () => {
       });
 
       it('should open submenus on hover when another submenu is already open', async () => {
-        const { userEvent: user } = await import('vitest/browser');
-        const { render: vbrRender } = await import('vitest-browser-react');
-
-        await vbrRender(<TestMenubar />);
+        const { user } = await render(<TestMenubar />);
 
         // First click to open the file menu
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -115,10 +95,7 @@ describe('<Menubar />', () => {
       });
 
       it('should open nested submenus on hover when parent menu is open', async () => {
-        const { userEvent: user } = await import('vitest/browser');
-        const { render: vbrRender } = await import('vitest-browser-react');
-
-        await vbrRender(<TestMenubar />);
+        const { user } = await render(<TestMenubar />);
 
         // First click to open the file menu
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -131,7 +108,7 @@ describe('<Menubar />', () => {
           expect(screen.getByRole('menubar')).to.have.attribute('data-has-submenu-open', 'true');
         });
 
-        await wait(50);
+        await user.hover(screen.getByTestId('file-menu'));
 
         // Now hover over the share submenu trigger
         const shareTrigger = await screen.findByTestId('share-trigger');
@@ -144,10 +121,7 @@ describe('<Menubar />', () => {
       });
 
       it('should open another menu on hover when a nested submenu is open', async () => {
-        const { userEvent: user } = await import('vitest/browser');
-        const { render: vbrRender } = await import('vitest-browser-react');
-
-        await vbrRender(<TestMenubar />);
+        const { user } = await render(<TestMenubar />);
 
         // First click to open the file menu
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -207,16 +181,8 @@ describe('<Menubar />', () => {
     });
 
     describe.skipIf(isJSDOM)('closeOnClick on nested items behavior', () => {
-      afterEach(async () => {
-        const { cleanup } = await import('vitest-browser-react');
-        await cleanup();
-      });
-
       it('should respect closeOnClick on nested items when the menu was opened on click', async () => {
-        const { userEvent: user } = await import('vitest/browser');
-        const { render: vbrRender } = await import('vitest-browser-react');
-
-        await vbrRender(<TestMenubar />);
+        const { user } = await render(<TestMenubar />);
 
         const viewTrigger = screen.getByTestId('view-trigger');
 
@@ -239,10 +205,7 @@ describe('<Menubar />', () => {
 
       // https://github.com/mui/base-ui/issues/2092
       it('should respect closeOnClick on nested items when the menu was opened on hover', async () => {
-        const { userEvent: user } = await import('vitest/browser');
-        const { render: vbrRender } = await import('vitest-browser-react');
-
-        await vbrRender(<TestMenubar />);
+        const { user } = await render(<TestMenubar />);
 
         const fileTrigger = screen.getByTestId('file-trigger');
         const viewTrigger = screen.getByTestId('view-trigger');
@@ -762,7 +725,7 @@ describe('<Menubar />', () => {
         expect(document.body).toHaveFocus();
 
         // Clicking should not open the menu
-        await user.click(fileTrigger);
+        fireEvent.click(fileTrigger);
         expect(screen.queryByTestId('file-menu')).to.equal(null);
       });
     });

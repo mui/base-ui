@@ -139,7 +139,7 @@ describe('useButton', () => {
       expect(handleKeyUp).toHaveBeenCalledTimes(0);
       expect(handleClick).toHaveBeenCalledTimes(0);
 
-      await user.click(button);
+      fireEvent.click(button);
       expect(handleKeyDown).toHaveBeenCalledTimes(0);
       expect(handleKeyUp).toHaveBeenCalledTimes(0);
       expect(handleClick).toHaveBeenCalledTimes(0);

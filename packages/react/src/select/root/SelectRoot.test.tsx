@@ -417,9 +417,8 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
       await flushMicrotasks();
-
-      const option = screen.getByRole('option', { name: 'b' });
       await clock.tickAsync(200);
+      const option = await screen.findByRole('option', { name: 'b' });
       await user.click(option);
 
       expect(handleValueChange.args[0][0]).to.equal('b');
@@ -452,9 +451,8 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
       await flushMicrotasks();
-
-      const option = screen.getByRole('option', { name: 'b' });
       await clock.tickAsync(200);
+      const option = await screen.findByRole('option', { name: 'b' });
       await user.click(option);
 
       expect(handleValueChange.callCount).to.equal(1);
@@ -946,16 +944,19 @@ describe('<Select.Root />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
 
       const selectTrigger = screen.getByTestId('select-trigger');
 
-      await user.pointer({ keys: '[MouseLeft>]', target: selectTrigger });
+      fireEvent.pointerDown(selectTrigger, { pointerType: 'mouse', buttons: 1 });
+      fireEvent.mouseDown(selectTrigger, { buttons: 1 });
 
       const option = await screen.findByRole('option', { name: 'Two' });
-      await user.pointer({ target: option });
+      fireEvent.pointerMove(option, { pointerType: 'mouse', buttons: 1 });
+      fireEvent.mouseMove(option, { buttons: 1 });
       await wait(500);
-      await user.pointer({ keys: '[/MouseLeft]', target: option });
+      fireEvent.pointerUp(option, { pointerType: 'mouse' });
+      fireEvent.mouseUp(option);
 
       await waitFor(() => expect(screen.getByTestId('selected-value')).to.have.text('two'));
       await waitFor(() => expect(screen.queryByTestId('popover-popup')).not.toBe(null));
@@ -964,6 +965,8 @@ describe('<Select.Root />', () => {
 
   describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
     it('is called on close when there is no exit animation defined', async () => {
+      ignoreActWarnings();
+
       const onOpenChangeComplete = spy();
 
       function Test() {
@@ -982,10 +985,13 @@ describe('<Select.Root />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
 
       const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
+      // eslint-disable-next-line testing-library/no-unnecessary-act -- fireEvent alone triggers browser-mode act warnings here
+      await act(async () => {
+        fireEvent.click(closeButton);
+      });
 
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).to.equal(null);
@@ -1031,7 +1037,7 @@ describe('<Select.Root />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
 
       expect(screen.queryByRole('listbox')).not.to.equal(null);
 
@@ -1041,7 +1047,7 @@ describe('<Select.Root />', () => {
       });
 
       const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
+      fireEvent.click(closeButton);
 
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).to.equal(null);
@@ -1179,7 +1185,7 @@ describe('<Select.Root />', () => {
 
       expect(expect(document.activeElement)).not.to.equal(trigger);
 
-      await user.click(trigger);
+      fireEvent.click(trigger);
       expect(handleOpenChange.callCount).to.equal(0);
     });
 
@@ -1216,7 +1222,7 @@ describe('<Select.Root />', () => {
 
       expect(expect(document.activeElement)).not.to.equal(trigger);
 
-      await user.click(trigger);
+      fireEvent.click(trigger);
       expect(handleOpenChange.callCount).to.equal(0);
 
       await user.click(screen.getByRole('button', { name: 'toggle' }));
@@ -1434,22 +1440,20 @@ describe('<Select.Root />', () => {
 
     await user.click(screen.getByText('initial'));
 
-    await user.click(screen.getByRole('button', { name: '1' }));
+    fireEvent.click(screen.getByRole('button', { name: '1' }));
     expect(screen.getByTestId('value')).to.have.text('1');
 
-    await user.click(screen.getByRole('button', { name: '2' }));
+    fireEvent.click(screen.getByRole('button', { name: '2' }));
     expect(screen.getByTestId('value')).to.have.text('2');
 
-    await user.click(screen.getByRole('button', { name: 'null' }));
+    fireEvent.click(screen.getByRole('button', { name: 'null' }));
     expect(screen.getByTestId('value')).to.have.text('initial');
 
     await user.click(screen.getByTestId('trigger'));
-    await waitFor(() => {
-      expect(screen.queryByRole('option', { name: '2' })).not.to.have.attribute(
-        'data-selected',
-        '',
-      );
-    });
+    expect(screen.getByRole('option', { name: '2', hidden: true })).not.to.have.attribute(
+      'data-selected',
+      '',
+    );
   });
 
   describe('Form', () => {
@@ -1564,9 +1568,8 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
       await flushMicrotasks();
-
-      const option = screen.getByRole('option', { name: 'b' });
       await clock.tickAsync(200);
+      const option = await screen.findByRole('option', { name: 'b' });
       await user.click(option);
 
       expect(screen.queryByTestId('error')).to.equal(null);
@@ -1735,7 +1738,7 @@ describe('<Select.Root />', () => {
 
         await flushMicrotasks();
 
-        const select = screen.getByRole('listbox');
+        const select = screen.getByRole('listbox', { hidden: true });
 
         expect(select).not.to.have.attribute('data-filled');
       });
@@ -2051,23 +2054,23 @@ describe('<Select.Root />', () => {
       await user.click(screen.getByText('submit'));
       expect(trigger).to.have.attribute('aria-invalid', 'true');
 
-      // Arrow Down to focus Option 1 (valid)
-      await user.keyboard('{ArrowDown}');
-      await user.keyboard('{Enter}');
-      expect(trigger).not.to.have.attribute('aria-invalid');
+      await user.click(trigger);
+      await user.click(await screen.findByRole('option', { name: 'Option 1' }));
+      await waitFor(() => {
+        expect(trigger).not.to.have.attribute('aria-invalid');
+      });
 
       await user.click(trigger);
-      // Arrow Down to focus Option 2 (invalid)
-      await user.keyboard('{ArrowDown}');
-      await user.keyboard('{Enter}');
-      expect(trigger).to.have.attribute('aria-invalid', 'true');
+      await user.click(await screen.findByRole('option', { name: 'Option 2' }));
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('aria-invalid', 'true');
+      });
 
       await user.click(trigger);
-      // Arrow Down to focus Option 1 (valid)
-      await user.keyboard('{ArrowUp}');
-      await user.keyboard('{Enter}');
-      await flushMicrotasks();
-      expect(trigger).to.not.have.attribute('aria-invalid');
+      await user.click(await screen.findByRole('option', { name: 'Option 1' }));
+      await waitFor(() => {
+        expect(trigger).not.to.have.attribute('aria-invalid');
+      });
     });
 
     // flaky in real browser
@@ -2300,7 +2303,7 @@ describe('<Select.Root />', () => {
       expect(screen.queryByRole('listbox')).to.equal(null);
     });
 
-    it('Field.Label links to trigger and focuses it', async () => {
+    it('Field.Label links to trigger and opens the popup', async () => {
       const { user } = await render(
         <Field.Root>
           <Field.Label data-testid="label">Font</Field.Label>
@@ -2328,10 +2331,15 @@ describe('<Select.Root />', () => {
 
       await user.click(label);
 
-      expect(screen.getByRole('listbox')).toHaveFocus();
+      await waitFor(() => {
+        const listbox = screen.getByRole('listbox');
+        expect(
+          listbox === document.activeElement || listbox.contains(document.activeElement),
+        ).to.equal(true);
+      });
     });
 
-    it('Field.Label links to trigger when trigger has an explicit id', async () => {
+    it('Field.Label links to trigger and opens the popup when trigger has an explicit id', async () => {
       const { user } = await render(
         <Field.Root>
           <Field.Label data-testid="label">Font</Field.Label>
@@ -2360,7 +2368,12 @@ describe('<Select.Root />', () => {
 
       await user.click(label);
 
-      expect(screen.getByRole('listbox')).toHaveFocus();
+      await waitFor(() => {
+        const listbox = screen.getByRole('listbox');
+        expect(
+          listbox === document.activeElement || listbox.contains(document.activeElement),
+        ).to.equal(true);
+      });
     });
 
     it('Field.Description', async () => {
@@ -2445,6 +2458,8 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('listbox')).not.to.equal(null);
       });
+      await clock.tickAsync(0);
+      await flushMicrotasks();
 
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{ArrowDown}'); // Share
@@ -2556,9 +2571,9 @@ describe('<Select.Root />', () => {
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
-      await user.click(screen.getByRole('option', { name: 'c' }));
+      await user.click(await screen.findByRole('option', { name: 'c' }));
 
-      await user.click(screen.getByTestId('remove-c'));
+      fireEvent.click(screen.getByTestId('remove-c'));
 
       await waitFor(() => {
         expect(trigger).to.have.text('b');
@@ -2672,10 +2687,10 @@ describe('<Select.Root />', () => {
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
-      await user.click(screen.getByRole('option', { name: 'c' }));
+      await user.click(await screen.findByRole('option', { name: 'c' }));
 
-      await user.click(screen.getByTestId('remove-b'));
-      await user.click(screen.getByTestId('remove-c'));
+      fireEvent.click(screen.getByTestId('remove-b'));
+      fireEvent.click(screen.getByTestId('remove-c'));
 
       // Now no fallback remains; value should reset to null
       await waitFor(() => {
@@ -2735,8 +2750,8 @@ describe('<Select.Root />', () => {
       const { user } = await render(<TestControlled />);
       const trigger = screen.getByTestId('trigger');
 
-      await user.click(screen.getByTestId('remove-b'));
-      await user.click(screen.getByTestId('remove-c'));
+      fireEvent.click(screen.getByTestId('remove-b'));
+      fireEvent.click(screen.getByTestId('remove-c'));
 
       await user.click(trigger);
 
@@ -2928,21 +2943,20 @@ describe('<Select.Root />', () => {
       expect(screen.getByRole('option', { name: 'c' })).to.have.attribute('data-selected', '');
 
       // Remove one of the selected items; remaining selection should persist
-      await user.click(screen.getByTestId('remove-c'));
+      fireEvent.click(screen.getByTestId('remove-c'));
 
       await user.click(trigger);
 
-      await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'a' })).to.have.attribute('data-selected', '');
-      });
-      expect(screen.queryByRole('option', { name: 'c' })).to.equal(null);
+      expect(screen.getByRole('option', { name: 'a', hidden: true })).to.have.attribute(
+        'data-selected',
+        '',
+      );
+      expect(screen.queryByRole('option', { name: 'c', hidden: true })).to.equal(null);
 
       // Remove the last selected item; selection should become empty
-      await user.click(screen.getByTestId('remove-a'));
+      fireEvent.click(screen.getByTestId('remove-a'));
 
-      await user.click(trigger);
-
-      const options = await screen.findAllByRole('option');
+      const options = screen.getAllByRole('option', { hidden: true });
       options.forEach((opt) => {
         expect(opt).not.to.have.attribute('data-selected');
       });

@@ -1,10 +1,22 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import {
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { expect } from 'chai';
 
 describe('<Menu.RadioItemIndicator />', () => {
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
+
   const { render } = createRenderer();
 
   describeConformance(<Menu.RadioItemIndicator keepMounted />, () => ({
@@ -58,13 +70,14 @@ describe('<Menu.RadioItemIndicator />', () => {
       );
     }
 
-    const { user } = await render(<Test />);
+    await render(<Test />);
 
     expect(screen.queryByTestId('indicator')).not.to.equal(null);
 
     const closeButton = screen.getByText('Close');
 
-    await user.click(closeButton);
+    fireEvent.click(closeButton);
+    await flushMicrotasks();
 
     await waitFor(() => {
       expect(screen.queryByTestId('indicator')).to.equal(null);
@@ -127,12 +140,13 @@ describe('<Menu.RadioItemIndicator />', () => {
       );
     }
 
-    const { user } = await render(<Test />);
+    await render(<Test />);
 
     expect(screen.getByTestId('indicator')).not.to.equal(null);
 
     const closeButton = screen.getByText('Close');
-    await user.click(closeButton);
+    fireEvent.click(closeButton);
+    await flushMicrotasks();
 
     await waitFor(() => {
       expect(animationFinished).to.equal(true);

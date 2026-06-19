@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { screen } from '@mui/internal-test-utils';
+import { ignoreActWarnings, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -12,6 +12,12 @@ const Trigger = React.forwardRef(function Trigger(
 });
 
 describe('<Select.Positioner />', () => {
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
+
   const { render } = createRenderer();
 
   describeConformance(<Select.Positioner />, () => ({

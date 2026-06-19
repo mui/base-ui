@@ -40,7 +40,9 @@ describe('<Popover.Trigger />', () => {
       expect(trigger).to.have.attribute('disabled');
       expect(trigger).to.have.attribute('data-disabled');
 
-      await user.click(trigger);
+      await act(async () => {
+        trigger.click();
+      });
       expect(screen.queryByText('Content')).to.equal(null);
 
       await user.keyboard('[Tab]');
@@ -64,7 +66,7 @@ describe('<Popover.Trigger />', () => {
       expect(trigger).to.have.attribute('data-disabled');
       expect(trigger).to.have.attribute('aria-disabled', 'true');
 
-      await user.click(trigger);
+      fireEvent.click(trigger);
       expect(screen.queryByText('Content')).to.equal(null);
 
       await user.keyboard('[Tab]');
@@ -330,60 +332,53 @@ describe('<Popover.Trigger />', () => {
     'should toggle closed with Enter or Space when rendering a <div>',
     async () => {
       ignoreActWarnings();
-      const { userEvent: user } = await import('vitest/browser');
-      const { render: vbrRender, cleanup } = await import('vitest-browser-react');
+      const { user } = await render(
+        <div>
+          <Popover.Root>
+            <Popover.Trigger render={<div />} nativeButton={false} data-testid="div-trigger">
+              Toggle
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="other-button">Other button</button>
+        </div>,
+      );
 
-      try {
-        await vbrRender(
-          <div>
-            <Popover.Root>
-              <Popover.Trigger render={<div />} nativeButton={false} data-testid="div-trigger">
-                Toggle
-              </Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner>
-                  <Popover.Popup>Content</Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>
-            <button data-testid="other-button">Other button</button>
-          </div>,
-        );
+      const trigger = screen.getByTestId('div-trigger');
 
-        const trigger = screen.getByTestId('div-trigger');
+      await act(async () => trigger.focus());
+      await user.keyboard('[Enter]');
+      expect(screen.queryByText('Content')).not.to.equal(null);
 
-        await act(async () => trigger.focus());
-        await user.keyboard('[Enter]');
-        expect(screen.queryByText('Content')).not.to.equal(null);
+      await user.tab({ shift: true });
+      expect(document.activeElement).to.equal(trigger);
 
-        await user.tab({ shift: true });
-        expect(document.activeElement).to.equal(trigger);
-
-        await user.keyboard('[Enter]');
-        await waitFor(() => {
-          expect(screen.queryByText('Content')).to.equal(null);
-        });
-
-        await user.keyboard('[Enter]');
-        expect(screen.queryByText('Content')).not.to.equal(null);
-
-        await user.tab({ shift: true });
-        expect(document.activeElement).to.equal(trigger);
-
-        await user.keyboard('[Space]');
+      await user.keyboard('[Enter]');
+      await waitFor(() => {
         expect(screen.queryByText('Content')).to.equal(null);
+      });
 
-        await user.keyboard('[Space]');
-        expect(screen.queryByText('Content')).not.to.equal(null);
+      await user.keyboard('[Enter]');
+      expect(screen.queryByText('Content')).not.to.equal(null);
 
-        await user.tab({ shift: true });
-        expect(document.activeElement).to.equal(trigger);
+      await user.tab({ shift: true });
+      expect(document.activeElement).to.equal(trigger);
 
-        await user.keyboard('[Space]');
-        expect(screen.queryByText('Content')).to.equal(null);
-      } finally {
-        await cleanup();
-      }
+      await user.keyboard('[Space]');
+      expect(screen.queryByText('Content')).to.equal(null);
+
+      await user.keyboard('[Space]');
+      expect(screen.queryByText('Content')).not.to.equal(null);
+
+      await user.tab({ shift: true });
+      expect(document.activeElement).to.equal(trigger);
+
+      await user.keyboard('[Space]');
+      expect(screen.queryByText('Content')).to.equal(null);
     },
   );
 });

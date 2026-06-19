@@ -8,6 +8,10 @@ import { createRenderer, isJSDOM, wait } from '#test-utils';
 describe('<MenuRoot />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
   });
 
   const { render } = createRenderer();

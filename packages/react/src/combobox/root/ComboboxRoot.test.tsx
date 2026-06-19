@@ -83,6 +83,10 @@ function isElementOrAncestorInert(element: HTMLElement) {
 describe('<Combobox.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
   });
 
   const { render, renderToString } = createRenderer();
@@ -1121,7 +1125,10 @@ describe('<Combobox.Root />', () => {
       });
 
       const listbox = screen.getByRole('listbox');
-      await user.click(listbox);
+      // Dispatch the event directly on the listbox element. A real `user.click` would land on
+      // whichever item sits at the listbox center (selecting it), but this test only cares that
+      // pressing on the popup keeps focus on the input rather than moving it to the listbox.
+      fireEvent.mouseDown(listbox);
       expect(input).toHaveFocus();
 
       await user.keyboard('{ArrowDown}');

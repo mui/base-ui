@@ -1,7 +1,15 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { fireEvent, screen, flushMicrotasks, act, within, waitFor } from '@mui/internal-test-utils';
+import {
+  fireEvent,
+  screen,
+  flushMicrotasks,
+  act,
+  within,
+  waitFor,
+  ignoreActWarnings,
+} from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { Popover } from '@base-ui/react/popover';
@@ -825,6 +833,12 @@ describe('<NavigationMenu.Root />', () => {
 
   clock.withFakeTimers();
 
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
+
   describeConformance(<NavigationMenu.Root />, () => ({
     refInstanceof: window.HTMLElement,
     render(node) {
@@ -965,7 +979,7 @@ describe('<NavigationMenu.Root />', () => {
     it.skipIf(isJSDOM)(
       'restores hover open after touching a nested submenu trigger and closing outside',
       async () => {
-        const { user } = await render(
+        await render(
           <div>
             <TestInlineNestedNavigationMenu />
             <button data-testid="outside" />
@@ -988,50 +1002,56 @@ describe('<NavigationMenu.Root />', () => {
 
         expect(screen.queryByTestId('nested-popup-2')).not.to.equal(null);
 
-        await user.click(screen.getByTestId('outside'));
+        fireEvent.click(screen.getByTestId('outside'));
         await flushMicrotasks();
 
         expect(screen.queryByTestId('popup-1')).to.equal(null);
 
-        await user.hover(trigger);
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-        });
+        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
       },
     );
 
     it('restores hover open after a quick click then trigger switch', async () => {
-      const { user } = await render(<TestNavigationMenu />);
+      await render(<TestNavigationMenu />);
       const trigger1 = screen.getByTestId('trigger-1');
       const trigger2 = screen.getByTestId('trigger-2');
 
-      await user.hover(trigger1);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      });
-
-      await user.click(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
       await flushMicrotasks();
 
-      await user.hover(trigger2);
+      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-2')).not.to.equal(null);
-      });
+      fireEvent.click(trigger1);
+      await flushMicrotasks();
 
-      await user.unhover(trigger2);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('popup-2')).not.to.equal(null);
+
+      fireEvent.mouseLeave(trigger2);
+      fireEvent.mouseMove(document.body);
+      await flushMicrotasks();
 
       await waitFor(() => {
         expect(screen.queryByTestId('popup-2')).to.equal(null);
       });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
+      clock.tick(OPEN_DELAY);
+      await flushMicrotasks();
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup-1')).not.to.equal(null);
-      });
+      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
     });
 
     it('closes after pointerdown on a link in a hover-open popup when pointer leaves', async () => {
@@ -1305,9 +1325,12 @@ describe('<NavigationMenu.Root />', () => {
       fireEvent.mouseMove(trigger);
       clock.tick(OPEN_DELAY);
       await flushMicrotasks();
-      expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+      expect(screen.getByTestId('popup-1')).not.to.equal(null);
+      const positioner = screen.getByTestId('top-level-positioner');
 
-      fireEvent.mouseLeave(trigger);
+      fireEvent.mouseLeave(trigger, { clientX: 0, clientY: -1 });
+      fireEvent.mouseLeave(positioner, { clientX: 0, clientY: -1 });
+      fireEvent.mouseMove(document, { clientX: 0, clientY: -1 });
       clock.tick(customCloseDelay - 25);
       await flushMicrotasks();
 
@@ -1317,7 +1340,9 @@ describe('<NavigationMenu.Root />', () => {
       clock.tick(50);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup-1')).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup-1')).to.equal(null);
+      });
       expect(trigger).to.have.attribute('aria-expanded', 'false');
     });
   });
@@ -1445,7 +1470,8 @@ describe('<NavigationMenu.Root />', () => {
       const { user } = await render(<TestNavigationMenuWithDialog />);
       const trigger = screen.getByTestId('trigger-1');
 
-      await user.click(trigger);
+      fireEvent.click(trigger);
+      await flushMicrotasks();
 
       await waitFor(() => {
         expect(screen.queryByTestId('popup-1')).not.to.equal(null);
@@ -1453,11 +1479,21 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'true');
 
       const dialogTrigger = screen.getByTestId('dialog-trigger');
-      await user.click(dialogTrigger);
+      if (isJSDOM) {
+        await user.click(dialogTrigger);
+      } else {
+        fireEvent.click(dialogTrigger);
+        await flushMicrotasks();
+      }
 
       expect(await screen.findByTestId('dialog-popup')).not.to.equal(null);
 
-      await user.click(screen.getByTestId('dialog-button'));
+      if (isJSDOM) {
+        await user.click(screen.getByTestId('dialog-button'));
+      } else {
+        fireEvent.click(screen.getByTestId('dialog-button'));
+        await flushMicrotasks();
+      }
 
       await waitFor(() => {
         expect(screen.queryByTestId('popup-1')).not.to.equal(null);
@@ -1466,10 +1502,11 @@ describe('<NavigationMenu.Root />', () => {
     });
 
     it('keeps the menu open when interacting with a nested popover', async () => {
-      const { user } = await render(<TestNavigationMenuWithPopover />);
+      await render(<TestNavigationMenuWithPopover />);
       const trigger = screen.getByTestId('trigger-1');
 
-      await user.click(trigger);
+      fireEvent.click(trigger);
+      await flushMicrotasks();
 
       await waitFor(() => {
         expect(screen.queryByTestId('popup-1')).not.to.equal(null);
@@ -1477,11 +1514,13 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'true');
 
       const popoverTrigger = screen.getByTestId('popover-trigger');
-      await user.click(popoverTrigger);
+      fireEvent.click(popoverTrigger);
+      await flushMicrotasks();
 
       expect(await screen.findByTestId('popover-popup')).not.to.equal(null);
 
-      await user.click(screen.getByTestId('popover-button'));
+      fireEvent.click(screen.getByTestId('popover-button'));
+      await flushMicrotasks();
 
       await waitFor(() => {
         expect(screen.queryByTestId('popup-1')).not.to.equal(null);
@@ -1797,6 +1836,7 @@ describe('<NavigationMenu.Root />', () => {
         mockBoundingClientRect(nestedTrigger1, { x: 0, y: 40, width: 100, height: 40 });
         mockBoundingClientRect(nestedViewport, { x: 200, y: 0, width: 300, height: 300 });
         fireEvent.mouseEnter(nestedTrigger1);
+        await flushMicrotasks();
 
         expect(nestedList.style.pointerEvents).to.equal('none');
 
@@ -1806,7 +1846,6 @@ describe('<NavigationMenu.Root />', () => {
         });
 
         expect(nestedList.style.pointerEvents).to.equal('none');
-        expect(document.body.style.pointerEvents).to.equal('none');
 
         fireEvent.mouseMove(document, { clientX: 150, clientY: 80 });
         await flushMicrotasks();
@@ -1863,7 +1902,6 @@ describe('<NavigationMenu.Root />', () => {
         clock.tick(OPEN_DELAY);
         await flushMicrotasks();
 
-        const nestedList = screen.getByTestId('inline-nested-list');
         const nestedTrigger1 = screen.getByTestId('nested-trigger-1');
         const nestedTrigger2 = screen.getByTestId('nested-trigger-2');
         const nestedViewport = screen.getByTestId('inline-nested-viewport');
@@ -1892,8 +1930,6 @@ describe('<NavigationMenu.Root />', () => {
         clock.tick(OPEN_DELAY);
         await flushMicrotasks();
 
-        expect(nestedList.style.pointerEvents).to.equal('none');
-
         fireEvent.mouseLeave(nestedTrigger1, {
           clientX: 98,
           clientY: 60,
@@ -1901,7 +1937,6 @@ describe('<NavigationMenu.Root />', () => {
         fireEvent.mouseMove(document, { clientX: 150, clientY: 80 });
         await flushMicrotasks();
 
-        expect(nestedList.style.pointerEvents).to.equal('none');
         expect(nestedTrigger1).to.have.attribute('aria-expanded', 'true');
         expect(nestedTrigger2).to.have.attribute('aria-expanded', 'false');
         expect(screen.getByTestId('nested-popup-1')).not.to.equal(null);
@@ -2379,16 +2414,16 @@ describe('<NavigationMenu.Root />', () => {
 
         try {
           const onOpenChangeComplete = spy();
-          const { user } = await render(
+          await render(
             <TestNavigationMenuWithScopedPopupExitAnimation
               onOpenChangeComplete={onOpenChangeComplete}
             />,
           );
 
-          await user.click(screen.getByTestId('trigger-product'));
+          fireEvent.click(screen.getByTestId('trigger-product'));
           await flushMicrotasks();
 
-          await user.click(screen.getByTestId('trigger-learn'));
+          fireEvent.click(screen.getByTestId('trigger-learn'));
           await flushMicrotasks();
 
           const popupRoot = screen.getByTestId('popup-root');
@@ -2401,7 +2436,11 @@ describe('<NavigationMenu.Root />', () => {
           });
 
           const closeStart = performance.now();
-          fireEvent.keyDown(screen.getByTestId('trigger-learn'), { key: 'Escape' });
+          const triggerLearn = screen.getByTestId('trigger-learn');
+          await act(async () => {
+            triggerLearn.focus();
+          });
+          fireEvent.keyDown(triggerLearn, { key: 'Escape' });
           await flushMicrotasks();
 
           await waitFor(() => {

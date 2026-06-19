@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, isJSDOM } from '#test-utils';
 
@@ -9,6 +9,10 @@ describe('<Dialog.Root />', () => {
 
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
   });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {

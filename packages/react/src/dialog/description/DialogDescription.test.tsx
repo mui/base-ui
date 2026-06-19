@@ -1,7 +1,14 @@
 import { Dialog } from '@base-ui/react/dialog';
-import { createRenderer, describeConformance } from '#test-utils';
+import { ignoreActWarnings } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Dialog.Description />', () => {
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
+
   const { render } = createRenderer();
 
   describeConformance(<Dialog.Description />, () => ({

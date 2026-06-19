@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -234,11 +234,13 @@ describe('<Accordion.Root />', () => {
       const [trigger1, trigger2] = screen.getAllByRole('button');
       const item2 = screen.getByTestId('item2');
 
-      [item1, header1, trigger1, panel1].forEach((element) => {
-        expect(element).to.have.attribute('data-disabled');
-      });
-      [item2, header2, trigger2].forEach((element) => {
-        expect(element).to.not.have.attribute('data-disabled');
+      await waitFor(() => {
+        [item1, header1, trigger1, panel1].forEach((element) => {
+          expect(element).to.have.attribute('data-disabled');
+        });
+        [item2, header2, trigger2].forEach((element) => {
+          expect(element).to.not.have.attribute('data-disabled');
+        });
       });
     });
   });

@@ -1,7 +1,14 @@
 import { Select } from '@base-ui/react/select';
-import { createRenderer, describeConformance } from '#test-utils';
+import { ignoreActWarnings } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Select.ItemIndicator />', () => {
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
+
   const { render } = createRenderer();
 
   describeConformance(<Select.ItemIndicator />, () => ({

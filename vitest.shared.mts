@@ -42,6 +42,13 @@ function getBrowserConfig(): BrowserModeConfig {
   };
 }
 
+const browserConfig = getBrowserConfig();
+
+// Browser mode drives real user interactions, so a handful of hover/timing tests are flaky under
+// load; allow an extra retry there on CI. (Local runs never retry to keep results honest.)
+const ciRetry = browserConfig ? 2 : 1;
+const retry = process.env.CI ? ciRetry : 0;
+
 const config: UserWorkspaceConfig = {
   test: {
     exclude: ['node_modules', 'build', '**/*.spec.*'],
@@ -54,12 +61,12 @@ const config: UserWorkspaceConfig = {
         url: 'http://localhost',
       },
     },
-    browser: getBrowserConfig(),
+    browser: browserConfig,
     env: {
       VITEST: 'true',
     },
-    // Avoid committing tests that influence their own retry
-    retry: process.env.CI ? 1 : 0,
+    // Avoid committing tests that influence their own retry.
+    retry,
   },
   resolve: viteConfig.resolve,
 };

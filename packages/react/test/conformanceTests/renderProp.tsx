@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { randomStringValue, screen } from '@mui/internal-test-utils';
+import { flushMicrotasks, randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
 import type {
   ConformantComponentProps,
   BaseUiConformanceTestsOptions,
@@ -44,9 +44,13 @@ export function testRenderProp(
         }),
       );
 
-      expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
-      expect(screen.queryByTestId('wrapped')).not.to.equal(null);
-      expect(screen.queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+        expect(screen.queryByTestId('wrapped')).not.to.equal(null);
+        expect(screen.queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
+      });
     });
 
     it('renders a customized root element with an element', async () => {
@@ -59,9 +63,13 @@ export function testRenderProp(
         }),
       );
 
-      expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
-      expect(screen.queryByTestId('wrapped')).not.to.equal(null);
-      expect(screen.queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+        expect(screen.queryByTestId('wrapped')).not.to.equal(null);
+        expect(screen.queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
+      });
     });
 
     it('renders a customized root element with an element', async () => {
@@ -72,7 +80,11 @@ export function testRenderProp(
         }),
       );
 
-      expect(document.querySelector('[data-testid="base-ui-wrapper"]')).not.to.equal(null);
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="base-ui-wrapper"]')).not.to.equal(null);
+      });
     });
 
     it('should pass the ref to the custom component', async () => {
@@ -93,13 +105,17 @@ export function testRenderProp(
       }
 
       await render(<Test />);
-      expect(instanceFromRef!.tagName).to.equal(Element.toUpperCase());
-      expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(instanceFromRef!.tagName).to.equal(Element.toUpperCase());
+        expect(instanceFromRef!).to.have.attribute('data-testid', 'wrapped');
+      });
     });
 
     it('should merge the rendering element ref with the custom component ref', async () => {
-      let refA = null;
-      let refB = null;
+      let refA: HTMLElement | null = null;
+      let refB: HTMLElement | null = null;
 
       function Test() {
         return React.cloneElement(element, {
@@ -119,13 +135,16 @@ export function testRenderProp(
       }
 
       await render(<Test />);
+      await flushMicrotasks();
 
-      expect(refA).not.to.equal(null);
-      expect(refA!.tagName).to.equal(Element.toUpperCase());
-      expect(refA!).to.have.attribute('data-testid', 'wrapped');
-      expect(refB).not.to.equal(null);
-      expect(refB!.tagName).to.equal(Element.toUpperCase());
-      expect(refB!).to.have.attribute('data-testid', 'wrapped');
+      await waitFor(() => {
+        expect(refA).not.to.equal(null);
+        expect(refA!.tagName).to.equal(Element.toUpperCase());
+        expect(refA!).to.have.attribute('data-testid', 'wrapped');
+        expect(refB).not.to.equal(null);
+        expect(refB!.tagName).to.equal(Element.toUpperCase());
+        expect(refB!).to.have.attribute('data-testid', 'wrapped');
+      });
     });
 
     it('should merge the rendering element className with the custom component className', async () => {
@@ -140,9 +159,11 @@ export function testRenderProp(
 
       await render(<Test />);
 
-      const component = screen.getByTestId('test-component');
-      expect(component.classList.contains('component-classname')).to.equal(true);
-      expect(component.classList.contains('render-prop-classname')).to.equal(true);
+      const component = await screen.findByTestId('test-component');
+      await waitFor(() => {
+        expect(component.classList.contains('component-classname')).to.equal(true);
+        expect(component.classList.contains('render-prop-classname')).to.equal(true);
+      });
     });
 
     it('should merge the rendering element resolved className with the custom component className', async () => {
@@ -157,9 +178,11 @@ export function testRenderProp(
 
       await render(<Test />);
 
-      const component = screen.getByTestId('test-component');
-      expect(component.classList.contains('conditional-component-classname')).to.equal(true);
-      expect(component.classList.contains('render-prop-classname')).to.equal(true);
+      const component = await screen.findByTestId('test-component');
+      await waitFor(() => {
+        expect(component.classList.contains('conditional-component-classname')).to.equal(true);
+        expect(component.classList.contains('render-prop-classname')).to.equal(true);
+      });
     });
   });
 }

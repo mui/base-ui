@@ -60,7 +60,11 @@ describe('<Menu.Item />', () => {
     );
 
     const trigger = screen.getByRole('button', { name: 'Open' });
-    await user.click(trigger);
+    fireEvent.click(trigger);
+
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem')).not.to.equal(null);
+    });
 
     const item = screen.getByRole('menuitem');
     await user.click(item);
@@ -162,7 +166,11 @@ describe('<Menu.Item />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitem');
       await user.click(item);
@@ -185,7 +193,11 @@ describe('<Menu.Item />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitem');
       await user.click(item);

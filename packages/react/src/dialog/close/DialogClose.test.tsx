@@ -1,10 +1,16 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Dialog } from '@base-ui/react/dialog';
-import { screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { fireEvent, flushMicrotasks, ignoreActWarnings, screen } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Dialog.Close />', () => {
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
+
   const { render } = createRenderer();
 
   describeConformance(<Dialog.Close />, () => ({
@@ -90,7 +96,7 @@ describe('<Dialog.Close />', () => {
   it('closes the dialog when undefined is passed to the `onClick` prop', async () => {
     const handleOpenChange = spy();
 
-    const { user } = await render(
+    await render(
       <Dialog.Root onOpenChange={handleOpenChange}>
         <Dialog.Trigger>Open</Dialog.Trigger>
         <Dialog.Portal>
@@ -104,13 +110,15 @@ describe('<Dialog.Close />', () => {
     expect(handleOpenChange.callCount).to.equal(0);
 
     const openButton = screen.getByText('Open');
-    await user.click(openButton);
+    fireEvent.click(openButton);
+    await flushMicrotasks();
 
     expect(handleOpenChange.callCount).to.equal(1);
     expect(handleOpenChange.firstCall.args[0]).to.equal(true);
 
     const closeButton = screen.getByText('Close');
-    await user.click(closeButton);
+    fireEvent.click(closeButton);
+    await flushMicrotasks();
 
     expect(handleOpenChange.callCount).to.equal(2);
     expect(handleOpenChange.secondCall.args[0]).to.equal(false);

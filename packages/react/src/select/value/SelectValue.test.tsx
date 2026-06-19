@@ -1,11 +1,18 @@
 import * as React from 'react';
+import { vi } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import { spy } from 'sinon';
 import { expect } from 'chai';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { fireEvent, flushMicrotasks, ignoreActWarnings, screen } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Select.Value />', () => {
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
+
   const { render } = createRenderer();
 
   describeConformance(<Select.Value />, () => ({
@@ -115,14 +122,16 @@ describe('<Select.Value />', () => {
         );
       }
 
-      const { user } = await render(<App />);
+      await render(<App />);
 
       expect(screen.getByTestId('value')).to.have.text('Sans-serif');
 
-      await user.click(screen.getByRole('button', { name: 'serif' }));
+      fireEvent.click(screen.getByRole('button', { name: 'serif' }));
+      await flushMicrotasks();
       expect(screen.getByTestId('value')).to.have.text('Serif');
 
-      await user.click(screen.getByRole('button', { name: 'mono' }));
+      fireEvent.click(screen.getByRole('button', { name: 'mono' }));
+      await flushMicrotasks();
       expect(screen.getByTestId('value')).to.have.text('Monospace');
     });
 
@@ -426,6 +435,10 @@ describe('<Select.Value />', () => {
   });
 
   it('changes text when the value changes', async () => {
+    if (!isJSDOM) {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+    }
+
     function App() {
       const [value, setValue] = React.useState<string | null>(null);
       return (
@@ -450,18 +463,21 @@ describe('<Select.Value />', () => {
       );
     }
 
-    const { user } = await render(<App />);
+    await render(<App />);
 
-    await user.click(screen.getByText('initial'));
+    fireEvent.click(screen.getByText('initial'));
     await flushMicrotasks();
 
-    await user.click(screen.getByRole('button', { name: '1' }));
+    fireEvent.click(screen.getByRole('button', { name: '1' }));
+    await flushMicrotasks();
     expect(screen.getByTestId('value')).to.have.text('1');
 
-    await user.click(screen.getByRole('button', { name: '2' }));
+    fireEvent.click(screen.getByRole('button', { name: '2' }));
+    await flushMicrotasks();
     expect(screen.getByTestId('value')).to.have.text('2');
 
-    await user.click(screen.getByRole('button', { name: 'null' }));
+    fireEvent.click(screen.getByRole('button', { name: 'null' }));
+    await flushMicrotasks();
     expect(screen.getByTestId('value')).to.have.text('initial');
   });
 

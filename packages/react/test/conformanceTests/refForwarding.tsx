@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
+import { flushMicrotasks } from '@mui/internal-test-utils';
 import type {
   ConformantComponentProps,
   BaseUiConformanceTestsOptions,
@@ -20,6 +21,7 @@ async function verifyRef(
   const { container } = await render(
     <React.Fragment>{React.cloneElement(element, { ref })}</React.Fragment>,
   );
+  await flushMicrotasks();
 
   onRef(ref.current, container);
 }

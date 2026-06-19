@@ -1,6 +1,12 @@
 import { Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
-import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { createRenderer, isJSDOM } from '#test-utils';
 
@@ -12,6 +18,12 @@ describe('<Drawer.Viewport />', () => {
   });
 
   const { render } = createRenderer();
+
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
 
   function createTouch(target: EventTarget, point: { clientX: number; clientY: number }) {
     if (typeof Touch === 'function') {

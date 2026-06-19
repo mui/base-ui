@@ -148,7 +148,10 @@ describe('<Menu.RadioItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemradio')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitemradio');
       await user.click(item);
@@ -245,7 +248,10 @@ describe('<Menu.RadioItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemradio')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitemradio');
       await user.click(item);
@@ -271,7 +277,10 @@ describe('<Menu.RadioItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemradio')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitemradio');
       await user.click(item);
@@ -310,7 +319,11 @@ describe('<Menu.RadioItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemradio')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitemradio');
       await user.click(item);
@@ -335,7 +348,11 @@ describe('<Menu.RadioItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemradio')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitemradio');
       await user.click(item);

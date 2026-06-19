@@ -107,7 +107,7 @@ describe('<Menu.CheckboxItem />', () => {
       ] as const
     ).forEach(([checked, ariaChecked, dataState]) =>
       it('adds the state and ARIA attributes when checked', async () => {
-        const { user } = await render(
+        await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Portal>
@@ -121,7 +121,10 @@ describe('<Menu.CheckboxItem />', () => {
         );
 
         const trigger = screen.getByRole('button', { name: 'Open' });
-        await user.click(trigger);
+        fireEvent.click(trigger);
+        await waitFor(() => {
+          expect(screen.getByRole('menuitemcheckbox')).not.to.equal(null);
+        });
 
         const item = screen.getByRole('menuitemcheckbox');
         expect(item).to.have.attribute('aria-checked', ariaChecked);
@@ -144,7 +147,10 @@ describe('<Menu.CheckboxItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemcheckbox')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
@@ -277,7 +283,10 @@ describe('<Menu.CheckboxItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemcheckbox')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
@@ -340,7 +349,11 @@ describe('<Menu.CheckboxItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemcheckbox')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
@@ -363,7 +376,10 @@ describe('<Menu.CheckboxItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await user.click(trigger);
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('menuitemcheckbox')).not.to.equal(null);
+      });
 
       const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);

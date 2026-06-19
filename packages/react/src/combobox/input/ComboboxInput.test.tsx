@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Field } from '@base-ui/react/field';
@@ -54,7 +54,11 @@ describe('<Combobox.Input />', () => {
     });
 
     it('should not open popup when disabled', async () => {
-      const { user } = await render(
+      if (!isJSDOM) {
+        ignoreActWarnings();
+      }
+
+      await render(
         <Combobox.Root>
           <Combobox.Input disabled data-testid="input" />
           <Combobox.Portal>
@@ -71,7 +75,7 @@ describe('<Combobox.Input />', () => {
       );
 
       const input = screen.getByTestId('input');
-      await user.click(input);
+      fireEvent.click(input);
 
       expect(screen.queryByRole('listbox')).to.equal(null);
     });

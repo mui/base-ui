@@ -82,7 +82,9 @@ export function popupConformanceTests(config: PopupTestConfig) {
             await render(prepareComponent({ root: { open: true } }));
             const trigger = getTrigger();
             const popup = getPopup();
-            expect(trigger).to.have.attribute('aria-controls', popup?.id);
+            await waitFor(() => {
+              expect(trigger).to.have.attribute('aria-controls', popup?.id);
+            });
           });
 
           it('has the `aria-expanded` attribute on the trigger when open', async () => {

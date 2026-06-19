@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
@@ -11,6 +18,10 @@ import { REASONS } from '../../utils/reasons';
 describe('<Tooltip.Root />', () => {
   beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
   });
 
   afterEach(async () => {
@@ -84,12 +95,9 @@ describe('<Tooltip.Root />', () => {
           skip();
         }
 
-        await render(<TestTooltip />);
+        const { user } = await render(<TestTooltip />);
 
-        const trigger = screen.getByRole('button', { name: 'Toggle' });
-
-        await act(async () => trigger.focus());
-
+        await user.tab();
         await flushMicrotasks();
 
         expect(screen.getByText('Content')).not.to.equal(null);
@@ -100,16 +108,11 @@ describe('<Tooltip.Root />', () => {
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
 
-        await act(async () => {
-          trigger.focus();
-        });
-
+        fireEvent.focus(trigger);
         clock.tick(OPEN_DELAY);
         await flushMicrotasks();
 
-        await act(async () => {
-          trigger.blur();
-        });
+        fireEvent.blur(trigger);
 
         clock.tick(OPEN_DELAY);
 

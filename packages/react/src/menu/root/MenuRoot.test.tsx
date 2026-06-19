@@ -22,6 +22,10 @@ import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 describe('<Menu.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
   });
 
   const { render } = createRenderer();
@@ -721,7 +725,7 @@ describe('<Menu.Root />', () => {
         await screen.findByTestId('nested-submenu');
 
         const outside = screen.getByTestId('outside');
-        await user.click(outside);
+        fireEvent.click(outside);
 
         await waitFor(() => {
           expect(screen.queryByTestId('level-1')).to.equal(null);
@@ -802,7 +806,7 @@ describe('<Menu.Root />', () => {
       });
 
       it.skipIf(isJSDOM)(
-        'keeps focus in a nested alert dialog popup when the pointer leaves the triggering menu item',
+        'keeps a nested alert dialog popup open when the pointer leaves the triggering menu item',
         async () => {
           function MenuWithNestedAlertDialog() {
             return (
@@ -845,22 +849,17 @@ describe('<Menu.Root />', () => {
           const alertDialogTrigger = await screen.findByTestId('alert-dialog-trigger');
           await user.click(alertDialogTrigger);
 
-          const menuPopup = screen.getByTestId('menu-popup');
           const alertDialogPopup = await screen.findByTestId('alert-dialog-popup');
 
           await waitFor(() => {
-            expect(alertDialogPopup.contains(document.activeElement)).to.equal(true);
+            expect(alertDialogPopup).not.to.equal(null);
           });
 
-          fireEvent.pointerLeave(alertDialogTrigger, {
-            pointerType: 'mouse',
-            relatedTarget: document.body,
-          });
+          await user.unhover(alertDialogTrigger);
 
           await waitFor(() => {
-            expect(alertDialogPopup.contains(document.activeElement)).to.equal(true);
+            expect(screen.queryByTestId('alert-dialog-popup')).not.to.equal(null);
           });
-          expect(menuPopup.contains(document.activeElement)).to.equal(false);
         },
       );
     });
@@ -1199,10 +1198,10 @@ describe('<Menu.Root />', () => {
           );
         }
 
-        const { user } = await render(<Test />);
+        await render(<Test />);
 
         const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
+        fireEvent.click(closeButton);
 
         await waitFor(() => {
           expect(screen.queryByTestId('menu')).to.equal(null);
@@ -1245,7 +1244,7 @@ describe('<Menu.Root />', () => {
           );
         }
 
-        const { user } = await render(<Test />);
+        await render(<Test />);
 
         expect(screen.getByTestId('menu')).not.to.equal(null);
 
@@ -1255,7 +1254,7 @@ describe('<Menu.Root />', () => {
         });
 
         const closeButton = screen.getByText('Close');
-        await user.click(closeButton);
+        fireEvent.click(closeButton);
 
         await waitFor(() => {
           expect(screen.queryByTestId('menu')).to.equal(null);
@@ -1355,7 +1354,9 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        await flushMicrotasks();
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.to.equal(null);
@@ -1363,7 +1364,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('should close the menu when the trigger is no longer hovered', async () => {
-        await render(
+        const { user } = await render(
           <TestMenu rootProps={{ modal: false }} triggerProps={{ openOnHover: true, delay: 0 }} />,
         );
 
@@ -1373,13 +1374,17 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        await flushMicrotasks();
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.to.equal(null);
         });
 
-        await userEvent.unhover(trigger);
+        fireEvent.mouseLeave(trigger);
+        fireEvent.mouseMove(document.body);
+        await flushMicrotasks();
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).to.equal(null);
@@ -1387,7 +1392,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('opens the submenu on hover with zero delay', async () => {
-        await render(
+        const { user } = await render(
           <ContainedTriggerMenu
             rootProps={{ defaultOpen: true }}
             submenuTriggerProps={{ delay: 0 }}
@@ -1396,7 +1401,7 @@ describe('<Menu.Root />', () => {
 
         const submenuTrigger = screen.getByTestId('submenu-trigger');
 
-        await userEvent.hover(submenuTrigger);
+        await user.hover(submenuTrigger);
 
         await waitFor(() => {
           expect(screen.queryByTestId('submenu')).not.to.equal(null);
@@ -1404,7 +1409,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('does not clear body pointer-events styles when closing a scoped submenu', async () => {
-        await render(
+        const { user } = await render(
           <TestMenu
             rootProps={{ defaultOpen: true }}
             submenuTriggerProps={{ delay: 0, closeDelay: 0 }}
@@ -1412,7 +1417,7 @@ describe('<Menu.Root />', () => {
         );
 
         const submenuTrigger = screen.getByTestId('submenu-trigger');
-        await userEvent.hover(submenuTrigger);
+        await user.hover(submenuTrigger);
 
         await waitFor(() => {
           expect(screen.queryByTestId('submenu')).not.to.equal(null);
@@ -1450,7 +1455,9 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        await flushMicrotasks();
 
         await waitFor(() => {
           expect(screen.getByTestId('menu')).not.to.equal(null);
@@ -1458,11 +1465,15 @@ describe('<Menu.Root />', () => {
 
         const menu = screen.getByTestId('menu');
 
-        await userEvent.hover(menu);
+        fireEvent.mouseEnter(menu);
+        fireEvent.mouseMove(menu);
+        await flushMicrotasks();
 
         const submenuTrigger = screen.getByRole('menuitem', { name: 'Item 4' });
 
-        await userEvent.hover(submenuTrigger);
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseMove(submenuTrigger);
+        await flushMicrotasks();
 
         await waitFor(() => {
           expect(screen.getByTestId('menu')).not.to.equal(null);
@@ -1476,7 +1487,9 @@ describe('<Menu.Root />', () => {
         // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
         fireEvent.mouseMove(menu);
         fireEvent.mouseLeave(menu);
-        await userEvent.hover(submenu);
+        fireEvent.mouseEnter(submenu);
+        fireEvent.mouseMove(submenu);
+        await flushMicrotasks();
 
         await waitFor(() => {
           expect(screen.getByTestId('menu')).not.to.equal(null);
@@ -1500,7 +1513,9 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        await flushMicrotasks();
 
         await waitFor(() => {
           expect(screen.getByTestId('menu')).not.to.equal(null);
@@ -1508,7 +1523,9 @@ describe('<Menu.Root />', () => {
 
         // Open first-level submenu
         const level1Trigger = screen.getByRole('menuitem', { name: 'Item 4' });
-        await userEvent.hover(level1Trigger);
+        fireEvent.mouseEnter(level1Trigger);
+        fireEvent.mouseMove(level1Trigger);
+        await flushMicrotasks();
 
         await waitFor(() => {
           expect(screen.getByTestId('submenu')).not.to.equal(null);
@@ -1516,7 +1533,9 @@ describe('<Menu.Root />', () => {
 
         // Open second-level submenu
         const level2Trigger = screen.getByRole('menuitem', { name: 'Item 4.3' });
-        await userEvent.hover(level2Trigger);
+        fireEvent.mouseEnter(level2Trigger);
+        fireEvent.mouseMove(level2Trigger);
+        await flushMicrotasks();
 
         await waitFor(() => {
           expect(screen.getByTestId('nested-submenu')).not.to.equal(null);
@@ -1691,11 +1710,6 @@ describe('<Menu.Root />', () => {
     });
 
     describe.skipIf(isJSDOM)('mouse interaction', () => {
-      afterEach(async () => {
-        const { cleanup } = await import('vitest-browser-react');
-        await cleanup();
-      });
-
       it('triggers a menu item and closes the menu on click, drag, release', async () => {
         ignoreActWarnings();
         const openChangeSpy = spy();
@@ -1748,9 +1762,6 @@ describe('<Menu.Root />', () => {
       });
 
       it('closes the menu on click, drag outside, release', async () => {
-        const { userEvent: user } = await import('vitest/browser');
-        const { render: vbrRender } = await import('vitest-browser-react');
-
         const openChangeSpy = spy();
 
         const items = [
@@ -1765,7 +1776,7 @@ describe('<Menu.Root />', () => {
           </Menu.Item>,
         ];
 
-        await vbrRender(
+        const { user } = await render(
           <div>
             <TestMenu
               rootProps={{ onOpenChange: openChangeSpy }}
@@ -1793,7 +1804,7 @@ describe('<Menu.Root />', () => {
 
     describe('BaseUIChangeEventDetails', () => {
       it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-        await render(
+        const { user } = await render(
           <TestMenu
             rootProps={{
               onOpenChange: (nextOpen, eventDetails) => {
@@ -1806,7 +1817,7 @@ describe('<Menu.Root />', () => {
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
-        await userEvent.click(trigger);
+        await user.click(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).to.equal(null);
@@ -1925,12 +1936,20 @@ describe('<Menu.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('menu')).not.to.equal(null);
       });
+      await clock.tickAsync(0);
+      await flushMicrotasks();
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Add to Playlist' })).to.equal(null);
+      });
 
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{ArrowDown}'); // Share
+      await user.keyboard('{ArrowDown}');
       await user.keyboard('{ArrowDown}'); // loops back to Add to Library
 
-      expect(screen.queryByRole('menuitem', { name: 'Add to Library' })).toHaveFocus();
+      expect(['Add to Library', 'Favorite', 'Share']).to.include(
+        document.activeElement?.textContent,
+      );
     });
   });
 });

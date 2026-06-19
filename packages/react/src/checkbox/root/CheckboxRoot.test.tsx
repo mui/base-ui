@@ -108,12 +108,10 @@ describe('<Checkbox.Root />', () => {
 
     it('should report keyboard modifier event properties when calling onCheckedChange', async () => {
       const handleChange = spy((checked, eventDetails) => eventDetails);
-      const { user } = await render(<Checkbox.Root onCheckedChange={handleChange} />);
+      await render(<Checkbox.Root onCheckedChange={handleChange} />);
       const [checkbox] = screen.getAllByRole('checkbox');
 
-      await user.keyboard('{Shift>}');
-      await user.click(checkbox);
-      await user.keyboard('{/Shift}');
+      fireEvent.click(checkbox, { shiftKey: true });
 
       expect(handleChange.callCount).to.equal(1);
       expect(handleChange.firstCall.returnValue.event.shiftKey).to.equal(true);

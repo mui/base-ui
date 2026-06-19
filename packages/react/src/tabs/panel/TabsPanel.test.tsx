@@ -79,7 +79,7 @@ describe('<Tabs.Panel />', () => {
         }
 
         .animation-test-panel[data-ending-style] {
-          animation: test-anim 100ms;
+          animation: test-anim 200ms;
         }
       `;
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { flushMicrotasks, randomStringValue, screen } from '@mui/internal-test-utils';
+import { flushMicrotasks, randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
 import { throwMissingPropError } from './utils';
 import type {
   ConformantComponentProps,
@@ -30,7 +30,7 @@ export function testPropForwarding(
 
       await flushMicrotasks();
 
-      const customRoot = screen.getByTestId('root');
+      const customRoot = await screen.findByTestId('root');
       expect(customRoot).to.have.attribute('lang', otherProps.lang);
       expect(customRoot).to.have.attribute('data-foobar', otherProps['data-foobar']);
     });
@@ -53,7 +53,7 @@ export function testPropForwarding(
 
       await flushMicrotasks();
 
-      const customRoot = screen.getByTestId('custom-root');
+      const customRoot = await screen.findByTestId('custom-root');
       expect(customRoot).to.have.attribute('lang', otherProps.lang);
       expect(customRoot).to.have.attribute('data-foobar', otherProps['data-foobar']);
     });
@@ -74,7 +74,7 @@ export function testPropForwarding(
 
       await flushMicrotasks();
 
-      const customRoot = screen.getByTestId('custom-root');
+      const customRoot = await screen.findByTestId('custom-root');
       expect(customRoot).to.have.attribute('lang', otherProps.lang);
       expect(customRoot).to.have.attribute('data-foobar', otherProps['data-foobar']);
     });
@@ -89,9 +89,11 @@ export function testPropForwarding(
 
       await flushMicrotasks();
 
-      const customRoot = screen.getByTestId('custom-root');
-      expect(customRoot).to.have.attribute('style');
-      expect(customRoot.getAttribute('style')).to.contain('color: green');
+      const customRoot = await screen.findByTestId('custom-root');
+      await waitFor(() => {
+        expect(customRoot).to.have.attribute('style');
+        expect(customRoot.getAttribute('style')).to.contain('color: green');
+      });
     });
 
     it('forwards the custom `style` attribute defined on the render function', async () => {
@@ -106,9 +108,11 @@ export function testPropForwarding(
 
       await flushMicrotasks();
 
-      const customRoot = screen.getByTestId('custom-root');
-      expect(customRoot).to.have.attribute('style');
-      expect(customRoot.getAttribute('style')).to.contain('color: green');
+      const customRoot = await screen.findByTestId('custom-root');
+      await waitFor(() => {
+        expect(customRoot).to.have.attribute('style');
+        expect(customRoot.getAttribute('style')).to.contain('color: green');
+      });
     });
 
     it('forwards the custom `style` attribute defined on the render function', async () => {
@@ -121,9 +125,11 @@ export function testPropForwarding(
 
       await flushMicrotasks();
 
-      const customRoot = screen.getByTestId('custom-root');
-      expect(customRoot).to.have.attribute('style');
-      expect(customRoot.getAttribute('style')).to.contain('color: green');
+      const customRoot = await screen.findByTestId('custom-root');
+      await waitFor(() => {
+        expect(customRoot).to.have.attribute('style');
+        expect(customRoot.getAttribute('style')).to.contain('color: green');
+      });
     });
   });
 }

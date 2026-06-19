@@ -48,7 +48,7 @@ describe('<Toast.Close />', () => {
       viewport.focus();
     });
 
-    const closeButton = screen.getByRole('button', { name: 'close-press' });
+    const closeButton = screen.getByLabelText('close-press');
 
     await user.click(closeButton);
 

@@ -1,6 +1,12 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
@@ -13,6 +19,12 @@ const Trigger = React.forwardRef(function Trigger(
 
 describe('<Menu.Positioner />', () => {
   const { render } = createRenderer();
+
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
 
   describeConformance(<Menu.Positioner />, () => ({
     render: (node) => {
@@ -53,7 +65,7 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { user } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
       const positioner = screen.getByTestId('positioner');
       const anchor = screen.getByTestId('anchor');
@@ -278,7 +290,7 @@ describe('<Menu.Positioner />', () => {
         `translate(${anchorRect.left}px, ${anchorRect.bottom}px)`,
       );
 
-      await user.click(setUndefinedButton);
+      fireEvent.click(setUndefinedButton);
       await flushMicrotasks();
 
       const triggerRect = trigger.getBoundingClientRect();
@@ -286,7 +298,7 @@ describe('<Menu.Positioner />', () => {
         `translate(${Math.floor(triggerRect.left)}px, ${triggerRect.bottom}px)`,
       );
 
-      await user.click(setRefButton);
+      fireEvent.click(setRefButton);
       await flushMicrotasks();
 
       anchorRect = anchorElement.getBoundingClientRect();

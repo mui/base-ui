@@ -76,7 +76,7 @@ describe('<Combobox.Trigger />', () => {
     });
 
     it('should not open popup when disabled', async () => {
-      const { user } = await render(
+      await render(
         <Combobox.Root>
           <Combobox.Trigger disabled data-testid="trigger">
             Open
@@ -95,7 +95,7 @@ describe('<Combobox.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      await user.click(trigger);
+      fireEvent.click(trigger);
 
       expect(screen.queryByRole('listbox')).to.equal(null);
     });

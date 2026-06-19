@@ -44,7 +44,7 @@ describe('<Avatar.Image />', () => {
 
       const style = `
         .animation-test-image {
-          transition: opacity 1ms;
+          transition: opacity 200ms;
         }
 
         .animation-test-image[data-starting-style],
@@ -102,7 +102,7 @@ describe('<Avatar.Image />', () => {
         }
 
         .animation-test-image[data-ending-style] {
-          animation: test-anim 1ms;
+          animation: test-anim 200ms;
         }
       `;
 

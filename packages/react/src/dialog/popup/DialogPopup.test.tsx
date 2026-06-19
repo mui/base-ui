@@ -3,11 +3,25 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
-import { act, waitFor, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, ignoreActWarnings, waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
   const { render } = createRenderer();
+
+  async function syntheticClick(element: Element) {
+    fireEvent.pointerDown(element, { pointerType: 'mouse', button: 0, buttons: 1 });
+    fireEvent.mouseDown(element, { button: 0, buttons: 1 });
+    fireEvent.click(element, { button: 0, buttons: 1 });
+    fireEvent.pointerUp(element, { pointerType: 'mouse', button: 0, buttons: 0 });
+    fireEvent.mouseUp(element, { button: 0, buttons: 0 });
+  }
+
+  beforeEach(() => {
+    if (!isJSDOM) {
+      ignoreActWarnings();
+    }
+  });
 
   describeConformance(<Dialog.Popup />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -300,7 +314,7 @@ describe('<Dialog.Popup />', () => {
       expect(initialFocusSpy.callCount).to.equal(1);
 
       const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
+      await syntheticClick(closeButton);
 
       await waitFor(() => {
         expect(trigger).toHaveFocus();
@@ -332,7 +346,7 @@ describe('<Dialog.Popup />', () => {
       await user.click(trigger);
 
       const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
+      await syntheticClick(closeButton);
 
       await waitFor(() => {
         expect(trigger).toHaveFocus();
@@ -367,7 +381,7 @@ describe('<Dialog.Popup />', () => {
       await user.click(trigger);
 
       const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
+      await syntheticClick(closeButton);
 
       const inputToFocus = screen.getByTestId('input-to-focus');
 
@@ -398,7 +412,7 @@ describe('<Dialog.Popup />', () => {
 
       const { user } = await render(<TestComponent />);
       await user.click(screen.getByText('Open'));
-      await user.click(screen.getByText('Close'));
+      await syntheticClick(screen.getByText('Close'));
       await waitFor(() => {
         expect(screen.getByTestId('input-to-focus')).toHaveFocus();
       });
@@ -424,7 +438,7 @@ describe('<Dialog.Popup />', () => {
       const { user } = await render(<TestComponent />);
       const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(screen.getByText('Close'));
+      await syntheticClick(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).not.toHaveFocus();
       });
@@ -450,7 +464,7 @@ describe('<Dialog.Popup />', () => {
       const { user } = await render(<TestComponent />);
       const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(screen.getByText('Close'));
+      await syntheticClick(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
@@ -488,7 +502,7 @@ describe('<Dialog.Popup />', () => {
 
       // Close via pointer: true => default, should move focus to trigger
       await user.click(trigger);
-      await user.click(screen.getByText('Close'));
+      await syntheticClick(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
@@ -531,7 +545,7 @@ describe('<Dialog.Popup />', () => {
         expect(screen.getByTestId('initial-outside')).toHaveFocus();
       });
 
-      await user.click(screen.getByText('Close'));
+      await syntheticClick(screen.getByText('Close'));
 
       await waitFor(() => {
         expect(screen.getByTestId('final-outside')).toHaveFocus();
@@ -567,7 +581,7 @@ describe('<Dialog.Popup />', () => {
         expect(screen.getByTestId('initial-outside')).toHaveFocus();
       });
 
-      await user.click(screen.getByText('Close'));
+      await syntheticClick(screen.getByText('Close'));
 
       await waitFor(() => {
         expect(screen.getByTestId('final-outside')).not.toHaveFocus();
@@ -594,7 +608,7 @@ describe('<Dialog.Popup />', () => {
       const { user } = await render(<TestComponent />);
       const trigger = screen.getByText('Open');
       await user.click(trigger);
-      await user.click(screen.getByText('Close'));
+      await syntheticClick(screen.getByText('Close'));
       await waitFor(() => {
         expect(trigger).toHaveFocus();
       });
@@ -639,7 +653,7 @@ describe('<Dialog.Popup />', () => {
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
 
-      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await syntheticClick(screen.getByRole('button', { name: 'Trigger 1' }));
 
       await waitFor(() => {
         expect(screen.getByTestId('popup1')).not.to.equal(null);
@@ -647,7 +661,7 @@ describe('<Dialog.Popup />', () => {
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('1');
 
-      await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+      await syntheticClick(screen.getByRole('button', { name: 'Trigger 2' }));
 
       await waitFor(() => {
         expect(screen.getByTestId('popup2')).not.to.equal(null);
@@ -655,11 +669,11 @@ describe('<Dialog.Popup />', () => {
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('2');
 
-      await user.click(screen.getByRole('button', { name: 'Close 2' }));
+      await syntheticClick(screen.getByRole('button', { name: 'Close 2' }));
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('1');
 
-      await user.click(screen.getByRole('button', { name: 'Close 1' }));
+      await syntheticClick(screen.getByRole('button', { name: 'Close 1' }));
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
     });
@@ -702,7 +716,7 @@ describe('<Dialog.Popup />', () => {
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
 
-      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await syntheticClick(screen.getByRole('button', { name: 'Trigger 1' }));
 
       await waitFor(() => {
         expect(screen.getByTestId('popup1')).not.to.equal(null);
@@ -710,7 +724,7 @@ describe('<Dialog.Popup />', () => {
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('1');
 
-      await user.click(screen.getByRole('button', { name: 'toggle', hidden: true }));
+      await syntheticClick(screen.getByRole('button', { name: 'toggle', hidden: true }));
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
     });
@@ -751,7 +765,7 @@ describe('<Dialog.Popup />', () => {
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
 
-      await user.click(screen.getByRole('button', { name: 'toggle' }));
+      await syntheticClick(screen.getByRole('button', { name: 'toggle' }));
 
       expect(computedStyles.getPropertyValue('--nested-dialogs')).to.equal('0');
     });
@@ -782,13 +796,13 @@ describe('<Dialog.Popup />', () => {
       const parent = screen.getByTestId('parent-dialog');
       expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('0');
 
-      await user.click(screen.getByRole('button', { name: 'Open Alert' }));
+      await syntheticClick(screen.getByRole('button', { name: 'Open Alert' }));
       await waitFor(() => expect(screen.getByTestId('nested-alert')).not.to.equal(null));
       await waitFor(() => {
         expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('1');
       });
 
-      await user.click(screen.getByRole('button', { name: 'Close Alert' }));
+      await syntheticClick(screen.getByRole('button', { name: 'Close Alert' }));
       await waitFor(() => {
         expect(getComputedStyle(parent).getPropertyValue('--nested-dialogs')).to.equal('0');
       });
