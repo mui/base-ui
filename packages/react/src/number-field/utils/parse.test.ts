@@ -64,6 +64,11 @@ describe('NumberField parse', () => {
       expect(parseNumber('12%', 'en-US', { style: 'unit', unit: 'percent' })).toBe(12);
     });
 
+    it('strips an interleaved percent sign (1%2)', () => {
+      expect(parseNumber('1%2', 'en-US', { style: 'percent' })).toBe(0.12);
+      expect(parseNumber('1%2', 'en-US', { style: 'unit', unit: 'percent' })).toBe(12);
+    });
+
     it('parses fullwidth digits and punctuation', () => {
       expect(parseNumber('１，２３４．５６')).toBe(1234.56);
       expect(parseNumber('１２％')).toBe(0.12);
