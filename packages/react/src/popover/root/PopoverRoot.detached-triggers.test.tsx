@@ -1137,6 +1137,58 @@ describe('<Popover.Root />', () => {
 
         expect(popover.store.state.stickIfOpen).toBe(true);
       });
+
+      it('does not keep a defaultOpen adopted popover open on the first trigger click after a hover open', async () => {
+        const popover = Popover.createHandle();
+
+        function App({ page }: { page: 'hover' | 'none' | 'default-open' }) {
+          return (
+            <React.Fragment>
+              <Popover.Trigger handle={popover} id="trigger" openOnHover delay={0}>
+                Trigger
+              </Popover.Trigger>
+              {page === 'hover' && (
+                <Popover.Root handle={popover}>
+                  <Popover.Portal>
+                    <Popover.Positioner>
+                      <Popover.Popup data-testid="content">Content</Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              )}
+              {page === 'default-open' && (
+                <Popover.Root handle={popover} defaultOpen>
+                  <Popover.Portal>
+                    <Popover.Positioner>
+                      <Popover.Popup data-testid="content">Content</Popover.Popup>
+                    </Popover.Positioner>
+                  </Popover.Portal>
+                </Popover.Root>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        const { setProps } = await renderNonStrict(<App page="hover" />);
+        const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+        nonStrictClock.tick(0);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('content')).not.toBe(null);
+
+        await setProps({ page: 'none' });
+        expect(popover.isOpen).toBe(true);
+        expect(screen.queryByTestId('content')).toBe(null);
+
+        await setProps({ page: 'default-open' });
+        expect(screen.queryByTestId('content')).not.toBe(null);
+
+        fireEvent.click(trigger);
+        await flushMicrotasks();
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
     });
 
     // A modal popover opened by hover intentionally does not lock scroll (so the page can still

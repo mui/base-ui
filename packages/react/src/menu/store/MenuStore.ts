@@ -49,7 +49,7 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
 };
 
 // Menu-specific open-cycle state that is neither benign when stale nor re-derived in time by a
-// Root effect when a new Root adopts a handle-owned store. `activeIndex` would otherwise be
+// layout effect when a new owner adopts a handle-owned store. `activeIndex` would otherwise be
 // re-applied (highlighting and focusing the wrong item) on the first open after adoption;
 // `allowMouseEnter`/`stickIfOpen` are otherwise only cleared when a close transition completes;
 // `hoverEnabled` is restored only by a closed-state layout effect; `openChangeReason`
@@ -65,6 +65,10 @@ const ADOPTION_RESET_STATE = {
   instantType: undefined,
   stickIfOpen: true,
   openMethod: null,
+  closeDelay: 0,
+  floatingNodeId: undefined,
+  floatingParentNodeId: null,
+  keyboardEventRelay: undefined,
 } satisfies Partial<State<unknown>>;
 
 const selectors = {
@@ -202,10 +206,20 @@ export class MenuStore<Payload> extends ReactStore<
       return new MenuStore<Payload>(initialState);
     }).current;
 
-    useAdoptedStoreReset(externalStore, initialState, ADOPTION_RESET_STATE);
+    const adoptionResetState = {
+      ...ADOPTION_RESET_STATE,
+      parent: initialState.parent ?? { type: undefined },
+      floatingTreeRoot: new FloatingTreeStore(),
+    } satisfies Partial<State<Payload>>;
+
+    const adoptedExternalStore = useAdoptedStoreReset(
+      externalStore,
+      initialState,
+      adoptionResetState,
+    );
     /* eslint-enable react-hooks/rules-of-hooks */
 
-    return externalStore ?? internalStore;
+    return adoptedExternalStore ?? internalStore;
   }
 
   private unsubscribeParentListener: (() => void) | null = null;

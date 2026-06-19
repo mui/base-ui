@@ -1,5 +1,6 @@
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { clearStoreOwnerlessOpen, markStoreOwnerlessOpen } from '../../utils/popups';
 import { PopoverStore } from './PopoverStore';
 
 export class PopoverHandle<Payload> {
@@ -28,6 +29,7 @@ export class PopoverHandle<Payload> {
       throw new Error(`Base UI: PopoverHandle.open: No trigger found with id "${triggerId}".`);
     }
 
+    markStoreOwnerlessOpen(this.store);
     this.store.setOpen(
       true,
       createChangeEventDetails(
@@ -42,6 +44,7 @@ export class PopoverHandle<Payload> {
    * Closes the popover.
    */
   close() {
+    clearStoreOwnerlessOpen(this.store);
     this.store.setOpen(
       false,
       createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),

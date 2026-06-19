@@ -1,6 +1,7 @@
 import { PreviewCardStore } from './PreviewCardStore';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { clearStoreOwnerlessOpen, markStoreOwnerlessOpen } from '../../utils/popups';
 
 /**
  * A handle to control a preview card imperatively and to associate detached triggers with it.
@@ -33,6 +34,7 @@ export class PreviewCardHandle<Payload> {
       throw new Error(`Base UI: PreviewCardHandle.open: No trigger found with id "${triggerId}".`);
     }
 
+    markStoreOwnerlessOpen(this.store);
     this.store.setOpen(
       true,
       createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
@@ -43,6 +45,7 @@ export class PreviewCardHandle<Payload> {
    * Closes the preview card.
    */
   close() {
+    clearStoreOwnerlessOpen(this.store);
     this.store.setOpen(
       false,
       createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),

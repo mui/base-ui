@@ -48,16 +48,229 @@ type PopupStoreWithOpen<
   setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
 };
 
+// Counts mounted owners that currently claim a handle store. A store with an owner may still be
+// visible on screen, so an adopting render must not mutate it until that render commits.
+const storeOwnerCount = new WeakMap<ReactStore<any, any, any>, number>();
+const warnedAboutMultipleStoreOwners = new WeakSet<ReactStore<any, any, any>>();
+
+// Imperative handle opens made while no owner claims the store are intentional requests for the
+// next owner. Other ownerless writes, such as delayed hover timers firing after unmount, are still
+// reset.
+const storesWithPendingOwnerlessOpen = new WeakSet<ReactStore<any, any, any>>();
+
+type AdoptionState<
+  State extends PopupStoreState<unknown>,
+  Store extends ReactStore<State, any, any>,
+> = {
+  target: Store;
+  proxy: Store;
+  state: State;
+  context: Store['context'];
+  committed: boolean;
+};
+
+function hasStoreOwner(store: ReactStore<any, any, any>) {
+  return (storeOwnerCount.get(store) ?? 0) > 0;
+}
+
+function registerStoreOwner(store: ReactStore<any, any, any>) {
+  const ownerCount = storeOwnerCount.get(store) ?? 0;
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    ownerCount > 0 &&
+    !warnedAboutMultipleStoreOwners.has(store)
+  ) {
+    warnedAboutMultipleStoreOwners.add(store);
+    console.warn(
+      'Base UI: A popup handle was attached to more than one mounted popup at the same time. ' +
+        'A handle store can only have one mounted owner because shared popup state, ' +
+        'Floating UI context, and callbacks are overwritten by the most recently mounted owner. ' +
+        'Render only one popup for each handle.',
+    );
+  }
+
+  storeOwnerCount.set(store, ownerCount + 1);
+
+  return () => {
+    const count = storeOwnerCount.get(store) ?? 0;
+    if (count <= 1) {
+      storeOwnerCount.delete(store);
+    } else {
+      storeOwnerCount.set(store, count - 1);
+    }
+  };
+}
+
+export function markStoreOwnerlessOpen(store: ReactStore<any, any, any>) {
+  if (!hasStoreOwner(store)) {
+    storesWithPendingOwnerlessOpen.add(store);
+  }
+}
+
+export function clearStoreOwnerlessOpen(store: ReactStore<any, any, any>) {
+  storesWithPendingOwnerlessOpen.delete(store);
+}
+
+function hasPendingOwnerlessOpen(store: ReactStore<any, any, any>) {
+  return storesWithPendingOwnerlessOpen.has(store);
+}
+
+function resetFloatingRootContext<State extends PopupStoreState<unknown>>(state: State) {
+  state.floatingRootContext.context.dataRef.current = {};
+}
+
+// Builds the state a newly adopting owner should see on its first render. This is usually the
+// owner's initial state, but an ownerless imperative open is preserved so lazy-mounted popups can
+// honor `handle.open()` calls made in the same event that mounts them.
+function createAdoptionResetState<State extends PopupStoreState<unknown>>(
+  externalStore: ReactStore<State, any, any>,
+  initialState: Partial<State> | undefined,
+  additionalResetState: Partial<State> | undefined,
+): State {
+  const preserveOwnerlessOpen =
+    initialState?.openProp === undefined && hasPendingOwnerlessOpen(externalStore);
+
+  return {
+    ...externalStore.state,
+    open: preserveOwnerlessOpen ? externalStore.state.open : (initialState?.open ?? false),
+    openProp: initialState?.openProp,
+    mounted: false,
+    transitionStatus: undefined,
+    activeTriggerId: preserveOwnerlessOpen
+      ? externalStore.state.activeTriggerId
+      : (initialState?.activeTriggerId ?? null),
+    activeTriggerElement: preserveOwnerlessOpen ? externalStore.state.activeTriggerElement : null,
+    triggerIdProp: initialState?.triggerIdProp,
+    payload: preserveOwnerlessOpen ? externalStore.state.payload : initialState?.payload,
+    preventUnmountingOnClose: false,
+    ...additionalResetState,
+  };
+}
+
+function updateAdoptionState<State extends PopupStoreState<unknown>>(
+  adoption: AdoptionState<State, ReactStore<State, any, any>>,
+  changes: Partial<State>,
+) {
+  for (const key in changes) {
+    if (!Object.is(adoption.state[key], changes[key])) {
+      adoption.state = { ...adoption.state, ...changes };
+      return;
+    }
+  }
+}
+
+function createAdoptionProxy<
+  State extends PopupStoreState<unknown>,
+  Store extends ReactStore<State, any, any>,
+>(externalStore: Store, state: State): AdoptionState<State, Store> {
+  const adoption: AdoptionState<State, Store> = {
+    target: externalStore,
+    proxy: null as any,
+    state,
+    context: { ...externalStore.context },
+    committed: false,
+  };
+
+  // During an adoption render, the owner needs to read and write the reset state immediately.
+  // If React abandons that render, those writes must be abandoned too. The proxy gives the
+  // adopting tree a local view until `commitAdoption` copies the final state to the real store.
+  adoption.proxy = new Proxy(externalStore, {
+    get(target, prop, receiver) {
+      if (prop === 'state') {
+        return adoption.committed ? target.state : adoption.state;
+      }
+
+      if (prop === 'context') {
+        return adoption.committed ? target.context : adoption.context;
+      }
+
+      if (prop === 'getSnapshot') {
+        return () => (adoption.committed ? target.getSnapshot() : adoption.state);
+      }
+
+      if (prop === 'setState') {
+        return (nextState: State) => {
+          if (adoption.committed) {
+            target.setState(nextState);
+          } else if (adoption.state !== nextState) {
+            adoption.state = nextState;
+          }
+        };
+      }
+
+      if (prop === 'update') {
+        return (changes: Partial<State>) => {
+          if (adoption.committed) {
+            target.update(changes);
+          } else {
+            updateAdoptionState(adoption, changes);
+          }
+        };
+      }
+
+      if (prop === 'set') {
+        return <Key extends keyof State>(key: Key, value: State[Key]) => {
+          if (adoption.committed) {
+            target.set(key, value);
+          } else if (!Object.is(adoption.state[key], value)) {
+            adoption.state = { ...adoption.state, [key]: value };
+          }
+        };
+      }
+
+      if (prop === 'notifyAll') {
+        return () => {
+          if (adoption.committed) {
+            target.notifyAll();
+          }
+        };
+      }
+
+      return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+      if (prop === 'state' && !adoption.committed) {
+        adoption.state = value;
+        return true;
+      }
+
+      return Reflect.set(target, prop, value, receiver);
+    },
+  }) as Store;
+
+  return adoption;
+}
+
+function commitAdoption<
+  State extends PopupStoreState<unknown>,
+  Store extends ReactStore<State, any, any>,
+>(adoption: AdoptionState<State, Store>, onAdoptCommit: ((store: Store) => void) | undefined) {
+  const { target } = adoption;
+
+  // From this point the adopting owner is committed, so the handle store can become observable to
+  // detached triggers, imperative reads, and future owners.
+  resetFloatingRootContext(adoption.state);
+  Object.assign(target.context, adoption.context);
+  onAdoptCommit?.(target);
+  clearStoreOwnerlessOpen(target);
+  adoption.committed = true;
+  if (target.state === adoption.state) {
+    target.notifyAll();
+  } else {
+    target.setState(adoption.state);
+  }
+}
+
 /**
- * Resets the open-cycle state of a handle-owned (external) store when a Root adopts it.
+ * Resets the open-cycle state of a handle-owned (external) store when an owner adopts it.
  *
- * A handle-owned store outlives the Root that mounts it, so it can carry open-cycle state left
- * over from a previously unmounted Root (e.g. one unmounted while open on navigation), or state
- * written by trigger interactions that fired while no Root was mounted. Resetting on adoption
- * makes the popup start from the adopting Root's initial state, just like an internal store
+ * A handle-owned store outlives the component that owns the popup, so it can carry open-cycle
+ * state left over from a previously unmounted owner (e.g. one unmounted while open on navigation),
+ * or state written by trigger interactions that fired while no owner was mounted. Resetting on
+ * adoption makes the popup start from the adopting owner's initial state, just like an internal store
  * (which is recreated on each mount). Resetting to `initialState` (rather than a hardcoded
  * closed state) keeps `defaultOpen` intact; the controlled `open`/`triggerId` props are
- * re-applied by the Root via `useControlledProp`. Trigger registrations are untouched;
+ * re-applied by the owner via `useControlledProp`. Trigger registrations are untouched;
  * active-trigger fields are reset and re-derived from the still-mounted triggers.
  * See https://github.com/mui/base-ui/issues/4951
  *
@@ -66,76 +279,80 @@ type PopupStoreWithOpen<
  * its own open-cycle fields (those written while opening/closing, e.g. `openMethod`,
  * `openChangeReason`, `instantType`, `stickIfOpen`) so that an initially open adoption (`defaultOpen`
  * or controlled `open`), which becomes open from `initialState` without a fresh `setOpen()` call,
- * does not inherit stale focus/modal/scroll-lock/transition metadata from the previous Root's open
- * cycle. A field whose stale value is read during the adopting Root's first render (before the
- * Root's layout-effect syncs run) must be reset here, not relied on to be re-synced afterwards.
- * Config fields the Root re-applies from its props (e.g. `modal`, `disabled`) and trigger
+ * does not inherit stale focus/modal/scroll-lock/transition metadata from the previous owner's open
+ * cycle. A field whose stale value is read during the adopting owner's first render (before the
+ * owner's layout-effect syncs run) must be reset here, not relied on to be re-synced afterwards.
+ * Config fields the owner re-applies from its props (e.g. `modal`, `disabled`) and trigger
  * registration are left untouched.
  *
- * This also means `handle.open()` calls made before any Root mounts are discarded when the Root
- * adopts the handle; pre-mount open requests are not replayed. During concurrent renders, the
- * shared store is reset before commit, so if a render is later aborted while an old Root is still
- * visibly mounted, or if two Roots using the same handle briefly overlap, the store may already
- * reflect the adopting Root's initial state until React commits the final tree.
+ * Explicit ownerless handle opens are replayed by the adopting owner so lazy-mounting a popup after
+ * calling `handle.open()`/`openWithPayload()` keeps working. Trigger/timer writes that fire after a
+ * previous owner unmounts are still discarded.
  *
- * Adoption is detected only on the Root's first render: swapping the `handle` of a mounted Root
- * to a different store is not supported and does not re-run the reset.
- *
- * @param externalStore The handle-owned store being adopted, or `undefined` when the Root uses an
+ * @param externalStore The handle-owned store being adopted, or `undefined` when the owner uses an
  * internal store (in which case the hook does nothing).
- * @param initialState The adopting Root's initial state; the open-cycle fields are reset to the
+ * @param initialState The adopting owner's initial state; the open-cycle fields are reset to the
  * values it carries (`defaultOpen`, controlled props, default trigger) rather than a hardcoded
  * closed state.
  * @param additionalResetState Extra reset values for open-cycle fields that concrete stores add on
- * top of the base `PopupStoreState`, applied after (and overriding) the base reset fields. The
- * values must be render-stable: the reset re-runs on every render until the adoption commits.
+ * top of the base `PopupStoreState`, applied after (and overriding) the base reset fields.
  */
-export function useAdoptedStoreReset<State extends PopupStoreState<unknown>>(
-  externalStore: ReactStore<State, any, any> | undefined,
+export function useAdoptedStoreReset<
+  State extends PopupStoreState<unknown>,
+  Store extends ReactStore<State, any, any>,
+>(
+  externalStore: Store | undefined,
   initialState: Partial<State> | undefined,
   additionalResetState?: Partial<State>,
+  onAdoptCommit?: ((store: Store) => void) | undefined,
 ) {
-  const pendingAdoptionRef = React.useRef(externalStore !== undefined);
+  const committedExternalStoreRef = React.useRef<Store | undefined>(undefined);
+  const adoptionRef = React.useRef<AdoptionState<State, Store> | null>(null);
 
-  // The state object is replaced directly during render (not via `update`) so the adopting Root
-  // and its children read the reset values in their very first render: the popup never mounts
-  // with the stale open state, and no subscribers are notified mid-render. Resetting in a layout
-  // effect instead does not work — by then the first commit has already mounted the stale-open
-  // popup, and effects registered after the reset (such as `useOpenStateTransitions`'s synced
-  // `mounted`) write their stale render-computed values back, producing a visible close
-  // transition of a popup the user never opened.
-  //
-  // The replacement is idempotent and re-runs on every render until the adoption commits, so a
-  // render that React discards (StrictMode's double render, an interrupted or suspended render)
-  // neither loses the reset nor consumes it prematurely: the retry render re-applies it, and only
-  // the committed render flushes subscribers (e.g. detached triggers) after commit. Until then,
-  // each re-run also clobbers render-phase writes to these fields made after this hook, so such
-  // writes must agree with `initialState` (as the Root's `useOnFirstRender` defaultOpen logic
-  // does). An unmount-cleanup reset is not an option either: it would run in StrictMode's
-  // simulated unmount and wipe state the Root applied during its first render and never
-  // re-applies.
-  if (pendingAdoptionRef.current && externalStore !== undefined) {
-    externalStore.state = {
-      ...externalStore.state,
-      open: initialState?.open ?? false,
-      openProp: initialState?.openProp,
-      mounted: false,
-      transitionStatus: undefined,
-      activeTriggerId: initialState?.activeTriggerId ?? null,
-      activeTriggerElement: null,
-      triggerIdProp: initialState?.triggerIdProp,
-      payload: initialState?.payload,
-      preventUnmountingOnClose: false,
-      ...additionalResetState,
-    };
+  let store = externalStore;
+  const shouldAdopt =
+    externalStore !== undefined && committedExternalStoreRef.current !== externalStore;
+
+  if (shouldAdopt && externalStore !== undefined) {
+    const resetState = createAdoptionResetState(externalStore, initialState, additionalResetState);
+    // When no owner claims the handle, there is no committed popup tree for this store to corrupt.
+    // Updating the target preserves first-render reads through `handle.store`; owned stores use
+    // only the proxy until the adopting render commits.
+    if (!hasStoreOwner(externalStore)) {
+      externalStore.state = resetState;
+    }
+
+    let adoption = adoptionRef.current;
+    if (adoption?.target !== externalStore || adoption.committed) {
+      adoption = createAdoptionProxy(externalStore, resetState);
+      adoptionRef.current = adoption;
+    } else {
+      adoption.state = resetState;
+      adoption.context = { ...externalStore.context };
+    }
+
+    store = adoption.proxy;
   }
 
   useIsoLayoutEffect(() => {
-    if (pendingAdoptionRef.current) {
-      pendingAdoptionRef.current = false;
-      externalStore?.notifyAll();
+    if (externalStore === undefined) {
+      committedExternalStoreRef.current = undefined;
+      adoptionRef.current = null;
+      return undefined;
     }
-  }, [externalStore]);
+
+    const adoption = adoptionRef.current;
+    if (adoption?.target === externalStore && !adoption.committed) {
+      commitAdoption(adoption, onAdoptCommit);
+    }
+
+    committedExternalStoreRef.current = externalStore;
+    const unregisterOwner = registerStoreOwner(externalStore);
+
+    return unregisterOwner;
+  }, [externalStore, onAdoptCommit]);
+
+  return store;
 }
 
 export function usePopupStore<
@@ -148,6 +365,7 @@ export function usePopupStore<
   initialState?: Partial<State>,
   additionalResetState?: Partial<State>,
   treatPopupAsFloatingElement = false,
+  onAdoptCommit?: ((store: Store) => void) | undefined,
 ) {
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
@@ -157,9 +375,13 @@ export function usePopupStore<
     internalStoreRef.current = createStore(floatingId, nested);
   }
 
-  const store = externalStore ?? internalStoreRef.current!;
-
-  useAdoptedStoreReset(externalStore, initialState, additionalResetState);
+  const adoptedExternalStore = useAdoptedStoreReset(
+    externalStore,
+    initialState,
+    additionalResetState,
+    onAdoptCommit,
+  );
+  const store = adoptedExternalStore ?? internalStoreRef.current!;
 
   useSyncedFloatingRootContext({
     popupStore: store,

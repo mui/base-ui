@@ -958,6 +958,169 @@ describe('<Dialog.Root />', () => {
       expect(screen.queryByRole('dialog')).toBe(null);
     });
 
+    it('preserves an ownerless imperative open when the Root is mounted in the same event', async () => {
+      const dialog = Dialog.createHandle<number>();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(false);
+
+        return (
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                setMounted(true);
+                dialog.openWithPayload(8);
+              }}
+            >
+              Open lazy dialog
+            </button>
+            {mounted && (
+              <Dialog.Root handle={dialog}>
+                {({ payload }: { payload: number | undefined }) => (
+                  <Dialog.Portal>
+                    <Dialog.Popup data-testid="content">{payload}</Dialog.Popup>
+                  </Dialog.Portal>
+                )}
+              </Dialog.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'Open lazy dialog' }));
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('8');
+      });
+    });
+
+    it('does not mutate the committed handle state from an adopting render that suspends', async () => {
+      const dialog = Dialog.createHandle();
+      let setPage: React.Dispatch<React.SetStateAction<'open' | 'suspended'>> = () => {};
+
+      function Suspender(): null {
+        throw new Promise(() => {});
+      }
+
+      function App() {
+        const [page, setPageState] = React.useState<'open' | 'suspended'>('open');
+        setPage = setPageState;
+
+        return (
+          <React.Suspense fallback={<div>Loading</div>}>
+            {page === 'open' ? (
+              <Dialog.Root handle={dialog} defaultOpen>
+                <Dialog.Portal>
+                  <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            ) : (
+              <Dialog.Root handle={dialog}>
+                <Suspender />
+              </Dialog.Root>
+            )}
+          </React.Suspense>
+        );
+      }
+
+      await render(<App />);
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+      expect(dialog.isOpen).toBe(true);
+
+      await act(async () => {
+        React.startTransition(() => {
+          setPage('suspended');
+        });
+        await Promise.resolve();
+      });
+
+      expect(screen.getByRole('dialog')).toBeVisible();
+      expect(dialog.isOpen).toBe(true);
+    });
+
+    it('resets a stale store when a mounted Root receives a handle prop', async () => {
+      const dialog = Dialog.createHandle();
+
+      function App({ page }: { page: 'stale-open' | 'none' | 'internal' | 'adopt' }) {
+        if (page === 'stale-open') {
+          return (
+            <Dialog.Root handle={dialog} defaultOpen>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="stale-content">Stale content</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          );
+        }
+
+        if (page === 'none') {
+          return <div>Other page</div>;
+        }
+
+        return (
+          <Dialog.Root handle={page === 'adopt' ? dialog : undefined}>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      const { setProps } = await render(<App page="stale-open" />);
+      await screen.findByTestId('stale-content');
+
+      await setProps({ page: 'none' });
+      expect(dialog.isOpen).toBe(true);
+
+      await setProps({ page: 'internal' });
+      expect(screen.queryByRole('dialog')).toBe(null);
+
+      await setProps({ page: 'adopt' });
+      expect(dialog.isOpen).toBe(false);
+      expect(screen.queryByRole('dialog')).toBe(null);
+    });
+
+    it('does not reuse controlledness tracking across distinct Roots that share a handle', async () => {
+      const dialog = Dialog.createHandle();
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      function App({ page }: { page: 'controlled' | 'none' | 'uncontrolled' }) {
+        if (page === 'none') {
+          return <div>Other page</div>;
+        }
+
+        return (
+          <Dialog.Root
+            handle={dialog}
+            open={page === 'controlled' ? true : undefined}
+            onOpenChange={() => {}}
+          >
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        );
+      }
+
+      try {
+        const { setProps } = await render(<App page="controlled" />);
+        await screen.findByTestId('content');
+
+        await setProps({ page: 'none' });
+        await setProps({ page: 'uncontrolled' });
+
+        const controllednessWarnings = errorSpy.mock.calls.filter(([message]) =>
+          String(message).includes('controlled state of openProp'),
+        );
+        expect(controllednessWarnings).toHaveLength(0);
+      } finally {
+        errorSpy.mockRestore();
+      }
+    });
+
     it('keeps a controlled dialog open across a remount when the parent holds open=true', async () => {
       const dialog = Dialog.createHandle();
 

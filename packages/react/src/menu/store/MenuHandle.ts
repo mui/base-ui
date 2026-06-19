@@ -1,4 +1,5 @@
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { clearStoreOwnerlessOpen, markStoreOwnerlessOpen } from '../../utils/popups';
 import { MenuStore } from './MenuStore';
 
 export class MenuHandle<Payload> {
@@ -27,6 +28,7 @@ export class MenuHandle<Payload> {
       throw new Error(`Base UI: MenuHandle.open: No trigger found with id "${triggerId}".`);
     }
 
+    markStoreOwnerlessOpen(this.store);
     this.store.setOpen(
       true,
       createChangeEventDetails('imperative-action', undefined, triggerElement),
@@ -37,6 +39,7 @@ export class MenuHandle<Payload> {
    * Closes the menu.
    */
   close() {
+    clearStoreOwnerlessOpen(this.store);
     this.store.setOpen(false, createChangeEventDetails('imperative-action', undefined, undefined));
   }
 

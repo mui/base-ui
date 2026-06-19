@@ -36,12 +36,12 @@ type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
 };
 
 // Open-cycle fields written while the dialog is open that are not re-derived in time when a new
-// Root adopts a handle-owned store. `openMethod` (set by the trigger, used by the focus manager)
+// owner adopts a handle-owned store. `openMethod` (set by the trigger, used by the focus manager)
 // is only cleared by `usePopupRootSync` while closed. `nestedOpenDialogCount`/
-// `nestedOpenDrawerCount` are written from nested dialog/drawer effects and re-applied by the Root
+// `nestedOpenDrawerCount` are written from nested dialog/drawer effects and re-applied by the owner
 // only through a layout-effect sync (`usePopupInteractionProps`); they feed public
 // attributes/CSS variables and Drawer swipe dismissal. Resetting them keeps the adopted store
-// consistent with a fresh mount during the adopting Root's first render, so a render-phase
+// consistent with a fresh mount during the adopting owner's first render, so a render-phase
 // consumer (one rendered before the popup mounts and the sync runs) cannot read the previous open
 // cycle's values. See `useAdoptedStoreReset`.
 const ADOPTION_RESET_STATE = {

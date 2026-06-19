@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { act, render, waitFor } from '@testing-library/react';
 import { ReactStore } from '@base-ui/utils/store';
@@ -11,6 +11,7 @@ import {
   PopupStoreSelectors,
   PopupTriggerMap,
   popupStoreSelectors,
+  useAdoptedStoreReset,
   useImplicitActiveTrigger,
   usePopupInteractionProps,
   useTriggerDataForwarding,
@@ -20,6 +21,16 @@ import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
+
+const MULTIPLE_OWNERS_WARNING =
+  'Base UI: A popup handle was attached to more than one mounted popup at the same time. ' +
+  'A handle store can only have one mounted owner because shared popup state, ' +
+  'Floating UI context, and callbacks are overwritten by the most recently mounted owner. ' +
+  'Render only one popup for each handle.';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 type TestStore = ReactStore<
   PopupStoreState<unknown>,
@@ -148,6 +159,11 @@ function PopupInteractionPropsTest({
     popupProps,
   });
 
+  return null;
+}
+
+function StoreOwnerTest({ store }: { store: TestStore | undefined }) {
+  useAdoptedStoreReset(store, {});
   return null;
 }
 
@@ -490,6 +506,36 @@ describe('usePopupInteractionProps', () => {
     expect(store.state.inactiveTriggerProps).toEqual({});
     expect(store.state.popupProps).not.toBe(popupProps);
     expect(store.state.popupProps).toEqual({});
+  });
+});
+
+describe('useAdoptedStoreReset', () => {
+  it('warns when multiple mounted owners share one handle store', () => {
+    const store = createStore();
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    render(
+      <React.Fragment>
+        <StoreOwnerTest store={store} />
+        <StoreOwnerTest store={store} />
+      </React.Fragment>,
+    );
+
+    expect(consoleWarn).toHaveBeenCalledTimes(1);
+    expect(consoleWarn).toHaveBeenLastCalledWith(MULTIPLE_OWNERS_WARNING);
+  });
+
+  it('does not warn during React StrictMode effect replays', () => {
+    const store = createStore();
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    render(
+      <React.StrictMode>
+        <StoreOwnerTest store={store} />
+      </React.StrictMode>,
+    );
+
+    expect(consoleWarn).not.toHaveBeenCalled();
   });
 });
 

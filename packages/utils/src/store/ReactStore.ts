@@ -133,13 +133,20 @@ export class ReactStore<
     }, [store, key, controlled, isControlled]);
 
     if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line
-      const cache = ((this as any).controlledValues ??= new Map<keyof State, boolean>());
-      if (!cache.has(key)) {
-        cache.set(key, isControlled);
+      // Warn when a single component instance switches between controlled and uncontrolled mode.
+      // Store instances can outlive components, so this must be scoped to the hook instance.
+      // NODE_ENV is static for a running bundle, so this hook is only conditional by environment.
+      const controlledRef = React.useRef<{
+        key: keyof State;
+        isControlled: boolean;
+      } | null>(null);
+
+      if (controlledRef.current === null || controlledRef.current.key !== key) {
+        controlledRef.current = { key, isControlled };
       }
-      const previouslyControlled = cache.get(key);
-      if (previouslyControlled !== undefined && previouslyControlled !== isControlled) {
+
+      const previouslyControlled = controlledRef.current.isControlled;
+      if (previouslyControlled !== isControlled) {
         console.error(
           `A component is changing the ${
             isControlled ? '' : 'un'

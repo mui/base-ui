@@ -64,16 +64,19 @@ function createInitialState<Payload>(): State<Payload> {
   };
 }
 
-// Open-cycle fields written while the popover is open that are not re-derived when a new Root
+// Open-cycle fields written while the popover is open that are not re-derived when a new owner
 // adopts a handle-owned store. They drive first-render behavior of an initially open adoption
 // (`defaultOpen` or controlled `open`): `openChangeReason` gates modal scroll lock, `openMethod`
 // the focus manager, and `instantType`/`stickIfOpen` the transition/dismissal behavior. Without
-// the reset they would carry the previous Root's open-cycle values. See `useAdoptedStoreReset`.
+// the reset they would carry the previous owner's open-cycle values. See `useAdoptedStoreReset`.
 const ADOPTION_RESET_STATE = {
+  focusManagerModal: false,
   openMethod: null,
   openChangeReason: null,
   instantType: undefined,
   stickIfOpen: true,
+  openOnHover: false,
+  closeDelay: 0,
 } satisfies Partial<State<unknown>>;
 
 const selectors = {

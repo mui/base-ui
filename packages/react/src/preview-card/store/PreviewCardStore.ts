@@ -114,6 +114,11 @@ export class PreviewCardStore<Payload> extends ReactStore<
       (floatingId, nested) => new PreviewCardStore<Payload>(initialState, floatingId, nested),
       initialState,
       ADOPTION_RESET_STATE,
+      false,
+      (adoptedStore) => {
+        adoptedStore.context.closeDelayRef.current = CLOSE_DELAY;
+        adoptedStore.context.inlineRectCoordsRef.current = undefined;
+      },
     ).store;
     /* eslint-enable react-hooks/rules-of-hooks */
 

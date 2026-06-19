@@ -38,6 +38,8 @@ const ADOPTION_RESET_STATE = {
   openChangeReason: null,
   instantType: undefined,
   isInstantPhase: false,
+  closeOnClick: true,
+  closeDelay: 0,
 } satisfies Partial<State<unknown>>;
 
 const selectors = {
