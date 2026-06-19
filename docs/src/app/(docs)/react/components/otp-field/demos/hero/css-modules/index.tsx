@@ -23,7 +23,7 @@ export default function ExampleOTPField() {
           <OTPField.Input
             key={index}
             className={styles.Input}
-            aria-label={`Character ${index + 1} of ${OTP_LENGTH}`}
+            aria-label={index === 0 ? undefined : `Character ${index + 1} of ${OTP_LENGTH}`}
           />
         ))}
       </OTPField.Root>

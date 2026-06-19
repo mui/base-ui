@@ -24,7 +24,7 @@ export default function OTPFieldFocusedPlaceholderDemo() {
             key={index}
             className={styles.Input}
             placeholder="•"
-            aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
+            aria-label={index === 0 ? undefined : `Character ${index + 1} of ${CODE_LENGTH}`}
           />
         ))}
       </OTPField.Root>
