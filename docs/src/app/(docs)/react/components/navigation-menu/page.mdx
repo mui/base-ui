@@ -17,7 +17,7 @@ Import the component and assemble its parts:
 ```jsx title="Anatomy"
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 
-<NavigationMenu.Root>
+<NavigationMenu.Root aria-label="Main">
   <NavigationMenu.List>
     <NavigationMenu.Item>
       <NavigationMenu.Trigger>
@@ -40,6 +40,8 @@ import { NavigationMenu } from '@base-ui/react/navigation-menu';
   </NavigationMenu.Portal>
 </NavigationMenu.Root>;
 ```
+
+Both `<NavigationMenu.Root>` (when it isn't nested) and `<NavigationMenu.Popup>` render a `<nav>` landmark. When both are present, give them distinct accessible names with `aria-label` (or `aria-labelledby`) so assistive technology can tell the two navigation regions apart.
 
 ## Examples
 

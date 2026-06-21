@@ -519,6 +519,7 @@ export interface CheckboxRootProps
   uncheckedValue?: string | undefined;
   /**
    * The value of the selected checkbox.
+   * Falls back to the `name` when omitted. Identifies the checkbox within a [Checkbox Group](https://base-ui.com/react/components/checkbox-group), and is the value submitted with the form when the checkbox is checked.
    */
   value?: string | undefined;
 }

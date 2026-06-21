@@ -24,4 +24,14 @@ export enum TooltipPositionerCssVars {
    * @type {string}
    */
   transformOrigin = '--transform-origin',
+  /**
+   * The width of the tooltip's positioner.
+   * It is important to set `width` to this value when using CSS to animate size changes.
+   */
+  positionerWidth = '--positioner-width',
+  /**
+   * The height of the tooltip's positioner.
+   * It is important to set `height` to this value when using CSS to animate size changes.
+   */
+  positionerHeight = '--positioner-height',
 }

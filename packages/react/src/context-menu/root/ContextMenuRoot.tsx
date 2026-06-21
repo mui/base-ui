@@ -56,7 +56,16 @@ export interface ContextMenuRootState {}
 
 export interface ContextMenuRootProps extends Omit<
   Menu.Root.Props,
-  'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'
+  // Context Menu has no detached-trigger support (it opens from a right-click/long-press
+  // area, not a registered trigger), so these inherited props are not applicable.
+  | 'handle'
+  | 'triggerId'
+  | 'defaultTriggerId'
+  | 'modal'
+  | 'openOnHover'
+  | 'delay'
+  | 'closeDelay'
+  | 'onOpenChange'
 > {
   /**
    * Event handler called when the menu is opened or closed.

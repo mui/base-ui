@@ -134,7 +134,6 @@ export interface ProgressRootProps extends BaseUIComponentProps<'div', ProgressR
   min?: number | undefined;
   /**
    * The current value. The component is indeterminate when value is `null`.
-   * @default null
    */
   value: number | null;
 }
