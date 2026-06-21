@@ -17,6 +17,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
+import { isMacVoiceOver } from '../utils/isMacVoiceOver';
 
 /**
  * A menu item that opens a submenu.
@@ -171,13 +172,16 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       hoverProps,
       rootTriggerProps,
       itemProps,
+      open && lastOpenChangeReason === REASONS.listNavigation && isMacVoiceOver()
+        ? {
+            'aria-controls': undefined,
+            'aria-expanded': false,
+          }
+        : {
+            'aria-controls': popupId,
+            'aria-expanded': rootTriggerProps['aria-expanded'],
+          },
       {
-        'aria-controls':
-          open && lastOpenChangeReason === REASONS.listNavigation ? undefined : popupId,
-        'aria-expanded':
-          open && lastOpenChangeReason === REASONS.listNavigation
-            ? false
-            : rootTriggerProps['aria-expanded'],
         tabIndex: open || highlighted ? 0 : -1,
         onBlur() {
           if (highlighted) {

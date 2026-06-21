@@ -43,6 +43,7 @@ import {
   usePopupInteractionProps,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { isMacVoiceOver } from '../utils/isMacVoiceOver';
 
 /**
  * Groups all parts of the menu.
@@ -470,7 +471,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
           id: floatingId,
           role: 'menu' as const,
           'aria-labelledby':
-            parent.type === 'menu' && open && lastOpenChangeReason === REASONS.listNavigation
+            parent.type === 'menu' &&
+            open &&
+            lastOpenChangeReason === REASONS.listNavigation &&
+            isMacVoiceOver()
               ? undefined
               : activeTriggerElement?.id,
           onMouseMove() {
