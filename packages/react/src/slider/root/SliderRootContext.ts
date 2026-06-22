@@ -19,7 +19,10 @@ export interface SliderRootContext {
   dragging: boolean;
   disabled: boolean;
   validation: UseFieldValidationReturnValue;
-  formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
+  /**
+   * Options to format the value, forwarded to `Intl.NumberFormat`.
+   */
+  format: Intl.NumberFormatOptions | undefined;
   handleInputChange: (
     valueInput: number,
     index: number,

@@ -208,7 +208,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       };
     }
 
-    if (thumbIndex < 0) {
+    if (thumbIndex < 0 || thumbIndex >= values.length) {
       return null;
     }
 

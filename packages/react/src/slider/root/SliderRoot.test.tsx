@@ -722,6 +722,18 @@ describe('<Slider.Root />', () => {
       await user.keyboard(`[${ARROW_LEFT}]`);
       expect(slider).toHaveAttribute('aria-valuenow', '0');
     });
+
+    it('clamps range values that fall outside the min and max bounds', async () => {
+      await render(<TestRangeSlider defaultValue={[19, 41]} min={20} max={40} />);
+
+      const thumbs = screen.getAllByRole('slider');
+
+      for (const thumb of thumbs) {
+        const valueNow = Number(thumb.getAttribute('aria-valuenow'));
+        expect(valueNow).toBeGreaterThanOrEqual(20);
+        expect(valueNow).toBeLessThanOrEqual(40);
+      }
+    });
   });
 
   describe('prop: minStepsBetweenValues', () => {

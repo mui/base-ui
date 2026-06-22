@@ -3,7 +3,6 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../internals/types';
@@ -146,8 +145,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const pressedValuesRef = React.useRef<readonly number[] | null>(null);
   const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>('none');
 
-  const formatOptionsRef = useValueAsRef(format);
-
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
@@ -199,7 +196,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     if (!range) {
       return [clamp(valueUnwrapped as number, min, max)];
     }
-    return valueUnwrapped.slice().sort(asc);
+    return valueUnwrapped.map((value) => clamp(value, min, max)).sort(asc);
   }, [max, min, range, valueUnwrapped]);
 
   const setValue = useStableCallback(
@@ -316,7 +313,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       disabled,
       dragging,
       validation,
-      formatOptionsRef,
+      format,
       handleInputChange,
       indicatorPosition,
       inset: thumbAlignment !== 'center',
@@ -359,7 +356,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       disabled,
       dragging,
       validation,
-      formatOptionsRef,
+      format,
       handleInputChange,
       indicatorPosition,
       largeStep,
