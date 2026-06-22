@@ -14,7 +14,7 @@ function getDefaultAriaValueText(formattedValue: string | null, value: number | 
     return 'indeterminate progress';
   }
 
-  return formattedValue || `${value}%`;
+  return formattedValue ?? '';
 }
 
 /**
