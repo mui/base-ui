@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useBaseUiId } from '../internals/useBaseUiId';
@@ -92,26 +91,13 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   const controlRef = React.useRef<HTMLElement>(null);
   const groupInputRef = React.useRef<HTMLInputElement | null>(null);
   const firstEnabledInputRef = React.useRef<HTMLInputElement | null>(null);
-  // Owns the cleanup lifecycle of the user-provided `inputRef` (a React 19 ref
-  // callback may return one). `setInputRef` is driven from several places — a
-  // radio input mounting, the selection changing, and the value-cleared fallback —
-  // so the cleanup must live here: run before each re-point, and on unmount.
-  const inputRefCleanupRef = React.useRef<(() => void) | null>(null);
 
-  const setInputRef = useStableCallback((hiddenInput: HTMLInputElement | null) => {
-    const hadCleanup = inputRefCleanupRef.current !== null;
-    // Detach the previous attachment before re-pointing (ref-cleanup semantics).
-    inputRefCleanupRef.current?.();
-    inputRefCleanupRef.current = null;
+  function setInputRef(hiddenInput: HTMLInputElement | null) {
+    let cleanup: void | (() => void) | undefined = undefined;
 
     if (inputRefProp) {
       if (typeof inputRefProp === 'function') {
-        // A returned cleanup is the detach; skip the legacy `ref(null)` call when a
-        // cleanup function already detached the previous element.
-        if (hiddenInput !== null || !hadCleanup) {
-          const cleanup = inputRefProp(hiddenInput);
-          inputRefCleanupRef.current = typeof cleanup === 'function' ? cleanup : null;
-        }
+        cleanup = inputRefProp(hiddenInput);
       } else {
         inputRefProp.current = hiddenInput;
       }
@@ -119,7 +105,9 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
     groupInputRef.current = hiddenInput;
     validation.inputRef.current = hiddenInput;
-  });
+
+    return cleanup;
+  }
 
   const registerControlRef = useStableCallback(
     (element: HTMLElement | null, isDisabled = false) => {
@@ -151,15 +139,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
     const currentInput = groupInputRef.current;
     if (input.checked || currentInput == null || currentInput.disabled) {
-      setInputRef(input);
-      // Detach when this input unmounts, but only if it's still the representative —
-      // a later re-point (selection change or the value-cleared fallback) may have
-      // replaced it, and that re-point already ran this attachment's cleanup.
-      return () => {
-        if (groupInputRef.current === input) {
-          setInputRef(null);
-        }
-      };
+      return setInputRef(input);
     }
 
     return undefined;
@@ -178,14 +158,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
   useRegisterFieldControl(controlRef, id, checkedValue ?? null, getFormValue, !disabled, nameProp);
 
-  useIsoLayoutEffect(
-    () => () => {
-      // Detach the user-provided ref on unmount, running any pending cleanup.
-      setInputRef(null);
-    },
-    [setInputRef],
-  );
-
   useValueChanged(checkedValue, () => {
     clearErrors(name);
 
@@ -196,7 +168,8 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
     const fallbackInput = firstEnabledInputRef.current;
     if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
-      setInputRef(fallbackInput);
+      // Imperative re-point outside React's ref lifecycle; the ref-callback cleanup isn't tracked here.
+      void setInputRef(fallbackInput);
     }
   });
 
