@@ -365,6 +365,30 @@ describe('<RadioGroup />', () => {
     expect(inputRefSpy.mock.lastCall?.[0]).toBe(inputB);
   });
 
+  it('runs the function inputRef cleanup when re-pointed and on unmount', async () => {
+    const cleanupSpy = vi.fn();
+    const inputRefSpy = vi.fn(() => cleanupSpy);
+
+    const { unmount } = await render(
+      <RadioGroup defaultValue="a" inputRef={inputRefSpy}>
+        <Radio.Root value="a" data-testid="radio-a" />
+        <Radio.Root value="b" data-testid="radio-b" />
+      </RadioGroup>,
+    );
+
+    const radioB = screen.getByTestId('radio-b');
+
+    // Re-pointing the representative input must run the previous attachment's cleanup.
+    const callsBeforeRepoint = cleanupSpy.mock.calls.length;
+    fireEvent.click(radioB);
+    expect(cleanupSpy.mock.calls.length).toBeGreaterThan(callsBeforeRepoint);
+
+    // Unmounting the group must run the active attachment's cleanup.
+    const callsBeforeUnmount = cleanupSpy.mock.calls.length;
+    unmount();
+    expect(cleanupSpy.mock.calls.length).toBeGreaterThan(callsBeforeUnmount);
+  });
+
   it('skips disabled radios when assigning inputRef', async () => {
     const groupInputRef = React.createRef<HTMLInputElement>();
 
