@@ -134,7 +134,8 @@ function update<I>(forkRef: ForkRef<I>, refs: InputRef<I>[]) {
               if (typeof cleanupCallback === 'function') {
                 cleanupCallback();
               } else {
-                ref(null);
+                // Detaching the ref; ignore any cleanup it returns (we're already cleaning up).
+                void ref(null);
               }
               break;
             }

@@ -81,7 +81,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
 
-    addEventListener(
+    // One-shot listener (`{ once: true }`) removes itself after firing; no cleanup to retain.
+    void addEventListener(
       doc,
       'mouseup',
       (mouseEvent) => {
