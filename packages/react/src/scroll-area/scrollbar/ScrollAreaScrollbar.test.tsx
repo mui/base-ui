@@ -348,10 +348,11 @@ describe('<ScrollArea.Scrollbar />', () => {
       );
 
       const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const verticalScrollbar = screen.getByTestId('vertical');
       const thumb = screen.getByTestId('thumb');
       await waitFor(() => expect(thumb.offsetHeight).toBeGreaterThan(0));
 
-      return { viewport, thumb };
+      return { viewport, verticalScrollbar, thumb };
     }
 
     it('does not jump the scroll when dragging a thumb that fills the track', async () => {
@@ -371,6 +372,24 @@ describe('<ScrollArea.Scrollbar />', () => {
       viewport.scrollTop = 400;
       fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
       fireEvent.pointerMove(thumb, { clientY: 5, pointerId: 1 });
+
+      expect(viewport.scrollTop).toBe(400);
+    });
+
+    it('does not jump the scroll when clicking a track whose thumb fills the track', async () => {
+      const { viewport, verticalScrollbar } = await renderShortTrack(16);
+
+      viewport.scrollTop = 400;
+      fireEvent.pointerDown(verticalScrollbar, { button: 0, clientY: 5, pointerId: 1 });
+
+      expect(viewport.scrollTop).toBe(400);
+    });
+
+    it('does not jump the scroll when clicking a track whose thumb is taller than the track', async () => {
+      const { viewport, verticalScrollbar } = await renderShortTrack(10);
+
+      viewport.scrollTop = 400;
+      fireEvent.pointerDown(verticalScrollbar, { button: 0, clientY: 5, pointerId: 1 });
 
       expect(viewport.scrollTop).toBe(400);
     });
