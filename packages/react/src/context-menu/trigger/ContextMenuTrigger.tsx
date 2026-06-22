@@ -47,7 +47,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const longPressTimeout = useTimeout();
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
-  const removeMouseUpListenerRef = React.useRef<(() => void) | null>(null);
+  const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
 
   function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
@@ -82,16 +82,14 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
 
-    // Tear down a listener from a previous trigger that never saw its mouseup, then
-    // retain this one so it can be removed on unmount if the mouseup never arrives.
-    removeMouseUpListenerRef.current?.();
-    removeMouseUpListenerRef.current = addEventListener(
-      doc,
+    // Abort a listener from a previous trigger that never saw its mouseup, and scope this
+    // one to a fresh controller so it's removed on unmount if the mouseup never arrives.
+    mouseUpAbortControllerRef.current?.abort();
+    const mouseUpAbortController = new AbortController();
+    mouseUpAbortControllerRef.current = mouseUpAbortController;
+    doc.addEventListener(
       'mouseup',
       (mouseEvent) => {
-        // `{ once: true }` has already removed this listener.
-        removeMouseUpListenerRef.current = null;
-
         allowMouseUpTriggerRef.current = false;
 
         if (!allowMouseUpRef.current) {
@@ -116,7 +114,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
           createChangeEventDetails(REASONS.cancelOpen, mouseEvent),
         );
       },
-      { once: true },
+      { once: true, signal: mouseUpAbortController.signal },
     );
   }
 
@@ -162,9 +160,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
   React.useEffect(
     () => () => {
-      // Remove a pending mouseup listener if the trigger unmounts before it fires.
-      removeMouseUpListenerRef.current?.();
-      removeMouseUpListenerRef.current = null;
+      // Abort a pending mouseup listener if the trigger unmounts before it fires.
+      mouseUpAbortControllerRef.current?.abort();
     },
     [],
   );
