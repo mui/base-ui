@@ -551,6 +551,58 @@ describe('FloatingFocusManager', () => {
         HTMLElement.prototype.focus = originalFocus;
       });
 
+      test('passes focusVisible when returning focus after keyboard close', async () => {
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context);
+          const dismiss = useDismiss(context);
+
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+          return (
+            <>
+              <button ref={refs.setReference} {...getReferenceProps()}>
+                reference
+              </button>
+              {isOpen && (
+                <FloatingFocusManager context={context}>
+                  <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating" />
+                </FloatingFocusManager>
+              )}
+            </>
+          );
+        }
+
+        render(<App />);
+
+        const reference = screen.getByText('reference');
+        await userEvent.click(reference);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('floating')).toHaveFocus();
+
+        const focusSpy = vi.spyOn(reference, 'focus');
+
+        try {
+          await userEvent.keyboard('{Escape}');
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+        } finally {
+          focusSpy.mockRestore();
+        }
+      });
+
       test('does not insert fallback element when return element is falsy', async () => {
         function App() {
           const [isOpen, setIsOpen] = React.useState(false);
