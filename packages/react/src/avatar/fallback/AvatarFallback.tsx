@@ -26,6 +26,10 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   React.useEffect(() => {
     if (delay !== undefined) {
       timeout.start(delay, () => setDelayPassed(true));
+    } else {
+      // Once the fallback is shown without a delay, keep it visible. Otherwise a later
+      // `undefined` -> number change would re-hide an already-visible fallback.
+      setDelayPassed(true);
     }
     return timeout.clear;
   }, [timeout, delay]);
@@ -39,7 +43,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
     ref: forwardedRef,
     props: elementProps,
     stateAttributesMapping: avatarStateAttributesMapping,
-    enabled: imageLoadingStatus !== 'loaded' && delayPassed,
+    enabled: imageLoadingStatus !== 'loaded' && (delay === undefined || delayPassed),
   });
 
   return element;

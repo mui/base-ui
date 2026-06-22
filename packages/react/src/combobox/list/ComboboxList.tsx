@@ -36,6 +36,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const grid = useStore(store, selectors.grid);
   const popupProps = useStore(store, selectors.popupProps);
   const virtualized = useStore(store, selectors.virtualized);
+  const forceMounted = useStore(store, selectors.forceMounted);
 
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
@@ -116,11 +117,13 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     return element;
   }
 
+  // With the `items` prop, typeahead labels are derived from the items so they survive the list
+  // unmounting (unmounting clears the registered labels). Rendered labels only need to be
+  // registered when the list is force-mounted to match browser autofill against rendered text.
+  const labelsRef = hasItems && !forceMounted ? undefined : store.state.labelsRef;
+
   return (
-    <CompositeList
-      elementsRef={store.state.listRef}
-      labelsRef={hasItems ? undefined : store.state.labelsRef}
-    >
+    <CompositeList elementsRef={store.state.listRef} labelsRef={labelsRef}>
       {element}
     </CompositeList>
   );

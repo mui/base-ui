@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { OTPFieldPreview as OTPField } from '@base-ui/react/otp-field';
+import { OTPField } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';

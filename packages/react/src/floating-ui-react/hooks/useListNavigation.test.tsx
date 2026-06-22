@@ -1161,7 +1161,7 @@ describe('useListNavigation', () => {
     });
   });
 
-  describe('grid navigation when items have different sizes', () => {
+  describe('grid navigation in a multi-column grid with disabled items', () => {
     it('focuses first non-disabled item in grid', async () => {
       render(<ComplexGrid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
@@ -1455,7 +1455,6 @@ describe('useListNavigation', () => {
   );
 
   it('Home or End key press is ignored for typeable combobox reference', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
     function App() {
       const [open, setOpen] = React.useState(false);
       const listRef = React.useRef<Array<HTMLLIElement | null>>([]);

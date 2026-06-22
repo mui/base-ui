@@ -179,188 +179,167 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     },
   );
 
-  const props = React.useMemo<HTMLProps>(
-    () => ({
-      ref: mergedRef,
-      onFocus(event) {
-        const element = rootRef.current;
-        const target = getTarget(event.nativeEvent);
-        if (!element || target == null || !isNativeInput(target)) {
-          return;
-        }
-        target.setSelectionRange(0, target.value.length ?? 0);
-      },
-      onKeyDown(event) {
-        const RELEVANT_KEYS = enableHomeAndEndKeys ? COMPOSITE_KEYS : ARROW_KEYS;
-        if (!RELEVANT_KEYS.has(event.key)) {
-          return;
-        }
+  // Stable so that `relayKeyboardEvent` does not invalidate identity-sensitive
+  // consumers (the `CompositeRootContext` value and trigger data forwarding).
+  const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
+    const RELEVANT_KEYS = enableHomeAndEndKeys ? COMPOSITE_KEYS : ARROW_KEYS;
+    if (!RELEVANT_KEYS.has(event.key)) {
+      return;
+    }
 
-        if (isModifierKeySet(event, modifierKeys)) {
-          return;
-        }
+    if (isModifierKeySet(event, modifierKeys)) {
+      return;
+    }
 
-        const element = rootRef.current;
-        if (!element) {
-          return;
-        }
+    const element = rootRef.current;
+    if (!element) {
+      return;
+    }
 
-        const isRtl = direction === 'rtl';
+    const isRtl = direction === 'rtl';
 
-        const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
-        const forwardKey = {
-          horizontal: horizontalForwardKey,
-          vertical: ARROW_DOWN,
-          both: horizontalForwardKey,
+    const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
+    const forwardKey = {
+      horizontal: horizontalForwardKey,
+      vertical: ARROW_DOWN,
+      both: horizontalForwardKey,
+    }[orientation];
+    const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
+    const backwardKey = {
+      horizontal: horizontalBackwardKey,
+      vertical: ARROW_UP,
+      both: horizontalBackwardKey,
+    }[orientation];
+
+    const target = getTarget(event.nativeEvent);
+    if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
+      const selectionStart = target.selectionStart;
+      const selectionEnd = target.selectionEnd;
+      const textContent = target.value ?? '';
+      // return to native textbox behavior when
+      // 1 - Shift is held to make a text selection, or if there already is a text selection
+      if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
+        return;
+      }
+      // 2 - arrow-ing forward and not in the last position of the text
+      if (event.key !== backwardKey && selectionStart < textContent.length) {
+        return;
+      }
+      // 3 -arrow-ing backward and not in the first position of the text
+      if (event.key !== forwardKey && selectionStart > 0) {
+        return;
+      }
+    }
+
+    let nextIndex = highlightedIndex;
+    const minIndex = getMinListIndex(elementsRef, disabledIndices);
+    const maxIndex = getMaxListIndex(elementsRef, disabledIndices);
+
+    if (grid != null) {
+      nextIndex = grid({
+        disabledIndices,
+        elementsRef,
+        event,
+        highlightedIndex,
+        loopFocus,
+        maxIndex,
+        minIndex,
+        onLoop: wrappedOnLoop,
+        orientation,
+        rtl: isRtl,
+      });
+    }
+
+    const forwardKeys = {
+      horizontal: [horizontalForwardKey],
+      vertical: [ARROW_DOWN],
+      both: [horizontalForwardKey, ARROW_DOWN],
+    }[orientation];
+
+    const backwardKeys = {
+      horizontal: [horizontalBackwardKey],
+      vertical: [ARROW_UP],
+      both: [horizontalBackwardKey, ARROW_UP],
+    }[orientation];
+
+    const preventedKeys = isGrid
+      ? RELEVANT_KEYS
+      : {
+          horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
+          vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
+          both: RELEVANT_KEYS,
         }[orientation];
-        const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
-        const backwardKey = {
-          horizontal: horizontalBackwardKey,
-          vertical: ARROW_UP,
-          both: horizontalBackwardKey,
-        }[orientation];
 
-        const target = getTarget(event.nativeEvent);
-        if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
-          const selectionStart = target.selectionStart;
-          const selectionEnd = target.selectionEnd;
-          const textContent = target.value ?? '';
-          // return to native textbox behavior when
-          // 1 - Shift is held to make a text selection, or if there already is a text selection
-          if (selectionStart == null || event.shiftKey || selectionStart !== selectionEnd) {
-            return;
-          }
-          // 2 - arrow-ing forward and not in the last position of the text
-          if (event.key !== backwardKey && selectionStart < textContent.length) {
-            return;
-          }
-          // 3 -arrow-ing backward and not in the first position of the text
-          if (event.key !== forwardKey && selectionStart > 0) {
-            return;
-          }
+    if (enableHomeAndEndKeys) {
+      if (event.key === HOME) {
+        nextIndex = minIndex;
+      } else if (event.key === END) {
+        nextIndex = maxIndex;
+      }
+    }
+
+    if (
+      nextIndex === highlightedIndex &&
+      (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
+    ) {
+      if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
+        nextIndex = minIndex;
+        if (onLoop) {
+          nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
         }
-
-        let nextIndex = highlightedIndex;
-        const minIndex = getMinListIndex(elementsRef, disabledIndices);
-        const maxIndex = getMaxListIndex(elementsRef, disabledIndices);
-
-        if (grid != null) {
-          nextIndex = grid({
-            disabledIndices,
-            elementsRef,
-            event,
-            highlightedIndex,
-            loopFocus,
-            maxIndex,
-            minIndex,
-            onLoop: wrappedOnLoop,
-            orientation,
-            rtl: isRtl,
-          });
+      } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
+        nextIndex = maxIndex;
+        if (onLoop) {
+          nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
         }
+      } else {
+        nextIndex = findNonDisabledListIndex(elementsRef.current, {
+          startingIndex: nextIndex,
+          decrement: backwardKeys.includes(event.key),
+          disabledIndices,
+        });
+      }
+    }
 
-        const forwardKeys = {
-          horizontal: [horizontalForwardKey],
-          vertical: [ARROW_DOWN],
-          both: [horizontalForwardKey, ARROW_DOWN],
-        }[orientation];
+    if (nextIndex !== highlightedIndex && !isIndexOutOfListBounds(elementsRef.current, nextIndex)) {
+      if (stopEventPropagation) {
+        event.stopPropagation();
+      }
 
-        const backwardKeys = {
-          horizontal: [horizontalBackwardKey],
-          vertical: [ARROW_UP],
-          both: [horizontalBackwardKey, ARROW_UP],
-        }[orientation];
+      if (preventedKeys.has(event.key)) {
+        event.preventDefault();
+      }
+      onHighlightedIndexChange(nextIndex, true);
 
-        const preventedKeys = isGrid
-          ? RELEVANT_KEYS
-          : {
-              horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
-              vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
-              both: RELEVANT_KEYS,
-            }[orientation];
+      // Wait for FocusManager `returnFocus` to execute.
+      queueMicrotask(() => {
+        elementsRef.current[nextIndex]?.focus();
+      });
+    }
+  });
 
-        if (enableHomeAndEndKeys) {
-          if (event.key === HOME) {
-            nextIndex = minIndex;
-          } else if (event.key === END) {
-            nextIndex = maxIndex;
-          }
-        }
+  const props: HTMLProps = {
+    ref: mergedRef,
+    onFocus(event) {
+      const element = rootRef.current;
+      const target = getTarget(event.nativeEvent);
+      if (!element || target == null || !isNativeInput(target)) {
+        return;
+      }
+      target.setSelectionRange(0, target.value.length ?? 0);
+    },
+    onKeyDown,
+  };
 
-        if (
-          nextIndex === highlightedIndex &&
-          (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
-        ) {
-          if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
-            nextIndex = minIndex;
-            if (onLoop) {
-              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-            }
-          } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
-            nextIndex = maxIndex;
-            if (onLoop) {
-              nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
-            }
-          } else {
-            nextIndex = findNonDisabledListIndex(elementsRef.current, {
-              startingIndex: nextIndex,
-              decrement: backwardKeys.includes(event.key),
-              disabledIndices,
-            });
-          }
-        }
-
-        if (
-          nextIndex !== highlightedIndex &&
-          !isIndexOutOfListBounds(elementsRef.current, nextIndex)
-        ) {
-          if (stopEventPropagation) {
-            event.stopPropagation();
-          }
-
-          if (preventedKeys.has(event.key)) {
-            event.preventDefault();
-          }
-          onHighlightedIndexChange(nextIndex, true);
-
-          // Wait for FocusManager `returnFocus` to execute.
-          queueMicrotask(() => {
-            elementsRef.current[nextIndex]?.focus();
-          });
-        }
-      },
-    }),
-    [
-      direction,
-      disabledIndices,
-      elementsRef,
-      enableHomeAndEndKeys,
-      grid,
-      highlightedIndex,
-      isGrid,
-      loopFocus,
-      mergedRef,
-      modifierKeys,
-      onLoop,
-      onHighlightedIndexChange,
-      orientation,
-      stopEventPropagation,
-      wrappedOnLoop,
-    ],
-  );
-
-  return React.useMemo(
-    () => ({
-      props,
-      highlightedIndex,
-      onHighlightedIndexChange,
-      elementsRef,
-      disabledIndices,
-      onMapChange,
-      relayKeyboardEvent: props.onKeyDown!,
-    }),
-    [props, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices, onMapChange],
-  );
+  return {
+    props,
+    highlightedIndex,
+    onHighlightedIndexChange,
+    elementsRef,
+    disabledIndices,
+    onMapChange,
+    relayKeyboardEvent: onKeyDown,
+  };
 }
 
 function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {

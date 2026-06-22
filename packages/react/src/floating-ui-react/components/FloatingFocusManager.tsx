@@ -130,6 +130,9 @@ function handleTabIndex(floatingFocusElement: HTMLElement) {
   if (tabbableContent.length === 0) {
     if (tabIndex !== '0') {
       floatingFocusElement.setAttribute('tabindex', '0');
+      // Mark our own write so the externally-managed early-return above doesn't
+      // mistake it for a user-authored `tabindex` and freeze management.
+      floatingFocusElement.setAttribute('data-tabindex', '0');
     }
   } else if (
     tabIndex !== '-1' ||
@@ -370,6 +373,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       if (target?.closest(`[${CLICK_TRIGGER_IDENTIFIER}]`)) {
         isPointerDownRef.current = true;
+        // Reset on the next tick so a single click on a click-trigger doesn't
+        // permanently suppress focus-out closing for the lifetime of the instance.
+        pointerDownTimeout.start(0, () => {
+          isPointerDownRef.current = false;
+        });
       }
     }
 
@@ -382,6 +390,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       addEventListener(doc, 'pointerup', clearPointerDownOutside, true),
       addEventListener(doc, 'pointercancel', clearPointerDownOutside, true),
       addEventListener(doc, 'keydown', onKeyDown, true),
+      // Avoid a stale `true` leaking into the next open (e.g. keep-mounted popups)
+      // if the popup dismissed between pointerdown and pointerup.
+      clearPointerDownOutside,
     );
   }, [
     disabled,
@@ -390,6 +401,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floatingFocusElement,
     open,
     portalContext,
+    pointerDownTimeout,
     getResolvedInsideElements,
   ]);
 
@@ -420,6 +432,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const relatedTarget = event.relatedTarget as HTMLElement | null;
       const currentTarget = event.currentTarget;
       const target = getTarget(event) as HTMLElement | null;
+
+      // When focus is lost to the body (e.g. on a backdrop press), record the element that
+      // had focus so a confirmation dialog opened while the body is focused can return focus
+      // to it. Scoped to `modal` to avoid non-modal popups polluting the shared stack.
+      if (modal && relatedTarget == null && target != null && contains(floating, target)) {
+        addPreviouslyFocusedElement(target);
+      }
 
       queueMicrotask(() => {
         const nodeId = getNodeId();
@@ -854,7 +873,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             ? isFocusInsideFloatingTree
             : true)
         ) {
-          tabbableReturnElement.focus({ preventScroll: true });
+          const focusOptions: FocusOptions = { preventScroll: true };
+          if (closeTypeRef.current === 'keyboard') {
+            focusOptions.focusVisible = true;
+          }
+          tabbableReturnElement.focus(focusOptions);
         }
 
         preventReturnFocusRef.current = false;
