@@ -56,7 +56,7 @@ export default function OTPFieldCustomNormalizeDemo() {
           <OTPField.Input
             key={index}
             className={`${styles.Input} ${activeInvalidIndex === index ? invalidClassName : ''}`.trim()}
-            aria-label={`Character ${index + 1} of ${CODE_LENGTH}`}
+            aria-label={index === 0 ? undefined : `Character ${index + 1} of ${CODE_LENGTH}`}
             onFocus={() => {
               setFocusedIndex(index);
             }}

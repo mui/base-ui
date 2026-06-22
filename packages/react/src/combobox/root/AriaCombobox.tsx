@@ -1567,7 +1567,15 @@ interface ComboboxRootProps<ItemValue> {
    */
   virtualized?: boolean | undefined;
   /**
-   * Whether the list is rendered inline without using the popup.
+   * Whether the list is rendered inline without using the component's own popup.
+   *
+   * Specify `open` unconditionally in conjunction with this prop so the list is considered
+   * visible: `<Combobox.Root inline open>`
+   *
+   * In a `Combobox.Root` > `Dialog.Root` composition, bind the Combobox's `open` and
+   * `onOpenChange` props to the `Dialog`'s `open` and `onOpenChange` state instead so the
+   * component resets its transient state (filter query, highlighted item, and input value) when
+   * the dialog closes.
    * @default false
    */
   inline?: boolean | undefined;

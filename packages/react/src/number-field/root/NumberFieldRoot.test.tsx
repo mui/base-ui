@@ -508,6 +508,30 @@ describe('<NumberField />', () => {
       expect(onValueCommitted.mock.calls[0][0]).toBe(0.12);
     });
 
+    it('parses an interleaved percent sign while typing (1%2 -> 12%)', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={0.01}
+          format={{ style: 'percent' }}
+          locale="en-US"
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+
+      const input = screen.getByRole('textbox');
+      expect(input).toHaveValue('1%');
+
+      // Typing `2` after the rendered `1%` yields `1%2`, which must reformat to `12%` on blur.
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '1%2' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('12%');
+      expect(onValueCommitted.mock.calls.length).toBe(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(0.12);
+    });
+
     it('accepts currency symbol while typing and parses numeric value', async () => {
       const onValueChange = vi.fn();
       await render(
