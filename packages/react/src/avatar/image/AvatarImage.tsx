@@ -2,16 +2,16 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { BaseUIComponentProps } from '../../utils/types';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
-import type { AvatarRootState } from '../root/AvatarRoot';
+import type { AvatarRootState, ImageLoadingStatus } from '../root/AvatarRoot';
 import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useImageLoadingStatus } from './useImageLoadingStatus';
 
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   ...avatarStateAttributesMapping,
@@ -32,16 +32,11 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     className,
     render,
     onLoadingStatusChange: onLoadingStatusChangeProp,
-    referrerPolicy,
-    crossOrigin,
+    style,
     ...elementProps
   } = componentProps;
-
-  const context = useAvatarRootContext();
-  const imageLoadingStatus = useImageLoadingStatus(componentProps.src, {
-    referrerPolicy,
-    crossOrigin,
-  });
+  const { setImageLoadingStatus } = useAvatarRootContext();
+  const imageLoadingStatus = useImageLoadingStatus(elementProps.src, elementProps);
 
   const isVisible = imageLoadingStatus === 'loaded';
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(isVisible);
@@ -50,7 +45,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
-    context.setImageLoadingStatus(status);
+    setImageLoadingStatus(status);
   });
 
   useIsoLayoutEffect(() => {
@@ -59,10 +54,9 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     }
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
-  const state: AvatarImageState = {
-    imageLoadingStatus,
-    transitionStatus,
-  };
+  useIsoLayoutEffect(() => {
+    return () => setImageLoadingStatus('idle');
+  }, [setImageLoadingStatus]);
 
   useOpenChangeComplete({
     open: isVisible,
@@ -73,6 +67,11 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
       }
     },
   });
+
+  const state: AvatarImageState = {
+    imageLoadingStatus,
+    transitionStatus,
+  };
 
   const element = useRenderElement('img', componentProps, {
     state,

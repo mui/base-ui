@@ -2,12 +2,13 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { type FieldRootState } from '../root/FieldRoot';
-import { useFieldRootContext } from '../root/FieldRootContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { fieldValidityMapping } from '../utils/constants';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useFieldItemContext } from '../item/FieldItemContext';
 
 /**
  * A paragraph with additional information about the field.
@@ -19,12 +20,18 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
   componentProps: FieldDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, id: idProp, className, ...elementProps } = componentProps;
+  const { render, id: idProp, className, style, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 
   const fieldRootContext = useFieldRootContext(false);
+  const fieldItemContext = useFieldItemContext();
   const { setMessageIds } = useLabelableContext();
+
+  const state: FieldDescriptionState = {
+    ...fieldRootContext.state,
+    disabled: fieldRootContext.disabled || fieldItemContext.disabled,
+  };
 
   useIsoLayoutEffect(() => {
     if (!id) {
@@ -40,7 +47,7 @@ export const FieldDescription = React.forwardRef(function FieldDescription(
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
-    state: fieldRootContext.state,
+    state,
     props: [{ id }, elementProps],
     stateAttributesMapping: fieldValidityMapping,
   });

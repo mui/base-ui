@@ -6,7 +6,7 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 
 describe('<Tabs.Indicator />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Tabs.Indicator />, () => ({
     render: (node) => {
@@ -22,6 +22,37 @@ describe('<Tabs.Indicator />', () => {
     refInstanceof: window.HTMLSpanElement,
     testRenderPropWith: 'div',
   }));
+
+  it('exposes null active tab state when the selected value has no matching tab', async () => {
+    const indicatorStates: Tabs.Indicator.State[] = [];
+
+    function renderIndicator(
+      props: React.HTMLAttributes<HTMLSpanElement>,
+      state: Tabs.Indicator.State,
+    ) {
+      indicatorStates.push(state);
+      return <span data-testid="bubble" {...props} />;
+    }
+
+    await render(
+      <Tabs.Root value="missing">
+        <Tabs.List>
+          <Tabs.Tab value="one">One</Tabs.Tab>
+          <Tabs.Indicator render={renderIndicator} />
+        </Tabs.List>
+      </Tabs.Root>,
+    );
+
+    // Wait for Tabs.List to register its element; before that no tab can be measured.
+    await waitFor(() => {
+      expect(indicatorStates.length).toBeGreaterThan(1);
+    });
+
+    const state = indicatorStates.at(-1)!;
+    expect(state.activeTabPosition).toBe(null);
+    expect(state.activeTabSize).toBe(null);
+    expect(screen.getByTestId('bubble')).toHaveAttribute('hidden');
+  });
 
   describe.skipIf(isJSDOM)('rendering', () => {
     it('should not render when no tab is active', async () => {
@@ -391,6 +422,21 @@ describe('<Tabs.Indicator />', () => {
 
       // React strict mode doubles render calls in tests.
       expect(renderIndicatorSpy.mock.calls.length - initialRenderCount).toBeLessThan(5);
+    });
+  });
+
+  describe('pre-hydration rendering', () => {
+    it('renders the inline pre-hydration script during server-side rendering', async () => {
+      await renderToString(
+        <Tabs.Root value={1}>
+          <Tabs.List>
+            <Tabs.Tab value={1}>One</Tabs.Tab>
+            <Tabs.Indicator renderBeforeHydration />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      expect(document.querySelector('script')).not.toBe(null);
     });
   });
 });

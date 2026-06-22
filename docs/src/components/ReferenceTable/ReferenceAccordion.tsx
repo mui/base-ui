@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { EnhancedProperty } from '@mui/internal-docs-infra/useTypes';
+import { stringOrHastToString } from '@mui/internal-docs-infra/pipeline/hastUtils';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as CodeBlock from '../CodeBlock';
@@ -53,7 +54,7 @@ export function ReferenceAccordion({
         )}
         <Accordion.HeaderCell className="ReferenceHeaderIconCell" />
       </Accordion.HeaderRow>
-      {Object.keys(data).map((name, index) => {
+      {Object.keys(data).map((name) => {
         const prop = data[name];
 
         // Use shortType if available (set by useTypes), otherwise use the full type
@@ -63,7 +64,9 @@ export function ReferenceAccordion({
         // anchor hash for each prop
         const id = `${partName.replace('.', '')}-${name}`;
 
-        const shortTypeText = prop.shortTypeText ?? 'type';
+        const shortTypeText = prop.shortType
+          ? stringOrHastToString(prop.shortType as string)
+          : 'type';
         const defaultText = prop.defaultText;
 
         return (
@@ -75,7 +78,6 @@ export function ReferenceAccordion({
           >
             <Accordion.Trigger
               id={id}
-              index={index}
               aria-label={`${nameLabel}: ${name},${!hideRequired && prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
               className="ReferenceTrigger"
             >
@@ -93,7 +95,9 @@ export function ReferenceAccordion({
               {!hideDefault && (
                 <Accordion.Scrollable className="ReferenceDefaultCell">
                   {prop.required || prop.default === undefined ? (
-                    <TableCode style={{ color: 'var(--syntax-nullish)' }}>—</TableCode>
+                    <TableCode style={{ color: 'var(--color-docs-infra-syntax-nullish)' }}>
+                      —
+                    </TableCode>
                   ) : (
                     <TableDefault>{prop.default}</TableDefault>
                   )}
@@ -106,9 +110,8 @@ export function ReferenceAccordion({
                   height="10"
                   viewBox="0 0 10 10"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </span>
             </Accordion.Trigger>

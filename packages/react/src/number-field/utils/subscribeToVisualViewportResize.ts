@@ -1,3 +1,4 @@
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerWindow } from '@base-ui/utils/owner';
 
 // This lets us invert the scale of the cursor to match the OS scale, in which the cursor doesn't
@@ -19,10 +20,5 @@ export function subscribeToVisualViewportResize(
   }
 
   handleVisualResize();
-
-  vV.addEventListener('resize', handleVisualResize);
-
-  return () => {
-    vV.removeEventListener('resize', handleVisualResize);
-  };
+  return addEventListener(vV, 'resize', handleVisualResize);
 }

@@ -37,7 +37,7 @@ describe('<Dialog.Portal />', () => {
       const { LazyComponent, resolve } = createLazyComponent();
 
       await render(
-        <React.Suspense fallback="Loading...">
+        <React.Suspense fallback="Loading…">
           <Dialog.Root open>
             <Dialog.Portal>
               <Dialog.Popup>
@@ -48,7 +48,7 @@ describe('<Dialog.Portal />', () => {
         </React.Suspense>,
       );
 
-      expect(await screen.findByText('Loading...')).not.toBe(null);
+      expect(await screen.findByText('Loading…')).not.toBe(null);
       resolve({ default: () => <p>Greetings</p> });
       expect(await screen.findByText('Greetings')).not.toBe(null);
     });

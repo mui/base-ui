@@ -100,7 +100,36 @@ Selection chips are rendered with `<Combobox.Chip>` inside the input that can be
 
 import { DemoComboboxMultiple } from './demos/multiple';
 
-<DemoComboboxMultiple compact />
+<DemoComboboxMultiple />
+
+Visible chips can be limited by slicing the selected values rendered in `<Combobox.Value>`:
+
+```tsx title="Limiting visible chips"
+const CHIP_LIMIT = 3;
+
+<Combobox.Value>
+  {(selectedValue: string[]) => {
+    // @highlight-start
+    const visibleValue = selectedValue.slice(0, CHIP_LIMIT);
+    const hiddenCount = selectedValue.length - visibleValue.length;
+    // @highlight-end
+    return (
+      <>
+        {visibleValue.map((item) => (
+          <Combobox.Chip key={item}>
+            {item}
+            <Combobox.ChipRemove aria-label={`Remove ${item}`} />
+          </Combobox.Chip>
+        ))}
+        {/* @highlight-start */}
+        {hiddenCount > 0 && <span>{`+${hiddenCount} more`}</span>}
+        {/* @highlight-end */}
+        <Combobox.Input />
+      </>
+    );
+  }}
+</Combobox.Value>;
+```
 
 ### Input inside popup
 
@@ -108,12 +137,13 @@ import { DemoComboboxMultiple } from './demos/multiple';
 
 import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
 
-<DemoComboboxInputInsidePopup compact />
+<DemoComboboxInputInsidePopup />
 
 Use `<Combobox.Label>` to provide a visible label for the combobox trigger in this pattern:
 
-```tsx title="Using Combobox.Label to label a combobox" {2}
+```tsx title="Using Combobox.Label to label a combobox"
 <Combobox.Root>
+  {/* @highlight */}
   <Combobox.Label>Favorite fruit</Combobox.Label>
   {/* ... */}
 </Combobox.Root>
@@ -127,19 +157,22 @@ Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to 
 
 Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
 
-```tsx title="Example" {3,9,13}
+```tsx title="Example"
 interface ProduceGroupItem {
   value: string;
+  // @highlight
   items: string[];
 }
 
 const groups: ProduceGroupItem[] = [
   {
     value: 'Fruits',
+    // @highlight
     items: ['Apple', 'Banana', 'Orange'],
   },
   {
     value: 'Vegetables',
+    // @highlight
     items: ['Carrot', 'Lettuce', 'Spinach'],
   },
 ];
@@ -147,7 +180,7 @@ const groups: ProduceGroupItem[] = [
 
 import { DemoComboboxGrouped } from './demos/grouped';
 
-<DemoComboboxGrouped compact />
+<DemoComboboxGrouped />
 
 ### Async search (single)
 
@@ -155,7 +188,7 @@ Load items from a remote source by fetching on input changes. Keep the selected 
 
 import { DemoComboboxAsyncSingle } from './demos/async-single';
 
-<DemoComboboxAsyncSingle compact />
+<DemoComboboxAsyncSingle />
 
 ### Async search (multiple)
 
@@ -163,7 +196,7 @@ Load items from a remote source by fetching on input changes while supporting mu
 
 import { DemoComboboxAsyncMultiple } from './demos/async-multiple';
 
-<DemoComboboxAsyncMultiple compact />
+<DemoComboboxAsyncMultiple />
 
 ### Creatable
 
@@ -171,7 +204,7 @@ Create a new item when the filter matches no items, opening a creation `<Dialog>
 
 import { DemoComboboxCreatable } from './demos/creatable';
 
-<DemoComboboxCreatable compact />
+<DemoComboboxCreatable />
 
 ### Virtualized
 
@@ -179,7 +212,7 @@ Efficiently handle large datasets using a virtualization library like `@tanstack
 
 import { DemoComboboxVirtualized } from './demos/virtualized';
 
-<DemoComboboxVirtualized compact />
+<DemoComboboxVirtualized />
 
 ## API reference
 

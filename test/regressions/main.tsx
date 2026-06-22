@@ -1,4 +1,3 @@
-import './fakeDateSetup';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router';
@@ -8,13 +7,19 @@ import 'docs/src/css/index.css';
 
 const viewerRoot = document.getElementById('test-viewer');
 
-function FixtureRenderer({ component: FixtureComponent }: { component: React.ElementType }) {
+function FixtureRenderer({
+  component: FixtureComponent,
+  isTailwind,
+}: {
+  component: React.ElementType;
+  isTailwind: boolean;
+}) {
   const viewerReactRoot = React.useRef<ReactDOMClient.Root | null>(null);
 
   React.useLayoutEffect(() => {
     const renderTimeout = setTimeout(() => {
       const children = (
-        <TestViewer>
+        <TestViewer isTailwind={isTailwind}>
           <FixtureComponent />
         </TestViewer>
       );
@@ -33,7 +38,7 @@ function FixtureRenderer({ component: FixtureComponent }: { component: React.Ele
         viewerReactRoot.current = null;
       });
     };
-  }, [FixtureComponent]);
+  }, [FixtureComponent, isTailwind]);
 
   return null;
 }
@@ -79,7 +84,9 @@ function App() {
             <Route
               key={path}
               path={path}
-              element={<FixtureRenderer component={FixtureComponent} />}
+              element={
+                <FixtureRenderer component={FixtureComponent} isTailwind={fixture.isTailwind} />
+              }
             />
           );
         })}

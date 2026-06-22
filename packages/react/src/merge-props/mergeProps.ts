@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
-import type { BaseUIEvent, WithBaseUIEvent } from '../utils/types';
+import type { BaseUIEvent, WithBaseUIEvent } from '../internals/types';
 
 type ElementType = React.ElementType;
 type PropsOf<T extends React.ElementType> = WithBaseUIEvent<React.ComponentPropsWithRef<T>>;
@@ -65,19 +65,20 @@ export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
     return createInitialMergedProps(b);
   }
 
+  // We need to mutably own `merged`.
   let merged = createInitialMergedProps(a);
 
   if (b) {
-    merged = mergeOne(merged, b);
+    merged = mergeInto(merged, b);
   }
   if (c) {
-    merged = mergeOne(merged, c);
+    merged = mergeInto(merged, c);
   }
   if (d) {
-    merged = mergeOne(merged, d);
+    merged = mergeInto(merged, d);
   }
   if (e) {
-    merged = mergeOne(merged, e);
+    merged = mergeInto(merged, e);
   }
 
   return merged;
@@ -102,29 +103,17 @@ export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): Prop
     return EMPTY_PROPS as PropsOf<T>;
   }
   if (props.length === 1) {
-    const firstProps = props[0];
-
-    if (isPropsGetter(firstProps)) {
-      return resolvePropsGetter(firstProps, EMPTY_PROPS) as PropsOf<T>;
-    }
-
-    return copyPropsWithWrappedEventHandlers(firstProps) as PropsOf<T>;
+    return createInitialMergedProps(props[0]) as PropsOf<T>;
   }
 
+  // We need to mutably own `merged`.
   let merged = createInitialMergedProps(props[0]);
 
   for (let i = 1; i < props.length; i += 1) {
-    merged = mergeOne(merged, props[i]);
+    merged = mergeInto(merged, props[i]);
   }
 
   return merged as PropsOf<T>;
-}
-
-function mergeOne<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
-  if (isPropsGetter(inputProps)) {
-    return inputProps(merged);
-  }
-  return mutablyMergeInto(merged, inputProps);
 }
 
 function createInitialMergedProps<T extends ElementType>(inputProps: InputProps<T>) {
@@ -133,17 +122,27 @@ function createInitialMergedProps<T extends ElementType>(inputProps: InputProps<
     return { ...resolvePropsGetter(inputProps, EMPTY_PROPS) };
   }
 
-  return copyPropsWithWrappedEventHandlers(inputProps);
+  return copyInitialProps(inputProps);
 }
 
-function copyPropsWithWrappedEventHandlers<T extends ElementType>(
+function mergeInto<T extends ElementType>(merged: Record<string, any>, inputProps: InputProps<T>) {
+  if (isPropsGetter(inputProps)) {
+    return resolvePropsGetter(inputProps, merged as PropsOf<T>);
+  }
+  return mutablyMergeInto(merged, inputProps);
+}
+
+function copyInitialProps<T extends ElementType>(
   inputProps: React.ComponentPropsWithRef<T> | undefined,
 ) {
   const copiedProps = { ...inputProps } as Record<string, any>;
 
+  // `copiedProps` is our fresh own-object copy, so iterating with `for...in` is safe here.
+  // eslint-disable-next-line guard-for-in
   for (const propName in copiedProps) {
-    if (isEventHandler(propName, copiedProps[propName])) {
-      copiedProps[propName] = wrapEventHandler(copiedProps[propName]);
+    const propValue = copiedProps[propName];
+    if (isEventHandler(propName, propValue)) {
+      copiedProps[propName] = wrapEventHandler(propValue);
     }
   }
 
@@ -229,23 +228,25 @@ function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Func
     return wrapEventHandler(theirHandler);
   }
 
-  return (event: unknown) => {
+  return (...args: unknown[]) => {
+    const event = args[0];
+
     if (isSyntheticEvent(event)) {
       const baseUIEvent = event as BaseUIEvent<typeof event>;
 
       makeEventPreventable(baseUIEvent);
 
-      const result = theirHandler(baseUIEvent);
+      const result = theirHandler(...args);
 
       if (!baseUIEvent.baseUIHandlerPrevented) {
-        ourHandler?.(baseUIEvent);
+        ourHandler?.(...args);
       }
 
       return result;
     }
 
-    const result = theirHandler(event);
-    ourHandler?.(event);
+    const result = theirHandler(...args);
+    ourHandler?.(...args);
     return result;
   };
 }
@@ -255,12 +256,14 @@ function wrapEventHandler(handler: Function | undefined) {
     return handler;
   }
 
-  return (event: unknown) => {
+  return (...args: unknown[]) => {
+    const event = args[0];
+
     if (isSyntheticEvent(event)) {
       makeEventPreventable(event as BaseUIEvent<typeof event>);
     }
 
-    return handler(event);
+    return handler(...args);
   };
 }
 

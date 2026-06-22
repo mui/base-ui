@@ -3,7 +3,7 @@ import {
   TemporalAdapter,
   TemporalSupportedObject,
   TemporalTimezone,
-} from '../../src/types/temporal';
+} from '../../src/internals/temporal';
 
 export interface DescribeGregorianAdapterParameters {
   /**

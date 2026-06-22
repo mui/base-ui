@@ -2,14 +2,16 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useRenderElement } from '../utils/useRenderElement';
-import type { BaseUIComponentProps, HTMLProps, Orientation } from '../utils/types';
-import { CompositeRoot } from '../composite/root/CompositeRoot';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { useRenderElement } from '../internals/useRenderElement';
+import type { BaseUIComponentProps, HTMLProps, Orientation } from '../internals/types';
+import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useToolbarRootContext } from '../toolbar/root/ToolbarRootContext';
+import { useToolbarGroupContext } from '../toolbar/group/ToolbarGroupContext';
 import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
-import { REASONS } from '../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { REASONS } from '../internals/reasons';
 
 const stateAttributesMapping = {
   multiple(value: boolean) {
@@ -39,29 +41,24 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
     value: valueProp,
     className,
     render,
+    style,
     ...elementProps
   } = componentProps;
 
   const toolbarContext = useToolbarRootContext(true);
-
-  const defaultValue = React.useMemo(() => {
-    if (valueProp === undefined) {
-      return defaultValueProp ?? [];
-    }
-
-    return undefined;
-  }, [valueProp, defaultValueProp]);
+  const toolbarGroupContext = useToolbarGroupContext(true);
 
   const isValueInitialized = React.useMemo(
     () => valueProp !== undefined || defaultValueProp !== undefined,
     [valueProp, defaultValueProp],
   );
 
-  const disabled = (toolbarContext?.disabled ?? false) || disabledProp;
+  const disabled =
+    (toolbarContext?.disabled ?? false) || (toolbarGroupContext?.disabled ?? false) || disabledProp;
 
   const [groupValue, setValueState] = useControlled({
     controlled: valueProp,
-    default: defaultValue,
+    default: valueProp === undefined ? (defaultValueProp ?? EMPTY_ARRAY) : undefined,
     name: 'ToggleGroup',
     state: 'value',
   });
@@ -83,15 +80,14 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
       } else {
         newGroupValue = nextPressed ? [newValue] : [];
       }
-      if (Array.isArray(newGroupValue)) {
-        onValueChange?.(newGroupValue, eventDetails);
 
-        if (eventDetails.isCanceled) {
-          return;
-        }
+      onValueChange?.(newGroupValue, eventDetails);
 
-        setValueState(newGroupValue);
+      if (eventDetails.isCanceled) {
+        return;
       }
+
+      setValueState(newGroupValue);
     },
   );
 
@@ -128,12 +124,14 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
         <CompositeRoot
           render={render}
           className={className}
+          style={style}
           state={state}
           refs={[forwardedRef]}
           props={[defaultProps, elementProps]}
           stateAttributesMapping={stateAttributesMapping}
           loopFocus={loopFocus}
           enableHomeAndEndKeys
+          orientation={orientation}
         />
       )}
     </ToggleGroupContext.Provider>
@@ -167,13 +165,13 @@ export interface ToggleGroupProps<Value extends string> extends BaseUIComponentP
   ToggleGroupState
 > {
   /**
-   * The open state of the toggle group represented by an array of
+   * The pressed state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the controlled counterpart of `defaultValue`.
    */
   value?: readonly Value[] | undefined;
   /**
-   * The open state of the toggle group represented by an array of
+   * The pressed state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the uncontrolled counterpart of `value`.
    */

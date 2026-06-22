@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import type { FieldRoot } from '../../field/root/FieldRoot';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { fieldValidityMapping } from '../../field/utils/constants';
-import { useLabel } from '../../labelable-provider/useLabel';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { useLabel } from '../../internals/labelable-provider/useLabel';
 import { getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { selectors } from '../store';
@@ -21,7 +21,7 @@ export const SelectLabel = React.forwardRef(function SelectLabel(
   componentProps: SelectLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
   // Keep label id derived from the root and ignore runtime `id` overrides from untyped consumers.
   const elementPropsWithoutId = elementProps as typeof elementProps & { id?: string | undefined };
   delete elementPropsWithoutId.id;

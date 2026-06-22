@@ -1,10 +1,12 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
+
+const isWebKit = platform.engine.webkit;
 
 describe('<Slider.Thumb />', () => {
   const { render, renderToString } = createRenderer();
@@ -17,7 +19,7 @@ describe('<Slider.Thumb />', () => {
   }));
 
   describe('ARIA attributes', () => {
-    ['aria-label', 'aria-labelledby', 'aria-describedby'].forEach((attr) => {
+    ['aria-label', 'aria-labelledby', 'aria-describedby', 'aria-valuetext'].forEach((attr) => {
       it(`forwards ${attr} to the input`, async () => {
         await render(
           <Slider.Root defaultValue={50}>
@@ -32,6 +34,84 @@ describe('<Slider.Thumb />', () => {
         );
         expect(screen.getByRole('slider')).toHaveAttribute(attr, 'test');
       });
+    });
+
+    it('prefers getAriaValueText over a direct aria-valuetext prop', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb
+              aria-valuetext="ignored"
+              getAriaValueText={(formatted) => `${formatted} percent`}
+            />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+      expect(screen.getByRole('slider')).toHaveAttribute('aria-valuetext', '50 percent');
+    });
+  });
+
+  describe('prop: onKeyDown', () => {
+    it('forwards key events that the slider does not handle', async () => {
+      const handleKeyDown = vi.fn();
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb onKeyDown={handleKeyDown} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: 'Enter' });
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+    });
+
+    ['ArrowRight', 'PageUp'].forEach((key) => {
+      it(`forwards handled ${key} key events`, async () => {
+        const handleKeyDown = vi.fn();
+        await render(
+          <Slider.Root defaultValue={50}>
+            <Slider.Control>
+              <Slider.Thumb onKeyDown={handleKeyDown} />
+            </Slider.Control>
+          </Slider.Root>,
+        );
+
+        const slider = screen.getByRole('slider');
+        await act(async () => {
+          slider.focus();
+        });
+        fireEvent.keyDown(slider, { key });
+
+        expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('allows preventing the internal key handling', async () => {
+      const handleKeyDown = vi.fn((event: React.KeyboardEvent<HTMLInputElement>) => {
+        event.preventDefault();
+      });
+
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb onKeyDown={handleKeyDown} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: 'ArrowRight' });
+
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      expect(slider).toHaveAttribute('aria-valuenow', '50');
     });
   });
 
@@ -106,6 +186,47 @@ describe('<Slider.Thumb />', () => {
         expect(blurSpy.mock.calls.length).toBe(2);
         expect(blurSpy.mock.results.at(-1)?.value).toBe(slider2);
         expect(document.body).toHaveFocus();
+      });
+
+      it('does not emit extra blur and focus events when restoring focus-visible', async () => {
+        const focusSpy = vi.fn((event) => event.target);
+        const blurSpy = vi.fn((event) => event.target);
+
+        await render(
+          <Slider.Root defaultValue={40}>
+            <Slider.Control data-testid="control">
+              <Slider.Thumb onFocus={focusSpy} onBlur={blurSpy} />
+            </Slider.Control>
+          </Slider.Root>,
+        );
+
+        const sliderControl = screen.getByTestId('control');
+        vi.spyOn(sliderControl, 'getBoundingClientRect').mockImplementation(
+          getHorizontalSliderRect,
+        );
+
+        const slider = screen.getByRole('slider');
+
+        fireEvent.pointerDown(sliderControl, {
+          pointerId: 1,
+          pointerType: 'mouse',
+          button: 0,
+          buttons: 1,
+          clientX: 40,
+          clientY: 0,
+        });
+
+        await waitFor(() => {
+          expect(slider).toHaveFocus();
+        });
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+        expect(focusSpy.mock.results[0]?.value).toBe(slider);
+        expect(blurSpy).not.toHaveBeenCalled();
+
+        fireEvent.keyDown(slider, { key: 'ArrowRight' });
+
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+        expect(blurSpy).not.toHaveBeenCalled();
       });
     });
 
@@ -186,6 +307,19 @@ describe('<Slider.Thumb />', () => {
   });
 
   describe('prop: tabIndex', () => {
+    it('does not apply tabIndex to the thumb element by default', async () => {
+      await render(
+        <Slider.Root defaultValue={50}>
+          <Slider.Control>
+            <Slider.Thumb data-testid="thumb" />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(screen.getByTestId('thumb')).not.toHaveAttribute('tabindex');
+      expect(screen.getByRole('slider')).toHaveProperty('tabIndex', 0);
+    });
+
     it('can be removed from the tab sequence', async () => {
       const { user } = await render(
         <Slider.Root defaultValue={50}>
@@ -869,6 +1003,28 @@ describe('<Slider.Thumb />', () => {
       );
 
       expect(getComputedStyle(screen.getByTestId('thumb')).getPropertyValue('left')).toBe('30px');
+    });
+
+    it('renders the inline pre-hydration script for edge-aligned thumbs', async () => {
+      await renderToString(
+        <Slider.Root
+          defaultValue={30}
+          thumbAlignment="edge"
+          style={{
+            width: '100px',
+          }}
+        >
+          <Slider.Value />
+          <Slider.Control>
+            <Slider.Track>
+              <Slider.Indicator />
+              <Slider.Thumb data-testid="thumb" />
+            </Slider.Track>
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      expect(document.querySelector('script')).not.toBe(null);
     });
 
     it('multiple thumbs', async () => {

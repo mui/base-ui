@@ -3,14 +3,14 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
 
@@ -29,7 +29,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   componentProps: PreviewCardPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { className, render, style, ...elementProps } = componentProps;
 
   const store = usePreviewCardRootContext();
   const { side, align } = usePreviewCardPositionerContext();

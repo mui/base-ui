@@ -39,7 +39,9 @@ export default function ExampleVirtualizedAutocomplete() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
           <Autocomplete.Popup className={styles.Popup}>
-            <Autocomplete.Empty className={styles.Empty}>No items found.</Autocomplete.Empty>
+            <Autocomplete.Empty>
+              <div className={styles.Empty}>No items found.</div>
+            </Autocomplete.Empty>
             <Autocomplete.List className={styles.List}>
               <VirtualizedList virtualizerRef={virtualizerRef} />
             </Autocomplete.List>
@@ -64,10 +66,10 @@ function VirtualizedList({
     getScrollElement: () => scrollElementRef.current,
     estimateSize: () => 32,
     overscan: 20,
-    paddingStart: 8,
-    paddingEnd: 8,
-    scrollPaddingEnd: 8,
-    scrollPaddingStart: 8,
+    paddingStart: 4,
+    paddingEnd: 4,
+    scrollPaddingEnd: 4,
+    scrollPaddingStart: 4,
   });
 
   React.useImperativeHandle(virtualizerRef, () => virtualizer);

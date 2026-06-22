@@ -39,25 +39,29 @@ export function InstallationBlock(props: InstallationBlockProps) {
     >
       <CodeBlock.Root>
         <CodeBlock.Panel title="Installation command">
-          <Tabs.List className="InstallationBlockTabsList" aria-label="Package manager">
+          <Tabs.List
+            className="InstallationBlockTabsList"
+            aria-label="Package manager"
+            activateOnFocus
+          >
             {INSTALLATION_PACKAGE_MANAGERS.map((pm) => (
               <Tabs.Tab key={pm.value} value={pm.value} className="InstallationBlockTab">
-                <span className="InstallationBlockTabLabel" data-text={pm.label}>
-                  {pm.label}
-                </span>
+                <span>{pm.label}</span>
               </Tabs.Tab>
             ))}
           </Tabs.List>
         </CodeBlock.Panel>
 
         {INSTALLATION_PACKAGE_MANAGERS.map((pm) => (
-          <Tabs.Panel key={pm.value} value={pm.value}>
-            <CodeBlock.Pre data-language="bash">
-              <Code data-language="bash">
-                <span data-line>
-                  <span className="pl-en">{pm.value}</span>{' '}
-                  <span className="pl-smi">{pm.command}</span>{' '}
-                  <span className="pl-s">{props.package}</span>
+          <Tabs.Panel key={pm.value} value={pm.value} className="InstallationBlockTabPanel">
+            <CodeBlock.Pre>
+              <Code className="language-bash">
+                <span className="frame">
+                  <span className="line">
+                    <span className="pl-en">{pm.value}</span>{' '}
+                    <span className="pl-smi">{pm.command}</span>{' '}
+                    <span className="pl-s">{props.package}</span>
+                  </span>
                 </span>
               </Code>
             </CodeBlock.Pre>

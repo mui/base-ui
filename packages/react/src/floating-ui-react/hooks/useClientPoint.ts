@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
-import { getWindow } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { contains, getTarget, isMouseLikePointerType } from '../utils';
-
+import { getWindow } from '@floating-ui/utils/dom';
 import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import { contains, getTarget } from '../utils/element';
+import { isMouseLikePointerType } from '../utils/event';
 
 function createVirtualElement(
   domElement: Element | null | undefined,
@@ -109,20 +110,25 @@ export function useClientPoint(
   context: FloatingRootContext | FloatingContext,
   props: UseClientPointProps = {},
 ): ElementProps {
+  const { enabled = true, axis = 'both' } = props;
+
   const store = 'rootStore' in context ? context.rootStore : context;
 
   const open = store.useState('open');
   const floating = store.useState('floatingElement');
   const domReference = store.useState('domReferenceElement');
-  const dataRef = store.context.dataRef;
 
-  const { enabled = true, axis = 'both' } = props;
+  const dataRef = store.context.dataRef;
 
   const initialRef = React.useRef(false);
   const cleanupListenerRef = React.useRef<null | (() => void)>(null);
 
   const [pointerType, setPointerType] = React.useState<string | undefined>();
   const [reactive, setReactive] = React.useState([]);
+
+  const resetReference = useStableCallback((reference: Element | null) => {
+    store.set('positionReference', reference);
+  });
 
   const setReference = useStableCallback(
     (newX: number | null, newY: number | null, referenceElement?: Element | null) => {
@@ -157,6 +163,7 @@ export function useClientPoint(
       // If there's no cleanup, there's no listener, but we want to ensure
       // we add the listener if the cursor landed on the floating element and
       // then back on the reference (i.e. it's interactive).
+      setReference(event.clientX, event.clientY, event.currentTarget as Element);
       setReactive([]);
     }
   });
@@ -167,9 +174,19 @@ export function useClientPoint(
   // the dismissal touch point.
   const openCheck = isMouseLikePointerType(pointerType) ? floating : open;
 
-  const addListener = React.useCallback(() => {
-    if (!openCheck || !enabled) {
+  React.useEffect(() => {
+    if (!enabled) {
+      resetReference(domReference);
       return undefined;
+    }
+
+    if (!openCheck) {
+      return undefined;
+    }
+
+    function cleanupListener() {
+      cleanupListenerRef.current?.();
+      cleanupListenerRef.current = null;
     }
 
     const win = getWindow(floating);
@@ -180,28 +197,36 @@ export function useClientPoint(
       if (!contains(floating, target)) {
         setReference(event.clientX, event.clientY);
       } else {
-        win.removeEventListener('mousemove', handleMouseMove);
-        cleanupListenerRef.current = null;
+        cleanupListener();
       }
     }
 
     if (!dataRef.current.openEvent || isMouseBasedEvent(dataRef.current.openEvent)) {
-      win.addEventListener('mousemove', handleMouseMove);
-      const cleanup = () => {
-        win.removeEventListener('mousemove', handleMouseMove);
-        cleanupListenerRef.current = null;
-      };
-      cleanupListenerRef.current = cleanup;
-      return cleanup;
+      cleanupListenerRef.current = addEventListener(win, 'mousemove', handleMouseMove);
+    } else {
+      resetReference(domReference);
     }
 
-    store.set('positionReference', domReference);
-    return undefined;
-  }, [openCheck, enabled, floating, dataRef, domReference, store, setReference]);
+    return cleanupListener;
+  }, [
+    openCheck,
+    enabled,
+    floating,
+    dataRef,
+    domReference,
+    store,
+    setReference,
+    resetReference,
+    reactive,
+  ]);
 
-  React.useEffect(() => {
-    return addListener();
-  }, [addListener, reactive]);
+  // Clear virtual cursor references when the hook unmounts. Enabled flips are handled above.
+  React.useEffect(
+    () => () => {
+      store.set('positionReference', null);
+    },
+    [store],
+  );
 
   React.useEffect(() => {
     if (enabled && !floating) {

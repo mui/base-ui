@@ -1,10 +1,10 @@
 import { Store, createSelector } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { TransitionStatus } from '../utils/useTransitionStatus';
-import type { HTMLProps } from '../utils/types';
+import type { TransitionStatus } from '../internals/useTransitionStatus';
+import type { HTMLProps } from '../internals/types';
 import type { Side } from '../utils/useAnchorPositioning';
-import { compareItemEquality } from '../utils/itemEquality';
-import { hasNullItemLabel } from '../utils/resolveValueLabel';
+import { compareItemEquality } from '../internals/itemEquality';
+import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
@@ -32,9 +32,11 @@ export type State = {
   popupProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
+  itemProps: HTMLProps;
 
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
+  popupId: string | undefined;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
   inputGroupElement: HTMLDivElement | null;
@@ -43,6 +45,7 @@ export type State = {
   openMethod: InteractionType | null;
 
   inputInsidePopup: boolean;
+  inputOwnsFormValue: boolean;
 
   selectionMode: 'single' | 'multiple' | 'none';
 
@@ -71,9 +74,6 @@ export type State = {
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
-  getItemProps: (
-    props?: HTMLProps & { active?: boolean | undefined; selected?: boolean | undefined },
-  ) => Record<string, unknown>;
   requestSubmit: () => void;
 
   name: string | undefined;
@@ -99,8 +99,6 @@ export type ComboboxStore = Store<State>;
 export const selectors = {
   id: createSelector((state: State) => state.id),
   labelId: createSelector((state: State) => state.labelId),
-
-  query: createSelector((state: State) => state.query),
 
   items: createSelector((state: State) => state.items),
 
@@ -150,10 +148,11 @@ export const selectors = {
   popupProps: createSelector((state: State) => state.popupProps),
   inputProps: createSelector((state: State) => state.inputProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
-  getItemProps: createSelector((state: State) => state.getItemProps),
+  itemProps: createSelector((state: State) => state.itemProps),
 
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
+  popupId: createSelector((state: State) => state.popupId),
   triggerElement: createSelector((state: State) => state.triggerElement),
   inputElement: createSelector((state: State) => state.inputElement),
   inputGroupElement: createSelector((state: State) => state.inputGroupElement),
@@ -162,18 +161,9 @@ export const selectors = {
   openMethod: createSelector((state: State) => state.openMethod),
 
   inputInsidePopup: createSelector((state: State) => state.inputInsidePopup),
+  inputOwnsFormValue: createSelector((state: State) => state.inputOwnsFormValue),
 
   selectionMode: createSelector((state: State) => state.selectionMode),
-  listRef: createSelector((state: State) => state.listRef),
-  labelsRef: createSelector((state: State) => state.labelsRef),
-  popupRef: createSelector((state: State) => state.popupRef),
-  emptyRef: createSelector((state: State) => state.emptyRef),
-  inputRef: createSelector((state: State) => state.inputRef),
-  keyboardActiveRef: createSelector((state: State) => state.keyboardActiveRef),
-  chipsContainerRef: createSelector((state: State) => state.chipsContainerRef),
-  clearRef: createSelector((state: State) => state.clearRef),
-  valuesRef: createSelector((state: State) => state.valuesRef),
-  allValuesRef: createSelector((state: State) => state.allValuesRef),
 
   name: createSelector((state: State) => state.name),
   form: createSelector((state: State) => state.form),
@@ -181,10 +171,7 @@ export const selectors = {
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),
   grid: createSelector((state: State) => state.grid),
-  isGrouped: createSelector((state: State) => state.isGrouped),
   virtualized: createSelector((state: State) => state.virtualized),
-  onOpenChangeComplete: createSelector((state: State) => state.onOpenChangeComplete),
-  openOnInputClick: createSelector((state: State) => state.openOnInputClick),
   itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),

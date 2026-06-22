@@ -9,14 +9,12 @@ import type {
   Sitemap,
 } from '@mui/internal-docs-infra/useSearch/types';
 import { Autocomplete } from '@base-ui/react/autocomplete';
-import { Button } from '@base-ui/react/button';
 import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { isMac } from '@base-ui/utils/detectBrowser';
-import { CornerDownLeft, Search } from 'lucide-react';
+import { CornerDownLeft } from 'lucide-react';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
+import { MagnifyingGlassIcon } from 'docs/src/icons/MagnifyingGlassIcon';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
-import './SearchBar.css';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
 
@@ -58,7 +56,6 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
           {i !== arr.length - 1 && (
             <svg
               className="SearchBreadcrumbSeparator"
-              xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
               fill="none"
@@ -82,19 +79,21 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
 });
 
 const EmptyState = React.memo(function EmptyState() {
-  return <div className="SearchEmptyState">No results found.</div>;
+  return <Autocomplete.Status className="SearchEmptyState">No results found.</Autocomplete.Status>;
 });
 
-export function SearchBar({
-  sitemap: sitemapImport,
-  enableKeyboardShortcut = false,
-  containedScroll = false,
-}: {
+export interface SearchBarProps {
+  handle: Dialog.Handle<unknown>;
   sitemap: () => Promise<{ sitemap?: Sitemap }>;
-  enableKeyboardShortcut?: boolean;
   containedScroll?: boolean;
-}) {
-  const [dialogOpen, setDialogOpen] = React.useState(false);
+}
+
+export function SearchBar({
+  handle,
+  sitemap: sitemapImport,
+  containedScroll = false,
+}: SearchBarProps) {
+  const [dialogOpen, setDialogOpen] = React.useState(handle.isOpen);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
   const ga = useGoogleAnalytics();
@@ -218,28 +217,6 @@ export function SearchBar({
     [handleCloseDialog],
   );
 
-  React.useEffect(() => {
-    // Only enable keyboard shortcut if explicitly requested (for desktop version)
-    if (!enableKeyboardShortcut) {
-      return undefined;
-    }
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
-        event.preventDefault();
-        event.stopPropagation();
-
-        // Only open if not already open or in the process of opening/closing
-        if (!dialogOpen) {
-          handleOpenDialog();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [handleOpenDialog, enableKeyboardShortcut, dialogOpen]);
-
   const handleValueChange = React.useCallback(
     async (value: string) => {
       // Cancel any pending debounced query event
@@ -312,17 +289,11 @@ export function SearchBar({
     [buildResultUrl],
   );
 
-  const showCmdSymbol = React.useSyncExternalStore(
-    () => () => {},
-    () => enableKeyboardShortcut && isMac,
-    () => true, // Show Cmd symbol on server-side render
-  );
-
   // Memoized search input component
   const searchInput = React.useMemo(
     () => (
       <div className="SearchInputRoot">
-        <Search className="SearchInputIcon" />
+        <MagnifyingGlassIcon className="SearchInputIcon" />
         <Autocomplete.Input
           id="search-input"
           ref={inputRef}
@@ -370,124 +341,110 @@ export function SearchBar({
   );
 
   return (
-    <React.Fragment>
-      <Button onClick={handleOpenDialog} aria-label="Search" className={`SearchTrigger`}>
-        <Search className="SearchTriggerIcon" />
-        <div className="SearchTriggerKbd">
-          {showCmdSymbol ? (
-            <kbd className="SearchTriggerCmd">⌘</kbd>
-          ) : (
-            <React.Fragment>
-              <kbd className="SearchTriggerCtrl">Ctrl</kbd>
-              <span className="SearchTriggerPlus">+</span>
-            </React.Fragment>
-          )}
-          <kbd className="SearchTriggerK">K</kbd>
-        </div>
-      </Button>
-      <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
-        <Dialog.Portal>
-          <Dialog.Backdrop className="SearchBackdrop" />
-          {containedScroll ? (
-            <Dialog.Viewport className="SearchViewportContained">
-              <Dialog.Popup
-                ref={popupRef}
-                initialFocus={inputRef}
-                data-open={dialogOpen}
-                className="SearchPopupContained"
+    <Dialog.Root handle={handle} open={dialogOpen} onOpenChange={handleCloseDialog}>
+      <Dialog.Portal>
+        <Dialog.Backdrop className="SearchBackdrop" />
+        {containedScroll ? (
+          <Dialog.Viewport className="SearchViewportContained">
+            <Dialog.Popup
+              ref={popupRef}
+              initialFocus={inputRef}
+              data-open={dialogOpen}
+              className="SearchPopupContained"
+            >
+              <Autocomplete.Root
+                items={searchResults.results}
+                onValueChange={handleValueChange}
+                onOpenChange={handleAutocompleteEscape}
+                onItemHighlighted={handleItemHighlighted}
+                open
+                inline
+                itemToStringValue={itemToStringValue}
+                filter={null}
+                autoHighlight="always"
+                keepHighlight
               >
-                <Autocomplete.Root
-                  items={searchResults.results}
-                  onValueChange={handleValueChange}
-                  onOpenChange={handleAutocompleteEscape}
-                  onItemHighlighted={handleItemHighlighted}
-                  open
-                  inline
-                  itemToStringValue={itemToStringValue}
-                  filter={null}
-                  autoHighlight="always"
-                  keepHighlight
-                >
-                  <div className="SearchHeadContained">{searchInput}</div>
-                  <div className="SearchBody">
-                    <ScrollArea.Root className="SearchScrollAreaRoot">
-                      <ScrollArea.Viewport className="SearchScrollAreaViewport">
-                        <ScrollArea.Content style={{ minWidth: '100%' }}>
-                          {searchResults.results.length === 0 ? (
-                            <EmptyState />
-                          ) : (
-                            <Autocomplete.List
-                              className="SearchList"
-                              onKeyDownCapture={handleKeyDownCapture}
-                            >
-                              {renderResultsList}
-                            </Autocomplete.List>
-                          )}
-                        </ScrollArea.Content>
-                      </ScrollArea.Viewport>
-                      <ScrollArea.Scrollbar className="SearchScrollbar ">
-                        <ScrollArea.Thumb className="SearchScrollbarThumb" />
-                      </ScrollArea.Scrollbar>
-                    </ScrollArea.Root>
+                <div className="SearchHeadContained">{searchInput}</div>
+                <div className="SearchBody">
+                  <ScrollArea.Root className="SearchScrollAreaRoot">
+                    <ScrollArea.Viewport className="SearchScrollAreaViewport">
+                      <ScrollArea.Content style={{ minWidth: '100%' }}>
+                        {searchResults.results.length === 0 ? (
+                          <EmptyState />
+                        ) : (
+                          <Autocomplete.List
+                            className="SearchList"
+                            onKeyDownCapture={handleKeyDownCapture}
+                          >
+                            {renderResultsList}
+                          </Autocomplete.List>
+                        )}
+                      </ScrollArea.Content>
+                    </ScrollArea.Viewport>
+                    <ScrollArea.Scrollbar className="SearchScrollbar ">
+                      <ScrollArea.Thumb className="SearchScrollbarThumb" />
+                    </ScrollArea.Scrollbar>
+                  </ScrollArea.Root>
+                </div>
+                <div className="SearchFooter">
+                  <div className="SearchFooterHint">
+                    <kbd aria-label="Enter" className="SearchFooterEnter">
+                      <CornerDownLeft size={12} />
+                    </kbd>
+                    <span>Go to page</span>
                   </div>
-                  <div className="SearchFooter">
-                    <div className="SearchFooterHint">
-                      <kbd aria-label="Enter" className="SearchFooterEnter">
-                        <CornerDownLeft size={12} />
-                      </kbd>
-                      <span>Go to page</span>
-                    </div>
-                  </div>
-                </Autocomplete.Root>
-              </Dialog.Popup>
-            </Dialog.Viewport>
-          ) : (
-            <Dialog.Viewport className="SearchViewportDefault">
-              <ScrollArea.Root style={{ position: undefined }} className="SearchRootScrollable">
-                <ScrollArea.Viewport className="SearchRootScrollable">
-                  <ScrollArea.Content className="SearchContentWrap">
-                    <Dialog.Popup
-                      ref={popupRef}
-                      initialFocus={inputRef}
-                      data-open={dialogOpen}
-                      className="SearchPopupDefault"
+                </div>
+              </Autocomplete.Root>
+              <Dialog.Close className="SearchClose">Close</Dialog.Close>
+            </Dialog.Popup>
+          </Dialog.Viewport>
+        ) : (
+          <Dialog.Viewport className="SearchViewportDefault">
+            <ScrollArea.Root style={{ position: undefined }} className="SearchRootScrollable">
+              <ScrollArea.Viewport className="SearchRootScrollable">
+                <ScrollArea.Content className="SearchContentWrap">
+                  <Dialog.Popup
+                    ref={popupRef}
+                    initialFocus={inputRef}
+                    data-open={dialogOpen}
+                    className="SearchPopupDefault"
+                  >
+                    <Autocomplete.Root
+                      items={searchResults.results}
+                      onValueChange={handleValueChange}
+                      onOpenChange={handleAutocompleteEscape}
+                      onItemHighlighted={handleItemHighlighted}
+                      open
+                      inline
+                      itemToStringValue={itemToStringValue}
+                      filter={null}
+                      autoHighlight
                     >
-                      <Autocomplete.Root
-                        items={searchResults.results}
-                        onValueChange={handleValueChange}
-                        onOpenChange={handleAutocompleteEscape}
-                        onItemHighlighted={handleItemHighlighted}
-                        open
-                        inline
-                        itemToStringValue={itemToStringValue}
-                        filter={null}
-                        autoHighlight
-                      >
-                        <div className="SearchHeadDefault">{searchInput}</div>
-                        <div>
-                          {searchResults.results.length === 0 ? (
-                            <EmptyState />
-                          ) : (
-                            <Autocomplete.List
-                              className="SearchListDefault"
-                              onKeyDownCapture={handleKeyDownCapture}
-                            >
-                              {renderResultsList}
-                            </Autocomplete.List>
-                          )}
-                        </div>
-                      </Autocomplete.Root>
-                    </Dialog.Popup>
-                  </ScrollArea.Content>
-                </ScrollArea.Viewport>
-                <ScrollArea.Scrollbar className="SearchScrollbar ">
-                  <ScrollArea.Thumb className="SearchScrollbarThumb" />
-                </ScrollArea.Scrollbar>
-              </ScrollArea.Root>
-            </Dialog.Viewport>
-          )}
-        </Dialog.Portal>
-      </Dialog.Root>
-    </React.Fragment>
+                      <div className="SearchHeadDefault">{searchInput}</div>
+                      <div>
+                        {searchResults.results.length === 0 ? (
+                          <EmptyState />
+                        ) : (
+                          <Autocomplete.List
+                            className="SearchListDefault"
+                            onKeyDownCapture={handleKeyDownCapture}
+                          >
+                            {renderResultsList}
+                          </Autocomplete.List>
+                        )}
+                      </div>
+                    </Autocomplete.Root>
+                    <Dialog.Close className="SearchClose">Close</Dialog.Close>
+                  </Dialog.Popup>
+                </ScrollArea.Content>
+              </ScrollArea.Viewport>
+              <ScrollArea.Scrollbar className="SearchScrollbar ">
+                <ScrollArea.Thumb className="SearchScrollbarThumb" />
+              </ScrollArea.Scrollbar>
+            </ScrollArea.Root>
+          </Dialog.Viewport>
+        )}
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

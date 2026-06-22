@@ -3,11 +3,11 @@ import { Toolbar } from '@base-ui/react/toolbar';
 import { NumberField } from '@base-ui/react/number-field';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
-import { type Orientation } from '../../utils/types';
-import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
-import { ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../../composite/composite';
+import { type Orientation } from '../../internals/types';
+import { CompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
+import { ARROW_UP, ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT } from '../../internals/composite/composite';
 
 const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
@@ -95,6 +95,69 @@ describe('<Toolbar.Input />', () => {
 
         expect(button1).toHaveFocus();
       });
+    });
+  });
+
+  describe.skipIf(isJSDOM)('disabled', () => {
+    it('does not trap keyboard focus when disabled', async () => {
+      const { user } = await render(
+        <div>
+          <Toolbar.Root>
+            <Toolbar.Button data-testid="button" />
+            <Toolbar.Input defaultValue="abcd" disabled />
+          </Toolbar.Root>
+          <button type="button" data-testid="after">
+            after
+          </button>
+        </div>,
+      );
+
+      const button = screen.getByTestId('button');
+      const input = screen.getByRole('textbox');
+      const after = screen.getByTestId('after');
+
+      await user.keyboard('[Tab]');
+      expect(button).toHaveFocus();
+
+      await user.keyboard(`[${ARROW_RIGHT}]`);
+      expect(input).toHaveFocus();
+
+      // Tab must leave the toolbar instead of being trapped on the disabled input
+      await user.keyboard('[Tab]');
+      expect(after).toHaveFocus();
+
+      await user.keyboard('[ShiftLeft>][Tab][/ShiftLeft]');
+      expect(input).toHaveFocus();
+    });
+
+    it('does not block vertical roving focus when disabled', async () => {
+      const { user } = await render(
+        <Toolbar.Root orientation="vertical">
+          <Toolbar.Button data-testid="button1" />
+          <Toolbar.Input defaultValue="abcd" disabled />
+          <Toolbar.Button data-testid="button2" />
+        </Toolbar.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+      const button1 = screen.getByTestId('button1');
+      const button2 = screen.getByTestId('button2');
+
+      await user.keyboard('[Tab]');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard(`[${ARROW_DOWN}]`);
+      expect(input).toHaveFocus();
+
+      // ArrowDown must move roving focus past the disabled input
+      await user.keyboard(`[${ARROW_DOWN}]`);
+      expect(button2).toHaveFocus();
+
+      await user.keyboard(`[${ARROW_UP}]`);
+      expect(input).toHaveFocus();
+
+      await user.keyboard(`[${ARROW_UP}]`);
+      expect(button1).toHaveFocus();
     });
   });
 

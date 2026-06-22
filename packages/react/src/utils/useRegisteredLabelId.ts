@@ -1,6 +1,6 @@
 'use client';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useBaseUiId } from './useBaseUiId';
+import { useBaseUiId } from '../internals/useBaseUiId';
 
 export function useRegisteredLabelId(
   idProp: string | undefined,

@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { type StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 const stateAttributesMapping: StateAttributesMapping<PreviewCardBackdropState> = {
   ...baseMapping,
@@ -23,7 +23,7 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
   componentProps: PreviewCardBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const store = usePreviewCardRootContext();
   const open = store.useState('open');

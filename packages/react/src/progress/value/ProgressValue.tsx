@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import type { ProgressRootState } from '../root/ProgressRoot';
 import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -15,7 +15,7 @@ export const ProgressValue = React.forwardRef(function ProgressValue(
   componentProps: ProgressValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { className, render, children, style, ...elementProps } = componentProps;
 
   const { value, formattedValue, state } = useProgressRootContext();
 

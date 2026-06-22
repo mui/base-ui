@@ -376,6 +376,146 @@ describe('useSwipeDismiss', () => {
     expect(element.style.getPropertyValue('--y')).not.toBe('0px');
   });
 
+  it('preserves inline transform and transition when resetting drag styles', async () => {
+    function SwipeBoxWithInlineStyles() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+      });
+
+      return (
+        <React.Fragment>
+          <button type="button" onClick={swipe.reset}>
+            Reset
+          </button>
+          <div
+            data-testid="styled"
+            ref={ref}
+            style={{
+              ...swipe.getDragStyles(),
+              transform: 'scale(0.9)',
+              transition: 'opacity 200ms ease',
+            }}
+            {...swipe.getPointerProps()}
+          />
+        </React.Fragment>
+      );
+    }
+
+    await render(<SwipeBoxWithInlineStyles />);
+    const element = screen.getByTestId('styled');
+    const initialTransform = element.style.transform;
+    const initialTransition = element.style.transition;
+
+    async function moveTo(clientY: number, movementY: number) {
+      fireEvent.pointerMove(element, {
+        pointerId: 1,
+        buttons: 1,
+        clientX: 0,
+        clientY,
+        bubbles: true,
+        pointerType: 'mouse',
+        movementX: 0,
+        movementY,
+      });
+
+      await flushMicrotasks();
+    }
+
+    expect(initialTransform).not.toBe('');
+    expect(initialTransition).not.toBe('');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+
+    await flushMicrotasks();
+
+    expect(element.style.transform).toBe(initialTransform);
+    expect(element.style.transition).toBe(initialTransition);
+
+    fireEvent.pointerDown(element, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    await moveTo(0, 0);
+    await moveTo(12, 12);
+    await moveTo(16, 4);
+
+    fireEvent.pointerUp(element, {
+      pointerId: 1,
+      clientX: 0,
+      clientY: 16,
+      bubbles: true,
+    });
+
+    await flushMicrotasks();
+
+    expect(element.style.transform).toBe(initialTransform);
+    expect(element.style.transition).toBe(initialTransition);
+  });
+
+  it('applies the drag transform imperatively while swiping', async () => {
+    await render(<SwipeBox />);
+    const element = screen.getByTestId('el');
+
+    fireEvent.pointerDown(element, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    // The first move only establishes the drag baseline.
+    fireEvent.pointerMove(element, {
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(element, {
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 40,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 40,
+    });
+
+    await flushMicrotasks();
+
+    expect(element.style.transition).toBe('none');
+    expect(element.style.transform).toMatch(/translate3d\(0px, ?40px, ?0(?:px)?\)/);
+    expect(element.style.getPropertyValue('--y')).toBe('40px');
+  });
+
   it('respects custom swipeThreshold', async () => {
     const onDismiss = vi.fn();
 
@@ -610,6 +750,158 @@ describe('useSwipeDismiss', () => {
 
     expect(element.style.getPropertyValue('--y')).toBe('0px');
     expect(onDismiss).not.toHaveBeenCalled();
+  });
+
+  it('commits the swipe when the primary button is released past the threshold without pointerup', async () => {
+    const onDismiss = vi.fn();
+    const onCancel = vi.fn();
+
+    function SwipeBoxFlickRelease() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onDismiss,
+        onCancel,
+      });
+
+      return (
+        <div
+          data-testid="flick-release"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    await render(<SwipeBoxFlickRelease />);
+    const element = screen.getByTestId('flick-release');
+
+    fireEvent.pointerDown(element, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    // First move establishes the start position; the second provides the displacement.
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 1,
+      clientX: 0,
+      clientY: 100,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    // On a fast trackpad flick the click releases just before pointerup, producing a trailing
+    // `buttons: 0` pointermove. It must commit the gesture (past the threshold here), not cancel it.
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 0,
+      clientX: 0,
+      clientY: 100,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+    expect(onCancel).not.toHaveBeenCalled();
+  });
+
+  it('uses the final buttons:0 release move to decide dismissal when it crosses the threshold', async () => {
+    const onDismiss = vi.fn();
+    const onCancel = vi.fn();
+
+    function SwipeBoxReleaseMove() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onDismiss,
+        onCancel,
+      });
+
+      return (
+        <div
+          data-testid="release-move"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    await render(<SwipeBoxReleaseMove />);
+    const element = screen.getByTestId('release-move');
+
+    fireEvent.pointerDown(element, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    // Last pressed move stays just BELOW the 40px threshold.
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 1,
+      clientX: 0,
+      clientY: 35,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    // The trailing `buttons: 0` release move is the one that carries the threshold-crossing
+    // displacement; it must be applied before the release is decided.
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 0,
+      clientX: 0,
+      clientY: 100,
+      bubbles: true,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+
+    expect(onDismiss).toHaveBeenCalledTimes(1);
+    expect(onCancel).not.toHaveBeenCalled();
   });
 
   it('resets swiping when touch ends over a scrollable descendant', async () => {

@@ -1,7 +1,9 @@
+import { stringifyLocale } from './stringifyLocale';
+
 export const cache = new Map<string, Intl.NumberFormat>();
 
 export function getFormatter(locale?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions) {
-  const optionsString = JSON.stringify({ locale, options });
+  const optionsString = JSON.stringify({ locale: stringifyLocale(locale), options });
   const cachedFormatter = cache.get(optionsString);
 
   if (cachedFormatter) {
@@ -23,30 +25,4 @@ export function formatNumber(
     return '';
   }
   return getFormatter(locale, options).format(value);
-}
-
-export function formatNumberMaxPrecision(
-  value: number | null,
-  locale?: Intl.LocalesArgument,
-  options?: Intl.NumberFormatOptions,
-) {
-  return formatNumber(value, locale, {
-    ...options,
-    maximumFractionDigits: 20,
-  });
-}
-
-export function formatNumberValue(
-  value: number | null,
-  locale?: Intl.LocalesArgument,
-  format?: Intl.NumberFormatOptions,
-): string {
-  if (value == null) {
-    return '';
-  }
-  if (!format) {
-    return formatNumber(value / 100, locale, { style: 'percent' });
-  }
-
-  return formatNumber(value, locale, format);
 }

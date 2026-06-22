@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   createGenericEventDetails,
   type BaseUIGenericEventDetails,
-} from '../utils/createBaseUIEventDetails';
-import { REASONS } from '../utils/reasons';
-import type { BaseUIComponentProps } from '../utils/types';
-import { FormContext } from './FormContext';
-import { useRenderElement } from '../utils/useRenderElement';
-import { EMPTY_OBJECT } from '../utils/constants';
-import { useValueChanged } from '../utils/useValueChanged';
+} from '../internals/createBaseUIEventDetails';
+import { REASONS } from '../internals/reasons';
+import type { BaseUIComponentProps } from '../internals/types';
+import { FormContext } from '../internals/form-context/FormContext';
+import { useRenderElement } from '../internals/useRenderElement';
+import { useValueChanged } from '../internals/useValueChanged';
 
 /**
  * A native form element with consolidated error handling.
@@ -29,6 +29,7 @@ export const Form = React.forwardRef(function Form<
     onSubmit,
     onFormSubmit,
     actionsRef,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -76,11 +77,11 @@ export const Form = React.forwardRef(function Form<
     if (fieldName) {
       const namedField = values.find((field) => field.name === fieldName);
       if (namedField) {
-        namedField.validate(false);
+        namedField.validate();
       }
     } else {
       values.forEach((field) => {
-        field.validate(false);
+        field.validate();
       });
     }
   }, []);
@@ -106,11 +107,11 @@ export const Form = React.forwardRef(function Form<
 
           values = Array.from(formRef.current.fields.values());
 
-          const invalidFields = values.filter((field) => !field.validityData.state.valid);
+          const invalidField = values.find((field) => field.validityData.state.valid === false);
 
-          if (invalidFields.length) {
+          if (invalidField) {
             event.preventDefault();
-            focusControl(invalidFields[0].controlRef.current);
+            focusControl(invalidField.controlRef.current);
           } else {
             submittedRef.current = true;
             onSubmit?.(event as any);
@@ -206,10 +207,10 @@ export interface FormProps<
    * @example
    * ```tsx
    * // validate all fields
-   * actionsRef.current.validate();
+   * actionsRef.current?.validate();
    *
    * // validate one field
-   * actionsRef.current.validate('email');
+   * actionsRef.current?.validate('email');
    * ```
    */
   actionsRef?: React.RefObject<Form.Actions | null> | undefined;

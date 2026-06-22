@@ -1,5 +1,7 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance } from '#test-utils';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 
@@ -310,6 +312,90 @@ describe('<Combobox.Chip />', () => {
         chipApple.focus();
       });
       await user.keyboard('{ArrowLeft}');
+      expect(input).toHaveFocus();
+    });
+
+    it('mirrors chip keyboard navigation in RTL mode', async () => {
+      const { user } = await render(
+        <DirectionProvider direction="rtl">
+          <Combobox.Root multiple defaultValue={['apple', 'banana']}>
+            <Combobox.Chips>
+              <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
+              <Combobox.Chip data-testid="chip-banana">banana</Combobox.Chip>
+              <Combobox.Input data-testid="input" />
+            </Combobox.Chips>
+          </Combobox.Root>
+        </DirectionProvider>,
+      );
+
+      const chipApple = screen.getByTestId('chip-apple');
+      const chipBanana = screen.getByTestId('chip-banana');
+      const input = screen.getByTestId<HTMLInputElement>('input');
+
+      await act(async () => {
+        input.focus();
+        input.setSelectionRange(0, 0);
+      });
+
+      await user.keyboard('{ArrowRight}');
+      expect(chipBanana).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+      expect(chipApple).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+      expect(input).toHaveFocus();
+
+      await act(async () => {
+        chipApple.focus();
+      });
+
+      await user.keyboard('{ArrowLeft}');
+      expect(chipBanana).toHaveFocus();
+
+      await user.keyboard('{ArrowLeft}');
+      expect(input).toHaveFocus();
+    });
+
+    it('should navigate through only rendered chips', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultValue={['apple', 'banana', 'cherry']}>
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: string[]) => (
+                <React.Fragment>
+                  {value.slice(0, 2).map((item) => (
+                    <Combobox.Chip key={item} data-testid={`chip-${item}`}>
+                      {item}
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const chipBanana = screen.getByTestId('chip-banana');
+      const input = screen.getByTestId<HTMLInputElement>('input');
+
+      await act(async () => {
+        input.focus();
+        input.setSelectionRange(0, 0);
+      });
+
+      await user.keyboard('{ArrowLeft}');
+      expect(chipBanana).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+      expect(input).toHaveFocus();
+
+      await act(async () => {
+        chipBanana.focus();
+      });
+
+      await user.keyboard('{ArrowRight}');
       expect(input).toHaveFocus();
     });
 

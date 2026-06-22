@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import {
   FloatingNode,
   FloatingTree,
@@ -8,13 +7,12 @@ import {
   useFloatingTree,
 } from '../floating-ui-react';
 import { type MenuRoot } from '../menu/root/MenuRoot';
-import { BaseUIComponentProps } from '../utils/types';
+import { BaseUIComponentProps } from '../internals/types';
 import { MenubarContext, useMenubarContext } from './MenubarContext';
-import { useOpenInteractionType } from '../utils/useOpenInteractionType';
-import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useBaseUiId } from '../utils/useBaseUiId';
+import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
+import { useBaseUiId } from '../internals/useBaseUiId';
 import { MenuOpenEventDetails } from '../menu/utils/types';
-import { StateAttributesMapping } from '../utils/getStateAttributesProps';
+import { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { MenubarDataAttributes } from './MenubarDataAttributes';
 
 const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {
@@ -40,15 +38,12 @@ export const Menubar = React.forwardRef(function Menubar(
     modal = true,
     disabled = false,
     id: idProp,
+    style,
     ...elementProps
   } = props;
 
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
   const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
-
-  const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(hasSubmenuOpen);
-
-  useScrollLock(modal && hasSubmenuOpen && openMethod !== 'touch', contentElement);
 
   const id = useBaseUiId(idProp);
 
@@ -83,12 +78,14 @@ export const Menubar = React.forwardRef(function Menubar(
           <CompositeRoot
             render={render}
             className={className}
+            style={style}
             state={state}
             stateAttributesMapping={menubarStateAttributesMapping}
             refs={[forwardedRef, setContentElement, contentRef]}
-            props={[{ role: 'menubar', id }, interactionTypeProps, elementProps]}
+            props={[{ role: 'menubar', id, 'aria-orientation': orientation }, elementProps]}
             orientation={orientation}
             loopFocus={loopFocus}
+            enableHomeAndEndKeys
             highlightItemOnHover={hasSubmenuOpen}
           />
         </MenubarContent>

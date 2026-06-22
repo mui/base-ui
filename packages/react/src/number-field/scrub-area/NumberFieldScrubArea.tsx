@@ -1,22 +1,29 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerWindow, ownerDocument } from '@base-ui/utils/owner';
-import { isFirefox, isWebKit } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRootState } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { NumberFieldScrubAreaContext } from './NumberFieldScrubAreaContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { getViewportRect } from '../utils/getViewportRect';
 import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewportResize';
-import { DEFAULT_STEP } from '../utils/constants';
-import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { getTarget } from '../../floating-ui-react/utils';
+
+const SCRUB_AREA_STYLE: React.CSSProperties = {
+  touchAction: 'none',
+  WebkitUserSelect: 'none',
+  userSelect: 'none',
+};
 
 /**
  * An interactive area where the user can click and drag to change the field value.
@@ -34,6 +41,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     direction = 'horizontal',
     pixelSensitivity = 2,
     teleportDistance,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -44,6 +52,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     readOnly,
     inputRef,
     incrementValue,
+    allowInputSyncRef,
     getStepAmount,
     onValueCommitted,
     lastChangedValueRef,
@@ -98,16 +107,16 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     const cursorWidth = virtualCursor.offsetWidth;
     const cursorHeight = virtualCursor.offsetHeight;
 
-    if (newCoords.x + cursorWidth / 2 < rect.x) {
-      newCoords.x = rect.width - cursorWidth / 2;
-    } else if (newCoords.x + cursorWidth / 2 > rect.width) {
-      newCoords.x = rect.x - cursorWidth / 2;
+    if (newCoords.x + cursorWidth / 2 < rect.left) {
+      newCoords.x = rect.right - cursorWidth / 2;
+    } else if (newCoords.x + cursorWidth / 2 > rect.right) {
+      newCoords.x = rect.left - cursorWidth / 2;
     }
 
-    if (newCoords.y + cursorHeight / 2 < rect.y) {
-      newCoords.y = rect.height - cursorHeight / 2;
-    } else if (newCoords.y + cursorHeight / 2 > rect.height) {
-      newCoords.y = rect.y - cursorHeight / 2;
+    if (newCoords.y + cursorHeight / 2 < rect.top) {
+      newCoords.y = rect.bottom - cursorHeight / 2;
+    } else if (newCoords.y + cursorHeight / 2 > rect.bottom) {
+      newCoords.y = rect.top - cursorHeight / 2;
     }
 
     virtualCursorCoords.current = newCoords;
@@ -163,9 +172,14 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
             // Manually dispatch a click event if no movement happened, since
             // preventDefault on pointerdown prevents the browser click event.
-            if (!didMoveRef.current && pointerDownTargetRef.current != null) {
-              pointerDownTargetRef.current.dispatchEvent(
-                new MouseEvent('click', { bubbles: true, cancelable: true }),
+            const pointerDownTarget = pointerDownTargetRef.current;
+            const input = inputRef.current;
+            if (!didMoveRef.current && pointerDownTarget != null && input) {
+              pointerDownTarget.dispatchEvent(
+                new (ownerWindow(input).MouseEvent)('click', {
+                  bubbles: true,
+                  cancelable: true,
+                }),
               );
             }
 
@@ -174,7 +188,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
           }
         }
 
-        if (isFirefox) {
+        if (platform.engine.gecko) {
           // Firefox needs a small delay here when soft-clicking as the pointer
           // lock will not release otherwise.
           exitPointerLockTimeout.start(20, handler);
@@ -201,10 +215,11 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
           cumulativeDelta = 0;
           didMoveRef.current = true;
           const dValue = direction === 'vertical' ? -movementY : movementX;
-          const stepAmount = getStepAmount(event) ?? DEFAULT_STEP;
+          const stepAmount = getStepAmount(event);
           const rawAmount = dValue * stepAmount;
 
           if (rawAmount !== 0) {
+            allowInputSyncRef.current = true;
             incrementValue(Math.abs(rawAmount), {
               direction: rawAmount >= 0 ? 1 : -1,
               event,
@@ -215,18 +230,20 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       }
 
       const win = ownerWindow(inputRef.current);
-      win.addEventListener('pointerup', handleScrubPointerUp, true);
-      win.addEventListener('pointermove', handleScrubPointerMove, true);
+      const unsubscribe = mergeCleanups(
+        addEventListener(win, 'pointerup', handleScrubPointerUp, true),
+        addEventListener(win, 'pointermove', handleScrubPointerMove, true),
+      );
 
       return () => {
         exitPointerLockTimeout.clear();
-        win.removeEventListener('pointerup', handleScrubPointerUp, true);
-        win.removeEventListener('pointermove', handleScrubPointerMove, true);
+        unsubscribe();
       };
     },
     [
       disabled,
       readOnly,
+      allowInputSyncRef,
       incrementValue,
       isScrubbing,
       getStepAmount,
@@ -240,6 +257,23 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       valueRef,
       exitPointerLockTimeout,
     ],
+  );
+
+  // If the scrub area unmounts mid-scrub, release pointer lock and clear the root's scrubbing
+  // state so it doesn't stay locked or stuck. (No commit: there's no pointer release here.)
+  React.useEffect(
+    () => () => {
+      if (isScrubbingRef.current) {
+        isScrubbingRef.current = false;
+        setRootScrubbing(false);
+        try {
+          ownerDocument(scrubAreaRef.current).exitPointerLock();
+        } catch {
+          // Ignore errors.
+        }
+      }
+    },
+    [setRootScrubbing],
   );
 
   // Prevent scrolling using touch input when scrubbing.
@@ -256,22 +290,14 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
         }
       }
 
-      element.addEventListener('touchstart', handleTouchStart);
-
-      return () => {
-        element.removeEventListener('touchstart', handleTouchStart);
-      };
+      return addEventListener(element, 'touchstart', handleTouchStart);
     },
     [disabled, readOnly],
   );
 
   const defaultProps: HTMLProps = {
     role: 'presentation',
-    style: {
-      touchAction: 'none',
-      WebkitUserSelect: 'none',
-      userSelect: 'none',
-    },
+    style: SCRUB_AREA_STYLE,
     async onPointerDown(event) {
       const isMainButton = !event.button || event.button === 0;
       if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
@@ -292,7 +318,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       onScrubbingChange(true, event.nativeEvent);
 
       // WebKit causes significant layout shift with the native message, so we can't use it.
-      if (!isTouch && !isWebKit) {
+      if (!isTouch && !platform.engine.webkit) {
         try {
           // Avoid non-deterministic errors in testing environments. This error sometimes
           // appears:
@@ -302,10 +328,11 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
         } catch (error) {
           setIsPointerLockDenied(true);
         } finally {
+          // `onScrubbingChange` already wraps its state updates in `flushSync`, so re-emit the
+          // scrubbing state directly (no extra nested `flushSync`) to reflect the resolved
+          // pointer-lock result on the cursor.
           if (isScrubbingRef.current) {
-            ReactDOM.flushSync(() => {
-              onScrubbingChange(true, event.nativeEvent);
-            });
+            onScrubbingChange(true, event.nativeEvent);
           }
         }
       }
@@ -325,12 +352,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       isTouchInput,
       isPointerLockDenied,
       scrubAreaCursorRef,
-      scrubAreaRef,
-      direction,
-      pixelSensitivity,
-      teleportDistance,
     }),
-    [isScrubbing, isTouchInput, isPointerLockDenied, direction, pixelSensitivity, teleportDistance],
+    [isScrubbing, isTouchInput, isPointerLockDenied],
   );
 
   return (

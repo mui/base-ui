@@ -2,17 +2,17 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { type FieldRootState } from '../root/FieldRoot';
-import { useFieldRootContext } from '../root/FieldRootContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { fieldValidityMapping } from '../utils/constants';
-import { useFormContext } from '../../form/FormContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import type { BaseUIComponentProps } from '../../internals/types';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
 
 const stateAttributesMapping: StateAttributesMapping<FieldErrorState> = {
   ...fieldValidityMapping,
@@ -29,7 +29,7 @@ export const FieldError = React.forwardRef(function FieldError(
   componentProps: FieldError.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, id: idProp, className, match, ...elementProps } = componentProps;
+  const { render, id: idProp, className, match, style, ...elementProps } = componentProps;
 
   const id = useBaseUiId(idProp);
 
@@ -38,15 +38,19 @@ export const FieldError = React.forwardRef(function FieldError(
 
   const { errors } = useFormContext();
 
-  const formError = name ? errors[name] : null;
+  const formError = name && Object.hasOwn(errors, name) ? errors[name] : null;
+  const hasFormError = !!(Array.isArray(formError) ? formError.length : formError);
+  const hasSpecificMatch = typeof match === 'string';
 
   let rendered = false;
-  if (formError || match === true) {
+  if (match === true) {
     rendered = true;
-  } else if (match) {
+  } else if (fieldState.disabled) {
+    rendered = false;
+  } else if (hasSpecificMatch) {
     rendered = Boolean(validityData.state[match]);
   } else {
-    rendered = validityData.state.valid === false;
+    rendered = hasFormError || validityData.state.valid === false;
   }
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
@@ -67,24 +71,28 @@ export const FieldError = React.forwardRef(function FieldError(
   const [lastRenderedMessage, setLastRenderedMessage] = React.useState<React.ReactNode>(null);
   const [lastRenderedMessageKey, setLastRenderedMessageKey] = React.useState<string | null>(null);
 
-  const errorMessage =
-    formError ||
-    (validityData.errors.length > 1 ? (
-      <ul>
-        {validityData.errors.map((message) => (
-          <li key={message}>{message}</li>
-        ))}
-      </ul>
-    ) : (
-      validityData.error
-    ));
-
-  let errorKey = validityData.error;
-  if (formError != null) {
-    errorKey = Array.isArray(formError) ? JSON.stringify(formError) : formError;
+  let error: string | string[] | null | undefined = validityData.error;
+  if (!hasSpecificMatch && hasFormError) {
+    error = formError;
   } else if (validityData.errors.length > 1) {
-    errorKey = JSON.stringify(validityData.errors);
+    error = validityData.errors;
   }
+
+  let errorMessage: React.ReactNode = error ?? '';
+  if (Array.isArray(error)) {
+    errorMessage =
+      error.length > 1 ? (
+        <ul>
+          {error.map((message) => (
+            <li key={message}>{message}</li>
+          ))}
+        </ul>
+      ) : (
+        (error[0] ?? '')
+      );
+  }
+
+  const errorKey = Array.isArray(error) ? JSON.stringify(error) : error;
 
   if (rendered && errorKey !== lastRenderedMessageKey) {
     setLastRenderedMessageKey(errorKey);

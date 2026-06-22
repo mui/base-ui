@@ -1,11 +1,12 @@
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 
 export function useMediaQuery(query: string, options: useMediaQuery.Options): boolean {
   // Wait for jsdom to support the match media feature.
   // All the browsers Base UI support have this built-in.
   // This defensive check is here for simplicity.
-  // Most of the time, the match media logic isn't central to people tests.
+  // Most of the time, the match media logic isn't central to people's tests.
   const supportMatchMedia =
     typeof window !== 'undefined' && typeof window.matchMedia !== 'undefined';
 
@@ -41,12 +42,7 @@ export function useMediaQuery(query: string, options: useMediaQuery.Options): bo
 
     return [
       () => mediaQueryList.matches,
-      (notify: () => void) => {
-        mediaQueryList.addEventListener('change', notify);
-        return () => {
-          mediaQueryList.removeEventListener('change', notify);
-        };
-      },
+      (notify: () => void) => addEventListener(mediaQueryList, 'change', notify),
     ];
   }, [getDefaultSnapshot, matchMedia, query]);
 

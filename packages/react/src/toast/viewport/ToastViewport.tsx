@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useToastProviderContext } from '../provider/ToastProviderContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
 import { ToastViewportCssVars } from './ToastViewportCssVars';
 
@@ -21,7 +23,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   componentProps: ToastViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, children, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
   const store = useToastProviderContext();
   const windowFocusTimeout = useTimeout();
@@ -39,6 +41,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const hasTransitioningToasts = React.useMemo(
     () => toasts.some((toast) => toast.transitionStatus === 'ending'),
+    [toasts],
+  );
+  const highPriorityToasts = React.useMemo(
+    () => toasts.filter((toast) => toast.priority === 'high'),
     [toasts],
   );
 
@@ -64,12 +70,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     const win = ownerWindow(viewport);
-
-    win.addEventListener('keydown', handleGlobalKeyDown);
-
-    return () => {
-      win.removeEventListener('keydown', handleGlobalKeyDown);
-    };
+    return addEventListener(win, 'keydown', handleGlobalKeyDown);
   }, [store, isEmpty]);
 
   React.useEffect(() => {
@@ -90,13 +91,17 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     function handleWindowFocus(event: FocusEvent) {
-      if (event.relatedTarget || getTarget(event) === win) {
+      if (event.relatedTarget) {
         return;
       }
 
       const target = getTarget(event);
       const activeEl = activeElement(ownerDocument(viewport));
-      if (!contains(viewport, target as HTMLElement | null) || !isFocusVisible(activeEl)) {
+      if (
+        target === win ||
+        !contains(viewport, target as HTMLElement | null) ||
+        !isFocusVisible(activeEl)
+      ) {
         store.resumeTimers();
       }
 
@@ -104,13 +109,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       windowFocusTimeout.start(0, () => store.setIsWindowFocused(true));
     }
 
-    win.addEventListener('blur', handleWindowBlur, true);
-    win.addEventListener('focus', handleWindowFocus, true);
-
-    return () => {
-      win.removeEventListener('blur', handleWindowBlur, true);
-      win.removeEventListener('focus', handleWindowFocus, true);
-    };
+    return mergeCleanups(
+      addEventListener(win, 'blur', handleWindowBlur, true),
+      addEventListener(win, 'focus', handleWindowFocus, true),
+    );
   }, [
     store,
     windowFocusTimeout,
@@ -128,11 +130,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     const doc = ownerDocument(viewport);
-    doc.addEventListener('pointerdown', store.handleDocumentPointerDown, true);
-
-    return () => {
-      doc.removeEventListener('pointerdown', store.handleDocumentPointerDown, true);
-    };
+    return addEventListener(doc, 'pointerdown', store.handleDocumentPointerDown, true);
   }, [isEmpty, store]);
 
   function handleFocusGuard(event: React.FocusEvent) {
@@ -143,9 +141,17 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
     handlingFocusGuardRef.current = true;
 
-    // If we're coming off the container, move to the first toast
+    // If we're coming off the container, move to the first toast that can hold
+    // focus, skipping toasts that are animating out or inert because they're limited.
     if (event.relatedTarget === viewport) {
-      toasts[0]?.ref?.current?.focus();
+      const firstFocusableToast = toasts.find(
+        (toast) => toast.transitionStatus !== 'ending' && !toast.limited,
+      );
+      if (firstFocusableToast) {
+        firstFocusableToast.ref?.current?.focus();
+      } else {
+        store.restoreFocusToPrevElement();
+      }
     } else {
       store.restoreFocusToPrevElement();
     }
@@ -159,6 +165,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     ) {
       event.preventDefault();
       store.restoreFocusToPrevElement();
+      // Shift+Tab is explicit keyboard navigation out of the viewport.
       store.resumeTimers();
     }
   }
@@ -166,19 +173,16 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   function flushMouseLeave() {
     const hasEndingToasts = store.state.toasts.some((toast) => toast.transitionStatus === 'ending');
 
-    if (
-      !store.state.isWindowFocused ||
-      hasEndingToasts ||
-      touchActiveRef.current ||
-      !markedReadyForMouseLeaveRef.current
-    ) {
+    if (hasEndingToasts || touchActiveRef.current || !markedReadyForMouseLeaveRef.current) {
       return;
     }
 
     // Once transitions have finished, see if a mouseleave was already triggered
-    // but blocked from taking effect. If so, we can now safely resume timers and
-    // collapse the viewport.
-    store.resumeTimers();
+    // but blocked from taking effect. If so, we can now safely collapse the viewport
+    // without restarting timers while the window is blurred.
+    if (store.state.isWindowFocused) {
+      store.resumeTimers();
+    }
     store.setHovering(false);
     markedReadyForMouseLeaveRef.current = false;
   }
@@ -191,13 +195,21 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     markedReadyForMouseLeaveRef.current = false;
   }
 
+  function resumeTimersIfWindowFocused() {
+    if (store.state.isWindowFocused) {
+      store.resumeTimers();
+    }
+  }
+
   function handleMouseLeave() {
-    if (hasTransitioningToasts || touchActiveRef.current) {
+    const hasEndingToasts = store.state.toasts.some((toast) => toast.transitionStatus === 'ending');
+
+    if (hasEndingToasts || touchActiveRef.current) {
       // When swiping to dismiss, wait until the transitions have settled
       // or the touch interaction ends to avoid collapsing mid-gesture.
       markedReadyForMouseLeaveRef.current = true;
     } else {
-      store.resumeTimers();
+      resumeTimersIfWindowFocused();
       store.setHovering(false);
     }
   }
@@ -242,7 +254,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     store.setFocused(false);
-    store.resumeTimers();
+    resumeTimersIfWindowFocused();
   }
 
   const defaultProps: HTMLProps = {
@@ -292,11 +304,6 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       },
     ],
   });
-
-  const highPriorityToasts = React.useMemo(
-    () => toasts.filter((toast) => toast.priority === 'high'),
-    [toasts],
-  );
 
   return (
     <React.Fragment>

@@ -20,24 +20,24 @@ Renders a `<span>` element and a hidden `<input>` beside.
 | required     | `boolean`                                                                                | -       | Whether the user must choose a value before submitting a form.                                                                                                                                |
 | inputRef     | `React.Ref<HTMLInputElement>`                                                            | -       | A ref to access the hidden input element.                                                                                                                                                     |
 | className    | `string \| ((state: Radio.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `React.CSSProperties \| ((state: Radio.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| style        | `React.CSSProperties \| ((state: Radio.Root.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: Radio.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
-| Attribute      | Type | Description                                                              |
-| :------------- | :--- | :----------------------------------------------------------------------- |
-| data-checked   | -    | Present when the radio is checked.                                       |
-| data-unchecked | -    | Present when the radio is not checked.                                   |
-| data-disabled  | -    | Present when the radio is disabled.                                      |
-| data-readonly  | -    | Present when the radio is readonly.                                      |
-| data-required  | -    | Present when the radio is required.                                      |
-| data-valid     | -    | Present when the radio is in valid state (when wrapped in Field.Root).   |
-| data-invalid   | -    | Present when the radio is in invalid state (when wrapped in Field.Root). |
-| data-dirty     | -    | Present when the radio's value has changed (when wrapped in Field.Root). |
-| data-touched   | -    | Present when the radio has been touched (when wrapped in Field.Root).    |
-| data-filled    | -    | Present when the radio is checked (when wrapped in Field.Root).          |
-| data-focused   | -    | Present when the radio is focused (when wrapped in Field.Root).          |
+| Attribute      | Type | Description                                                                 |
+| :------------- | :--- | :-------------------------------------------------------------------------- |
+| data-checked   | -    | Present when the radio is checked.                                          |
+| data-unchecked | -    | Present when the radio is not checked.                                      |
+| data-disabled  | -    | Present when the radio is disabled.                                         |
+| data-readonly  | -    | Present when the radio is readonly.                                         |
+| data-required  | -    | Present when the radio is required.                                         |
+| data-valid     | -    | Present when the radio is in a valid state (when wrapped in Field.Root).    |
+| data-invalid   | -    | Present when the radio is in an invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the radio's value has changed (when wrapped in Field.Root).    |
+| data-touched   | -    | Present when the radio has been touched (when wrapped in Field.Root).       |
+| data-filled    | -    | Present when the radio is checked (when wrapped in Field.Root).             |
+| data-focused   | -    | Present when the radio is focused (when wrapped in Field.Root).             |
 
 ### Root.Props
 
@@ -55,15 +55,15 @@ type RadioRootState = {
   readOnly: boolean;
   /** Whether the user must choose a value before submitting a form. */
   required: boolean;
-  /** Whether the field has been touched. */
+  /** Whether the radio button has been touched (when wrapped in Field.Root). */
   touched: boolean;
-  /** Whether the field value has changed from its initial value. */
+  /** Whether the radio button's value has changed from its initial value (when wrapped in Field.Root). */
   dirty: boolean;
-  /** Whether the field is valid. */
+  /** Whether the radio button is in a valid state (when wrapped in Field.Root). */
   valid: boolean | null;
-  /** Whether the field has a value. */
+  /** Whether the radio button has a value (when wrapped in Field.Root). */
   filled: boolean;
-  /** Whether the field is focused. */
+  /** Whether the radio button is focused (when wrapped in Field.Root). */
   focused: boolean;
 };
 ```
@@ -78,27 +78,27 @@ Renders a `<span>` element.
 | Prop        | Type                                                                                          | Default | Description                                                                                                                                                                                   |
 | :---------- | :-------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | className   | `string \| ((state: Radio.Indicator.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style       | `React.CSSProperties \| ((state: Radio.Indicator.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| style       | `React.CSSProperties \| ((state: Radio.Indicator.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | keepMounted | `boolean`                                                                                     | `false` | Whether to keep the HTML element in the DOM when the radio button is inactive.                                                                                                                |
 | render      | `ReactElement \| ((props: HTMLProps, state: Radio.Indicator.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Indicator Data Attributes:**
 
-| Attribute           | Type | Description                                                              |
-| :------------------ | :--- | :----------------------------------------------------------------------- |
-| data-checked        | -    | Present when the radio is checked.                                       |
-| data-unchecked      | -    | Present when the radio is not checked.                                   |
-| data-disabled       | -    | Present when the radio is disabled.                                      |
-| data-readonly       | -    | Present when the radio is readonly.                                      |
-| data-required       | -    | Present when the radio is required.                                      |
-| data-valid          | -    | Present when the radio is in valid state (when wrapped in Field.Root).   |
-| data-invalid        | -    | Present when the radio is in invalid state (when wrapped in Field.Root). |
-| data-dirty          | -    | Present when the radio's value has changed (when wrapped in Field.Root). |
-| data-touched        | -    | Present when the radio has been touched (when wrapped in Field.Root).    |
-| data-filled         | -    | Present when the radio is checked (when wrapped in Field.Root).          |
-| data-focused        | -    | Present when the radio is focused (when wrapped in Field.Root).          |
-| data-starting-style | -    | Present when the radio indicator is animating in.                        |
-| data-ending-style   | -    | Present when the radio indicator is animating out.                       |
+| Attribute           | Type | Description                                                                 |
+| :------------------ | :--- | :-------------------------------------------------------------------------- |
+| data-checked        | -    | Present when the radio is checked.                                          |
+| data-unchecked      | -    | Present when the radio is not checked.                                      |
+| data-disabled       | -    | Present when the radio is disabled.                                         |
+| data-readonly       | -    | Present when the radio is readonly.                                         |
+| data-required       | -    | Present when the radio is required.                                         |
+| data-valid          | -    | Present when the radio is in a valid state (when wrapped in Field.Root).    |
+| data-invalid        | -    | Present when the radio is in an invalid state (when wrapped in Field.Root). |
+| data-dirty          | -    | Present when the radio's value has changed (when wrapped in Field.Root).    |
+| data-touched        | -    | Present when the radio has been touched (when wrapped in Field.Root).       |
+| data-filled         | -    | Present when the radio is checked (when wrapped in Field.Root).             |
+| data-focused        | -    | Present when the radio is focused (when wrapped in Field.Root).             |
+| data-starting-style | -    | Present when the radio indicator is animating in.                           |
+| data-ending-style   | -    | Present when the radio indicator is animating out.                          |
 
 ### Indicator.Props
 
@@ -108,10 +108,26 @@ Re-export of [Indicator](#indicator) props.
 
 ```typescript
 type RadioIndicatorState = {
-  /** Whether the radio button is currently selected. */
-  checked: boolean;
   /** The transition status of the component. */
   transitionStatus: TransitionStatus;
+  /** Whether the radio button is currently selected. */
+  checked: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+  /** Whether the user should be unable to select the radio button. */
+  readOnly: boolean;
+  /** Whether the user must choose a value before submitting a form. */
+  required: boolean;
+  /** Whether the radio button has been touched (when wrapped in Field.Root). */
+  touched: boolean;
+  /** Whether the radio button's value has changed from its initial value (when wrapped in Field.Root). */
+  dirty: boolean;
+  /** Whether the radio button is in a valid state (when wrapped in Field.Root). */
+  valid: boolean | null;
+  /** Whether the radio button has a value (when wrapped in Field.Root). */
+  filled: boolean;
+  /** Whether the radio button is focused (when wrapped in Field.Root). */
+  focused: boolean;
 };
 ```
 

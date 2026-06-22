@@ -25,6 +25,7 @@ export function DrawerProvider(props: DrawerProvider.Props) {
       if (prevOpen === open) {
         return prev;
       }
+
       const next = new Map(prev);
       next.set(drawerId, open);
       return next;
@@ -36,6 +37,7 @@ export function DrawerProvider(props: DrawerProvider.Props) {
       if (!prev.has(drawerId)) {
         return prev;
       }
+
       const next = new Map(prev);
       next.delete(drawerId);
       return next;

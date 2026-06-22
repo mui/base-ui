@@ -292,6 +292,27 @@ describe('<Menubar />', () => {
         });
       });
 
+      it('moves focus to the first and last triggers with Home and End', async () => {
+        const { user } = await render(<TestMenubar />);
+
+        const fileTrigger = screen.getByTestId('file-trigger');
+        const viewTrigger = screen.getByTestId('view-trigger');
+
+        await act(async () => {
+          fileTrigger.focus();
+        });
+
+        await user.keyboard('{End}');
+        await waitFor(() => {
+          expect(viewTrigger).toHaveFocus();
+        });
+
+        await user.keyboard('{Home}');
+        await waitFor(() => {
+          expect(fileTrigger).toHaveFocus();
+        });
+      });
+
       it('should open the menu with Space key', async () => {
         const { user } = await render(<TestMenubar />);
         const fileTrigger = screen.getByTestId('file-trigger');
@@ -664,6 +685,137 @@ describe('<Menubar />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('scroll locking', () => {
+      it('applies scroll lock when a touch-opened submenu covers the viewport width', async () => {
+        await render(
+          <Menubar modal style={{ display: 'flex' }}>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu" style={{ width: 'calc(100vw - 10px)' }}>
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const trigger = screen.getByTestId('file-trigger');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        const menu = await screen.findByRole('menu');
+        const doc = menu.ownerDocument;
+
+        await waitFor(() => {
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
+      });
+
+      it('does not apply scroll lock when a touch-opened submenu is narrower than the viewport', async () => {
+        await render(
+          <Menubar modal style={{ display: 'flex' }}>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu" style={{ width: '240px' }}>
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const trigger = screen.getByTestId('file-trigger');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        const menu = await screen.findByRole('menu');
+        const doc = menu.ownerDocument;
+
+        const isScrollLocked =
+          doc.documentElement.style.overflow === 'hidden' ||
+          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          doc.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).toBe(false);
+      });
+
+      it('updates scroll lock when handing off between top-level touch-opened menus', async () => {
+        await render(
+          <Menubar modal style={{ display: 'flex' }}>
+            <Menu.Root>
+              <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="file-menu" style={{ width: 'calc(100vw - 10px)' }}>
+                  <Menu.Popup>
+                    <Menu.Item>Open</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Root>
+              <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="edit-menu" style={{ width: '240px' }}>
+                  <Menu.Popup>
+                    <Menu.Item>Copy</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const fileTrigger = screen.getByTestId('file-trigger');
+        const editTrigger = screen.getByTestId('edit-trigger');
+        const doc = fileTrigger.ownerDocument;
+
+        fireEvent.pointerDown(fileTrigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(fileTrigger);
+
+        await screen.findByTestId('file-menu');
+
+        await waitFor(() => {
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(true);
+        });
+
+        fireEvent.pointerDown(editTrigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(editTrigger);
+
+        await screen.findByTestId('edit-menu');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('file-menu')).toBe(null);
+        });
+
+        await waitFor(() => {
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).toBe(false);
+        });
+      });
+    });
+
     describe.skipIf(!isJSDOM)('prop: loopFocus', () => {
       describe('when loopFocus == true', () => {
         it('should loop around to the first item after the last one', async () => {
@@ -819,11 +971,84 @@ describe('<Menubar />', () => {
         expect(screen.queryByRole('menubar')).not.toBe(null);
       });
 
+      it('sets aria-orientation on the root element', async () => {
+        await render(<Menubar orientation="vertical" />);
+        expect(screen.getByRole('menubar')).toHaveAttribute('aria-orientation', 'vertical');
+      });
+
       it('sets role="menuitem" on menu triggers', async () => {
         await render(<TestMenubar />);
         const menuItems = screen.getAllByRole('menuitem');
         expect(menuItems).toHaveLength(3);
       });
+    });
+  });
+
+  describe('disabled state', () => {
+    it('keeps the menubar reachable when the first trigger is disabled', async () => {
+      const { user } = await render(
+        <Menubar style={{ display: 'flex' }}>
+          <Menu.Root>
+            <Menu.Trigger disabled data-testid="file-trigger">
+              File
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Open</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Root>
+            <Menu.Trigger data-testid="edit-trigger">Edit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Copy</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      const fileTrigger = screen.getByTestId('file-trigger');
+      const editTrigger = screen.getByTestId('edit-trigger');
+
+      expect(fileTrigger).toHaveAttribute('disabled');
+      expect(fileTrigger).toHaveAttribute('tabindex', '-1');
+      expect(editTrigger).toHaveAttribute('tabindex', '0');
+
+      // The disabled first trigger must not swallow the only tab stop.
+      await user.tab();
+      expect(editTrigger).toHaveFocus();
+    });
+
+    it('disables menu items while the menubar is disabled', async () => {
+      const handleClick = vi.fn();
+      const { user } = await render(
+        <Menubar disabled>
+          <Menu.Root open>
+            <Menu.Trigger data-testid="file-trigger">File</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item data-testid="file-item" onClick={handleClick}>
+                    Open
+                  </Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      const item = screen.getByTestId('file-item');
+      expect(item).toHaveAttribute('aria-disabled', 'true');
+
+      await user.click(item);
+      expect(handleClick).not.toHaveBeenCalled();
     });
   });
 });

@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
-import { act, waitFor, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
@@ -189,6 +189,62 @@ describe('<Dialog.Popup />', () => {
       });
     });
 
+    it('passes the latest interaction type to initialFocus after reopening', async () => {
+      const initialFocus = vi.fn(() => false);
+
+      const { user } = await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup initialFocus={initialFocus}>Content</Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await act(async () => trigger.focus());
+      await user.keyboard('[Enter]');
+
+      await waitFor(() => {
+        expect(initialFocus).toHaveBeenLastCalledWith('keyboard');
+      });
+
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.click(trigger, { detail: 1 });
+
+      await waitFor(() => {
+        expect(initialFocus).toHaveBeenLastCalledWith('touch');
+      });
+    });
+
+    it('focuses the popup itself rather than inner content when opened by touch', async () => {
+      await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup data-testid="dialog">
+              <input data-testid="input" />
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+      fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+      fireEvent.click(trigger, { detail: 1 });
+
+      // On touch the default focuses the popup to avoid opening the virtual keyboard.
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog')).toHaveFocus();
+      });
+      expect(screen.getByTestId('input')).not.toHaveFocus();
+    });
+
     it('should not move focus when initialFocus is false', async () => {
       function TestComponent() {
         return (
@@ -306,6 +362,77 @@ describe('<Dialog.Popup />', () => {
       });
 
       expect(initialFocusSpy.mock.calls.length).toBe(1);
+    });
+  });
+
+  describe.skipIf(isJSDOM)('display: contents ancestors', () => {
+    it('keeps initial focus working when the popup is wrapped by a display: contents ancestor', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="outside-before">Outside before</button>
+          <Dialog.Root modal={false}>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <form style={{ display: 'contents' }}>
+                <Dialog.Popup data-testid="dialog-popup">
+                  <input data-testid="dialog-input" />
+                  <button type="button">Close</button>
+                </Dialog.Popup>
+              </form>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <button data-testid="outside-after">Outside after</button>
+        </div>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog-input')).toHaveFocus();
+      });
+    });
+
+    it('keeps trap-focus tab cycling inside the popup when wrapped by a display: contents ancestor', async () => {
+      const { user } = await render(
+        <div>
+          <button data-testid="outside-before">Outside before</button>
+          <Dialog.Root defaultOpen modal="trap-focus">
+            <Dialog.Portal>
+              <form style={{ display: 'contents' }}>
+                <Dialog.Popup data-testid="dialog-popup">
+                  <input data-testid="first-input" />
+                  <button type="button" data-testid="second-button">
+                    Second
+                  </button>
+                </Dialog.Popup>
+              </form>
+            </Dialog.Portal>
+          </Dialog.Root>
+          <button data-testid="outside-after">Outside after</button>
+        </div>,
+      );
+
+      const popup = screen.getByTestId('dialog-popup');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('first-input')).toHaveFocus();
+      });
+
+      await user.keyboard('[Tab]');
+      expect(screen.getByTestId('second-button')).toHaveFocus();
+
+      await user.keyboard('[Tab]');
+      await waitFor(() => {
+        expect(screen.getByTestId('first-input')).toHaveFocus();
+      });
+      expect(screen.getByTestId('outside-before')).not.toHaveFocus();
+      expect(screen.getByTestId('outside-after')).not.toHaveFocus();
+
+      await user.keyboard('[ShiftLeft>][Tab][/ShiftLeft]');
+      await waitFor(() => {
+        expect(screen.getByTestId('second-button')).toHaveFocus();
+      });
+      expect(popup.contains(document.activeElement)).toBe(true);
     });
   });
 

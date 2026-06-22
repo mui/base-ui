@@ -3,7 +3,7 @@ import type * as React from 'react';
 export type {
   BaseUIChangeEventDetails,
   BaseUIGenericEventDetails,
-} from '../utils/createBaseUIEventDetails';
+} from '../internals/createBaseUIEventDetails';
 
 export type HTMLProps<T = any> = React.HTMLAttributes<T> & {
   ref?: React.Ref<T> | undefined;

@@ -1,18 +1,18 @@
 'use client';
 import * as React from 'react';
-import {
-  safePolygon,
-  useClick,
-  useHoverReferenceInteraction,
-  useInteractions,
-} from '../../floating-ui-react';
-import { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
+import { SafeReact } from '@base-ui/utils/safeReact';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
@@ -23,13 +23,14 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerComponent(
+export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
     className,
+    style,
     label,
     id: idProp,
     nativeButton = false,
@@ -40,7 +41,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem();
+  const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext();
 
   const { store } = useMenuRootContext();
@@ -49,6 +50,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const open = store.useState('open');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const popupId = store.useState('triggerPopupId', thisTriggerId);
 
   const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
   const registerTrigger = React.useCallback(
@@ -85,6 +87,22 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   store.useSyncedValue('closeDelay', closeDelay);
 
   const parentMenuStore = submenuRootContext.parentMenu;
+  const rootDisabled = store.useState('disabled');
+  const parentDisabled = parentMenuStore.useState('disabled');
+  const disabled = disabledProp || rootDisabled || parentDisabled;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      const element = triggerElementRef.current;
+      if (element && isElementDisabled(element) && !disabled) {
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        warn(
+          `A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the \`disabled\` prop on the component instead of setting it on the rendered element.${ownerStackMessage}`,
+        );
+      }
+    });
+  }
 
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
@@ -93,14 +111,13 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     () => ({
       type: 'submenu-trigger' as const,
       setActive() {
-        parentMenuStore.set('activeIndex', listItem.index);
+        if (parentMenuStore.select('highlightItemOnHover')) {
+          parentMenuStore.set('activeIndex', listItem.index);
+        }
       },
     }),
     [parentMenuStore, listItem.index],
   );
-
-  const rootDisabled = store.useState('disabled');
-  const disabled = disabledProp || rootDisabled;
 
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick: false,
@@ -111,11 +128,10 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
   });
 
   const hoverEnabled = store.useState('hoverEnabled');
-  const allowMouseEnter = parentMenuStore.useState('allowMouseEnter');
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled: hoverEnabled && openOnHover && !disabled,
@@ -123,9 +139,11 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     mouseOnly: true,
     move: true,
     restMs: delay,
-    delay: allowMouseEnter ? { open: delay, close: closeDelay } : 0,
+    delay: { open: delay, close: closeDelay },
+    shouldOpen: delay > 0 ? () => parentMenuStore.select('allowMouseEnter') : undefined,
     triggerElementRef,
     externalTree: floatingTreeRoot,
+    isClosing: () => store.select('transitionStatus') === 'ending',
   });
 
   const click = useClick(floatingRootContext, {
@@ -136,7 +154,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     stickIfOpen: false,
   });
 
-  const localInteractionProps = useInteractions([click]);
+  const localInteractionProps = click.reference ?? EMPTY_OBJECT;
 
   const rootTriggerProps = store.useState('triggerProps', true);
   delete rootTriggerProps.id;
@@ -147,11 +165,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     state,
     stateAttributesMapping: triggerOpenStateMapping,
     props: [
-      localInteractionProps.getReferenceProps(),
+      localInteractionProps,
       hoverProps,
       rootTriggerProps,
       itemProps,
       {
+        'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
         onBlur() {
           if (highlighted) {

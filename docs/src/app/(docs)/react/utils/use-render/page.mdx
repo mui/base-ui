@@ -55,13 +55,15 @@ When building custom components, you often need to control a ref internally whil
 
 In React 19, `React.forwardRef()` is not needed when building primitive components, as the external ref prop is already contained inside `props`. Your internal ref can be passed to `ref` to be merged with `props.ref`:
 
-```tsx title="React 19" {6} "internalRef"
+```tsx title="React 19"
 function Text({ render, ...props }: TextProps) {
-  const internalRef = React.useRef<HTMLElement | null>(null);
+  const internalRef = React.useRef<HTMLElement | null>(null); {/* @highlight-text "internalRef" */}
 
   const element = useRender({
     defaultTagName: 'p',
-    ref: internalRef,
+    {/* @highlight-start */}
+    ref: internalRef, {/* @highlight-text "internalRef" */}
+    {/* @highlight-end */}
     props,
     render,
   });
@@ -74,16 +76,19 @@ In older versions of React, you need to use `React.forwardRef()` and add the for
 
 The [examples](#examples) above assume React 19, and should be modified to use `React.forwardRef()` to support React 18 and 17.
 
-```tsx title="React 18 and 17" {9} "forwardedRef" "internalRef"
+```tsx title="React 18 and 17"
 const Text = React.forwardRef(function Text(
   { render, ...props }: TextProps,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>, //@highlight-text "forwardedRef"
 ) {
-  const internalRef = React.useRef<HTMLElement | null>(null);
+  const internalRef = React.useRef<HTMLElement | null>(null); // @highlight-text "internalRef"
 
   const element = useRender({
     defaultTagName: 'p',
+    // @highlight-start
+    // @highlight-text "internalRef" "forwardedRef"
     ref: [forwardedRef, internalRef],
+    // @highlight-end
     props,
     render,
   });
@@ -99,10 +104,12 @@ To type props, there are two interfaces:
 - `useRender.ComponentProps` for a component's external (public) props. It types the `render` prop and HTML attributes.
 - `useRender.ElementProps` for the element's internal (private) props. It types HTML attributes alone.
 
-```tsx title="Typing props" {1,4}
+```tsx title="Typing props"
+// @highlight
 interface ButtonProps extends useRender.ComponentProps<'button'> {}
 
 function Button({ render, ...props }: ButtonProps) {
+  // @highlight
   const defaultProps: useRender.ElementProps<'button'> = {
     className: styles.Button,
     type: 'button',

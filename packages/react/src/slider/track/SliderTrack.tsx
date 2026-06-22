@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import type { SliderRootState } from '../root/SliderRoot';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -16,7 +16,7 @@ export const SliderTrack = React.forwardRef(function SliderTrack(
   componentProps: SliderTrack.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { state } = useSliderRootContext();
 

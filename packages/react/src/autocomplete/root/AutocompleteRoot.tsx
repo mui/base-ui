@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
-import { stringifyAsLabel } from '../../utils/resolveValueLabel';
-import { REASONS } from '../../utils/reasons';
+import { stringifyAsLabel } from '../../internals/resolveValueLabel';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * Groups all parts of the autocomplete.
@@ -68,16 +67,6 @@ export function AutocompleteRoot<ItemValue>(
     resolvedInputValue = internalValue;
   }
 
-  const handleValueChange = useStableCallback(
-    (nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) => {
-      setInlineInputValue('');
-      if (!isControlled) {
-        setInternalValue(nextValue);
-      }
-      onValueChange?.(nextValue, eventDetails);
-    },
-  );
-
   const collator = useCoreFilter();
 
   const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
@@ -102,25 +91,34 @@ export function AutocompleteRoot<ItemValue>(
     };
   }, [baseFilter, mode, resolvedQuery, staticItems]);
 
-  const handleItemHighlighted = useStableCallback(
-    (highlightedValue: any, eventDetails: AriaCombobox.HighlightEventDetails) => {
-      props.onItemHighlighted?.(highlightedValue, eventDetails);
+  function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
+    setInlineInputValue('');
+    if (!isControlled) {
+      setInternalValue(nextValue);
+    }
+    onValueChange?.(nextValue, eventDetails);
+  }
 
-      if (eventDetails.reason === REASONS.pointer) {
-        return;
-      }
+  function handleItemHighlighted(
+    highlightedValue: any,
+    eventDetails: AriaCombobox.HighlightEventDetails,
+  ) {
+    props.onItemHighlighted?.(highlightedValue, eventDetails);
 
-      if (enableInline) {
-        if (highlightedValue == null) {
-          setInlineInputValue('');
-        } else {
-          setInlineInputValue(stringifyAsLabel(highlightedValue, itemToStringValue));
-        }
-      } else {
+    if (eventDetails.reason === REASONS.pointer) {
+      return;
+    }
+
+    if (enableInline) {
+      if (highlightedValue == null) {
         setInlineInputValue('');
+      } else {
+        setInlineInputValue(stringifyAsLabel(highlightedValue, itemToStringValue));
       }
-    },
-  );
+    } else {
+      setInlineInputValue('');
+    }
+  }
 
   return (
     <AriaCombobox
@@ -168,6 +166,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'formAutoComplete'
   | 'itemToStringLabel' // itemToStringValue
   // Custom JSDoc
+  | 'inline'
   | 'autoHighlight'
   | 'keepHighlight'
   | 'highlightItemOnHover'
@@ -184,6 +183,14 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * @default 'list'
    */
   mode?: 'list' | 'both' | 'inline' | 'none' | undefined;
+  /**
+   * Whether the list is rendered inline without using the component's own popup.
+   *
+   * Specify `open` unconditionally in conjunction with this prop so the list is considered
+   * visible: `<Autocomplete.Root inline open>`
+   * @default false
+   */
+  inline?: boolean | undefined;
   /**
    * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
@@ -236,9 +243,8 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the autocomplete will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the autocomplete manually.
-   * Useful when the autocomplete's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the autocomplete.
+   * Call this after any externally controlled closing animation finishes.
    */
   actionsRef?: React.RefObject<AutocompleteRootActions | null> | undefined;
   /**

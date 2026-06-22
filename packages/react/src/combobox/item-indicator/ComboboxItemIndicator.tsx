@@ -1,15 +1,17 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useComboboxItemContext } from '../item/ComboboxItemContext';
-import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 
 /**
  * Indicates whether the item is selected.
  * Renders a `<span>` element.
+ *
+ * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export const ComboboxItemIndicator = React.forwardRef(function ComboboxItemIndicator(
   componentProps: ComboboxItemIndicator.Props,
@@ -28,15 +30,14 @@ export const ComboboxItemIndicator = React.forwardRef(function ComboboxItemIndic
   return <Inner {...componentProps} ref={forwardedRef} />;
 });
 
-/** The core implementation of the indicator is split here to avoid paying the hooks
- * costs unless the element needs to be mounted. */
+// Split the core implementation to avoid paying the hook costs unless the element needs to mount.
 const Inner = React.memo(
   React.forwardRef(
     (
       componentProps: ComboboxItemIndicator.Props,
       forwardedRef: React.ForwardedRef<HTMLSpanElement>,
     ) => {
-      const { render, className, keepMounted, ...elementProps } = componentProps;
+      const { render, className, style, keepMounted, ...elementProps } = componentProps;
 
       const { selected } = useComboboxItemContext();
 

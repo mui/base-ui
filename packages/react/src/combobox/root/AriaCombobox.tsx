@@ -5,60 +5,65 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   ElementProps,
   useDismiss,
   useFloatingRootContext,
-  useInteractions,
   useListNavigation,
   useClick,
 } from '../../floating-ui-react';
+import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import {
   ComboboxFloatingContext,
   ComboboxDerivedItemsContext,
+  ComboboxHasItemsContext,
   ComboboxRootContext,
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
 import { selectors, type State as StoreState } from '../store';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useField } from '../../field/useField';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './utils';
 import { useCoreFilter } from './utils/useFilter';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
+import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { HTMLProps } from '../../utils/types';
-import { useValueChanged } from '../../utils/useValueChanged';
-import { NOOP } from '../../utils/noop';
+import type { BaseUIEvent, HTMLProps } from '../../internals/types';
+import { useValueChanged } from '../../internals/useValueChanged';
+import { NOOP } from '../../internals/noop';
+import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
+import { mergeProps } from '../../merge-props';
 import {
   stringifyAsLabel,
   stringifyAsValue,
   Group,
   isGroupedItems,
-} from '../../utils/resolveValueLabel';
+} from '../../internals/resolveValueLabel';
 import {
   compareItemEquality,
   defaultItemEquality,
   findItemIndex,
   removeItem,
   selectedValueIncludes,
-} from '../../utils/itemEquality';
+} from '../../internals/itemEquality';
+import { areArraysEqual } from '../../internals/areArraysEqual';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 /**
  * @internal
@@ -84,6 +89,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     onSelectedValueChange,
     defaultInputValue: defaultInputValueProp,
     inputValue: inputValueProp,
+    open: openProp,
+    defaultOpen = false,
     selectionMode = 'none',
     onItemHighlighted: onItemHighlightedProp,
     name: nameProp,
@@ -119,7 +126,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const {
     setDirty,
     validityData,
-    shouldValidateOnChange,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
@@ -129,6 +135,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     validation,
   } = useFieldRootContext();
 
+  const direction = useDirection();
   const id = useLabelableId({ id: idProp });
   const collatorFilter = useCoreFilter({ locale });
 
@@ -219,8 +226,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const [open, setOpenUnwrapped] = useControlled({
-    controlled: props.open,
-    default: props.defaultOpen,
+    controlled: openProp,
+    default: defaultOpen,
     name: 'Combobox',
     state: 'open',
   });
@@ -385,14 +392,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         popupProps: {},
         inputProps: {},
         triggerProps: {},
+        itemProps: EMPTY_OBJECT,
         positionerElement: null,
         listElement: null,
+        popupId: undefined,
         triggerElement: null,
         inputElement: null,
         inputGroupElement: null,
         popupSide: null,
         openMethod: null,
         inputInsidePopup: true,
+        // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
+        // until after hydration, so the hidden input takes over then if needed.
+        inputOwnsFormValue: selectionMode === 'none',
         onOpenChangeComplete: onOpenChangeCompleteProp || NOOP,
         // Placeholder callbacks replaced on first render
         setOpen: NOOP,
@@ -401,7 +413,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         setIndices: NOOP,
         onItemHighlighted: NOOP,
         handleSelection: NOOP,
-        getItemProps: () => EMPTY_OBJECT,
         forceMount: NOOP,
         requestSubmit: NOOP,
       }),
@@ -430,20 +441,23 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
+  const inputOwnsFormValue = useStore(store, selectors.inputOwnsFormValue);
 
   const triggerRef = useValueAsRef(triggerElement);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps } = useOpenInteractionType(open);
 
-  useField({
+  const getStringifiedValueForForm = useStableCallback(() => fieldStringValue);
+
+  useRegisterFieldControl(
+    inputInsidePopup ? triggerRef : inputRef,
     id,
-    name,
-    commit: validation.commit,
-    value: fieldRawValue,
-    controlRef: inputInsidePopup ? triggerRef : inputRef,
-    getValue: () => fieldStringValue,
-  });
+    fieldRawValue,
+    getStringifiedValueForForm,
+    !disabled,
+    nameProp,
+  );
 
   const forceMount = useStableCallback(() => {
     if (items) {
@@ -556,6 +570,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
+      // If reopening interrupts the close animation, handleUnmount won't run to clear the
+      // frozen closeQuery and pending popup input.
+      if (nextOpen && multiple && inputInsidePopup && !inline && closeQuery !== null) {
+        setQueryChangedAfterOpen(false);
+        setCloseQuery(null);
+
+        if (inputValue !== '') {
+          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+        }
+      }
+
       if (!nextOpen && queryChangedAfterOpen) {
         if (single) {
           if (!inline) {
@@ -566,15 +591,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             setQueryChangedAfterOpen(false);
           }
         } else if (multiple) {
-          if (inline || inputInsidePopup) {
-            setIndices({ activeIndex: null });
-          } else {
+          if (!inline) {
             // Freeze the current query so filtering remains stable while exiting.
             setCloseQuery(query);
           }
+
+          if (inputInsidePopup) {
+            setIndices({ activeIndex: null });
+          }
+
           // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
-          // if the input is outside the popup.
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          // if the input is outside the popup. When the input is inside the popup, defer the clear until
+          // unmount so the filtered list doesn't flash to unfiltered during the exit animation.
+          if (!inputInsidePopup || inline) {
+            setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          }
         }
       }
 
@@ -668,6 +699,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
         setSelectedValue(nextValue, eventDetails);
 
+        if (eventDetails.isCanceled) {
+          return;
+        }
+
         const wasFiltering = inputRef.current ? inputRef.current.value.trim() !== '' : false;
         if (!wasFiltering) {
           return;
@@ -680,6 +715,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
       } else {
         setSelectedValue(itemValue, eventDetails);
+
+        if (eventDetails.isCanceled) {
+          return;
+        }
+
         setOpen(false, eventDetails);
       }
     },
@@ -894,6 +934,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [hasItems, autoHighlightMode, flatFilteredItems.length, setIndices]);
 
+  function isSelectedValueDirty(value: Value | Value[] | null) {
+    const initialValue = validityData.initialValue;
+
+    if (Array.isArray(value) && Array.isArray(initialValue)) {
+      return !areArraysEqual(value, initialValue, (itemValue, initialItemValue) =>
+        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
+      );
+    }
+
+    return value !== initialValue;
+  }
+
   useValueChanged(query, () => {
     if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
@@ -907,13 +959,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    setDirty(selectedValue !== validityData.initialValue);
+    setDirty(isSelectedValueDirty(selectedValue));
 
-    if (shouldValidateOnChange()) {
-      validation.commit(selectedValue);
-    } else {
-      validation.commit(selectedValue, true);
-    }
+    validation.change(selectedValue);
 
     if (single && !hasInputValue && !inputInsidePopup) {
       const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
@@ -932,11 +980,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     clearErrors(name);
     setDirty(inputValue !== validityData.initialValue);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(inputValue);
-    } else {
-      validation.commit(inputValue, true);
-    }
+    validation.change(inputValue);
   });
 
   useValueChanged(items, () => {
@@ -1042,13 +1086,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave: !keepHighlight,
-    // `cols` > 1 enables grid navigation.
-    // Since <Combobox.Row> infers column sizes (and is required when building a grid),
-    // it works correctly even with a value of `2`.
-    // Floating UI tests don't require `role="row"` wrappers, so retains the number API.
-    cols: grid ? 2 : 1,
     orientation: grid ? 'horizontal' : undefined,
+    rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY as number[],
+    grid: grid ? gridNavigation : undefined,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
@@ -1068,20 +1109,55 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
-    role,
-    click,
-    dismiss,
-    listNavigation,
-  ]);
+  const inputProps = React.useMemo(
+    () =>
+      mergeProps(
+        listNavigation.reference,
+        {
+          onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+            // In grid mode the navigation hook treats ArrowLeft/ArrowRight as horizontal
+            // grid movement. When the input has focus and no item is highlighted the user
+            // is still editing the query, so let the input keep its native caret behavior.
+            if (
+              grid &&
+              store.state.activeIndex == null &&
+              (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
+            ) {
+              event.preventBaseUIHandler();
+            }
+          },
+        },
+        dismiss.reference,
+        click.reference,
+        role.reference,
+      ),
+    [listNavigation.reference, dismiss.reference, click.reference, role.reference, grid, store],
+  );
+
+  const popupProps = React.useMemo(
+    () =>
+      mergeProps(FOCUSABLE_POPUP_PROPS, listNavigation.floating, dismiss.floating, role.floating),
+    [listNavigation.floating, dismiss.floating, role.floating],
+  );
+
+  const itemProps = React.useMemo<HTMLProps>(() => {
+    const listNavigationItemProps = listNavigation.item as HTMLProps | undefined;
+    if (!listNavigationItemProps) {
+      return EMPTY_OBJECT;
+    }
+
+    // Combobox keeps focus on the input; item focus would incorrectly sync
+    // list navigation state from DOM focus.
+    return { ...listNavigationItemProps, onFocus: undefined };
+  }, [listNavigation.item]);
 
   useOnFirstRender(() => {
     store.update({
       inline: inlineProp,
-      popupProps: getFloatingProps(),
-      inputProps: getReferenceProps(),
+      popupProps,
+      inputProps,
       triggerProps,
-      getItemProps,
+      itemProps,
       setOpen,
       setInputValue,
       setSelectedValue,
@@ -1102,11 +1178,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       transitionStatus,
       items,
       inline: inlineProp,
-      popupProps: getFloatingProps(),
-      inputProps: getReferenceProps(),
+      popupProps,
+      inputProps,
       triggerProps,
       openMethod,
-      getItemProps,
+      itemProps,
       selectionMode,
       name,
       form,
@@ -1125,6 +1201,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       submitOnItemClick,
       hasInputValue,
       requestSubmit,
+      inputOwnsFormValue: selectionMode === 'none' && (inlineProp || !store.state.inputInsidePopup),
     });
   }, [
     store,
@@ -1134,9 +1211,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     mounted,
     transitionStatus,
     items,
-    getFloatingProps,
-    getReferenceProps,
-    getItemProps,
+    popupProps,
+    inputProps,
+    itemProps,
     openMethod,
     triggerProps,
     selectionMode,
@@ -1181,7 +1258,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [fieldRawValue, itemToStringValue]);
 
   const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
-  const hiddenInputName = multiple || selectionMode === 'none' ? undefined : name;
+  const hiddenInputName =
+    multiple || (selectionMode === 'none' && inputOwnsFormValue) ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {
@@ -1197,16 +1275,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           form={form}
           name={name}
           value={currentSerializedValue}
+          disabled={disabled}
         />
       );
     });
-  }, [multiple, selectedValue, form, name, itemToStringValue]);
+  }, [multiple, selectedValue, form, name, itemToStringValue, disabled]);
 
   const children = (
     <React.Fragment>
       {props.children}
       <input
-        {...validation.getInputValidationProps({
+        {...validation.getValidationProps(disabled, {
           // Move focus when the hidden input is focused.
           onFocus() {
             if (inputInsidePopup) {
@@ -1219,12 +1298,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           // Handle browser autofill.
           onChange(event: React.ChangeEvent<HTMLInputElement>) {
             // Workaround for https://github.com/facebook/react/issues/9023
-            if (event.nativeEvent.defaultPrevented) {
+            if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
               return;
             }
 
             const nextValue = event.currentTarget.value;
+            const nextValueLower = nextValue.toLowerCase();
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+
+            const findSerializedMatchIndex = () =>
+              valuesRef.current.findIndex(
+                (candidate) =>
+                  stringifyAsValue(candidate, itemToStringValue).toLowerCase() === nextValueLower ||
+                  stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
+              );
 
             function handleChange() {
               // Browser autofill only writes a single scalar value.
@@ -1233,39 +1320,44 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
               }
 
               if (selectionMode === 'none') {
-                setDirty(nextValue !== validityData.initialValue);
                 setInputValue(nextValue, details);
-
-                if (shouldValidateOnChange()) {
-                  validation.commit(nextValue);
-                }
                 return;
               }
 
-              const matchingValue = valuesRef.current.find((v) => {
-                const candidate = stringifyAsValue(v, itemToStringValue);
-                if (candidate.toLowerCase() === nextValue.toLowerCase()) {
-                  return true;
-                }
-                return false;
-              });
+              // Preserve the original serialized matching, then fall back to rendered text,
+              // which browsers can autofill for primitive values like `value="US">United States`.
+              let matchingIndex = findSerializedMatchIndex();
 
+              if (matchingIndex === -1) {
+                matchingIndex = valuesRef.current.findIndex((_, index) => {
+                  const renderedLabel = labelsRef.current[index];
+                  return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
+                });
+              }
+
+              const matchingValue =
+                matchingIndex === -1 ? undefined : valuesRef.current[matchingIndex];
               if (matchingValue != null) {
-                setDirty(matchingValue !== validityData.initialValue);
+                // `setSelectedValue` may be canceled by `onValueChange`; rely on
+                // `useValueChanged` to mark the field dirty and run validation only
+                // when the value actually changes.
                 setSelectedValue?.(matchingValue, details);
-
-                if (shouldValidateOnChange()) {
-                  validation.commit(matchingValue);
-                }
               }
             }
 
-            if (items) {
-              handleChange();
-            } else {
+            // Only single-selection autofill matches against the registered values/labels.
+            // `multiple` ignores autofill and `none` just writes the input value, so avoid the
+            // sticky `forceMounted` mount (which never resets) for those modes.
+            if (single) {
               forceMount();
-              queueMicrotask(handleChange);
+              if (items && findSerializedMatchIndex() === -1) {
+                // `forceMount` only refreshes the derived labels for the `items` prop. When
+                // serialized matching misses, also mount the list so rendered labels (which can
+                // differ from the serialized values) are registered for autofill matching.
+                store.set('forceMounted', true);
+              }
             }
+            queueMicrotask(handleChange);
           },
         })}
         id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
@@ -1280,6 +1372,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         style={hiddenInputName ? visuallyHiddenInput : visuallyHidden}
         tabIndex={-1}
         aria-hidden
+        suppressHydrationWarning
       />
       {hiddenInputs}
     </React.Fragment>
@@ -1288,11 +1381,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   return (
     <ComboboxRootContext.Provider value={store}>
       <ComboboxFloatingContext.Provider value={floatingRootContext}>
-        <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
-          <ComboboxInputValueContext.Provider value={inputValue}>
-            {children}
-          </ComboboxInputValueContext.Provider>
-        </ComboboxDerivedItemsContext.Provider>
+        <ComboboxHasItemsContext.Provider value={hasItems}>
+          <ComboboxDerivedItemsContext.Provider value={itemsContextValue}>
+            <ComboboxInputValueContext.Provider value={inputValue}>
+              {children}
+            </ComboboxInputValueContext.Provider>
+          </ComboboxDerivedItemsContext.Provider>
+        </ComboboxHasItemsContext.Provider>
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
@@ -1404,9 +1499,8 @@ interface ComboboxRootProps<ItemValue> {
   defaultInputValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the combobox will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the combobox manually.
-   * Useful when the combobox's animation is controlled by an external library.
+   * - `unmount`: Manually unmounts the combobox.
+   * Call this after any externally controlled closing animation finishes.
    */
   actionsRef?: React.RefObject<AriaCombobox.Actions | null> | undefined;
   /**
@@ -1473,7 +1567,15 @@ interface ComboboxRootProps<ItemValue> {
    */
   virtualized?: boolean | undefined;
   /**
-   * Whether the list is rendered inline without using the popup.
+   * Whether the list is rendered inline without using the component's own popup.
+   *
+   * Specify `open` unconditionally in conjunction with this prop so the list is considered
+   * visible: `<Combobox.Root inline open>`
+   *
+   * In a `Combobox.Root` > `Dialog.Root` composition, bind the Combobox's `open` and
+   * `onOpenChange` props to the `Dialog`'s `open` and `onOpenChange` state instead so the
+   * component resets its transient state (filter query, highlighted item, and input value) when
+   * the dialog closes.
    * @default false
    */
   inline?: boolean | undefined;

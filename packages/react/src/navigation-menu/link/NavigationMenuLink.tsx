@@ -1,15 +1,15 @@
 'use client';
 import * as React from 'react';
 import { useFloatingTree } from '../../floating-ui-react';
-import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import {
   useNavigationMenuRootContext,
   useNavigationMenuTreeContext,
 } from '../root/NavigationMenuRootContext';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
-import { CompositeItem } from '../../composite/item/CompositeItem';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { CompositeItem } from '../../internals/composite/item/CompositeItem';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.
@@ -26,6 +26,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
     render,
     active = false,
     closeOnClick = false,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -67,6 +68,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
       tag="a"
       render={render}
       className={className}
+      style={style}
       state={state}
       refs={[forwardedRef]}
       props={[defaultProps, elementProps]}

@@ -21,7 +21,7 @@ export function AttributesReferenceTable({
         <Accordion.HeaderRow>
           <Accordion.HeaderCell className="bui-pl-3">Attribute</Accordion.HeaderCell>
         </Accordion.HeaderRow>
-        {Object.keys(data).map((name, index) => {
+        {Object.keys(data).map((name) => {
           const attribute = data[name];
 
           return (
@@ -35,7 +35,7 @@ export function AttributesReferenceTable({
                 part_name: partName || '',
               }}
             >
-              <Accordion.Trigger index={index}>
+              <Accordion.Trigger>
                 <TableCode style={{ color: 'var(--color-navy)' }}>{name}</TableCode>
                 <svg
                   className="AccordionIcon bui-ml-a bui-mr-1"
@@ -43,9 +43,8 @@ export function AttributesReferenceTable({
                   height="10"
                   viewBox="0 0 10 10"
                   fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
+                  <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" />
                 </svg>
               </Accordion.Trigger>
               <Accordion.Panel>

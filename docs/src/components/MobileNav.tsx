@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui/react/dialog';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
-import { HEADER_HEIGHT } from './Header';
+import { HEADER_HEIGHT_MOBILE } from './Header';
 import './MobileNav.css';
 
 const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
@@ -54,7 +54,7 @@ function PopupImpl(props: React.PropsWithChildren) {
         className="MobileNavViewport"
         onScroll={(event) => {
           const viewport = event.currentTarget;
-          if (viewport.scrollTop > (HEADER_HEIGHT * rem.current) / 16) {
+          if (viewport.scrollTop > (HEADER_HEIGHT_MOBILE * rem.current) / 16) {
             viewport.setAttribute('data-clipped', '');
           } else {
             viewport.removeAttribute('data-clipped');
@@ -119,16 +119,10 @@ function PopupImpl(props: React.PropsWithChildren) {
               <div>{props.children}</div>
               <div className="MobileNavCloseContainer">
                 <Dialog.Close aria-label="Close the navigation" className="MobileNavClose">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path
                       d="M0.75 0.75L6 6M11.25 11.25L6 6M6 6L0.75 11.25M6 6L11.25 0.75"
-                      stroke="currentcolor"
+                      stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"

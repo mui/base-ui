@@ -4,16 +4,22 @@
     border: 0;
     background: transparent;
     padding: 0;
+    border-radius: var(--radius-4);
     font: inherit;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-decoration-style: dotted;
     text-decoration-color: color-mix(in oklab, var(--color-violet), transparent);
     text-underline-offset: 3px;
-  }
 
-  .TypeRefTrigger:hover {
-    text-decoration-color: var(--color-violet);
+    &:hover {
+      text-decoration-color: var(--color-violet);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--gray-t2);
+      outline-offset: 2px;
+    }
   }
 
   .TypeRefPopup {
@@ -53,12 +59,12 @@
   }
 
   .TypeRefArrowStroke {
-    fill: var(--color-gray-200);
+    fill: var(--blackA-3);
   }
 
   .TypeRefArrowStrokeDark {
     @media (prefers-color-scheme: dark) {
-      fill: var(--color-gray-300);
+      fill: var(--gray-c3);
     }
   }
 

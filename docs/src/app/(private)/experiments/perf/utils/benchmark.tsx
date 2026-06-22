@@ -7,16 +7,17 @@ import styles from '../perf.module.css';
 
 const DOM_SETTLE_QUIET_WINDOW_MS = 32;
 
-const Controls = React.memo(function Controls(props: {
+export const Controls = React.memo(function Controls(props: {
+  measureUnmount?: boolean;
   setShowBenchmark: React.Dispatch<React.SetStateAction<boolean>>;
   benchmarkRootRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  const { setShowBenchmark, benchmarkRootRef } = props;
+  const { measureUnmount = false, setShowBenchmark, benchmarkRootRef } = props;
   const settleTimeout = useTimeout();
   const [isRunning, setIsRunning] = React.useState(false);
   const [shouldRemoveOutliers, setShouldRemoveOutliers] = React.useState(true);
 
-  const measureDomSettled = useStableCallback(() => {
+  const measureDomSettled = useStableCallback((updateVisibility: () => void) => {
     const start = performance.now();
     let lastMutationAt = start;
     let observer: MutationObserver | null = null;
@@ -54,9 +55,7 @@ const Controls = React.memo(function Controls(props: {
         finish();
       }
 
-      ReactDOM.flushSync(() => {
-        setShowBenchmark(true);
-      });
+      ReactDOM.flushSync(updateVisibility);
     });
   });
 
@@ -72,12 +71,29 @@ const Controls = React.memo(function Controls(props: {
       const results = [] as number[];
 
       for (let i = 0; i < warmupIterations + iterations; i += 1) {
-        ReactDOM.flushSync(() => {
-          setShowBenchmark(false);
-        });
+        let domSettleDuration: number;
 
-        // eslint-disable-next-line no-await-in-loop
-        const domSettleDuration = await measureDomSettled();
+        if (measureUnmount) {
+          // Ensure the remounted tree is fully settled before timing teardown work.
+          // eslint-disable-next-line no-await-in-loop
+          await measureDomSettled(() => {
+            setShowBenchmark(true);
+          });
+
+          // eslint-disable-next-line no-await-in-loop
+          domSettleDuration = await measureDomSettled(() => {
+            setShowBenchmark(false);
+          });
+        } else {
+          ReactDOM.flushSync(() => {
+            setShowBenchmark(false);
+          });
+
+          // eslint-disable-next-line no-await-in-loop
+          domSettleDuration = await measureDomSettled(() => {
+            setShowBenchmark(true);
+          });
+        }
 
         if (i < warmupIterations) {
           continue;
@@ -139,19 +155,26 @@ const Controls = React.memo(function Controls(props: {
   );
 });
 
-export default function PerformanceBenchmark(props: React.PropsWithChildren<{}>) {
+export default function PerformanceBenchmark(
+  props: React.PropsWithChildren<{ measureUnmount?: boolean }>,
+) {
+  const { children, measureUnmount = false } = props;
   const [showBenchmark, setShowBenchmark] = React.useState(false);
   const benchmarkRootRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <div>
-      <Controls setShowBenchmark={setShowBenchmark} benchmarkRootRef={benchmarkRootRef} />
-      <div ref={benchmarkRootRef}>{showBenchmark && props.children}</div>
+      <Controls
+        measureUnmount={measureUnmount}
+        setShowBenchmark={setShowBenchmark}
+        benchmarkRootRef={benchmarkRootRef}
+      />
+      <div ref={benchmarkRootRef}>{showBenchmark && children}</div>
     </div>
   );
 }
 
-function logResults(results: number[]) {
+export function logResults(results: number[]) {
   console.log(results);
   console.log(
     'Average:',
@@ -171,7 +194,7 @@ function logResults(results: number[]) {
   );
 }
 
-function removeOutliers(data: number[]) {
+export function removeOutliers(data: number[]) {
   const sortedData = data.slice().sort((a, b) => a - b);
   const q1Index = Math.floor(sortedData.length / 4);
   const q3Index = Math.floor((sortedData.length * 3) / 4);

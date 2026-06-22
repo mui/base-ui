@@ -1,7 +1,7 @@
 import { isElement } from '@floating-ui/utils/dom';
 import type * as React from 'react';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { getTarget, isInteractiveElement } from '../../floating-ui-react/utils/element';
 import type { ComboboxStore } from '../store';
 

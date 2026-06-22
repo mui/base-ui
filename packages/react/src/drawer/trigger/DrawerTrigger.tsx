@@ -2,7 +2,7 @@
 import type * as React from 'react';
 import { DialogTrigger } from '../../dialog/trigger/DialogTrigger';
 import type { DialogHandle as DrawerHandle } from '../../dialog/store/DialogHandle';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 
 /**
  * A button that opens the drawer.
@@ -38,11 +38,11 @@ export interface DrawerTriggerProps<Payload = unknown>
 
 export interface DrawerTriggerState {
   /**
-   * Whether the drawer is currently disabled.
+   * Whether the trigger is currently disabled.
    */
   disabled: boolean;
   /**
-   * Whether the drawer is currently open.
+   * Whether the drawer is currently open and was opened by this trigger.
    */
   open: boolean;
 }
