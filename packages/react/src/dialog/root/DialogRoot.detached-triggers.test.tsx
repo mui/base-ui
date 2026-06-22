@@ -3,7 +3,9 @@ import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Dialog } from '@base-ui/react/dialog';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, isJSDOM } from '#test-utils';
+import { useDialogRootContext } from './DialogRootContext';
 
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
@@ -1042,6 +1044,90 @@ describe('<Dialog.Root />', () => {
       expect(dialog.isOpen).toBe(true);
     });
 
+    it('does not mutate an ownerless handle state from an adopting render that suspends', async () => {
+      const dialog = Dialog.createHandle();
+
+      function Suspender(): null {
+        throw new Promise(() => {});
+      }
+
+      function App({ page }: { page: 'open' | 'none' | 'suspended' }) {
+        return (
+          <div>
+            <Dialog.Trigger handle={dialog} id="trigger">
+              Trigger
+            </Dialog.Trigger>
+            <React.Suspense fallback={<div>Loading</div>}>
+              {page === 'open' && (
+                <Dialog.Root handle={dialog}>
+                  <Dialog.Portal>
+                    <Dialog.Popup data-testid="content">Content</Dialog.Popup>
+                  </Dialog.Portal>
+                </Dialog.Root>
+              )}
+              {page === 'suspended' && (
+                <Dialog.Root handle={dialog}>
+                  <Suspender />
+                </Dialog.Root>
+              )}
+            </React.Suspense>
+          </div>
+        );
+      }
+
+      const { setProps } = await render(<App page="open" />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await act(() => dialog.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBe(null);
+      });
+
+      await setProps({ page: 'none' });
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      expect(dialog.isOpen).toBe(true);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+      await setProps({ page: 'suspended' });
+
+      expect(screen.getByText('Loading')).toBeVisible();
+      expect(dialog.isOpen).toBe(true);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('preserves an imperative open made by a descendant layout effect during adoption', async () => {
+      const dialog = Dialog.createHandle<number>();
+
+      function OpenOnMount() {
+        useIsoLayoutEffect(() => {
+          dialog.openWithPayload(8);
+        }, []);
+
+        return null;
+      }
+
+      await render(
+        <Dialog.Root handle={dialog}>
+          {({ payload }: { payload: number | undefined }) => (
+            <React.Fragment>
+              <OpenOnMount />
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="content">{payload}</Dialog.Popup>
+              </Dialog.Portal>
+            </React.Fragment>
+          )}
+        </Dialog.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('8');
+      });
+      expect(dialog.isOpen).toBe(true);
+    });
+
     it('resets a stale store when a mounted Root receives a handle prop', async () => {
       const dialog = Dialog.createHandle();
 
@@ -1162,12 +1248,13 @@ describe('<Dialog.Root />', () => {
       // `nestedOpenDialogCount` is open-cycle state on the parent store. The adopting Root only
       // re-derives it through a layout-effect sync, so a render-phase consumer (one rendered
       // before the popup mounts) would read the previous Root's value on the first render unless
-      // the adoption reset clears it. This probe is such a consumer: it subscribes to the count
-      // and is rendered directly under the Root (not gated by the popup mounting), recording every
-      // value it sees while the adopting Root is mounted.
+      // the adoption reset clears it. This probe is such a consumer: it subscribes to the Root
+      // context store and is rendered directly under the Root (not gated by the popup mounting),
+      // recording every value it sees while the adopting Root is mounted.
       const observedCounts: number[] = [];
       function NestedCountProbe() {
-        observedCounts.push(dialog.store.useState('nestedOpenDialogCount'));
+        const { store } = useDialogRootContext();
+        observedCounts.push(store.useState('nestedOpenDialogCount'));
         return null;
       }
 

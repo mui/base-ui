@@ -67,12 +67,13 @@ type AdoptionState<
 > = {
   target: Store;
   proxy: Store;
+  targetState: State;
   state: State;
   context: Store['context'];
   committed: boolean;
 };
 
-function hasStoreOwner(store: ReactStore<any, any, any>) {
+export function hasStoreOwner(store: ReactStore<any, any, any>) {
   return (storeOwnerCount.get(store) ?? 0) > 0;
 }
 
@@ -174,13 +175,26 @@ function updateAdoptionState<State extends PopupStoreState<unknown>>(
   }
 }
 
+function getChangedStateKeys<State extends object>(previousState: State, nextState: State) {
+  const changedKeys: Array<keyof State> = [];
+
+  for (const key of Object.keys(nextState) as Array<keyof State>) {
+    if (!Object.is(previousState[key], nextState[key])) {
+      changedKeys.push(key);
+    }
+  }
+
+  return changedKeys;
+}
+
 function createAdoptionProxy<
   State extends PopupStoreState<unknown>,
   Store extends ReactStore<State, any, any>,
->(externalStore: Store, state: State): AdoptionState<State, Store> {
+>(externalStore: Store, targetState: State, state: State): AdoptionState<State, Store> {
   const adoption: AdoptionState<State, Store> = {
     target: externalStore,
     proxy: null as any,
+    targetState,
     state,
     context: { ...externalStore.context },
     committed: false,
@@ -266,6 +280,20 @@ function commitAdoption<
 >(adoption: AdoptionState<State, Store>, onAdoptCommit: ((store: Store) => void) | undefined) {
   const { target } = adoption;
 
+  if (hasPendingOwnerlessOpen(target) && target.state !== adoption.targetState) {
+    // A handle open from a descendant layout effect updates the real handle store before this
+    // parent layout effect commits the adoption. Preserve those intentional post-render writes
+    // without replaying arbitrary ownerless timer/trigger updates.
+    const changedKeys = getChangedStateKeys(adoption.targetState, target.state);
+    if (changedKeys.length > 0) {
+      const targetChanges: Partial<State> = {};
+      changedKeys.forEach((key) => {
+        targetChanges[key] = target.state[key];
+      });
+      adoption.state = { ...adoption.state, ...targetChanges };
+    }
+  }
+
   // From this point the adopting owner is committed, so the handle store can become observable to
   // detached triggers, imperative reads, and future owners.
   resetFloatingRootContext(adoption.state);
@@ -336,19 +364,15 @@ export function useAdoptedStoreReset<
     externalStore !== undefined && committedExternalStoreRef.current !== externalStore;
 
   if (shouldAdopt && externalStore !== undefined) {
+    const targetState = externalStore.state;
     const resetState = createAdoptionResetState(externalStore, initialState, additionalResetState);
-    // When no owner claims the handle, there is no committed popup tree for this store to corrupt.
-    // Updating the target preserves first-render reads through `handle.store`; owned stores use
-    // only the proxy until the adopting render commits.
-    if (!hasStoreOwner(externalStore)) {
-      externalStore.state = resetState;
-    }
 
     let adoption = adoptionRef.current;
     if (adoption?.target !== externalStore || adoption.committed) {
-      adoption = createAdoptionProxy(externalStore, resetState);
+      adoption = createAdoptionProxy(externalStore, targetState, resetState);
       adoptionRef.current = adoption;
     } else {
+      adoption.targetState = targetState;
       adoption.state = resetState;
       adoption.context = { ...externalStore.context };
     }

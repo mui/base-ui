@@ -1,6 +1,13 @@
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { clearStoreOwnerlessOpen, markStoreOwnerlessOpen } from '../../utils/popups';
-import { MenuStore } from './MenuStore';
+import { REASONS } from '../../internals/reasons';
+import {
+  clearStoreOwnerlessOpen,
+  hasStoreOwner,
+  markStoreOwnerlessOpen,
+  setPopupOpenState,
+} from '../../utils/popups';
+import { MenuStore, type State as MenuStoreState } from './MenuStore';
 
 export class MenuHandle<Payload> {
   /**
@@ -28,19 +35,54 @@ export class MenuHandle<Payload> {
       throw new Error(`Base UI: MenuHandle.open: No trigger found with id "${triggerId}".`);
     }
 
-    markStoreOwnerlessOpen(this.store);
-    this.store.setOpen(
-      true,
-      createChangeEventDetails('imperative-action', undefined, triggerElement),
+    const ownerless = !hasStoreOwner(this.store);
+    const eventDetails = createChangeEventDetails(
+      REASONS.imperativeAction,
+      undefined,
+      triggerElement,
     );
+
+    markStoreOwnerlessOpen(this.store);
+
+    if (ownerless) {
+      const updatedState: Partial<MenuStoreState<Payload>> = {
+        open: true,
+        openChangeReason: REASONS.imperativeAction,
+      };
+
+      setPopupOpenState(updatedState, true, triggerElement);
+      this.store.update(updatedState);
+    }
+
+    this.store.setOpen(true, eventDetails);
   }
 
   /**
    * Closes the menu.
    */
   close() {
+    const ownerless = !hasStoreOwner(this.store);
+    const activeTriggerElement = this.store.state.activeTriggerElement;
+    const triggerElement = isHTMLElement(activeTriggerElement) ? activeTriggerElement : undefined;
+    const eventDetails = createChangeEventDetails(
+      REASONS.imperativeAction,
+      undefined,
+      triggerElement,
+    );
+
     clearStoreOwnerlessOpen(this.store);
-    this.store.setOpen(false, createChangeEventDetails('imperative-action', undefined, undefined));
+
+    if (ownerless) {
+      const updatedState: Partial<MenuStoreState<Payload>> = {
+        open: false,
+        openChangeReason: REASONS.imperativeAction,
+      };
+
+      setPopupOpenState(updatedState, false, eventDetails.trigger);
+      this.store.update(updatedState);
+    }
+
+    this.store.setOpen(false, eventDetails);
   }
 
   /**

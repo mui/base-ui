@@ -3,6 +3,7 @@ import * as React from 'react';
 import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM, wait } from '#test-utils';
+import { useMenuRootContext } from './MenuRootContext';
 
 describe('<MenuRoot />', () => {
   beforeEach(() => {
@@ -1122,6 +1123,54 @@ describe('<MenuRoot />', () => {
 
       expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
+
+    it('preserves an ownerless imperative open when the Root is mounted in the same event', async () => {
+      const menu = Menu.createHandle();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(false);
+
+        return (
+          <div>
+            <Menu.Trigger handle={menu} id="trigger">
+              Trigger
+            </Menu.Trigger>
+            <button
+              type="button"
+              onClick={() => {
+                setMounted(true);
+                menu.open('trigger');
+              }}
+            >
+              Open lazy menu
+            </button>
+            {mounted && (
+              <Menu.Root handle={menu}>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="content">
+                      <Menu.Item>Content</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(screen.getByRole('button', { name: 'Open lazy menu' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBe(null);
+      });
+      expect(screen.getByTestId('content').textContent).toBe('Content');
+      expect(menu.isOpen).toBe(true);
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
   });
 
   // Regression test for https://github.com/mui/base-ui/issues/4951.
@@ -1262,12 +1311,14 @@ describe('<MenuRoot />', () => {
       }> = [];
 
       function StateProbe() {
+        const { store } = useMenuRootContext();
+
         observedStates.push({
-          hoverEnabled: menu.store.useState('hoverEnabled'),
-          openMethod: menu.store.useState('openMethod'),
-          stickIfOpen: menu.store.useState('stickIfOpen'),
-          instantType: menu.store.useState('instantType'),
-          lastOpenChangeReason: menu.store.useState('lastOpenChangeReason'),
+          hoverEnabled: store.useState('hoverEnabled'),
+          openMethod: store.useState('openMethod'),
+          stickIfOpen: store.useState('stickIfOpen'),
+          instantType: store.useState('instantType'),
+          lastOpenChangeReason: store.useState('lastOpenChangeReason'),
         });
         return null;
       }
