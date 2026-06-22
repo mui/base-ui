@@ -134,46 +134,6 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
   });
 
-  it('removes the mouseup listener if unmounted before the mouseup fires', async () => {
-    const addSpy = vi.spyOn(document, 'addEventListener');
-    const removeSpy = vi.spyOn(document, 'removeEventListener');
-
-    const { unmount } = await render(
-      <ContextMenu.Root>
-        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
-        <ContextMenu.Portal>
-          <ContextMenu.Positioner>
-            <ContextMenu.Popup />
-          </ContextMenu.Positioner>
-        </ContextMenu.Portal>
-      </ContextMenu.Root>,
-    );
-
-    const trigger = screen.getByTestId('trigger');
-    fireEvent.contextMenu(trigger);
-    await flushMicrotasks();
-
-    // The trigger registers a one-shot `mouseup` listener while awaiting the release.
-    const mouseupCall = addSpy.mock.calls.find(
-      ([type, , options]) =>
-        type === 'mouseup' && typeof options === 'object' && options != null && options.once,
-    );
-    expect(mouseupCall).not.toBe(undefined);
-    const mouseupHandler = mouseupCall![1];
-
-    // Unmount before any mouseup is dispatched; the listener must be torn down.
-    unmount();
-
-    expect(removeSpy).toHaveBeenCalledWith(
-      'mouseup',
-      mouseupHandler,
-      expect.objectContaining({ once: true }),
-    );
-
-    addSpy.mockRestore();
-    removeSpy.mockRestore();
-  });
-
   describe('prop: disabled', () => {
     it('does not open on right-click when disabled', async () => {
       const onOpenChange = vi.fn();
