@@ -3,6 +3,7 @@ import * as React from 'react';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
+import { useTooltipRootContext } from './TooltipRootContext';
 
 describe('<Tooltip.Root />', () => {
   beforeEach(async () => {
@@ -1080,9 +1081,11 @@ describe('<Tooltip.Root />', () => {
       }> = [];
 
       function StateProbe() {
+        const store = useTooltipRootContext();
+
         observedStates.push({
-          isInstantPhase: tooltip.store.useState('isInstantPhase'),
-          instantType: tooltip.store.useState('instantType'),
+          isInstantPhase: store.useState('isInstantPhase'),
+          instantType: store.useState('instantType'),
         });
         return null;
       }
