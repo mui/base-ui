@@ -93,6 +93,25 @@ describe('<Progress.Root />', () => {
 
       expect(screen.getByRole('progressbar')).toHaveAttribute('data-complete');
     });
+
+    it('normalizes aria attributes when min equals max', async () => {
+      const expected = (0).toLocaleString(undefined, { style: 'percent' });
+
+      await render(
+        <Progress.Root min={5} max={5} value={5}>
+          <Progress.Value data-testid="value" />
+          <Progress.Track>
+            <Progress.Indicator data-testid="indicator" />
+          </Progress.Track>
+        </Progress.Root>,
+      );
+
+      const progressbar = screen.getByRole('progressbar');
+      expect(progressbar).toHaveAttribute('aria-valuenow', '5');
+      expect(progressbar).toHaveAttribute('aria-valuetext', expected);
+      expect(screen.getByTestId('value')).toHaveTextContent(expected);
+      expect(screen.getByTestId('indicator').style.width).toBe('0%');
+    });
   });
 
   describe('prop: format', () => {

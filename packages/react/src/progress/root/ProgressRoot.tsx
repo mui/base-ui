@@ -53,7 +53,8 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   let formattedValue = '';
 
   if (value != null && Number.isFinite(value)) {
-    percentageValue = clamp(valueToPercent(value, min, max), 0, 100);
+    const rawPercentage = valueToPercent(value, min, max);
+    percentageValue = clamp(Number.isNaN(rawPercentage) ? 0 : rawPercentage, 0, 100);
     clampedValue = clamp(value, min, max);
     status = clampedValue === max ? 'complete' : 'progressing';
     // Without an explicit `format`, the value is displayed as its position within the range so the
