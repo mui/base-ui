@@ -47,6 +47,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const longPressTimeout = useTimeout();
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
+  const removeMouseUpListenerRef = React.useRef<(() => void) | null>(null);
 
   function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
@@ -81,11 +82,16 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
     const doc = ownerDocument(triggerRef.current);
 
-    // One-shot listener (`{ once: true }`) removes itself after firing; no cleanup to retain.
-    void addEventListener(
+    // Tear down a listener from a previous trigger that never saw its mouseup, then
+    // retain this one so it can be removed on unmount if the mouseup never arrives.
+    removeMouseUpListenerRef.current?.();
+    removeMouseUpListenerRef.current = addEventListener(
       doc,
       'mouseup',
       (mouseEvent) => {
+        // `{ once: true }` has already removed this listener.
+        removeMouseUpListenerRef.current = null;
+
         allowMouseUpTriggerRef.current = false;
 
         if (!allowMouseUpRef.current) {
@@ -153,6 +159,15 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     longPressTimeout.clear();
     touchPositionRef.current = null;
   }
+
+  React.useEffect(
+    () => () => {
+      // Remove a pending mouseup listener if the trigger unmounts before it fires.
+      removeMouseUpListenerRef.current?.();
+      removeMouseUpListenerRef.current = null;
+    },
+    [],
+  );
 
   React.useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
