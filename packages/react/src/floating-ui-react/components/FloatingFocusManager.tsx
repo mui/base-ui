@@ -870,7 +870,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             ? isFocusInsideFloatingTree
             : true)
         ) {
-          tabbableReturnElement.focus({ preventScroll: true });
+          const focusOptions: FocusOptions = { preventScroll: true };
+          if (closeTypeRef.current === 'keyboard') {
+            focusOptions.focusVisible = true;
+          }
+          tabbableReturnElement.focus(focusOptions);
         }
 
         preventReturnFocusRef.current = false;
