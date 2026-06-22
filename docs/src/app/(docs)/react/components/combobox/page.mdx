@@ -214,6 +214,30 @@ import { DemoComboboxVirtualized } from './demos/virtualized';
 
 <DemoComboboxVirtualized />
 
+#### Memoizing items
+
+Virtualization may not be necessary below a certain number of items: memoizing each item stops typing from re-rendering the whole list, which matters for the common case where items have rich children such as an indicator alongside a label. Wrap the item in [`React.memo`](https://react.dev/reference/react/memo) and pass the item as a prop — filtering preserves each item's reference, so unchanged options skip re-rendering:
+
+```tsx title="Memoizing list items"
+interface Fruit {
+  id: string;
+  label: string;
+}
+
+const FruitItem = React.memo(function FruitItem({ item }: { item: Fruit }) {
+  return (
+    <Combobox.Item value={item}>
+      <Combobox.ItemIndicator />
+      <span>{item.label}</span>
+    </Combobox.Item>
+  );
+});
+
+<Combobox.List>{(item: Fruit) => <FruitItem key={item.id} item={item} />}</Combobox.List>;
+```
+
+Memoization speeds up typing but not opening, so it's useful between roughly 300 and 1,000 items. Past 1,000 items, the mount cost of all the items on open dominates, and virtualization becomes necessary to keep the open interaction fast on a low-end device.
+
 ## API reference
 
 import { TypesCombobox } from './types';

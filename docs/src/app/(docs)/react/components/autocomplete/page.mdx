@@ -164,6 +164,33 @@ import { DemoAutocompleteVirtualized } from './demos/virtualized';
 
 <DemoAutocompleteVirtualized />
 
+#### Memoizing items
+
+Virtualization may not be necessary below a certain number of items: memoizing each item stops typing from re-rendering the whole list, which matters for the common case where items have rich children such as a label alongside a secondary line. Wrap the item in [`React.memo`](https://react.dev/reference/react/memo) and pass the item as a prop — filtering preserves each item's reference, so unchanged options skip re-rendering:
+
+```tsx title="Memoizing list items"
+interface Suggestion {
+  id: string;
+  label: string;
+  description: string;
+}
+
+const SuggestionItem = React.memo(function SuggestionItem({ item }: { item: Suggestion }) {
+  return (
+    <Autocomplete.Item value={item}>
+      <span>{item.label}</span>
+      <span>{item.description}</span>
+    </Autocomplete.Item>
+  );
+});
+
+<Autocomplete.List>
+  {(item: Suggestion) => <SuggestionItem key={item.id} item={item} />}
+</Autocomplete.List>;
+```
+
+Memoization speeds up typing but not opening, so it's useful between roughly 300 and 1,000 items. Past 1,000 items, the mount cost of all the items on open dominates, and virtualization becomes necessary to keep the open interaction fast on a low-end device.
+
 ## API reference
 
 import { TypesAutocomplete } from './types';
