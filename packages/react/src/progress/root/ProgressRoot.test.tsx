@@ -74,12 +74,24 @@ describe('<Progress.Root />', () => {
       expect(progressbar).toHaveAttribute('aria-valuetext', expected);
     });
 
-    it('clamps aria-valuenow to the range when the value overshoots max', async () => {
-      await render(<Progress.Root min={0} max={40} value={50} />);
+    it('clamps aria-valuenow, the value text, and the indicator when the value overshoots max', async () => {
+      const expected = (1).toLocaleString(undefined, { style: 'percent' });
+
+      await render(
+        <Progress.Root min={0} max={40} value={50}>
+          <Progress.Value data-testid="value" />
+          <Progress.Track>
+            <Progress.Indicator data-testid="indicator" />
+          </Progress.Track>
+        </Progress.Root>,
+      );
 
       const progressbar = screen.getByRole('progressbar');
       expect(progressbar).toHaveAttribute('aria-valuenow', '40');
       expect(progressbar).toHaveAttribute('aria-valuemax', '40');
+      expect(progressbar).toHaveAttribute('aria-valuetext', expected);
+      expect(screen.getByTestId('value')).toHaveTextContent(expected);
+      expect(screen.getByTestId('indicator').style.width).toBe('100%');
     });
 
     it('reports complete when the value reaches or exceeds max', async () => {
