@@ -167,23 +167,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   });
 
-  useRegisterFieldControl(validation.inputRef, id, valueUnwrapped, undefined, !disabled, nameProp);
-
-  useValueChanged(valueUnwrapped, () => {
-    clearErrors(name);
-
-    validation.change(valueUnwrapped);
-
-    const initialValue = validityData.initialValue as Value | undefined;
-    let isDirty: boolean;
-    if (Array.isArray(valueUnwrapped) && Array.isArray(initialValue)) {
-      isDirty = !areArraysEqual(valueUnwrapped, initialValue);
-    } else {
-      isDirty = valueUnwrapped !== initialValue;
-    }
-    setDirty(isDirty);
-  });
-
   const registerFieldControlRef = useStableCallback((element: HTMLElement | null) => {
     if (element) {
       controlRef.current = element;
@@ -198,6 +181,25 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
     return valueUnwrapped.map((value) => clamp(value, min, max)).sort(asc);
   }, [max, min, range, valueUnwrapped]);
+
+  const fieldValue = range ? values : values[0];
+
+  useRegisterFieldControl(validation.inputRef, id, fieldValue, undefined, !disabled, nameProp);
+
+  useValueChanged(fieldValue, () => {
+    clearErrors(name);
+
+    validation.change(fieldValue);
+
+    const initialValue = validityData.initialValue as number | readonly number[] | undefined;
+    let isDirty: boolean;
+    if (Array.isArray(fieldValue) && Array.isArray(initialValue)) {
+      isDirty = !areArraysEqual(fieldValue, initialValue);
+    } else {
+      isDirty = fieldValue !== initialValue;
+    }
+    setDirty(isDirty);
+  });
 
   const setValue = useStableCallback(
     (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => {
