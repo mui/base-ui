@@ -518,8 +518,8 @@ export interface CheckboxRootProps
    */
   uncheckedValue?: string | undefined;
   /**
-   * The value of the selected checkbox.
-   * Falls back to the `name` when omitted. Identifies the checkbox within a [Checkbox Group](https://base-ui.com/react/components/checkbox-group), and is the value submitted with the form when the checkbox is checked.
+   * The checkbox's value. Identifies it within a [Checkbox Group](https://base-ui.com/react/components/checkbox-group), falling back to `name` when omitted.
+   * When submitting a form, a checked box submits `value`; with no `value`, it submits the native "on".
    */
   value?: string | undefined;
 }

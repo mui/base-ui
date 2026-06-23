@@ -143,7 +143,6 @@ type PreviewCardPortalState = {};
 ### Backdrop
 
 A presentational overlay displayed beneath the popup.
-It is non-interactive (rendered with `role="presentation"` and `pointer-events: none`), so it is a visual layer only and not a click-to-dismiss target.
 Renders a `<div>` element.
 
 **Backdrop Props:**
@@ -253,8 +252,8 @@ Renders a `<div>` element.
 | `--anchor-width`      | `number` | The anchor's width.                                                                                                                    |
 | `--available-height`  | `number` | The available height between the trigger and the edge of the viewport.                                                                 |
 | `--available-width`   | `number` | The available width between the trigger and the edge of the viewport.                                                                  |
-| `--positioner-height` | ``       | The height of the preview card's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
-| `--positioner-width`  | ``       | The width of the preview card's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
+| `--positioner-height` | `number` | The height of the preview card's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
+| `--positioner-width`  | `number` | The width of the preview card's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
 | `--transform-origin`  | `string` | The coordinates that this element is anchored to. Used for animations and transitions.                                                 |
 
 ### Positioner.Props

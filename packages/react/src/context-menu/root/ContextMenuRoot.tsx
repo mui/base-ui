@@ -66,6 +66,9 @@ export interface ContextMenuRootProps extends Omit<
   | 'delay'
   | 'closeDelay'
   | 'onOpenChange'
+  // Context Menu opens from a pointer position rather than a registered trigger, so the
+  // render-function form of `children` (which receives the active trigger's payload) is not applicable.
+  | 'children'
 > {
   /**
    * Event handler called when the menu is opened or closed.
@@ -73,6 +76,7 @@ export interface ContextMenuRootProps extends Omit<
   onOpenChange?:
     | ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void)
     | undefined;
+  children?: React.ReactNode | undefined;
 }
 
 export type ContextMenuRootActions = MenuRoot.Actions;

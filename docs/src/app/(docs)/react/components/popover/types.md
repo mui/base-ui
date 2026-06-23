@@ -263,8 +263,8 @@ Renders a `<div>` element.
 | `--anchor-width`      | `number` | The anchor's width.                                                                                                               |
 | `--available-height`  | `number` | The available height between the trigger and the edge of the viewport.                                                            |
 | `--available-width`   | `number` | The available width between the trigger and the edge of the viewport.                                                             |
-| `--positioner-height` | ``       | The height of the popover's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
-| `--positioner-width`  | ``       | The width of the popover's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
+| `--positioner-height` | `number` | The height of the popover's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
+| `--positioner-width`  | `number` | The width of the popover's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
 | `--transform-origin`  | `string` | The coordinates that this element is anchored to. Used for animations and transitions.                                            |
 
 ### Positioner.Props

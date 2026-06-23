@@ -27,11 +27,13 @@ export enum PreviewCardPositionerCssVars {
   /**
    * The width of the preview card's positioner.
    * It is important to set `width` to this value when using CSS to animate size changes.
+   * @type {number}
    */
   positionerWidth = '--positioner-width',
   /**
    * The height of the preview card's positioner.
    * It is important to set `height` to this value when using CSS to animate size changes.
+   * @type {number}
    */
   positionerHeight = '--positioner-height',
 }

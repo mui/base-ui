@@ -23,7 +23,7 @@ Doesn't render its own HTML element.
 | onOpenChangeComplete | `((open: boolean) => void)`                                                    | -            | Event handler called after any animations complete when the menu is opened or closed.                                                                                                                      |
 | disabled             | `boolean`                                                                      | `false`      | Whether the component should ignore user interaction.                                                                                                                                                      |
 | orientation          | `MenuRoot.Orientation`                                                         | `'vertical'` | The visual orientation of the menu.&#xA;Controls whether roving focus uses up/down or left/right arrow keys.                                                                                               |
-| children             | `React.ReactNode \| PayloadChildRenderFunction<unknown>`                       | -            | The content of the menu.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                      |
+| children             | `React.ReactNode`                                                              | -            | -                                                                                                                                                                                                          |
 
 ### Root.Props
 
@@ -262,8 +262,8 @@ Renders a `<div>` element.
 | `--anchor-width`      | `number` | The anchor's width.                                                                                                            |
 | `--available-height`  | `number` | The available height between the trigger and the edge of the viewport.                                                         |
 | `--available-width`   | `number` | The available width between the trigger and the edge of the viewport.                                                          |
-| `--positioner-height` | ``       | The height of the menu's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
-| `--positioner-width`  | ``       | The width of the menu's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
+| `--positioner-height` | `number` | The height of the menu's positioner.&#xA;It is important to set `height` to this value when using CSS to animate size changes. |
+| `--positioner-width`  | `number` | The width of the menu's positioner.&#xA;It is important to set `width` to this value when using CSS to animate size changes.   |
 | `--transform-origin`  | `string` | The coordinates that this element is anchored to. Used for animations and transitions.                                         |
 
 ### Positioner.Props
@@ -584,18 +584,18 @@ Renders a `<div>` element.
 
 **SubmenuTrigger Props:**
 
-| Prop         | Type                                                                                                     | Default | Description                                                                                                                                                                                                                                        |
-| :----------- | :------------------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                                 | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                                                                          |
-| onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                           | -       | -                                                                                                                                                                                                                                                  |
-| nativeButton | `boolean`                                                                                                | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                               |
-| disabled     | `boolean`                                                                                                | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                              |
-| openOnHover  | `boolean`                                                                                                | -       | Whether the menu should also open when the trigger is hovered.                                                                                                                                                                                     |
-| delay        | `number`                                                                                                 | `100`   | How long to wait before the menu may be opened on hover. Specified in milliseconds. Requires the `openOnHover` prop.                                                                                                                               |
-| closeDelay   | `number`                                                                                                 | `0`     | How long to wait before closing the menu that was opened on hover.&#xA;Specified in milliseconds. Also applies once the submenu is open: when a sibling branch opens, this&#xA;delay defers the submenu's closure regardless of how it was opened. |
-| className    | `string \| ((state: ContextMenu.SubmenuTrigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                           |
-| style        | `React.CSSProperties \| ((state: ContextMenu.SubmenuTrigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                        |
-| render       | `ReactElement \| ((props: HTMLProps, state: ContextMenu.SubmenuTrigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                      |
+| Prop         | Type                                                                                                     | Default | Description                                                                                                                                                                                   |
+| :----------- | :------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| label        | `string`                                                                                                 | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
+| onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                           | -       | -                                                                                                                                                                                             |
+| nativeButton | `boolean`                                                                                                | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
+| disabled     | `boolean`                                                                                                | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| openOnHover  | `boolean`                                                                                                | -       | Whether the menu should also open when the trigger is hovered.                                                                                                                                |
+| delay        | `number`                                                                                                 | `100`   | How long to wait before the menu may be opened on hover. Specified in milliseconds. Requires the `openOnHover` prop.                                                                          |
+| closeDelay   | `number`                                                                                                 | `0`     | How long to wait before closing the menu that was opened on hover.&#xA;Specified in milliseconds. Requires the `openOnHover` prop.                                                            |
+| className    | `string \| ((state: ContextMenu.SubmenuTrigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: ContextMenu.SubmenuTrigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: ContextMenu.SubmenuTrigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **SubmenuTrigger Data Attributes:**
 
@@ -973,12 +973,6 @@ type ContextMenuLinkItemState = {
 
 ```typescript
 type Orientation = 'horizontal' | 'vertical';
-```
-
-### PayloadChildRenderFunction
-
-```typescript
-type PayloadChildRenderFunction = (arg: { payload: unknown }) => ReactNode;
 ```
 
 ### Side

@@ -15,7 +15,6 @@ const stateAttributesMapping: StateAttributesMapping<PreviewCardBackdropState> =
 
 /**
  * A presentational overlay displayed beneath the popup.
- * It is non-interactive (rendered with `role="presentation"` and `pointer-events: none`), so it is a visual layer only and not a click-to-dismiss target.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)

@@ -229,8 +229,7 @@ export interface MenuSubmenuTriggerProps
    * How long to wait before closing the menu that was opened on hover.
    * Specified in milliseconds.
    *
-   * Also applies once the submenu is open: when a sibling branch opens, this
-   * delay defers the submenu's closure regardless of how it was opened.
+   * Requires the `openOnHover` prop.
    * @default 0
    */
   closeDelay?: number | undefined;
