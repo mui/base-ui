@@ -13,7 +13,7 @@ Renders a `<div>` element.
 
 | Prop             | Type                                                                                        | Default | Description                                                                                                                                                                                   |
 | :--------------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value\*          | `number \| null`                                                                            | `null`  | The current value. The component is indeterminate when value is `null`.                                                                                                                       |
+| value\*          | `number \| null`                                                                            | -       | The current value. The component is indeterminate when value is `null`.                                                                                                                       |
 | aria-valuetext   | `string`                                                                                    | -       | A string value that provides a user-friendly name for `aria-valuenow`, the current value of the progress bar.                                                                                 |
 | getAriaValueText | `((formattedValue: string \| null, value: number \| null) => string)`                       | -       | Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.                                                    |
 | locale           | `Intl.LocalesArgument`                                                                      | -       | The locale used by `Intl.NumberFormat` when formatting the value.&#xA;Defaults to the user's runtime locale.                                                                                  |
@@ -47,7 +47,7 @@ type ProgressRootState = {
 
 ### Value
 
-A text label displaying the current value.
+A text element displaying the current value.
 Renders a `<span>` element.
 
 **Value Props:**

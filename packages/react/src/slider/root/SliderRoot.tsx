@@ -551,12 +551,14 @@ export interface SliderRootProps<
   thumbCollisionBehavior?: 'push' | 'swap' | 'none' | undefined;
   /**
    * The value of the slider.
-   * For ranged sliders, provide an array with two values.
+   * For range sliders, provide an array with one value per thumb.
    */
   value?: Value | undefined;
   /**
    * Callback function that is fired when the slider's value changed.
-   * You can pull out the new value by accessing `event.target.value` (any).
+   * Receives the new value as the first argument; the originating event is
+   * available as `eventDetails.event`. The value is also reflected on
+   * `eventDetails.event.target.value` for form integration.
    *
    * The `eventDetails.reason` indicates what triggered the change:
    *

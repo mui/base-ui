@@ -194,7 +194,7 @@ This is useful when different triggers display different content within the same
 
 To enable content animations, wrap the content in the `<Tooltip.Viewport>` part.
 This part provides features to create direction-aware animations.
-It renders a `div` with a `data-activation-direction` attribute (`left`, `right`, `up`, or `down`) that indicates the new trigger's position relative to the previous one.
+It renders a `div` with a `data-activation-direction` attribute that indicates the new trigger's position relative to the previous one. The value is a space-separated set of up to two tokens (one per axis) — `left` or `right` for the horizontal axis and `up` or `down` for the vertical axis (for example, `right down`). Match a single token with the `~=` attribute selector, such as `[data-activation-direction~='right']`.
 
 Inside the `<Tooltip.Viewport>`, the content is further wrapped in `div`s with data attributes to help with styling:
 
@@ -238,6 +238,12 @@ import { TypesTooltip } from './types';
 ### Arrow
 
 <TypesTooltip.Arrow />
+
+### Viewport
+
+<TypesTooltip.Viewport />
+
+The `Viewport` is optional — reach for it only when a single popup is opened by multiple triggers, its content differs per trigger, and the switch between them is animated. When used, set `width: var(--positioner-width)` and `height: var(--positioner-height)` on the `Positioner` so its box is frozen to the measured size during the transition; otherwise content-driven resizing can make the popup thrash or flip to another side.
 
 ## createHandle
 

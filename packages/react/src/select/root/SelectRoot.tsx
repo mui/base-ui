@@ -715,6 +715,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Determines if the select enters a modal state when open.
    * - `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
+   *
+   * On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.
    * @default true
    */
   modal?: boolean | undefined;
