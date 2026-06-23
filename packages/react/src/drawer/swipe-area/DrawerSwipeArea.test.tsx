@@ -162,6 +162,15 @@ function nextMacrotask() {
   return wait(0);
 }
 
+// A real outside press always begins with a `pointerdown`; the swipe-open guard relies on that
+// fresh press to distinguish a deliberate dismissal from the `click` synthesized by the gesture's
+// own `pointerup`.
+function pressOutside(target: Element = document.body) {
+  fireEvent.pointerDown(target, { button: 0, buttons: 1, pointerType: 'mouse' });
+  fireEvent.pointerUp(target, { button: 0, buttons: 0, pointerType: 'mouse' });
+  fireEvent.click(target);
+}
+
 async function swipeUp(element: HTMLElement, startY: number, endY: number, options?: SwipeOptions) {
   return swipe(element, { x: 10, y: startY }, { x: 10, y: endY }, options);
 }
@@ -331,13 +340,49 @@ describe('<Drawer.SwipeArea />', () => {
       await nextMacrotask();
     });
 
-    fireEvent.click(document.body);
+    pressOutside();
 
     await waitFor(() => {
       expect(screen.queryByTestId('popup')).toBe(null);
     });
 
     expect(swipeArea).toHaveAttribute('data-closed', '');
+  });
+
+  it('does not dismiss from the click synthesized by the swipe-open pointerup', async () => {
+    // Dragging past the popup releases the pointer outside it, so the gesture's own pointerup
+    // synthesizes a `click` over the backdrop. That click (which has no fresh pointerdown) must not
+    // be read as an outside press and dismiss the drawer that was just opened — even when it lands a
+    // macrotask later, after a timer-based re-enable would have fired.
+    await render(
+      <Drawer.Root>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    await swipeUp(swipeArea, 120, 40);
+
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+
+    await act(async () => {
+      await nextMacrotask();
+    });
+
+    // Trailing synthesized click with no preceding fresh pointerdown.
+    fireEvent.click(document.body);
+
+    await act(async () => {
+      await nextMacrotask();
+    });
+
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
   });
 
   it('re-enables outside press dismissal after an interrupted swipe-open gesture', async () => {
@@ -402,7 +447,7 @@ describe('<Drawer.SwipeArea />', () => {
       await nextMacrotask();
     });
 
-    fireEvent.click(document.body);
+    pressOutside();
 
     await waitFor(() => {
       expect(screen.queryByTestId('popup')).toBe(null);
@@ -478,7 +523,7 @@ describe('<Drawer.SwipeArea />', () => {
       await nextMacrotask();
     });
 
-    fireEvent.click(document.body);
+    pressOutside();
 
     await waitFor(() => {
       expect(screen.queryByTestId('popup')).toBe(null);
