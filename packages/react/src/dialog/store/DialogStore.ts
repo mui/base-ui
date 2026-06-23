@@ -59,8 +59,8 @@ export class DialogStore<Payload> extends ReactStore<
     floatingId?: string | undefined,
     nested = false,
   ) {
-    const triggerElements = new PopupTriggerMap();
     const state = createInitialState<Payload>(initialState);
+    const triggerElements = new PopupTriggerMap();
 
     state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
@@ -77,7 +77,10 @@ export class DialogStore<Payload> extends ReactStore<
       },
       selectors,
     );
+    this.triggerElements = triggerElements;
   }
+
+  private triggerElements: PopupTriggerMap;
 
   public setOpen = (
     nextOpen: boolean,
@@ -110,6 +113,21 @@ export class DialogStore<Payload> extends ReactStore<
     this.update(updatedState);
   };
 
+  public initialize(initialState?: Partial<State<Payload>>) {
+    const state = createInitialState<Payload>(initialState);
+    state.floatingRootContext = createPopupFloatingRootContext(this.triggerElements);
+
+    if (process.env.NODE_ENV !== 'production') {
+      // A handle store can outlive a single Root instance, so the dev-only controlledness cache
+      // must not carry over when the next Root attaches to the same store.
+      delete (this as { controlledValues?: Map<keyof State<Payload>, boolean> | undefined })
+        .controlledValues;
+    }
+
+    // Avoid notifying detached trigger subscribers while Dialog.Root is rendering.
+    this.state = state;
+  }
+
   static useStore<Payload>(
     externalStore: DialogStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
@@ -119,6 +137,9 @@ export class DialogStore<Payload> extends ReactStore<
       externalStore,
       (floatingId, nested) => new DialogStore<Payload>(initialState, floatingId, nested),
       true,
+      (storeInstance) => {
+        storeInstance.initialize(initialState);
+      },
     ).store;
     /* eslint-enable react-hooks/rules-of-hooks */
 

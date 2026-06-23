@@ -56,6 +56,7 @@ export function usePopupStore<
   externalStore: Store | undefined,
   createStore: (floatingId: string | undefined, nested: boolean) => Store,
   treatPopupAsFloatingElement = false,
+  initializeExternalStore?: ((store: Store) => void) | undefined,
 ) {
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
@@ -66,6 +67,12 @@ export function usePopupStore<
   }
 
   const store = externalStore ?? internalStoreRef.current!;
+
+  useOnFirstRender(() => {
+    if (externalStore !== undefined) {
+      initializeExternalStore?.(store);
+    }
+  });
 
   useSyncedFloatingRootContext({
     popupStore: store,

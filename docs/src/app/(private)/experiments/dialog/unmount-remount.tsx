@@ -29,6 +29,14 @@ export default function DialogUnmountRemountExperiment() {
           Open dialog
         </Dialog.Trigger>
 
+        <Dialog.Trigger
+          handle={dialogHandle}
+          className={clsx(demoStyles.Button, styles.Button)}
+          disabled={!mounted}
+        >
+          Open dialog from second trigger
+        </Dialog.Trigger>
+
         <button
           type="button"
           className={clsx(demoStyles.Button, styles.Button)}

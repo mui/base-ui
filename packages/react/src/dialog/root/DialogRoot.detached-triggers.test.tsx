@@ -399,6 +399,116 @@ describe('<Dialog.Root />', () => {
       });
     });
 
+    it('resets the handle store when the root remounts after being unmounted while open', async () => {
+      const testDialog = Dialog.createHandle();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <div>
+            <Dialog.Trigger handle={testDialog}>Trigger 1</Dialog.Trigger>
+            <Dialog.Trigger handle={testDialog}>Trigger 2</Dialog.Trigger>
+            {!mounted && (
+              <button type="button" onClick={() => setMounted(true)}>
+                Remount root
+              </button>
+            )}
+
+            {mounted && (
+              <Dialog.Root handle={testDialog}>
+                <Dialog.Portal>
+                  <Dialog.Popup>
+                    Dialog Content
+                    <button type="button" onClick={() => setMounted(false)}>
+                      Unmount root
+                    </button>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Unmount root' }));
+      expect(screen.queryByText('Dialog Content')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Remount root' }));
+      expect(screen.queryByText('Dialog Content')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 2' }));
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+    });
+
+    it('resets stale controlled open state when a handle-backed root remounts uncontrolled', async () => {
+      const testDialog = Dialog.createHandle();
+
+      function App() {
+        const [mode, setMode] = React.useState<'controlled' | 'unmounted' | 'uncontrolled'>(
+          'controlled',
+        );
+
+        return (
+          <div>
+            <Dialog.Trigger handle={testDialog} id="trigger">
+              Trigger
+            </Dialog.Trigger>
+            <button type="button" onClick={() => setMode('unmounted')}>
+              Unmount root
+            </button>
+            {mode === 'unmounted' && (
+              <button type="button" onClick={() => setMode('uncontrolled')}>
+                Remount uncontrolled root
+              </button>
+            )}
+
+            {mode === 'controlled' && (
+              <Dialog.Root handle={testDialog} open triggerId="trigger">
+                <Dialog.Portal>
+                  <Dialog.Popup>
+                    Dialog Content
+                    <button type="button" onClick={() => setMode('unmounted')}>
+                      Unmount root
+                    </button>
+                  </Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            )}
+
+            {mode === 'uncontrolled' && (
+              <Dialog.Root handle={testDialog}>
+                <Dialog.Portal>
+                  <Dialog.Popup>Dialog Content</Dialog.Popup>
+                </Dialog.Portal>
+              </Dialog.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Unmount root' }));
+      expect(screen.queryByText('Dialog Content')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Remount uncontrolled root' }));
+      expect(screen.queryByText('Dialog Content')).toBe(null);
+    });
+
     it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {
       const testDialog = Dialog.createHandle();
       const { user, setProps } = await render(
