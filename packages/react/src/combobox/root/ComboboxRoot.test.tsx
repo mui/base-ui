@@ -5153,7 +5153,9 @@ describe('<Combobox.Root />', () => {
           items: ['artichoke', 'banana', 'blueberry'],
         },
       ];
+
       const filter = vi.fn((itemValue: string, query: string) => itemValue.startsWith(query));
+
       const { user } = await render(
         <Combobox.Root items={items} filter={filter} limit={2} defaultOpen>
           <Combobox.Input data-testid="input" />
@@ -5181,6 +5183,7 @@ describe('<Combobox.Root />', () => {
       );
 
       filter.mockClear();
+
       await user.type(screen.getByTestId('input'), 'a');
       await flushMicrotasks();
 
