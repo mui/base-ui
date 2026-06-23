@@ -95,7 +95,11 @@ export interface AvatarImageState extends AvatarRootState {
   transitionStatus: TransitionStatus;
 }
 
-export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarImageState> {
+export interface AvatarImageProps extends BaseUIComponentProps<
+  'img',
+  AvatarImageState,
+  React.ComponentPropsWithRef<'img'>
+> {
   /**
    * Callback fired when the loading status changes.
    */

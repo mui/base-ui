@@ -64,7 +64,11 @@ export interface FieldsetRootState {
   disabled: boolean;
 }
 
-export interface FieldsetRootProps extends BaseUIComponentProps<'fieldset', FieldsetRootState> {}
+export interface FieldsetRootProps extends BaseUIComponentProps<
+  'fieldset',
+  FieldsetRootState,
+  React.ComponentPropsWithRef<'fieldset'>
+> {}
 
 export namespace FieldsetRoot {
   export type State = FieldsetRootState;
