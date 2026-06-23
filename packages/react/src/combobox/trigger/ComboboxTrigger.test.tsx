@@ -36,6 +36,38 @@ describe('<Combobox.Trigger />', () => {
     expect(trigger).toHaveAttribute('tabindex', '-1');
   });
 
+  it('cancels the scheduled force-mount when the trigger blurs before it fires', async () => {
+    await render(
+      <Combobox.Root>
+        <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="a">a</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+
+    fireEvent.focus(trigger);
+    fireEvent.blur(trigger);
+
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0);
+      });
+    });
+
+    // The force-mount scheduled on focus is cancelled on blur, so the closed list is never
+    // force-mounted.
+    expect(document.body.querySelector('[data-base-ui-portal]')).toBe(null);
+  });
+
   describe('prop: disabled', () => {
     it('should render aria-disabled attribute when disabled', async () => {
       await render(
