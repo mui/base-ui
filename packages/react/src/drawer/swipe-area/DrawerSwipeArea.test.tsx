@@ -519,4 +519,130 @@ describe('<Drawer.SwipeArea />', () => {
 
     expect(swipeArea).toHaveAttribute('data-open', '');
   });
+
+  it('opens on a quick flick whose only move is already released (buttons: 0)', async () => {
+    // On a fast flick — especially on a low-refresh-rate display — the pointer can be lifted before
+    // the first `pointermove` is sampled, so the single move arrives with `buttons: 0` and no
+    // preceding pressed move. It must still commit the swipe-open instead of being discarded.
+    await render(
+      <Drawer.Root>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    fireEvent.pointerDown(swipeArea, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      pointerType: 'mouse',
+      timeStamp: 0,
+    });
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 40,
+      buttons: 0,
+      pointerType: 'mouse',
+      timeStamp: 16,
+    });
+    await flushMicrotasks();
+
+    fireEvent.pointerUp(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 40,
+      buttons: 0,
+      pointerType: 'mouse',
+      timeStamp: 32,
+    });
+    await flushMicrotasks();
+
+    expect(swipeArea).toHaveAttribute('data-open', '');
+  });
+
+  it('opens on a quick flick that lands its whole travel in a single touch move', async () => {
+    // A fast touch flick on a low-refresh-rate display can produce a single `touchmove` carrying
+    // the entire travel between `touchstart` and `touchend`. The first-move latency calibration
+    // must not discard it for the swipe-area (which doesn't track a dragged element).
+    await render(
+      <Drawer.Root>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    fireEvent.touchStart(swipeArea, {
+      bubbles: true,
+      touches: [createTouch(swipeArea, { clientX: 10, clientY: 120 })],
+    });
+    await flushMicrotasks();
+
+    fireEvent.touchMove(swipeArea, {
+      bubbles: true,
+      touches: [createTouch(swipeArea, { clientX: 10, clientY: 40 })],
+    });
+    await flushMicrotasks();
+
+    fireEvent.touchEnd(swipeArea, {
+      bubbles: true,
+      changedTouches: [createTouch(swipeArea, { clientX: 10, clientY: 40 })],
+    });
+    await flushMicrotasks();
+
+    expect(swipeArea).toHaveAttribute('data-open', '');
+  });
+
+  it('does not open on an in-place press-release without movement', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root onOpenChange={handleOpenChange}>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    fireEvent.pointerDown(swipeArea, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      pointerType: 'mouse',
+      timeStamp: 0,
+    });
+    await flushMicrotasks();
+
+    // Released in place: a `buttons: 0` move with no displacement must not open the drawer.
+    fireEvent.pointerMove(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      buttons: 0,
+      pointerType: 'mouse',
+      timeStamp: 16,
+    });
+    await flushMicrotasks();
+
+    fireEvent.pointerUp(swipeArea, {
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      buttons: 0,
+      pointerType: 'mouse',
+      timeStamp: 32,
+    });
+    await flushMicrotasks();
+
+    expect(swipeArea).toHaveAttribute('data-closed', '');
+    expect(handleOpenChange).not.toHaveBeenCalled();
+  });
 });
