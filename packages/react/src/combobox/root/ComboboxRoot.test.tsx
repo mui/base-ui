@@ -5146,7 +5146,7 @@ describe('<Combobox.Root />', () => {
       const items = [
         {
           value: 'groupA',
-          items: ['apple', 'apricot', 'avocado'],
+          items: ['banana', 'apple', 'apricot', 'avocado'],
         },
         {
           value: 'groupB',
