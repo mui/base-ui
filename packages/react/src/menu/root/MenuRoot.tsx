@@ -564,6 +564,10 @@ export interface MenuRootProps<Payload = unknown> {
    * Determines if the menu enters a modal state when open.
    * - `true`: user interaction is limited to the menu: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
+   *
+   * On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior.
+   *
+   * Nested menus ignore this prop, and menus opened by hover are never modal.
    * @default true
    */
   modal?: boolean | undefined;
@@ -572,7 +576,7 @@ export interface MenuRootProps<Payload = unknown> {
    */
   onOpenChange?: ((open: boolean, eventDetails: MenuRoot.ChangeEventDetails) => void) | undefined;
   /**
-   * Event handler called after any animations complete when the menu is closed.
+   * Event handler called after any animations complete when the menu is opened or closed.
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
@@ -604,14 +608,14 @@ export interface MenuRootProps<Payload = unknown> {
    */
   actionsRef?: React.RefObject<MenuRoot.Actions | null> | undefined;
   /**
-   * ID of the trigger that the popover is associated with.
-   * This is useful in conjunction with the `open` prop to create a controlled popover.
-   * There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).
+   * ID of the trigger that the menu is associated with.
+   * This is useful in conjunction with the `open` prop to create a controlled menu.
+   * There's no need to specify this prop when the menu is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: string | null | undefined;
   /**
-   * ID of the trigger that the popover is associated with.
-   * This is useful in conjunction with the `defaultOpen` prop to create an initially open popover.
+   * ID of the trigger that the menu is associated with.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open menu.
    */
   defaultTriggerId?: string | null | undefined;
   /**
@@ -620,7 +624,7 @@ export interface MenuRootProps<Payload = unknown> {
    */
   handle?: MenuHandle<Payload> | undefined;
   /**
-   * The content of the popover.
+   * The content of the menu.
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
    */
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;

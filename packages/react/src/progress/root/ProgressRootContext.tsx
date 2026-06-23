@@ -16,6 +16,11 @@ export type ProgressRootContext = {
    */
   min: number;
   /**
+   * The value normalized to a `0`–`100` percentage of the range, clamped to those bounds.
+   * `null` while the progress is indeterminate.
+   */
+  percentageValue: number | null;
+  /**
    * Value of the component.
    */
   value: number | null;

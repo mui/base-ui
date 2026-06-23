@@ -1247,6 +1247,31 @@ describe('<OTPField.Root />', () => {
         }
       });
 
+      it('keeps focus on the first invalid field when auto-submit is blocked', async () => {
+        await render(
+          <Form>
+            <Field.Root name="email" validate={() => 'Required'}>
+              <Field.Label>Email</Field.Label>
+              <Field.Control />
+              <Field.Error />
+            </Field.Root>
+            <Field.Root name="otp">
+              <OTPField autoSubmit />
+            </Field.Root>
+          </Form>,
+        );
+
+        const emailInput = screen.getByRole('textbox', { name: 'Email' });
+        const otpInputs = screen
+          .getAllByRole<HTMLInputElement>('textbox')
+          .filter((input) => input !== emailInput);
+
+        fireEvent.change(otpInputs[0], { target: { value: '123456' } });
+
+        expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+        expect(emailInput).toHaveFocus();
+      });
+
       it('does not submit the owning form before the OTP becomes complete when enabled', async () => {
         const handleSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
