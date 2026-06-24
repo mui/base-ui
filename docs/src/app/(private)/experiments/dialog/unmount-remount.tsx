@@ -23,6 +23,7 @@ export default function DialogUnmountRemountExperiment() {
       <div className={styles.Container}>
         <Dialog.Trigger
           handle={dialogHandle}
+          id="unmount-remount-trigger-1"
           className={clsx(demoStyles.Button, styles.Button)}
           disabled={!mounted}
         >
@@ -31,6 +32,7 @@ export default function DialogUnmountRemountExperiment() {
 
         <Dialog.Trigger
           handle={dialogHandle}
+          id="unmount-remount-trigger-2"
           className={clsx(demoStyles.Button, styles.Button)}
           disabled={!mounted}
         >
