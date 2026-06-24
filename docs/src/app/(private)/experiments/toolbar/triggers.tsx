@@ -26,10 +26,7 @@ import {
   MoreHorizontalIcon,
   ChevronRightIcon,
 } from './_icons';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 
 interface Settings extends Record<string, boolean> {}
 
@@ -138,7 +135,6 @@ export default function App() {
         className={styles.toolbar.a}
         href="https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/"
         target="_blank"
-        rel="noreferrer"
       >
         <h3 className={styles.toolbar.h3}>Toolbar pattern</h3>
       </a>
@@ -163,7 +159,7 @@ export default function App() {
               <Menu.Positioner className={styles.menu.Positioner}>
                 <Menu.Popup className={styles.menu.Popup}>
                   <Menu.Item className={styles.menu.Item}>Save</Menu.Item>
-                  <Menu.Item className={styles.menu.Item}>Save as...</Menu.Item>
+                  <Menu.Item className={styles.menu.Item}>Save as…</Menu.Item>
                   <Menu.Separator className={styles.menu.Separator} />
                   <Menu.SubmenuRoot>
                     <Menu.SubmenuTrigger className={styles.menu.SubmenuTrigger}>

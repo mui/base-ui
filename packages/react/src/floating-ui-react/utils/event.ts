@@ -1,4 +1,4 @@
-import { isAndroid, isJSDOM } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
 
 export function stopEvent(event: Event | React.SyntheticEvent) {
   event.preventDefault();
@@ -9,15 +9,13 @@ export function isReactEvent(event: any): event is React.SyntheticEvent {
   return 'nativeEvent' in event;
 }
 
-// License: https://github.com/adobe/react-spectrum/blob/b35d5c02fe900badccd0cf1a8f23bb593419f238/packages/@react-aria/utils/src/isVirtualEvent.ts
+// License: https://github.com/adobe/react-spectrum/blob/main/packages/@react-aria/utils/src/isVirtualEvent.ts
 export function isVirtualClick(event: MouseEvent | PointerEvent): boolean {
-  // FIXME: Firefox is now emitting a deprecation warning for `mozInputSource`.
-  // Try to find a workaround for this. `react-aria` source still has the check.
-  if ((event as any).mozInputSource === 0 && event.isTrusted) {
+  if ((event as PointerEvent).pointerType === '' && event.isTrusted) {
     return true;
   }
 
-  if (isAndroid && (event as PointerEvent).pointerType) {
+  if (platform.os.android && (event as PointerEvent).pointerType) {
     return event.type === 'click' && event.buttons === 1;
   }
 
@@ -25,12 +23,12 @@ export function isVirtualClick(event: MouseEvent | PointerEvent): boolean {
 }
 
 export function isVirtualPointerEvent(event: PointerEvent) {
-  if (isJSDOM) {
+  if (platform.env.jsdom) {
     return false;
   }
   return (
-    (!isAndroid && event.width === 0 && event.height === 0) ||
-    (isAndroid &&
+    (!platform.os.android && event.width === 0 && event.height === 0) ||
+    (platform.os.android &&
       event.width === 1 &&
       event.height === 1 &&
       event.pressure === 0 &&

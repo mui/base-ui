@@ -8,6 +8,7 @@ export default function ExampleDialog() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [confirmationOpen, setConfirmationOpen] = React.useState(false);
   const [textareaValue, setTextareaValue] = React.useState('');
+  const titleId = React.useId();
 
   return (
     <Dialog.Root
@@ -28,29 +29,34 @@ export default function ExampleDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup}>
-          <Dialog.Title className={styles.Title}>New tweet</Dialog.Title>
-          <form
-            className={styles.TextareaContainer}
-            onSubmit={(event) => {
-              event.preventDefault();
-              // Close the dialog when submitting
-              setDialogOpen(false);
-            }}
-          >
-            <textarea
-              required
-              className={styles.Textarea}
-              placeholder="What’s on your mind?"
-              value={textareaValue}
-              onChange={(event) => setTextareaValue(event.target.value)}
-            />
-            <div className={styles.Actions}>
-              <Dialog.Close className={styles.Button}>Cancel</Dialog.Close>
-              <button type="submit" className={styles.Button}>
-                Tweet
-              </button>
-            </div>
-          </form>
+          <div className={styles.PopupBody}>
+            <Dialog.Title id={titleId} className={styles.Title}>
+              New tweet
+            </Dialog.Title>
+            <form
+              className={styles.TextareaContainer}
+              onSubmit={(event) => {
+                event.preventDefault();
+                // Close the dialog when submitting
+                setDialogOpen(false);
+              }}
+            >
+              <textarea
+                aria-labelledby={titleId}
+                required
+                className={styles.Textarea}
+                placeholder="What’s on your mind?"
+                value={textareaValue}
+                onChange={(event) => setTextareaValue(event.target.value)}
+              />
+              <div className={styles.Actions}>
+                <Dialog.Close className={styles.Button}>Cancel</Dialog.Close>
+                <button type="submit" className={styles.Button}>
+                  Tweet
+                </button>
+              </div>
+            </form>
+          </div>
         </Dialog.Popup>
       </Dialog.Portal>
 
@@ -58,10 +64,12 @@ export default function ExampleDialog() {
       <AlertDialog.Root open={confirmationOpen} onOpenChange={setConfirmationOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Popup className={styles.Popup}>
-            <AlertDialog.Title className={styles.Title}>Discard tweet?</AlertDialog.Title>
-            <AlertDialog.Description className={styles.Description}>
-              Your tweet will be lost.
-            </AlertDialog.Description>
+            <div className={styles.Intro}>
+              <AlertDialog.Title className={styles.Title}>Discard tweet?</AlertDialog.Title>
+              <AlertDialog.Description className={styles.Description}>
+                Your tweet will be lost.
+              </AlertDialog.Description>
+            </div>
             <div className={styles.Actions}>
               <AlertDialog.Close className={styles.Button}>Go back</AlertDialog.Close>
               <button

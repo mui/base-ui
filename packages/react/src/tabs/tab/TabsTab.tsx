@@ -2,17 +2,18 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
-import { useButton } from '../../use-button';
-import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
-import { useCompositeItem } from '../../composite/item/useCompositeItem';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import { useButton } from '../../internals/use-button';
+import { ACTIVE_COMPOSITE_ITEM } from '../../internals/composite/constants';
+import { useCompositeItem } from '../../internals/composite/item/useCompositeItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
+import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 
 /**
@@ -32,15 +33,22 @@ export const TabsTab = React.forwardRef(function TabsTab(
     value,
     id: idProp,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 
-  const { value: activeTabValue, getTabPanelIdByValue, orientation } = useTabsRootContext();
+  const {
+    value: activeTabValue,
+    getTabPanelIdByValue,
+    orientation,
+    tabActivationDirection,
+  } = useTabsRootContext();
 
   const {
     activateOnFocus,
     highlightedTabIndex,
     onTabActivation,
+    registerTabResizeObserverElement,
     setHighlightedTabIndex,
     tabsListElement,
   } = useTabsListContext();
@@ -62,6 +70,16 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const active = value === activeTabValue;
 
   const isNavigatingRef = React.useRef(false);
+  const tabElementRef = React.useRef<HTMLElement | null>(null);
+
+  useIsoLayoutEffect(() => {
+    const tabElement = tabElementRef.current;
+    if (!tabElement) {
+      return undefined;
+    }
+
+    return registerTabResizeObserverElement(tabElement);
+  }, [registerTabResizeObserverElement]);
 
   // Keep the highlighted item in sync with the currently active tab
   // when the value prop changes externally (controlled mode)
@@ -165,18 +183,16 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
   }
 
-  const state: TabsTab.State = React.useMemo(
-    () => ({
-      disabled,
-      active,
-      orientation,
-    }),
-    [disabled, active, orientation],
-  );
+  const state: TabsTabState = {
+    disabled,
+    active,
+    orientation,
+    tabActivationDirection,
+  };
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, compositeRef],
+    ref: [forwardedRef, buttonRef, compositeRef, tabElementRef],
     props: [
       compositeProps,
       {
@@ -195,6 +211,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
       elementProps,
       getButtonProps,
     ],
+    stateAttributesMapping: tabsStateAttributesMapping,
   });
 
   return element;
@@ -227,12 +244,22 @@ export interface TabsTabState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the component is active.
+   */
   active: boolean;
+  /**
+   * The component orientation.
+   */
   orientation: TabsRoot.Orientation;
+  /**
+   * The direction used for tab activation.
+   */
+  tabActivationDirection: TabsTab.ActivationDirection;
 }
 
 export interface TabsTabProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', TabsTab.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', TabsTabState> {
   /**
    * The value of the Tab.
    */

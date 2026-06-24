@@ -176,16 +176,12 @@ export default function RtlNestedMenu() {
 
 function MenuPositioner({ className, ...props }: Menu.Positioner.Props) {
   const direction = useDirection();
-  return <Menu.Positioner className={clsx('outline-none', className)} dir={direction} {...props} />;
+  return <Menu.Positioner className={clsx('bui-ol-n', className)} dir={direction} {...props} />;
 }
 
 function PreviewCardPositioner({ className, ...props }: PreviewCard.Positioner.Props) {
   const direction = useDirection();
   return (
-    <PreviewCard.Positioner
-      className={clsx('outline-none', className)}
-      dir={direction}
-      {...props}
-    />
+    <PreviewCard.Positioner className={clsx('bui-ol-n', className)} dir={direction} {...props} />
   );
 }

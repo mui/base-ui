@@ -1,4 +1,4 @@
-import type { StateAttributesMapping } from './getStateAttributesProps';
+import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { CollapsiblePanelDataAttributes } from '../collapsible/panel/CollapsiblePanelDataAttributes';
 import { CollapsibleTriggerDataAttributes } from '../collapsible/trigger/CollapsibleTriggerDataAttributes';
 

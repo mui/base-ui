@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Combobox.Collection />', () => {
   const { render } = createRenderer();
@@ -28,8 +28,8 @@ describe('<Combobox.Collection />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.getByTestId('item-alpha')).not.to.equal(null);
-    expect(screen.getByTestId('item-beta')).not.to.equal(null);
-    expect(screen.getByTestId('item-alpine')).not.to.equal(null);
+    expect(screen.getByTestId('item-alpha')).not.toBe(null);
+    expect(screen.getByTestId('item-beta')).not.toBe(null);
+    expect(screen.getByTestId('item-alpine')).not.toBe(null);
   });
 });

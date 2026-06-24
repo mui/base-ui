@@ -13,9 +13,9 @@ export interface ChangeEventCustomProperties {
 
 export interface IncrementValueParameters {
   direction: Direction;
-  event?: (Event | React.SyntheticEvent) | undefined;
+  event?: Event | React.SyntheticEvent | undefined;
   reason: DirectionalChangeReason;
-  currentValue?: (number | null) | undefined;
+  currentValue?: number | null | undefined;
 }
 
 export interface EventWithOptionalKeyState {

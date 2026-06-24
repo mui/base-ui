@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A container for the contents of a toast.
@@ -15,7 +15,7 @@ export const ToastContent = React.forwardRef(function ToastContent(
   componentProps: ToastContent.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { visibleIndex, expanded, recalculateHeight } = useToastRootContext();
 
@@ -47,13 +47,10 @@ export const ToastContent = React.forwardRef(function ToastContent(
 
   const behind = visibleIndex > 0;
 
-  const state: ToastContent.State = React.useMemo(
-    () => ({
-      expanded,
-      behind,
-    }),
-    [expanded, behind],
-  );
+  const state: ToastContentState = {
+    expanded,
+    behind,
+  };
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, contentRef],
@@ -75,7 +72,7 @@ export interface ToastContentState {
   behind: boolean;
 }
 
-export interface ToastContentProps extends BaseUIComponentProps<'div', ToastContent.State> {}
+export interface ToastContentProps extends BaseUIComponentProps<'div', ToastContentState> {}
 
 export namespace ToastContent {
   export type State = ToastContentState;

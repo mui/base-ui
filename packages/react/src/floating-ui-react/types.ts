@@ -4,9 +4,8 @@ import type {
   VirtualElement,
 } from '@floating-ui/react-dom';
 import type * as React from 'react';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 
-import type { ExtendedUserProps } from './hooks/useInteractions';
 import type { FloatingTreeStore } from './components/FloatingTreeStore';
 import type { FloatingRootStore } from './components/FloatingRootStore';
 
@@ -17,14 +16,13 @@ export type { UseFloatingPortalNodeProps } from './components/FloatingPortal';
 export type { UseClientPointProps } from './hooks/useClientPoint';
 export type { UseDismissProps } from './hooks/useDismiss';
 export type { UseFocusProps } from './hooks/useFocus';
-export type { UseHoverProps, HandleCloseContext, HandleClose } from './hooks/useHover';
+export type { UseHoverProps } from './hooks/useHover';
+export type { HandleCloseContext, HandleClose } from './hooks/useHoverShared';
 export type { UseHoverFloatingInteractionProps } from './hooks/useHoverFloatingInteraction';
 export type { UseHoverReferenceInteractionProps } from './hooks/useHoverReferenceInteraction';
 export type { UseListNavigationProps } from './hooks/useListNavigation';
-export type { UseRoleProps } from './hooks/useRole';
 export type { UseTypeaheadProps } from './hooks/useTypeahead';
 export type { UseFloatingRootContextOptions } from './hooks/useFloatingRootContext';
-export type { UseInteractionsReturn } from './hooks/useInteractions';
 export type { SafePolygonOptions } from './safePolygon';
 export type { FloatingTreeProps, FloatingNodeProps } from './components/FloatingTree';
 export type {
@@ -118,8 +116,6 @@ export interface FloatingEvents {
 export interface ContextData {
   openEvent?: Event | undefined;
   floatingContext?: FloatingContext | undefined;
-  /** @deprecated use `onTypingChange` prop in `useTypeahead` */
-  typing?: boolean | undefined;
   [key: string]: any;
 }
 
@@ -151,9 +147,7 @@ export type FloatingTreeType = FloatingTreeStore;
 export interface ElementProps {
   reference?: React.HTMLProps<Element> | undefined;
   floating?: React.HTMLProps<HTMLElement> | undefined;
-  item?:
-    | (React.HTMLProps<HTMLElement> | ((props: ExtendedUserProps) => React.HTMLProps<HTMLElement>))
-    | undefined;
+  item?: React.HTMLProps<HTMLElement> | undefined;
   trigger?: React.HTMLProps<Element> | undefined;
 }
 
@@ -185,11 +179,11 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
         /**
          * Externally passed reference element. Store in state.
          */
-        reference?: (ReferenceType | null) | undefined;
+        reference?: ReferenceType | null | undefined;
         /**
          * Externally passed floating element. Store in state.
          */
-        floating?: (HTMLElement | null) | undefined;
+        floating?: HTMLElement | null | undefined;
       }
     | undefined;
   /**
@@ -202,7 +196,7 @@ export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'>
    */
   nodeId?: string | undefined;
   /**
-   * External FlatingTree to use when the one provided by context can't be used.
+   * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
 }

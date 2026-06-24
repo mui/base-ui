@@ -2,9 +2,9 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 
 export default function ExampleScrollAreaScrollFade() {
   return (
-    <ScrollArea.Root className="box-border h-48 w-96 max-w-[calc(100vw-8rem)] rounded-lg bg-[var(--color-gray-50)]">
-      <ScrollArea.Viewport className="h-full rounded-md bg-[var(--color-gray-50)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 before:[--scroll-area-overflow-y-start:inherit] after:[--scroll-area-overflow-y-end:inherit] before:content-[''] after:content-[''] before:block after:block before:absolute after:absolute before:left-0 after:left-0 before:w-full after:w-full before:pointer-events-none after:pointer-events-none before:rounded-md after:rounded-md before:transition-[height] after:transition-[height] before:duration-100 after:duration-100 before:ease-out after:ease-out before:top-0 after:bottom-0 before:bg-[linear-gradient(to_bottom,var(--color-gray-50),transparent)] after:bg-[linear-gradient(to_top,var(--color-gray-50),transparent)] before:[height:min(40px,var(--scroll-area-overflow-y-start))] after:[height:min(40px,var(--scroll-area-overflow-y-end,40px))]">
-        <ScrollArea.Content className="flex flex-col gap-4 py-3 pr-6 pl-4 text-sm leading-[1.375rem] text-gray-900">
+    <ScrollArea.Root className="h-48 w-96 max-w-[calc(100vw-8rem)] bg-neutral-100 dark:bg-neutral-800 has-[>_:first-child:focus-visible]:outline-2 has-[>_:first-child:focus-visible]:outline-offset-0 has-[>_:first-child:focus-visible]:outline-neutral-950 dark:has-[>_:first-child:focus-visible]:outline-white">
+      <ScrollArea.Viewport className="h-full bg-neutral-100 dark:bg-neutral-800 outline-none mask-linear-[to_bottom,transparent_0,black_min(40px,var(--scroll-area-overflow-y-start)),black_calc(100%_-_min(40px,var(--scroll-area-overflow-y-end,40px))),transparent_100%] mask-no-repeat">
+        <ScrollArea.Content className="flex flex-col gap-4 py-2 pr-5 pl-3 text-sm leading-[1.375rem] text-neutral-950 dark:text-white">
           <p>
             Vernacular architecture is building done outside any academic tradition, and without
             professional guidance. It is not a particular architectural movement or style, but
@@ -26,8 +26,8 @@ export default function ExampleScrollAreaScrollFade() {
           </p>
         </ScrollArea.Content>
       </ScrollArea.Viewport>
-      <ScrollArea.Scrollbar className="pointer-events-none m-2 flex w-1 justify-center rounded bg-gray-200 opacity-0 transition-opacity duration-150 data-[hovering]:pointer-events-auto data-[hovering=true]:pointer-events-auto data-[hovering]:opacity-100 data-[hovering=true]:opacity-100 data-[scrolling]:pointer-events-auto data-[scrolling=true]:pointer-events-auto data-[scrolling]:opacity-100 data-[scrolling=true]:opacity-100 data-[scrolling]:duration-0 data-[scrolling=true]:duration-0 before:absolute before:h-full before:w-5 before:content-['']">
-        <ScrollArea.Thumb className="w-full rounded bg-gray-500" />
+      <ScrollArea.Scrollbar className="m-px flex w-4 justify-center bg-black/8 dark:bg-white/12 opacity-0 transition-opacity duration-150 pointer-events-none data-hovering:opacity-100 data-hovering:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-0 data-scrolling:pointer-events-auto">
+        <ScrollArea.Thumb className="w-full bg-neutral-950 dark:bg-white" />
       </ScrollArea.Scrollbar>
     </ScrollArea.Root>
   );

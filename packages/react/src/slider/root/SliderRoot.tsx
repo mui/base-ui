@@ -6,32 +6,36 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import type { BaseUIComponentProps, Orientation } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
   type BaseUIChangeEventDetails,
   type BaseUIGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { useValueChanged } from '../../utils/useValueChanged';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { clamp } from '../../utils/clamp';
-import { areArraysEqual } from '../../utils/areArraysEqual';
-import { activeElement } from '../../floating-ui-react/utils';
-import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
-import type { FieldRoot } from '../../field/root/FieldRoot';
-import { useField } from '../../field/useField';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useFormContext } from '../../form/FormContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+} from '../../internals/createBaseUIEventDetails';
+import { useValueChanged } from '../../internals/useValueChanged';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { clamp } from '../../internals/clamp';
+import { areArraysEqual } from '../../internals/areArraysEqual';
+import { activeElement, contains } from '../../floating-ui-react/utils';
+import {
+  CompositeList,
+  type CompositeMetadata,
+} from '../../internals/composite/list/CompositeList';
+import type { FieldRootState } from '../../field/root/FieldRoot';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { resolveAriaLabelledBy, getDefaultLabelId } from '../../utils/resolveAriaLabelledBy';
 import { asc } from '../utils/asc';
 import { getSliderValue } from '../utils/getSliderValue';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
-import { REASONS } from '../../utils/reasons';
+import { REASONS } from '../../internals/reasons';
 
 function getSliderChangeEventReason(
   event: React.KeyboardEvent | React.ChangeEvent,
@@ -74,6 +78,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     max = 100,
     min = 0,
     minStepsBetweenValues = 0,
+    form,
     name: nameProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
@@ -82,10 +87,12 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     thumbCollisionBehavior = 'push',
     thumbAlignment = 'center',
     value: valueProp,
+    style,
     ...elementProps
   } = componentProps;
 
   const id = useBaseUiId(idProp);
+  const defaultLabelId = getDefaultLabelId(id);
   const onValueChange = useStableCallback(
     onValueChangeProp as (
       value: number | number[],
@@ -107,12 +114,12 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setTouched,
     setDirty,
     validityData,
-    shouldValidateOnChange,
     validation,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId: fieldLabelId } = useLabelableContext();
+  const [labelId, setLabelId] = React.useState<string | undefined>();
 
-  const ariaLabelledby = ariaLabelledByProp ?? labelId;
+  const ariaLabelledby = ariaLabelledByProp ?? resolveAriaLabelledBy(fieldLabelId, labelId);
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
@@ -137,7 +144,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const pressedThumbIndexRef = React.useRef(-1);
   // The values when the current drag interaction started.
   const pressedValuesRef = React.useRef<readonly number[] | null>(null);
-  const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
   const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>('none');
 
   const formatOptionsRef = useValueAsRef(format);
@@ -164,23 +170,12 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   });
 
-  useField({
-    id,
-    commit: validation.commit,
-    value: valueUnwrapped,
-    controlRef,
-    name,
-    getValue: () => valueUnwrapped,
-  });
+  useRegisterFieldControl(validation.inputRef, id, valueUnwrapped, undefined, !disabled, nameProp);
 
   useValueChanged(valueUnwrapped, () => {
     clearErrors(name);
 
-    if (shouldValidateOnChange()) {
-      validation.commit(valueUnwrapped);
-    } else {
-      validation.commit(valueUnwrapped, true);
-    }
+    validation.change(valueUnwrapped);
 
     const initialValue = validityData.initialValue as Value | undefined;
     let isDirty: boolean;
@@ -210,21 +205,20 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const setValue = useStableCallback(
     (newValue: number | number[], details?: SliderRoot.ChangeEventDetails) => {
       if (Number.isNaN(newValue) || areValuesEqual(newValue, valueUnwrapped)) {
-        return;
+        return false;
       }
 
       const changeDetails =
         details ??
         createChangeEventDetails(REASONS.none, undefined, undefined, { activeThumbIndex: -1 });
 
-      lastChangeReasonRef.current = changeDetails.reason;
-
       // Redefine target to allow name and value to be read.
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
       // Clone the event to not override `target` of the original event.
-      // @ts-expect-error The nativeEvent is function, not object
-      const clonedEvent = new event.constructor(event.type, event);
+      const nativeEvent = changeDetails.event;
+      const EventConstructor = (nativeEvent.constructor as typeof Event | undefined) ?? Event;
+      const clonedEvent = new EventConstructor(nativeEvent.type, nativeEvent);
 
       Object.defineProperty(clonedEvent, 'target', {
         writable: true,
@@ -233,15 +227,17 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       changeDetails.event = clonedEvent;
 
-      lastChangedValueRef.current = newValue;
-
       onValueChange(newValue, changeDetails);
 
       if (changeDetails.isCanceled) {
-        return;
+        return false;
       }
 
+      lastChangeReasonRef.current = changeDetails.reason;
+
       setValueUnwrapped(newValue as Value);
+
+      return true;
     },
   );
 
@@ -251,7 +247,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
         const reason = getSliderChangeEventReason(event);
-        setValue(
+        const applied = setValue(
           newValue,
           createChangeEventDetails(reason, event.nativeEvent, undefined, {
             activeThumbIndex: index,
@@ -259,8 +255,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         );
         setTouched(true);
 
-        const nextValue = lastChangedValueRef.current ?? newValue;
-        onValueCommitted(nextValue, createGenericEventDetails(reason, event.nativeEvent));
+        if (applied) {
+          onValueCommitted(newValue, createGenericEventDetails(reason, event.nativeEvent));
+        }
       }
     },
   );
@@ -273,7 +270,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
-    if (disabled && activeEl && sliderRef.current?.contains(activeEl)) {
+    if (disabled && contains(sliderRef.current, activeEl)) {
       // This is necessary because Firefox and Safari will keep focus
       // on a disabled element:
       // https://codesandbox.io/p/sandbox/mui-pr-22247-forked-h151h?file=/src/App.js
@@ -285,7 +282,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setActive(-1);
   }
 
-  const state: SliderRoot.State = React.useMemo(
+  const state: SliderRootState = React.useMemo(
     () => ({
       ...fieldState,
       activeThumbIndex: active,
@@ -324,10 +321,11 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       indicatorPosition,
       inset: thumbAlignment !== 'center',
       labelId: ariaLabelledby,
+      rootLabelId: defaultLabelId,
       largeStep,
       lastUsedThumbIndex,
-      lastChangedValueRef,
       lastChangeReasonRef,
+      form,
       locale,
       max,
       min,
@@ -344,6 +342,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setActive,
       setDragging,
       setIndicatorPosition,
+      setLabelId,
       setValue,
       state,
       step,
@@ -356,6 +355,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       active,
       controlRef,
       ariaLabelledby,
+      defaultLabelId,
       disabled,
       dragging,
       validation,
@@ -364,8 +364,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       indicatorPosition,
       largeStep,
       lastUsedThumbIndex,
-      lastChangedValueRef,
       lastChangeReasonRef,
+      form,
       locale,
       max,
       min,
@@ -381,6 +381,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       setActive,
       setDragging,
       setIndicatorPosition,
+      setLabelId,
       setValue,
       state,
       step,
@@ -401,8 +402,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         id,
         role: 'group',
       },
-      validation.getValidationProps,
       elementProps,
+      (props) => validation.getValidationProps(disabled, props),
     ],
     stateAttributesMapping: sliderStateAttributesMapping,
   });
@@ -422,7 +423,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   ): React.JSX.Element;
 };
 
-export interface SliderRootState extends FieldRoot.State {
+export interface SliderRootState extends FieldRootState {
   /**
    * The index of the active thumb.
    */
@@ -435,7 +436,13 @@ export interface SliderRootState extends FieldRoot.State {
    * Whether the thumb is currently being dragged.
    */
   dragging: boolean;
+  /**
+   * The maximum value.
+   */
   max: number;
+  /**
+   * The minimum value.
+   */
   min: number;
   /**
    * The minimum steps between values in a range slider.
@@ -460,9 +467,9 @@ export interface SliderRootState extends FieldRoot.State {
 
 export interface SliderRootProps<
   Value extends number | readonly number[] = number | readonly number[],
-> extends BaseUIComponentProps<'div', SliderRoot.State> {
+> extends BaseUIComponentProps<'div', SliderRootState> {
   /**
-   * The uncontrolled value of the slider when it’s initially rendered.
+   * The uncontrolled value of the slider when it's initially rendered.
    *
    * To render a controlled slider, use the `value` prop instead.
    */
@@ -503,6 +510,11 @@ export interface SliderRootProps<
    */
   name?: string | undefined;
   /**
+   * Identifies the form that owns the slider inputs.
+   * Useful when the slider is rendered outside the form.
+   */
+  form?: string | undefined;
+  /**
    * The component orientation.
    * @default 'horizontal'
    */
@@ -526,7 +538,7 @@ export interface SliderRootProps<
    * - `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return
    * @default 'center'
    */
-  thumbAlignment?: ('center' | 'edge' | 'edge-client-only') | undefined;
+  thumbAlignment?: 'center' | 'edge' | 'edge-client-only' | undefined;
   /**
    * Controls how thumbs behave when they collide during pointer interactions.
    *
@@ -536,15 +548,17 @@ export interface SliderRootProps<
    *
    * @default 'push'
    */
-  thumbCollisionBehavior?: ('push' | 'swap' | 'none') | undefined;
+  thumbCollisionBehavior?: 'push' | 'swap' | 'none' | undefined;
   /**
    * The value of the slider.
-   * For ranged sliders, provide an array with two values.
+   * For range sliders, provide an array with one value per thumb.
    */
   value?: Value | undefined;
   /**
    * Callback function that is fired when the slider's value changed.
-   * You can pull out the new value by accessing `event.target.value` (any).
+   * Receives the new value as the first argument; the originating event is
+   * available as `eventDetails.event`. The value is also reflected on
+   * `eventDetails.event.target.value` for form integration.
    *
    * The `eventDetails.reason` indicates what triggered the change:
    *
@@ -561,8 +575,9 @@ export interface SliderRootProps<
       ) => void)
     | undefined;
   /**
-   * Callback function that is fired when the `pointerup` is triggered.
-   * **Warning**: This is a generic event not a change event.
+   * Callback function that is fired when a value change is committed.
+   * Does not fire if the value did not change, or if the change was canceled.
+   * **Warning**: This is a generic event, not a change event.
    *
    * The `eventDetails.reason` indicates what triggered the commit:
    *

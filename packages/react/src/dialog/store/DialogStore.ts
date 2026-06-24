@@ -2,13 +2,15 @@ import * as React from 'react';
 import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
-import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import {
+  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
+  setPopupOpenState,
+  usePopupStore,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -17,6 +19,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openMethod: InteractionType | null;
   nested: boolean;
   nestedOpenDialogCount: number;
+  nestedOpenDrawerCount: number;
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
   viewportElement: HTMLElement | null;
@@ -27,7 +30,8 @@ type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-  readonly onNestedDialogOpen?: ((ownChildrenCount: number) => void) | undefined;
+  readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
+  readonly onNestedDialogOpen?: ((dialogCount: number, drawerCount: number) => void) | undefined;
   readonly onNestedDialogClose?: (() => void) | undefined;
 };
 
@@ -36,6 +40,7 @@ const selectors = {
   modal: createSelector((state: State<unknown>) => state.modal),
   nested: createSelector((state: State<unknown>) => state.nested),
   nestedOpenDialogCount: createSelector((state: State<unknown>) => state.nestedOpenDialogCount),
+  nestedOpenDrawerCount: createSelector((state: State<unknown>) => state.nestedOpenDrawerCount),
   disablePointerDismissal: createSelector((state: State<unknown>) => state.disablePointerDismissal),
   openMethod: createSelector((state: State<unknown>) => state.openMethod),
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
@@ -49,14 +54,24 @@ export class DialogStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  constructor(initialState?: Partial<State<Payload>>) {
+  constructor(
+    initialState?: Partial<State<Payload>>,
+    floatingId?: string | undefined,
+    nested = false,
+  ) {
+    const triggerElements = new PopupTriggerMap();
+    const state = createInitialState<Payload>(initialState);
+
+    state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
+
     super(
-      createInitialState<Payload>(initialState),
+      state,
       {
         popupRef: React.createRef<HTMLElement>(),
         backdropRef: React.createRef<HTMLDivElement>(),
         internalBackdropRef: React.createRef<HTMLDivElement>(),
-        triggerElements: new PopupTriggerMap(),
+        outsidePressEnabledRef: { current: true },
+        triggerElements,
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
       },
@@ -84,29 +99,31 @@ export class DialogStore<Payload> extends ReactStore<
       return;
     }
 
-    const details: FloatingUIOpenChangeDetails = {
-      open: nextOpen,
-      nativeEvent: eventDetails.event,
-      reason: eventDetails.reason,
-      nested: this.state.nested,
-    };
-
-    this.state.floatingRootContext.context.events?.emit('openchange', details);
+    this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const updatedState: Partial<State<Payload>> = {
       open: nextOpen,
     };
 
-    // If a popup is closing, the `trigger` may be null.
-    // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-    const newTriggerId = eventDetails.trigger?.id ?? null;
-    if (newTriggerId || nextOpen) {
-      updatedState.activeTriggerId = newTriggerId;
-      updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-    }
+    setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
 
     this.update(updatedState);
   };
+
+  static useStore<Payload>(
+    externalStore: DialogStore<Payload> | undefined,
+    initialState?: Partial<State<Payload>>,
+  ) {
+    /* eslint-disable react-hooks/rules-of-hooks */
+    const store = usePopupStore(
+      externalStore,
+      (floatingId, nested) => new DialogStore<Payload>(initialState, floatingId, nested),
+      true,
+    ).store;
+    /* eslint-enable react-hooks/rules-of-hooks */
+
+    return store;
+  }
 }
 
 function createInitialState<Payload>(initialState: Partial<State<Payload>> = {}): State<Payload> {
@@ -121,6 +138,7 @@ function createInitialState<Payload>(initialState: Partial<State<Payload>> = {})
     openMethod: null,
     nested: false,
     nestedOpenDialogCount: 0,
+    nestedOpenDrawerCount: 0,
     role: 'dialog',
     ...initialState,
   };

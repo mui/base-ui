@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { act, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<PreviewCard.Viewport />', () => {
@@ -40,8 +40,8 @@ describe('<PreviewCard.Viewport />', () => {
     );
 
     const currentContainer = screen.getByTestId('content').closest('[data-current]');
-    expect(currentContainer).not.to.equal(null);
-    expect(currentContainer!.textContent).to.equal('Content');
+    expect(currentContainer).not.toBe(null);
+    expect(currentContainer!.textContent).toBe('Content');
   });
 
   it('should remount the `current` container when the active trigger changes', async () => {
@@ -83,15 +83,15 @@ describe('<PreviewCard.Viewport />', () => {
 
     const firstImage = await screen.findByTestId('payload-image-1');
     const firstContainer = firstImage.closest('[data-current]');
-    expect(firstContainer).not.to.equal(null);
+    expect(firstContainer).not.toBe(null);
 
     await waitSingleFrame();
     await act(async () => trigger2.focus());
 
     const secondImage = await screen.findByTestId('payload-image-2');
     const secondContainer = secondImage.closest('[data-current]');
-    expect(secondContainer).not.to.equal(null);
-    expect(secondContainer).not.to.equal(firstContainer);
+    expect(secondContainer).not.toBe(null);
+    expect(secondContainer).not.toBe(firstContainer);
   });
 
   describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {
@@ -190,19 +190,19 @@ describe('<PreviewCard.Viewport />', () => {
       let previousContainer: HTMLElement | null = null;
       await waitFor(() => {
         previousContainer = document.querySelector('[data-previous]');
-        expect(previousContainer).not.to.equal(null);
+        expect(previousContainer).not.toBe(null);
       });
 
-      expect(previousContainer).to.have.attribute('inert');
-      expect(previousContainer!.textContent).to.equal('Content 0');
+      expect(previousContainer).toHaveAttribute('inert');
+      expect(previousContainer!.textContent).toBe('Content 0');
 
       const nextContainer = document.querySelector('[data-current]');
-      expect(nextContainer).not.to.equal(null);
-      expect(nextContainer!.textContent).to.equal('Content 1');
+      expect(nextContainer).not.toBe(null);
+      expect(nextContainer!.textContent).toBe('Content 1');
 
       // Verify they are cleaned up after animation
       await waitFor(() => {
-        expect(document.querySelector('[data-previous]')).to.equal(null);
+        expect(document.querySelector('[data-previous]')).toBe(null);
       });
 
       expect(document.querySelector('[data-current]')).toBeVisible();
@@ -407,16 +407,16 @@ describe('<PreviewCard.Viewport />', () => {
 
       const viewport = screen.getByTestId('viewport');
       await waitFor(() => {
-        expect(viewport).to.have.attribute('data-activation-direction');
+        expect(viewport).toHaveAttribute('data-activation-direction');
       });
 
       const direction = viewport.getAttribute('data-activation-direction');
 
       if (expectedDirection.length === 0) {
-        expect(direction?.trim()).to.equal('');
+        expect(direction?.trim()).toBe('');
       } else {
         expectedDirection.forEach((dir) => {
-          expect(direction).to.contain(dir);
+          expect(direction).toContain(dir);
         });
       }
     });

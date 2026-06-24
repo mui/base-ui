@@ -1,9 +1,9 @@
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { collapsibleOpenStateMapping as baseMapping } from '../../utils/collapsibleOpenStateMapping';
-import type { CollapsibleRoot } from './CollapsibleRoot';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import type { CollapsibleRootState } from './CollapsibleRoot';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 
-export const collapsibleStateAttributesMapping: StateAttributesMapping<CollapsibleRoot.State> = {
+export const collapsibleStateAttributesMapping: StateAttributesMapping<CollapsibleRootState> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };

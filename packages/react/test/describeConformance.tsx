@@ -34,6 +34,11 @@ export interface BaseUiConformanceTestsOptions extends Omit<
   skip?: (keyof typeof fullSuite)[];
   testRenderPropWith?: keyof React.JSX.IntrinsicElements;
   button?: boolean;
+  /**
+   * Whether the component is allowed to be wrapped by an extra element for testing.
+   * @default true
+   */
+  wrappingAllowed?: boolean;
 }
 
 const fullSuite = {

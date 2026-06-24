@@ -6,15 +6,16 @@
  */
 
 import path from 'path';
+import { pathToFileURL } from 'url';
 import {
   loadServerCodeMeta,
   resolveModulePathWithFs,
 } from '@mui/internal-docs-infra/pipeline/loadServerCodeMeta';
 import {
-  loadCodeVariant,
+  loadIsomorphicCodeVariant,
   flattenCodeVariant,
-} from '@mui/internal-docs-infra/pipeline/loadCodeVariant';
-import { loadServerSource } from '@mui/internal-docs-infra/pipeline/loadServerSource';
+} from '@mui/internal-docs-infra/pipeline/loadIsomorphicCodeVariant';
+import { loadServerCodeSource } from '@mui/internal-docs-infra/pipeline/loadServerCodeSource';
 import * as mdx from './mdxNodeHelpers.mjs';
 
 /**
@@ -26,7 +27,7 @@ import * as mdx from './mdxNodeHelpers.mjs';
 export async function processDemo(mdxFilePath, demoPath) {
   // Resolve demo path relative to the MDX file
   const mdxDir = path.dirname(mdxFilePath);
-  demoPath = path.resolve(mdxDir, demoPath);
+  demoPath = pathToFileURL(path.resolve(mdxDir, demoPath)).href;
   const demoModule = await resolveModulePathWithFs(demoPath).catch((err) => {
     throw new Error(`Failed to resolve demo module at "${demoPath}": ${err.message}`);
   });
@@ -100,10 +101,15 @@ export async function processDemo(mdxFilePath, demoPath) {
       url = variantCodeOrUrl.url;
     }
 
-    const { code: variantCode } = await loadCodeVariant(url, variantName, variantCodeOrUrl, {
-      loadSource: loadServerSource,
-      disableParsing: true,
-    });
+    const { code: variantCode } = await loadIsomorphicCodeVariant(
+      url,
+      variantName,
+      variantCodeOrUrl,
+      {
+        loadSource: loadServerCodeSource,
+        disableParsing: true,
+      },
+    );
 
     const flattenedFiles = flattenCodeVariant(variantCode);
 

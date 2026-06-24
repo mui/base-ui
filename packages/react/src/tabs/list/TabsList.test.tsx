@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
-import { act, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -28,33 +28,81 @@ describe('<Tabs.List />', () => {
       const tab2 = screen.getByText('Tab 2');
       const tab3 = screen.getByText('Tab 3');
 
-      expect(tab1).to.have.attribute('aria-selected', 'true');
-      expect(tab2).to.have.attribute('aria-selected', 'false');
-      expect(tab3).to.have.attribute('aria-selected', 'false');
+      expect(tab1).toHaveAttribute('aria-selected', 'true');
+      expect(tab2).toHaveAttribute('aria-selected', 'false');
+      expect(tab3).toHaveAttribute('aria-selected', 'false');
 
       await act(async () => {
         tab2.click();
       });
 
-      expect(tab1).to.have.attribute('aria-selected', 'false');
-      expect(tab2).to.have.attribute('aria-selected', 'true');
-      expect(tab3).to.have.attribute('aria-selected', 'false');
+      expect(tab1).toHaveAttribute('aria-selected', 'false');
+      expect(tab2).toHaveAttribute('aria-selected', 'true');
+      expect(tab3).toHaveAttribute('aria-selected', 'false');
 
       await act(async () => {
         tab3.click();
       });
 
-      expect(tab1).to.have.attribute('aria-selected', 'false');
-      expect(tab2).to.have.attribute('aria-selected', 'false');
-      expect(tab3).to.have.attribute('aria-selected', 'true');
+      expect(tab1).toHaveAttribute('aria-selected', 'false');
+      expect(tab2).toHaveAttribute('aria-selected', 'false');
+      expect(tab3).toHaveAttribute('aria-selected', 'true');
 
       await act(async () => {
         tab1.click();
       });
 
-      expect(tab1).to.have.attribute('aria-selected', 'true');
-      expect(tab2).to.have.attribute('aria-selected', 'false');
-      expect(tab3).to.have.attribute('aria-selected', 'false');
+      expect(tab1).toHaveAttribute('aria-selected', 'true');
+      expect(tab2).toHaveAttribute('aria-selected', 'false');
+      expect(tab3).toHaveAttribute('aria-selected', 'false');
+    });
+  });
+
+  describe('prop: loopFocus', () => {
+    it('does not wrap focus past the first tab when `loopFocus` is false', async () => {
+      await render(
+        <Tabs.Root value={0}>
+          <Tabs.List loopFocus={false}>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+            <Tabs.Tab value={2} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const [firstTab, , lastTab] = screen.getAllByRole('tab');
+      await act(async () => {
+        firstTab.focus();
+      });
+
+      fireEvent.keyDown(firstTab, { key: 'ArrowLeft' });
+      await flushMicrotasks();
+
+      expect(firstTab).toHaveFocus();
+      expect(lastTab).not.toHaveFocus();
+    });
+
+    it('does not wrap focus past the last tab when `loopFocus` is false', async () => {
+      await render(
+        <Tabs.Root value={2}>
+          <Tabs.List loopFocus={false}>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+            <Tabs.Tab value={2} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const [firstTab, , lastTab] = screen.getAllByRole('tab');
+      await act(async () => {
+        lastTab.focus();
+      });
+
+      fireEvent.keyDown(lastTab, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      expect(lastTab).toHaveFocus();
+      expect(firstTab).not.toHaveFocus();
     });
   });
 

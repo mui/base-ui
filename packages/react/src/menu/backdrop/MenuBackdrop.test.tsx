@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
@@ -29,7 +30,7 @@ describe('<Menu.Backdrop />', () => {
 
     await user.hover(screen.getByText('Open'));
 
-    expect(screen.getByTestId('backdrop').style.pointerEvents).to.equal('none');
+    expect(screen.getByTestId('backdrop').style.pointerEvents).toBe('none');
   });
 
   it('does not set `pointer-events: none` style on backdrop if opened by click', async () => {
@@ -48,7 +49,7 @@ describe('<Menu.Backdrop />', () => {
     await user.click(screen.getByText('Open'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('backdrop').style.pointerEvents).not.to.equal('none');
+      expect(screen.getByTestId('backdrop').style.pointerEvents).not.toBe('none');
     });
   });
 });

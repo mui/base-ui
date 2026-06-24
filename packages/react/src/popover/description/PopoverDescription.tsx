@@ -1,10 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
  * A paragraph with additional information about the popover.
@@ -16,18 +15,13 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
   componentProps: PopoverDescription.Props,
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = usePopoverRootContext();
 
   const id = useBaseUiId(elementProps.id);
 
-  useIsoLayoutEffect(() => {
-    store.set('descriptionElementId', id);
-    return () => {
-      store.set('descriptionElementId', undefined);
-    };
-  }, [store, id]);
+  store.useSyncedValueWithCleanup('descriptionElementId', id);
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
@@ -41,7 +35,7 @@ export interface PopoverDescriptionState {}
 
 export interface PopoverDescriptionProps extends BaseUIComponentProps<
   'p',
-  PopoverDescription.State
+  PopoverDescriptionState
 > {}
 
 export namespace PopoverDescription {

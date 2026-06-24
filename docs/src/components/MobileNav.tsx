@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import clsx from 'clsx';
 import NextLink from 'next/link';
 import { Dialog } from '@base-ui/react/dialog';
-import * as ReactDOM from 'react-dom';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
-import { HEADER_HEIGHT } from './Header';
+import { HEADER_HEIGHT_MOBILE } from './Header';
+import './MobileNav.css';
 
 const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);
 
@@ -53,7 +54,7 @@ function PopupImpl(props: React.PropsWithChildren) {
         className="MobileNavViewport"
         onScroll={(event) => {
           const viewport = event.currentTarget;
-          if (viewport.scrollTop > (HEADER_HEIGHT * rem.current) / 16) {
+          if (viewport.scrollTop > (HEADER_HEIGHT_MOBILE * rem.current) / 16) {
             viewport.setAttribute('data-clipped', '');
           } else {
             viewport.removeAttribute('data-clipped');
@@ -71,13 +72,13 @@ function PopupImpl(props: React.PropsWithChildren) {
                 if (viewport.scrollTop < -32) {
                   const y = viewport.scrollTop;
                   // Scroll lock is forced during the flick down gesture to maintain
-                  // a continous blend between the native scroll inertia and our own animation
+                  // a continuous blend between the native scroll inertia and our own animation
                   setForceScrollLock(true);
 
                   viewport.addEventListener(
                     'scroll',
                     function handleNextScroll() {
-                      // ...look at whether the system's intertia scrolling is continuing the motion
+                      // ...look at whether the system's inertia scrolling is continuing the motion
                       // in the same direction. If so, the flick is strong enough to close the dialog.
                       if (viewport.scrollTop < y) {
                         // It's gonna eventually bounce back to scrollTop 0. We need to counteract this
@@ -114,20 +115,14 @@ function PopupImpl(props: React.PropsWithChildren) {
 
           <nav className="MobileNavPanel">
             {/* Reverse order to place the close button at the end of the DOM, but at sticky top visually */}
-            <div className="flex flex-col-reverse">
+            <div className="MobileNavBody">
               <div>{props.children}</div>
               <div className="MobileNavCloseContainer">
                 <Dialog.Close aria-label="Close the navigation" className="MobileNavClose">
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path
                       d="M0.75 0.75L6 6M11.25 11.25L6 6M6 6L0.75 11.25M6 6L11.25 0.75"
-                      stroke="currentcolor"
+                      stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import type {
   ConformantComponentProps,
   BaseUiConformanceTestsOptions,
@@ -19,7 +19,7 @@ export function testClassName(
 
     it('should apply the className when passed as a string', async () => {
       await render(React.cloneElement(element, { className: 'test-class' }));
-      expect(document.querySelector('.test-class')).not.to.equal(null);
+      expect(document.querySelector('.test-class')).not.toBe(null);
     });
   });
 }

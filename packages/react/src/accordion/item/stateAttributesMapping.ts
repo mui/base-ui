@@ -1,10 +1,10 @@
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { collapsibleOpenStateMapping as baseMapping } from '../../utils/collapsibleOpenStateMapping';
-import type { AccordionItem } from './AccordionItem';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import type { AccordionItemState } from './AccordionItem';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { AccordionItemDataAttributes } from './AccordionItemDataAttributes';
 
-export const accordionStateAttributesMapping: StateAttributesMapping<AccordionItem.State> = {
+export const accordionStateAttributesMapping: StateAttributesMapping<AccordionItemState> = {
   ...baseMapping,
   index: (value) => {
     return Number.isInteger(value) ? { [AccordionItemDataAttributes.index]: String(value) } : null;

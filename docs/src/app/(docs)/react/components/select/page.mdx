@@ -14,7 +14,7 @@ import { DemoSelectHero } from './demos/hero';
 
 - **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
-- **Form controls must have an accessible name**: It can be created using the `Field` component. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -24,6 +24,7 @@ Import the component and assemble its parts:
 import { Select } from '@base-ui/react/select';
 
 <Select.Root>
+  <Select.Label />
   <Select.Trigger>
     <Select.Value />
     <Select.Icon />
@@ -32,8 +33,8 @@ import { Select } from '@base-ui/react/select';
   <Select.Portal>
     <Select.Backdrop />
     <Select.Positioner>
-      <Select.ScrollUpArrow />
       <Select.Popup>
+        <Select.ScrollUpArrow />
         <Select.Arrow />
         <Select.List>
           <Select.Item>
@@ -45,8 +46,8 @@ import { Select } from '@base-ui/react/select';
             <Select.GroupLabel />
           </Select.Group>
         </Select.List>
+        <Select.ScrollDownArrow />
       </Select.Popup>
-      <Select.ScrollDownArrow />
     </Select.Positioner>
   </Select.Portal>
 </Select.Root>;
@@ -91,7 +92,8 @@ By default, the `<Select.Value>` component renders the raw `value`.
 
 Passing the `items` prop to `<Select.Root>` instead renders the matching label for the rendered value:
 
-```jsx title="items prop" "items"1,3
+```jsx title="items prop"
+// @highlight-text "items"
 const items = [
   { value: null, label: 'Select theme' },
   { value: 'system', label: 'System default' },
@@ -99,6 +101,7 @@ const items = [
   { value: 'dark', label: 'Dark' },
 ];
 
+// @highlight-text "items"
 <Select.Root items={items}>
   <Select.Value />
 </Select.Root>;
@@ -106,7 +109,7 @@ const items = [
 
 A function can also be passed as the `children` prop of `<Select.Value>` to render a formatted value:
 
-```jsx title="Lookup map" {8-12}
+```jsx title="Lookup map"
 const items = {
   monospace: 'Monospace',
   serif: 'Serif',
@@ -114,11 +117,13 @@ const items = {
 };
 
 <Select.Value>
+  {/* @highlight-start */}
   {(value: keyof typeof items) => (
     <span style={{ fontFamily: value }}>
       {items[value]}
     </span>
   )}
+  {/* @highlight-end */}
 </Select.Value>;
 ```
 
@@ -126,24 +131,23 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 
 ### Labeling a select
 
-Use the [Field](/react/components/field) component to provide a visible label for the select trigger:
+Use `<Select.Label>` to provide a visible label for the select trigger:
 
-```tsx title="Using Field to label a select" {2,4}
-<Field.Root>
-  <Field.Label nativeLabel={false} render={<div />}>
-    Theme
-  </Field.Label>
-  <Select.Root>{/* ... */}</Select.Root>
-</Field.Root>
+```tsx title="Using Select.Label to label a select"
+<Select.Root>
+  {/* @highlight */}
+  <Select.Label>Theme</Select.Label>
+  {/* ... */}
+</Select.Root>
 ```
 
-Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the select trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
+`<Select.Label>` renders a `<div>`, so clicking it focuses the select trigger without opening the popup.
 
 ### Placeholder values
 
 To show a placeholder value, use the `placeholder` prop on `<Select.Value>`:
 
-```jsx title="Placeholder item" {8}
+```jsx title="Placeholder item"
 const items = [
   { value: 'system', label: 'System default' },
   { value: 'light', label: 'Light' },
@@ -151,14 +155,16 @@ const items = [
 ];
 
 <Select.Root items={items}>
+  {/* @highlight */}
   <Select.Value placeholder="Select theme" />
 </Select.Root>;
 ```
 
 With placeholders, users cannot clear selected values using the select itself. If the select value should be clearable from the popup (instead of an external "reset" button), use a `null` item rendered in the list itself:
 
-```jsx title="Clearable item" {2}
+```jsx title="Clearable item"
 const items = [
+  // @highlight
   { value: null, label: 'Select theme' },
   { value: 'system', label: 'System default' },
   { value: 'light', label: 'Light' },
@@ -176,7 +182,7 @@ Add the `multiple` prop to the `<Select.Root>` component to allow multiple selec
 
 import { DemoSelectMultiple } from './demos/multiple';
 
-<DemoSelectMultiple compact />
+<DemoSelectMultiple />
 
 ### Object values
 
@@ -185,14 +191,118 @@ This lets you access the full object in custom render functions, and can avoid n
 
 import { DemoSelectObjectValues } from './demos/object-values';
 
-<DemoSelectObjectValues compact />
+<DemoSelectObjectValues />
+
+### Grouped
+
+Organize related options with `<Select.Group>` and `<Select.GroupLabel>` to add section headings inside the popup.
+
+Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
+
+```tsx title="Example"
+interface ProduceGroupItem {
+  value: string;
+  // @highlight
+  items: string[];
+}
+
+const groups: ProduceGroupItem[] = [
+  {
+    value: 'Fruits',
+    // @highlight
+    items: ['Apple', 'Banana', 'Orange'],
+  },
+  {
+    value: 'Vegetables',
+    // @highlight
+    items: ['Carrot', 'Lettuce', 'Spinach'],
+  },
+];
+```
+
+import { DemoSelectGrouped } from './demos/grouped';
+
+<DemoSelectGrouped />
 
 ## API reference
 
-<Reference
-  component="Select"
-  parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, List, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
-/>
+import { TypesSelect } from './types';
+
+### Root
+
+<TypesSelect.Root />
+
+### Label
+
+<TypesSelect.Label />
+
+### Trigger
+
+<TypesSelect.Trigger />
+
+### Value
+
+<TypesSelect.Value />
+
+### Icon
+
+<TypesSelect.Icon />
+
+### Backdrop
+
+<TypesSelect.Backdrop />
+
+### Portal
+
+<TypesSelect.Portal />
+
+### Positioner
+
+<TypesSelect.Positioner />
+
+### Popup
+
+<TypesSelect.Popup />
+
+### List
+
+<TypesSelect.List />
+
+### Arrow
+
+<TypesSelect.Arrow />
+
+### Item
+
+<TypesSelect.Item />
+
+### ItemText
+
+<TypesSelect.ItemText />
+
+### ItemIndicator
+
+<TypesSelect.ItemIndicator />
+
+### Group
+
+<TypesSelect.Group />
+
+### GroupLabel
+
+<TypesSelect.GroupLabel />
+
+### ScrollUpArrow
+
+<TypesSelect.ScrollUpArrow />
+
+### ScrollDownArrow
+
+<TypesSelect.ScrollDownArrow />
+
+### Separator
+
+<TypesSelect.Separator />
 
 export const metadata = {
   keywords: [
@@ -209,6 +319,9 @@ export const metadata = {
     'Multi Select React',
     'Multiselect',
     'Object Value Select',
+    'Single Select',
+    'Keyboard Navigation Select',
+    'Listbox Role',
     'Accessible Select',
     'Align Item with Trigger',
     'Headless React Components',

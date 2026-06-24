@@ -1,24 +1,25 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { activeElement, contains } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
-import { clamp } from '../../utils/clamp';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { clamp } from '../../internals/clamp';
+import type { BaseUIComponentProps } from '../../internals/types';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
-} from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useDirection } from '../../direction-provider/DirectionContext';
+} from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 import { getMidpoint } from '../utils/getMidpoint';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
@@ -85,14 +86,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
   componentProps: SliderControl.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render: renderProp, className, ...elementProps } = componentProps;
+  const { render: renderProp, className, style, ...elementProps } = componentProps;
 
   const {
     disabled,
     dragging,
-    validation,
     inset,
-    lastChangedValueRef,
     lastChangeReasonRef,
     max,
     min,
@@ -123,9 +122,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const stylesRef = React.useRef<CSSStyleDeclaration>(null);
   const setStylesRef = useStableCallback((element: HTMLElement | null) => {
     if (element && stylesRef.current == null) {
-      if (stylesRef.current == null) {
-        stylesRef.current = getComputedStyle(element);
-      }
+      stylesRef.current = ownerWindow(element).getComputedStyle(element);
     }
   });
 
@@ -136,9 +133,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
   // The offset amount to each side of the control for inset sliders.
   // This value should be equal to the radius or half the width/height of the thumb.
   const insetThumbOffsetRef = React.useRef(0);
+  const currentInteractionValueRef = React.useRef<number | number[] | null>(null);
   const latestValuesRef = useValueAsRef(values);
 
-  const updatePressedThumb = useStableCallback((nextIndex: number) => {
+  function updatePressedThumb(nextIndex: number) {
     if (pressedThumbIndexRef.current !== nextIndex) {
       pressedThumbIndexRef.current = nextIndex;
     }
@@ -152,12 +150,33 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     pressedInputRef.current = thumbElement.querySelector<HTMLInputElement>('input[type="range"]');
-  });
+  }
 
-  const getFingerState = useStableCallback((fingerCoords: Coords): FingerState | null => {
+  function resetPressedThumb() {
+    pressedThumbIndexRef.current = -1;
+    pressedThumbCenterOffsetRef.current = null;
+    pressedInputRef.current = null;
+  }
+
+  function isTargetDisabledThumb(target: EventTarget | null) {
+    if (!isElement(target)) {
+      return false;
+    }
+
+    return thumbRefs.current.some((thumbEl) => {
+      if (!isElement(thumbEl) || !contains(thumbEl, target)) {
+        return false;
+      }
+
+      return thumbEl.querySelector<HTMLInputElement>('input[type="range"]')?.disabled === true;
+    });
+  }
+
+  function getFingerState(fingerCoords: Coords): FingerState | null {
     const control = controlRef.current;
+    const thumbIndex = pressedThumbIndexRef.current;
 
-    if (!control) {
+    if (!control || (!range && (thumbIndex < 0 || thumbIndex >= values.length))) {
       return null;
     }
 
@@ -184,12 +203,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
     if (!range) {
       return {
         value: newValue,
-        thumbIndex: 0,
+        thumbIndex,
         didSwap: false,
       };
     }
-
-    const thumbIndex = pressedThumbIndexRef.current;
 
     if (thumbIndex < 0) {
       return null;
@@ -208,17 +225,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
       minStepsBetweenValues,
     });
 
-    if (thumbCollisionBehavior === 'swap' && collisionResult.didSwap) {
-      updatePressedThumb(collisionResult.thumbIndex);
-    } else {
-      pressedThumbIndexRef.current = collisionResult.thumbIndex;
-    }
-
     return collisionResult;
-  });
+  }
 
-  const startPressing = useStableCallback((fingerCoords: Coords) => {
+  function startPressing(fingerCoords: Coords) {
     pressedValuesRef.current = range ? values.slice() : null;
+    currentInteractionValueRef.current = null;
     latestValuesRef.current = values;
 
     const pressedThumbIndex = pressedThumbIndexRef.current;
@@ -243,7 +255,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
       for (let i = 0; i < thumbRefs.current.length; i += 1) {
         const thumbEl = thumbRefs.current[i];
-        if (isElement(thumbEl)) {
+        if (
+          isElement(thumbEl) &&
+          !thumbEl.querySelector<HTMLInputElement>('input[type="range"]')?.disabled
+        ) {
           const midpoint = getMidpoint(thumbEl);
           const distance = Math.abs(fingerCoords[axis] - midpoint[axis]);
 
@@ -267,13 +282,48 @@ export const SliderControl = React.forwardRef(function SliderControl(
         insetThumbOffsetRef.current = thumbRect[side] / 2;
       }
     }
-  });
+  }
 
-  const focusThumb = useStableCallback((thumbIndex: number) => {
-    thumbRefs.current?.[thumbIndex]
-      ?.querySelector<HTMLInputElement>('input[type="range"]')
-      ?.focus({ preventScroll: true });
-  });
+  function focusThumb(thumbIndex: number) {
+    const input =
+      thumbRefs.current?.[thumbIndex]?.querySelector<HTMLInputElement>('input[type="range"]');
+    if (!input) {
+      return;
+    }
+
+    input.focus({
+      preventScroll: true,
+      // Prevent pointer-driven focus rings in browsers that support this option.
+      // Supported in Chrome from 144+.
+      focusVisible: false,
+    });
+  }
+
+  function setValueFromPointer(
+    finger: FingerState,
+    reason: typeof REASONS.trackPress | typeof REASONS.drag,
+    nativeEvent: TouchEvent | PointerEvent,
+  ) {
+    const applied = setValue(
+      finger.value,
+      createChangeEventDetails(reason, nativeEvent, undefined, {
+        activeThumbIndex: finger.thumbIndex,
+      }),
+    );
+
+    if (applied) {
+      currentInteractionValueRef.current = finger.value;
+      latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
+
+      // Only track the swapped thumb once the change is actually applied so a
+      // canceled swap doesn't leak the new index into subsequent moves.
+      if (finger.didSwap) {
+        updatePressedThumb(finger.thumbIndex);
+      }
+    }
+
+    return applied;
+  }
 
   const handleTouchMove = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
     const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
@@ -286,6 +336,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     // Cancel move in case some other element consumed a pointerup event and it was not fired.
     if (nativeEvent.type === 'pointermove' && (nativeEvent as PointerEvent).buttons === 0) {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       handleTouchEnd(nativeEvent);
       return;
     }
@@ -301,36 +352,25 @@ export const SliderControl = React.forwardRef(function SliderControl(
         setDragging(true);
       }
 
-      setValue(
-        finger.value,
-        createChangeEventDetails(REASONS.drag, nativeEvent, undefined, {
-          activeThumbIndex: finger.thumbIndex,
-        }),
-      );
+      const applied = setValueFromPointer(finger, REASONS.drag, nativeEvent);
 
-      latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
-
-      if (finger.didSwap) {
+      if (applied && finger.didSwap) {
         focusThumb(finger.thumbIndex);
       }
     }
   });
 
-  function handleTouchEnd(nativeEvent: TouchEvent | PointerEvent) {
+  const handleTouchEnd = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
     setActive(-1);
     setDragging(false);
 
     pressedInputRef.current = null;
     pressedThumbCenterOffsetRef.current = null;
 
-    const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
-    const finger = fingerCoords != null ? getFingerState(fingerCoords) : null;
-
-    if (finger != null) {
+    if (currentInteractionValueRef.current != null) {
       const commitReason = lastChangeReasonRef.current;
-      validation.commit(lastChangedValueRef.current ?? finger.value);
       onValueCommitted(
-        lastChangedValueRef.current ?? finger.value,
+        currentInteractionValueRef.current,
         createGenericEventDetails(commitReason, nativeEvent),
       );
     }
@@ -345,12 +385,18 @@ export const SliderControl = React.forwardRef(function SliderControl(
     pressedThumbIndexRef.current = -1;
     touchIdRef.current = null;
     pressedValuesRef.current = null;
+    currentInteractionValueRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
-  }
+  });
 
   const handleTouchStart = useStableCallback((nativeEvent: TouchEvent) => {
     if (disabled) {
+      return;
+    }
+
+    if (isTargetDisabledThumb(getTarget(nativeEvent))) {
+      resetPressedThumb();
       return;
     }
 
@@ -372,16 +418,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
       }
 
       focusThumb(finger.thumbIndex);
-      setValue(
-        finger.value,
-        createChangeEventDetails(REASONS.trackPress, nativeEvent, undefined, {
-          activeThumbIndex: finger.thumbIndex,
-        }),
-      );
+      const applied = setValueFromPointer(finger, REASONS.trackPress, nativeEvent);
 
-      latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
-
-      if (finger.didSwap) {
+      if (applied && finger.didSwap) {
         focusThumb(finger.thumbIndex);
       }
     }
@@ -399,6 +438,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     doc.removeEventListener('touchmove', handleTouchMove);
     doc.removeEventListener('touchend', handleTouchEnd);
     pressedValuesRef.current = null;
+    currentInteractionValueRef.current = null;
   });
 
   const focusFrame = useAnimationFrame();
@@ -409,12 +449,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return () => stopListening();
     }
 
-    control.addEventListener('touchstart', handleTouchStart, {
+    const unsubscribeTouchStart = addEventListener(control, 'touchstart', handleTouchStart, {
       passive: true,
     });
 
     return () => {
-      control.removeEventListener('touchstart', handleTouchStart);
+      unsubscribeTouchStart();
       focusFrame.cancel();
 
       stopListening();
@@ -435,15 +475,21 @@ export const SliderControl = React.forwardRef(function SliderControl(
         ['data-base-ui-slider-control' as string]: renderBeforeHydration ? '' : undefined,
         onPointerDown(event) {
           const control = controlRef.current;
+          const target = getTarget(event.nativeEvent);
 
           if (
             !control ||
             disabled ||
             event.defaultPrevented ||
-            !isElement(event.target) ||
+            !isElement(target) ||
             // Only handle left clicks
             event.button !== 0
           ) {
+            return;
+          }
+
+          if (isTargetDisabledThumb(target)) {
+            resetPressedThumb();
             return;
           }
 
@@ -475,16 +521,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
             const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
             if (!pressedOnAnyThumb) {
-              setValue(
-                finger.value,
-                createChangeEventDetails(REASONS.trackPress, event.nativeEvent, undefined, {
-                  activeThumbIndex: finger.thumbIndex,
-                }),
-              );
+              const applied = setValueFromPointer(finger, REASONS.trackPress, event.nativeEvent);
 
-              latestValuesRef.current = Array.isArray(finger.value) ? finger.value : [finger.value];
-
-              if (finger.didSwap) {
+              if (applied && finger.didSwap) {
                 focusThumb(finger.thumbIndex);
               }
             }
@@ -499,7 +538,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
           doc.addEventListener('pointermove', handleTouchMove, { passive: true });
           doc.addEventListener('pointerup', handleTouchEnd, { once: true });
         },
-        tabIndex: -1,
       },
       elementProps,
     ],
@@ -515,9 +553,11 @@ interface FingerState {
   didSwap: boolean;
 }
 
-export interface SliderControlProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+export interface SliderControlState extends SliderRootState {}
+
+export interface SliderControlProps extends BaseUIComponentProps<'div', SliderControlState> {}
 
 export namespace SliderControl {
-  export type State = SliderRoot.State;
+  export type State = SliderControlState;
   export type Props = SliderControlProps;
 }

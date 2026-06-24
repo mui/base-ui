@@ -1,22 +1,22 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { selectors } from '../store';
 
-const stateAttributesMapping: StateAttributesMapping<SelectBackdrop.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectBackdropState> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
 };
 
 /**
- * An overlay displayed beneath the menu popup.
+ * An overlay displayed beneath the select popup.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -25,7 +25,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   componentProps: SelectBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { store } = useSelectRootContext();
 
@@ -33,13 +33,10 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   const mounted = useStore(store, selectors.mounted);
   const transitionStatus = useStore(store, selectors.transitionStatus);
 
-  const state: SelectBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: SelectBackdropState = {
+    open,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -62,11 +59,17 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
 });
 
 export interface SelectBackdropState {
+  /**
+   * Whether the component is open.
+   */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
 }
 
-export interface SelectBackdropProps extends BaseUIComponentProps<'div', SelectBackdrop.State> {}
+export interface SelectBackdropProps extends BaseUIComponentProps<'div', SelectBackdropState> {}
 
 export namespace SelectBackdrop {
   export type State = SelectBackdropState;

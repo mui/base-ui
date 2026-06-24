@@ -1,20 +1,65 @@
+.InputGroup {
+  box-sizing: border-box;
+  position: relative;
+  width: 14rem;
+  height: 2rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+  }
+
+  &:focus-within {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  &:has(.Clear) .Input {
+    padding: 0 calc(0.5rem + 2rem * 2) 0 0.5rem;
+  }
+}
+
 .Input {
   box-sizing: border-box;
-  padding-left: 0.875rem;
-  padding-right: calc(0.5rem + 1.5rem);
+  padding: 0 calc(0.5rem + 2rem) 0 0.5rem;
   margin: 0;
-  border: 1px solid var(--color-gray-200);
-  width: 16rem;
-  height: 2.5rem;
-  border-radius: 0.375rem;
+  border: none;
+  border-radius: 0;
+  width: 100%;
+  height: 100%;
   font-family: inherit;
-  font-size: 1rem;
-  background-color: canvas;
-  color: var(--color-gray-900);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
+
+  @media (any-pointer: coarse) {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &::placeholder {
+    color: oklch(55.6% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(70.8% 0 0deg);
+    }
+  }
 
   &:focus {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -1px;
+    outline: none;
   }
 }
 
@@ -24,16 +69,12 @@
   gap: 0.25rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 500;
-  color: var(--color-gray-900);
-  position: relative;
-}
-
-.InputWrapper {
+  font-weight: 700;
+  color: oklch(14.5% 0 0deg);
   position: relative;
 
-  &:has(.Clear) .Input {
-    padding-right: calc(0.5rem + 1.5rem * 2);
+  @media (prefers-color-scheme: dark) {
+    color: white;
   }
 }
 
@@ -44,12 +85,15 @@
   align-items: center;
   justify-content: center;
   bottom: 0;
-  height: 2.5rem;
-  right: 0.5rem;
-  border-radius: 0.25rem;
+  height: 100%;
+  right: 0;
   border: none;
-  color: var(--color-gray-600);
+  color: oklch(55.6% 0 0deg);
   padding: 0;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
 }
 
 .Trigger,
@@ -59,18 +103,15 @@
   align-items: center;
   justify-content: center;
   width: 1.5rem;
-  height: 2.5rem;
-  color: var(--color-gray-600);
+  height: 100%;
+  color: oklch(14.5% 0 0deg);
   border: none;
   padding: 0;
-  border-radius: 0.25rem;
   background: none;
-}
 
-.ClearIcon,
-.TriggerIcon {
-  width: 1rem;
-  height: 1rem;
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .Positioner {
@@ -79,33 +120,29 @@
 
 .Popup {
   box-sizing: border-box;
-  border-radius: 0.375rem;
-  background-color: canvas;
-  color: var(--color-gray-900);
+  background-color: white;
+  color: oklch(14.5% 0 0deg);
   width: var(--anchor-width);
-  max-height: 23rem;
   max-width: var(--available-width);
   transition:
     opacity 0.1s,
     transform 0.1s;
   transform-origin: var(--transform-origin);
 
+  border: 1px solid oklch(14.5% 0 0deg);
+  box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+    border: 1px solid white;
+    box-shadow: none;
+  }
+
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
     transform: scale(0.95);
-  }
-
-  @media (prefers-color-scheme: light) {
-    outline: 1px solid var(--color-gray-200);
-    box-shadow:
-      0 10px 15px -3px var(--color-gray-200),
-      0 4px 6px -4px var(--color-gray-200);
-  }
-
-  @media (prefers-color-scheme: dark) {
-    outline: 1px solid var(--color-gray-300);
-    outline-offset: -1px;
   }
 }
 
@@ -113,10 +150,10 @@
   box-sizing: border-box;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-block: 0.5rem;
-  scroll-padding-block: 0.5rem;
+  padding-block: 0.25rem;
+  scroll-padding-block: 0.25rem;
   outline: 0;
-  max-height: min(23rem, var(--available-height));
+  max-height: min(22.5rem, var(--available-height));
 
   &[data-empty] {
     padding: 0;
@@ -127,21 +164,26 @@
   box-sizing: border-box;
   outline: 0;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
   padding-block: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 2rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
   display: grid;
   gap: 0.5rem;
   align-items: center;
-  grid-template-columns: 0.75rem 1fr;
-  font-size: 1rem;
+  grid-template-columns: 1rem 1fr;
+  font-size: 0.875rem;
   line-height: 1rem;
 
   &[data-highlighted] {
     z-index: 0;
     position: relative;
-    color: var(--color-gray-50);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      color: oklch(14.5% 0 0deg);
+    }
   }
 
   &[data-highlighted]::before {
@@ -149,9 +191,12 @@
     z-index: -1;
     position: absolute;
     inset-block: 0;
-    inset-inline: 0.5rem;
-    border-radius: 0.25rem;
-    background-color: var(--color-gray-900);
+    inset-inline: 0;
+    background-color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+    }
   }
 }
 
@@ -163,15 +208,14 @@
   grid-column-start: 1;
 }
 
-.ItemIndicatorIcon {
-  display: block;
-  width: 0.75rem;
-  height: 0.75rem;
-}
-
-.Empty:not(:empty) {
-  font-size: 0.925rem;
+.Empty {
+  box-sizing: border-box;
+  padding: 1rem 1rem 1rem 0.5rem;
+  font-size: 0.875rem;
   line-height: 1rem;
-  color: var(--color-gray-600);
-  padding: 1rem;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
 }

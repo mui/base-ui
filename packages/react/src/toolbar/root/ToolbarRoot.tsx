@@ -1,8 +1,12 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, Orientation as BaseOrientation, HTMLProps } from '../../utils/types';
-import { CompositeRoot } from '../../composite/root/CompositeRoot';
-import type { CompositeMetadata } from '../../composite/list/CompositeList';
+import {
+  BaseUIComponentProps,
+  Orientation as BaseOrientation,
+  HTMLProps,
+} from '../../internals/types';
+import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import { ToolbarRootContext } from './ToolbarRootContext';
 
 /**
@@ -21,6 +25,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     orientation = 'horizontal',
     className,
     render,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -31,7 +36,13 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   const disabledIndices = React.useMemo(() => {
     const output: number[] = [];
     for (const itemMetadata of itemMap.values()) {
-      if (itemMetadata?.index && !itemMetadata.focusableWhenDisabled) {
+      // Only items that are disabled and not focusable when disabled
+      // are removed from roving focus.
+      if (
+        itemMetadata?.index != null &&
+        itemMetadata.disabled &&
+        !itemMetadata.focusableWhenDisabled
+      ) {
         output.push(itemMetadata.index);
       }
     }
@@ -47,7 +58,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     [disabled, orientation, setItemMap],
   );
 
-  const state = React.useMemo(() => ({ disabled, orientation }), [disabled, orientation]);
+  const state: ToolbarRootState = { disabled, orientation };
 
   const defaultProps: HTMLProps = {
     'aria-orientation': orientation,
@@ -59,6 +70,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
       <CompositeRoot
         render={render}
         className={className}
+        style={style}
         state={state}
         refs={[forwardedRef]}
         props={[defaultProps, elementProps]}
@@ -72,17 +84,24 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 });
 
 export interface ToolbarRootItemMetadata {
+  disabled: boolean;
   focusableWhenDisabled: boolean;
 }
 
 export type ToolbarRootOrientation = BaseOrientation;
 
 export interface ToolbarRootState {
+  /**
+   * Whether the component is disabled.
+   */
   disabled: boolean;
+  /**
+   * The component orientation.
+   */
   orientation: ToolbarRoot.Orientation;
 }
 
-export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRoot.State> {
+export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRootState> {
   disabled?: boolean | undefined;
   /**
    * The orientation of the toolbar.

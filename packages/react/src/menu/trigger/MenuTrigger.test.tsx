@@ -1,10 +1,11 @@
-import { expect } from 'chai';
+import * as React from 'react';
+import { expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer } from '#test-utils';
-import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Trigger />', () => {
   const { render } = createRenderer();
@@ -28,7 +29,7 @@ describe('<Menu.Trigger />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.property('disabled', true);
+      expect(button).toHaveProperty('disabled', true);
     });
 
     it('should not open the menu when clicked', async () => {
@@ -46,7 +47,7 @@ describe('<Menu.Trigger />', () => {
       const button = screen.getByRole('button');
       await user.click(button);
 
-      expect(screen.queryByRole('menu', { hidden: false })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: false })).toBe(null);
     });
   });
 
@@ -66,8 +67,8 @@ describe('<Menu.Trigger />', () => {
     await user.click(button);
 
     const menuPopup = await screen.findByRole('menu', { hidden: false });
-    expect(menuPopup).not.to.equal(null);
-    expect(menuPopup).to.have.attribute('data-open', '');
+    expect(menuPopup).not.toBe(null);
+    expect(menuPopup).toHaveAttribute('data-open', '');
   });
 
   describe('keyboard navigation', () => {
@@ -105,7 +106,7 @@ describe('<Menu.Trigger />', () => {
           await user.keyboard(`[${key}]`);
 
           const menuPopup = screen.queryByRole('menu', { hidden: false });
-          expect(menuPopup).not.to.equal(null);
+          expect(menuPopup).not.toBe(null);
         });
       });
     });
@@ -120,7 +121,7 @@ describe('<Menu.Trigger />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('aria-haspopup');
+      expect(button).toHaveAttribute('aria-haspopup');
     });
 
     it('has the aria-expanded=false attribute when closed', async () => {
@@ -131,18 +132,30 @@ describe('<Menu.Trigger />', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).to.have.attribute('aria-expanded', 'false');
+      expect(button).toHaveAttribute('aria-expanded', 'false');
     });
 
-    it('has the aria-expanded=true attribute when open', async () => {
+    it('has aria-expanded=true when the menu is opened', async () => {
       await render(
-        <Menu.Root open>
+        <Menu.Root>
           <Menu.Trigger>Toggle</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup />
+            </Menu.Positioner>
+          </Menu.Portal>
         </Menu.Root>,
       );
 
       const button = screen.getByRole('button', { name: 'Toggle' });
-      expect(button).to.have.attribute('aria-expanded', 'true');
+      expect(button).toHaveAttribute('aria-expanded', 'false');
+
+      await user.click(button);
+
+      const menuPopup = await screen.findByRole('menu', { hidden: false });
+      expect(menuPopup).not.toBe(null);
+      expect(button).toHaveAttribute('data-popup-open');
+      expect(button).toHaveAttribute('aria-expanded', 'true');
     });
   });
 
@@ -160,8 +173,55 @@ describe('<Menu.Trigger />', () => {
         trigger.click();
       });
 
-      expect(trigger).to.have.attribute('data-popup-open');
-      expect(trigger).to.have.attribute('data-pressed');
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-pressed');
+    });
+
+    it('keeps the data-popup-open attribute and handle.isOpen when a controlled close is vetoed', async () => {
+      const handle = Menu.createHandle();
+
+      function TestCase() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <Menu.Root
+              handle={handle}
+              open={open}
+              onOpenChange={(nextOpen) => {
+                if (nextOpen) {
+                  setOpen(true);
+                }
+              }}
+            >
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <button type="button">Outside</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      await user.click(trigger);
+
+      await screen.findByRole('menu');
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(handle.isOpen).toBe(true);
+
+      await user.click(screen.getByRole('button', { name: 'Outside' }));
+
+      expect(screen.getByRole('menu')).toHaveAttribute('data-open');
+      expect(trigger).toHaveAttribute('data-popup-open');
+      expect(handle.isOpen).toBe(true);
     });
   });
 
@@ -185,7 +245,7 @@ describe('<Menu.Trigger />', () => {
 
       fireEvent.click(trigger);
 
-      expect(trigger).to.have.attribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-popup-open');
     });
 
     it('closes the menu if the user clicks patiently', async () => {
@@ -208,7 +268,7 @@ describe('<Menu.Trigger />', () => {
 
       fireEvent.click(trigger);
 
-      expect(trigger).not.to.have.attribute('data-popup-open');
+      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sticks if the user clicks impatiently', async () => {
@@ -227,11 +287,11 @@ describe('<Menu.Trigger />', () => {
       fireEvent.click(trigger);
       fireEvent.mouseLeave(trigger);
 
-      expect(trigger).to.have.attribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-popup-open');
 
       clock.tick(1);
 
-      expect(trigger).to.have.attribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-popup-open');
     });
 
     it('does not stick if the user clicks patiently', async () => {
@@ -255,7 +315,7 @@ describe('<Menu.Trigger />', () => {
       fireEvent.click(trigger);
       fireEvent.mouseLeave(trigger);
 
-      expect(trigger).not.to.have.attribute('data-popup-open');
+      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sticks when clicked before the hover delay completes', async () => {
@@ -282,11 +342,11 @@ describe('<Menu.Trigger />', () => {
       // User clicks impatiently to open
       fireEvent.click(trigger);
 
-      expect(trigger).to.have.attribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-popup-open');
 
       fireEvent.mouseLeave(trigger);
 
-      expect(trigger).to.have.attribute('data-popup-open');
+      expect(trigger).toHaveAttribute('data-popup-open');
     });
 
     it('should keep the menu open when re-hovered and clicked within the patient threshold', async () => {
@@ -311,7 +371,7 @@ describe('<Menu.Trigger />', () => {
       clock.tick(100);
       await flushMicrotasks();
 
-      expect(screen.getByText('Content')).not.to.equal(null);
+      expect(screen.getByText('Content')).not.toBe(null);
 
       clock.tick(PATIENT_CLICK_THRESHOLD);
 
@@ -320,7 +380,7 @@ describe('<Menu.Trigger />', () => {
       fireEvent.mouseMove(trigger);
 
       fireEvent.click(trigger);
-      expect(screen.getByText('Content')).not.to.equal(null);
+      expect(screen.getByText('Content')).not.toBe(null);
     });
   });
 
@@ -340,7 +400,7 @@ describe('<Menu.Trigger />', () => {
       const button = screen.getByRole('button');
       await user.click(button);
 
-      expect(screen.queryByRole('menu', { hidden: false })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: false })).toBe(null);
     });
 
     it('prevents opening the menu with keyboard when `preventBaseUIHandler` is called in onClick', async () => {
@@ -362,7 +422,7 @@ describe('<Menu.Trigger />', () => {
 
       await user.keyboard('[Enter]');
 
-      expect(screen.queryByRole('menu', { hidden: false })).to.equal(null);
+      expect(screen.queryByRole('menu', { hidden: false })).toBe(null);
     });
   });
 
@@ -383,7 +443,7 @@ describe('<Menu.Trigger />', () => {
     );
 
     const button = screen.getByTestId('menu-trigger');
-    expect(button).not.to.have.attribute('role');
+    expect(button).not.toHaveAttribute('role');
   });
 
   it('has a role prop inside a Popover when not a native button', async () => {
@@ -403,6 +463,6 @@ describe('<Menu.Trigger />', () => {
     );
 
     const button = screen.getByTestId('menu-trigger');
-    expect(button).to.have.attribute('role', 'button');
+    expect(button).toHaveAttribute('role', 'button');
   });
 });

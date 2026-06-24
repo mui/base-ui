@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/f0d7ff12deed259607345eb59c67b9fd02834234/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/00cd0db0b3f3e2bc38ac8fb6af4edbfb2d5f88f6/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -23,8 +23,9 @@ default-job: &default-job
       description: The version of react to be used
       type: string
       default: << pipeline.parameters.react-version >>
+  resource_class: medium
   environment:
-    # expose it globally otherwise we have to thread it from each job to the install command
+    &default-environment # expose it globally otherwise we have to thread it from each job to the install command
     BROWSERSTACK_FORCE: << pipeline.parameters.browserstack-force >>
     COREPACK_ENABLE_DOWNLOAD_PROMPT: '0'
   working_directory: /tmp/base-ui
@@ -52,24 +53,23 @@ commands:
           command: pnpm -F "./packages/*" add react-compiler-runtime
       - run:
           name: Build with compiler
-          command: pnpm -F "./packages/*" build --enableReactCompiler
+          command: pnpm release:build --enableReactCompiler
           environment:
             MUI_REACT_COMPILER_MODE: 'infer'
 
 jobs:
   test_unit:
     <<: *default-job
+    resource_class: large
     steps:
       - checkout
       - code-infra/install-deps:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom:coverage
+          command: pnpm test:jsdom
       - store_test_results:
           path: test-results
-      - code-infra/upload-coverage:
-          key: << parameters.react-version >>-jsdom
   docs_validate:
     <<: *default-job
     steps:
@@ -83,19 +83,18 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps
-      - code-infra/run-linters
+      - code-infra/eslint
+      - code-infra/stylelint
+      - code-infra/valelint
   test_static:
     <<: *default-job
+    environment:
+      <<: *default-environment
+      NODE_OPTIONS: --max-old-space-size=3584
     steps:
       - checkout
       - code-infra/install-deps
       - code-infra/check-static-changes
-      - run:
-          name: Generate the documentation
-          command: pnpm docs:api
-      - run:
-          name: '`pnpm docs:api` changes committed?'
-          command: git add -A && git diff --exit-code --staged
       - run:
           name: '`pnpm extract-error-codes` changes committed?'
           command: |
@@ -108,7 +107,7 @@ jobs:
             git add -A && git diff --exit-code --staged
   test_types:
     <<: *default-job
-    resource_class: 'medium+'
+    resource_class: medium+
     steps:
       - checkout
       - code-infra/install-deps:
@@ -129,7 +128,7 @@ jobs:
             - packages/react/build
   test_types_next:
     <<: *default-job
-    resource_class: 'medium+'
+    resource_class: medium+
     steps:
       - checkout
       - code-infra/install-deps:
@@ -154,26 +153,25 @@ jobs:
             exit 0
   test_browser:
     <<: *default-job
-    resource_class: 'medium+'
+    resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.57.0-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps:
           package-overrides: react@<< parameters.react-version >>
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage
+          command: pnpm test:chromium
       - store_test_results:
           path: test-results
-      - code-infra/upload-coverage:
-          key: << parameters.react-version >>-browser
   test_regressions:
     <<: *default-job
+    resource_class: medium+
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.57.0-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -189,7 +187,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.57.0-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -201,6 +199,7 @@ jobs:
 
   test_package:
     <<: *default-job
+    resource_class: medium+
     steps:
       - checkout
       - code-infra/install-deps
@@ -223,13 +222,17 @@ jobs:
 
   test_unit_compiler:
     <<: *default-job
+    resource_class: large
+    environment:
+      <<: *default-environment
+      NODE_OPTIONS: --max-old-space-size=3584
     steps:
       - checkout
       - code-infra/install-deps
       - build-with-compiler
       - run:
           name: Run tests on JSDOM
-          command: pnpm test:jsdom:coverage
+          command: pnpm test:jsdom
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
       - store_test_results:
@@ -237,20 +240,55 @@ jobs:
 
   test_browser_compiler:
     <<: *default-job
+    resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.57.0-noble
+      playwright-img-version: v1.59.1-noble
     steps:
       - checkout
       - code-infra/install-deps
       - build-with-compiler
       - run:
           name: Run tests on headless Chromium
-          command: pnpm test:chromium --coverage
+          command: pnpm test:chromium
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
       - store_test_results:
           path: test-results
+
+  test_benchmark:
+    <<: *default-job
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.59.1-noble
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - run:
+          name: Build packages
+          command: pnpm release:build
+      - run:
+          name: Run baseline benchmarks at merge-base
+          command: |
+            set -e
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+              echo "On master branch; no baseline to compare against. Skipping baseline."
+              exit 0
+            fi
+            git fetch --no-tags origin master:refs/remotes/origin/master
+            BASE_SHA=$(git merge-base HEAD origin/master)
+            echo "Baseline commit: $BASE_SHA"
+            git worktree add /tmp/base-worktree "$BASE_SHA"
+            cd /tmp/base-worktree
+            pnpm install --frozen-lockfile
+            pnpm release:build
+            BENCHMARK_BRANCH=master pnpm test:benchmark
+            echo 'export BENCHMARK_BASELINE_PATH=/tmp/base-worktree/test/performance/benchmarks/results.json' >> "$BASH_ENV"
+      - run:
+          name: Run head benchmarks
+          environment:
+            BENCHMARK_UPLOAD: 'true'
+          command: pnpm test:benchmark
 
 workflows:
   pipeline:
@@ -284,6 +322,9 @@ workflows:
       - docs_validate:
           <<: *default-context
           name: 'Validating Docs'
+      - test_benchmark:
+          <<: *default-context
+          name: 'Benchmark tests'
       - test_unit_compiler:
           <<: *default-context
           name: 'JSDOM tests (React Compiler)'

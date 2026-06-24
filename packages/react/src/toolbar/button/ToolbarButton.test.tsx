@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { Switch } from '@base-ui/react/switch';
@@ -10,9 +11,9 @@ import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { NOOP } from '../../utils/noop';
+import { NOOP } from '../../internals/noop';
 import { ToolbarRootContext } from '../root/ToolbarRootContext';
-import { CompositeRootContext } from '../../composite/root/CompositeRootContext';
+import { CompositeRootContext } from '../../internals/composite/root/CompositeRootContext';
 
 const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
@@ -53,7 +54,7 @@ describe('<Toolbar.Button />', () => {
         </Toolbar.Root>,
       );
 
-      expect(screen.getByTestId('button')).to.equal(screen.getByRole('button'));
+      expect(screen.getByTestId('button')).toBe(screen.getByRole('button'));
     });
   });
 
@@ -78,9 +79,9 @@ describe('<Toolbar.Button />', () => {
 
       const button = screen.getByRole('button');
 
-      expect(button).to.not.have.attribute('disabled');
-      expect(button).to.have.attribute('data-disabled');
-      expect(button).to.have.attribute('aria-disabled', 'true');
+      expect(button).not.toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
 
       await user.click(button);
       await user.keyboard(`[Space]`);
@@ -89,6 +90,45 @@ describe('<Toolbar.Button />', () => {
       expect(handleMouseDown).toHaveBeenCalledTimes(0);
       expect(handlePointerDown).toHaveBeenCalledTimes(0);
       expect(handleKeyDown).toHaveBeenCalledTimes(0);
+    });
+
+    it('uses the disabled attribute when focusableWhenDisabled is false', async () => {
+      await render(
+        <Toolbar.Root>
+          <Toolbar.Button disabled focusableWhenDisabled={false} />
+        </Toolbar.Root>,
+      );
+
+      const button = screen.getByRole('button');
+
+      expect(button).toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('data-disabled');
+      expect(button).not.toHaveAttribute('aria-disabled');
+    });
+
+    it.skipIf(isJSDOM)('allows hover handlers while blocking activation', async () => {
+      const handleClick = vi.fn();
+      const handleMouseMove = vi.fn();
+
+      const { user } = await render(
+        <Toolbar.Root>
+          <Toolbar.Button disabled onClick={handleClick} onMouseMove={handleMouseMove} />
+        </Toolbar.Root>,
+      );
+
+      const button = screen.getByRole('button');
+
+      expect(button).not.toHaveAttribute('disabled');
+      expect(button).toHaveAttribute('data-disabled');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+
+      await user.hover(button);
+
+      expect(handleMouseMove).toHaveBeenCalled();
+
+      await user.click(button);
+
+      expect(handleClick).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -107,10 +147,15 @@ describe('<Toolbar.Button />', () => {
 
         expect(console.error).toHaveBeenCalledTimes(1);
         expect(console.error).toHaveBeenCalledWith(
-          'Base UI: A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+          expect.stringContaining(
+            'Base UI: A component that acts as a button expected a native <button> because ' +
+              'the `nativeButton` prop is true. Rendering a non-<button> removes native button semantics, ' +
+              'which can impact forms and accessibility. Use a real <button> in the `render` prop, or ' +
+              'set `nativeButton` to `false`.',
+          ),
         );
 
-        expect(screen.getByTestId('button')).to.equal(screen.getByRole('switch'));
+        expect(screen.getByTestId('button')).toBe(screen.getByRole('switch'));
       });
 
       it('handles interactions', async () => {
@@ -131,29 +176,34 @@ describe('<Toolbar.Button />', () => {
 
         expect(console.error).toHaveBeenCalledTimes(1);
         expect(console.error).toHaveBeenCalledWith(
-          'Base UI: A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+          expect.stringContaining(
+            'Base UI: A component that acts as a button expected a native <button> because ' +
+              'the `nativeButton` prop is true. Rendering a non-<button> removes native button semantics, ' +
+              'which can impact forms and accessibility. Use a real <button> in the `render` prop, or ' +
+              'set `nativeButton` to `false`.',
+          ),
         );
 
         const switchElement = screen.getByRole('switch');
-        expect(switchElement).to.have.attribute('data-unchecked');
+        expect(switchElement).toHaveAttribute('data-unchecked');
 
         await user.keyboard('[Tab]');
-        expect(switchElement).to.have.attribute('tabindex', '0');
+        expect(switchElement).toHaveAttribute('tabindex', '0');
 
         await user.click(switchElement);
         expect(handleCheckedChange).toHaveBeenCalledTimes(1);
         expect(handleClick).toHaveBeenCalledTimes(1);
-        expect(switchElement).to.have.attribute('data-checked');
+        expect(switchElement).toHaveAttribute('data-checked');
 
         await user.keyboard('[Enter]');
         expect(handleCheckedChange).toHaveBeenCalledTimes(2);
         expect(handleClick).toHaveBeenCalledTimes(2);
-        expect(switchElement).to.have.attribute('data-unchecked');
+        expect(switchElement).toHaveAttribute('data-unchecked');
 
         await user.keyboard('[Space]');
         expect(handleCheckedChange).toHaveBeenCalledTimes(3);
         expect(handleClick).toHaveBeenCalledTimes(3);
-        expect(switchElement).to.have.attribute('data-checked');
+        expect(switchElement).toHaveAttribute('data-checked');
       });
 
       it('disabled state', async () => {
@@ -175,17 +225,22 @@ describe('<Toolbar.Button />', () => {
 
         expect(console.error).toHaveBeenCalledTimes(1);
         expect(console.error).toHaveBeenCalledWith(
-          'Base UI: A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+          expect.stringContaining(
+            'Base UI: A component that acts as a button expected a native <button> because ' +
+              'the `nativeButton` prop is true. Rendering a non-<button> removes native button semantics, ' +
+              'which can impact forms and accessibility. Use a real <button> in the `render` prop, or ' +
+              'set `nativeButton` to `false`.',
+          ),
         );
 
         const switchElement = screen.getByRole('switch');
 
-        expect(switchElement).to.not.have.attribute('disabled');
-        expect(switchElement).to.have.attribute('data-disabled');
-        expect(switchElement).to.have.attribute('aria-disabled', 'true');
+        expect(switchElement).not.toHaveAttribute('disabled');
+        expect(switchElement).toHaveAttribute('data-disabled');
+        expect(switchElement).toHaveAttribute('aria-disabled', 'true');
 
         await user.keyboard('[Tab]');
-        expect(switchElement).to.have.attribute('tabindex', '0');
+        expect(switchElement).toHaveAttribute('tabindex', '0');
 
         await user.keyboard('[Enter]');
         expect(handleCheckedChange).toHaveBeenCalledTimes(0);
@@ -220,7 +275,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.getByTestId('button')).to.have.attribute('aria-haspopup', 'menu');
+        expect(screen.getByTestId('button')).toHaveAttribute('aria-haspopup', 'menu');
       });
 
       it('handles interactions', async () => {
@@ -247,7 +302,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
 
@@ -257,7 +312,7 @@ describe('<Toolbar.Button />', () => {
         await user.keyboard('[Enter]');
         expect(handleClick).toHaveBeenCalledTimes(1);
         expect(handleOpenChange).toHaveBeenCalledTimes(1);
-        expect(screen.queryByRole('menu')).not.to.equal(null);
+        expect(screen.queryByRole('menu')).not.toBe(null);
 
         await waitFor(() => {
           expect(screen.getByTestId('item-1')).toHaveFocus();
@@ -280,7 +335,7 @@ describe('<Toolbar.Button />', () => {
 
         await user.keyboard('[Escape]');
         await waitFor(() => {
-          expect(screen.queryByRole('menu')).to.equal(null);
+          expect(screen.queryByRole('menu')).toBe(null);
         });
 
         expect(handleOpenChange).toHaveBeenCalledTimes(2);
@@ -316,11 +371,11 @@ describe('<Toolbar.Button />', () => {
         );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
-        expect(trigger).to.not.have.attribute('disabled');
-        expect(trigger).to.have.attribute('data-disabled');
-        expect(trigger).to.have.attribute('aria-disabled', 'true');
+        expect(trigger).not.toHaveAttribute('disabled');
+        expect(trigger).toHaveAttribute('data-disabled');
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
 
         await user.keyboard('[Tab]');
         expect(trigger).toHaveFocus();
@@ -332,7 +387,7 @@ describe('<Toolbar.Button />', () => {
 
         expect(handleClick).toHaveBeenCalledTimes(0);
         expect(handleOpenChange).toHaveBeenCalledTimes(0);
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
     });
 
@@ -355,8 +410,8 @@ describe('<Toolbar.Button />', () => {
         );
 
         const trigger = screen.getByTestId('button');
-        expect(trigger).to.equal(screen.getByRole('combobox'));
-        expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
+        expect(trigger).toBe(screen.getByRole('combobox'));
+        expect(trigger).toHaveAttribute('aria-haspopup', 'listbox');
       });
 
       it.skipIf(!isJSDOM)('handles interactions', async () => {
@@ -381,14 +436,14 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByRole('listbox')).to.equal(null);
+        expect(screen.queryByRole('listbox')).toBe(null);
 
         const trigger = screen.getByTestId('button');
         await user.keyboard('[Tab]');
         expect(trigger).toHaveFocus();
 
         await user.keyboard('[ArrowDown]');
-        expect(screen.queryByRole('listbox')).to.equal(screen.getByTestId('popup'));
+        expect(screen.queryByRole('listbox')).toBe(screen.getByTestId('popup'));
         await waitFor(() => {
           expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
         });
@@ -400,7 +455,7 @@ describe('<Toolbar.Button />', () => {
 
         await user.keyboard('[Enter]');
         await waitFor(() => {
-          expect(screen.queryByRole('listbox')).to.equal(null);
+          expect(screen.queryByRole('listbox')).toBe(null);
         });
 
         await waitFor(() => {
@@ -435,12 +490,12 @@ describe('<Toolbar.Button />', () => {
             </Toolbar.Root>,
           );
 
-          expect(screen.queryByRole('listbox')).to.equal(null);
+          expect(screen.queryByRole('listbox')).toBe(null);
 
           const trigger = screen.getByRole('combobox');
-          expect(trigger).to.not.have.attribute('disabled');
-          expect(trigger).to.have.attribute('data-disabled');
-          expect(trigger).to.have.attribute('aria-disabled', 'true');
+          expect(trigger).not.toHaveAttribute('disabled');
+          expect(trigger).toHaveAttribute('data-disabled');
+          expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
           await user.keyboard('[Tab]');
           expect(trigger).toHaveFocus();
@@ -456,7 +511,11 @@ describe('<Toolbar.Button />', () => {
           expect(onOpenChange).toHaveBeenCalledTimes(0);
           expect(onValueChange).toHaveBeenCalledTimes(0);
         }).toErrorDev([
-          'Base UI: A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
+          'Base UI: A component that acts as a button expected a non-<button> because ' +
+            'the `nativeButton` prop is false. Rendering a <button> keeps native behavior while Base UI ' +
+            'applies non-native attributes and handlers, which can add unintended extra attributes ' +
+            '(such as `role` or `aria-disabled`). Use a non-<button> in the `render` prop, or set ' +
+            '`nativeButton` to `true`.',
         ]);
       });
     });
@@ -477,7 +536,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.getByTestId('trigger')).to.equal(screen.getByRole('button'));
+        expect(screen.getByTestId('trigger')).toBe(screen.getByRole('button'));
       });
 
       it('handles interactions', async () => {
@@ -496,7 +555,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByText('title text')).to.equal(null);
+        expect(screen.queryByText('title text')).toBe(null);
 
         const trigger = screen.getByRole('button');
         await user.keyboard('[Tab]');
@@ -504,12 +563,12 @@ describe('<Toolbar.Button />', () => {
         expect(onOpenChange).toHaveBeenCalledTimes(0);
 
         await user.keyboard('[Enter]');
-        expect(screen.queryByText('title text')).not.to.equal(null);
+        expect(screen.queryByText('title text')).not.toBe(null);
         expect(onOpenChange).toHaveBeenCalledTimes(1);
         expect(onOpenChange).toHaveBeenNthCalledWith(1, true, expect.anything());
 
         await user.keyboard('[Escape]');
-        expect(screen.queryByText('title text')).to.equal(null);
+        expect(screen.queryByText('title text')).toBe(null);
         expect(onOpenChange).toHaveBeenCalledTimes(2);
         expect(onOpenChange).toHaveBeenNthCalledWith(2, false, expect.anything());
 
@@ -534,12 +593,12 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByText('title text')).to.equal(null);
+        expect(screen.queryByText('title text')).toBe(null);
 
         const trigger = screen.getByRole('button');
-        expect(trigger).to.not.have.attribute('disabled');
-        expect(trigger).to.have.attribute('data-disabled');
-        expect(trigger).to.have.attribute('aria-disabled', 'true');
+        expect(trigger).not.toHaveAttribute('disabled');
+        expect(trigger).toHaveAttribute('data-disabled');
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
         await user.keyboard('[Tab]');
         expect(trigger).toHaveFocus();
@@ -567,7 +626,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).toBe(null);
 
         const trigger = screen.getByRole('button', { name: 'dialog' });
         await user.click(trigger);
@@ -598,7 +657,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.getByTestId('trigger')).to.equal(screen.getByRole('button'));
+        expect(screen.getByTestId('trigger')).toBe(screen.getByRole('button'));
       });
 
       it('handles interactions', async () => {
@@ -617,7 +676,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByText('title text')).to.equal(null);
+        expect(screen.queryByText('title text')).toBe(null);
 
         const trigger = screen.getByRole('button');
         await user.keyboard('[Tab]');
@@ -625,12 +684,12 @@ describe('<Toolbar.Button />', () => {
         expect(onOpenChange).toHaveBeenCalledTimes(0);
 
         await user.keyboard('[Enter]');
-        expect(screen.queryByText('title text')).not.to.equal(null);
+        expect(screen.queryByText('title text')).not.toBe(null);
         expect(onOpenChange).toHaveBeenCalledTimes(1);
         expect(onOpenChange).toHaveBeenNthCalledWith(1, true, expect.anything());
 
         await user.keyboard('[Escape]');
-        expect(screen.queryByText('title text')).to.equal(null);
+        expect(screen.queryByText('title text')).toBe(null);
         expect(onOpenChange).toHaveBeenCalledTimes(2);
         expect(onOpenChange).toHaveBeenNthCalledWith(2, false, expect.anything());
 
@@ -655,12 +714,12 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByText('title text')).to.equal(null);
+        expect(screen.queryByText('title text')).toBe(null);
 
         const trigger = screen.getByRole('button');
-        expect(trigger).to.not.have.attribute('disabled');
-        expect(trigger).to.have.attribute('data-disabled');
-        expect(trigger).to.have.attribute('aria-disabled', 'true');
+        expect(trigger).not.toHaveAttribute('disabled');
+        expect(trigger).toHaveAttribute('data-disabled');
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
         await user.keyboard('[Tab]');
         expect(trigger).toHaveFocus();
@@ -688,7 +747,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByRole('dialog')).to.equal(null);
+        expect(screen.queryByRole('dialog')).toBe(null);
 
         const trigger = screen.getByRole('button', { name: 'dialog' });
         await user.click(trigger);
@@ -718,8 +777,8 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.getByTestId('trigger')).to.equal(screen.getByRole('button'));
-        expect(screen.getByRole('button')).to.have.attribute('aria-haspopup', 'dialog');
+        expect(screen.getByTestId('trigger')).toBe(screen.getByRole('button'));
+        expect(screen.getByRole('button')).toHaveAttribute('aria-haspopup', 'dialog');
       });
 
       it('handles interactions', async () => {
@@ -737,7 +796,7 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         const trigger = screen.getByRole('button');
         await user.keyboard('[Tab]');
@@ -745,7 +804,7 @@ describe('<Toolbar.Button />', () => {
         expect(onOpenChange).toHaveBeenCalledTimes(0);
 
         await user.keyboard('[Enter]');
-        expect(screen.queryByText('Content')).not.to.equal(null);
+        expect(screen.queryByText('Content')).not.toBe(null);
         expect(onOpenChange).toHaveBeenCalledTimes(1);
         expect(onOpenChange).toHaveBeenNthCalledWith(1, true, expect.anything());
 
@@ -772,12 +831,12 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.queryByText('Content')).to.equal(null);
+        expect(screen.queryByText('Content')).toBe(null);
 
         const trigger = screen.getByRole('button');
-        expect(trigger).to.not.have.attribute('disabled');
-        expect(trigger).to.have.attribute('data-disabled');
-        expect(trigger).to.have.attribute('aria-disabled', 'true');
+        expect(trigger).not.toHaveAttribute('disabled');
+        expect(trigger).toHaveAttribute('data-disabled');
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
 
         await user.keyboard('[Tab]');
         expect(trigger).toHaveFocus();
@@ -803,9 +862,9 @@ describe('<Toolbar.Button />', () => {
           </Toolbar.Root>,
         );
 
-        expect(screen.getAllByRole('button').length).to.equal(3);
+        expect(screen.getAllByRole('button').length).toBe(3);
         screen.getAllByRole('button').forEach((button) => {
-          expect(button).to.have.attribute('aria-pressed');
+          expect(button).toHaveAttribute('aria-pressed');
         });
       });
 
@@ -824,7 +883,7 @@ describe('<Toolbar.Button />', () => {
         const [button1, button2, button3] = screen.getAllByRole('button');
 
         [button1, button2, button3].forEach((button) => {
-          expect(button).to.have.attribute('aria-pressed', 'false');
+          expect(button).toHaveAttribute('aria-pressed', 'false');
         });
         expect(onPressedChange).toHaveBeenCalledTimes(0);
 
@@ -835,7 +894,7 @@ describe('<Toolbar.Button />', () => {
 
         await user.keyboard('[Enter]');
         expect(onPressedChange).toHaveBeenCalledTimes(1);
-        expect(button1).to.have.attribute('aria-pressed', 'true');
+        expect(button1).toHaveAttribute('aria-pressed', 'true');
 
         await user.keyboard('[ArrowRight]');
         await waitFor(() => {
@@ -844,7 +903,7 @@ describe('<Toolbar.Button />', () => {
 
         await user.keyboard('[Space]');
         expect(onPressedChange).toHaveBeenCalledTimes(2);
-        expect(button2).to.have.attribute('aria-pressed', 'true');
+        expect(button2).toHaveAttribute('aria-pressed', 'true');
 
         await user.keyboard('[ArrowRight]');
         await waitFor(() => {
@@ -853,7 +912,7 @@ describe('<Toolbar.Button />', () => {
 
         await user.keyboard('[Enter]');
         expect(onPressedChange).toHaveBeenCalledTimes(3);
-        expect(button3).to.have.attribute('aria-pressed', 'true');
+        expect(button3).toHaveAttribute('aria-pressed', 'true');
       });
 
       it('disabled state', async () => {
@@ -882,10 +941,10 @@ describe('<Toolbar.Button />', () => {
         const [button1, button2, button3] = screen.getAllByRole('button');
 
         [button1, button2, button3].forEach((button) => {
-          expect(button).to.have.attribute('aria-pressed', 'false');
-          expect(button).to.not.have.attribute('disabled');
-          expect(button).to.have.attribute('data-disabled');
-          expect(button).to.have.attribute('aria-disabled', 'true');
+          expect(button).toHaveAttribute('aria-pressed', 'false');
+          expect(button).not.toHaveAttribute('disabled');
+          expect(button).toHaveAttribute('data-disabled');
+          expect(button).toHaveAttribute('aria-disabled', 'true');
         });
         expect(onPressedChange).toHaveBeenCalledTimes(0);
 
@@ -912,6 +971,202 @@ describe('<Toolbar.Button />', () => {
         await user.keyboard('[Enter]');
         await user.keyboard('[Space]');
         expect(onPressedChange).toHaveBeenCalledTimes(0);
+      });
+
+      it('navigates and selects direct ToggleGroup > Toggle children', async () => {
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Toolbar.Root>
+            <ToggleGroup defaultValue={['one']} onValueChange={onValueChange}>
+              <Toggle value="one" data-testid="one" />
+              <Toggle value="two" data-testid="two" />
+              <Toggle value="three" data-testid="three" />
+            </ToggleGroup>
+          </Toolbar.Root>,
+        );
+
+        const one = screen.getByTestId('one');
+        const two = screen.getByTestId('two');
+        const three = screen.getByTestId('three');
+
+        expect(one).toHaveAttribute('aria-pressed', 'true');
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        // toggles past the first must be reachable (previously treated as disabled)
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(two).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(three).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        expect(onValueChange).toHaveBeenCalledTimes(1);
+        // exclusive selection replaces the previous value
+        expect(onValueChange.mock.calls[0][0]).toEqual(['three']);
+        expect(one).toHaveAttribute('aria-pressed', 'false');
+        expect(three).toHaveAttribute('aria-pressed', 'true');
+      });
+
+      it.skipIf(isJSDOM)('skips disabled direct ToggleGroup > Toggle children', async () => {
+        const { user } = await render(
+          <Toolbar.Root>
+            <ToggleGroup>
+              <Toggle value="one" data-testid="one" />
+              <Toggle value="two" data-testid="two" disabled />
+              <Toggle value="three" data-testid="three" />
+            </ToggleGroup>
+          </Toolbar.Root>,
+        );
+
+        const one = screen.getByTestId('one');
+        const two = screen.getByTestId('two');
+        const three = screen.getByTestId('three');
+
+        expect(two).toBeDisabled();
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(three).toHaveFocus();
+        });
+        expect(two).not.toHaveAttribute('tabindex', '0');
+      });
+
+      it('supports multiple selection for direct ToggleGroup > Toggle children', async () => {
+        const onValueChange = vi.fn();
+        const { user } = await render(
+          <Toolbar.Root>
+            <ToggleGroup multiple defaultValue={['one']} onValueChange={onValueChange}>
+              <Toggle value="one" data-testid="one" />
+              <Toggle value="two" data-testid="two" />
+            </ToggleGroup>
+          </Toolbar.Root>,
+        );
+
+        const one = screen.getByTestId('one');
+        const two = screen.getByTestId('two');
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(two).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        expect(onValueChange.mock.calls[0][0]).toEqual(['one', 'two']);
+        expect(one).toHaveAttribute('aria-pressed', 'true');
+        expect(two).toHaveAttribute('aria-pressed', 'true');
+      });
+
+      it('supports a controlled ToggleGroup value', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string[]>([]);
+          return (
+            <Toolbar.Root>
+              <ToggleGroup value={value} onValueChange={setValue}>
+                <Toggle value="one" data-testid="one" />
+                <Toggle value="two" data-testid="two" />
+              </ToggleGroup>
+            </Toolbar.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const one = screen.getByTestId('one');
+
+        expect(one).toHaveAttribute('aria-pressed', 'false');
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        await user.keyboard('[Enter]');
+        expect(one).toHaveAttribute('aria-pressed', 'true');
+      });
+
+      it('disables direct ToggleGroup children when Toolbar.Group is disabled', async () => {
+        const { user } = await render(
+          <Toolbar.Root>
+            <Toolbar.Button data-testid="before" />
+            <Toolbar.Group disabled>
+              <ToggleGroup>
+                <Toggle value="one" data-testid="one" />
+                <Toggle value="two" data-testid="two" />
+              </ToggleGroup>
+            </Toolbar.Group>
+            <Toolbar.Button data-testid="after" />
+          </Toolbar.Root>,
+        );
+
+        const before = screen.getByTestId('before');
+        const one = screen.getByTestId('one');
+        const two = screen.getByTestId('two');
+        const after = screen.getByTestId('after');
+
+        [one, two].forEach((toggle) => {
+          expect(toggle).toBeDisabled();
+          expect(toggle).toHaveAttribute('data-disabled');
+        });
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(before).toHaveFocus();
+        });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(after).toHaveFocus();
+        });
+        expect(one).not.toHaveAttribute('tabindex', '0');
+        expect(two).not.toHaveAttribute('tabindex', '0');
+      });
+
+      it.skipIf(isJSDOM)('skips a direct Toggle that becomes disabled at runtime', async () => {
+        function App({ twoDisabled }: { twoDisabled?: boolean }) {
+          return (
+            <Toolbar.Root>
+              <ToggleGroup>
+                <Toggle value="one" data-testid="one" />
+                <Toggle value="two" data-testid="two" disabled={twoDisabled} />
+                <Toggle value="three" data-testid="three" />
+              </ToggleGroup>
+            </Toolbar.Root>
+          );
+        }
+
+        const { user, setProps } = await render(<App />);
+
+        const one = screen.getByTestId('one');
+        const three = screen.getByTestId('three');
+
+        await user.keyboard('[Tab]');
+        await waitFor(() => {
+          expect(one).toHaveFocus();
+        });
+
+        await setProps({ twoDisabled: true });
+
+        await user.keyboard('[ArrowRight]');
+        await waitFor(() => {
+          expect(three).toHaveFocus();
+        });
       });
     });
   });

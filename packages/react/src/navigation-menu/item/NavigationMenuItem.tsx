@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import {
   NavigationMenuItemContext,
   NavigationMenuItemContextValue,
 } from './NavigationMenuItemContext';
-import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 
 /**
  * An individual navigation menu item.
@@ -16,9 +16,9 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
  */
 export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
   componentProps: NavigationMenuItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLLIElement>,
 ) {
-  const { className, render, value: valueProp, ...elementProps } = componentProps;
+  const { render, className, style, value: valueProp, ...elementProps } = componentProps;
 
   const fallbackValue = useBaseUiId();
   const value = valueProp ?? fallbackValue;
@@ -41,7 +41,7 @@ export interface NavigationMenuItemState {}
 
 export interface NavigationMenuItemProps extends BaseUIComponentProps<
   'li',
-  NavigationMenuItem.State
+  NavigationMenuItemState
 > {
   /**
    * A unique value that identifies this navigation menu item.

@@ -9,7 +9,7 @@ import type { MenuRoot } from '../../menu/root/MenuRoot';
 
 /**
  * A component that creates a context menu activated by right clicking or long pressing.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
  */
@@ -56,7 +56,19 @@ export interface ContextMenuRootState {}
 
 export interface ContextMenuRootProps extends Omit<
   Menu.Root.Props,
-  'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'
+  // Context Menu has no detached-trigger support (it opens from a right-click/long-press
+  // area, not a registered trigger), so these inherited props are not applicable.
+  | 'handle'
+  | 'triggerId'
+  | 'defaultTriggerId'
+  | 'modal'
+  | 'openOnHover'
+  | 'delay'
+  | 'closeDelay'
+  | 'onOpenChange'
+  // Context Menu opens from a pointer position rather than a registered trigger, so the
+  // render-function form of `children` (which receives the active trigger's payload) is not applicable.
+  | 'children'
 > {
   /**
    * Event handler called when the menu is opened or closed.
@@ -64,8 +76,10 @@ export interface ContextMenuRootProps extends Omit<
   onOpenChange?:
     | ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void)
     | undefined;
+  children?: React.ReactNode | undefined;
 }
 
+export type ContextMenuRootActions = MenuRoot.Actions;
 export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
 export type ContextMenuRootChangeEventDetails =
   BaseUIChangeEventDetails<ContextMenuRoot.ChangeEventReason>;
@@ -73,6 +87,7 @@ export type ContextMenuRootChangeEventDetails =
 export namespace ContextMenuRoot {
   export type State = ContextMenuRootState;
   export type Props = ContextMenuRootProps;
+  export type Actions = ContextMenuRootActions;
   export type ChangeEventReason = ContextMenuRootChangeEventReason;
   export type ChangeEventDetails = ContextMenuRootChangeEventDetails;
 }

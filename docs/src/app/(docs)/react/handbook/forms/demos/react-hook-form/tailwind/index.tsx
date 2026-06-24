@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
 import { Button } from '../../components/button';
 import { CheckboxGroup } from '../../components/checkbox-group';
 import { Form } from '../../components/form';
@@ -95,15 +94,17 @@ function ReactHookForm() {
         }) => (
           <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
             <Combobox.Root items={REGIONS} value={value} onValueChange={onChange}>
-              <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
-                <Field.Label>Region</Field.Label>
-                <Combobox.Input placeholder="e.g. eu-central-1" ref={ref} onBlur={onBlur} />
-                <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
-                  <Combobox.Clear />
-                  <Combobox.Trigger>
-                    <ChevronDown className="size-4" />
-                  </Combobox.Trigger>
-                </div>
+              <div className="relative text-sm leading-5 font-bold text-neutral-950 dark:text-white">
+                <Field.Label className="mb-1 block">Region</Field.Label>
+                <Combobox.InputGroup>
+                  <Combobox.Input placeholder="e.g. eu-central-1" ref={ref} onBlur={onBlur} />
+                  <div className="absolute right-0 bottom-0 inline-flex h-full items-center justify-center text-neutral-500 dark:text-neutral-400">
+                    <Combobox.Clear />
+                    <Combobox.Trigger>
+                      <Combobox.CaretDownIcon />
+                    </Combobox.Trigger>
+                  </div>
+                </Combobox.InputGroup>
               </div>
               <Combobox.Portal>
                 <Combobox.Positioner>
@@ -114,9 +115,9 @@ function ReactHookForm() {
                         return (
                           <Combobox.Item key={region} value={region}>
                             <Combobox.ItemIndicator>
-                              <Check className="size-4" />
+                              <CheckIcon />
                             </Combobox.ItemIndicator>
-                            <div className="col-start-2">{region}</div>
+                            <span className="col-start-2">{region}</span>
                           </Combobox.Item>
                         );
                       }}
@@ -162,8 +163,8 @@ function ReactHookForm() {
                       {(image: Image) => {
                         return (
                           <Autocomplete.Item key={image.url} value={image}>
-                            <span className="text-base leading-6">{image.name}</span>
-                            <span className="font-mono whitespace-nowrap text-xs leading-4 opacity-80">
+                            <span>{image.name}</span>
+                            <span className="font-mono whitespace-nowrap text-xs opacity-80">
                               {image.url}
                             </span>
                           </Autocomplete.Item>
@@ -190,16 +191,16 @@ function ReactHookForm() {
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
           <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <Field.Label className="cursor-default" nativeLabel={false} render={<div />}>
-              Server type
-            </Field.Label>
             <Select.Root items={SERVER_TYPES} value={value} onValueChange={onChange} inputRef={ref}>
-              <Select.Trigger className="w-48" onBlur={onBlur}>
-                <Select.Value />
-                <Select.Icon>
-                  <ChevronsUpDown className="size-4" />
-                </Select.Icon>
-              </Select.Trigger>
+              <div className="w-fit space-y-1">
+                <Select.Label>Server type</Select.Label>
+                <Select.Trigger className="w-48" onBlur={onBlur}>
+                  <Select.Value />
+                  <Select.Icon>
+                    <CaretUpDownIcon />
+                  </Select.Icon>
+                </Select.Trigger>
+              </div>
               <Select.Portal>
                 <Select.Positioner>
                   <Select.Popup>
@@ -209,7 +210,7 @@ function ReactHookForm() {
                         return (
                           <Select.Item key={serverType} value={serverType}>
                             <Select.ItemIndicator>
-                              <Check className="size-4" />
+                              <CheckIcon />
                             </Select.ItemIndicator>
                             <Select.ItemText>{label}</Select.ItemText>
                           </Select.Item>
@@ -241,11 +242,11 @@ function ReactHookForm() {
               <Field.Label>Number of instances</Field.Label>
               <NumberField.Group>
                 <NumberField.Decrement>
-                  <Minus className="size-4" />
+                  <MinusIcon />
                 </NumberField.Decrement>
-                <NumberField.Input className="!w-16" ref={ref} onBlur={onBlur} />
+                <NumberField.Input ref={ref} onBlur={onBlur} />
                 <NumberField.Increment>
-                  <Plus className="size-4" />
+                  <PlusIcon />
                 </NumberField.Increment>
               </NumberField.Group>
             </NumberField.Root>
@@ -277,7 +278,7 @@ function ReactHookForm() {
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0,
                   }}
-                  className="w-98/100 gap-y-2"
+                  className="w-full gap-y-2"
                 />
               }
             >
@@ -286,8 +287,13 @@ function ReactHookForm() {
               <Slider.Control>
                 <Slider.Track>
                   <Slider.Indicator />
-                  <Slider.Thumb index={0} onBlur={onBlur} inputRef={ref} />
-                  <Slider.Thumb index={1} onBlur={onBlur} />
+                  <Slider.Thumb
+                    index={0}
+                    aria-label="Minimum threshold"
+                    onBlur={onBlur}
+                    inputRef={ref}
+                  />
+                  <Slider.Thumb index={1} aria-label="Maximum threshold" onBlur={onBlur} />
                 </Slider.Track>
               </Slider.Control>
             </Fieldset.Root>
@@ -343,7 +349,7 @@ function ReactHookForm() {
           fieldState: { invalid, isTouched, isDirty },
         }) => (
           <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <Field.Label className="gap-4">
+            <Field.Label className="gap-2">
               Restart on failure
               <Switch.Root
                 checked={value}
@@ -379,7 +385,7 @@ function ReactHookForm() {
                           onBlur={onBlur}
                         >
                           <Checkbox.Indicator>
-                            <Check className="size-3" />
+                            <CheckIcon />
                           </Checkbox.Indicator>
                         </Checkbox.Root>
                         {val}
@@ -405,6 +411,73 @@ export default function App() {
     <ToastProvider>
       <ReactHookForm />
     </ToastProvider>
+  );
+}
+
+function CaretUpDownIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="M11 10H5l3 3.5zm0-4H5l3-3.5z" />
+    </svg>
+  );
+}
+
+function CheckIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="m2.5 8.5 4 4 7-9" />
+    </svg>
+  );
+}
+
+function PlusIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="M1.5 8h13M8 14.5v-13" />
+    </svg>
+  );
+}
+
+function MinusIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="square"
+      strokeLinejoin="round"
+      {...props}
+      style={{ display: 'block', ...props.style }}
+    >
+      <path d="M1.5 8h13" />
+    </svg>
   );
 }
 

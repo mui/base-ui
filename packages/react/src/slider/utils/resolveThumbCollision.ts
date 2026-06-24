@@ -1,12 +1,12 @@
-import { clamp } from '../../utils/clamp';
+import { clamp } from '../../internals/clamp';
 import { getPushedThumbValues } from './getPushedThumbValues';
 import { SliderRootContext } from '../root/SliderRootContext';
 
 export interface ResolveThumbCollisionParams {
   behavior: SliderRootContext['thumbCollisionBehavior'];
   values: readonly number[];
-  currentValues?: (readonly number[] | null) | undefined;
-  initialValues?: (readonly number[] | null) | undefined;
+  currentValues?: readonly number[] | null | undefined;
+  initialValues?: readonly number[] | null | undefined;
   pressedIndex: number;
   nextValue: number;
   min: number;

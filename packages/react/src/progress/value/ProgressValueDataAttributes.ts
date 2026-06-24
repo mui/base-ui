@@ -4,7 +4,7 @@ export enum ProgressValueDataAttributes {
    */
   complete = 'data-complete',
   /**
-   * Present when the progress is in interminate state.
+   * Present when the progress is in indeterminate state.
    */
   indeterminate = 'data-indeterminate',
   /**

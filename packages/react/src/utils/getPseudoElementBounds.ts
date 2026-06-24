@@ -1,3 +1,6 @@
+import { ownerWindow } from '@base-ui/utils/owner';
+import { platform } from '@base-ui/utils/platform';
+
 interface ElementBounds {
   left: number;
   right: number;
@@ -7,14 +10,15 @@ interface ElementBounds {
 
 export function getPseudoElementBounds(element: HTMLElement): ElementBounds {
   const elementRect = element.getBoundingClientRect();
+  const win = ownerWindow(element);
 
-  // Avoid "Not implemented: window.getComputedStyle(elt, pseudoElt)"
-  if (process.env.NODE_ENV === 'test') {
+  // Avoid "Not implemented: window.getComputedStyle(elt, pseudoElt)" in jsdom.
+  if (platform.env.jsdom) {
     return elementRect;
   }
 
-  const beforeStyles = window.getComputedStyle(element, '::before');
-  const afterStyles = window.getComputedStyle(element, '::after');
+  const beforeStyles = win.getComputedStyle(element, '::before');
+  const afterStyles = win.getComputedStyle(element, '::after');
 
   const hasPseudoElements = beforeStyles.content !== 'none' || afterStyles.content !== 'none';
 

@@ -1,7 +1,6 @@
+import { expect, vi } from 'vitest';
 import { Select } from '@base-ui/react/select';
-import { createRenderer, describeConformance } from '#test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Select.Trigger />', () => {
@@ -34,15 +33,15 @@ describe('<Select.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('data-disabled');
+      expect(trigger).toHaveAttribute('data-disabled');
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).not.to.equal(trigger);
+      expect(expect(document.activeElement)).not.toBe(trigger);
     });
 
     it('does not toggle the popup when disabled', async () => {
-      const handleOpenChange = spy();
+      const handleOpenChange = vi.fn();
       await render(
         <Select.Root defaultValue="b" onOpenChange={handleOpenChange}>
           <Select.Trigger data-testid="trigger" disabled>
@@ -64,9 +63,9 @@ describe('<Select.Trigger />', () => {
       fireEvent.click(trigger);
 
       await waitFor(() => {
-        expect(screen.queryByRole('listbox')).to.equal(null);
+        expect(screen.queryByRole('listbox')).toBe(null);
       });
-      expect(handleOpenChange.callCount).to.equal(0);
+      expect(handleOpenChange.mock.calls.length).toBe(0);
     });
   });
 
@@ -91,8 +90,8 @@ describe('<Select.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       const value = screen.getByTestId('value');
 
-      expect(trigger).to.have.attribute('data-placeholder');
-      expect(value).to.have.attribute('data-placeholder');
+      expect(trigger).toHaveAttribute('data-placeholder');
+      expect(value).toHaveAttribute('data-placeholder');
     });
 
     it('should have the data-placeholder attribute when provided custom property with `itemToStringValue`', async () => {
@@ -118,9 +117,9 @@ describe('<Select.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       const value = screen.getByTestId('value');
 
-      expect(trigger).to.have.attribute('data-placeholder');
-      expect(value).to.have.attribute('data-placeholder');
-      expect(value.textContent).to.equal('Default');
+      expect(trigger).toHaveAttribute('data-placeholder');
+      expect(value).toHaveAttribute('data-placeholder');
+      expect(value.textContent).toBe('Default');
     });
 
     it('should have the data-placeholder attribute when provided { value: null }', async () => {
@@ -137,9 +136,9 @@ describe('<Select.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       const value = screen.getByTestId('value');
 
-      expect(trigger).to.have.attribute('data-placeholder');
-      expect(value).to.have.attribute('data-placeholder');
-      expect(value.textContent).to.equal('Select font');
+      expect(trigger).toHaveAttribute('data-placeholder');
+      expect(value).toHaveAttribute('data-placeholder');
+      expect(value.textContent).toBe('Select font');
     });
 
     it('should not have the data-placeholder attribute when provided a value', async () => {
@@ -154,8 +153,8 @@ describe('<Select.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       const value = screen.getByTestId('value');
 
-      expect(trigger).not.to.have.attribute('data-placeholder');
-      expect(value).not.to.have.attribute('data-placeholder');
+      expect(trigger).not.toHaveAttribute('data-placeholder');
+      expect(value).not.toHaveAttribute('data-placeholder');
     });
 
     it('should not have the data-placeholder attribute when multiple mode has a default value', async () => {
@@ -170,12 +169,72 @@ describe('<Select.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       const value = screen.getByTestId('value');
 
-      expect(trigger).not.to.have.attribute('data-placeholder');
-      expect(value).not.to.have.attribute('data-placeholder');
+      expect(trigger).not.toHaveAttribute('data-placeholder');
+      expect(value).not.toHaveAttribute('data-placeholder');
     });
   });
 
   describe('style hooks', () => {
+    it.skipIf(isJSDOM)('sets data-popup-side to the current popup side', async () => {
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger data-testid="trigger">Trigger</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner side="right" alignItemWithTrigger={false}>
+              <Select.Popup>
+                <Select.Item value="apple">apple</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).not.toHaveAttribute('data-popup-side');
+
+      await user.click(trigger);
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(trigger).toHaveAttribute('data-popup-side', 'right');
+
+      await user.click(document.body);
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+      expect(trigger).not.toHaveAttribute('data-popup-side');
+    });
+
+    it.skipIf(isJSDOM)(
+      'sets data-popup-side to the resolved side when alignItemWithTrigger is active',
+      async () => {
+        const { user } = await render(
+          <div style={{ paddingTop: 100, paddingLeft: 10 }}>
+            <Select.Root defaultValue="apple">
+              <Select.Trigger data-testid="trigger" style={{ width: 120, height: 36 }}>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner data-testid="positioner">
+                  <Select.Popup style={{ maxHeight: 'none' }}>
+                    <Select.Item value="apple">apple</Select.Item>
+                    <Select.Item value="orange">orange</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('positioner')).toHaveAttribute('data-side', 'none');
+          expect(trigger).toHaveAttribute('data-popup-side', 'bottom');
+        });
+      },
+    );
+
     it('should have the data-popup-open and data-pressed attributes when open', async () => {
       const { user } = await render(
         <Select.Root>
@@ -188,9 +247,9 @@ describe('<Select.Trigger />', () => {
       await user.click(trigger);
 
       await waitFor(() => {
-        expect(trigger).to.have.attribute('data-popup-open');
+        expect(trigger).toHaveAttribute('data-popup-open');
       });
-      expect(trigger).to.have.attribute('data-pressed');
+      expect(trigger).toHaveAttribute('data-pressed');
     });
   });
 
@@ -203,7 +262,7 @@ describe('<Select.Trigger />', () => {
       );
 
       const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('aria-required', 'true');
+      expect(trigger).toHaveAttribute('aria-required', 'true');
     });
   });
 });

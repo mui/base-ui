@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { ProgressRoot, ProgressStatus } from './ProgressRoot';
+import type { ProgressStatus, ProgressRootState } from './ProgressRoot';
 
 export type ProgressRootContext = {
   /**
@@ -16,11 +16,16 @@ export type ProgressRootContext = {
    */
   min: number;
   /**
+   * The value normalized to a `0`–`100` percentage of the range, clamped to those bounds.
+   * `null` while the progress is indeterminate.
+   */
+  percentageValue: number | null;
+  /**
    * Value of the component.
    */
   value: number | null;
   setLabelId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  state: ProgressRoot.State;
+  state: ProgressRootState;
   status: ProgressStatus;
 };
 

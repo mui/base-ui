@@ -3,34 +3,35 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../utils/types';
-import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
+import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { fieldValidityMapping } from '../../field/utils/constants';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { selectors } from '../store';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import { contains, getFloatingFocusElement } from '../../floating-ui-react/utils';
 import { mergeProps } from '../../merge-props';
-import { useButton } from '../../use-button';
-import type { FieldRoot } from '../../field/root/FieldRoot';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { useButton } from '../../internals/use-button';
+import type { FieldRootState } from '../../field/root/FieldRoot';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
+import type { Side } from '../../utils/useAnchorPositioning';
 
 const BOUNDARY_OFFSET = 2;
 const SELECTED_DELAY = 400;
-const UNSELECTED_DELAY = 200;
 
-const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
+const stateAttributesMapping: StateAttributesMapping<SelectTriggerState> = {
   ...pressableTriggerOpenStateMapping,
   ...fieldValidityMapping,
+  popupSide: (side: Side | null) => (side ? { 'data-popup-side': side } : null),
   value: () => null,
 };
 
@@ -50,6 +51,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     id: idProp,
     disabled: disabledProp = false,
     nativeButton = true,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -60,7 +62,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     state: fieldState,
     disabled: fieldDisabled,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId: fieldLabelId } = useLabelableContext();
   const {
     store,
     setOpen,
@@ -70,22 +72,25 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     required,
     alignItemWithTriggerActiveRef,
     disabled: selectDisabled,
-    keyboardActiveRef,
   } = useSelectRootContext();
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
 
   const open = useStore(store, selectors.open);
+  const mounted = useStore(store, selectors.mounted);
   const value = useStore(store, selectors.value);
   const triggerProps = useStore(store, selectors.triggerProps);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
+  const popupSideValue = useStore(store, selectors.popupSide);
   const rootId = useStore(store, selectors.id);
+  const selectLabelId = useStore(store, selectors.labelId);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
-  const shouldCheckNullItemLabel = !hasSelectedValue && open;
-  const hasNullItemLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
+  const popupSide = mounted && positionerElement ? popupSideValue : null;
 
   const id = idProp ?? rootId;
+  const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, selectLabelId);
+
   useLabelableId({ id });
 
   const positionerRef = useValueAsRef(positionerElement);
@@ -101,84 +106,51 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     store.set('triggerElement', element);
   });
 
-  const mergedRef = useMergedRefs<HTMLElement>(
-    forwardedRef,
-    triggerRef,
-    buttonRef,
-    setTriggerElement,
-  );
-
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
   const selectedDelayTimeout = useTimeout();
-  const unselectedDelayTimeout = useTimeout();
 
   React.useEffect(() => {
     if (open) {
-      const hasSelectedItemInList = hasSelectedValue || hasNullItemLabel;
-      const shouldDelayUnselectedMouseUpLonger = !hasSelectedItemInList;
-
-      // When there is no selected item in the list (placeholder-only selects), a mousedown
-      // on the trigger followed by a quick mouseup over the first option can accidentally select
-      // within 200ms. Delay unselected mouseup to match the safer 400ms window.
-      if (shouldDelayUnselectedMouseUpLonger) {
-        selectedDelayTimeout.start(SELECTED_DELAY, () => {
-          selectionRef.current.allowUnselectedMouseUp = true;
-          selectionRef.current.allowSelectedMouseUp = true;
-        });
-      } else {
-        // mousedown -> move to unselected item -> mouseup should not select within 200ms.
-        unselectedDelayTimeout.start(UNSELECTED_DELAY, () => {
-          selectionRef.current.allowUnselectedMouseUp = true;
-
-          // mousedown -> mouseup on selected item should not select within 400ms.
-          selectedDelayTimeout.start(UNSELECTED_DELAY, () => {
-            selectionRef.current.allowSelectedMouseUp = true;
-          });
-        });
-      }
+      // A mousedown on the trigger can open the popup under the cursor. Keep mouseup selection
+      // disabled briefly so releasing over either the selected item or a neighboring item doesn't
+      // commit an accidental selection. SelectItem can still opt into unselected mouseup sooner
+      // after a real drag over the item.
+      selectedDelayTimeout.start(SELECTED_DELAY, () => {
+        selectionRef.current.allowUnselectedMouseUp = true;
+        selectionRef.current.allowSelectedMouseUp = true;
+      });
 
       return () => {
         selectedDelayTimeout.clear();
-        unselectedDelayTimeout.clear();
       };
     }
 
     selectionRef.current = {
       allowSelectedMouseUp: false,
       allowUnselectedMouseUp: false,
+      dragY: 0,
     };
 
     timeoutMouseDown.clear();
 
     return undefined;
-  }, [
-    open,
-    hasSelectedValue,
-    hasNullItemLabel,
-    selectionRef,
-    timeoutMouseDown,
-    selectedDelayTimeout,
-    unselectedDelayTimeout,
-  ]);
+  }, [open, selectionRef, timeoutMouseDown, selectedDelayTimeout]);
 
-  const ariaControlsId = React.useMemo(() => {
-    return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
-  }, [listElement, positionerElement]);
-
-  const props: HTMLProps = mergeProps<'button'>(
+  const mergedProps: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
       id,
       role: 'combobox',
       'aria-expanded': open ? 'true' : 'false',
       'aria-haspopup': 'listbox',
-      'aria-controls': open ? ariaControlsId : undefined,
-      'aria-labelledby': labelId,
+      'aria-controls': open
+        ? (listElement?.id ?? getFloatingFocusElement(positionerElement)?.id)
+        : undefined,
+      'aria-labelledby': ariaLabelledBy,
       'aria-readonly': readOnly || undefined,
       'aria-required': required || undefined,
       tabIndex: disabled ? -1 : 0,
-      ref: mergedRef,
       onFocus(event) {
         setFocused(true);
 
@@ -190,8 +162,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         // Saves a re-render on initial click: `forceMount === true` mounts
         // the items before `open === true`. We could sync those cycles better
         // without a timeout, but this is enough for now.
-        //
-        // XXX: might be causing `act()` warnings.
         timeoutFocus.start(0, () => {
           store.set('forceMount', true);
         });
@@ -209,12 +179,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           validation.commit(value);
         }
       },
-      onPointerMove() {
-        keyboardActiveRef.current = false;
-      },
-      onKeyDown() {
-        keyboardActiveRef.current = true;
-      },
       onMouseDown(event) {
         if (open) {
           return;
@@ -229,11 +193,11 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
           const mouseUpTarget = mouseEvent.target as Element | null;
 
-          // Early return if clicked on trigger element or its children
+          // Don't treat the release as an outside press when it lands on the trigger or inside
+          // the popup positioner (or their children).
           if (
             contains(triggerRef.current, mouseUpTarget) ||
-            contains(positionerRef.current, mouseUpTarget) ||
-            mouseUpTarget === triggerRef.current
+            contains(positionerRef.current, mouseUpTarget)
           ) {
             return;
           }
@@ -258,36 +222,34 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         });
       },
     },
-    validation.getValidationProps,
     elementProps,
     getButtonProps,
   );
+  const props = validation.getValidationProps(disabled, mergedProps);
 
   // ensure nested useButton does not overwrite the combobox role:
   // <Toolbar.Button render={<Select.Trigger />} />
   props.role = 'combobox';
 
-  const state: SelectTrigger.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      open,
-      disabled,
-      value,
-      readOnly,
-      placeholder: !hasSelectedValue,
-    }),
-    [fieldState, open, disabled, value, readOnly, hasSelectedValue],
-  );
+  const state: SelectTriggerState = {
+    ...fieldState,
+    open,
+    disabled,
+    value,
+    readOnly,
+    popupSide,
+    placeholder: !hasSelectedValue,
+  };
 
   return useRenderElement('button', componentProps, {
-    ref: [forwardedRef, triggerRef],
+    ref: [forwardedRef, triggerRef, buttonRef, setTriggerElement],
     state,
     stateAttributesMapping,
     props,
   });
 });
 
-export interface SelectTriggerState extends FieldRoot.State {
+export interface SelectTriggerState extends FieldRootState {
   /**
    * Whether the select popup is currently open.
    */
@@ -296,6 +258,10 @@ export interface SelectTriggerState extends FieldRoot.State {
    * Whether the select popup is readonly.
    */
   readOnly: boolean;
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   */
+  popupSide: Side | null;
   /**
    * The value of the currently selected item.
    */
@@ -307,9 +273,11 @@ export interface SelectTriggerState extends FieldRoot.State {
 }
 
 export interface SelectTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', SelectTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', SelectTriggerState> {
   children?: React.ReactNode;
-  /** Whether the component should ignore user interaction. */
+  /**
+   * Whether the component should ignore user interaction.
+   */
   disabled?: boolean | undefined;
 }
 
