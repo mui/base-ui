@@ -351,7 +351,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   const reactiveTriggerCount = store.useState('triggerCount');
   // Subscribe to the active trigger id so the reconciliation below reruns when ownership moves to
   // another trigger while the popup stays open (e.g. a focus/hover handoff between triggers).
-  const reactiveActiveTriggerId = store.useState('activeTriggerId');
+  const activeTriggerId = store.useState('activeTriggerId');
 
   useIsoLayoutEffect(() => {
     if (!open) {
@@ -368,11 +368,11 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       stateUpdates.triggerCount = triggerCount;
     }
 
-    const activeTriggerId = store.select('activeTriggerId');
+    const currentActiveTriggerId = store.select('activeTriggerId');
     let lostActiveTriggerId: string | null = null;
 
-    if (activeTriggerId) {
-      const activeTriggerElement = store.context.triggerElements.getById(activeTriggerId);
+    if (currentActiveTriggerId) {
+      const activeTriggerElement = store.context.triggerElements.getById(currentActiveTriggerId);
       if (!activeTriggerElement) {
         for (const [triggerId, triggerElement] of store.context.triggerElements.entries()) {
           if (triggerElement === store.state.activeTriggerElement) {
@@ -383,14 +383,14 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         }
 
         if (stateUpdates.activeTriggerId === undefined) {
-          lostActiveTriggerId = activeTriggerId;
+          lostActiveTriggerId = currentActiveTriggerId;
         }
       } else if (activeTriggerElement !== store.state.activeTriggerElement) {
         stateUpdates.activeTriggerElement = activeTriggerElement;
       }
     }
 
-    if (!lostActiveTriggerId && !activeTriggerId && triggerCount === 1) {
+    if (!lostActiveTriggerId && !currentActiveTriggerId && triggerCount === 1) {
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
@@ -430,7 +430,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         });
       }
     }
-  }, [open, store, reactiveTriggerCount, reactiveActiveTriggerId, closeOnActiveTriggerUnmount]);
+  }, [open, store, reactiveTriggerCount, activeTriggerId, closeOnActiveTriggerUnmount]);
 }
 
 /**
